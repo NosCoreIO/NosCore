@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -31,7 +33,10 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class BazaarItemDto : IDto
 	{
-		public short Amount { get; set; }
+		[AdaptIgnore]
+		public CharacterDto Seller { get; set; }
+
+	 	public short Amount { get; set; }
 
 	 	[Key]
 		public long BazaarItemId { get; set; }
@@ -41,6 +46,9 @@ namespace NosCore.Data.Dto
 	 	public short Duration { get; set; }
 
 	 	public bool IsPackage { get; set; }
+
+	 	[AdaptIgnore]
+		public ItemInstanceDto ItemInstance { get; set; }
 
 	 	public System.Guid ItemInstanceId { get; set; }
 

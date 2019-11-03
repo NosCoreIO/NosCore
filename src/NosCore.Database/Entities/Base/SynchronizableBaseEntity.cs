@@ -23,7 +23,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NosCore.Database.Entities.Base
 {
-    public abstract class SynchronizableBaseEntity
+    public abstract class SynchronizableBaseEntity : IEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]

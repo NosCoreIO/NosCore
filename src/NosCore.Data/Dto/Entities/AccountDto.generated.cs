@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -36,6 +38,9 @@ namespace NosCore.Data.Dto
 
 	 	public NosCore.Data.Enumerations.Account.AuthorityType Authority { get; set; }
 
+	 	[AdaptIgnore]
+		public System.Collections.Generic.ICollection<CharacterDto> Character { get; set; }
+
 	 	public string Email { get; set; }
 
 	 	public string Name { get; set; }
@@ -45,6 +50,9 @@ namespace NosCore.Data.Dto
 	 	public string NewAuthPassword { get; set; }
 
 	 	public string NewAuthSalt { get; set; }
+
+	 	[AdaptIgnore]
+		public System.Collections.Generic.ICollection<PenaltyLogDto> PenaltyLog { get; set; }
 
 	 	public string RegistrationIp { get; set; }
 

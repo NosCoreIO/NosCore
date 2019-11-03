@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -31,7 +33,10 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class PenaltyLogDto : IDto
 	{
-		public long AccountId { get; set; }
+		[AdaptIgnore]
+		public AccountDto Account { get; set; }
+
+	 	public long AccountId { get; set; }
 
 	 	public string AdminName { get; set; }
 

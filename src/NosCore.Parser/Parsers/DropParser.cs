@@ -21,3770 +21,532 @@ using System.Collections.Generic;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-
 namespace NosCore.Parser.Parsers
 {
     public class DropParser
     {
-        private readonly IGenericDao<DropDto> _dropDao;
-
-        public DropParser(IGenericDao<DropDto> dropDao)
-        {
-            _dropDao = dropDao;
+        private readonly IGenericDao<DropDto> _dropDao; 
+        public DropParser(IGenericDao<DropDto> dropDao) { 
+            _dropDao = dropDao; 
+        }
+        public DropDto GenerateDropDto(short vnum, int amount, short? monsterVNum, int dropChance, short mapTypeId) { 
+            return new DropDto {
+                VNum = vnum, 
+                Amount = amount,
+                MonsterVNum = monsterVNum,
+                DropChance = dropChance,
+                MapTypeId = mapTypeId
+            };
         }
 
         public void InsertDrop()
         {
-            var drops = new List<DropDto>();
-            // Act 1
-            drops.Add(new DropDto
-            {
-                VNum = 1002,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act1
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 12000,
-                MapTypeId = (short) MapTypeType.Act1
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2015,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act1
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2016,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act1
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2023,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act1
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2024,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act1
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2028,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act1
-            });
-
-            // Act2
-            drops.Add(new DropDto
-            {
-                VNum = 1004,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 7000,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1028,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1086,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1237,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1239,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1241,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2098,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2100,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2101,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 900,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 900,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 900,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2117,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 900,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2118,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 900,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2129,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2205,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2206,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2207,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2208,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2282,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 2500,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2283,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1000,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2284,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2296,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 250,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.Act2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5853,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 80,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5854,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 80,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5855,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 80,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-
-            // Act3
-            drops.Add(new DropDto
-            {
-                VNum = 1004,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 8000,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1086,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1078,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1235,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 150,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1237,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 150,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1238,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1239,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 150,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1240,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1241,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2098,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2100,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2101,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2117,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2118,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2129,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2205,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2206,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2207,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2208,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2282,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 4000,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2283,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2284,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 350,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2285,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 150,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2296,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 150,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5853,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5854,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5855,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act3
-            });
-
-            // Act3.2 (Midgard)
-            drops.Add(new DropDto
-            {
-                VNum = 1004,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 6000,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1086,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1078,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 250,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1235,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1237,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1238,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 20,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1239,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1240,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 20,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1241,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2098,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 60,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2100,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 40,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2101,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 60,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 40,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2117,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2118,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2129,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2205,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2206,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2207,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2208,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2282,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 3500,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2283,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2284,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2285,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2296,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2600,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2605,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5857,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5853,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5854,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5855,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act32
-            });
-
-
-            // Act 3.4 Oasis 
-            drops.Add(new DropDto
-            {
-                VNum = 1004,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 7000,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1086,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1078,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1235,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1237,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 150,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1238,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1239,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1240,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1241,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2098,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2100,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2101,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2117,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2118,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2129,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2205,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2206,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2207,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2208,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2282,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 3000,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2283,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2284,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2285,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2296,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5853,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5854,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5855,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5999,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Oasis
-            });
-
-            // Act4
-            drops.Add(new DropDto
-            {
-                VNum = 1004,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1000,
-                MapTypeId = (short) MapTypeType.Act4
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1000,
-                MapTypeId = (short) MapTypeType.Act4
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1010,
-                Amount = 3,
-                MonsterVNum = null,
-                DropChance = 1500,
-                MapTypeId = (short) MapTypeType.Act4
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 2,
-                MonsterVNum = null,
-                DropChance = 3000,
-                MapTypeId = (short) MapTypeType.Act4
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1241,
-                Amount = 3,
-                MonsterVNum = null,
-                DropChance = 3000,
-                MapTypeId = (short) MapTypeType.Act4
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1078,
-                Amount = 3,
-                MonsterVNum = null,
-                DropChance = 1500,
-                MapTypeId = (short) MapTypeType.Act4
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1246,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 2500,
-                MapTypeId = (short) MapTypeType.Act4
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1247,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 2500,
-                MapTypeId = (short) MapTypeType.Act4
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1248,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 2500,
-                MapTypeId = (short) MapTypeType.Act4
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1429,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 2500,
-                MapTypeId = (short) MapTypeType.Act4
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2296,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1000,
-                MapTypeId = (short) MapTypeType.Act4
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2307,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1500,
-                MapTypeId = (short) MapTypeType.Act4
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2308,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1500,
-                MapTypeId = (short) MapTypeType.Act4
-            });
-
-            //Act4.2
-            drops.Add(new DropDto
-            {
-                VNum = 1004,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1000,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1000,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1010,
-                Amount = 3,
-                MonsterVNum = null,
-                DropChance = 1500,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 2,
-                MonsterVNum = null,
-                DropChance = 3000,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1241,
-                Amount = 3,
-                MonsterVNum = null,
-                DropChance = 3000,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1078,
-                Amount = 3,
-                MonsterVNum = null,
-                DropChance = 1500,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1246,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 2500,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1247,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 2500,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1248,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 2500,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1429,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 2500,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2296,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1000,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2307,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1500,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2308,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1500,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2445,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2448,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2449,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2450,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2451,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5986,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act42
-            });
-
-
-            // Act5
-            drops.Add(new DropDto
-            {
-                VNum = 1004,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 6000,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1086,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 150,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1872,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1873,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1874,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2117,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2129,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2206,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2207,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2282,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 2500,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2283,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2284,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2285,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2351,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2379,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1000,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5853,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5854,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5855,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act51
-            });
-
-            // Act5.2
-            drops.Add(new DropDto
-            {
-                VNum = 1004,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 5000,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1086,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1092,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1093,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1500,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1094,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2098,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1500,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2117,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2206,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2379,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 3000,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2380,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 6000,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act52
-            });
-
-            // Act6.1 Angel
-            drops.Add(new DropDto
-            {
-                VNum = 1004,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1010,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 5000,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1028,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1078,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1086,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1092,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1093,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1094,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2098,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2117,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2129,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2206,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2282,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 2000,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2283,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2284,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2285,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2446,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2806,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2807,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2813,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 150,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2815,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2816,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2818,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2819,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5853,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5854,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5855,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5880,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act61A
-            });
-
-            // Act6.1 Demon
-            drops.Add(new DropDto
-            {
-                VNum = 1004,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1010,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 5000,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1028,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1078,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1086,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1092,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1093,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1094,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2098,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2117,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2129,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2206,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2282,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 2000,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2283,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2284,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2285,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2446,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 150,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2806,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2807,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2813,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 150,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2815,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2816,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2818,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2819,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5853,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5854,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5855,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5881,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act61D
-            });
-
-            // Act6.2
-            drops.Add(new DropDto
-            {
-                VNum = 1004,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1010,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act61
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1010,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 6000,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1028,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1078,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1086,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1092,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1093,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1094,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1191,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1192,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1193,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1194,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2098,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2117,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2129,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2206,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2452,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2453,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2454,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2455,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2456,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5853,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5854,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 50,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5855,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Act62
-            });
-
-            // Comet plain
-            drops.Add(new DropDto
-            {
-                VNum = 1004,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 7000,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2098,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2100,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2101,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2117,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2205,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2206,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2207,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2208,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2296,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.CometPlain
-            });
-
-            // Mine1
-            drops.Add(new DropDto
-            {
-                VNum = 1002,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Mine1
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1005,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Mine1
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 11000,
-                MapTypeId = (short) MapTypeType.Mine1
-            });
-
-            // Mine2
-            drops.Add(new DropDto
-            {
-                VNum = 1002,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Mine2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1005,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Mine2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 11000,
-                MapTypeId = (short) MapTypeType.Mine2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1241,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Mine2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Mine2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2100,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Mine2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2101,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Mine2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.Mine2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Mine2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.Mine2
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2205,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Mine2
-            });
-
-            // MeadownOfMine
-            drops.Add(new DropDto
-            {
-                VNum = 1002,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.MeadowOfMine
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1005,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.MeadowOfMine
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 10000,
-                MapTypeId = (short) MapTypeType.MeadowOfMine
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2016,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.MeadowOfMine
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2023,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.MeadowOfMine
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2024,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.MeadowOfMine
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2028,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.MeadowOfMine
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.MeadowOfMine
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2118,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.MeadowOfMine
-            });
-
-            // SunnyPlain
-            drops.Add(new DropDto
-            {
-                VNum = 1003,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1006,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 8000,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1078,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1092,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1093,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1094,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2098,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2100,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2101,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2118,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2205,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2206,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2207,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2208,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2296,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.SunnyPlain
-            });
-
-            // Fernon
-            drops.Add(new DropDto
-            {
-                VNum = 1003,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1006,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 9000,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1092,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1093,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1094,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2098,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2100,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2101,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2117,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2296,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.Fernon
-            });
-
-            // FernonF
-            drops.Add(new DropDto
-            {
-                VNum = 1004,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 9000,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1078,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1092,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1093,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1094,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 500,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2098,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2100,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2101,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 200,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2115,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2116,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2117,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 700,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2205,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2206,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2207,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2208,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2296,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.FernonF
-            });
-
-            // Cliff
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 8000,
-                MapTypeId = (short) MapTypeType.Cliff
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2098,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Cliff
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2099,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Cliff
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2100,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Cliff
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2101,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Cliff
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2102,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Cliff
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 2296,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.Cliff
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 30,
-                MapTypeId = (short) MapTypeType.Cliff
-            });
-
-            // LandOfTheDead
-            drops.Add(new DropDto
-            {
-                VNum = 1007,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.LandOfTheDead
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1010,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 800,
-                MapTypeId = (short) MapTypeType.LandOfTheDead
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1012,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 8000,
-                MapTypeId = (short) MapTypeType.LandOfTheDead
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1015,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.LandOfTheDead
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1016,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.LandOfTheDead
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1078,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.LandOfTheDead
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1114,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 400,
-                MapTypeId = (short) MapTypeType.LandOfTheDead
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1019,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 2000,
-                MapTypeId = (short) MapTypeType.LandOfTheDead
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1020,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 1200,
-                MapTypeId = (short) MapTypeType.LandOfTheDead
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1021,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 600,
-                MapTypeId = (short) MapTypeType.LandOfTheDead
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1022,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 300,
-                MapTypeId = (short) MapTypeType.LandOfTheDead
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 1211,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 250,
-                MapTypeId = (short) MapTypeType.LandOfTheDead
-            });
-            drops.Add(new DropDto
-            {
-                VNum = 5119,
-                Amount = 1,
-                MonsterVNum = null,
-                DropChance = 100,
-                MapTypeId = (short) MapTypeType.LandOfTheDead
-            });
-
-
+            var drops = new List<DropDto> {
+                // Act 1 
+                GenerateDropDto(1002, 1, null, 100, (short)MapTypeType.Act1),
+                GenerateDropDto(1012, 1, null, 12000, (short)MapTypeType.Act1),
+                GenerateDropDto(2015, 1, null, 100, (short)MapTypeType.Act1),
+                GenerateDropDto(2016, 1, null, 100, (short)MapTypeType.Act1),
+                GenerateDropDto(2023, 1, null, 100, (short)MapTypeType.Act1),
+                GenerateDropDto(2024, 1, null, 100, (short)MapTypeType.Act1),
+                GenerateDropDto(2028, 1, null, 100, (short)MapTypeType.Act1 ),
+ 
+                // Act2
+                GenerateDropDto(1004, 1, null, 500, (short)MapTypeType.Act2),
+                GenerateDropDto(1007, 1, null, 500, (short)MapTypeType.Act2),
+                GenerateDropDto(1012, 1, null, 7000, (short)MapTypeType.Act2),
+                GenerateDropDto(1028, 1, null, 100, (short)MapTypeType.Act2),
+                GenerateDropDto(1086, 1, null, 100, (short)MapTypeType.Act2),
+                GenerateDropDto(1114, 1, null, 100, (short)MapTypeType.Act2),
+                GenerateDropDto(1237, 1, null, 100, (short)MapTypeType.Act2),
+                GenerateDropDto(1239, 1, null, 100, (short)MapTypeType.Act2),
+                GenerateDropDto(1241, 1, null, 100, (short)MapTypeType.Act2),
+                GenerateDropDto(2098, 1, null, 100, (short)MapTypeType.Act2),
+                GenerateDropDto(2099, 1, null, 100, (short)MapTypeType.Act2),
+                GenerateDropDto(2100, 1, null, 100, (short)MapTypeType.Act2),
+                GenerateDropDto(2101, 1, null, 100, (short)MapTypeType.Act2),
+                GenerateDropDto(2102, 1, null, 100, (short)MapTypeType.Act2),
+                GenerateDropDto(2114, 1, null, 900, (short)MapTypeType.Act2),
+                GenerateDropDto(2115, 1, null, 900, (short)MapTypeType.Act2),
+                GenerateDropDto(2116, 1, null, 900, (short)MapTypeType.Act2),
+                GenerateDropDto(2117, 1, null, 900, (short)MapTypeType.Act2),
+                GenerateDropDto(2118, 1, null, 900, (short)MapTypeType.Act2),
+                GenerateDropDto(2129, 1, null, 200, (short)MapTypeType.Act2),
+                GenerateDropDto(2205, 1, null, 200, (short)MapTypeType.Act2),
+                GenerateDropDto(2206, 1, null, 200, (short)MapTypeType.Act2),
+                GenerateDropDto(2207, 1, null, 200, (short)MapTypeType.Act2),
+                GenerateDropDto(2208, 1, null, 200, (short)MapTypeType.Act2),
+                GenerateDropDto(2282, 1, null, 2500, (short)MapTypeType.Act2),
+                GenerateDropDto(2283, 1, null, 1000, (short)MapTypeType.Act2),
+                GenerateDropDto(2284, 1, null, 500, (short)MapTypeType.Act2),
+                GenerateDropDto(2296, 1, null, 250, (short)MapTypeType.Act2),
+                GenerateDropDto(5119, 1, null, 30, (short)MapTypeType.Act2),
+                GenerateDropDto(5853, 1, null, 80, (short)MapTypeType.Oasis),
+                GenerateDropDto(5854, 1, null, 80, (short)MapTypeType.Oasis),
+                GenerateDropDto(5855, 1, null, 80, (short)MapTypeType.Oasis ),
+ 
+                // Act3
+                GenerateDropDto(1004, 1, null, 500, (short)MapTypeType.Act3),
+                GenerateDropDto(1007, 1, null, 500, (short)MapTypeType.Act3),
+                GenerateDropDto(1012, 1, null, 8000, (short)MapTypeType.Act3),
+                GenerateDropDto(1086, 1, null, 100, (short)MapTypeType.Act3),
+                GenerateDropDto(1078, 1, null, 500, (short)MapTypeType.Act3),
+                GenerateDropDto(1114, 1, null, 100, (short)MapTypeType.Act3),
+                GenerateDropDto(1235, 1, null, 150, (short)MapTypeType.Act3),
+                GenerateDropDto(1237, 1, null, 150, (short)MapTypeType.Act3),
+                GenerateDropDto(1238, 1, null, 30, (short)MapTypeType.Act3),
+                GenerateDropDto(1239, 1, null, 150, (short)MapTypeType.Act3),
+                GenerateDropDto(1240, 1, null, 30, (short)MapTypeType.Act3),
+                GenerateDropDto(1241, 1, null, 400, (short)MapTypeType.Act3),
+                GenerateDropDto(2098, 1, null, 100, (short)MapTypeType.Act3),
+                GenerateDropDto(2099, 1, null, 100, (short)MapTypeType.Act3),
+                GenerateDropDto(2100, 1, null, 100, (short)MapTypeType.Act3),
+                GenerateDropDto(2101, 1, null, 100, (short)MapTypeType.Act3),
+                GenerateDropDto(2102, 1, null, 100, (short)MapTypeType.Act3),
+                GenerateDropDto(2114, 1, null, 800, (short)MapTypeType.Act3),
+                GenerateDropDto(2115, 1, null, 800, (short)MapTypeType.Act3),
+                GenerateDropDto(2116, 1, null, 800, (short)MapTypeType.Act3),
+                GenerateDropDto(2117, 1, null, 800, (short)MapTypeType.Act3),
+                GenerateDropDto(2118, 1, null, 800, (short)MapTypeType.Act3),
+                GenerateDropDto(2129, 1, null, 100, (short)MapTypeType.Act3),
+                GenerateDropDto(2205, 1, null, 300, (short)MapTypeType.Act3),
+                GenerateDropDto(2206, 1, null, 300, (short)MapTypeType.Act3),
+                GenerateDropDto(2207, 1, null, 300, (short)MapTypeType.Act3),
+                GenerateDropDto(2208, 1, null, 300, (short)MapTypeType.Act3),
+                GenerateDropDto(2282, 1, null, 4000, (short)MapTypeType.Act3),
+                GenerateDropDto(2283, 1, null, 700, (short)MapTypeType.Act3),
+                GenerateDropDto(2284, 1, null, 350, (short)MapTypeType.Act3),
+                GenerateDropDto(2285, 1, null, 150, (short)MapTypeType.Act3),
+                GenerateDropDto(2296, 1, null, 150, (short)MapTypeType.Act3),
+                GenerateDropDto(5119, 1, null, 30, (short)MapTypeType.Act3),
+                GenerateDropDto(5853, 1, null, 100, (short)MapTypeType.Act3),
+                GenerateDropDto(5854, 1, null, 100, (short)MapTypeType.Act3),
+                GenerateDropDto(5855, 1, null, 100, (short)MapTypeType.Act3 ),
+ 
+                // Act3.2 (Midgard)
+                GenerateDropDto(1004, 1, null, 500, (short)MapTypeType.Act32),
+                GenerateDropDto(1007, 1, null, 500, (short)MapTypeType.Act32),
+                GenerateDropDto(1012, 1, null, 6000, (short)MapTypeType.Act32),
+                GenerateDropDto(1086, 1, null, 100, (short)MapTypeType.Act32),
+                GenerateDropDto(1078, 1, null, 250, (short)MapTypeType.Act32),
+                GenerateDropDto(1114, 1, null, 100, (short)MapTypeType.Act32),
+                GenerateDropDto(1235, 1, null, 100, (short)MapTypeType.Act32),
+                GenerateDropDto(1237, 1, null, 100, (short)MapTypeType.Act32),
+                GenerateDropDto(1238, 1, null, 20, (short)MapTypeType.Act32),
+                GenerateDropDto(1239, 1, null, 100, (short)MapTypeType.Act32),
+                GenerateDropDto(1240, 1, null, 20, (short)MapTypeType.Act32),
+                GenerateDropDto(1241, 1, null, 200, (short)MapTypeType.Act32),
+                GenerateDropDto(2098, 1, null, 50, (short)MapTypeType.Act32),
+                GenerateDropDto(2099, 1, null, 60, (short)MapTypeType.Act32),
+                GenerateDropDto(2100, 1, null, 40, (short)MapTypeType.Act32),
+                GenerateDropDto(2101, 1, null, 60, (short)MapTypeType.Act32),
+                GenerateDropDto(2102, 1, null, 40, (short)MapTypeType.Act32),
+                GenerateDropDto(2114, 1, null, 500, (short)MapTypeType.Act32),
+                GenerateDropDto(2115, 1, null, 500, (short)MapTypeType.Act32),
+                GenerateDropDto(2116, 1, null, 500, (short)MapTypeType.Act32),
+                GenerateDropDto(2117, 1, null, 500, (short)MapTypeType.Act32),
+                GenerateDropDto(2118, 1, null, 500, (short)MapTypeType.Act32),
+                GenerateDropDto(2129, 1, null, 100, (short)MapTypeType.Act32),
+                GenerateDropDto(2205, 1, null, 300, (short)MapTypeType.Act32),
+                GenerateDropDto(2206, 1, null, 300, (short)MapTypeType.Act32),
+                GenerateDropDto(2207, 1, null, 300, (short)MapTypeType.Act32),
+                GenerateDropDto(2208, 1, null, 300, (short)MapTypeType.Act32),
+                GenerateDropDto(2282, 1, null, 3500, (short)MapTypeType.Act32),
+                GenerateDropDto(2283, 1, null, 500, (short)MapTypeType.Act32),
+                GenerateDropDto(2284, 1, null, 200, (short)MapTypeType.Act32),
+                GenerateDropDto(2285, 1, null, 100, (short)MapTypeType.Act32),
+                GenerateDropDto(2296, 1, null, 100, (short)MapTypeType.Act32),
+                GenerateDropDto(2600, 1, null, 200, (short)MapTypeType.Act32),
+                GenerateDropDto(2605, 1, null, 200, (short)MapTypeType.Act32),
+                GenerateDropDto(5119, 1, null, 30, (short)MapTypeType.Act32),
+                GenerateDropDto(5857, 1, null, 50, (short)MapTypeType.Act32),
+                GenerateDropDto(5853, 1, null, 50, (short)MapTypeType.Act32),
+                GenerateDropDto(5854, 1, null, 50, (short)MapTypeType.Act32),
+                GenerateDropDto(5855, 1, null, 100, (short)MapTypeType.Act32),
+ 
+                // Act 3.4 Oasis
+                GenerateDropDto(1004, 1, null, 300, (short)MapTypeType.Oasis),
+                GenerateDropDto(1007, 1, null, 300, (short)MapTypeType.Oasis),
+                GenerateDropDto(1012, 1, null, 7000, (short)MapTypeType.Oasis),
+                GenerateDropDto(1086, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(1078, 1, null, 500, (short)MapTypeType.Oasis),
+                GenerateDropDto(1114, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(1235, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(1237, 1, null, 150, (short)MapTypeType.Oasis),
+                GenerateDropDto(1238, 1, null, 30, (short)MapTypeType.Oasis),
+                GenerateDropDto(1239, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(1240, 1, null, 30, (short)MapTypeType.Oasis),
+                GenerateDropDto(1241, 1, null, 400, (short)MapTypeType.Oasis),
+                GenerateDropDto(2098, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(2099, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(2100, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(2101, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(2102, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(2114, 1, null, 800, (short)MapTypeType.Oasis),
+                GenerateDropDto(2115, 1, null, 800, (short)MapTypeType.Oasis),
+                GenerateDropDto(2116, 1, null, 800, (short)MapTypeType.Oasis),
+                GenerateDropDto(2117, 1, null, 800, (short)MapTypeType.Oasis),
+                GenerateDropDto(2118, 1, null, 800, (short)MapTypeType.Oasis),
+                GenerateDropDto(2129, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(2205, 1, null, 300, (short)MapTypeType.Oasis),
+                GenerateDropDto(2206, 1, null, 300, (short)MapTypeType.Oasis),
+                GenerateDropDto(2207, 1, null, 300, (short)MapTypeType.Oasis),
+                GenerateDropDto(2208, 1, null, 300, (short)MapTypeType.Oasis),
+                GenerateDropDto(2282, 1, null, 3000, (short)MapTypeType.Oasis),
+                GenerateDropDto(2283, 1, null, 700, (short)MapTypeType.Oasis),
+                GenerateDropDto(2284, 1, null, 300, (short)MapTypeType.Oasis),
+                GenerateDropDto(2285, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(2296, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(5119, 1, null, 30, (short)MapTypeType.Oasis),
+                GenerateDropDto(5853, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(5854, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(5855, 1, null, 100, (short)MapTypeType.Oasis),
+                GenerateDropDto(5999, 1, null, 100, (short)MapTypeType.Oasis ),
+ 
+                // Act4
+                GenerateDropDto(1004, 1, null, 1000, (short)MapTypeType.Act4),
+                GenerateDropDto(1007, 1, null, 1000, (short)MapTypeType.Act4),
+                GenerateDropDto(1010, 3, null, 1500, (short)MapTypeType.Act4),
+                GenerateDropDto(1012, 2, null, 3000, (short)MapTypeType.Act4),
+                GenerateDropDto(1241, 3, null, 3000, (short)MapTypeType.Act4),
+                GenerateDropDto(1078, 3, null, 1500, (short)MapTypeType.Act4),
+                GenerateDropDto(1246, 1, null, 2500, (short)MapTypeType.Act4),
+                GenerateDropDto(1247, 1, null, 2500, (short)MapTypeType.Act4),
+                GenerateDropDto(1248, 1, null, 2500, (short)MapTypeType.Act4),
+                GenerateDropDto(1429, 1, null, 2500, (short)MapTypeType.Act4),
+                GenerateDropDto(2296, 1, null, 1000, (short)MapTypeType.Act4),
+                GenerateDropDto(2307, 1, null, 1500, (short)MapTypeType.Act4),
+                GenerateDropDto(2308, 1, null, 1500, (short)MapTypeType.Act4),
+ 
+                //Act4.2
+                GenerateDropDto(1004, 1, null, 1000, (short)MapTypeType.Act42),
+                GenerateDropDto(1007, 1, null, 1000, (short)MapTypeType.Act42),
+                GenerateDropDto(1010, 3, null, 1500, (short)MapTypeType.Act42),
+                GenerateDropDto(1012, 2, null, 3000, (short)MapTypeType.Act42),
+                GenerateDropDto(1241, 3, null, 3000, (short)MapTypeType.Act42),
+                GenerateDropDto(1078, 3, null, 1500, (short)MapTypeType.Act42),
+                GenerateDropDto(1246, 1, null, 2500, (short)MapTypeType.Act42),
+                GenerateDropDto(1247, 1, null, 2500, (short)MapTypeType.Act42),
+                GenerateDropDto(1248, 1, null, 2500, (short)MapTypeType.Act42),
+                GenerateDropDto(1429, 1, null, 2500, (short)MapTypeType.Act42),
+                GenerateDropDto(2296, 1, null, 1000, (short)MapTypeType.Act42),
+                GenerateDropDto(2307, 1, null, 1500, (short)MapTypeType.Act42),
+                GenerateDropDto(2308, 1, null, 1500, (short)MapTypeType.Act42),
+                GenerateDropDto(2445, 1, null, 700, (short)MapTypeType.Act42),
+                GenerateDropDto(2448, 1, null, 700, (short)MapTypeType.Act42),
+                GenerateDropDto(2449, 1, null, 700, (short)MapTypeType.Act42),
+                GenerateDropDto(2450, 1, null, 700, (short)MapTypeType.Act42),
+                GenerateDropDto(2451, 1, null, 700, (short)MapTypeType.Act42),
+                GenerateDropDto(5986, 1, null, 700, (short)MapTypeType.Act42 ),
+ 
+                // Act5
+                GenerateDropDto(1004, 1, null, 400, (short)MapTypeType.Act51),
+                GenerateDropDto(1007, 1, null, 400, (short)MapTypeType.Act51),
+                GenerateDropDto(1012, 1, null, 6000, (short)MapTypeType.Act51),
+                GenerateDropDto(1086, 1, null, 200, (short)MapTypeType.Act51),
+                GenerateDropDto(1114, 1, null, 150, (short)MapTypeType.Act51),
+                GenerateDropDto(1872, 1, null, 500, (short)MapTypeType.Act51),
+                GenerateDropDto(1873, 1, null, 500, (short)MapTypeType.Act51),
+                GenerateDropDto(1874, 1, null, 500, (short)MapTypeType.Act51),
+                GenerateDropDto(2099, 1, null, 700, (short)MapTypeType.Act51),
+                GenerateDropDto(2102, 1, null, 700, (short)MapTypeType.Act51),
+                GenerateDropDto(2114, 1, null, 700, (short)MapTypeType.Act51),
+                GenerateDropDto(2115, 1, null, 700, (short)MapTypeType.Act51),
+                GenerateDropDto(2116, 1, null, 700, (short)MapTypeType.Act51),
+                GenerateDropDto(2117, 1, null, 700, (short)MapTypeType.Act51),
+                GenerateDropDto(2129, 1, null, 300, (short)MapTypeType.Act51),
+                GenerateDropDto(2206, 1, null, 500, (short)MapTypeType.Act51),
+                GenerateDropDto(2207, 1, null, 500, (short)MapTypeType.Act51),
+                GenerateDropDto(2282, 1, null, 2500, (short)MapTypeType.Act51),
+                GenerateDropDto(2283, 1, null, 800, (short)MapTypeType.Act51),
+                GenerateDropDto(2284, 1, null, 400, (short)MapTypeType.Act51),
+                GenerateDropDto(2285, 1, null, 200, (short)MapTypeType.Act51),
+                GenerateDropDto(2351, 1, null, 800, (short)MapTypeType.Act51),
+                GenerateDropDto(2379, 1, null, 1000, (short)MapTypeType.Act51),
+                GenerateDropDto(5119, 1, null, 30, (short)MapTypeType.Act51),
+                GenerateDropDto(5853, 1, null, 100, (short)MapTypeType.Act51),
+                GenerateDropDto(5854, 1, null, 100, (short)MapTypeType.Act51),
+                GenerateDropDto(5855, 1, null, 100, (short)MapTypeType.Act51 ),
+ 
+                // Act5.2
+                GenerateDropDto(1004, 1, null, 600, (short)MapTypeType.Act52),
+                GenerateDropDto(1007, 1, null, 600, (short)MapTypeType.Act52),
+                GenerateDropDto(1012, 1, null, 5000, (short)MapTypeType.Act52),
+                GenerateDropDto(1086, 1, null, 400, (short)MapTypeType.Act52),
+                GenerateDropDto(1092, 1, null, 1200, (short)MapTypeType.Act52),
+                GenerateDropDto(1093, 1, null, 1500, (short)MapTypeType.Act52),
+                GenerateDropDto(1094, 1, null, 1200, (short)MapTypeType.Act52),
+                GenerateDropDto(1114, 1, null, 100, (short)MapTypeType.Act52),
+                GenerateDropDto(2098, 1, null, 1500, (short)MapTypeType.Act52),
+                GenerateDropDto(2099, 1, null, 1200, (short)MapTypeType.Act52),
+                GenerateDropDto(2102, 1, null, 1200, (short)MapTypeType.Act52),
+                GenerateDropDto(2114, 1, null, 1200, (short)MapTypeType.Act52),
+                GenerateDropDto(2115, 1, null, 1200, (short)MapTypeType.Act52),
+                GenerateDropDto(2116, 1, null, 1200, (short)MapTypeType.Act52),
+                GenerateDropDto(2117, 1, null, 1200, (short)MapTypeType.Act52),
+                GenerateDropDto(2206, 1, null, 1200, (short)MapTypeType.Act52),
+                GenerateDropDto(2379, 1, null, 3000, (short)MapTypeType.Act52),
+                GenerateDropDto(2380, 1, null, 6000, (short)MapTypeType.Act52),
+                GenerateDropDto(5119, 1, null, 100, (short)MapTypeType.Act52 ),
+ 
+                // Act6.1 Angel
+                GenerateDropDto(1004, 1, null, 600, (short)MapTypeType.Act61A),
+                GenerateDropDto(1007, 1, null, 600, (short)MapTypeType.Act61A),
+                GenerateDropDto(1010, 1, null, 400, (short)MapTypeType.Act61A),
+                GenerateDropDto(1012, 1, null, 5000, (short)MapTypeType.Act61A),
+                GenerateDropDto(1028, 1, null, 400, (short)MapTypeType.Act61A),
+                GenerateDropDto(1078, 1, null, 400, (short)MapTypeType.Act61A),
+                GenerateDropDto(1086, 1, null, 400, (short)MapTypeType.Act61A),
+                GenerateDropDto(1092, 1, null, 500, (short)MapTypeType.Act61A),
+                GenerateDropDto(1093, 1, null, 600, (short)MapTypeType.Act61A),
+                GenerateDropDto(1094, 1, null, 600, (short)MapTypeType.Act61A),
+                GenerateDropDto(1114, 1, null, 100, (short)MapTypeType.Act61A),
+                GenerateDropDto(2098, 1, null, 400, (short)MapTypeType.Act61A),
+                GenerateDropDto(2099, 1, null, 600, (short)MapTypeType.Act61A),
+                GenerateDropDto(2102, 1, null, 600, (short)MapTypeType.Act61A),
+                GenerateDropDto(2114, 1, null, 600, (short)MapTypeType.Act61A),
+                GenerateDropDto(2115, 1, null, 600, (short)MapTypeType.Act61A),
+                GenerateDropDto(2116, 1, null, 600, (short)MapTypeType.Act61A),
+                GenerateDropDto(2117, 1, null, 600, (short)MapTypeType.Act61A),
+                GenerateDropDto(2129, 1, null, 400, (short)MapTypeType.Act61A),
+                GenerateDropDto(2206, 1, null, 400, (short)MapTypeType.Act61A),
+                GenerateDropDto(2282, 1, null, 2000, (short)MapTypeType.Act61A),
+                GenerateDropDto(2283, 1, null, 400, (short)MapTypeType.Act61A),
+                GenerateDropDto(2284, 1, null, 200, (short)MapTypeType.Act61A),
+                GenerateDropDto(2285, 1, null, 100, (short)MapTypeType.Act61A),
+                GenerateDropDto(2446, 1, null, 100, (short)MapTypeType.Act61A),
+                GenerateDropDto(2806, 1, null, 300, (short)MapTypeType.Act61A),
+                GenerateDropDto(2807, 1, null, 300, (short)MapTypeType.Act61A),
+                GenerateDropDto(2813, 1, null, 150, (short)MapTypeType.Act61A),
+                GenerateDropDto(2815, 1, null, 200, (short)MapTypeType.Act61A),
+                GenerateDropDto(2816, 1, null, 200, (short)MapTypeType.Act61A),
+                GenerateDropDto(2818, 1, null, 200, (short)MapTypeType.Act61A),
+                GenerateDropDto(2819, 1, null, 200, (short)MapTypeType.Act61A),
+                GenerateDropDto(5119, 1, null, 50, (short)MapTypeType.Act61A),
+                GenerateDropDto(5853, 1, null, 50, (short)MapTypeType.Act61A),
+                GenerateDropDto(5854, 1, null, 50, (short)MapTypeType.Act61A),
+                GenerateDropDto(5855, 1, null, 50, (short)MapTypeType.Act61A),
+                GenerateDropDto(5880, 1, null, 100, (short)MapTypeType.Act61A),
+ 
+                // Act6.1 Demon
+                GenerateDropDto(1004, 1, null, 600, (short)MapTypeType.Act61D),
+                GenerateDropDto(1007, 1, null, 600, (short)MapTypeType.Act61D),
+                GenerateDropDto(1010, 1, null, 400, (short)MapTypeType.Act61D),
+                GenerateDropDto(1012, 1, null, 5000, (short)MapTypeType.Act61D),
+                GenerateDropDto(1028, 1, null, 400, (short)MapTypeType.Act61D),
+                GenerateDropDto(1078, 1, null, 400, (short)MapTypeType.Act61D),
+                GenerateDropDto(1086, 1, null, 400, (short)MapTypeType.Act61D),
+                GenerateDropDto(1092, 1, null, 500, (short)MapTypeType.Act61D),
+                GenerateDropDto(1093, 1, null, 600, (short)MapTypeType.Act61D),
+                GenerateDropDto(1094, 1, null, 600, (short)MapTypeType.Act61D),
+                GenerateDropDto(1114, 1, null, 100, (short)MapTypeType.Act61D),
+                GenerateDropDto(2098, 1, null, 500, (short)MapTypeType.Act61D),
+                GenerateDropDto(2099, 1, null, 600, (short)MapTypeType.Act61D),
+                GenerateDropDto(2102, 1, null, 600, (short)MapTypeType.Act61D),
+                GenerateDropDto(2114, 1, null, 600, (short)MapTypeType.Act61D),
+                GenerateDropDto(2115, 1, null, 800, (short)MapTypeType.Act61D),
+                GenerateDropDto(2116, 1, null, 600, (short)MapTypeType.Act61D),
+                GenerateDropDto(2117, 1, null, 600, (short)MapTypeType.Act61D),
+                GenerateDropDto(2129, 1, null, 400, (short)MapTypeType.Act61D),
+                GenerateDropDto(2206, 1, null, 500, (short)MapTypeType.Act61D),
+                GenerateDropDto(2282, 1, null, 2000, (short)MapTypeType.Act61D),
+                GenerateDropDto(2283, 1, null, 400, (short)MapTypeType.Act61D),
+                GenerateDropDto(2284, 1, null, 200, (short)MapTypeType.Act61D),
+                GenerateDropDto(2285, 1, null, 100, (short)MapTypeType.Act61D),
+                GenerateDropDto(2446, 1, null, 150, (short)MapTypeType.Act61D),
+                GenerateDropDto(2806, 1, null, 200, (short)MapTypeType.Act61D),
+                GenerateDropDto(2807, 1, null, 200, (short)MapTypeType.Act61D),
+                GenerateDropDto(2813, 1, null, 150, (short)MapTypeType.Act61D),
+                GenerateDropDto(2815, 1, null, 200, (short)MapTypeType.Act61D),
+                GenerateDropDto(2816, 1, null, 200, (short)MapTypeType.Act61D),
+                GenerateDropDto(2818, 1, null, 200, (short)MapTypeType.Act61D),
+                GenerateDropDto(2819, 1, null, 200, (short)MapTypeType.Act61D),
+                GenerateDropDto(5119, 1, null, 100, (short)MapTypeType.Act61D),
+                GenerateDropDto(5853, 1, null, 50, (short)MapTypeType.Act61D),
+                GenerateDropDto(5854, 1, null, 50, (short)MapTypeType.Act61D),
+                GenerateDropDto(5855, 1, null, 50, (short)MapTypeType.Act61D),
+                GenerateDropDto(5881, 1, null, 100, (short)MapTypeType.Act61D ),
+ 
+                // Act6.2 
+                GenerateDropDto(1004, 1, null, 600, (short)MapTypeType.Act62),
+                GenerateDropDto(1007, 1, null, 600, (short)MapTypeType.Act62),
+                GenerateDropDto(1010, 1, null, 400, (short)MapTypeType.Act61),
+                GenerateDropDto(1010, 1, null, 400, (short)MapTypeType.Act62),
+                GenerateDropDto(1012, 1, null, 6000, (short)MapTypeType.Act62),
+                GenerateDropDto(1028, 1, null, 400, (short)MapTypeType.Act62),
+                GenerateDropDto(1078, 1, null, 700, (short)MapTypeType.Act62),
+                GenerateDropDto(1086, 1, null, 400, (short)MapTypeType.Act62),
+                GenerateDropDto(1092, 1, null, 500, (short)MapTypeType.Act62),
+                GenerateDropDto(1093, 1, null, 600, (short)MapTypeType.Act62),
+                GenerateDropDto(1094, 1, null, 600, (short)MapTypeType.Act62),
+                GenerateDropDto(1114, 1, null, 100, (short)MapTypeType.Act62),
+                GenerateDropDto(1191, 1, null, 100, (short)MapTypeType.Act62),
+                GenerateDropDto(1192, 1, null, 100, (short)MapTypeType.Act62),
+                GenerateDropDto(1193, 1, null, 100, (short)MapTypeType.Act62),
+                GenerateDropDto(1194, 1, null, 100, (short)MapTypeType.Act62),
+                GenerateDropDto(2098, 1, null, 500, (short)MapTypeType.Act62),
+                GenerateDropDto(2099, 1, null, 600, (short)MapTypeType.Act62),
+                GenerateDropDto(2102, 1, null, 500, (short)MapTypeType.Act62),
+                GenerateDropDto(2114, 1, null, 400, (short)MapTypeType.Act62),
+                GenerateDropDto(2115, 1, null, 600, (short)MapTypeType.Act62),
+                GenerateDropDto(2116, 1, null, 500, (short)MapTypeType.Act62),
+                GenerateDropDto(2117, 1, null, 600, (short)MapTypeType.Act62),
+                GenerateDropDto(2129, 1, null, 400, (short)MapTypeType.Act62),
+                GenerateDropDto(2206, 1, null, 500, (short)MapTypeType.Act62),
+                GenerateDropDto(2452, 1, null, 100, (short)MapTypeType.Act62),
+                GenerateDropDto(2453, 1, null, 100, (short)MapTypeType.Act62),
+                GenerateDropDto(2454, 1, null, 100, (short)MapTypeType.Act62),
+                GenerateDropDto(2455, 1, null, 100, (short)MapTypeType.Act62),
+                GenerateDropDto(2456, 1, null, 100, (short)MapTypeType.Act62),
+                GenerateDropDto(5119, 1, null, 50, (short)MapTypeType.Act62),
+                GenerateDropDto(5853, 1, null, 50, (short)MapTypeType.Act62),
+                GenerateDropDto(5854, 1, null, 50, (short)MapTypeType.Act62),
+                GenerateDropDto(5855, 1, null, 100, (short)MapTypeType.Act62),
+ 
+                // Comet plain 
+                GenerateDropDto(1004, 1, null, 300, (short)MapTypeType.CometPlain),
+                GenerateDropDto(1007, 1, null, 300, (short)MapTypeType.CometPlain),
+                GenerateDropDto(1012, 1, null, 7000, (short)MapTypeType.CometPlain),
+                GenerateDropDto(1114, 1, null, 100, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2098, 1, null, 200, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2099, 1, null, 200, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2100, 1, null, 200, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2101, 1, null, 200, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2102, 1, null, 200, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2114, 1, null, 1200, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2115, 1, null, 1200, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2116, 1, null, 1200, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2117, 1, null, 1200, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2205, 1, null, 300, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2206, 1, null, 300, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2207, 1, null, 300, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2208, 1, null, 300, (short)MapTypeType.CometPlain),
+                GenerateDropDto(2296, 1, null, 300, (short)MapTypeType.CometPlain),
+                GenerateDropDto(5119, 1, null, 30, (short)MapTypeType.CometPlain),
+ 
+                // Mine1
+                GenerateDropDto(1002, 1, null, 500, (short)MapTypeType.Mine1),
+                GenerateDropDto(1005, 1, null, 500, (short)MapTypeType.Mine1),
+                GenerateDropDto(1012, 1, null, 11000, (short)MapTypeType.Mine1 ),
+ 
+                // Mine2
+                GenerateDropDto(1002, 1, null, 500, (short)MapTypeType.Mine2),
+                GenerateDropDto(1005, 1, null, 500, (short)MapTypeType.Mine2),
+                GenerateDropDto(1012, 1, null, 11000, (short)MapTypeType.Mine2),
+                GenerateDropDto(1241, 1, null, 200, (short)MapTypeType.Mine2),
+                GenerateDropDto(2099, 1, null, 100, (short)MapTypeType.Mine2),
+                GenerateDropDto(2100, 1, null, 100, (short)MapTypeType.Mine2),
+                GenerateDropDto(2101, 1, null, 100, (short)MapTypeType.Mine2),
+                GenerateDropDto(2102, 1, null, 100, (short)MapTypeType.Mine2),
+                GenerateDropDto(2115, 1, null, 600, (short)MapTypeType.Mine2),
+                GenerateDropDto(2116, 1, null, 600, (short)MapTypeType.Mine2),
+                GenerateDropDto(2205, 1, null, 300, (short)MapTypeType.Mine2 ),
+ 
+                // MeadownOfMine
+                GenerateDropDto(1002, 1, null, 400, (short)MapTypeType.MeadowOfMine),
+                GenerateDropDto(1005, 1, null, 400, (short)MapTypeType.MeadowOfMine),
+                GenerateDropDto(1012, 1, null, 10000, (short)MapTypeType.MeadowOfMine),
+                GenerateDropDto(2016, 1, null, 400, (short)MapTypeType.MeadowOfMine),
+                GenerateDropDto(2023, 1, null, 300, (short)MapTypeType.MeadowOfMine),
+                GenerateDropDto(2024, 1, null, 300, (short)MapTypeType.MeadowOfMine),
+                GenerateDropDto(2028, 1, null, 100, (short)MapTypeType.MeadowOfMine),
+                GenerateDropDto(2116, 1, null, 200, (short)MapTypeType.MeadowOfMine),
+                GenerateDropDto(2118, 1, null, 200, (short)MapTypeType.MeadowOfMine),
+ 
+                // SunnyPlain
+                GenerateDropDto(1003, 1, null, 300, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(1006, 1, null, 300, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(1012, 1, null, 8000, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(1078, 1, null, 100, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(1092, 1, null, 200, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(1093, 1, null, 200, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(1094, 1, null, 200, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2098, 1, null, 200, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2099, 1, null, 200, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2100, 1, null, 200, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2101, 1, null, 200, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2102, 1, null, 200, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2114, 1, null, 200, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2115, 1, null, 300, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2116, 1, null, 300, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2118, 1, null, 300, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2205, 1, null, 300, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2206, 1, null, 300, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2207, 1, null, 300, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2208, 1, null, 300, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(2296, 1, null, 300, (short)MapTypeType.SunnyPlain),
+                GenerateDropDto(5119, 1, null, 30, (short)MapTypeType.SunnyPlain ),
+ 
+                // Fernon
+                GenerateDropDto(1003, 1, null, 500, (short)MapTypeType.Fernon),
+                GenerateDropDto(1006, 1, null, 500, (short)MapTypeType.Fernon),
+                GenerateDropDto(1012, 1, null, 9000, (short)MapTypeType.Fernon),
+                GenerateDropDto(1114, 1, null, 200, (short)MapTypeType.Fernon),
+                GenerateDropDto(1092, 1, null, 300, (short)MapTypeType.Fernon),
+                GenerateDropDto(1093, 1, null, 300, (short)MapTypeType.Fernon),
+                GenerateDropDto(1094, 1, null, 300, (short)MapTypeType.Fernon),
+                GenerateDropDto(2098, 1, null, 300, (short)MapTypeType.Fernon),
+                GenerateDropDto(2099, 1, null, 300, (short)MapTypeType.Fernon),
+                GenerateDropDto(2100, 1, null, 300, (short)MapTypeType.Fernon),
+                GenerateDropDto(2101, 1, null, 400, (short)MapTypeType.Fernon),
+                GenerateDropDto(2102, 1, null, 300, (short)MapTypeType.Fernon),
+                GenerateDropDto(2114, 1, null, 500, (short)MapTypeType.Fernon),
+                GenerateDropDto(2115, 1, null, 500, (short)MapTypeType.Fernon),
+                GenerateDropDto(2116, 1, null, 500, (short)MapTypeType.Fernon),
+                GenerateDropDto(2117, 1, null, 500, (short)MapTypeType.Fernon),
+                GenerateDropDto(2296, 1, null, 400, (short)MapTypeType.Fernon),
+                GenerateDropDto(5119, 1, null, 30, (short)MapTypeType.Fernon),
+ 
+                // FernonF 
+                GenerateDropDto(1004, 1, null, 600, (short)MapTypeType.FernonF),
+                GenerateDropDto(1007, 1, null, 600, (short)MapTypeType.FernonF),
+                GenerateDropDto(1012, 1, null, 9000, (short)MapTypeType.FernonF),
+                GenerateDropDto(1078, 1, null, 200, (short)MapTypeType.FernonF),
+                GenerateDropDto(1114, 1, null, 200, (short)MapTypeType.FernonF),
+                GenerateDropDto(1092, 1, null, 500, (short)MapTypeType.FernonF),
+                GenerateDropDto(1093, 1, null, 500, (short)MapTypeType.FernonF),
+                GenerateDropDto(1094, 1, null, 500, (short)MapTypeType.FernonF),
+                GenerateDropDto(2098, 1, null, 200, (short)MapTypeType.FernonF),
+                GenerateDropDto(2099, 1, null, 200, (short)MapTypeType.FernonF),
+                GenerateDropDto(2100, 1, null, 200, (short)MapTypeType.FernonF),
+                GenerateDropDto(2101, 1, null, 200, (short)MapTypeType.FernonF),
+                GenerateDropDto(2102, 1, null, 200, (short)MapTypeType.FernonF),
+                GenerateDropDto(2114, 1, null, 700, (short)MapTypeType.FernonF),
+                GenerateDropDto(2115, 1, null, 700, (short)MapTypeType.FernonF),
+                GenerateDropDto(2116, 1, null, 700, (short)MapTypeType.FernonF),
+                GenerateDropDto(2117, 1, null, 700, (short)MapTypeType.FernonF),
+                GenerateDropDto(2205, 1, null, 300, (short)MapTypeType.FernonF),
+                GenerateDropDto(2206, 1, null, 300, (short)MapTypeType.FernonF),
+                GenerateDropDto(2207, 1, null, 300, (short)MapTypeType.FernonF),
+                GenerateDropDto(2208, 1, null, 300, (short)MapTypeType.FernonF),
+                GenerateDropDto(2296, 1, null, 300, (short)MapTypeType.FernonF),
+                GenerateDropDto(5119, 1, null, 30, (short)MapTypeType.FernonF),
+ 
+                // Cliff
+                GenerateDropDto(1012, 1, null, 8000, (short)MapTypeType.Cliff),
+                GenerateDropDto(2098, 1, null, 400, (short)MapTypeType.Cliff),
+                GenerateDropDto(2099, 1, null, 400, (short)MapTypeType.Cliff),
+                GenerateDropDto(2100, 1, null, 400, (short)MapTypeType.Cliff),
+                GenerateDropDto(2101, 1, null, 400, (short)MapTypeType.Cliff),
+                GenerateDropDto(2102, 1, null, 400, (short)MapTypeType.Cliff),
+                GenerateDropDto(2296, 1, null, 400, (short)MapTypeType.Cliff),
+                GenerateDropDto(5119, 1, null, 30, (short)MapTypeType.Cliff ),
+ 
+                // LandOfTheDead
+                GenerateDropDto(1007, 1, null, 800, (short)MapTypeType.LandOfTheDead),
+                GenerateDropDto(1010, 1, null, 800, (short)MapTypeType.LandOfTheDead),
+                GenerateDropDto(1012, 1, null, 8000, (short)MapTypeType.LandOfTheDead),
+                GenerateDropDto(1015, 1, null, 600, (short)MapTypeType.LandOfTheDead),
+                GenerateDropDto(1016, 1, null, 600, (short)MapTypeType.LandOfTheDead),
+                GenerateDropDto(1078, 1, null, 400, (short)MapTypeType.LandOfTheDead),
+                GenerateDropDto(1114, 1, null, 400, (short)MapTypeType.LandOfTheDead),
+                GenerateDropDto(1019, 1, null, 2000, (short)MapTypeType.LandOfTheDead),
+                GenerateDropDto(1020, 1, null, 1200, (short)MapTypeType.LandOfTheDead),
+                GenerateDropDto(1021, 1, null, 600, (short)MapTypeType.LandOfTheDead),
+                GenerateDropDto(1022, 1, null, 300, (short)MapTypeType.LandOfTheDead),
+                GenerateDropDto(1211, 1, null, 250, (short)MapTypeType.LandOfTheDead),
+                GenerateDropDto(5119, 1, null, 100, (short)MapTypeType.LandOfTheDead )
+            };
             IEnumerable<DropDto> dropDtos = drops;
             _dropDao.InsertOrUpdate(dropDtos);
         }

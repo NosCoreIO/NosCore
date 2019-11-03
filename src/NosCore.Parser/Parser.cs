@@ -37,6 +37,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
+using NosCore.Database.Entities.Base;
 using NosCore.Parser.Parsers;
 using Serilog;
 
@@ -125,7 +126,7 @@ namespace NosCore.Parser
                                 string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                             var typepk = type.FindKey();
                             registerDatabaseObject.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
-                                new[] {containerBuilder, (object) typeof(IStaticDto).IsAssignableFrom(t)});
+                                new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                         });
 
                     containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>()

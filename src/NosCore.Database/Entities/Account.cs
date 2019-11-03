@@ -21,10 +21,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Account
+    public class Account : IEntity
     {
         public Account()
         {

@@ -19,10 +19,11 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations.Family;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class FamilyCharacter
+    public class FamilyCharacter : IEntity
     {
         public FamilyAuthority Authority { get; set; }
 

@@ -19,10 +19,11 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class I18NActDesc
+    public class I18NActDesc : IEntity
     {
         [Key]
         public int I18NActDescId { get; set; }

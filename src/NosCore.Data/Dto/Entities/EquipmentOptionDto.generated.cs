@@ -21,6 +21,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -38,6 +40,9 @@ namespace NosCore.Data.Dto
 	 	public byte Type { get; set; }
 
 	 	public int Value { get; set; }
+
+	 	[AdaptIgnore]
+		public WearableInstanceDto WearableInstance { get; set; }
 
 	 	public System.Guid WearableInstanceId { get; set; }
 

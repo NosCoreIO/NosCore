@@ -25,6 +25,9 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
@@ -32,6 +35,7 @@ using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -62,7 +66,7 @@ namespace NosCore.PacketHandlers.Game
             _mailHttpClient = mailHttpClient;
         }
 
-        public override void Execute(GameStartPacket _, ClientSession session)
+        public override void Execute(GameStartPacket packet, ClientSession session)
         {
             if (session.GameStarted || !session.HasSelectedCharacter)
             {
@@ -72,7 +76,7 @@ namespace NosCore.PacketHandlers.Game
 
             session.GameStarted = true;
 
-            if (_worldConfiguration.SceneOnCreate) // TODO add only first connection check
+            if (_worldConfiguration.SceneOnCreate && packet.KeepAliveId == null)
             {
                 session.SendPacket(new ScenePacket {SceneId = 40});
             }
@@ -108,11 +112,11 @@ namespace NosCore.PacketHandlers.Game
             //            Session.SendPacket("rage 0 250000");
             //            Session.SendPacket("rank_cool 0 0 18000");
             //            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>(8, InventoryType.Wear);
-            //            StaticBonusDTO medal = Session.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
-            //            if (medal != null)
-            //            {
-            //                Session.SendPacket(Session.Character.GenerateSay(Language.Instance.GetMessageFromKey("LOGIN_MEDAL"), SayColorType.Green));
-            //            }
+            var medal = session.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
+            if (medal != null)
+            {
+                session.SendPacket(session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.LOGIN_MEDAL, session.Account.Language), SayColorType.Green));
+            }
 
             //            if (Session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.PetBasket))
             //            {
@@ -206,16 +210,16 @@ namespace NosCore.PacketHandlers.Game
             session.Character.GenerateMail(mails);
 
             session.SendPacket(session.Character.GenerateTitle());
-            //            int giftcount = mails.Count(mail => !mail.IsSenderCopy && mail.ReceiverId == Session.Character.CharacterId && mail.AttachmentVNum != null && !mail.IsOpened);
-            //            int mailcount = mails.Count(mail => !mail.IsSenderCopy && mail.ReceiverId == Session.Character.CharacterId && mail.AttachmentVNum == null && !mail.IsOpened);
-            //            if (giftcount > 0)
-            //            {
-            //                Session.SendPacket(Session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey("GIFTED"), giftcount), SayColorType.Purple));
-            //            }
-            //            if (mailcount > 0)
-            //            {
-            //                Session.SendPacket(Session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey("NEW_MAIL"), mailcount), SayColorType.Yellow));
-            //            }
+            int giftcount = mails.Select(s=>s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId != null && !mail.IsOpened);
+            int mailcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId == null && !mail.IsOpened);
+            if (giftcount > 0)
+            {
+                session.SendPacket(session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.GIFTED, session.Account.Language), giftcount), SayColorType.Purple));
+            }
+            if (mailcount > 0)
+            {
+                session.SendPacket(session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.NEW_MAIL, session.Account.Language), mailcount), SayColorType.Yellow));
+            }
             //            Session.Character.DeleteTimeout();
 
             //            foreach (StaticBuffDTO sb in _staticBuffDao.Where(s => s.CharacterId == Session.Character.CharacterId))

@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -41,6 +43,18 @@ namespace NosCore.Data.StaticEntities
 	 	public int FirstData { get; set; }
 
 	 	public int SecondData { get; set; }
+
+	 	[AdaptIgnore]
+		public CardDto Card { get; set; }
+
+	 	[AdaptIgnore]
+		public ItemDto Item { get; set; }
+
+	 	[AdaptIgnore]
+		public SkillDto Skill { get; set; }
+
+	 	[AdaptIgnore]
+		public NpcMonsterDto NpcMonster { get; set; }
 
 	 	public short? CardId { get; set; }
 
