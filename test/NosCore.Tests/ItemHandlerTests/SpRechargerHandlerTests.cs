@@ -38,7 +38,7 @@ using NosCore.Tests.Helpers;
 namespace NosCore.Tests.ItemHandlerTests
 {
     [TestClass]
-    public class SpRechargerEventHandlerTests : UseItemEventHandlerTests
+    public class SpRechargerEventHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider _itemProvider;
 

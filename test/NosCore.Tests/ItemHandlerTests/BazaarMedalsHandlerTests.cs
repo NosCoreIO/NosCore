@@ -38,7 +38,7 @@ using Serilog;
 namespace NosCore.Tests.ItemHandlerTests
 {
     [TestClass]
-    public class BazaarMedalsHandlerTests : UseItemEventHandlerTests
+    public class BazaarMedalsHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider _itemProvider;
         private Mock<ILogger> _logger;
