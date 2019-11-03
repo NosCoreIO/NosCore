@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,7 @@ using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Parser.Parsers.Generic;
 using Serilog;
 
 namespace NosCore.Parser.Parsers
@@ -42,91 +44,37 @@ namespace NosCore.Parser.Parsers
             _mapDao = mapDao;
         }
 
+        public List<MapDto> ParseDat(string folder)
+        {
+            var dictionaryId = new Dictionary<int, string>();
+            var actionList = new Dictionary<string, Func<Dictionary<string, string[]>, object>>
+            {
+                {"MapId", chunk => Convert.ToInt16(chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0])},
+                {"NameI18NKey", chunk => chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[4]}
+            };
+            var genericParser = new GenericParser<MapDto>(folder + _fileMapIdDat, "DATA 0", 0, actionList, _logger);
+            return genericParser.GetDtos(" ");
+        }
+
         public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
         {
-            var fileMapIdDat = folder + _fileMapIdDat;
+            var dictionaryId = ParseDat(folder);
             var folderMap = folder + _folderMap;
-            var maps = new List<MapDto>();
-            var dictionaryId = new Dictionary<int, string>();
-            var dictionaryMusic = new Dictionary<int, int>();
-
-            var i = 0;
-            using (var mapIdStream = new StreamReader(fileMapIdDat, Encoding.Default))
-            {
-                string line;
-                while ((line = mapIdStream.ReadLine()) != null)
-                {
-                    var linesave = line.Split(' ');
-                    if (linesave.Length <= 4)
-                    {
-                        continue;
-                    }
-
-                    if (!int.TryParse(linesave[0], out var mapid))
-                    {
-                        continue;
-                    }
-
-                    if (!dictionaryId.ContainsKey(mapid))
-                    {
-                        dictionaryId.Add(mapid, linesave[4]);
-                    }
-                }
-
-                mapIdStream.Close();
-            }
-
-            foreach (var linesave in packetList.Where(o => o[0].Equals("at")))
-            {
-                if ((linesave.Length <= 7) || (linesave[0] != "at"))
-                {
-                    continue;
-                }
-
-                if (dictionaryMusic.ContainsKey(int.Parse(linesave[2])))
-                {
-                    continue;
-                }
-
-                dictionaryMusic.Add(int.Parse(linesave[2]), int.Parse(linesave[7]));
-            }
-
+            var dictionaryMusic = packetList.Where(o => o[0].Equals("at") && (o.Length > 7))
+                .GroupBy(x => x[2])
+                .ToDictionary(x => x.Key, x => x.First()[7]);
             var mapInDb = _mapDao.LoadAll().ToList();
-            foreach (var file in new DirectoryInfo(folderMap).GetFiles())
+            var maps = new DirectoryInfo(folderMap).GetFiles().Select(file=> new MapDto
             {
-                var name = string.Empty;
-                var music = 0;
-
-                if (dictionaryId.ContainsKey(int.Parse(file.Name)))
-                {
-                    name = dictionaryId[int.Parse(file.Name)];
-                }
-
-                if (dictionaryMusic.ContainsKey(int.Parse(file.Name)))
-                {
-                    music = dictionaryMusic[int.Parse(file.Name)];
-                }
-
-                var map = new MapDto
-                {
-                    NameI18NKey = name,
-                    Music = music,
-                    MapId = short.Parse(file.Name),
-                    Data = File.ReadAllBytes(file.FullName),
-                    ShopAllowed = short.Parse(file.Name) == 147
-                };
-                if (mapInDb.FirstOrDefault(s => s.MapId.Equals(map.MapId)) != null)
-                {
-                    continue; // Map already exists in list
-                }
-
-                maps.Add(map);
-                i++;
-            }
-
-            IEnumerable<MapDto> mapDtos = maps;
-            _mapDao.InsertOrUpdate(mapDtos);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPS_PARSED), i);
+                NameI18NKey = dictionaryId.FirstOrDefault(s => s.MapId == int.Parse(file.Name))?.NameI18NKey ?? string.Empty,
+                Music = dictionaryMusic.ContainsKey(file.Name) ? int.Parse(dictionaryMusic[file.Name]) : 0,
+                MapId = short.Parse(file.Name),
+                Data = File.ReadAllBytes(file.FullName),
+                ShopAllowed = short.Parse(file.Name) == 147
+            }).ToList();
+           
+            _mapDao.InsertOrUpdate(maps);
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPS_PARSED), maps.Count);
         }
     }
 }

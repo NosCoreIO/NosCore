@@ -40,8 +40,8 @@ namespace NosCore.Parser.Parsers.Generic
                 return content.Split(_endPattern);
             }
         }
-
-        public List<T> GetDtos()
+        public List<T> GetDtos() => GetDtos("\t");
+        public List<T> GetDtos(string splitter)
         {
             var items = ParseTextFromFile();
             ConcurrentBag<T> resultCollection = new ConcurrentBag<T>();
@@ -51,7 +51,7 @@ namespace NosCore.Parser.Parsers.Generic
             }, item =>
             {
                 var lines = item.Split(Environment.NewLine.ToCharArray())
-                    .Select(s => s.Split("\t"))
+                    .Select(s => s.Split(splitter))
                     .Where(s=>s.Length> _firstIndex)
                     .GroupBy(x => x[_firstIndex])
                     .ToDictionary(x => x.Key, y => y.First());
