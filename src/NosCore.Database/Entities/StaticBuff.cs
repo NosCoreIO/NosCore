@@ -17,11 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Database.Entities.Base;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Database.Entities
 {
-    public class StaticBuff
+    public class StaticBuff : IEntity
     {
         public virtual Character Character { get; set; }
 

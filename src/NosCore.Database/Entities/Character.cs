@@ -21,10 +21,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Data.Enumerations.Character;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class Character
+    public class Character : IEntity
     {
         public Character()
         {

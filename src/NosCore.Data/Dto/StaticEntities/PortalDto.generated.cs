@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -38,6 +40,12 @@ namespace NosCore.Data.StaticEntities
 	 	public short DestinationY { get; set; }
 
 	 	public bool IsDisabled { get; set; }
+
+	 	[AdaptIgnore]
+		public MapDto Map { get; set; }
+
+	 	[AdaptIgnore]
+		public MapDto Map1 { get; set; }
 
 	 	[Key]
 		public int PortalId { get; set; }

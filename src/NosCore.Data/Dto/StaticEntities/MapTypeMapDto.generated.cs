@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -34,7 +36,13 @@ namespace NosCore.Data.StaticEntities
 		[Key]
 		public short MapTypeMapId { get; set; }
 
+	 	[AdaptIgnore]
+		public MapDto Map { get; set; }
+
 	 	public short MapId { get; set; }
+
+	 	[AdaptIgnore]
+		public MapTypeDto MapType { get; set; }
 
 	 	public short MapTypeId { get; set; }
 

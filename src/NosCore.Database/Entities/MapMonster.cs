@@ -21,11 +21,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
     [StaticMetaData(LoadedMessage = LogLanguageKey.MAPMONSTERS_LOADED)]
-    public class MapMonster
+    public class MapMonster : IEntity
     {
         public bool IsDisabled { get; set; }
 

@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -36,6 +38,9 @@ namespace NosCore.Data.Dto
 
 	 	public short OriginalItemDesign { get; set; }
 
+	 	[AdaptIgnore]
+		public ItemDto OriginalItem { get; set; }
+
 	 	public short OriginalItemVNum { get; set; }
 
 	 	public short Probability { get; set; }
@@ -51,6 +56,9 @@ namespace NosCore.Data.Dto
 	 	public short MinimumOriginalItemRare { get; set; }
 
 	 	public short MaximumOriginalItemRare { get; set; }
+
+	 	[AdaptIgnore]
+		public ItemDto ItemGenerated { get; set; }
 
 	 	public bool IsSuperReward { get; set; }
 

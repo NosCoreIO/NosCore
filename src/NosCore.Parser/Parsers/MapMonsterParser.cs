@@ -45,30 +45,18 @@ namespace NosCore.Parser.Parsers
 
         public void InsertMapMonster(List<string[]> packetList)
         {
-            var monsterCounter = 0;
             short map = 0;
-            var mobMvPacketsList = new List<int>();
+            var mobMvPacketsList = packetList.Where(o => o[0].Equals("mv") && o[1].Equals("3"))
+                .Select(currentPacket=>Convert.ToInt32(currentPacket[2])).Distinct().ToList();
             var monsters = new List<MapMonsterDto>();
             var mapMonsterdb = _mapMonsterDao.LoadAll().ToList();
             var npcMonsterdb = _npcMonsterDao.LoadAll().ToList();
-            foreach (var currentPacket in packetList.Where(o => o[0].Equals("mv") && o[1].Equals("3")))
-            {
-                if (!mobMvPacketsList.Contains(Convert.ToInt32(currentPacket[2])))
-                {
-                    mobMvPacketsList.Add(Convert.ToInt32(currentPacket[2]));
-                }
-            }
 
-            foreach (var currentPacket in packetList.Where(o => o[0].Equals("in") || o[0].Equals("at")))
+            foreach (var currentPacket in packetList.Where(o => (o[0].Equals("in") && (o.Length > 7) && (o[1] == "3") && long.Parse(o[3]) <= 20000) || o[0].Equals("at")))
             {
                 if ((currentPacket.Length > 5) && (currentPacket[0] == "at"))
                 {
                     map = short.Parse(currentPacket[2]);
-                    continue;
-                }
-
-                if ((currentPacket.Length <= 7) || (currentPacket[0] != "in") || (currentPacket[1] != "3"))
-                {
                     continue;
                 }
 
@@ -80,9 +68,9 @@ namespace NosCore.Parser.Parsers
                     MapX = short.Parse(currentPacket[4]),
                     MapY = short.Parse(currentPacket[5]),
                     Direction = (byte) (currentPacket[6] == string.Empty ? 0 : byte.Parse(currentPacket[6])),
-                    IsDisabled = false
+                    IsDisabled = false,
+                    IsMoving = mobMvPacketsList.Contains(int.Parse(currentPacket[3]))
                 };
-                monster.IsMoving = mobMvPacketsList.Contains(monster.MapMonsterId);
 
                 if ((npcMonsterdb.FirstOrDefault(s => s.NpcMonsterVNum.Equals(monster.VNum)) == null)
                     || (mapMonsterdb.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null)
@@ -92,14 +80,11 @@ namespace NosCore.Parser.Parsers
                 }
 
                 monsters.Add(monster);
-                monsterCounter++;
             }
 
-
-            IEnumerable<MapMonsterDto> mapMonsterDtos = monsters;
-            _mapMonsterDao.InsertOrUpdate(mapMonsterDtos);
+            _mapMonsterDao.InsertOrUpdate(monsters);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MONSTERS_PARSED),
-                monsterCounter);
+                monsters.Count);
         }
     }
 }

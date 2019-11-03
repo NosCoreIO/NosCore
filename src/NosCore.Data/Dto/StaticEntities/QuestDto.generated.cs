@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -36,6 +38,9 @@ namespace NosCore.Data.StaticEntities
 
 	 	public int QuestType { get; set; }
 
+	 	[AdaptIgnore]
+		public System.Collections.Generic.HashSet<CharacterQuestDto> CharacterQuest { get; set; }
+
 	 	public byte LevelMin { get; set; }
 
 	 	public byte LevelMax { get; set; }
@@ -43,6 +48,9 @@ namespace NosCore.Data.StaticEntities
 	 	public int? StartDialogId { get; set; }
 
 	 	public int? EndDialogId { get; set; }
+
+	 	[AdaptIgnore]
+		public System.Collections.Generic.HashSet<QuestObjectiveDto> QuestObjective { get; set; }
 
 	 	public short? TargetMap { get; set; }
 

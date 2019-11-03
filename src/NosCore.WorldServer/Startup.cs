@@ -73,6 +73,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
+using NosCore.Database.Entities.Base;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.DependancyInjection;

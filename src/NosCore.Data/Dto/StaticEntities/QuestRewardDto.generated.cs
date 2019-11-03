@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -47,6 +49,9 @@ namespace NosCore.Data.StaticEntities
 	 	public int Amount { get; set; }
 
 	 	public short QuestId { get; set; }
+
+	 	[AdaptIgnore]
+		public QuestDto Quest { get; set; }
 
 	 }
 }

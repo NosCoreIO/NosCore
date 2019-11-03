@@ -19,31 +19,38 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Parser.Parsers.Generic;
 using Serilog;
 
 namespace NosCore.Parser.Parsers
-
 {
     public class CardParser
     {
+        //  VNUM	CardId
+        //  NAME    Name
+        //
+        //  GROUP	Level	0
+        //  STYLE	0	0	BuffType	0	0
+        //  EFFECT	0	0
+        //  TIME	Duration	Delay
+        //  1ST	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+        //  2ST	0	0	0	0	0	0	0	0	0	0	0	0
+        //  LAST	0	0
+        //  DESC Description
+        //
+        //  END
+        //#========================================================
         private const string FileCardDat = "\\Card.dat";
-        private readonly IGenericDao<BCardDto> _bcardDao;
 
         private readonly IGenericDao<CardDto> _cardDao;
+        private readonly IGenericDao<BCardDto> _bcardDao;
         private readonly ILogger _logger;
-        private readonly List<BCardDto> Bcards = new List<BCardDto>();
-        private readonly List<CardDto> Cards = new List<CardDto>();
-        private CardDto _card = new CardDto();
-        private int _counter;
-        private bool _itemAreaBegin;
 
         public CardParser(IGenericDao<CardDto> cardDao, IGenericDao<BCardDto> bcardDao, ILogger logger)
         {
@@ -52,134 +59,58 @@ namespace NosCore.Parser.Parsers
             _logger = logger;
         }
 
-        public void AddFirstData(string[] currentLine)
-        {
-            for (var i = 0; i < 3; i++)
-            {
-                if ((currentLine[2 + i * 6] == "-1") || (currentLine[2 + i * 6] == "0"))
-                {
-                    continue;
-                }
-
-                var first = int.Parse(currentLine[i * 6 + 6]);
-                var bcard = new BCardDto
-                {
-                    CardId = _card.CardId,
-                    Type = byte.Parse(currentLine[2 + i * 6]),
-                    SubType = (byte) ((Convert.ToByte(currentLine[3 + i * 6]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
-                    FirstData = (first > 0 ? first : -first) / 4,
-                    SecondData = int.Parse(currentLine[7 + i * 6]) / 4,
-                    ThirdData = int.Parse(currentLine[5 + i * 6]),
-                    IsLevelScaled = Convert.ToBoolean(first % 4),
-                    IsLevelDivided = Math.Abs(first % 4) == 2
-                };
-                Bcards.Add(bcard);
-            }
-        }
-
-        public void AddSecondData(string[] currentLine)
-        {
-            for (var i = 0; i < 2; i++)
-            {
-                if ((currentLine[2 + i * 6] == "-1") || (currentLine[2 + i * 6] == "0"))
-                {
-                    continue;
-                }
-
-                var first = int.Parse(currentLine[i * 6 + 6]);
-                var bcard = new BCardDto
-                {
-                    CardId = _card.CardId,
-                    Type = byte.Parse(currentLine[2 + i * 6]),
-                    SubType = (byte) ((Convert.ToByte(currentLine[3 + i * 6]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
-                    FirstData = (first > 0 ? first : -first) / 4,
-                    SecondData = int.Parse(currentLine[7 + i * 6]) / 4,
-                    ThirdData = int.Parse(currentLine[5 + i * 6]),
-                    IsLevelScaled = Convert.ToBoolean((uint) (first < 0 ? 0 : first) % 4),
-                    IsLevelDivided = (uint) (first < 0 ? 0 : first) % 4 == 2
-                };
-                Bcards.Add(bcard);
-            }
-        }
-
-        public void AddThirdData(string[] currentLine, List<CardDto> cardb)
-        {
-            _card.TimeoutBuff = short.Parse(currentLine[2]);
-            _card.TimeoutBuffChance = byte.Parse(currentLine[3]);
-            // investigate
-            if (cardb.FirstOrDefault(s => s.CardId == _card.CardId) == null)
-            {
-                Cards.Add(_card);
-                _counter++;
-            }
-
-            _itemAreaBegin = false;
-        }
-
         public void InsertCards(string folder)
         {
-            var cardb = _cardDao.LoadAll().ToList();
-            var _line = string.Empty;
-            using (var npcIdStream =
-                new StreamReader(folder + FileCardDat, Encoding.Default))
+            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
             {
-                while ((_line = npcIdStream.ReadLine()) != null)
+                {nameof(CardDto.CardId), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
+                {nameof(CardDto.NameI18NKey), chunk => chunk["NAME"][0][2]},
+                {nameof(CardDto.Level), chunk => Convert.ToByte(chunk["GROUP"][0][3])},
+                {nameof(CardDto.EffectId), chunk => Convert.ToInt32(chunk["EFFECT"][0][2])},
+                {nameof(CardDto.BuffType), chunk => (BCardType.CardType) Convert.ToByte(chunk["STYLE"][0][3])},
+                {nameof(CardDto.Duration), chunk => Convert.ToInt32(chunk["TIME"][0][2])},
+                {nameof(CardDto.Delay), chunk => Convert.ToInt32(chunk["TIME"][0][3])},
+                {nameof(CardDto.BCards), AddBCards},
+                {nameof(CardDto.TimeoutBuff), chunk => Convert.ToInt16(chunk["LAST"][0][2])},
+                {nameof(CardDto.TimeoutBuffChance), chunk => Convert.ToByte(chunk["LAST"][0][3])}
+            };
+            var genericParser = new GenericParser<CardDto>(folder + FileCardDat,
+                "#========================================================", 1, actionList, _logger);
+            var cards = genericParser.GetDtos().GroupBy(p => p.CardId).Select(g => g.First()).ToList();
+            _cardDao.InsertOrUpdate(cards);
+            _bcardDao.InsertOrUpdate(cards.Where(s=>s.BCards != null).SelectMany(s=>s.BCards));
+
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CARDS_PARSED), cards.Count);
+        }
+
+        public List<BCardDto> AddBCards(Dictionary<string, string[][]> chunks)
+        {
+            var list = new List<BCardDto>();
+            for (var j = 0; j < 5; j++)
+            {
+                var key = (j > 2) ? "2ST" : "1ST";
+                var i = (j > 2) ? j - 3 : j;
+
+                if ((chunks[key][0][2 + i * 6] == "-1") || (chunks[key][0][2 + i * 6] == "0"))
                 {
-                    var currentLine = _line.Split('\t');
-
-                    if ((currentLine.Length > 2) && (currentLine[1] == "VNUM"))
-                    {
-                        _card = new CardDto
-                        {
-                            CardId = Convert.ToInt16(currentLine[2])
-                        };
-                        _itemAreaBegin = true;
-                    }
-                    else if ((currentLine.Length > 3) && (currentLine[1] == "GROUP"))
-                    {
-                        if (!_itemAreaBegin)
-                        {
-                            continue;
-                        }
-
-                        _card.Level = Convert.ToByte(currentLine[3]);
-                    }
-                    else if ((currentLine.Length > 3) && (currentLine[1] == "EFFECT"))
-                    {
-                        _card.EffectId = Convert.ToInt32(currentLine[2]);
-                    }
-                    else if ((currentLine.Length > 3) && (currentLine[1] == "STYLE"))
-                    {
-                        _card.BuffType = (BCardType.CardType) Convert.ToByte(currentLine[3]);
-                    }
-                    else if ((currentLine.Length > 3) && (currentLine[1] == "TIME"))
-                    {
-                        _card.Duration = Convert.ToInt32(currentLine[2]);
-                        _card.Delay = Convert.ToInt32(currentLine[3]);
-                    }
-                    else
-                    {
-                        if ((currentLine.Length > 3) && (currentLine[1] == "1ST"))
-                        {
-                            AddFirstData(currentLine);
-                        }
-                        else if ((currentLine.Length > 3) && (currentLine[1] == "2ST"))
-                        {
-                            AddSecondData(currentLine);
-                        }
-                        else if ((currentLine.Length > 3) && (currentLine[1] == "LAST"))
-                        {
-                            AddThirdData(currentLine, cardb);
-                        }
-                    }
+                    continue;
                 }
 
-                _cardDao.InsertOrUpdate(Cards);
-                _bcardDao.InsertOrUpdate(Bcards);
-
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CARDS_PARSED),
-                    _counter);
+                var first = int.Parse(chunks[key][0][i * 6 + 6]);
+                list.Add(new BCardDto
+                {
+                    CardId = Convert.ToInt16(chunks["VNUM"][0][2]),
+                    Type = byte.Parse(chunks[key][0][2 + i * 6]),
+                    SubType = (byte)((Convert.ToByte(chunks[key][0][3 + i * 6]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
+                    FirstData = (first > 0 ? first : -first) / 4,
+                    SecondData = int.Parse(chunks[key][0][7 + i * 6]) / 4,
+                    ThirdData = int.Parse(chunks[key][0][5 + i * 6]),
+                    IsLevelScaled = Convert.ToBoolean(first % 4),
+                    IsLevelDivided = Math.Abs(first % 4) == 2
+                });
             }
+
+            return list;
         }
     }
 }

@@ -49,36 +49,10 @@ namespace NosCore.Parser.Parsers
             var npcCounter = 0;
             short map = 0;
             var npcs = new List<MapNpcDto>();
-            var npcMvPacketsList = new List<int>();
-            var effPacketsDictionary = new Dictionary<int, short>();
+            var npcMvPacketsList = packetList.Where(o => o[0].Equals("mv") && o[1].Equals("2") && long.Parse(o[2]) < 20000).GroupBy(s => s[2]).Select(s => Convert.ToInt32(s.First()[2]));
+            var effPacketsDictionary = packetList.Where(o => o[0].Equals("eff") && o[1].Equals("2") && long.Parse(o[2]) <= 20000).GroupBy(s => Convert.ToInt16(s[2])).ToDictionary(x=>x.Key, x => Convert.ToInt16(x.First()[3]));
 
-            foreach (var currentPacket in packetList.Where(o => o[0].Equals("mv") && o[1].Equals("2")))
-            {
-                if (long.Parse(currentPacket[2]) >= 20000)
-                {
-                    continue;
-                }
-
-                if (!npcMvPacketsList.Contains(Convert.ToInt32(currentPacket[2])))
-                {
-                    npcMvPacketsList.Add(Convert.ToInt32(currentPacket[2]));
-                }
-            }
-
-            foreach (var currentPacket in packetList.Where(o => o[0].Equals("eff") && o[1].Equals("2")))
-            {
-                if (long.Parse(currentPacket[2]) >= 20000)
-                {
-                    continue;
-                }
-
-                if (!effPacketsDictionary.ContainsKey(Convert.ToInt32(currentPacket[2])))
-                {
-                    effPacketsDictionary.Add(Convert.ToInt32(currentPacket[2]), Convert.ToInt16(currentPacket[3]));
-                }
-            }
-
-            foreach (var currentPacket in packetList.Where(o => o[0].Equals("in") || o[0].Equals("at")))
+            foreach (var currentPacket in packetList.Where(o => (o[0].Equals("in") && (o.Length > 7) && (o[1] == "2") && long.Parse(o[3]) <= 20000) || o[0].Equals("at")))
             {
                 if ((currentPacket.Length > 5) && (currentPacket[0] == "at"))
                 {
@@ -86,35 +60,22 @@ namespace NosCore.Parser.Parsers
                     continue;
                 }
 
-                if ((currentPacket.Length <= 7) || (currentPacket[0] != "in") || (currentPacket[1] != "2"))
-                {
-                    continue;
-                }
-
+                var mapnpcid = short.Parse(currentPacket[3]);
                 var npctest = new MapNpcDto
                 {
                     MapX = short.Parse(currentPacket[4]),
                     MapY = short.Parse(currentPacket[5]),
                     MapId = map,
-                    VNum = short.Parse(currentPacket[2])
+                    VNum = short.Parse(currentPacket[2]),
+                    MapNpcId = mapnpcid,
+                    Effect = effPacketsDictionary.ContainsKey(mapnpcid) ? effPacketsDictionary[mapnpcid] : (short)0,
+                    EffectDelay = 4750,
+                    IsMoving = npcMvPacketsList.Contains(mapnpcid),
+                    Direction = byte.Parse(currentPacket[6]),
+                    Dialog = short.Parse(currentPacket[9]),
+                    IsSitting = currentPacket[13] != "1",
+                    IsDisabled = false
                 };
-                if (long.Parse(currentPacket[3]) > 20000)
-                {
-                    continue;
-                }
-
-                npctest.MapNpcId = short.Parse(currentPacket[3]);
-                if (effPacketsDictionary.ContainsKey(npctest.MapNpcId))
-                {
-                    npctest.Effect = effPacketsDictionary[npctest.MapNpcId];
-                }
-
-                npctest.EffectDelay = 4750;
-                npctest.IsMoving = npcMvPacketsList.Contains(npctest.MapNpcId);
-                npctest.Direction = byte.Parse(currentPacket[6]);
-                npctest.Dialog = short.Parse(currentPacket[9]);
-                npctest.IsSitting = currentPacket[13] != "1";
-                npctest.IsDisabled = false;
 
                 if ((npcmonsterdb.FirstOrDefault(s => s.NpcMonsterVNum.Equals(npctest.VNum)) == null)
                     || (mapnpcdb.FirstOrDefault(s => s.MapNpcId.Equals(npctest.MapNpcId)) !=

@@ -19,6 +19,8 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.I18N;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
@@ -57,6 +59,9 @@ namespace NosCore.Data.Dto
 
 	 	public bool IsSenderCopy { get; set; }
 
+	 	[AdaptIgnore]
+		public ItemInstanceDto ItemInstance { get; set; }
+
 	 	public System.Guid? ItemInstanceId { get; set; }
 
 	 	[Key]
@@ -64,7 +69,13 @@ namespace NosCore.Data.Dto
 
 	 	public string Message { get; set; }
 
+	 	[AdaptIgnore]
+		public CharacterDto Receiver { get; set; }
+
 	 	public long ReceiverId { get; set; }
+
+	 	[AdaptIgnore]
+		public CharacterDto Sender { get; set; }
 
 	 	public long? SenderId { get; set; }
 
