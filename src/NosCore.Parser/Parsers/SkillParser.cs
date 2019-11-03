@@ -111,50 +111,22 @@ namespace NosCore.Parser.Parsers
                 var skillscount = skills.Count(s => s.Class == skill.Class);
                 if ((firstskill == null) || (skill.SkillVNum <= firstskill.SkillVNum + 10))
                 {
-                    switch (skill.Class)
+                    skill.LevelMinimum = skill.Class switch
                     {
-                        case 8:
-                            skill.LevelMinimum = (byte)(skillscount - 1 * 10);
-                            break;
+                        8 => (byte)(skillscount - 1 * 10),
+                        9 => (byte)(skillscount - 4 * 4),
+                        16 => skillscount switch
+                        {
+                            6 => 20,
+                            5 => 15,
+                            4 => 10,
+                            3 => 5,
+                            2 => 3,
+                            _ => 0
+                        },
+                        _ => (byte)(skillscount - 5 * 4)
+                    };
 
-                        case 9:
-                            skill.LevelMinimum = (byte)(skillscount - 4 * 4);
-                            break;
-
-                        case 16:
-                            switch (skillscount)
-                            {
-                                case 6:
-                                    skill.LevelMinimum = 20;
-                                    break;
-
-                                case 5:
-                                    skill.LevelMinimum = 15;
-                                    break;
-
-                                case 4:
-                                    skill.LevelMinimum = 10;
-                                    break;
-
-                                case 3:
-                                    skill.LevelMinimum = 5;
-                                    break;
-
-                                case 2:
-                                    skill.LevelMinimum = 3;
-                                    break;
-
-                                default:
-                                    skill.LevelMinimum = 0;
-                                    break;
-                            }
-
-                            break;
-
-                        default:
-                            skill.LevelMinimum = (byte)(skillscount - 5 * 4);
-                            break;
-                    }
                 }
             }
 
