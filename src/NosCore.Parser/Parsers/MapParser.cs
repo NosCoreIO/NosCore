@@ -38,6 +38,9 @@ namespace NosCore.Parser.Parsers
         private readonly ILogger _logger;
         private readonly IGenericDao<MapDto> _mapDao;
 
+        //{ID} {ID} {MapPoint} {MapPoint} {Name}
+        //DATA 0
+
         public MapParser(IGenericDao<MapDto> mapDao, ILogger logger)
         {
             _logger = logger;
@@ -47,10 +50,10 @@ namespace NosCore.Parser.Parsers
         public List<MapDto> ParseDat(string folder)
         {
             var dictionaryId = new Dictionary<int, string>();
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[]>, object>>
+            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
             {
-                {"MapId", chunk => Convert.ToInt16(chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0])},
-                {"NameI18NKey", chunk => chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[4]}
+                {nameof(MapDto.MapId), chunk => Convert.ToInt16(chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0][0])},
+                {nameof(MapDto.NameI18NKey), chunk => chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0][4]}
             };
             var genericParser = new GenericParser<MapDto>(folder + _fileMapIdDat, "DATA 0", 0, actionList, _logger);
             return genericParser.GetDtos(" ");

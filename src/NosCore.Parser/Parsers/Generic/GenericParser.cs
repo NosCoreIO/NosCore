@@ -19,10 +19,10 @@ namespace NosCore.Parser.Parsers.Generic
         private readonly string _fileAddress;
         private readonly string _endPattern;
         private readonly TypeAccessor _typeAccessor;
-        private Dictionary<string, Func<Dictionary<string, string[]>, object>> _actionList;
+        private Dictionary<string, Func<Dictionary<string, string[][]>, object>> _actionList;
         private readonly int _firstIndex;
 
-        public GenericParser(string fileAddress, string endPattern, int firstIndex, Dictionary<string, Func<Dictionary<string, string[]>, object>> actionList, ILogger logger)
+        public GenericParser(string fileAddress, string endPattern, int firstIndex, Dictionary<string, Func<Dictionary<string, string[][]>, object>> actionList, ILogger logger)
         {
             _fileAddress = fileAddress;
             _endPattern = endPattern;
@@ -52,9 +52,9 @@ namespace NosCore.Parser.Parsers.Generic
             {
                 var lines = item.Split(Environment.NewLine.ToCharArray())
                     .Select(s => s.Split(splitter))
-                    .Where(s=>s.Length> _firstIndex)
-                    .GroupBy(x => x[_firstIndex])
-                    .ToDictionary(x => x.Key, y => y.First());
+                    .Where(s => s.Length > _firstIndex)
+                    .GroupBy(x => x[_firstIndex]).ToDictionary(x => x.Key, y => y.ToArray());
+
                 try
                 {
                     var parsedItem = new T();
@@ -64,7 +64,7 @@ namespace NosCore.Parser.Parsers.Generic
                         {
                             _typeAccessor[parsedItem, actionOnKey] = _actionList[actionOnKey].Invoke(lines);
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             ex.Data.Add("actionKey", actionOnKey);
                             _logger.Verbose(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHUNK_FORMAT_INVALID), ex);
