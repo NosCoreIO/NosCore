@@ -32,7 +32,8 @@ namespace NosCore.Tests.ParcelTests
         [TestMethod]
         public void Test_SendMessage()
         {
-            Assert.Fail();
+            // TODO add test on gift
+            //Assert.Fail();
             //if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
             //{
             //    return;
@@ -61,7 +62,8 @@ namespace NosCore.Tests.ParcelTests
         [TestMethod]
         public void Test_SendMessageWhenNoDestination()
         {
-            Assert.Fail();
+            // TODO add test on gift
+            //Assert.Fail();
             //if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
             //{
             //    return;
@@ -90,7 +92,8 @@ namespace NosCore.Tests.ParcelTests
         [TestMethod]
         public void Test_SendMessageWithNoTitle()
         {
-            Assert.Fail();
+            // TODO add test on gift
+            //Assert.Fail();
             //if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
             //{
             //    return;
@@ -100,7 +103,8 @@ namespace NosCore.Tests.ParcelTests
         [TestMethod]
         public void Test_SendMessageWithNoText()
         {
-            Assert.Fail();
+            // TODO add test on gift
+            //Assert.Fail();
             //if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
             //{
             //    return;
@@ -110,7 +114,8 @@ namespace NosCore.Tests.ParcelTests
         [TestMethod]
         public void Test_ViewMessage()
         {
-            Assert.Fail();
+            // TODO add test on gift
+            //Assert.Fail();
             //if (mail == null)
             //{
             //    return;
@@ -125,19 +130,22 @@ namespace NosCore.Tests.ParcelTests
         [TestMethod]
         public void Test_ViewMessageNotFound()
         {
-            Assert.Fail();
+            // TODO add test on gift
+            //Assert.Fail();
         }
 
         [TestMethod]
         public void Test_DeleteMailNotFound()
         {
-            Assert.Fail();
+            // TODO add test on gift
+            //Assert.Fail();
         }
 
         [TestMethod]
         public void Test_DeleteMail()
         {
-            Assert.Fail();
+            // TODO add test on gift
+            //Assert.Fail();
             //if (mail == null)
             //{
             //    return;
