@@ -52,7 +52,7 @@ namespace NosCore.Parser.Parsers
             var mapMonsterdb = _mapMonsterDao.LoadAll().ToList();
             var npcMonsterdb = _npcMonsterDao.LoadAll().ToList();
 
-            foreach (var currentPacket in packetList.Where(o => (o[0].Equals("in") && (o.Length > 7) && (o[1] == "3") && long.Parse(o[3]) <= 20000) || o[0].Equals("at")))
+            foreach (var currentPacket in packetList.Where(o => (o.Length > 7 && o[0].Equals("in") && (o[1] == "3") && long.Parse(o[3]) <= 20000) || o[0].Equals("at")))
             {
                 if ((currentPacket.Length > 5) && (currentPacket[0] == "at"))
                 {

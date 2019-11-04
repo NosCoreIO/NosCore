@@ -49,10 +49,10 @@ namespace NosCore.Parser.Parsers
             var npcCounter = 0;
             short map = 0;
             var npcs = new List<MapNpcDto>();
-            var npcMvPacketsList = packetList.Where(o => o[0].Equals("mv") && o[1].Equals("2") && long.Parse(o[2]) < 20000).GroupBy(s => s[2]).Select(s => Convert.ToInt32(s.First()[2]));
+            var npcMvPacketsList = packetList.Where(o => o.Length > 14 && o[0].Equals("mv") && o[1].Equals("2") && long.Parse(o[2]) < 20000).GroupBy(s => s[2]).Select(s => Convert.ToInt32(s.First()[2])).ToList();
             var effPacketsDictionary = packetList.Where(o => o[0].Equals("eff") && o[1].Equals("2") && long.Parse(o[2]) <= 20000).GroupBy(s => Convert.ToInt16(s[2])).ToDictionary(x=>x.Key, x => Convert.ToInt16(x.First()[3]));
 
-            foreach (var currentPacket in packetList.Where(o => (o[0].Equals("in") && (o.Length > 7) && (o[1] == "2") && long.Parse(o[3]) <= 20000) || o[0].Equals("at")))
+            foreach (var currentPacket in packetList.Where(o => (o.Length > 7 && o[0].Equals("in") && (o[1] == "2") && long.Parse(o[3]) <= 20000) || o[0].Equals("at")))
             {
                 if ((currentPacket.Length > 5) && (currentPacket[0] == "at"))
                 {
