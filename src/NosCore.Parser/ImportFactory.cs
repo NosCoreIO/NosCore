@@ -24,7 +24,10 @@ using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Account;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.I18N;
 using NosCore.Parser.Parsers;
+using Serilog;
 
 namespace NosCore.Parser
 {
@@ -34,7 +37,6 @@ namespace NosCore.Parser
 
         private readonly CardParser _cardParser;
         private readonly DropParser _dropParser;
-        private readonly I18NParser _i18NParser;
         private readonly ItemParser _itemParser;
         private readonly MapMonsterParser _mapMonsterParser;
         private readonly MapNpcParser _mapNpcParser;
@@ -48,20 +50,35 @@ namespace NosCore.Parser
         private readonly ShopItemParser _shopItemParser;
         private readonly ShopParser _shopParser;
         private readonly SkillParser _skillParser;
+        private readonly IGenericDao<I18NActDescDto> _i18NActDescDao;
+        private readonly IGenericDao<I18NBCardDto> _i18NbCardDao;
+        private readonly IGenericDao<I18NCardDto> _i18NCardDao;
+        private readonly IGenericDao<I18NItemDto> _i18NItemDao;
+        private readonly IGenericDao<I18NMapIdDataDto> _i18NMapIdDataDao;
+        private readonly IGenericDao<I18NMapPointDataDto> _i18NMapPointDataDao;
+        private readonly IGenericDao<I18NNpcMonsterDto> _i18NNpcMonsterDao;
+        private readonly IGenericDao<I18NNpcMonsterTalkDto> _i18NNpcMonsterTalkDao;
+        private readonly IGenericDao<I18NQuestDto> _i18NQuestDao;
+        private readonly IGenericDao<I18NSkillDto> _i18NSkillDao;
+        private readonly ILogger _logger;
         private readonly string password = "test".ToSha512();
         private string _folder;
 
-        public ImportFactory(CardParser cardParser, DropParser dropParser, I18NParser i18NParser, ItemParser itemParser,
+        public ImportFactory(CardParser cardParser, DropParser dropParser, ItemParser itemParser,
             MapMonsterParser mapMonsterParser,
             MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser,
             MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser,
             PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
             ShopItemParser shopItemParser, ShopParser shopParser, SkillParser skillParser,
-            IGenericDao<AccountDto> accountDao)
+            IGenericDao<AccountDto> accountDao, IGenericDao<I18NQuestDto> i18NQuestDao, IGenericDao<I18NSkillDto> i18NSkillDao,
+            IGenericDao<I18NNpcMonsterTalkDto> i18NNpcMonsterTalkDao,
+            IGenericDao<I18NNpcMonsterDto> i18NNpcMonsterDao, IGenericDao<I18NMapPointDataDto> i18NMapPointDataDao,
+            IGenericDao<I18NMapIdDataDto> i18NMapIdDataDao,
+            IGenericDao<I18NItemDto> i18NItemDao, IGenericDao<I18NBCardDto> i18NbCardDao,
+            IGenericDao<I18NCardDto> i18NCardDao, IGenericDao<I18NActDescDto> i18NActDescDao, ILogger logger)
         {
             _cardParser = cardParser;
             _dropParser = dropParser;
-            _i18NParser = i18NParser;
             _itemParser = itemParser;
             _mapMonsterParser = mapMonsterParser;
             _mapNpcParser = mapNpcParser;
@@ -75,6 +92,17 @@ namespace NosCore.Parser
             _shopParser = shopParser;
             _skillParser = skillParser;
             _accountDao = accountDao;
+            _i18NQuestDao = i18NQuestDao;
+            _i18NSkillDao = i18NSkillDao;
+            _i18NNpcMonsterTalkDao = i18NNpcMonsterTalkDao;
+            _i18NNpcMonsterDao = i18NNpcMonsterDao;
+            _i18NMapPointDataDao = i18NMapPointDataDao;
+            _i18NMapIdDataDao = i18NMapIdDataDao;
+            _i18NItemDao = i18NItemDao;
+            _i18NbCardDao = i18NbCardDao;
+            _i18NCardDao = i18NCardDao;
+            _i18NActDescDao = i18NActDescDao;
+            _logger = logger;
         }
 
         public void ImportAccounts()
@@ -186,7 +214,16 @@ namespace NosCore.Parser
 
         public void ImportI18N()
         {
-            _i18NParser.InsertI18N(_folder);
+            new I18NParser<I18NActDescDto>(_i18NActDescDao, _logger).InsertI18N(_folder + "\\_code_{0}_act_desc.txt", LogLanguageKey.I18N_ACTDESC_PARSED);
+            new I18NParser<I18NBCardDto>(_i18NbCardDao, _logger).InsertI18N(_folder + "\\_code_{0}_BCard.txt", LogLanguageKey.I18N_BCARD_PARSED);
+            new I18NParser<I18NCardDto>(_i18NCardDao, _logger).InsertI18N(_folder + "\\_code_{0}_Card.txt", LogLanguageKey.I18N_CARD_PARSED);
+            new I18NParser<I18NItemDto>(_i18NItemDao, _logger).InsertI18N(_folder + "\\_code_{0}_Item.txt", LogLanguageKey.I18N_ITEM_PARSED);
+            new I18NParser<I18NMapIdDataDto>(_i18NMapIdDataDao, _logger).InsertI18N(_folder + "\\_code_{0}_MapIDData.txt", LogLanguageKey.I18N_MAPIDDATA_PARSED);
+            new I18NParser<I18NMapPointDataDto>(_i18NMapPointDataDao, _logger).InsertI18N(_folder + "\\_code_{0}_MapPointData.txt", LogLanguageKey.I18N_MAPPOINTDATA_PARSED);
+            new I18NParser<I18NNpcMonsterDto>(_i18NNpcMonsterDao, _logger).InsertI18N(_folder + "\\_code_{0}_monster.txt", LogLanguageKey.I18N_MPCMONSTER_PARSED);
+            new I18NParser<I18NQuestDto>(_i18NQuestDao, _logger).InsertI18N(_folder + "\\_code_{0}_quest.txt", LogLanguageKey.I18N_QUEST_PARSED);
+            new I18NParser<I18NSkillDto>(_i18NSkillDao, _logger).InsertI18N(_folder + "\\_code_{0}_Skill.txt", LogLanguageKey.I18N_SKILL_PARSED);
+            new I18NParser<I18NNpcMonsterTalkDto>(_i18NNpcMonsterTalkDao, _logger).InsertI18N(_folder + "\\_code_{0}_npctalk.txt", LogLanguageKey.I18N_NPCMONSTERTALK_PARSED);
         }
 
         internal void ImportItems()
