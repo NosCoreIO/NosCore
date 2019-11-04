@@ -109,7 +109,7 @@ namespace NosCore.Parser
                     var containerBuilder = new ContainerBuilder();
                     containerBuilder.RegisterLogger();
                     containerBuilder.RegisterAssemblyTypes(typeof(CardParser).Assembly)
-                        .Where(t => t.Name.EndsWith("Parser"))
+                        .Where(t => t.Name.EndsWith("Parser") && !t.IsGenericType)
                         .AsSelf()
                         .PropertiesAutowired();
                     containerBuilder.RegisterType<ImportFactory>().PropertiesAutowired();
