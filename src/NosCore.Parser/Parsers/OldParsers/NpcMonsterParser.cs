@@ -635,19 +635,14 @@ namespace NosCore.Parser.Parsers
                     }
                 }
 
-                IEnumerable<NpcMonsterDto> npcMonsterDtos = npcs;
-                IEnumerable<NpcMonsterSkillDto> npcMonsterSkillDtos = skills;
-                IEnumerable<BCardDto> monsterBCardDtos = monstercards;
-
-                _npcMonsterDao.InsertOrUpdate(npcMonsterDtos);
-                _npcMonsterSkillDao.InsertOrUpdate(npcMonsterSkillDtos);
-                _bCardDao.InsertOrUpdate(monsterBCardDtos);
+                _npcMonsterDao.InsertOrUpdate(npcs);
+                _npcMonsterSkillDao.InsertOrUpdate(skills);
+                _bCardDao.InsertOrUpdate(monstercards);
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCMONSTERS_PARSED),
                     counter);
             }
 
-            IEnumerable<DropDto> dropDtos = drops;
-            _dropDao.InsertOrUpdate(dropDtos);
+            _dropDao.InsertOrUpdate(drops);
         }
     }
 }
