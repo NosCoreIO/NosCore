@@ -87,9 +87,7 @@ namespace NosCore.Parser.Parsers
                 shopCounter++;
             }
 
-            IEnumerable<ShopDto> shopDtos = shops;
-            _shopDao.InsertOrUpdate(shopDtos);
-
+            _shopDao.InsertOrUpdate(shops);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPS_PARSED),
                 shopCounter);
         }

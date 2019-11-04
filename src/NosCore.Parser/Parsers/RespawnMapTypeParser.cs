@@ -101,10 +101,9 @@ namespace NosCore.Parser.Parsers
                     Name = "DefaultOasis"
                 }
             };
-            IEnumerable<RespawnMapTypeDto> respawnMapTypeDtos = respawnmaptypemaps;
-            _respawnMapTypeDao.InsertOrUpdate(respawnMapTypeDtos);
+            _respawnMapTypeDao.InsertOrUpdate(respawnmaptypemaps);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.RESPAWNTYPE_PARSED),
-                respawnMapTypeDtos.Count());
+                respawnmaptypemaps.Count());
         }
     }
 }

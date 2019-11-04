@@ -60,33 +60,23 @@ namespace NosCore.Parser.Parsers
                     for (var i = 5; i < currentPacket.Length; i++)
                     {
                         var item = currentPacket[i].Split('.');
-                        ShopItemDto sitem = null;
 
-                        if (item.Length == 5)
+                        if (item.Length < 5)
                         {
-                            sitem = new ShopItemDto
-                            {
-                                ShopId = shopdb.FirstOrDefault(s => s.MapNpcId == npcid)
-                                    .ShopId,
-                                Type = type,
-                                Slot = byte.Parse(item[1]),
-                                ItemVNum = short.Parse(item[2])
-                            };
+                            continue;
                         }
 
-                        if (item.Length == 6)
+                        var sitem = new ShopItemDto
                         {
-                            sitem = new ShopItemDto
-                            {
-                                ShopId = shopdb.FirstOrDefault(s => s.MapNpcId == npcid)
-                                    .ShopId,
-                                Type = type,
-                                Slot = byte.Parse(item[1]),
-                                ItemVNum = short.Parse(item[2]),
-                                Rare = sbyte.Parse(item[3]),
-                                Upgrade = byte.Parse(item[4])
-                            };
-                        }
+                            ShopId = shopdb.FirstOrDefault(s => s.MapNpcId == npcid)
+                                .ShopId,
+                            Type = type,
+                            Slot = byte.Parse(item[1]),
+                            ItemVNum = short.Parse(item[2]),
+                            Rare = item.Length == 6 ? sbyte.Parse(item[3]) : (short)0,
+                            Upgrade = item.Length == 6 ? byte.Parse(item[4]) : (byte)0
+                        };
+
 
                         if ((sitem == null) || shopitems.Any(s =>
                                 s.ItemVNum.Equals(sitem.ItemVNum) && s.ShopId.Equals(sitem.ShopId))
@@ -100,12 +90,9 @@ namespace NosCore.Parser.Parsers
                         itemCounter++;
                     }
                 }
-                else
+                else if (currentPacket.Length > 3)
                 {
-                    if (currentPacket.Length > 3)
-                    {
-                        type = byte.Parse(currentPacket[1]);
-                    }
+                    type = byte.Parse(currentPacket[1]);
                 }
             }
 
