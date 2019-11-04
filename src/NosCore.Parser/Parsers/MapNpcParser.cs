@@ -89,8 +89,7 @@ namespace NosCore.Parser.Parsers
                 npcCounter++;
             }
 
-            IEnumerable<MapNpcDto> npcDtos = npcs;
-            _mapNpcDao.InsertOrUpdate(npcDtos);
+            _mapNpcDao.InsertOrUpdate(npcs);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCS_PARSED), npcCounter);
         }
     }
