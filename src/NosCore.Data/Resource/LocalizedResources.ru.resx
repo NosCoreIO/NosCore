@@ -117,8 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>Вы одобрили обмен очками!</value>
+    <comment>Что за очки? Надо глянуть...</comment>
+  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
-    <value>Учетная запись с SessionId {0} подключилась к серверу.</value>
+    <value>Аккаунт с SessionId {0} подключен.</value>
   </data>
   <data name="ADMINISTRATOR" xml:space="preserve">
     <value>Администратор</value>
@@ -129,6 +133,9 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Уже в черном списке!</value>
   </data>
+  <data name="ALREADY_EXCHANGE" xml:space="preserve">
+    <value>Пользователь уже обменивается</value>
+  </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Вы уже друзья!</value>
   </data>
@@ -136,16 +143,23 @@
     <value>Вы уже в группе!</value>
   </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
-    <value>Данное имя уже занято!</value>
+    <value>Данное имя занято!</value>
   </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Лучник</value>
+  </data>
+  <data name="ASK_BIND" xml:space="preserve">
+    <value>Вы хотите привязать этот предмет?</value>
+    <comment>О чем идет речь? Пока не ясно. Уточним.</comment>
   </data>
   <data name="ASK_TO_DELETE" xml:space="preserve">
     <value>Удалить?</value>
   </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Как минимум один обязательный файл отсутствует. Попробуйте ещё раз, когда у вас будут все необходимые файлы.</value>
+  </data>
+  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
+    <value>Ошибка аутентификации</value>
   </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Пользователь {1} успешно авторизован!</value>
@@ -163,7 +177,7 @@
     <comment>Перефразировать обязательно</comment>
   </data>
   <data name="BAD_EQUIPMENT" xml:space="preserve">
-    <value>Ваш персонаж не соответствует требованиям для использования данной экипировки.</value>
+    <value>Ваш персонаж не соответствует требованиям для использования данного предмета.</value>
   </data>
   <data name="BAD_FAIRY" xml:space="preserve">
     <value>Карта специалиста не соответствует элементу феи.</value>
@@ -171,11 +185,18 @@
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Неверный пароль!</value>
   </data>
+  <data name="BANK_FULL" xml:space="preserve">
+    <value>Ваш банковский счет заполнен</value>
+    <comment>Не заполнен, а ...</comment>
+  </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
-    <value>Персонаж добавлен в черный список!</value>
+    <value>Пользователь добавлен в черный список!</value>
   </data>
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
-    <value>Этот игрок добавил Вас в черный список!</value>
+    <value>Этот пользователь добавил Вас в черный список!</value>
+  </data>
+  <data name="BUY_ITEM_FROM" xml:space="preserve">
+    <value>Вы приобрели предмет у {0}!</value>
   </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Вы приобрели предмет!</value>
@@ -195,6 +216,13 @@
   </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Невозможно найти этого персонажа!</value>
+  </data>
+  <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
+    <value>Вы не можете перемещать предмет находящийся в магазине!</value>
+    <comment>Нужно уточнение</comment>
+  </data>
+  <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
+    <value>Вы не можете использовать предмет находящийся в магазине!</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>Импортировано {0} карт специалиста!</value>
@@ -217,15 +245,15 @@
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Клиент прибыл на сервер, SessionId: {0}</value>
-    <comment>Проверить контекст, возможно, будет использователь "Пользователь"</comment>
+    <comment>Проверить контекст, возможно, нужно использователь "Пользователь"</comment>
   </data>
   <data name="CLIENT_CONNECTED" xml:space="preserve">
     <value>Новый клиент подключился. ClientId = {0}</value>
-    <comment>Проверить контекст, возможно, будет использователь "Пользователь"</comment>
+    <comment>Проверить контекст, возможно, нужно использователь "Пользователь"</comment>
   </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Клиент отключился. ClientId = {0}</value>
-    <comment>Проверить контекст, возможно, будет использователь "Пользователь"</comment>
+    <comment>Проверить контекст, возможно, нужно использователь "Пользователь"</comment>
   </data>
   <data name="CONNECTION_LOST" xml:space="preserve">
     <value>Соединение потеряно.</value>
@@ -262,11 +290,23 @@
     <value>Персонаж изменен во время перехода на карту. Не злоупотребляйте командами. {0}</value>
   </data>
   <data name="ERROR_DECODING" xml:space="preserve">
-    <value>Ошибка раскодирования: {0}</value>
+    <value>Ошибка декодирования: {0}</value>
+    <comment>insert missing type data</comment>
+  </data>
+  <data name="ERROR_SESSIONID" xml:space="preserve">
+    <value>Ошибка SessionId</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="EXCEPTION" xml:space="preserve">
     <value>Вызвано исключение: {0}</value>
+  </data>
+  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
+    <value>Игрок заблокировал обмен</value>
+    <comment>Перефразировать</comment>
+  </data>
+  <data name="EXCHANGE_REFUSED" xml:space="preserve">
+    <value>Вы отклонили запрос на обмен</value>
+    <comment>Нужно уточнение контекста. В оригинале "You refused your exchange request.", но как возможно отклонить свой же запрос на обмен?</comment>
   </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Принудительное отключение клиента {0}.</value>
@@ -296,6 +336,9 @@
   </data>
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Запрос в друзья отправлен!</value>
+  </data>
+  <data name="GIFT_SENT" xml:space="preserve">
+    <value>Подарок отправлен.</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Неизвестный тип запроса группы</value>
@@ -331,12 +374,16 @@
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Не удается найти реализацию обработчика для пакета с заголовком {0}</value>
   </data>
+  <data name="HAS_SHOP_OPENED" xml:space="preserve">
+    <value>Вы не можете обмениваться с владельцем магазина</value>
+  </data>
   <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
-    <value>Ваш уровень героя изменился</value>
-    <comment>Кажется, что надо бы переделать</comment>
+    <value>Ваш Уровень Героя изменился</value>
+    <comment>Какая-то ересь. Возможно, "Ваш Уровень Героя повышен" звучало бы лучше, но не ясно, используется ли это сообщение только при повышении уровня. (Возможно, что оно отображается при изменении уровня через команду администратора, а в таком случае, он может быть и понижен).</comment>
   </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>Импортировано {0} I18N ActDescs! Регион: {1}</value>
+    <comment>Пока не уверен, что именно в данном контексте подразумевается под "регионом".</comment>
   </data>
   <data name="I18N_BCARD_PARSED" xml:space="preserve">
     <value>Импортировано {0} I18N BCards! Регион: {1}</value>
@@ -365,17 +412,24 @@
   <data name="I18N_SKILL_PARSED" xml:space="preserve">
     <value>Импортировано {0} I18N Skills! Регион: {1}</value>
   </data>
+  <data name="INCOMING_EXCHANGE" xml:space="preserve">
+    <value>{0} хочет обменяться с Вами.</value>
+  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
-    <value>Неверный Id!</value>
+    <value>Неверный ID!</value>
   </data>
   <data name="INVALID_CHARNAME" xml:space="preserve">
-    <value>Недопустимые символы в никнейме!</value>
+    <value>Недопустимые символы в Никнейме!</value>
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Неверный пароль!</value>
   </data>
   <data name="INVENTORY_FULL" xml:space="preserve">
     <value>Ваш инвентарь переполнен!</value>
+  </data>
+  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
+    <value>Хотите ли Вы установить точку возврата?</value>
+    <comment>Check</comment>
   </data>
   <data name="INVITED_YOU_GROUP" xml:space="preserve">
     <value>[{0}] приглашает Вас в группу! Принять?</value>
@@ -384,6 +438,10 @@
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Неизвестный тип приглашения</value>
     <comment>insert missing type data</comment>
+  </data>
+  <data name="IN_WAITING_FOR" xml:space="preserve">
+    <value>В ожидании  {0}.</value>
+    <comment>Нужна проверка контекста</comment>
   </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>Загружено {0} предметов!</value>
@@ -396,7 +454,11 @@
     <comment>insert missing type data</comment>
   </data>
   <data name="ITEM_ACQUIRED" xml:space="preserve">
-    <value>Получено</value>
+    <value>Получен предмет</value>
+  </data>
+  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
+    <value>Был получен предмет земли смерти: {0}.</value>
+    <comment>Нужно подумать. LoD - это "земли мертвых" или "земля смерти"? Или лучше не локализировать?</comment>
   </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
     <value>Вы не можете выбросить данный предмет!</value>
@@ -410,6 +472,12 @@
   <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
     <value>Вы не можете обмениваться одним из предметов!</value>
   </data>
+  <data name="ITEM_RECEIVED" xml:space="preserve">
+    <value>Вы получили {0}.</value>
+  </data>
+  <data name="ITEM_TIMEOUT" xml:space="preserve">
+    <value>Предмет больше не действителен.</value>
+  </data>
   <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
     <value>Ваш рабочий уровень изменился!</value>
     <comment>Возможно, что он повысился, а не изменился, нужно проверять в игре</comment>
@@ -418,7 +486,7 @@
     <value>Вы присоединились к группе</value>
   </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
-    <value>Язык отсутствует</value>
+    <value>Перевод отсутствует</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="LEAVE_GROUP" xml:space="preserve">
@@ -426,7 +494,7 @@
     <comment>Check</comment>
   </data>
   <data name="LEVEL_CHANGED" xml:space="preserve">
-    <value>Ваш уровень изменился!</value>
+    <value>Ваш Уровень изменился!</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Слушаю порт {0}</value>
@@ -444,6 +512,10 @@
   </data>
   <data name="MAGICIAN" xml:space="preserve">
     <value>Маг</value>
+  </data>
+  <data name="MAIL_DELETED" xml:space="preserve">
+    <value>Письмо удалено.</value>
+    <comment>Уточнить контекст</comment>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>Загружено {0} MapMonsters!</value>
@@ -468,18 +540,24 @@
   </data>
   <data name="MASTER_SERVER_PING" xml:space="preserve">
     <value>Пингуем Master сервер</value>
-    <comment>нужно думать, как будет грамотнее, использовать Master или локализовать как Главный сервер?</comment>
   </data>
   <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
     <value>Не удалось пропинговать Master сервер</value>
-    <comment>нужно думать, как будет грамотнее, использовать Master или локализовать как Главный сервер?</comment>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Не удалось подключиться к Master серверу! Повторная попытка через {0} секунд...</value>
-    <comment>нужно думать, как будет грамотнее, использовать Master или локализовать как Главный сервер?</comment>
   </data>
   <data name="MAX_GOLD" xml:space="preserve">
     <value>Достигнуто максимальное количество золота!</value>
+  </data>
+  <data name="MINILAND_LOCK" xml:space="preserve">
+    <value>Мини-страна закрыта.</value>
+  </data>
+  <data name="MINILAND_PRIVATE" xml:space="preserve">
+    <value>Мини-страна открыта только для друзей.</value>
+  </data>
+  <data name="MINILAND_PUBLIC" xml:space="preserve">
+    <value>Мини-страна открыта для всех.</value>
   </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>Импортировано {0} MapMonsters!</value>
@@ -490,8 +568,11 @@
   <data name="NOT_ADVENTURER" xml:space="preserve">
     <value>Вы не Искатель приключений.</value>
   </data>
+  <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
+    <value>Недостаточно золота.</value>
+  </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
-    <value>Недостаточно денег для покупки предмета.</value>
+    <value>Недостаточно денег.</value>
   </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
     <value>Места больше нет.</value>
@@ -501,6 +582,9 @@
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Этот игрок не находится в Вашем черном списке!</value>
+  </data>
+  <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
+    <value>Пользователь не в списке друзей.</value>
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>Этот предмет не принадлежит Вам!</value>
@@ -514,6 +598,10 @@
   </data>
   <data name="NO_SP" xml:space="preserve">
     <value>Не экипирована Карта специалиста.</value>
+  </data>
+  <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
+    <value>SP пригодные к экипировке отсутствуют.</value>
+    <comment>Что-то невнятное. Надо уточнить о чем вообще идет речь.</comment>
   </data>
   <data name="NPCMONSTERS_LOADED" xml:space="preserve">
     <value>Загружено {0} NpcMonsters!</value>
@@ -590,11 +678,17 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Импортировать TimeSpaces?</value>
   </data>
+  <data name="PLAYER_IN_SHOP" xml:space="preserve">
+    <value>{0} в магазине.</value>
+  </data>
   <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
     <value>Неизвестный PocketType</value>
   </data>
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>Импортировано {0} Portal!</value>
+  </data>
+  <data name="PORTAL_DELAY" xml:space="preserve">
+    <value>Портал перезаряжается, нужно немножко потерпеть.</value>
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Зарегистрирован на Master сервере</value>
@@ -621,6 +715,9 @@
   </data>
   <data name="SELL_ITEM_VALIDE" xml:space="preserve">
     <value>Ваш предмет был продан! {0}</value>
+  </data>
+  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
+    <value>Сообщение отправлено.</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Вы отклонили запрос на изменение точки возвращения</value>
@@ -693,6 +790,9 @@
   <data name="SWORDMAN" xml:space="preserve">
     <value>Мечник</value>
   </data>
+  <data name="TOKEN_UPDATED" xml:space="preserve">
+    <value>Токен обновлен.</value>
+  </data>
   <data name="TOO_LOW_LEVEL" xml:space="preserve">
     <value>Вам необходим как минимум 15-й основной и 20-й рабочий уровень для смены класса.</value>
   </data>
@@ -700,17 +800,21 @@
     <value>У продавца недостаточно места для получения денег.</value>
   </data>
   <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>Время действия вторичных эффектов окончилось. {0}</value>
+    <value>Время действия вторичных эффектов закончилось. {0}</value>
     <comment>Что за вторичные эффекты? Те, которые эффекты после возраждения?</comment>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Невозможно отправить запрос группы</value>
   </data>
+  <data name="UNKNOWN" xml:space="preserve">
+    <value>Неизвестно</value>
+  </data>
   <data name="UNKNOWN_EQUIPMENTTYPE" xml:space="preserve">
     <value>Неизвестный тип экипировки: {0}</value>
   </data>
   <data name="UNKNOWN_PICKERTYPE" xml:space="preserve">
-    <value>Неизвестный PicketType</value>
+    <value>Неизвестный PickerType</value>
+    <comment>Втф?</comment>
   </data>
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
     <value>Неизвестный Reciever type</value>
@@ -725,6 +829,12 @@
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>Пользователь не подключен!</value>
   </data>
+  <data name="USER_NOT_FOUND" xml:space="preserve">
+    <value>Пользователь не найден</value>
+  </data>
+  <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
+    <value>Пользователь не в режиме обмена.</value>
+  </data>
   <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve">
     <value>Обнаружена неверная Карта специалиста!</value>
   </data>
@@ -735,6 +845,9 @@
     <value>Неизвестный VisualType: {0}</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
-    <value>Неверный MapId!</value>
+    <value>Некорректный MapId!</value>
+  </data>
+  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
+    <value>Вы запросили обмен у {0}.</value>
   </data>
 </root>
