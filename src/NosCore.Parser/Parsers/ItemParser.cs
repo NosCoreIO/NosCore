@@ -127,6 +127,16 @@ namespace NosCore.Parser.Parsers
                     }
                 }
             }
+            SetVehicles(items, new Dictionary<byte, List<(short, short)>>
+            {
+                { 20, new List<(short, short)> { (9054, 2368), (1906, 2368), (9055, 2370), (1907, 2370), (9058, 2406), (1965, 2406), (9065, 2411), (5008, 2411), (5238, 1817), (5226, 1817), (5240, 1819), (5228, 1819), (5234, 2522), (5236, 2524) } },
+                { 21, new List<(short, short)> { (9070, 2429), (5117, 2429), (9073, 2432), (5152, 2432), (5196, 2517), (9078, 2520), (5232, 2520), (5321, 2528), (9090, 2934), (5386, 2934), (9091, 2936), (5387, 2936), (9092, 2938), (5388, 2938), (9093, 2940), (5389, 2940),
+                    (9094, 2942), (5390, 2942), (5391, 2944), (9115, 3679), (5997, 3679), (9079, 2522), (9080, 2524), (9081, 1817), (9082, 1819) } },
+                { 22, new List<(short, short)> { (9083, 2526), (5319, 2526), (5323, 2530), (9086, 2928), (5330, 2928), (9088, 2932), (5360, 2932), (9084, 2528), (9085, 2930) } },
+                { 14, new List<(short, short)> { (9087, 2930), (5332, 2930), (5914, 2513) } },
+                { 16, new List<(short, short)> { (5173, 2511) } },
+            });
+
             _itemDao.InsertOrUpdate(items);
             _bcardDao.InsertOrUpdate(items.Where(s => s.BCards != null).SelectMany(s => s.BCards));
 
@@ -267,6 +277,25 @@ namespace NosCore.Parser.Parsers
             });
         }
 
+        private void SetVehicles(List<ItemDto> items, Dictionary<byte, List<(short, short)>> vehicleDictionary)
+        {
+            foreach(var vehicle in vehicleDictionary)
+            {
+                var speed = vehicle.Key;
+                foreach (var vehiclematch in vehicle.Value)
+                {
+                    var item = items.FirstOrDefault(s => s.VNum == vehiclematch.Item1);
+                    if(item != null)
+                    {
+                        item.Speed = vehicle.Key;
+                        item.WaitDelay = 3000;
+                        item.Morph = vehiclematch.Item2;
+                    }
+                }
+            }
+
+        }
+
         private void HardcodeItem(ItemDto item)
         {
             if (item.EquipmentSlot == EquipmentType.Fairy)
@@ -286,6 +315,10 @@ namespace NosCore.Parser.Parsers
 
             item.EffectValue = item.VNum switch
             {
+                var _ when (item.Effect == ItemEffectType.DroppedSpRecharger || item.Effect == ItemEffectType.PremiumSpRecharger) && item.EffectValue == 1 => 30000,
+                var _ when (item.Effect == ItemEffectType.DroppedSpRecharger || item.Effect == ItemEffectType.PremiumSpRecharger) && item.EffectValue == 2 => 70000,
+                var _ when (item.Effect == ItemEffectType.DroppedSpRecharger || item.Effect == ItemEffectType.PremiumSpRecharger) && item.EffectValue == 3 => 180000,
+                var _ when item.Effect == ItemEffectType.SpecialistMedal => 30_000,
                 var x when x == 9031 || x == 1332 => 5108,
                 var x when x == 9032 || x == 1333 => 5109,
                 1334 => 5111,
@@ -294,7 +327,6 @@ namespace NosCore.Parser.Parsers
                 var x when x == 9038 || x == 1339 => 5114,
                 9033 => 5011,
                 var x when x == 9034 || x == 1335 => 5107,
-                // EffectItems aka. fireworks
                 1581 => 860,
                 1582 => 861,
                 var x when x == 1585 || x == 9044 => 859,
@@ -318,7 +350,6 @@ namespace NosCore.Parser.Parsers
                 var x when x == 5061 || x == 9067 => 7,
                 1336 => 5106,
                 var x when x >= 1894 && x <= 1903 => item.VNum + 2152,
-                // UpgradeItems (needed to be hardcoded)
                 1218 => 26,
                 1363 => 27,
                 1364 => 28,
@@ -346,21 +377,21 @@ namespace NosCore.Parser.Parsers
                 284 => ItemEffectType.ReinforcementAmulet,
                 4264 => ItemEffectType.Heroic,
                 4262 => ItemEffectType.RandomHeroic,
-                var x when x == 287 || x== 4240 || x == 4194 || x == 4106 => ItemEffectType.Undefined,
+                var x when x == 287 || x == 4240 || x == 4194 || x == 4106 => ItemEffectType.Undefined,
                 var x when x == 185 || x == 302 || x == 882 || x == 942 || x == 999 => ItemEffectType.BoxEffect,
                 1245 => ItemEffectType.CraftedSpRecharger,
                 var x when x == 1246 || x == 9020 || x == 1247 || x == 9021 || x == 1248 || x == 9022 || x == 1249 || x == 9023 => ItemEffectType.BuffPotions,
                 var x when x == 5130 || x == 9072 => ItemEffectType.PetSpaceUpgrade,
                 var x when x == 1272 || x == 1858 || x == 9047 || x == 1273 || x == 9024 || x == 1274 || x == 9025 || x == 9123 || x == 5675 => ItemEffectType.InventoryUpgrade,
                 var x when x == 5795 || x == 5796 || x == 5797 => ItemEffectType.InventoryTicketUpgrade,
-                var x when x == 1279 || x == 9029 || x == 1280 || x == 9030 || x == 1923 || x == 9056  => ItemEffectType.PetBasketUpgrade,
+                var x when x == 1279 || x == 9029 || x == 1280 || x == 9030 || x == 1923 || x == 9056 => ItemEffectType.PetBasketUpgrade,
                 var x when x == 1275 || x == 1886 || x == 9026 || x == 1276 || x == 9027 || x == 1277 || x == 9028 => ItemEffectType.PetBackpackUpgrade,
                 var x when x == 5060 || x == 9066 => ItemEffectType.GoldNosMerchantUpgrade,
                 var x when x == 5061 || x == 9067 || x == 5062 || x == 9068 => ItemEffectType.SilverNosMerchantUpgrade,
                 5105 => ItemEffectType.ChangeGender,
                 var x when x == 1336 || x == 1427 || x == 5115 => ItemEffectType.PointInitialisation,
-                1981 => ItemEffectType.MarriageProposal, // imagined number as for I = √(-1), complex z = a + bi
-                1982 => ItemEffectType.MarriageSeparation, // imagined number as for I = √(-1), complex z = a + bi
+                1981 => ItemEffectType.MarriageProposal,
+                1982 => ItemEffectType.MarriageSeparation,
                 var x when x >= 1894 && x <= 1903 => ItemEffectType.SealedTarotCard,
                 var x when x >= 4046 && x <= 4055 => ItemEffectType.TarotCard,
                 5119 => ItemEffectType.SpeedBooster,
@@ -369,32 +400,23 @@ namespace NosCore.Parser.Parsers
                 _ => item.Effect,
             };
 
-            //               ItemType.Special:
-            //                switch (item.Effect)
-            //                {
-            //                    case ItemEffectType.DroppedSpRecharger:
-            //                    case ItemEffectType.PremiumSpRecharger:
-            //                        if (Convert.ToInt32(currentLine[4]) == 1)
-            //                        {
-            //                            item.EffectValue = 30000;
-            //                        }
-            //                        else if (Convert.ToInt32(currentLine[4]) == 2)
-            //                        {
-            //                            item.EffectValue = 70000;
-            //                        }
-            //                        else if (Convert.ToInt32(currentLine[4]) == 3)
-            //                        {
-            //                            item.EffectValue = 180000;
-            //                        }
-            //                        break;
+            //  case 4101:
+            //    case 4102:
+            //    case 4103:
+            //    case 4104:
+            //    case 4105:
+            //        item.EquipmentSlot = 0;
+            //break;
 
-            //                    case ItemEffectType.SpecialistMedal:
-            //                        item.EffectValue = 30_000;
-            //                        break;
 
             //                    case ItemEffectType.ApplySkinPartner:
             //                        item.EffectValue = Convert.ToInt32(currentLine[5]);
+            //               ItemType.Special:
+            //                switch (item.Effect)
+            //                {
+            //                    case ItemEffectType.ApplySkinPartner:
             //                        item.Morph = Convert.ToInt16(currentLine[4]);
+            //                        item.EffectValue = Convert.ToInt32(currentLine[5]);
             //                        break;
             //                }
             //                    case EquipmentType.Amulet:
@@ -403,230 +425,6 @@ namespace NosCore.Parser.Parsers
             //                            ((item.VNum > 4045) && (item.VNum < 4056)) || (item.VNum == 967) ||
             //                            (item.VNum == 968) ? 10800 : Convert.ToInt32(currentLine[3]) / 10;
             //                        break;
-
-            //    case 4101:
-            //    case 4102:
-            //    case 4103:
-            //    case 4104:
-            //    case 4105:
-            //        item.EquipmentSlot = 0;
-            //break;
-
-            //    case 9054:
-            //    case 1906:
-            //        item.Morph = 2368;
-            //item.Speed = 20;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9055:
-            //    case 1907:
-            //        item.Morph = 2370;
-            //item.Speed = 20;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9058:
-            //    case 1965:
-            //        item.Morph = 2406;
-            //item.Speed = 20;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9065:
-            //    case 5008:
-            //        item.Morph = 2411;
-            //item.Speed = 20;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9070:
-            //    case 5117:
-            //        item.Morph = 2429;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9073:
-            //    case 5152:
-            //        item.Morph = 2432;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 5173:
-            //        item.Morph = 2511;
-            //item.Speed = 16;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 5196:
-            //        item.Morph = 2517;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 5238:
-            //    case 5226: // Invisible locomotion, only 5 seconds with booster
-            //        item.Morph = 1817;
-            //item.Speed = 20;
-            //item.WaitDelay = 3000;
-            //break;
-            //    case 5240:
-            //    case 5228: // Invisible locoomotion, only 5 seconds with booster
-            //        item.Morph = 1819;
-            //item.Speed = 20;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9078:
-            //    case 5232:
-            //        item.Morph = 2520;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 5234:
-            //        item.Morph = 2522;
-            //item.Speed = 20;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 5236:
-            //        item.Morph = 2524;
-            //item.Speed = 20;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9083:
-            //    case 5319:
-            //        item.Morph = 2526;
-            //item.Speed = 22;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 5321:
-            //        item.Morph = 2528;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 5323:
-            //        item.Morph = 2530;
-            //item.Speed = 22;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9086:
-            //    case 5330:
-            //        item.Morph = 2928;
-            //item.Speed = 22;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9087:
-            //    case 5332:
-            //        item.Morph = 2930;
-            //item.Speed = 14;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9088:
-            //    case 5360:
-            //        item.Morph = 2932;
-            //item.Speed = 22;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9090:
-            //    case 5386:
-            //        item.Morph = 2934;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9091:
-            //    case 5387:
-            //        item.Morph = 2936;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9092:
-            //    case 5388:
-            //        item.Morph = 2938;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9093:
-            //    case 5389:
-            //        item.Morph = 2940;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9094:
-            //    case 5390:
-            //        item.Morph = 2942;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 5391:
-            //        item.Morph = 2944;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 5914:
-            //        item.Morph = 2513;
-            //item.Speed = 14;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9115:
-            //    case 5997:
-            //        item.Morph = 3679;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9079:
-            //        item.Morph = 2522;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9080:
-            //        item.Morph = 2524;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9081:
-            //        item.Morph = 1817;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9082:
-            //        item.Morph = 1819;
-            //item.Speed = 21;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9084:
-            //        item.Morph = 2528;
-            //item.Speed = 22;
-            //item.WaitDelay = 3000;
-            //break;
-
-            //    case 9085:
-            //        item.Morph = 2930;
-            //item.Speed = 22;
-            //item.WaitDelay = 3000;
-            //break;
 
         }
 
