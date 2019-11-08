@@ -103,7 +103,11 @@ namespace NosCore.Parser.Parsers
                 {nameof(ItemDto.WaterResistance),  chunk => ImportResistance(chunk, ElementType.Water)},
                 {nameof(ItemDto.Hp), chunk => ImportHp(chunk)},
                 {nameof(ItemDto.Mp), chunk => ImportMp(chunk)},
+                {nameof(ItemDto.MinilandObjectPoint), chunk => ImportMinilandObjectPoint(chunk)},
+                {nameof(ItemDto.Width), chunk => ImportWidth(chunk)},
+                {nameof(ItemDto.Height), chunk => ImportHeight(chunk)},
             };
+
             var genericParser = new GenericParser<ItemDto>(folder + ItemCardDto,
                 "#========================================================", 1, actionList, _logger);
             var items = genericParser.GetDtos().GroupBy(p => p.VNum).Select(g => g.First()).ToList();
@@ -207,6 +211,43 @@ namespace NosCore.Parser.Parsers
             });
         }
 
+
+        private byte ImportMinilandObjectPoint(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.House => chunk["DATA"][0][2],
+                ItemType.Garden => chunk["DATA"][0][2],
+                ItemType.Minigame => chunk["DATA"][0][2],
+                ItemType.Terrace => chunk["DATA"][0][2],
+                ItemType.MinilandTheme => chunk["DATA"][0][2],
+                _ => 0
+            });
+        }
+        private byte ImportWidth(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.House => chunk["DATA"][0][9],
+                ItemType.Garden => chunk["DATA"][0][9],
+                ItemType.Minigame => chunk["DATA"][0][9],
+                ItemType.Terrace => chunk["DATA"][0][9],
+                ItemType.MinilandTheme => chunk["DATA"][0][9],
+                _ => 0
+            });
+        }
+        private byte ImportHeight(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.House => chunk["DATA"][0][10],
+                ItemType.Garden => chunk["DATA"][0][10],
+                ItemType.Minigame => chunk["DATA"][0][10],
+                ItemType.Terrace => chunk["DATA"][0][10],
+                ItemType.MinilandTheme => chunk["DATA"][0][10],
+                _ => 0
+            });
+        }
         private byte ImportMp(Dictionary<string, string[][]> chunk)
         {
             return Convert.ToByte(ImportItemType(chunk) switch
@@ -279,13 +320,13 @@ namespace NosCore.Parser.Parsers
 
         private void SetVehicles(List<ItemDto> items, Dictionary<byte, List<(short, short)>> vehicleDictionary)
         {
-            foreach(var vehicle in vehicleDictionary)
+            foreach (var vehicle in vehicleDictionary)
             {
                 var speed = vehicle.Key;
                 foreach (var vehiclematch in vehicle.Value)
                 {
                     var item = items.FirstOrDefault(s => s.VNum == vehiclematch.Item1);
-                    if(item != null)
+                    if (item != null)
                     {
                         item.Speed = vehicle.Key;
                         item.WaitDelay = 3000;
@@ -400,35 +441,32 @@ namespace NosCore.Parser.Parsers
                 _ => item.Effect,
             };
 
-            //  case 4101:
-            //    case 4102:
-            //    case 4103:
-            //    case 4104:
-            //    case 4105:
-            //        item.EquipmentSlot = 0;
-            //break;
-
-
-            //                    case ItemEffectType.ApplySkinPartner:
-            //                        item.EffectValue = Convert.ToInt32(currentLine[5]);
-            //               ItemType.Special:
-            //                switch (item.Effect)
-            //                {
-            //                    case ItemEffectType.ApplySkinPartner:
-            //                        item.Morph = Convert.ToInt16(currentLine[4]);
-            //                        item.EffectValue = Convert.ToInt32(currentLine[5]);
-            //                        break;
-            //                }
-            //                    case EquipmentType.Amulet:
-            //                        item.ItemValidTime = ((item.VNum > 4055) && (item.VNum < 4061))
-            //                            || ((item.VNum > 4172) && (item.VNum < 4176)) ||
-            //                            ((item.VNum > 4045) && (item.VNum < 4056)) || (item.VNum == 967) ||
-            //                            (item.VNum == 968) ? 10800 : Convert.ToInt32(currentLine[3]) / 10;
-            //                        break;
+            item.EquipmentSlot = item.VNum switch
+            {
+                var x when x >= 4101 && x <= 4105 => 0,
+                _ => item.EquipmentSlot
+            };
 
         }
 
 
+
+        //                    case ItemEffectType.ApplySkinPartner:
+        //                        item.EffectValue = Convert.ToInt32(currentLine[5]);
+        //               ItemType.Special:
+        //                switch (item.Effect)
+        //                {
+        //                    case ItemEffectType.ApplySkinPartner:
+        //                        item.Morph = Convert.ToInt16(currentLine[4]);
+        //                        item.EffectValue = Convert.ToInt32(currentLine[5]);
+        //                        break;
+        //                }
+        //                    case EquipmentType.Amulet:
+        //                        item.ItemValidTime = ((item.VNum > 4055) && (item.VNum < 4061))
+        //                            || ((item.VNum > 4172) && (item.VNum < 4176)) ||
+        //                            ((item.VNum > 4045) && (item.VNum < 4056)) || (item.VNum == 967) ||
+        //                            (item.VNum == 968) ? 10800 : Convert.ToInt32(currentLine[3]) / 10;
+        //                        break;
 
         //public void Parse(string folder)
         //    else if ((currentLine.Length > 1) && (currentLine[1] == "DATA"))
@@ -494,19 +532,6 @@ namespace NosCore.Parser.Parsers
         //                item.LevelJobMinimum = Convert.ToByte(currentLine[20]);
         //                item.ReputationMinimum = Convert.ToByte(currentLine[21]);
         //                break;
-
-        //           case ItemType.House:
-        //           case ItemType.Garden:
-        //           case ItemType.Minigame :
-        //           case ItemType.Terrace:
-        //           case ItemType.MinilandTheme:
-        //                item.MinilandObjectPoint = int.Parse(currentLine[2]);
-        //                item.Width = Convert.ToByte(currentLine[9]);
-        //                item.Height = Convert.ToByte(currentLine[10]);
-        //          break;
-
-        //    }
-
 
     }
 }
