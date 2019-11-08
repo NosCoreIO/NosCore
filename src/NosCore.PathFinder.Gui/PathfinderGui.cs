@@ -19,17 +19,22 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Data;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
+using NosCore.GameObject.Mapping;
 using OpenTK.Graphics;
 using Serilog;
 
@@ -44,6 +49,7 @@ namespace NosCore.PathFinder.Gui
         private static GuiWindow _guiWindow;
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private static readonly IGenericDao<MapDto> _mapDao = new GenericDao<Map, MapDto, short>(Logger);
+        private static readonly IGenericDao<NpcMonsterDto> _npcMonsterDao = new GenericDao<NpcMonster, NpcMonsterDto, long>(Logger);
 
         private static void InitializeConfiguration()
         {
@@ -58,6 +64,7 @@ namespace NosCore.PathFinder.Gui
             Console.Title = Title;
             Core.I18N.Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
+            TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
             LogLanguage.Language = DatabaseConfiguration.Language;
             try
             {
@@ -65,6 +72,9 @@ namespace NosCore.PathFinder.Gui
                 optionsBuilder.UseNpgsql(DatabaseConfiguration.Database.ConnectionString);
                 DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
 
+                var npcMonsters = _npcMonsterDao.LoadAll().ToList();
+                TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig().ConstructUsing(src => new GameObject.MapMonster(npcMonsters, Logger));
+                TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig().ConstructUsing(src => new GameObject.MapNpc(null, null, null, npcMonsters, Logger));
                 while (true)
                 {
                     Logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
@@ -75,7 +85,7 @@ namespace NosCore.PathFinder.Gui
                         continue;
                     }
 
-                    var map = (GameObject.Map.Map) _mapDao.FirstOrDefault(m => m.MapId == askMapId);
+                    var map = _mapDao.FirstOrDefault(m => m.MapId == askMapId).Adapt<GameObject.Map.Map>();
 
                     if ((map?.XLength > 0) && (map.YLength > 0))
                     {
