@@ -247,7 +247,6 @@ namespace NosCore.PacketHandlers.Group
 
                         targetSession.Group = clientSession.Character.Group;
                         clientSession.Character.GroupRequestCharacterIds.Clear();
-                        targetSession.GroupRequestCharacterIds.Clear();
                     }
 
                     if (clientSession.Character.Group.Type != GroupType.Group)
