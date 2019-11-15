@@ -1,0 +1,63 @@
+version: '3.3'
+
+services:
+  db:
+    container_name: noscore-db
+    image: postgres:12.0-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=noscore
+      - POSTGRES_PASSWORD=noscorepassword
+      - POSTGRES_DB=noscore
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    networks:
+      - noscore-network
+
+  master:
+    container_name: noscore-master
+    build:
+      context: ./
+      dockerfile: deploy/Dockerfile-master
+    restart: unless-stopped
+    depends_on:
+      - db
+    expose:
+      - 5000
+      - 6969
+    networks: 
+      - noscore-network
+  
+  world:
+    container_name: noscore-world
+    build:
+      context: ./
+      dockerfile: deploy/Dockerfile-world
+    restart: unless-stopped
+    depends_on:
+      - db
+      - master
+    ports:
+      - 1337:1337
+    networks: 
+      - noscore-network
+
+  login:
+    container_name: noscore-login
+    build:
+      context: ./
+      dockerfile: deploy/Dockerfile-login
+    restart: unless-stopped
+    depends_on:
+      - db
+      - master
+      - world
+    ports:
+      - 4002:4002
+    networks: 
+      - noscore-network
+      
+networks:
+  noscore-network: 

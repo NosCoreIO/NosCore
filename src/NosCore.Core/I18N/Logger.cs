@@ -55,7 +55,7 @@ namespace NosCore.Core.I18N
                 .WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}")
                 .CreateLogger();
             var offset = Console.WindowWidth / 2 + text.Length / 2;
-            var separator = new string('=', Console.WindowWidth - 1);
+            var separator = new string('=', Console.WindowHeight > 0 ? Console.WindowWidth - 1 : 20);
             titleLogger.Information(separator);
             foreach (var s in AsciiTitle)
             {

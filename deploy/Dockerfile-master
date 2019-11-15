@@ -1,0 +1,15 @@
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0-alpine
+
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
+    LC_ALL=en_US.UTF-8 \
+    LANG=en_US.UTF-8
+
+WORKDIR /app
+COPY . .
+
+RUN dotnet build --nologo
+
+WORKDIR /app/build/netcoreapp3.0
+EXPOSE 5000 6969
+
+ENTRYPOINT ["dotnet", "NosCore.MasterServer.dll"]
