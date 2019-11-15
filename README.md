@@ -50,3 +50,11 @@ We recommend usage of :
 - Go to Tools -> NuGet Package Manager -> Package Manager Console
 - Choose Project NosCore.Database
 - Type 'update-database' and update the Database
+
+# Docker deploy #
+
+- Start database container with `docker-compose up -d db`
+- Update database through Nuget Manager Console
+- Import your data into database
+- Edit configuration file (Change all IP with container name)
+- Run noscore with `docker-compose up -d`
