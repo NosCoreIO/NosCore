@@ -638,7 +638,7 @@
     <value>Теперь вы новый глава группы!</value>
   </data>
   <data name="NEW_MAIL" xml:space="preserve">
-    <value>Новое письмо</value>
+    <value>Новых писем: {0}</value>
   </data>
   <data name="NOT_ADVENTURER" xml:space="preserve">
     <value>Вы не Искатель приключений.</value>
