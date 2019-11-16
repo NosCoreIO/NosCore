@@ -391,10 +391,6 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>Импортировано {0} предметов!</value>
   </data>
-  <data name="ITEMTYPE_UNKNOWN" xml:space="preserve">
-    <value>Неизвестный тип предмета</value>
-    <comment>insert missing type data</comment>
-  </data>
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Получено</value>
   </data>
