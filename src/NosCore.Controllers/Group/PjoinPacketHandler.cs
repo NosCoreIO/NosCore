@@ -22,6 +22,7 @@ using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Groups;
 using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
@@ -90,7 +91,7 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     var blacklisteds = _blacklistHttpCLient.GetBlackLists(clientSession.Character.VisualId);
-                    if (blacklisteds.Any(s => s.CharacterId == pjoinPacket.CharacterId))
+                    if (blacklisteds != null && blacklisteds.Any(s => s.CharacterId == pjoinPacket.CharacterId))
                     {
                         clientSession.SendPacket(new InfoPacket
                         {
@@ -110,10 +111,9 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    
                     if (clientSession.Character.LastGroupRequest != null)
                     {
-                        TimeSpan diffTimeSpan = ((DateTime)clientSession.Character.LastGroupRequest).AddSeconds(5) - DateTime.Now;
+                        TimeSpan diffTimeSpan = ((DateTime)clientSession.Character.LastGroupRequest).AddSeconds(5) - SystemTime.Now();
                         if (diffTimeSpan.Seconds > 0 && diffTimeSpan.Seconds <= 5)
                         {
                             clientSession.SendPacket(new InfoPacket
@@ -127,7 +127,6 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     clientSession.Character.GroupRequestCharacterIds.TryAdd(pjoinPacket.CharacterId, pjoinPacket.CharacterId);
-
                     clientSession.Character.LastGroupRequest = DateTime.Now;
 
                     if (((clientSession.Character.Group.Count == 1) ||
