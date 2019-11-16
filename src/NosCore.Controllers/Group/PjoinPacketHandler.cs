@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Groups;
@@ -109,8 +110,23 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    clientSession.Character.GroupRequestCharacterIds.TryAdd(pjoinPacket.CharacterId,
-                        pjoinPacket.CharacterId);
+                    
+                    if (clientSession.Character.LastGroupRequest != null)
+                    {
+                        TimeSpan diffTimeSpan = ((DateTime)clientSession.Character.LastGroupRequest).AddSeconds(5) - DateTime.Now;
+                        if (diffTimeSpan.Seconds > 0 && diffTimeSpan.Seconds <= 5)
+                        {
+                            clientSession.SendPacket(new InfoPacket
+                            {
+                                Message = "Tu ne peux pas encore envoyer l'invitation. Merci de réessayer dans " + (diffTimeSpan.Seconds) + " secondes."
+                            });
+                            return;
+                        }
+                    }
+
+                    clientSession.Character.GroupRequestCharacterIds.TryAdd(pjoinPacket.CharacterId, pjoinPacket.CharacterId);
+
+                    clientSession.Character.LastGroupRequest = DateTime.Now;
 
                     if (((clientSession.Character.Group.Count == 1) ||
                             (clientSession.Character.Group.Type == GroupType.Group))
