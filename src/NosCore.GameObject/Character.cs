@@ -155,6 +155,11 @@ namespace NosCore.GameObject
 
         public Group Group { get; set; }
 
+        /// <summary>
+        /// Date of last group request sent
+        /// </summary>
+        public DateTime? LastGroupRequest { get; set; } = null;
+
         public int ReputIcon => GetReputIco();
 
         public int DignityIcon => GetDignityIco();
