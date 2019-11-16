@@ -106,6 +106,21 @@ namespace NosCore.Parser.Parsers
                 {nameof(ItemDto.MinilandObjectPoint), chunk => ImportMinilandObjectPoint(chunk)},
                 {nameof(ItemDto.Width), chunk => ImportWidth(chunk)},
                 {nameof(ItemDto.Height), chunk => ImportHeight(chunk)},
+                {nameof(ItemDto.DefenceDodge), chunk => ImportDefenceDodge(chunk)},
+                {nameof(ItemDto.CloseDefence), chunk => ImportCloseDefence(chunk)},
+                {nameof(ItemDto.DistanceDefence), chunk => ImportDistanceDefence(chunk)},
+                {nameof(ItemDto.MagicDefence), chunk => ImportMagicDefence(chunk)},
+                {nameof(ItemDto.BasicUpgrade), chunk => ImportBasicUpgrade(chunk)},
+                {nameof(ItemDto.WaitDelay), chunk => ImportWaitDelay(chunk)},
+                {nameof(ItemDto.ElementRate), chunk => ImportElementRate(chunk)},
+                {nameof(ItemDto.Speed), chunk => ImportSpeed(chunk)},
+                {nameof(ItemDto.SpType), chunk => ImportSpType(chunk)},
+                {nameof(ItemDto.LevelJobMinimum), chunk => ImportLevelJobMinimum(chunk)},
+                {nameof(ItemDto.ReputationMinimum), chunk => ImportReputationMinimum(chunk)},
+                {nameof(ItemDto.ItemValidTime), chunk => ImportItemValidTime(chunk)},
+                {nameof(ItemDto.Element), chunk => ImportElement(chunk)},
+                {nameof(ItemDto.MaxCellonLvl), chunk => ImportMaxCellonLvl(chunk)},
+                {nameof(ItemDto.MaxCellon), chunk => ImportMaxCellon(chunk)},
             };
 
             var genericParser = new GenericParser<ItemDto>(folder + ItemCardDto,
@@ -186,7 +201,7 @@ namespace NosCore.Parser.Parsers
                 ItemType.Weapon => chunk["DATA"][0][2],
                 ItemType.Jewelery when ImportEquipmentType(chunk) != EquipmentType.Fairy => chunk["DATA"][0][2],
                 ItemType.Box => chunk["DATA"][0][4],
-                _ => 0
+                _ => "0"
             });
         }
 
@@ -207,7 +222,7 @@ namespace NosCore.Parser.Parsers
                 ItemType.Minigame => chunk["DATA"][0][8],
                 ItemType.Terrace => chunk["DATA"][0][8],
                 ItemType.MinilandTheme => chunk["DATA"][0][8],
-                _ => 0
+                _ => "0"
             });
         }
 
@@ -221,7 +236,7 @@ namespace NosCore.Parser.Parsers
                 ItemType.Minigame => chunk["DATA"][0][2],
                 ItemType.Terrace => chunk["DATA"][0][2],
                 ItemType.MinilandTheme => chunk["DATA"][0][2],
-                _ => 0
+                _ => "0"
             });
         }
         private byte ImportWidth(Dictionary<string, string[][]> chunk)
@@ -233,7 +248,7 @@ namespace NosCore.Parser.Parsers
                 ItemType.Minigame => chunk["DATA"][0][9],
                 ItemType.Terrace => chunk["DATA"][0][9],
                 ItemType.MinilandTheme => chunk["DATA"][0][9],
-                _ => 0
+                _ => "0"
             });
         }
         private byte ImportHeight(Dictionary<string, string[][]> chunk)
@@ -245,7 +260,7 @@ namespace NosCore.Parser.Parsers
                 ItemType.Minigame => chunk["DATA"][0][10],
                 ItemType.Terrace => chunk["DATA"][0][10],
                 ItemType.MinilandTheme => chunk["DATA"][0][10],
-                _ => 0
+                _ => "0"
             });
         }
         private byte ImportMp(Dictionary<string, string[][]> chunk)
@@ -255,7 +270,81 @@ namespace NosCore.Parser.Parsers
                 ItemType.Food => chunk["DATA"][0][4],
                 ItemType.Potion => chunk["DATA"][0][4],
                 ItemType.Snack => chunk["DATA"][0][4],
+                _ => "0"
+            });
+        }
+
+        private short ImportDefenceDodge(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.Armor => chunk["DATA"][0][6],
+                ItemType.Fashion => chunk["DATA"][0][6],
+                _ => "0"
+            });
+        }
+
+        private int ImportItemValidTime(Dictionary<string, string[][]> chunk)
+        {
+            return ImportItemType(chunk) switch
+            {
+                ItemType.Jewelery when ImportEquipmentType(chunk) == EquipmentType.Amulet => Convert.ToInt32(chunk["DATA"][0][3]) / 10,
                 _ => 0
+            };
+        }
+
+        private ElementType ImportElement(Dictionary<string, string[][]> chunk)
+        {
+            return (ElementType)Enum.Parse(typeof(ElementType), ImportItemType(chunk) switch
+            {
+                ItemType.Jewelery when ImportEquipmentType(chunk) == EquipmentType.Fairy => chunk["DATA"][0][2],
+                _ => "0"
+            });
+        }
+
+        private byte ImportMaxCellonLvl(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.Jewelery => chunk["DATA"][0][3],
+                _ => "0"
+            });
+        }
+
+        private byte ImportMaxCellon(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.Jewelery => chunk["DATA"][0][4],
+                _ => "0"
+            });
+        }
+
+        private short ImportCloseDefence(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.Armor => chunk["DATA"][0][3],
+                ItemType.Fashion => chunk["DATA"][0][3],
+                _ => "0"
+            });
+        }
+        private short ImportDistanceDefence(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.Armor => chunk["DATA"][0][4],
+                ItemType.Fashion => chunk["DATA"][0][4],
+                _ => "0"
+            });
+        }
+        private short ImportMagicDefence(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.Armor => chunk["DATA"][0][5],
+                ItemType.Fashion => chunk["DATA"][0][5],
+                _ => "0"
             });
         }
 
@@ -266,10 +355,69 @@ namespace NosCore.Parser.Parsers
                 ItemType.Food => chunk["DATA"][0][2],
                 ItemType.Potion => chunk["DATA"][0][2],
                 ItemType.Snack => chunk["DATA"][0][2],
-                _ => 0
+                _ => "0"
             });
         }
 
+        private short ImportWaitDelay(Dictionary<string, string[][]> chunk)
+        {
+            return (short)(ImportItemType(chunk) switch
+            {
+                ItemType.Special => 5000,
+                _ => 0
+            });
+        }
+        private byte ImportElementRate(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.Jewelery when ImportEquipmentType(chunk) == EquipmentType.Fairy => chunk["DATA"][0][3],
+                ItemType.Specialist => chunk["DATA"][0][4],
+                _ => "0"
+            });
+        }
+        private byte ImportSpeed(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.Specialist => chunk["DATA"][0][5],
+                _ => "0"
+            });
+        }
+        private byte ImportSpType(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.Specialist => chunk["DATA"][0][13],
+                _ => "0"
+            });
+        }
+        private byte ImportLevelJobMinimum(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.Specialist => chunk["DATA"][0][20],
+                _ => "0"
+            });
+        }
+        private byte ImportReputationMinimum(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.Specialist => chunk["DATA"][0][21],
+                _ => "0"
+            });
+        }
+
+        private byte ImportBasicUpgrade(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToByte(ImportItemType(chunk) switch
+            {
+                ItemType.Armor => chunk["DATA"][0][10],
+                ItemType.Weapon => chunk["DATA"][0][10],
+                _ => "0"
+            });
+        }
         private ItemEffectType ImportEffect(Dictionary<string, string[][]> chunk)
         {
             return (ItemEffectType)Convert.ToUInt16(ImportItemType(chunk) switch
@@ -282,7 +430,7 @@ namespace NosCore.Parser.Parsers
                 ItemType.Main => chunk["DATA"][0][2],
                 ItemType.Teacher => chunk["DATA"][0][2],
                 ItemType.Upgrade => chunk["DATA"][0][2],
-                _ => ItemEffectType.NoEffect
+                _ => "0"
             });
         }
 
@@ -314,7 +462,7 @@ namespace NosCore.Parser.Parsers
                 ElementType.Light => equipmentType == EquipmentType.Sp ? chunk["DATA"][0][17] : chunk["DATA"][0][9],
                 ElementType.Water => equipmentType == EquipmentType.Sp ? chunk["DATA"][0][16] : chunk["DATA"][0][8],
                 ElementType.Dark => equipmentType == EquipmentType.Sp ? chunk["DATA"][0][18] : chunk["DATA"][0][11],
-                _ => ElementType.Neutral
+                _ => "0"
             });
         }
 
@@ -443,7 +591,7 @@ namespace NosCore.Parser.Parsers
 
             item.EquipmentSlot = item.VNum switch
             {
-                var x when x >= 4101 && x <= 4105 => 0,
+                var x when x >= 4101 && x <= 4105 => EquipmentType.MainWeapon,
                 _ => item.EquipmentSlot
             };
 
@@ -468,20 +616,6 @@ namespace NosCore.Parser.Parsers
         //                            (item.VNum == 968) ? 10800 : Convert.ToInt32(currentLine[3]) / 10;
         //                        break;
 
-        //public void Parse(string folder)
-        //    else if ((currentLine.Length > 1) && (currentLine[1] == "DATA"))
-        //    {
-        //case ItemType.Weapon:
-        //  case ItemType.Armor:
-        //     item.BasicUpgrade = Convert.ToByte(currentLine[10]);
-
-        // case ItemType.Armor:
-        //case ItemType.Fashion:
-        //                item.DefenceDodge = Convert.ToInt16(currentLine[6]);
-        //                item.CloseDefence = Convert.ToInt16(currentLine[3]);
-        //                item.DistanceDefence = Convert.ToInt16(currentLine[4]);
-        //                item.MagicDefence = Convert.ToInt16(currentLine[5]);
-
         //          case ItemType.Weapon:
         //                item.DamageMinimum = Convert.ToInt16(currentLine[3]);
         //                item.DamageMaximum = Convert.ToInt16(currentLine[4]);
@@ -504,34 +638,6 @@ namespace NosCore.Parser.Parsers
 
         //                break;
 
-        //            case ItemType.Jewelery:
-        //                switch (item.EquipmentSlot)
-        //                {
-        //                    case EquipmentType.Amulet:
-        //                        item.ItemValidTime = Convert.ToInt32(currentLine[3]) / 10;
-        //                        break;
-        //                    case EquipmentType.Fairy:
-        //                        item.Element = (ElementType)Enum.Parse(typeof(ElementType), currentLine[2]);
-        //                        item.ElementRate = Convert.ToInt16(currentLine[3]);
-        //                        break;
-        //                    default:
-        //                        item.MaxCellonLvl = Convert.ToByte(currentLine[3]);
-        //                        item.MaxCellon = Convert.ToByte(currentLine[4]);
-        //                        break;
-        //                }
-
-        //                break;
-        //            case ItemType.Special:
-        //                item.WaitDelay = 5000;
-        //                break;
-
-        //            case ItemType.Specialist:
-        //                item.ElementRate = Convert.ToInt16(currentLine[4]);
-        //                item.Speed = Convert.ToByte(currentLine[5]);
-        //                item.SpType = Convert.ToByte(currentLine[13]);
-        //                item.LevelJobMinimum = Convert.ToByte(currentLine[20]);
-        //                item.ReputationMinimum = Convert.ToByte(currentLine[21]);
-        //                break;
 
     }
 }
