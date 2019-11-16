@@ -66,7 +66,6 @@ namespace NosCore.Parser.Parsers
             var dictionaryMusic = packetList.Where(o => o[0].Equals("at") && (o.Length > 7))
                 .GroupBy(x => x[2])
                 .ToDictionary(x => x.Key, x => x.First()[7]);
-            var mapInDb = _mapDao.LoadAll().ToList();
             var maps = new DirectoryInfo(folderMap).GetFiles().Select(file=> new MapDto
             {
                 NameI18NKey = dictionaryId.FirstOrDefault(s => s.MapId == int.Parse(file.Name))?.NameI18NKey ?? string.Empty,
