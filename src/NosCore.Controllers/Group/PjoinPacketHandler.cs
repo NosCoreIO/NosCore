@@ -118,7 +118,9 @@ namespace NosCore.PacketHandlers.Group
                         {
                             clientSession.SendPacket(new InfoPacket
                             {
-                                Message = "Tu ne peux pas encore envoyer l'invitation. Merci de réessayer dans " + (diffTimeSpan.Seconds) + " secondes."
+                                Message = string.Format(
+                                    Language.Instance.GetMessageFromKey(LanguageKey.DELAY_GROUP_REQUEST,
+                                        clientSession.Account.Language), diffTimeSpan.Seconds)
                             });
                             return;
                         }
