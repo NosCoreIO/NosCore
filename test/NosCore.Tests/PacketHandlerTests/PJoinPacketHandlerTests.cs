@@ -164,6 +164,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_Two_Request_Less_5_Sec_Delay()
         {
+            SystemTime.Freeze(SystemTime.Now());
             for (var i = 1; i < 3; i++)
             {
                 var pjoinPacket = new PjoinPacket
@@ -172,6 +173,7 @@ namespace NosCore.Tests.PacketHandlerTests
                     CharacterId = _characters[i].CharacterId
                 };
 
+                SystemTime.Freeze(SystemTime.Now().AddSeconds(1));
                 _pJoinPacketHandler.Execute(pjoinPacket, _characters[0].Session);
             }
 
