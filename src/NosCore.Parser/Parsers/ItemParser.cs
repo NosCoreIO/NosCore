@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
@@ -74,7 +75,8 @@ namespace NosCore.Parser.Parsers
                 {nameof(ItemDto.ItemSubType), chunk => Convert.ToByte(chunk["INDEX"][0][4])},
                 {nameof(ItemDto.EquipmentSlot), chunk => ImportEquipmentType(chunk)},
                 {nameof(ItemDto.EffectValue), chunk => ImportEquipmentType(chunk) == EquipmentType.Amulet ? Convert.ToInt16(chunk["INDEX"][0][7]) : default},
-                {nameof(ItemDto.Morph), chunk => ImportEquipmentType(chunk) != EquipmentType.Amulet ? Convert.ToInt16(chunk["INDEX"][0][7]) : default},
+                {nameof(ItemDto.Morph), chunk =>  ImportEffect(chunk) == ItemEffectType.ApplySkinPartner ?Convert.ToInt16(chunk["INDEX"][0][5]) :
+                    ImportEquipmentType(chunk) != EquipmentType.Amulet ? Convert.ToInt16(chunk["INDEX"][0][7]) : default},
                 {nameof(ItemDto.Class), chunk => ImportEquipmentType(chunk) == EquipmentType.Fairy ? (byte)15 : Convert.ToByte(chunk["TYPE"][0][3])},
                 {nameof(ItemDto.Flag8), chunk => chunk["FLAG"][0][24] == "1"},
                 {nameof(ItemDto.Flag7), chunk => chunk["FLAG"][0][23] == "1"},
@@ -121,6 +123,13 @@ namespace NosCore.Parser.Parsers
                 {nameof(ItemDto.Element), chunk => ImportElement(chunk)},
                 {nameof(ItemDto.MaxCellonLvl), chunk => ImportMaxCellonLvl(chunk)},
                 {nameof(ItemDto.MaxCellon), chunk => ImportMaxCellon(chunk)},
+                {nameof(ItemDto.DistanceDefenceDodge), chunk => ImportDistanceDefenceDodge(chunk)},
+                {nameof(ItemDto.MaximumAmmo), chunk => ImportMaximumAmmo(chunk)},
+                {nameof(ItemDto.CriticalRate), chunk => ImportCriticalRate(chunk)},
+                {nameof(ItemDto.CriticalLuckRate), chunk => ImportCriticalLuckRate(chunk)},
+                {nameof(ItemDto.HitRate), chunk => ImportHitRate(chunk)},
+                {nameof(ItemDto.DamageMaximum), chunk => ImportDamageMaximum(chunk)},
+                {nameof(ItemDto.DamageMinimum), chunk => ImportDamageMinimum(chunk)},
             };
 
             var genericParser = new GenericParser<ItemDto>(folder + ItemCardDto,
@@ -211,6 +220,7 @@ namespace NosCore.Parser.Parsers
         {
             return Convert.ToByte(ImportItemType(chunk) switch
             {
+                ItemType.Special when ImportEffect(chunk) == ItemEffectType.ApplySkinPartner => chunk["DATA"][0][5],
                 ItemType.Box => chunk["DATA"][0][3],
                 ItemType.Event => chunk["DATA"][0][7],
                 ItemType.Magical => chunk["DATA"][0][4],
@@ -282,6 +292,68 @@ namespace NosCore.Parser.Parsers
             {
                 ItemType.Armor => chunk["DATA"][0][6],
                 ItemType.Fashion => chunk["DATA"][0][6],
+                _ => "0"
+            });
+        }
+
+        private short ImportDamageMinimum(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToInt16(ImportItemType(chunk) switch
+            {
+                ItemType.Weapon => chunk["DATA"][0][3],
+                _ => "0"
+            });
+        }
+
+        private short ImportDamageMaximum(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToInt16(ImportItemType(chunk) switch
+            {
+                ItemType.Weapon => chunk["DATA"][0][4],
+                _ => "0"
+            });
+        }
+
+        private short ImportHitRate(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToInt16(ImportItemType(chunk) switch
+            {
+                ItemType.Weapon => chunk["DATA"][0][5],
+                _ => "0"
+            });
+        }
+
+        private short ImportCriticalLuckRate(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToInt16(ImportItemType(chunk) switch
+            {
+                ItemType.Weapon => chunk["DATA"][0][6],
+                _ => "0"
+            });
+        }
+
+        private short ImportMaximumAmmo(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToInt16(ImportItemType(chunk) switch
+            {
+                ItemType.Weapon => 100,
+                _ => 0
+            });
+        }
+
+        private short ImportDistanceDefenceDodge(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToInt16(ImportItemType(chunk) switch
+            {
+                ItemType.Armor => chunk["DATA"][0][6],
+                _ => "0"
+            });
+        }
+        private short ImportCriticalRate(Dictionary<string, string[][]> chunk)
+        {
+            return Convert.ToInt16(ImportItemType(chunk) switch
+            {
+                ItemType.Armor => chunk["DATA"][0][7],
                 _ => "0"
             });
         }
@@ -603,30 +675,5 @@ namespace NosCore.Parser.Parsers
                 _ => item.ItemValidTime
             };
         }
-
-        //                   
-        //               ItemType.Special:
-        //                switch (item.Effect)
-        //                {
-        //                    case ItemEffectType.ApplySkinPartner:
-        //                        item.Morph = Convert.ToInt16(currentLine[4]);
-        //                        item.EffectValue = Convert.ToInt32(currentLine[5]);
-        //                        break;
-        //                }
-
-        //          case ItemType.Weapon:
-        //                item.DamageMinimum = Convert.ToInt16(currentLine[3]);
-        //                item.DamageMaximum = Convert.ToInt16(currentLine[4]);
-        //                item.HitRate = Convert.ToInt16(currentLine[5]);
-        //                item.CriticalLuckRate = Convert.ToByte(currentLine[6]);
-        //                item.CriticalRate = Convert.ToInt16(currentLine[7]);
-        //                item.MaximumAmmo = 100;
-        //                break;
-
-        //            case ItemType.Armor:
-        //                item.DistanceDefenceDodge = Convert.ToInt16(currentLine[6]);
-        //                break;
-
-
     }
 }
