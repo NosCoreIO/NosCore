@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto
             {
                 CharacterId = requestData.ClientSession.Character.CharacterId,
-                DateEnd = itemInstance.ItemInstance.Item.EffectValue == 0 ? (DateTime?)null : DateTime.Now.AddDays(itemInstance.ItemInstance.Item.EffectValue),
+                DateEnd = itemInstance.ItemInstance.Item.EffectValue == 0 ? (DateTime?)null : SystemTime.Now().AddDays(itemInstance.ItemInstance.Item.EffectValue),
                 StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.InventoryTicketUpgrade ? StaticBonusType.InventoryTicketUpgrade : StaticBonusType.BackPack
             });
 

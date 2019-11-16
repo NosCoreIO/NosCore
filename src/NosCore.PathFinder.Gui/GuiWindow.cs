@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -99,7 +100,7 @@ namespace NosCore.PathFinder.Gui
                 mapMonster.IsAlive = true;
             }
 
-            _npcs = _mapNpcDao.Where(s => s.MapId == map.MapId).Cast<GameObject.MapNpc>().ToList();
+            _npcs = _mapNpcDao.Where(s => s.MapId == map.MapId).Adapt<List<GameObject.MapNpc>>();
             foreach (var mapNpc in _npcs)
             {
                 mapNpc.PositionX = mapNpc.MapX;
@@ -121,20 +122,33 @@ namespace NosCore.PathFinder.Gui
         {
             base.OnUpdateFrame(e);
 
-            if (Keyboard[Key.Escape])
+            var keyboardState = new KeyboardState();
+            var lastKeyboardState = new KeyboardState();
+            bool KeyPress(Key key)
+            {
+                return (keyboardState[key] && (keyboardState[key] != lastKeyboardState[key]));
+            }
+
+            if (KeyPress(Key.Escape))
             {
                 Exit();
             }
         }
 
+
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+        }
+
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-
-            GL.ClearColor(Color.LightSkyBlue);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            _gridsizeX = _gridsize * (ClientRectangle.Width / (double) _originalWidth);
-            _gridsizeY = _gridsize * (ClientRectangle.Height / (double) _originalHeight);
+            GL.ClearColor(Color.LightSkyBlue);
+            _gridsizeX = _gridsize * (ClientRectangle.Width / (double)_originalWidth);
+            _gridsizeY = _gridsize * (ClientRectangle.Height / (double)_originalHeight);
             var world = Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, 0, 1);
             GL.LoadMatrix(ref world);
             foreach (var wall in _walls)
@@ -152,9 +166,7 @@ namespace NosCore.PathFinder.Gui
                 DrawPixel(npc.PositionX, npc.PositionY, Color.Yellow);
             }
 
-            GL.Flush();
             SwapBuffers();
-            Thread.Sleep(32);
         }
 
         private void GetMap()

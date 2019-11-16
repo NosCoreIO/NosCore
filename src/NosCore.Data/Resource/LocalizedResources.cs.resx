@@ -330,9 +330,6 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>Bylo Nahráno {0} Itemů</value>
   </data>
-  <data name="ITEMTYPE_UNKNOWN" xml:space="preserve">
-    <value>Neznámý typ itemu</value>
-  </data>
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Získal si předmět!</value>
   </data>
