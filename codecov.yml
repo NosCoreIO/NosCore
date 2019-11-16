@@ -1,0 +1,6 @@
+ignore:
+  - "src/NosCore.Database"
+  - "src/NosCore.LoginServer"
+  - "src/NosCore.PathFinder.Gui" 
+  - "src/NosCore.Data"
+  - "src/NosCore.Packets"
