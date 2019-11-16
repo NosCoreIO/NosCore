@@ -45,9 +45,16 @@ namespace NosCore.Tests.PacketHandlerTests
         private readonly Dictionary<int, Character> _characters = new Dictionary<int, Character>();
         private PjoinPacketHandler _pJoinPacketHandler;
 
+        [TestCleanup]
+        public void Cleanup()
+        {
+            SystemTime.Freeze(SystemTime.Now());
+        }
+
         [TestInitialize]
         public void Setup()
         {
+            SystemTime.Freeze();
             Broadcaster.Reset();
             GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
             for (byte i = 0; i < (byte) (GroupType.Group + 1); i++)
