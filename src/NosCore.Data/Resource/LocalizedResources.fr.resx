@@ -510,9 +510,6 @@
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Type d'invitation inconnue.</value>
   </data>
-  <data name="ITEMTYPE_UNKNOWN" xml:space="preserve">
-    <value>Type d'objet inconnu.</value>
-  </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Pack de langue manquant</value>
   </data>

@@ -1069,15 +1069,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Unknown Item type.
-        /// </summary>
-        public static string ITEMTYPE_UNKNOWN {
-            get {
-                return ResourceManager.GetString("ITEMTYPE_UNKNOWN", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Your job level has changed!.
         /// </summary>
         public static string JOB_LEVEL_CHANGED {

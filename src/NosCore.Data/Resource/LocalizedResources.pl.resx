@@ -367,9 +367,6 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} items wprowadzono!</value>
   </data>
-  <data name="ITEMTYPE_UNKNOWN" xml:space="preserve">
-    <value>Nieznany typ przedmiotu</value>
-  </data>
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Nabyto</value>
   </data>
