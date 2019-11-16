@@ -484,6 +484,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à You can not send the invitation yet. Please try again in {0} seconds..
+        /// </summary>
+        public static string DELAY_GROUP_REQUEST {
+            get {
+                return ResourceManager.GetString("DELAY_GROUP_REQUEST", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Parsing done!.
         /// </summary>
         public static string DONE {

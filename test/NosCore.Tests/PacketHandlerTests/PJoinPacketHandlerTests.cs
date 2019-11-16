@@ -17,12 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Groups;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
@@ -42,9 +45,16 @@ namespace NosCore.Tests.PacketHandlerTests
         private readonly Dictionary<int, Character> _characters = new Dictionary<int, Character>();
         private PjoinPacketHandler _pJoinPacketHandler;
 
+        [TestCleanup]
+        public void Cleanup()
+        {
+            SystemTime.Freeze(SystemTime.Now());
+        }
+
         [TestInitialize]
         public void Setup()
         {
+            SystemTime.Freeze();
             Broadcaster.Reset();
             GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
             for (byte i = 0; i < (byte) (GroupType.Group + 1); i++)
@@ -140,6 +150,63 @@ namespace NosCore.Tests.PacketHandlerTests
             _pJoinPacketHandler.Execute(pjoinPacket, _characters[0].Session);
             Assert.IsTrue((_characters[0].Group.Count == 1)
                 && (_characters[1].Group.Count == 1));
+        }
+
+        [TestMethod]
+        public void Test_Last_Request_Not_Null_After_One()
+        {
+            for (var i = 1; i < 3; i++)
+            {
+                var pjoinPacket = new PjoinPacket
+                {
+                    RequestType = GroupRequestType.Invited,
+                    CharacterId = _characters[i].CharacterId
+                };
+
+                _pJoinPacketHandler.Execute(pjoinPacket, _characters[0].Session);
+            }
+            Assert.IsNotNull(_characters[0].LastGroupRequest);
+        }
+
+        [TestMethod]
+        public void Test_Two_Request_Less_5_Sec_Delay()
+        {
+            SystemTime.Freeze(SystemTime.Now());
+            for (var i = 1; i < 3; i++)
+            {
+                var pjoinPacket = new PjoinPacket
+                {
+                    RequestType = GroupRequestType.Invited,
+                    CharacterId = _characters[i].CharacterId
+                };
+
+                SystemTime.Freeze(SystemTime.Now().AddSeconds(1));
+                _pJoinPacketHandler.Execute(pjoinPacket, _characters[0].Session);
+            }
+
+            Assert.IsTrue(_characters[0].GroupRequestCharacterIds.Count == 1);
+        }
+
+        [TestMethod]
+        public void Test_Two_Request_More_5_Sec_Delay()
+        {
+            for (var i = 1; i < 3; i++)
+            {
+                var pjoinPacket = new PjoinPacket
+                {
+                    RequestType = GroupRequestType.Invited,
+                    CharacterId = _characters[i].CharacterId
+                };
+
+                if (i == 2)
+                {
+                    SystemTime.Freeze(SystemTime.Now().AddSeconds(6));
+                }
+
+                _pJoinPacketHandler.Execute(pjoinPacket, _characters[0].Session);
+            }
+
+           Assert.IsTrue(_characters[0].GroupRequestCharacterIds.Count == 2);
         }
     }
 }
