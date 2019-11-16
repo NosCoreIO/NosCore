@@ -148,8 +148,10 @@ namespace NosCore.Parser.Parsers
             }
             SetVehicles(items, new Dictionary<byte, List<(short, short)>>
             {
-                { 20, new List<(short, short)> { (9054, 2368), (1906, 2368), (9055, 2370), (1907, 2370), (9058, 2406), (1965, 2406), (9065, 2411), (5008, 2411), (5238, 1817), (5226, 1817), (5240, 1819), (5228, 1819), (5234, 2522), (5236, 2524) } },
-                { 21, new List<(short, short)> { (9070, 2429), (5117, 2429), (9073, 2432), (5152, 2432), (5196, 2517), (9078, 2520), (5232, 2520), (5321, 2528), (9090, 2934), (5386, 2934), (9091, 2936), (5387, 2936), (9092, 2938), (5388, 2938), (9093, 2940), (5389, 2940),
+                { 20, new List<(short, short)> { (9054, 2368), (1906, 2368), (9055, 2370), (1907, 2370), (9058, 2406), (1965, 2406), (9065, 2411),
+                    (5008, 2411), (5238, 1817), (5226, 1817), (5240, 1819), (5228, 1819), (5234, 2522), (5236, 2524) } },
+                { 21, new List<(short, short)> { (9070, 2429), (5117, 2429), (9073, 2432), (5152, 2432), (5196, 2517), (9078, 2520), (5232, 2520),
+                    (5321, 2528), (9090, 2934), (5386, 2934), (9091, 2936), (5387, 2936), (9092, 2938), (5388, 2938), (9093, 2940), (5389, 2940),
                     (9094, 2942), (5390, 2942), (5391, 2944), (9115, 3679), (5997, 3679), (9079, 2522), (9080, 2524), (9081, 1817), (9082, 1819) } },
                 { 22, new List<(short, short)> { (9083, 2526), (5319, 2526), (5323, 2530), (9086, 2928), (5330, 2928), (9088, 2932), (5360, 2932), (9084, 2528), (9085, 2930) } },
                 { 14, new List<(short, short)> { (9087, 2930), (5332, 2930), (5914, 2513) } },
@@ -289,6 +291,7 @@ namespace NosCore.Parser.Parsers
             return ImportItemType(chunk) switch
             {
                 ItemType.Jewelery when ImportEquipmentType(chunk) == EquipmentType.Amulet => Convert.ToInt32(chunk["DATA"][0][3]) / 10,
+                ItemType.Fashion when ImportEquipmentType(chunk) == EquipmentType.CostumeHat || ImportEquipmentType(chunk) == EquipmentType.CostumeSuit => Convert.ToInt32(chunk["DATA"][0][13]) * 3600,
                 _ => 0
             };
         }
@@ -470,7 +473,6 @@ namespace NosCore.Parser.Parsers
         {
             foreach (var vehicle in vehicleDictionary)
             {
-                var speed = vehicle.Key;
                 foreach (var vehiclematch in vehicle.Value)
                 {
                     var item = items.FirstOrDefault(s => s.VNum == vehiclematch.Item1);
@@ -595,12 +597,14 @@ namespace NosCore.Parser.Parsers
                 _ => item.EquipmentSlot
             };
 
+            item.ItemValidTime = item.VNum switch
+            {
+                var x when (x >= 4055 && x <= 4061) || (x > 4172 && x < 4176) || (x > 4045 && x < 4056) || (x == 967) || (x == 968) => 10800,
+                _ => item.ItemValidTime
+            };
         }
 
-
-
-        //                    case ItemEffectType.ApplySkinPartner:
-        //                        item.EffectValue = Convert.ToInt32(currentLine[5]);
+        //                   
         //               ItemType.Special:
         //                switch (item.Effect)
         //                {
@@ -609,12 +613,6 @@ namespace NosCore.Parser.Parsers
         //                        item.EffectValue = Convert.ToInt32(currentLine[5]);
         //                        break;
         //                }
-        //                    case EquipmentType.Amulet:
-        //                        item.ItemValidTime = ((item.VNum > 4055) && (item.VNum < 4061))
-        //                            || ((item.VNum > 4172) && (item.VNum < 4176)) ||
-        //                            ((item.VNum > 4045) && (item.VNum < 4056)) || (item.VNum == 967) ||
-        //                            (item.VNum == 968) ? 10800 : Convert.ToInt32(currentLine[3]) / 10;
-        //                        break;
 
         //          case ItemType.Weapon:
         //                item.DamageMinimum = Convert.ToInt16(currentLine[3]);
@@ -627,15 +625,6 @@ namespace NosCore.Parser.Parsers
 
         //            case ItemType.Armor:
         //                item.DistanceDefenceDodge = Convert.ToInt16(currentLine[6]);
-        //                break;
-
-        //            case ItemType.Fashion:
-        //                if (item.EquipmentSlot.Equals(EquipmentType.CostumeHat)
-        //                    || item.EquipmentSlot.Equals(EquipmentType.CostumeSuit))
-        //                {
-        //                    item.ItemValidTime = Convert.ToInt32(currentLine[13]) * 3600;
-        //                }
-
         //                break;
 
 
