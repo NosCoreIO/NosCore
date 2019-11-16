@@ -122,17 +122,20 @@ namespace NosCore.PathFinder.Gui
         {
             base.OnUpdateFrame(e);
 
+            var keyboardState = new KeyboardState();
+            var lastKeyboardState = new KeyboardState();
+            bool KeyPress(Key key)
+            {
+                return (keyboardState[key] && (keyboardState[key] != lastKeyboardState[key]));
+            }
+
             if (KeyPress(Key.Escape))
             {
                 Exit();
             }
         }
 
-        KeyboardState keyboardState, lastKeyboardState;
-        public bool KeyPress(Key key)
-        {
-            return (keyboardState[key] && (keyboardState[key] != lastKeyboardState[key]));
-        }
+
 
         protected override void OnLoad(EventArgs e)
         {
