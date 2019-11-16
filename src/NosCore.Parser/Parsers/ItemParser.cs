@@ -69,7 +69,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(ItemDto.VNum), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
                 {nameof(ItemDto.Price), chunk => Convert.ToInt64(chunk["VNUM"][0][3])},
                 {nameof(ItemDto.ReputPrice), chunk => chunk["FLAG"][0][21] == "1" ? Convert.ToInt64(chunk["VNUM"][0][3]) : 0},
-                {nameof(ItemDto.NameI18NKey), chunk => Convert.ToInt16(chunk["NAME"][0][2])},
+                {nameof(ItemDto.NameI18NKey), chunk => chunk["NAME"][0][2]},
                 {nameof(ItemDto.Type), chunk => ImportType(chunk)},
                 {nameof(ItemDto.ItemType), chunk => ImportItemType(chunk)},
                 {nameof(ItemDto.ItemSubType), chunk => Convert.ToByte(chunk["INDEX"][0][4])},
@@ -187,9 +187,9 @@ namespace NosCore.Parser.Parsers
                 var first = int.Parse(chunk["BUFF"][0][3 + 5 * i]);
                 var comb = new BCardDto
                 {
-                    SkillVNum = Convert.ToInt16(chunk["VNUM"][0][2]),
+                    ItemVNum = Convert.ToInt16(chunk["VNUM"][0][2]),
                     Type = type,
-                    SubType = (byte)((int.Parse(chunk["BUFF"][i][5 + 5 * i]) + 1) * 10 + 1),
+                    SubType = (byte)((int.Parse(chunk["BUFF"][0][5 + 5 * i]) + 1) * 10 + 1),
                     IsLevelScaled = Convert.ToBoolean(first % 4),
                     IsLevelDivided = (uint)(first < 0 ? 0 : first) % 4 == 2,
                     FirstData = (short)(first > 0 ? first : -first / 4),
@@ -288,7 +288,7 @@ namespace NosCore.Parser.Parsers
 
         private short ImportDefenceDodge(Dictionary<string, string[][]> chunk)
         {
-            return Convert.ToByte(ImportItemType(chunk) switch
+            return Convert.ToInt16(ImportItemType(chunk) switch
             {
                 ItemType.Armor => chunk["DATA"][0][6],
                 ItemType.Fashion => chunk["DATA"][0][6],
@@ -381,7 +381,7 @@ namespace NosCore.Parser.Parsers
         {
             return Convert.ToByte(ImportItemType(chunk) switch
             {
-                ItemType.Jewelery => chunk["DATA"][0][3],
+                ItemType.Jewelery when ImportEquipmentType(chunk) != EquipmentType.Amulet && ImportEquipmentType(chunk) != EquipmentType.Fairy => chunk["DATA"][0][3],
                 _ => "0"
             });
         }
@@ -390,14 +390,14 @@ namespace NosCore.Parser.Parsers
         {
             return Convert.ToByte(ImportItemType(chunk) switch
             {
-                ItemType.Jewelery => chunk["DATA"][0][4],
+                ItemType.Jewelery when ImportEquipmentType(chunk) != EquipmentType.Amulet && ImportEquipmentType(chunk) != EquipmentType.Fairy => chunk["DATA"][0][4],
                 _ => "0"
             });
         }
 
         private short ImportCloseDefence(Dictionary<string, string[][]> chunk)
         {
-            return Convert.ToByte(ImportItemType(chunk) switch
+            return Convert.ToInt16(ImportItemType(chunk) switch
             {
                 ItemType.Armor => chunk["DATA"][0][3],
                 ItemType.Fashion => chunk["DATA"][0][3],
@@ -406,7 +406,7 @@ namespace NosCore.Parser.Parsers
         }
         private short ImportDistanceDefence(Dictionary<string, string[][]> chunk)
         {
-            return Convert.ToByte(ImportItemType(chunk) switch
+            return Convert.ToInt16(ImportItemType(chunk) switch
             {
                 ItemType.Armor => chunk["DATA"][0][4],
                 ItemType.Fashion => chunk["DATA"][0][4],
@@ -415,7 +415,7 @@ namespace NosCore.Parser.Parsers
         }
         private short ImportMagicDefence(Dictionary<string, string[][]> chunk)
         {
-            return Convert.ToByte(ImportItemType(chunk) switch
+            return Convert.ToInt16(ImportItemType(chunk) switch
             {
                 ItemType.Armor => chunk["DATA"][0][5],
                 ItemType.Fashion => chunk["DATA"][0][5],

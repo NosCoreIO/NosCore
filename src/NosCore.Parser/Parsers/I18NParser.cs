@@ -54,25 +54,26 @@ namespace NosCore.Parser.Parsers
 
         public void InsertI18N(string file, LogLanguageKey logLanguageKey)
         {
-            string _line;
-            List<TDto> listoftext = _dao.LoadAll().ToList();
-            var type = _dao.GetType().GetGenericArguments()[1] as Type;
-
+            var listoftext = _dao.LoadAll().ToDictionary(x=>(x.Key,x.RegionType), x=>x.Text);
             Parallel.ForEach((RegionType[])Enum.GetValues(typeof(RegionType)), region =>
             {
-                List<TDto> dtos = new List<TDto>();
+                var dtos = new Dictionary<string, TDto>();
                 try
                 {
                     using var stream = new StreamReader(I18NTextFileName(file, region),
                         Encoding.Default);
-                    while ((_line = stream.ReadLine()) != null)
+                    while (!stream.EndOfStream)
                     {
-                        var currentLine = _line.Split('\t');
-                        if ((listoftext.Find(s => (s.Key == currentLine[0]) && (s.RegionType == region))
-                                == null) && (currentLine.Length > 1) &&
-                            !dtos.Exists(s => s.Key == currentLine[0]))
+                        var line = stream.ReadLine();
+                        if(line == null)
                         {
-                            dtos.Add(new TDto()
+                            continue;
+                        }
+                        var currentLine = line.Split('\t');
+                        if (currentLine.Length > 1 && !listoftext.ContainsKey((currentLine[0], region))  &&
+                            !dtos.ContainsKey(currentLine[0]))
+                        {
+                            dtos.Add(currentLine[0], new TDto()
                             {
                                 Key = currentLine[0],
                                 RegionType = region,
@@ -80,7 +81,7 @@ namespace NosCore.Parser.Parsers
                             });
                         }
                     }
-                    _dao.InsertOrUpdate(dtos.AsEnumerable());
+                    _dao.InsertOrUpdate(dtos.Values.AsEnumerable());
 
                     _logger.Information(string.Format(
                         LogLanguage.Instance.GetMessageFromKey(logLanguageKey),

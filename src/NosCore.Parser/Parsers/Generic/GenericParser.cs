@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FastMember;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
@@ -54,7 +55,10 @@ namespace NosCore.Parser.Parsers.Generic
                     .Select(s => s.Split(splitter))
                     .Where(s => s.Length > _firstIndex)
                     .GroupBy(x => x[_firstIndex]).ToDictionary(x => x.Key, y => y.ToArray());
-
+                if (lines.Count == 0)
+                {
+                    return;
+                }
                 try
                 {
                     var parsedItem = new T();
