@@ -92,7 +92,7 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
             var mail = new MailDto
             {
                 IsOpened = false,
-                Date = DateTime.Now,
+                Date = SystemTime.Now(),
                 ReceiverId = receiverId,
                 IsSenderCopy = false,
                 ItemInstanceId = itemInstance?.Id,

@@ -67,14 +67,13 @@ namespace NosCore.Parser.Parsers
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
             {
                 {nameof(ItemDto.VNum), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
-                {nameof(ItemDto.Price), chunk => Convert.ToInt32(chunk["VNUM"][0][3])},
-                {nameof(ItemDto.ReputPrice), chunk => chunk["FLAG"][0][21] == "1" ? Convert.ToInt32(chunk["VNUM"][0][3]) : 0},
+                {nameof(ItemDto.Price), chunk => Convert.ToInt64(chunk["VNUM"][0][3])},
+                {nameof(ItemDto.ReputPrice), chunk => chunk["FLAG"][0][21] == "1" ? Convert.ToInt64(chunk["VNUM"][0][3]) : 0},
                 {nameof(ItemDto.NameI18NKey), chunk => Convert.ToInt16(chunk["NAME"][0][2])},
-                {nameof(ItemDto.Type), chunk => ImportItemType(chunk)},
-                {nameof(ItemDto.ItemType), chunk => Convert.ToInt16(chunk["INDEX"][0][2])},
+                {nameof(ItemDto.Type), chunk => ImportType(chunk)},
+                {nameof(ItemDto.ItemType), chunk => ImportItemType(chunk)},
                 {nameof(ItemDto.ItemSubType), chunk => Convert.ToByte(chunk["INDEX"][0][4])},
                 {nameof(ItemDto.EquipmentSlot), chunk => ImportEquipmentType(chunk)},
-                {nameof(ItemDto.EffectValue), chunk => ImportEquipmentType(chunk) == EquipmentType.Amulet ? Convert.ToInt16(chunk["INDEX"][0][7]) : default},
                 {nameof(ItemDto.Morph), chunk =>  ImportEffect(chunk) == ItemEffectType.ApplySkinPartner ?Convert.ToInt16(chunk["INDEX"][0][5]) :
                     ImportEquipmentType(chunk) != EquipmentType.Amulet ? Convert.ToInt16(chunk["INDEX"][0][7]) : default},
                 {nameof(ItemDto.Class), chunk => ImportEquipmentType(chunk) == EquipmentType.Fairy ? (byte)15 : Convert.ToByte(chunk["TYPE"][0][3])},
@@ -146,7 +145,7 @@ namespace NosCore.Parser.Parsers
                         { ElementType.Water, item.WaterResistance },
                         { ElementType.Light, item.LightResistance },
                         { ElementType.Dark, item.DarkResistance }
-                    }.OrderByDescending(s => s.Value);
+                    }.OrderByDescending(s => s.Value).ToList();
 
                     item.Element = elementdic.First().Key;
                     if (elementdic.First().Value != 0 && elementdic.First().Value == elementdic.ElementAt(1).Value)
@@ -216,10 +215,11 @@ namespace NosCore.Parser.Parsers
             });
         }
 
-        private byte ImportEffectValue(Dictionary<string, string[][]> chunk)
+        private int ImportEffectValue(Dictionary<string, string[][]> chunk)
         {
-            return Convert.ToByte(ImportItemType(chunk) switch
+            return Convert.ToInt32(ImportItemType(chunk) switch
             {
+                ItemType.Fashion when ImportEquipmentType(chunk) == EquipmentType.Amulet => chunk["INDEX"][0][7],
                 ItemType.Special when ImportEffect(chunk) == ItemEffectType.ApplySkinPartner => chunk["DATA"][0][5],
                 ItemType.Box => chunk["DATA"][0][3],
                 ItemType.Event => chunk["DATA"][0][7],
@@ -239,9 +239,9 @@ namespace NosCore.Parser.Parsers
         }
 
 
-        private byte ImportMinilandObjectPoint(Dictionary<string, string[][]> chunk)
+        private int ImportMinilandObjectPoint(Dictionary<string, string[][]> chunk)
         {
-            return Convert.ToByte(ImportItemType(chunk) switch
+            return Convert.ToInt32(ImportItemType(chunk) switch
             {
                 ItemType.House => chunk["DATA"][0][2],
                 ItemType.Garden => chunk["DATA"][0][2],
@@ -275,9 +275,9 @@ namespace NosCore.Parser.Parsers
                 _ => "0"
             });
         }
-        private byte ImportMp(Dictionary<string, string[][]> chunk)
+        private short ImportMp(Dictionary<string, string[][]> chunk)
         {
-            return Convert.ToByte(ImportItemType(chunk) switch
+            return Convert.ToInt16(ImportItemType(chunk) switch
             {
                 ItemType.Food => chunk["DATA"][0][4],
                 ItemType.Potion => chunk["DATA"][0][4],
@@ -323,18 +323,18 @@ namespace NosCore.Parser.Parsers
             });
         }
 
-        private short ImportCriticalLuckRate(Dictionary<string, string[][]> chunk)
+        private byte ImportCriticalLuckRate(Dictionary<string, string[][]> chunk)
         {
-            return Convert.ToInt16(ImportItemType(chunk) switch
+            return Convert.ToByte(ImportItemType(chunk) switch
             {
                 ItemType.Weapon => chunk["DATA"][0][6],
                 _ => "0"
             });
         }
 
-        private short ImportMaximumAmmo(Dictionary<string, string[][]> chunk)
+        private byte ImportMaximumAmmo(Dictionary<string, string[][]> chunk)
         {
-            return Convert.ToInt16(ImportItemType(chunk) switch
+            return Convert.ToByte(ImportItemType(chunk) switch
             {
                 ItemType.Weapon => 100,
                 _ => 0
@@ -358,12 +358,12 @@ namespace NosCore.Parser.Parsers
             });
         }
 
-        private int ImportItemValidTime(Dictionary<string, string[][]> chunk)
+        private long ImportItemValidTime(Dictionary<string, string[][]> chunk)
         {
             return ImportItemType(chunk) switch
             {
-                ItemType.Jewelery when ImportEquipmentType(chunk) == EquipmentType.Amulet => Convert.ToInt32(chunk["DATA"][0][3]) / 10,
-                ItemType.Fashion when ImportEquipmentType(chunk) == EquipmentType.CostumeHat || ImportEquipmentType(chunk) == EquipmentType.CostumeSuit => Convert.ToInt32(chunk["DATA"][0][13]) * 3600,
+                ItemType.Jewelery when ImportEquipmentType(chunk) == EquipmentType.Amulet => Convert.ToInt64(chunk["DATA"][0][3]) / 10,
+                ItemType.Fashion when ImportEquipmentType(chunk) == EquipmentType.CostumeHat || ImportEquipmentType(chunk) == EquipmentType.CostumeSuit => Convert.ToInt64(chunk["DATA"][0][13]) * 3600,
                 _ => 0
             };
         }
@@ -423,9 +423,9 @@ namespace NosCore.Parser.Parsers
             });
         }
 
-        private byte ImportHp(Dictionary<string, string[][]> chunk)
+        private short ImportHp(Dictionary<string, string[][]> chunk)
         {
-            return Convert.ToByte(ImportItemType(chunk) switch
+            return Convert.ToInt16(ImportItemType(chunk) switch
             {
                 ItemType.Food => chunk["DATA"][0][2],
                 ItemType.Potion => chunk["DATA"][0][2],
@@ -442,9 +442,9 @@ namespace NosCore.Parser.Parsers
                 _ => 0
             });
         }
-        private byte ImportElementRate(Dictionary<string, string[][]> chunk)
+        private short ImportElementRate(Dictionary<string, string[][]> chunk)
         {
-            return Convert.ToByte(ImportItemType(chunk) switch
+            return Convert.ToInt16(ImportItemType(chunk) switch
             {
                 ItemType.Jewelery when ImportEquipmentType(chunk) == EquipmentType.Fairy => chunk["DATA"][0][3],
                 ItemType.Specialist => chunk["DATA"][0][4],
@@ -528,10 +528,10 @@ namespace NosCore.Parser.Parsers
             };
         }
 
-        private byte ImportResistance(Dictionary<string, string[][]> chunk, ElementType element)
+        private short ImportResistance(Dictionary<string, string[][]> chunk, ElementType element)
         {
             var equipmentType = ImportEquipmentType(chunk);
-            return Convert.ToByte(element switch
+            return Convert.ToInt16(element switch
             {
                 ElementType.Fire => equipmentType == EquipmentType.Sp ? chunk["DATA"][0][15] : chunk["DATA"][0][7],
                 ElementType.Light => equipmentType == EquipmentType.Sp ? chunk["DATA"][0][17] : chunk["DATA"][0][9],
