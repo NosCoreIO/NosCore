@@ -145,6 +145,9 @@
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Данное имя занято!</value>
   </data>
+  <data name="ALREADY_THIS_MINILANDOBJECT" xml:space="preserve">
+    <value>Эта постройка уже возведена</value>
+  </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Лучник</value>
   </data>
@@ -164,6 +167,9 @@
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Пользователь {1} успешно авторизован!</value>
     <comment>check</comment>
+  </data>
+  <data name="AUTH_API_SUCCESS" xml:space="preserve">
+    <value>Успешная авторизация API.</value>
   </data>
   <data name="AUTH_ERROR" xml:space="preserve">
     <value>Ошибка авторизации</value>
@@ -188,6 +194,18 @@
   <data name="BANK_FULL" xml:space="preserve">
     <value>Ваш банковский счет заполнен</value>
     <comment>Не заполнен, а ...</comment>
+  </data>
+  <data name="BAZAAR_BUY_ERROR" xml:space="preserve">
+    <value>Ошибка покупки в НосБазаре.</value>
+  </data>
+  <data name="BAZAAR_DELETE_ERROR" xml:space="preserve">
+    <value>Ошибка удаления из НосБазара.</value>
+  </data>
+  <data name="BAZAAR_MOD_ERROR" xml:space="preserve">
+    <value>Ошибка изменения лота в НосБазаре.</value>
+  </data>
+  <data name="BAZAAR_PRICE_CHANGED" xml:space="preserve">
+    <value>Цена успешно изменена на {0} золота.</value>
   </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Пользователь добавлен в черный список!</value>
@@ -221,8 +239,17 @@
     <value>Вы не можете перемещать предмет находящийся в магазине!</value>
     <comment>Нужно уточнение</comment>
   </data>
+  <data name="CANT_USE" xml:space="preserve">
+    <value>Использование невозможно</value>
+  </data>
+  <data name="CANT_USE_IN_VEHICLE" xml:space="preserve">
+    <value>Использование в транспорте невозможно</value>
+  </data>
   <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Вы не можете использовать предмет находящийся в магазине!</value>
+  </data>
+  <data name="CAN_NOT_MODIFY_SOLD_ITEMS" xml:space="preserve">
+    <value>Невозможно изменять проданные предметы</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>Импортировано {0} карт специалиста!</value>
@@ -234,7 +261,7 @@
     <value>Работа канала скоро будет завершена.</value>
   </data>
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
-    <value>Персонаж не загружен</value>
+    <value>Персонаж не инициализирован</value>
     <comment>check</comment>
   </data>
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
@@ -270,11 +297,20 @@
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
     <value>База данных могла устареть. Пожалуйста, проверьте обновления для БД.</value>
   </data>
+  <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
+    <value>Вы превысили лимит на отправку приглашений. Пожалуйста, повторите через {0} сек.</value>
+  </data>
+  <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
+    <value>Обнаружен прямой доступ к объекту: {0} - {1}</value>
+  </data>
   <data name="DONE" xml:space="preserve">
     <value>Импорт файлов завершен!</value>
   </data>
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Слишком много предметов на карте! Пожалуйста, попробуйте позже!</value>
+  </data>
+  <data name="EFFECT_ACTIVATED" xml:space="preserve">
+    <value>Эффект {0} был активирован!</value>
   </data>
   <data name="ENCODE_ERROR" xml:space="preserve">
     <value>Ошибка кодирования: {0}</value>
@@ -319,13 +355,13 @@
     <comment>Check</comment>
   </data>
   <data name="FRIEND_ADDED" xml:space="preserve">
-    <value>Запрос дружбы одобрен!</value>
+    <value>Запрос дружбы принят!</value>
   </data>
   <data name="FRIEND_DELETED" xml:space="preserve">
-    <value>Друг удален!</value>
+    <value>Друг удален.</value>
   </data>
   <data name="FRIEND_OFFLINE" xml:space="preserve">
-    <value>Друг не в сети!</value>
+    <value>Друг не в сети.</value>
   </data>
   <data name="FRIEND_REJECTED" xml:space="preserve">
     <value>Запрос дружбы отклонен!</value>
@@ -334,8 +370,14 @@
     <value>Запрос дружбы заблокирован!</value>
     <comment>Возможно, что подразумевается: "Персонаж блокирует запросы в друзья"</comment>
   </data>
+  <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
+    <value>Запрос в друзья не может быть отправлен, так как пользователь вышел из игры.</value>
+  </data>
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Запрос в друзья отправлен!</value>
+  </data>
+  <data name="GIFTED" xml:space="preserve">
+    <value>Получено посылок: {0} шт.</value>
   </data>
   <data name="GIFT_SENT" xml:space="preserve">
     <value>Подарок отправлен.</value>
@@ -415,11 +457,20 @@
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>{0} хочет обменяться с Вами.</value>
   </data>
+  <data name="INFO_BAZAAR" xml:space="preserve">
+    <value>С медалью НосТорговца вы можете использовать НосБазар в любое время, где бы вы не находились.</value>
+  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Неверный ID!</value>
   </data>
   <data name="INVALID_CHARNAME" xml:space="preserve">
     <value>Недопустимые символы в Никнейме!</value>
+  </data>
+  <data name="INVALID_EXCHANGE" xml:space="preserve">
+    <value>Некорректный обмен.</value>
+  </data>
+  <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
+    <value>Некорректный список обмена.</value>
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Неверный пароль!</value>
@@ -455,6 +506,9 @@
   <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
     <value>Был получен предмет земли смерти: {0}.</value>
     <comment>Нужно подумать. LoD - это "земли мертвых" или "земля смерти"? Или лучше не локализировать?</comment>
+  </data>
+  <data name="ITEM_GIFTED" xml:space="preserve">
+    <value>Подарков отправлено: {0} шт.</value>
   </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
     <value>Вы не можете выбросить данный предмет!</value>
@@ -492,11 +546,17 @@
   <data name="LEVEL_CHANGED" xml:space="preserve">
     <value>Ваш Уровень изменился!</value>
   </data>
+  <data name="LIMIT_EXCEEDED" xml:space="preserve">
+    <value>Лимит превышен</value>
+  </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Слушаю порт {0}</value>
   </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Загрузка MapInstances...</value>
+  </data>
+  <data name="LOGIN_MEDAL" xml:space="preserve">
+    <value>Медаль НосТорговца активирована.</value>
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Слишком низкий рабочий уровень для использования данной Карты специалиста.</value>
@@ -508,6 +568,9 @@
   </data>
   <data name="MAGICIAN" xml:space="preserve">
     <value>Маг</value>
+  </data>
+  <data name="MAILED" xml:space="preserve">
+    <value>Письмо отправлено.</value>
   </data>
   <data name="MAIL_DELETED" xml:space="preserve">
     <value>Письмо удалено.</value>
@@ -535,10 +598,11 @@
     <value>Мастер боевых искусств</value>
   </data>
   <data name="MASTER_SERVER_PING" xml:space="preserve">
-    <value>Пингуем Master сервер</value>
+    <value>Отправляем пинг-запрос на Master сервер</value>
+    <comment>"Пингуем" звучит отвратно.</comment>
   </data>
   <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
-    <value>Не удалось пропинговать Master сервер</value>
+    <value>Не удалось получить ответ на пинг Master сервера</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Не удалось подключиться к Master серверу! Повторная попытка через {0} секунд...</value>
@@ -546,14 +610,26 @@
   <data name="MAX_GOLD" xml:space="preserve">
     <value>Достигнуто максимальное количество золота!</value>
   </data>
+  <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
+    <value>Мини-страна друга закрыта</value>
+  </data>
+  <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
+    <value>Информация о Мини-стране обновлена</value>
+  </data>
   <data name="MINILAND_LOCK" xml:space="preserve">
-    <value>Мини-страна закрыта.</value>
+    <value>Мини-страна закрыта</value>
+  </data>
+  <data name="MINILAND_NEED_LOCK" xml:space="preserve">
+    <value>Строительство возможно только в закрытой Мини-стране</value>
   </data>
   <data name="MINILAND_PRIVATE" xml:space="preserve">
-    <value>Мини-страна открыта только для друзей.</value>
+    <value>Теперь Мини-страна открыта только для друзей</value>
   </data>
   <data name="MINILAND_PUBLIC" xml:space="preserve">
-    <value>Мини-страна открыта для всех.</value>
+    <value>Теперь Мини-страна открыта для всех</value>
+  </data>
+  <data name="MINILAND_VISITOR" xml:space="preserve">
+    <value>Всего посетителей: {0} Посетителей за сегодня: {1}</value>
   </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>Импортировано {0} MapMonsters!</value>
@@ -561,11 +637,20 @@
   <data name="NEW_LEADER" xml:space="preserve">
     <value>Теперь вы новый глава группы!</value>
   </data>
+  <data name="NEW_MAIL" xml:space="preserve">
+    <value>Новое письмо</value>
+  </data>
   <data name="NOT_ADVENTURER" xml:space="preserve">
     <value>Вы не Искатель приключений.</value>
   </data>
+  <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
+    <value>Недостаточно очков прочности</value>
+  </data>
   <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
     <value>Недостаточно золота.</value>
+  </data>
+  <data name="NOT_ENOUGH_MINILAND_POINT" xml:space="preserve">
+    <value>Недостаточно очков производства</value>
   </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Недостаточно денег.</value>
@@ -577,13 +662,16 @@
     <value>Недостаточно репутации для покупки предмета.</value>
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
-    <value>Этот игрок не находится в Вашем черном списке!</value>
+    <value>Пользователь уже удален из Черного Списка.</value>
   </data>
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
     <value>Пользователь не в списке друзей.</value>
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>Этот предмет не принадлежит Вам!</value>
+  </data>
+  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
+    <value>У Вас нет медали НосТорговца.</value>
   </data>
   <data name="NO_ITEM" xml:space="preserve">
     <value>Предмет не существует!</value>
@@ -593,10 +681,10 @@
     <value>Для работы сервера необходимо установить хотя бы карту НосВилля.</value>
   </data>
   <data name="NO_SP" xml:space="preserve">
-    <value>Не экипирована Карта специалиста.</value>
+    <value>Не экипирована карта специалиста</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
-    <value>SP пригодные к экипировке отсутствуют.</value>
+    <value>SP пригодные к экипировке отсутствуют</value>
     <comment>Что-то невнятное. Надо уточнить о чем вообще идет речь.</comment>
   </data>
   <data name="NPCMONSTERS_LOADED" xml:space="preserve">
@@ -607,6 +695,9 @@
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>Импортировано {0} MapNpcs!</value>
+  </data>
+  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
+    <value>Лот размещен.</value>
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Пакет получен без выбранного персонажа {0}</value>
@@ -686,9 +777,18 @@
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Портал перезаряжается, нужно немножко потерпеть.</value>
   </data>
+  <data name="PRICE_EXCEEDED" xml:space="preserve">
+    <value>Значение цены превышено</value>
+  </data>
+  <data name="REFILL_MINIGAME" xml:space="preserve">
+    <value>Добавлено {0} очков прочности.</value>
+  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Зарегистрирован на Master сервере</value>
     <comment>check</comment>
+  </data>
+  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
+    <value>Продажа завершена. Получено золота: {0}</value>
   </data>
   <data name="REMOVE_VEHICLE" xml:space="preserve">
     <value>Для трансформации необходимо спешиться</value>
@@ -706,11 +806,14 @@
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Сохраняем всю инфомацию!</value>
   </data>
+  <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
+    <value>Токен безопасности обновлен.</value>
+  </data>
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Пожалуйста, выберите MapId:</value>
   </data>
   <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>Ваш предмет был продан! {0}</value>
+    <value>Продано: {0}</value>
   </data>
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
     <value>Сообщение отправлено.</value>
@@ -723,6 +826,9 @@
   </data>
   <data name="SHOPITEMS_PARSED" xml:space="preserve">
     <value>Импортировано {0} ShopItems!</value>
+  </data>
+  <data name="SHOPSKILLS_LOADED" xml:space="preserve">
+    <value>Загружено {0} ShopSkills!</value>
   </data>
   <data name="SHOPS_LOADED" xml:space="preserve">
     <value>Загружено {0} Shops!</value>
@@ -770,6 +876,9 @@
     <value>ОС восполнены на {0}!</value>
     <comment>Check</comment>
   </data>
+  <data name="STATE_CHANGED_BAZAAR" xml:space="preserve">
+    <value>Лот обновлен.</value>
+  </data>
   <data name="STAY_TIME" xml:space="preserve">
     <value>Время действия вторичных эффектов: {0} сек.</value>
     <comment>Что за вторичные эффекты? Те, которые эффекты после возраждения?</comment>
@@ -786,6 +895,12 @@
   <data name="SWORDMAN" xml:space="preserve">
     <value>Мечник</value>
   </data>
+  <data name="TITLE_EFFECT_CHANGED" xml:space="preserve">
+    <value>Эффект титула изменен</value>
+  </data>
+  <data name="TITLE_VISIBILITY_CHANGED" xml:space="preserve">
+    <value>Видимость титула изменена</value>
+  </data>
   <data name="TOKEN_UPDATED" xml:space="preserve">
     <value>Токен обновлен.</value>
   </data>
@@ -798,6 +913,12 @@
   <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
     <value>Время действия вторичных эффектов закончилось. {0}</value>
     <comment>Что за вторичные эффекты? Те, которые эффекты после возраждения?</comment>
+  </data>
+  <data name="TRY_OLD_AUTH" xml:space="preserve">
+    <value>Попробуйте использователь старый метод авторизации {0}</value>
+  </data>
+  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
+    <value>Попытка удаления завершилась неудачей: {0}</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Невозможно отправить запрос группы</value>
@@ -839,6 +960,12 @@
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Неизвестный VisualType: {0}</value>
+  </data>
+  <data name="WANT_ENABLE_TITLE" xml:space="preserve">
+    <value>Хочешь активировать титул?</value>
+  </data>
+  <data name="WEAR_NEW_TITLE" xml:space="preserve">
+    <value>Активирован новый титул</value>
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Некорректный MapId!</value>
