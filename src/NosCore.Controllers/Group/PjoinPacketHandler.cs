@@ -127,7 +127,7 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     clientSession.Character.GroupRequestCharacterIds.TryAdd(pjoinPacket.CharacterId, pjoinPacket.CharacterId);
-                    clientSession.Character.LastGroupRequest = DateTime.Now;
+                    clientSession.Character.LastGroupRequest = SystemTime.Now();
 
                     if (((clientSession.Character.Group.Count == 1) ||
                             (clientSession.Character.Group.Type == GroupType.Group))
