@@ -302,6 +302,7 @@ namespace NosCore.Data.Enumerations.I18N
         TITLE_EFFECT_CHANGED,
         LOGIN_MEDAL,
         GIFTED,
-        NEW_MAIL
+        NEW_MAIL,
+        DELAY_GROUP_REQUEST
     }
 }

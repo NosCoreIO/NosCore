@@ -819,4 +819,7 @@
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>The player isn't in exchange.</value>
   </data>
+  <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
+    <value>You can not send the invitation yet. Please try again in {0} seconds.</value>
+  </data>
 </root>

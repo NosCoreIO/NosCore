@@ -816,4 +816,7 @@
   <data name="CANT_USE_IN_VEHICLE" xml:space="preserve">
     <value>Lorsque tu es sur une monture, tu ne peux utiliser que des potions HP et MP.</value>
   </data>
+  <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
+    <value>Tu ne peux pas encore envoyer l'invitation. Merci de réessayer dans {0} secondes.</value>
+  </data>
 </root>
