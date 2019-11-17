@@ -523,7 +523,7 @@
     <value>Вы не можете обмениваться одним из предметов!</value>
   </data>
   <data name="ITEM_RECEIVED" xml:space="preserve">
-    <value>Вы получили {0}.</value>
+    <value>Вы получили {0} {1}.</value>
   </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Предмет больше не действителен.</value>
