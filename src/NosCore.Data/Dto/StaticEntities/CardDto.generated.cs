@@ -58,10 +58,12 @@ namespace NosCore.Data.StaticEntities
 	 	public byte Propability { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
+	// foreign key injection of BCards
+		public System.Collections.Generic.ICollection<BCardDto> BCardsDto { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<StaticBuffDto> StaticBuff { get; set; }
+	// foreign key injection of StaticBuff
+		public System.Collections.Generic.ICollection<StaticBuffDto> StaticBuffDto { get; set; }
 
 	 }
 }

@@ -37,12 +37,14 @@ namespace NosCore.Data.StaticEntities
 		public short MapTypeMapId { get; set; }
 
 	 	[AdaptIgnore]
-		public MapDto Map { get; set; }
+	// foreign key injection of Map
+		public MapDto MapDto { get; set; }
 
 	 	public short MapId { get; set; }
 
 	 	[AdaptIgnore]
-		public MapTypeDto MapType { get; set; }
+	// foreign key injection of MapType
+		public MapTypeDto MapTypeDto { get; set; }
 
 	 	public short MapTypeId { get; set; }
 

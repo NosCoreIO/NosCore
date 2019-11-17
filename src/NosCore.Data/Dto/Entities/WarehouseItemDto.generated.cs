@@ -34,12 +34,14 @@ namespace NosCore.Data.Dto
 	public class WarehouseItemDto : IDto
 	{
 		[AdaptIgnore]
-		public WarehouseDto Warehouse { get; set; }
+	// foreign key injection of Warehouse
+		public WarehouseDto WarehouseDto { get; set; }
 
 	 	public System.Guid WarehouseId { get; set; }
 
 	 	[AdaptIgnore]
-		public ItemInstanceDto ItemInstance { get; set; }
+	// foreign key injection of ItemInstance
+		public ItemInstanceDto ItemInstanceDto { get; set; }
 
 	 	public System.Guid ItemInstanceId { get; set; }
 

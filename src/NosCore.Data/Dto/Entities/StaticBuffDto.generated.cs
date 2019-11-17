@@ -34,12 +34,14 @@ namespace NosCore.Data.Dto
 	public class StaticBuffDto : IDto
 	{
 		[AdaptIgnore]
-		public CharacterDto Character { get; set; }
+	// foreign key injection of Character
+		public CharacterDto CharacterDto { get; set; }
 
 	 	public long CharacterId { get; set; }
 
 	 	[AdaptIgnore]
-		public CardDto Card { get; set; }
+	// foreign key injection of Card
+		public CardDto CardDto { get; set; }
 
 	 	public short CardId { get; set; }
 

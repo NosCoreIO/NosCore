@@ -34,17 +34,20 @@ namespace NosCore.Data.Dto
 	public class InventoryItemInstanceDto : IDto
 	{
 		[AdaptIgnore]
-		public CharacterDto Character { get; set; }
+	// foreign key injection of Character
+		public CharacterDto CharacterDto { get; set; }
 
 	 	public long CharacterId { get; set; }
 
 	 	[AdaptIgnore]
-		public ItemInstanceDto ItemInstance { get; set; }
+	// foreign key injection of ItemInstance
+		public ItemInstanceDto ItemInstanceDto { get; set; }
 
 	 	public System.Guid ItemInstanceId { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<MinilandObjectDto> MinilandObject { get; set; }
+	// foreign key injection of MinilandObject
+		public System.Collections.Generic.ICollection<MinilandObjectDto> MinilandObjectDto { get; set; }
 
 	 	public short Slot { get; set; }
 
