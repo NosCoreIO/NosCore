@@ -572,7 +572,7 @@
     <value>Proszę wybrać MapId:</value>
   </data>
   <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>Twój przedmiot został sprzedany! {0}</value>
+    <value>Twój przedmiot {0} został sprzedany! {1}</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Odmówiłeś dzielenia punktu powrotu z członkami grupy</value>
