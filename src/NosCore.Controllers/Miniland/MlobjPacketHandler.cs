@@ -24,6 +24,7 @@ using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MinilandProvider;
 
@@ -32,6 +33,7 @@ namespace NosCore.PacketHandlers.Miniland
     public class MlEditPacketHandler : PacketHandler<MLEditPacket>, IWorldPacketHandler
     {
         private readonly IMinilandProvider _minilandProvider;
+        private readonly IFriendHttpClient _friendHttpClient;
 
         public MlEditPacketHandler(IMinilandProvider minilandProvider)
         {
@@ -62,7 +64,7 @@ namespace NosCore.PacketHandlers.Miniland
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PRIVATE,
                                     clientSession.Account.Language)
                             });
-                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Private);
+                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Private, clientSession);
                             break;
 
                         case MinilandState.Lock:
@@ -71,7 +73,7 @@ namespace NosCore.PacketHandlers.Miniland
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_LOCK,
                                     clientSession.Account.Language)
                             });
-                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Lock);
+                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Lock, clientSession);
                             break;
 
                         case MinilandState.Open:
@@ -80,6 +82,7 @@ namespace NosCore.PacketHandlers.Miniland
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PUBLIC,
                                     clientSession.Account.Language)
                             });
+                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Open, clientSession);
                             break;
 
                         default:
