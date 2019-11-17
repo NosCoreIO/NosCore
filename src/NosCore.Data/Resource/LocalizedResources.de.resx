@@ -192,7 +192,7 @@
     <value>Dieser Spieler hat dich blockiert.</value>
   </data>
   <data name="BUY_ITEM_FROM" xml:space="preserve">
-    <value>Du hast ein Item von {0} gekauft!</value>
+    <value>Du hast ein Item von {0} {1} {2} gekauft!</value>
   </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Du hast ein Item gekauft!</value>
@@ -448,7 +448,7 @@
     <value>Du kannst das Item nicht tauschen!</value>
   </data>
   <data name="ITEM_RECEIVED" xml:space="preserve">
-    <value>Du hast {0} erhalten.</value>
+    <value>Du hast {0} {1} erhalten.</value>
   </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Item ist nicht mehr benutzbar.</value>
@@ -686,7 +686,7 @@
     <value>Bitte wähle eine MapId</value>
   </data>
   <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>Dein Item wurde verkauft! {0}</value>
+    <value>Dein {0} wurde verkauft! {1}</value>
   </data>
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
     <value>Nachricht an Empfänger gesendet.</value>
