@@ -36,16 +36,20 @@ namespace NosCore.Data.Dto
 		public short Amount { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<BazaarItemDto> BazaarItem { get; set; }
+	// foreign key injection of BazaarItem
+		public System.Collections.Generic.ICollection<BazaarItemDto> BazaarItemDto { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<MailDto> Mail { get; set; }
+	// foreign key injection of Mail
+		public System.Collections.Generic.ICollection<MailDto> MailDto { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<WarehouseItemDto> WarehouseItems { get; set; }
+	// foreign key injection of WarehouseItems
+		public System.Collections.Generic.ICollection<WarehouseItemDto> WarehouseItemsDto { get; set; }
 
 	 	[AdaptIgnore]
-		public CharacterDto BoundCharacter { get; set; }
+	// foreign key injection of BoundCharacter
+		public CharacterDto BoundCharacterDto { get; set; }
 
 	 	public long? BoundCharacterId { get; set; }
 
@@ -56,14 +60,16 @@ namespace NosCore.Data.Dto
 	 	public int DurabilityPoint { get; set; }
 
 	 	[AdaptIgnore]
-		public ItemDto Item { get; set; }
+	// foreign key injection of Item
+		public ItemDto ItemDto { get; set; }
 
 	 	public System.DateTime? ItemDeleteTime { get; set; }
 
 	 	public short ItemVNum { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<InventoryItemInstanceDto> InventoryItemInstance { get; set; }
+	// foreign key injection of InventoryItemInstance
+		public System.Collections.Generic.ICollection<InventoryItemInstanceDto> InventoryItemInstanceDto { get; set; }
 
 	 	public byte Upgrade { get; set; }
 

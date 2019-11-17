@@ -34,25 +34,29 @@ namespace NosCore.Data.StaticEntities
 	public class MapTypeDto : IStaticDto
 	{
 		[AdaptIgnore]
-		public System.Collections.Generic.ICollection<DropDto> Drops { get; set; }
+	// foreign key injection of Drops
+		public System.Collections.Generic.ICollection<DropDto> DropsDto { get; set; }
 
 	 	[Key]
 		public short MapTypeId { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<MapTypeMapDto> MapTypeMap { get; set; }
+	// foreign key injection of MapTypeMap
+		public System.Collections.Generic.ICollection<MapTypeMapDto> MapTypeMapDto { get; set; }
 
 	 	public string MapTypeName { get; set; }
 
 	 	public short PotionDelay { get; set; }
 
 	 	[AdaptIgnore]
-		public RespawnMapTypeDto RespawnMapType { get; set; }
+	// foreign key injection of RespawnMapType
+		public RespawnMapTypeDto RespawnMapTypeDto { get; set; }
 
 	 	public long? RespawnMapTypeId { get; set; }
 
 	 	[AdaptIgnore]
-		public RespawnMapTypeDto ReturnMapType { get; set; }
+	// foreign key injection of ReturnMapType
+		public RespawnMapTypeDto ReturnMapTypeDto { get; set; }
 
 	 	public long? ReturnMapTypeId { get; set; }
 

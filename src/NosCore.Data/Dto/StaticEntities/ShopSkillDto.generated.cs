@@ -35,7 +35,8 @@ namespace NosCore.Data.StaticEntities
 	public class ShopSkillDto : IStaticDto
 	{
 		[AdaptIgnore]
-		public ShopDto Shop { get; set; }
+	// foreign key injection of Shop
+		public ShopDto ShopDto { get; set; }
 
 	 	public int ShopId { get; set; }
 
@@ -43,7 +44,8 @@ namespace NosCore.Data.StaticEntities
 		public int ShopSkillId { get; set; }
 
 	 	[AdaptIgnore]
-		public SkillDto Skill { get; set; }
+	// foreign key injection of Skill
+		public SkillDto SkillDto { get; set; }
 
 	 	public short SkillVNum { get; set; }
 

@@ -77,7 +77,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(SkillDto.Class), chunk => Convert.ToByte(chunk["TYPE"][0][4])},
                 {nameof(SkillDto.Type), chunk => Convert.ToByte(chunk["TYPE"][0][5])},
                 {nameof(SkillDto.Element), chunk => Convert.ToByte(chunk["TYPE"][0][7])},
-                {nameof(SkillDto.Combo), AddCombos},
+                {nameof(SkillDto.ComboDto), AddCombos},
                 {nameof(SkillDto.CpCost), chunk => chunk["COST"][0][2] == "-1" ? (byte)0 : byte.Parse(chunk["COST"][0][2])},
                 {nameof(SkillDto.Price), chunk => Convert.ToInt32(chunk["COST"][0][3])},
                 {nameof(SkillDto.CastEffect), chunk => Convert.ToInt16(chunk["EFFECT"][0][3])},
@@ -94,7 +94,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(SkillDto.Cooldown), chunk => Convert.ToInt16(chunk["DATA"][0][7])},
                 {nameof(SkillDto.MpCost), chunk => Convert.ToInt16(chunk["DATA"][0][10])},
                 {nameof(SkillDto.ItemVNum), chunk => Convert.ToInt16(chunk["DATA"][0][12])},
-                {nameof(SkillDto.BCards), AddBCards},
+                {nameof(SkillDto.BCardsDto), AddBCards},
                 {nameof(SkillDto.MinimumAdventurerLevel), chunk => chunk["LEVEL"][0][3] != "-1" ? byte.Parse(chunk["LEVEL"][0][3]) : (byte)0},
                 {nameof(SkillDto.MinimumSwordmanLevel), chunk => chunk["LEVEL"][0][4] != "-1" ? byte.Parse(chunk["LEVEL"][0][4]) : (byte)0},
                 {nameof(SkillDto.MinimumArcherLevel), chunk => chunk["LEVEL"][0][5] != "-1" ? byte.Parse(chunk["LEVEL"][0][5]) : (byte)0},
@@ -111,11 +111,11 @@ namespace NosCore.Parser.Parsers
                 var skillscount = skills.Count(s => s.Class == skill.Class);
                 if ((firstskill == null) || (skill.SkillVNum <= firstskill.SkillVNum + 10))
                 {
-                    skill.LevelMinimum = skill.Class switch
+                    skill.LevelMinimum = (byte)(skill.Class switch
                     {
                         8 => (byte)(skillscount - 1 * 10),
                         9 => (byte)(skillscount - 4 * 4),
-                        16 => skillscount switch
+                        16 => (byte)skillscount switch
                         {
                             6 => 20,
                             5 => 15,
@@ -125,14 +125,14 @@ namespace NosCore.Parser.Parsers
                             _ => 0
                         },
                         _ => (byte)(skillscount - 5 * 4)
-                    };
+                    });
 
                 }
             }
 
             _skillDao.InsertOrUpdate(skills);
-            _comboDao.InsertOrUpdate(skills.Where(s => s.Combo != null).SelectMany(s => s.Combo));
-            _bCardDao.InsertOrUpdate(skills.Where(s => s.BCards != null).SelectMany(s => s.BCards));
+            _comboDao.InsertOrUpdate(skills.Where(s => s.ComboDto != null).SelectMany(s => s.ComboDto));
+            _bCardDao.InsertOrUpdate(skills.Where(s => s.BCardsDto != null).SelectMany(s => s.BCardsDto));
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SKILLS_PARSED), skills.Count);
         }

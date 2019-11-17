@@ -34,7 +34,8 @@ namespace NosCore.Data.Dto
 	public class BazaarItemDto : IDto
 	{
 		[AdaptIgnore]
-		public CharacterDto Seller { get; set; }
+	// foreign key injection of Seller
+		public CharacterDto SellerDto { get; set; }
 
 	 	public short Amount { get; set; }
 
@@ -48,7 +49,8 @@ namespace NosCore.Data.Dto
 	 	public bool IsPackage { get; set; }
 
 	 	[AdaptIgnore]
-		public ItemInstanceDto ItemInstance { get; set; }
+	// foreign key injection of ItemInstance
+		public ItemInstanceDto ItemInstanceDto { get; set; }
 
 	 	public System.Guid ItemInstanceId { get; set; }
 

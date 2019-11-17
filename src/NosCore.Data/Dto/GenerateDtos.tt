@@ -109,6 +109,7 @@ namespace <#= classNamespace #>
 					if(prop.OverrideKind != EnvDTE80.vsCMOverrideKind.vsCMOverrideKindNone ) {
 						isDto = true;
 #>	[AdaptIgnore]
+	// foreign key injection of <#= prop.Name #>
 	<#
 					}
 					var attr = prop.Attributes.Cast<EnvDTE.CodeAttribute>().FirstOrDefault(s=> s.Name == "Key");
@@ -120,7 +121,7 @@ namespace <#= classNamespace #>
 	<#
 					}
 #>
-	public <#= isDto ?  ConvertToDtoName(prop.Type.AsString) : prop.Type.AsString #> <#= prop.Name #> { get; set; }
+	public <#= isDto ?  ConvertToDtoName(prop.Type.AsString) : prop.Type.AsString #> <#= prop.Name + (isDto ? "Dto" : "") #> { get; set; }
 
 	 <#
 			}

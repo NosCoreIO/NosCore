@@ -47,7 +47,8 @@ namespace NosCore.Data.Dto
 	 	public bool IsSitting { get; set; }
 
 	 	[AdaptIgnore]
-		public MapDto Map { get; set; }
+	// foreign key injection of Map
+		public MapDto MapDto { get; set; }
 
 	 	public short MapId { get; set; }
 
@@ -59,20 +60,24 @@ namespace NosCore.Data.Dto
 	 	public short MapY { get; set; }
 
 	 	[AdaptIgnore]
-		public NpcMonsterDto NpcMonster { get; set; }
+	// foreign key injection of NpcMonster
+		public NpcMonsterDto NpcMonsterDto { get; set; }
 
 	 	public short VNum { get; set; }
 
 	 	public byte Direction { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<RecipeDto> Recipe { get; set; }
+	// foreign key injection of Recipe
+		public System.Collections.Generic.ICollection<RecipeDto> RecipeDto { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<ShopDto> Shop { get; set; }
+	// foreign key injection of Shop
+		public System.Collections.Generic.ICollection<ShopDto> ShopDto { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<TeleporterDto> Teleporter { get; set; }
+	// foreign key injection of Teleporter
+		public System.Collections.Generic.ICollection<TeleporterDto> TeleporterDto { get; set; }
 
 	 }
 }
