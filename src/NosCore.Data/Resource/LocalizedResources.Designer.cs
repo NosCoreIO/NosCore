@@ -277,7 +277,7 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à You bought an item from {0}!.
+        ///   Recherche une chaîne localisée semblable à You bought an item from {0} {1} {2}!.
         /// </summary>
         public static string BUY_ITEM_FROM {
             get {
@@ -1744,7 +1744,7 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Your item has been sold! {0}.
+        ///   Recherche une chaîne localisée semblable à Your item {0} has been sold! {1}.
         /// </summary>
         public static string SELL_ITEM_VALIDE {
             get {

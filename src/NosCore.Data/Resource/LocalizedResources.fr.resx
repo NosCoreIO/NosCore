@@ -604,7 +604,7 @@
     <value>Votre réputation a diminuée.</value>
   </data>
   <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>{0} a été vendu.</value>
+    <value>{0} a été vendu {1}.</value>
   </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>{0} ShopItem chargés.</value>
@@ -730,7 +730,7 @@
     <value>Vous êtes dans sa liste noire.</value>
   </data>
   <data name="BUY_ITEM_FROM" xml:space="preserve">
-    <value>Vous avez acheté un article de {0} !</value>
+    <value>Vous avez acheté un article de {0} {1} {2}!</value>
   </data>
   <data name="EFFECT_ACTIVATED" xml:space="preserve">
     <value>L'effet {0} a été activé.</value>

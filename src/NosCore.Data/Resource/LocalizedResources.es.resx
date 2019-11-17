@@ -571,7 +571,7 @@
     <value>Por favor, seleccione una MapId:</value>
   </data>
   <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>¡Tu objeto ha sido vendido! {0}</value>
+    <value>¡Tu objeto {0} ha sido vendido! {1}</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Has rechazado compartir el punto de regreso con los miembros del grupo.</value>
