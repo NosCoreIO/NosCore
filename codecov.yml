@@ -4,3 +4,4 @@ ignore:
   - "src/NosCore.PathFinder.Gui" 
   - "src/NosCore.Data"
   - "src/NosCore.Packets"
+  - "src/NosCore.Configuration"
