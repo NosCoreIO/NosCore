@@ -55,16 +55,14 @@ namespace NosCore.PacketHandlers.Friend
                 }
                 else
                 {
-                    if (miniland.State == MinilandState.Private)
-                    {
-                        if (friendList.Where(w => w.RelationType != CharacterRelationType.Blocked)
+                    if (miniland.State == MinilandState.Private &&
+                        friendList.Where(w => w.RelationType != CharacterRelationType.Blocked)
                             .Select(s => s.CharacterId)
                             .ToList()
                             .Contains(target.VisualId))
-                        {
-                            session.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
-                            return;
-                        }
+                    {
+                        session.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
+                        return;
                     }
                     session.SendPacket(new InfoPacket
                     {
