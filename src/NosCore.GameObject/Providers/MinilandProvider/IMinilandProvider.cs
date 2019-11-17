@@ -35,6 +35,6 @@ namespace NosCore.GameObject.Providers.MinilandProvider
         List<Portal> GetMinilandPortals(long characterId);
         Miniland GetMinilandFromMapInstanceId(Guid mapInstanceId);
         void AddMinilandObject(MapDesignObject mapObject, long characterId, InventoryItemInstance minilandobject);
-        void SetState(long characterId, MinilandState state, ClientSession clientSession);
+        void SetState(long characterId, MinilandState state);
     }
 }
