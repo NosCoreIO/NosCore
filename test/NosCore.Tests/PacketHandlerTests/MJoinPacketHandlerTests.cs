@@ -202,7 +202,6 @@ namespace NosCore.Tests.PacketHandlerTests
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
             _mjoinPacketHandler.Execute(mjoinPacket, _session);
 
-            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.IsTrue(_session.Character.MapInstance.Map.MapId == 20001);
         }
 
