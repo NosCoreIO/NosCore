@@ -173,7 +173,8 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public void Kick(Func<ICharacterEntity, bool> filter)
         {
-            Broadcaster.Instance.GetCharacters(filter).Where(s => !s.IsDisconnecting).ToList()
+            Broadcaster.Instance.GetCharacters(filter)
+                .Where(s => !s.IsDisconnecting && s.MapInstanceId == MapInstanceId).ToList()
                 .ForEach(s => s.ChangeMap(s.MapId, s.MapX, s.MapY));
         }
 
