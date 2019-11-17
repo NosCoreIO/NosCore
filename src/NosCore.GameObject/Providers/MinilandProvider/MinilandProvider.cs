@@ -29,6 +29,8 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.GuriProvider.Handlers;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.MapInstanceProvider;
@@ -148,7 +150,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             return minilandInfo;
         }
 
-        public void SetState(long characterId, MinilandState state)
+        public void SetState(long characterId, MinilandState state, ClientSession clientSession)
         {
             if (_minilandIds.ContainsKey(characterId))
             {
@@ -156,10 +158,20 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                 var miniland = _mapInstanceProvider.GetMapInstance(ml.MapInstanceId);
                 ml.State = state;
 
-                // TODO : If MinilandState.Private => Don't kick friends
                 if (ml.State != MinilandState.Open)
                 {
-                    miniland.Kick(o => o.VisualId != characterId);
+                    if (ml.State == MinilandState.Private)
+                    {
+                        List<long> friends = clientSession.GetFriends()
+                            .Where(w => w.RelationType != CharacterRelationType.Blocked)
+                            .Select(s => s.CharacterId)
+                            .ToList();
+                        // Kick all players in miniland except owner and his friends
+                        miniland.Kick(o => o.VisualId != characterId && !friends.Contains(o.VisualId));
+                    } else
+                    {
+                        miniland.Kick(o => o.VisualId != characterId);
+                    }
                 }
 
                 return;
