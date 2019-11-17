@@ -45,20 +45,31 @@ namespace NosCore.PacketHandlers.Friend
         public override void Execute(MJoinPacket mJoinPacket, ClientSession session)
         {
             var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == mJoinPacket.VisualId);
-            if ((target != null) && _friendHttpClient.GetListFriends(session.Character.CharacterId)
-                .Any(s => s.CharacterId == mJoinPacket.VisualId))
+            var friendList = _friendHttpClient.GetListFriends(session.Character.CharacterId);
+            if (target != null && friendList.Any(s => s.CharacterId == mJoinPacket.VisualId))
             {
-                var info = _minilandProvider.GetMiniland(mJoinPacket.VisualId);
-                if (info.State == MinilandState.Open)
+                var miniland = _minilandProvider.GetMiniland(mJoinPacket.VisualId);
+                if (miniland.State == MinilandState.Open)
                 {
-                    session.ChangeMapInstance(info.MapInstanceId, 5, 8);
+                    session.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
                 }
                 else
                 {
+                    if (miniland.State == MinilandState.Private)
+                    {
+                        if (friendList.Where(w => w.RelationType != CharacterRelationType.Blocked)
+                            .Select(s => s.CharacterId)
+                            .ToList()
+                            .Contains(target.VisualId))
+                        {
+                            session.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
+                            return;
+                        }
+                    }
                     session.SendPacket(new InfoPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND,
-                            session.Account.Language)
+                                session.Account.Language)
                     });
                 }
             }
