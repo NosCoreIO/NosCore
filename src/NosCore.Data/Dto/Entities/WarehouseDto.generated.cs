@@ -34,17 +34,20 @@ namespace NosCore.Data.Dto
 	public class WarehouseDto : IDto
 	{
 		[AdaptIgnore]
-		public CharacterDto Character { get; set; }
+	// foreign key injection of Character
+		public CharacterDto CharacterDto { get; set; }
 
 	 	public long? CharacterId { get; set; }
 
 	 	[AdaptIgnore]
-		public FamilyDto Family { get; set; }
+	// foreign key injection of Family
+		public FamilyDto FamilyDto { get; set; }
 
 	 	public long? FamilyId { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<WarehouseItemDto> WarehouseItems { get; set; }
+	// foreign key injection of WarehouseItems
+		public System.Collections.Generic.ICollection<WarehouseItemDto> WarehouseItemsDto { get; set; }
 
 	 	public NosCore.Data.Enumerations.Miniland.WarehouseType Type { get; set; }
 

@@ -95,7 +95,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(ItemDto.IsDroppable), chunk => chunk["FLAG"][0][6] == "0"},
                 {nameof(ItemDto.IsSoldable), chunk => chunk["FLAG"][0][5] == "0"},
                 {nameof(ItemDto.LevelMinimum),  chunk => ImportLevelMinimum(chunk)},
-                {nameof(ItemDto.BCards),  chunk => ImportBCards(chunk)},
+                {nameof(ItemDto.BCardsDto),  chunk => ImportBCards(chunk)},
                 {nameof(ItemDto.Effect),  chunk => ImportEffect(chunk)},
                 {nameof(ItemDto.EffectValue),  chunk => ImportEffectValue(chunk)},
                 {nameof(ItemDto.FireResistance),  chunk => ImportResistance(chunk, ElementType.Fire)},
@@ -167,7 +167,7 @@ namespace NosCore.Parser.Parsers
             });
 
             _itemDao.InsertOrUpdate(items);
-            _bcardDao.InsertOrUpdate(items.Where(s => s.BCards != null).SelectMany(s => s.BCards));
+            _bcardDao.InsertOrUpdate(items.Where(s => s.BCardsDto != null).SelectMany(s => s.BCardsDto));
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMS_PARSED), items.Count);
         }

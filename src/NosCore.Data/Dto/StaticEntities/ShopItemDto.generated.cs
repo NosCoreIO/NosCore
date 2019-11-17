@@ -37,14 +37,16 @@ namespace NosCore.Data.StaticEntities
 		public byte Color { get; set; }
 
 	 	[AdaptIgnore]
-		public ItemDto Item { get; set; }
+	// foreign key injection of Item
+		public ItemDto ItemDto { get; set; }
 
 	 	public short ItemVNum { get; set; }
 
 	 	public short Rare { get; set; }
 
 	 	[AdaptIgnore]
-		public ShopDto Shop { get; set; }
+	// foreign key injection of Shop
+		public ShopDto ShopDto { get; set; }
 
 	 	public int ShopId { get; set; }
 

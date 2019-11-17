@@ -39,7 +39,8 @@ namespace NosCore.Data.Dto
 	 	public bool IsMoving { get; set; }
 
 	 	[AdaptIgnore]
-		public MapDto Map { get; set; }
+	// foreign key injection of Map
+		public MapDto MapDto { get; set; }
 
 	 	public short MapId { get; set; }
 
@@ -53,7 +54,8 @@ namespace NosCore.Data.Dto
 	 	public short VNum { get; set; }
 
 	 	[AdaptIgnore]
-		public NpcMonsterDto NpcMonster { get; set; }
+	// foreign key injection of NpcMonster
+		public NpcMonsterDto NpcMonsterDto { get; set; }
 
 	 	public byte Direction { get; set; }
 

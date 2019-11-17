@@ -35,7 +35,8 @@ namespace NosCore.Data.StaticEntities
 	public class ShopDto : IStaticDto
 	{
 		[AdaptIgnore]
-		public MapNpcDto MapNpc { get; set; }
+	// foreign key injection of MapNpc
+		public MapNpcDto MapNpcDto { get; set; }
 
 	 	public int MapNpcId { get; set; }
 
@@ -47,10 +48,12 @@ namespace NosCore.Data.StaticEntities
 		public int ShopId { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<ShopItemDto> ShopItem { get; set; }
+	// foreign key injection of ShopItem
+		public System.Collections.Generic.ICollection<ShopItemDto> ShopItemDto { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<ShopSkillDto> ShopSkill { get; set; }
+	// foreign key injection of ShopSkill
+		public System.Collections.Generic.ICollection<ShopSkillDto> ShopSkillDto { get; set; }
 
 	 	public byte ShopType { get; set; }
 

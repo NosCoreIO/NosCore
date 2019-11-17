@@ -60,7 +60,8 @@ namespace NosCore.Data.Dto
 	 	public bool IsSenderCopy { get; set; }
 
 	 	[AdaptIgnore]
-		public ItemInstanceDto ItemInstance { get; set; }
+	// foreign key injection of ItemInstance
+		public ItemInstanceDto ItemInstanceDto { get; set; }
 
 	 	public System.Guid? ItemInstanceId { get; set; }
 
@@ -70,12 +71,14 @@ namespace NosCore.Data.Dto
 	 	public string Message { get; set; }
 
 	 	[AdaptIgnore]
-		public CharacterDto Receiver { get; set; }
+	// foreign key injection of Receiver
+		public CharacterDto ReceiverDto { get; set; }
 
 	 	public long ReceiverId { get; set; }
 
 	 	[AdaptIgnore]
-		public CharacterDto Sender { get; set; }
+	// foreign key injection of Sender
+		public CharacterDto SenderDto { get; set; }
 
 	 	public long? SenderId { get; set; }
 

@@ -45,7 +45,8 @@ namespace NosCore.Data.StaticEntities
 	 	public short QuestId { get; set; }
 
 	 	[AdaptIgnore]
-		public QuestDto Quest { get; set; }
+	// foreign key injection of Quest
+		public QuestDto QuestDto { get; set; }
 
 	 }
 }
