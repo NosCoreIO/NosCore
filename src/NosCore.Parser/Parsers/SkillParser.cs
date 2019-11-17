@@ -111,11 +111,11 @@ namespace NosCore.Parser.Parsers
                 var skillscount = skills.Count(s => s.Class == skill.Class);
                 if ((firstskill == null) || (skill.SkillVNum <= firstskill.SkillVNum + 10))
                 {
-                    skill.LevelMinimum = skill.Class switch
+                    skill.LevelMinimum = (byte)(skill.Class switch
                     {
                         8 => (byte)(skillscount - 1 * 10),
                         9 => (byte)(skillscount - 4 * 4),
-                        16 => skillscount switch
+                        16 => (byte)skillscount switch
                         {
                             6 => 20,
                             5 => 15,
@@ -125,7 +125,7 @@ namespace NosCore.Parser.Parsers
                             _ => 0
                         },
                         _ => (byte)(skillscount - 5 * 4)
-                    };
+                    });
 
                 }
             }
