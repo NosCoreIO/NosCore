@@ -68,11 +68,11 @@ namespace NosCore.Parser.Parsers
         private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao;
         private readonly IGenericDao<NpcMonsterSkillDto> _npcMonsterSkillDao;
         private readonly IGenericDao<SkillDto> _skillDao;
-        private int[] _basicHp = new int[100];
-        private int[] _basicPrimaryMp = new int[100];
-        private int[] _basicSecondaryMp = new int[100];
-        private int[] _basicXp = new int[100];
-        private int[] _basicJXp = new int[100];
+        private readonly int[] _basicHp = new int[100];
+        private readonly int[] _basicPrimaryMp = new int[100];
+        private readonly int[] _basicSecondaryMp = new int[100];
+        private readonly int[] _basicXp = new int[100];
+        private readonly int[] _basicJXp = new int[100];
         private Dictionary<short, SkillDto> _skilldb;
         private Dictionary<short, List<DropDto>> _dropdb;
 
