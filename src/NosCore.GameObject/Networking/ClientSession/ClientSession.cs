@@ -38,6 +38,7 @@ using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
+using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
@@ -496,6 +497,11 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
                 }
             }
+        }
+
+        public List<CharacterRelationStatus> GetFriends()
+        {
+            return _friendHttpClient.GetListFriends(Character.VisualId);
         }
     }
 }
