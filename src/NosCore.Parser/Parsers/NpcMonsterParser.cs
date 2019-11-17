@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Autofac.Core;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -72,6 +73,9 @@ namespace NosCore.Parser.Parsers
         private int[] _basicSecondaryMp = new int[100];
         private int[] _basicXp = new int[100];
         private int[] _basicJXp = new int[100];
+        private Dictionary<short, SkillDto> _skilldb;
+        private Dictionary<short, List<DropDto>> _dropdb;
+
         public NpcMonsterParser(IGenericDao<SkillDto> skillDao, IGenericDao<BCardDto> bCardDao,
             IGenericDao<DropDto> dropDao, IGenericDao<NpcMonsterSkillDto> npcMonsterSkillDao,
             IGenericDao<NpcMonsterDto> npcMonsterDao, ILogger logger)
@@ -83,6 +87,248 @@ namespace NosCore.Parser.Parsers
             _npcMonsterDao = npcMonsterDao;
             _logger = logger;
             InitStats();
+        }
+
+
+        public void InsertNpcMonsters(string folder)
+        {
+            _skilldb = _skillDao.LoadAll().ToDictionary(x => x.SkillVNum, x => x);
+            _dropdb = _dropDao.LoadAll().Where(x => x.MonsterVNum != null).GroupBy(x => x.MonsterVNum).ToDictionary(x => (short)x.Key, x => x.ToList());
+            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
+            {
+                {nameof(NpcMonsterDto.NpcMonsterVNum), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
+                {nameof(NpcMonsterDto.NameI18NKey), chunk => chunk["NAME"][0][2]},
+                {nameof(NpcMonsterDto.Level), chunk => Level(chunk)},
+                {nameof(NpcMonsterDto.Race), chunk => Convert.ToByte(chunk["RACE"][0][2])},
+                {nameof(NpcMonsterDto.RaceType), chunk => Convert.ToByte(chunk["RACE"][0][3])},
+                {nameof(NpcMonsterDto.Element), chunk => Convert.ToByte(chunk["ATTRIB"][0][2])},
+                {nameof(NpcMonsterDto.ElementRate), chunk => Convert.ToInt16(chunk["ATTRIB"][0][3])},
+                {nameof(NpcMonsterDto.FireResistance), chunk => Convert.ToInt16(chunk["ATTRIB"][0][4])},
+                {nameof(NpcMonsterDto.WaterResistance), chunk => Convert.ToInt16(chunk["ATTRIB"][0][5])},
+                {nameof(NpcMonsterDto.LightResistance), chunk => Convert.ToInt16(chunk["ATTRIB"][0][6])},
+                {nameof(NpcMonsterDto.DarkResistance), chunk => Convert.ToInt16(chunk["ATTRIB"][0][7])},
+                {nameof(NpcMonsterDto.MaxHp), chunk => Convert.ToInt32(chunk["HP/MP"][0][2]) + _basicHp[Level(chunk)]},
+                {nameof(NpcMonsterDto.MaxMp), chunk => Convert.ToInt32(chunk["HP/MP"][0][3]) + Convert.ToByte(chunk["RACE"][0][2]) == 0 ? _basicPrimaryMp[Level(chunk)] : _basicSecondaryMp[Level(chunk)]},
+                {nameof(NpcMonsterDto.Xp), chunk =>  Math.Abs(Convert.ToInt32(chunk["EXP"][0][2]) + _basicXp[Level(chunk)])},
+                {nameof(NpcMonsterDto.JobXp), chunk => Convert.ToInt32(chunk["EXP"][0][3]) + _basicJXp[Level(chunk)]},
+                {nameof(NpcMonsterDto.IsHostile), chunk => chunk["PREATT"][0][2] != "0" },
+                {nameof(NpcMonsterDto.NoticeRange), chunk => Convert.ToByte(chunk["PREATT"][0][4])},
+                {nameof(NpcMonsterDto.Speed), chunk => Convert.ToByte(chunk["PREATT"][0][5])},
+                {nameof(NpcMonsterDto.RespawnTime), chunk => Convert.ToInt32(chunk["PREATT"][0][6])},
+                {nameof(NpcMonsterDto.CloseDefence), chunk =>  Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 18)},
+                {nameof(NpcMonsterDto.DistanceDefence), chunk =>  Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2])- 1) * 3 + 17)},
+                {nameof(NpcMonsterDto.MagicDefence), chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 13)},
+                {nameof(NpcMonsterDto.DefenceDodge), chunk =>  Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2])- 1) * 5 + 31)},
+                {nameof(NpcMonsterDto.DistanceDefenceDodge), chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 5 + 31)},
+                {nameof(NpcMonsterDto.AttackClass), chunk => Convert.ToByte(chunk["ZSKILL"][0][2])},
+                {nameof(NpcMonsterDto.BasicRange), chunk => Convert.ToByte(chunk["ZSKILL"][0][3])},
+                {nameof(NpcMonsterDto.BasicArea), chunk => Convert.ToByte(chunk["ZSKILL"][0][5])},
+                {nameof(NpcMonsterDto.BasicCooldown), chunk => Convert.ToInt16(chunk["ZSKILL"][0][6])},
+                {nameof(NpcMonsterDto.AttackUpgrade), chunk => Convert.ToByte(LoadUnknownData(chunk) == 1?chunk["WINFO"][0][2]:chunk["WINFO"][0][4])},
+                {nameof(NpcMonsterDto.DefenceUpgrade), chunk => Convert.ToByte(LoadUnknownData(chunk) == 1? chunk["WINFO"][0][2]:chunk["AINFO"][0][3])},
+                {nameof(NpcMonsterDto.BasicSkill), chunk => Convert.ToInt16(chunk["EFF"][0][2])},
+                {nameof(NpcMonsterDto.VNumRequired), chunk => Convert.ToInt16(chunk["SETTING"][0][4] != "0" && ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][2] : chunk["SETTING"][0][4])},
+                {nameof(NpcMonsterDto.AmountRequired), chunk =>  Convert.ToByte(chunk["SETTING"][0][4] == "0" ? "1" : ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][3] : "0")},
+                {nameof(NpcMonsterDto.DamageMinimum), chunk => ImportDamageMinimum(chunk)},
+                {nameof(NpcMonsterDto.DamageMaximum), chunk => ImportDamageMaximum(chunk)},
+                {nameof(NpcMonsterDto.Concentrate), chunk => ImportConcentrate(chunk)},
+                {nameof(NpcMonsterDto.CriticalChance), chunk => ImportCriticalChance(chunk)},
+                {nameof(NpcMonsterDto.CriticalRate), chunk => ImportCriticalRate(chunk)},
+                {nameof(NpcMonsterDto.NpcMonsterSkill), chunk => ImportNpcMonsterSkill(chunk)},
+                {nameof(NpcMonsterDto.BCards), chunk => ImportBCards(chunk)},
+                {nameof(NpcMonsterDto.Drop), chunk => ImportDrops(chunk)},
+                {nameof(NpcMonsterDto.MonsterType), chunk => ImportMonsterType(chunk)},
+                {nameof(NpcMonsterDto.NoAggresiveIcon), chunk => {
+                        var unknowndata = LoadUnknownData(chunk);
+                        return (unknowndata == -2147483616
+                            || unknowndata ==  -2147483647
+                            || unknowndata ==  -2147483646) && ((Convert.ToByte(chunk["RACE"][0][2]) == 8) && (Convert.ToByte(chunk["RACE"][0][3]) == 0));
+                     }
+                }
+            };
+
+            var genericParser = new GenericParser<NpcMonsterDto>(folder + FileNpcId,
+                "#========================================================", 1, actionList, _logger);
+            var monsters = genericParser.GetDtos().GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
+            _npcMonsterDao.InsertOrUpdate(monsters);
+            _bCardDao.InsertOrUpdate(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards));
+            _dropDao.InsertOrUpdate(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop));
+            _dropDao.InsertOrUpdate(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop));
+            _npcMonsterSkillDao.InsertOrUpdate(monsters.Where(s => s.NpcMonsterSkill != null).SelectMany(s => s.NpcMonsterSkill));
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCMONSTERS_PARSED), monsters.Count);
+        }
+
+        private short ImportDamageMinimum(Dictionary<string, string[][]> chunk)
+        {
+            return chunk["WEAPON"][0][3] switch
+            {
+                "1" => Convert.ToInt16((Convert.ToInt16(chunk["WEAPON"][0][2]) - 1) * 4 + 32 + Convert.ToInt16(chunk["WEAPON"][0][4]) + Math.Round(Convert.ToDecimal((Level(chunk) - 1) / 5))),
+                "2" => Convert.ToInt16(Convert.ToInt16(chunk["WEAPON"][0][2]) * 6.5f + 23 + Convert.ToInt16(chunk["WEAPON"][0][4])),
+                _ => (short)0,
+            };
+        }
+
+        private short ImportDamageMaximum(Dictionary<string, string[][]> chunk)
+        {
+            return chunk["WEAPON"][0][3] switch
+            {
+                "1" => Convert.ToInt16((Convert.ToInt16(chunk["WEAPON"][0][2]) - 1) * 6 + 40 + Convert.ToInt16(chunk["WEAPON"][0][5]) - Math.Round(Convert.ToDecimal((Level(chunk) - 1) / 5))),
+                "2" => Convert.ToInt16(Convert.ToInt16(chunk["WEAPON"][0][2]) * 6.5f + 23 + Convert.ToInt16(chunk["WEAPON"][0][4])),
+                _ => (short)0,
+            };
+
+        }
+
+        private short ImportConcentrate(Dictionary<string, string[][]> chunk)
+        {
+            return chunk["WEAPON"][0][3] switch
+            {
+                "1" => Convert.ToInt16((Convert.ToInt16(chunk["WEAPON"][0][2]) - 1) * 5 + 27 + Convert.ToInt16(chunk["WEAPON"][0][6])),
+                "2" => Convert.ToInt16(70 + Convert.ToInt16(chunk["WEAPON"][0][6])),
+                _ => (short)0,
+            };
+        }
+
+        private byte ImportCriticalChance(Dictionary<string, string[][]> chunk)
+        {
+            return chunk["WEAPON"][0][3] switch
+            {
+                "1" => Convert.ToByte(4 + Convert.ToInt16(chunk["WEAPON"][0][7])),
+                _ => (byte)0,
+            };
+        }
+
+        private short ImportCriticalRate(Dictionary<string, string[][]> chunk)
+        {
+            return chunk["WEAPON"][0][3] switch
+            {
+                "1" => Convert.ToInt16(70 + Convert.ToInt16(chunk["WEAPON"][0][8])),
+                _ => (short)0,
+            };
+        }
+
+        private List<NpcMonsterSkillDto> ImportNpcMonsterSkill(Dictionary<string, string[][]> chunk)
+        {
+            var monstervnum = Convert.ToInt16(chunk["VNUM"][0][2]);
+            var skills = new List<NpcMonsterSkillDto>();
+            for (var i = 2; i < chunk["SKILL"][0].Length - 3; i += 3)
+            {
+                var vnum = short.Parse(chunk["SKILL"][0][i]);
+                if ((vnum == -1) || (vnum == 0))
+                {
+                    break;
+                }
+
+                if (!_skilldb.ContainsKey(vnum))
+                {
+                    continue;
+                }
+
+                skills.Add(new NpcMonsterSkillDto
+                {
+                    SkillVNum = vnum,
+                    Rate = Convert.ToInt16(chunk["SKILL"][0][i + 1]),
+                    NpcMonsterVNum = monstervnum
+                });
+            }
+
+            return skills;
+        }
+
+
+        private List<BCardDto> ImportBCards(Dictionary<string, string[][]> chunk)
+        {
+            var monstercards = new List<BCardDto>();
+            var monstervnum = Convert.ToInt16(chunk["VNUM"][0][2]);
+
+            for (var i = 0; i < 4; i++)
+            {
+                var type = (byte)int.Parse(chunk["CARD"][0][5 * i + 2]);
+                if ((type == 0) || (type == 255))
+                {
+                    continue;
+                }
+
+                var first = int.Parse(chunk["CARD"][0][5 * i + 3]);
+                var itemCard = new BCardDto
+                {
+                    NpcMonsterVNum = monstervnum,
+                    Type = type,
+                    SubType = (byte)(int.Parse(chunk["CARD"][0][5 * i + 5]) + 1 * 10 + 1
+                        + (first > 0 ? 0 : 1)),
+                    IsLevelScaled = Convert.ToBoolean(first % 4),
+                    IsLevelDivided = (uint)(first > 0 ? first : -first) % 4 == 2,
+                    FirstData = (short)((first > 0 ? first : -first) / 4),
+                    SecondData = (short)(int.Parse(chunk["CARD"][0][5 * i + 4]) / 4),
+                    ThirdData = (short)(int.Parse(chunk["CARD"][0][5 * i + 6]) / 4)
+                };
+                monstercards.Add(itemCard);
+
+                first = int.Parse(chunk["BASIC"][0][5 * i + 5]);
+                itemCard = new BCardDto
+                {
+                    NpcMonsterVNum = monstervnum,
+                    Type = type,
+                    SubType =
+                        (byte)((int.Parse(chunk["BASIC"][0][5 * i + 6]) + 1) * 10 + 1 + (first > 0 ? 0 : 1)),
+                    FirstData = (short)((first > 0 ? first : -first) / 4),
+                    SecondData = (short)(int.Parse(chunk["BASIC"][0][5 * i + 4]) / 4),
+                    ThirdData = (short)(int.Parse(chunk["BASIC"][0][5 * i + 3]) / 4),
+                    CastType = 1,
+                    IsLevelScaled = false,
+                    IsLevelDivided = false
+                };
+                monstercards.Add(itemCard);
+            }
+
+            return monstercards;
+        }
+
+        private List<DropDto> ImportDrops(Dictionary<string, string[][]> chunk)
+        {
+            var monstervnum = Convert.ToInt16(chunk["VNUM"][0][2]);
+            var drops = new List<DropDto>();
+
+            for (var i = 2; i < chunk["ITEM"][0].Length - 3; i += 3)
+            {
+                var vnum = Convert.ToInt16(chunk["ITEM"][0][i]);
+                if (vnum == -1)
+                {
+                    break;
+                }
+
+                if (_dropdb.ContainsKey(monstervnum) && _dropdb[monstervnum].Count(s => s.VNum == vnum) != 0)
+                {
+                    continue;
+                }
+
+                drops.Add(new DropDto
+                {
+                    VNum = vnum,
+                    Amount = Convert.ToInt32(chunk["ITEM"][0][i + 2]),
+                    MonsterVNum = monstervnum,
+                    DropChance = Convert.ToInt32(chunk["ITEM"][0][i + 1])
+                });
+            }
+
+            return drops;
+        }
+
+        private MonsterType ImportMonsterType(Dictionary<string, string[][]> chunk)
+        {
+            var monstervnum = Convert.ToInt16(chunk["VNUM"][0][2]);
+            var unknownData = LoadUnknownData(chunk);
+            if (monstervnum >= 588 && monstervnum <= 607)
+            {
+                return MonsterType.Elite;
+            }
+
+            if (unknownData == -2147481593)
+            {
+                return MonsterType.Special;
+            }
+
+            return MonsterType.Unknown;
         }
 
         private void InitStats()
@@ -253,9 +499,9 @@ namespace NosCore.Parser.Parsers
             });
         }
 
-        private short Level(Dictionary<string, string[][]> chunk)
+        private byte Level(Dictionary<string, string[][]> chunk)
         {
-            return Convert.ToInt16(chunk["LEVEL"][0][2]);
+            return Convert.ToByte(chunk["LEVEL"][0][2]);
         }
 
         private long LoadUnknownData(Dictionary<string, string[][]> chunk)
@@ -265,231 +511,8 @@ namespace NosCore.Parser.Parsers
         private bool ShouldLoadPetinfo(Dictionary<string, string[][]> chunk)
         {
             var unknownData = LoadUnknownData(chunk);
-            return ((unknownData != -2147481593) && (unknownData != -2147481599) && (unknownData != -1610610681));
+            return !((unknownData != -2147481593) && (unknownData != -2147481599) && (unknownData != -1610610681));
         }
 
-        public void InsertNpcMonsters(string folder)
-        {
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
-            {
-                {nameof(NpcMonsterDto.NpcMonsterVNum), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
-                {nameof(NpcMonsterDto.NameI18NKey), chunk => chunk["NAME"][0][2]},
-                {nameof(NpcMonsterDto.Level), chunk => Level(chunk)},
-                {nameof(NpcMonsterDto.Race), chunk => Convert.ToByte(chunk["RACE"][0][2])},
-                {nameof(NpcMonsterDto.RaceType), chunk => Convert.ToByte(chunk["RACE"][0][3])},
-                {nameof(NpcMonsterDto.Element), chunk => Convert.ToByte(chunk["ATTRIB"][0][2])},
-                {nameof(NpcMonsterDto.ElementRate), chunk => Convert.ToInt16(chunk["ATTRIB"][0][3])},
-                {nameof(NpcMonsterDto.FireResistance), chunk => Convert.ToSByte(chunk["ATTRIB"][0][4])},
-                {nameof(NpcMonsterDto.WaterResistance), chunk => Convert.ToSByte(chunk["ATTRIB"][0][5])},
-                {nameof(NpcMonsterDto.LightResistance), chunk => Convert.ToSByte(chunk["ATTRIB"][0][6])},
-                {nameof(NpcMonsterDto.DarkResistance), chunk => Convert.ToSByte(chunk["ATTRIB"][0][7])},
-                {nameof(NpcMonsterDto.MaxHp), chunk => Convert.ToInt32(chunk["HP/MP"][0][2]) + _basicHp[Level(chunk)]},
-                {nameof(NpcMonsterDto.MaxMp), chunk => Convert.ToInt32(chunk["HP/MP"][0][3]) + Convert.ToByte(chunk["RACE"][0][2]) == 0 ? _basicPrimaryMp[Level(chunk)] : _basicSecondaryMp[Level(chunk)]},
-                {nameof(NpcMonsterDto.Xp), chunk =>  Math.Abs(Convert.ToInt32(chunk["EXP"][0][2]) + _basicXp[Level(chunk)])},
-                {nameof(NpcMonsterDto.JobXp), chunk => Convert.ToInt32(chunk["EXP"][0][3]) + _basicJXp[Level(chunk)]},
-                {nameof(NpcMonsterDto.IsHostile), chunk => chunk["PREATT"][0][2] != "0" },
-                {nameof(NpcMonsterDto.NoticeRange), chunk => Convert.ToByte(chunk["PREATT"][0][4])},
-                {nameof(NpcMonsterDto.Speed), chunk => Convert.ToByte(chunk["PREATT"][0][5])},
-                {nameof(NpcMonsterDto.RespawnTime), chunk => Convert.ToInt32(chunk["PREATT"][0][6])},
-                {nameof(NpcMonsterDto.CloseDefence), chunk =>  Convert.ToInt16((Convert.ToInt16(chunk["PREATT"][0][2]) - 1) * 2 + 18)},
-                {nameof(NpcMonsterDto.DistanceDefence), chunk =>  Convert.ToInt16((Convert.ToInt16(chunk["PREATT"][0][2])- 1) * 3 + 17)},
-                {nameof(NpcMonsterDto.MagicDefence), chunk => Convert.ToInt16((Convert.ToInt16(chunk["PREATT"][0][2]) - 1) * 2 + 13)},
-                {nameof(NpcMonsterDto.DefenceDodge), chunk =>  Convert.ToInt16((Convert.ToInt16(chunk["PREATT"][0][2])- 1) * 5 + 31)},
-                {nameof(NpcMonsterDto.DistanceDefenceDodge), chunk => Convert.ToInt16((Convert.ToInt16(chunk["PREATT"][0][2]) - 1) * 5 + 31)},
-                {nameof(NpcMonsterDto.VNumRequired), chunk => chunk["SETTING"][0][4] == "0" ? 0 : Convert.ToInt32(chunk["SETTING"][0][4])},
-                {nameof(NpcMonsterDto.AmountRequired), chunk => chunk["SETTING"][0][4] == "0" ? 0 : 1},
-                {nameof(NpcMonsterDto.AttackClass), chunk => Convert.ToByte(chunk["ZSKILL"][0][2])},
-                {nameof(NpcMonsterDto.BasicRange), chunk => Convert.ToByte(chunk["ZSKILL"][0][3])},
-                {nameof(NpcMonsterDto.BasicArea), chunk => Convert.ToByte(chunk["ZSKILL"][0][5])},
-                {nameof(NpcMonsterDto.BasicCooldown), chunk => Convert.ToInt16(chunk["ZSKILL"][0][6])},
-                {nameof(NpcMonsterDto.AttackUpgrade), chunk => Convert.ToByte(LoadUnknownData(chunk) == 1?chunk["WINFO"][0][2]:chunk["WINFO"][0][4])},
-                {nameof(NpcMonsterDto.DefenceUpgrade), chunk => Convert.ToByte(LoadUnknownData(chunk) == 1? chunk["WINFO"][0][2]:chunk["AINFO"][0][3])},
-                {nameof(NpcMonsterDto.BasicSkill), chunk => Convert.ToInt16(chunk["EFF"][0][2])},
-                {nameof(NpcMonsterDto.VNumRequired), chunk => Convert.ToInt16(ShouldLoadPetinfo(chunk) ? Convert.ToInt16(chunk["PETINFO"][0][2]) : 0)},
-                {nameof(NpcMonsterDto.AmountRequired), chunk => Convert.ToByte((ShouldLoadPetinfo(chunk) ? Convert.ToInt16(chunk["PETINFO"][0][2]) : 0) != 0 ? Convert.ToByte(chunk["PETINFO"][0][3]) : 0)},
-            };
-
-            var genericParser = new GenericParser<NpcMonsterDto>(folder + FileNpcId,
-                "#========================================================", 1, actionList, _logger);
-            var monsters = genericParser.GetDtos().GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
-            _npcMonsterDao.InsertOrUpdate(monsters);
-            _bCardDao.InsertOrUpdate(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards));
-            _dropDao.InsertOrUpdate(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop));
-            _dropDao.InsertOrUpdate(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop));
-            _npcMonsterSkillDao.InsertOrUpdate(monsters.Where(s => s.NpcMonsterSkill != null).SelectMany(s => s.NpcMonsterSkill));
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCMONSTERS_PARSED), monsters.Count);
-        }
-
-        //    internal void InsertNpcMonsters(string folder)
-        //    {
-
-        //                else if ((currentLine.Length > 6) && (currentLine[1] == "WEAPON"))
-        //                {
-        //                    switch (currentLine[3])
-        //                    {
-        //                        case "1":
-        //                            npc.DamageMinimum = Convert.ToInt16((Convert.ToInt16(currentLine[2]) - 1) * 4 + 32
-        //                                + Convert.ToInt16(currentLine[4])
-        //                                + Math.Round(Convert.ToDecimal((npc.Level - 1) / 5)));
-        //                            npc.DamageMaximum = Convert.ToInt16((Convert.ToInt16(currentLine[2]) - 1) * 6 + 40
-        //                                + Convert.ToInt16(currentLine[5])
-        //                                - Math.Round(Convert.ToDecimal((npc.Level - 1) / 5)));
-        //                            npc.Concentrate = Convert.ToInt16((Convert.ToInt16(currentLine[2]) - 1) * 5 + 27
-        //                                + Convert.ToInt16(currentLine[6]));
-        //                            npc.CriticalChance = Convert.ToByte(4 + Convert.ToInt16(currentLine[7]));
-        //                            npc.CriticalRate = Convert.ToInt16(70 + Convert.ToInt16(currentLine[8]));
-        //                            break;
-        //                        case "2":
-        //                            npc.DamageMinimum = Convert.ToInt16(Convert.ToInt16(currentLine[2]) * 6.5f + 23
-        //                                + Convert.ToInt16(currentLine[4]));
-        //                            npc.DamageMaximum = Convert.ToInt16((Convert.ToInt16(currentLine[2]) - 1) * 8 + 38
-        //                                + Convert.ToInt16(currentLine[5]));
-        //                            npc.Concentrate = Convert.ToInt16(70 + Convert.ToInt16(currentLine[6]));
-        //                            break;
-        //                        default:
-        //                            continue;
-        //                    }
-        //                }
-        //                else if ((currentLine.Length > 7) && (currentLine[1] == "ETC"))
-        //                {
-        //                    if ((npc.NpcMonsterVNum >= 588) && (npc.NpcMonsterVNum <= 607))
-        //                    {
-        //                        npc.MonsterType = MonsterType.Elite;
-        //                    }
-
-        //                    unknownData = Convert.ToInt64(currentLine[2]);
-        //                    switch (unknownData)
-        //                    {
-        //                        case -2147481593:
-        //                            npc.MonsterType = MonsterType.Special;
-        //                            break;
-        //                        case -2147483616:
-        //                        case -2147483647:
-        //                        case -2147483646:
-        //                            npc.NoAggresiveIcon = (npc.Race == 8) && (npc.RaceType == 0);
-        //                            break;
-        //                        default:
-        //                            continue;
-        //                    }
-        //                }
-
-        //                else if ((currentLine.Length > 1) && (currentLine[1] == "SKILL"))
-        //                {
-        //                    for (var i = 2; i < currentLine.Length - 3; i += 3)
-        //                    {
-        //                        var vnum = short.Parse(currentLine[i]);
-        //                        if ((vnum == -1) || (vnum == 0))
-        //                        {
-        //                            break;
-        //                        }
-
-        //                        if ((skilldb.FirstOrDefault(s => s.SkillVNum.Equals(vnum)) ==
-        //                                null)
-        //                            || (npcmonsterskilldb
-        //                                .Where(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
-        //                                .Count(s => s.SkillVNum == vnum) != 0))
-        //                        {
-        //                            continue;
-        //                        }
-
-        //                        skills.Add(new NpcMonsterSkillDto
-        //                        {
-        //                            SkillVNum = vnum,
-        //                            Rate = Convert.ToInt16(currentLine[i + 1]),
-        //                            NpcMonsterVNum = npc.NpcMonsterVNum
-        //                        });
-        //                    }
-        //                }
-        //                else if ((currentLine.Length > 1) && (currentLine[1] == "CARD"))
-        //                {
-        //                    for (var i = 0; i < 4; i++)
-        //                    {
-        //                        var type = (byte) int.Parse(currentLine[5 * i + 2]);
-        //                        if ((type == 0) || (type == 255))
-        //                        {
-        //                            continue;
-        //                        }
-
-        //                        var first = int.Parse(currentLine[5 * i + 3]);
-        //                        var itemCard = new BCardDto
-        //                        {
-        //                            NpcMonsterVNum = npc.NpcMonsterVNum,
-        //                            Type = type,
-        //                            SubType = (byte) (int.Parse(currentLine[5 * i + 5]) + 1 * 10 + 1
-        //                                + (first > 0 ? 0 : 1)),
-        //                            IsLevelScaled = Convert.ToBoolean(first % 4),
-        //                            IsLevelDivided = (uint) (first > 0 ? first : -first) % 4 == 2,
-        //                            FirstData = (short) ((first > 0 ? first : -first) / 4),
-        //                            SecondData = (short) (int.Parse(currentLine[5 * i + 4]) / 4),
-        //                            ThirdData = (short) (int.Parse(currentLine[5 * i + 6]) / 4)
-        //                        };
-        //                        monstercards.Add(itemCard);
-        //                    }
-        //                }
-        //                else if ((currentLine.Length > 1) && (currentLine[1] == "BASIC"))
-        //                {
-        //                    for (var i = 0; i < 4; i++)
-        //                    {
-        //                        var type = (byte) int.Parse(currentLine[5 * i + 2]);
-        //                        if (type == 0)
-        //                        {
-        //                            continue;
-        //                        }
-
-        //                        var first = int.Parse(currentLine[5 * i + 5]);
-        //                        var itemCard = new BCardDto
-        //                        {
-        //                            NpcMonsterVNum = npc.NpcMonsterVNum,
-        //                            Type = type,
-        //                            SubType =
-        //                                (byte) ((int.Parse(currentLine[5 * i + 6]) + 1) * 10 + 1 + (first > 0 ? 0 : 1)),
-        //                            FirstData = (short) ((first > 0 ? first : -first) / 4),
-        //                            SecondData = (short) (int.Parse(currentLine[5 * i + 4]) / 4),
-        //                            ThirdData = (short) (int.Parse(currentLine[5 * i + 3]) / 4),
-        //                            CastType = 1,
-        //                            IsLevelScaled = false,
-        //                            IsLevelDivided = false
-        //                        };
-        //                        monstercards.Add(itemCard);
-        //                    }
-        //                }
-        //                else if ((currentLine.Length > 3) && (currentLine[1] == "ITEM"))
-        //                {
-        //                    if (npcmonsterdb
-        //                            .FirstOrDefault(s => s.NpcMonsterVNum.Equals(npc.NpcMonsterVNum))
-        //                        == null)
-        //                    {
-        //                        npcs.Add(npc);
-        //                        counter++;
-        //                    }
-
-        //                    for (var i = 2; i < currentLine.Length - 3; i += 3)
-        //                    {
-        //                        var vnum = Convert.ToInt16(currentLine[i]);
-        //                        if (vnum == -1)
-        //                        {
-        //                            break;
-        //                        }
-
-        //                        if (dropdb.Where(s => s.MonsterVNum == npc.NpcMonsterVNum)
-        //                            .Count(s => s.VNum == vnum) != 0)
-        //                        {
-        //                            continue;
-        //                        }
-
-        //                        drops.Add(new DropDto
-        //                        {
-        //                            VNum = vnum,
-        //                            Amount = Convert.ToInt32(currentLine[i + 2]),
-        //                            MonsterVNum = npc.NpcMonsterVNum,
-        //                            DropChance = Convert.ToInt32(currentLine[i + 1])
-        //                        });
-        //                    }
-
-        //                    itemAreaBegin = false;
-        //                }
-        //            }
-
-        //    }
     }
 }
