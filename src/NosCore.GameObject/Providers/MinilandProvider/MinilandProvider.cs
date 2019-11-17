@@ -41,15 +41,17 @@ namespace NosCore.GameObject.Providers.MinilandProvider
     public class MinilandProvider : IMinilandProvider
     {
         private readonly IMapInstanceProvider _mapInstanceProvider;
+        private readonly IFriendHttpClient _friendHttpClient;
         private readonly List<MapDto> _maps;
         private readonly IGenericDao<MinilandDto> _minilandDao;
         private readonly ConcurrentDictionary<long, Miniland> _minilandIds;
         private readonly IGenericDao<MinilandObjectDto> _minilandObjectsDao;
 
-        public MinilandProvider(IMapInstanceProvider mapInstanceProvider, List<MapDto> maps,
+        public MinilandProvider(IMapInstanceProvider mapInstanceProvider, IFriendHttpClient friendHttpClient, List<MapDto> maps,
             IGenericDao<MinilandDto> minilandDao, IGenericDao<MinilandObjectDto> minilandObjectsDao)
         {
             _mapInstanceProvider = mapInstanceProvider;
+            _friendHttpClient = friendHttpClient;
             _maps = maps;
             _minilandIds = new ConcurrentDictionary<long, Miniland>();
             _minilandDao = minilandDao;
@@ -150,7 +152,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             return minilandInfo;
         }
 
-        public void SetState(long characterId, MinilandState state, ClientSession clientSession)
+        public void SetState(long characterId, MinilandState state)
         {
             if (_minilandIds.ContainsKey(characterId))
             {
@@ -162,7 +164,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                 {
                     if (ml.State == MinilandState.Private)
                     {
-                        List<long> friends = clientSession.GetFriends()
+                        List<long> friends = _friendHttpClient.GetListFriends(characterId)
                             .Where(w => w.RelationType != CharacterRelationType.Blocked)
                             .Select(s => s.CharacterId)
                             .ToList();
