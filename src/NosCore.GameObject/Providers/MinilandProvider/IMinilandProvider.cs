@@ -20,8 +20,6 @@
 using System;
 using System.Collections.Generic;
 using ChickenAPI.Packets.Enumerations;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 

@@ -30,8 +30,6 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.GuriProvider.Handlers;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
@@ -165,7 +163,6 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                     if (ml.State == MinilandState.Private)
                     {
                         List<long> friends = _friendHttpClient.GetListFriends(characterId)
-                            .Where(w => w.RelationType != CharacterRelationType.Blocked)
                             .Select(s => s.CharacterId)
                             .ToList();
                         // Kick all players in miniland except owner and his friends
