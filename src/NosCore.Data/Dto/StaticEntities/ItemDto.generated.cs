@@ -81,7 +81,8 @@ namespace NosCore.Data.StaticEntities
 	 	public short DistanceDefenceDodge { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<DropDto> Drop { get; set; }
+	// foreign key injection of Drop
+		public System.Collections.Generic.ICollection<DropDto> DropDto { get; set; }
 
 	 	public NosCore.Data.Enumerations.Items.ItemEffectType Effect { get; set; }
 
@@ -124,10 +125,12 @@ namespace NosCore.Data.StaticEntities
 	 	public bool IsTradable { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
+	// foreign key injection of BCards
+		public System.Collections.Generic.ICollection<BCardDto> BCardsDto { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<ItemInstanceDto> ItemInstances { get; set; }
+	// foreign key injection of ItemInstances
+		public System.Collections.Generic.ICollection<ItemInstanceDto> ItemInstancesDto { get; set; }
 
 	 	public byte ItemSubType { get; set; }
 
@@ -146,10 +149,12 @@ namespace NosCore.Data.StaticEntities
 	 	public short MagicDefence { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<RollGeneratedItemDto> RollGeneratedItem { get; set; }
+	// foreign key injection of RollGeneratedItem
+		public System.Collections.Generic.ICollection<RollGeneratedItemDto> RollGeneratedItemDto { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<RollGeneratedItemDto> RollGeneratedItem2 { get; set; }
+	// foreign key injection of RollGeneratedItem2
+		public System.Collections.Generic.ICollection<RollGeneratedItemDto> RollGeneratedItem2Dto { get; set; }
 
 	 	public byte MaxCellon { get; set; }
 
@@ -185,10 +190,12 @@ namespace NosCore.Data.StaticEntities
 	 	public byte PvpStrength { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<RecipeDto> Recipe { get; set; }
+	// foreign key injection of Recipe
+		public System.Collections.Generic.ICollection<RecipeDto> RecipeDto { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<RecipeItemDto> RecipeItem { get; set; }
+	// foreign key injection of RecipeItem
+		public System.Collections.Generic.ICollection<RecipeItemDto> RecipeItemDto { get; set; }
 
 	 	public short ReduceOposantResistance { get; set; }
 
@@ -201,7 +208,8 @@ namespace NosCore.Data.StaticEntities
 	 	public byte Sex { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<ShopItemDto> ShopItem { get; set; }
+	// foreign key injection of ShopItem
+		public System.Collections.Generic.ICollection<ShopItemDto> ShopItemDto { get; set; }
 
 	 	public byte Speed { get; set; }
 

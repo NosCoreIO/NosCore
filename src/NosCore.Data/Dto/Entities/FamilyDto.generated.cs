@@ -34,7 +34,8 @@ namespace NosCore.Data.Dto
 	public class FamilyDto : IDto
 	{
 		[AdaptIgnore]
-		public System.Collections.Generic.ICollection<FamilyCharacterDto> FamilyCharacters { get; set; }
+	// foreign key injection of FamilyCharacters
+		public System.Collections.Generic.ICollection<FamilyCharacterDto> FamilyCharactersDto { get; set; }
 
 	 	public int FamilyExperience { get; set; }
 
@@ -48,7 +49,8 @@ namespace NosCore.Data.Dto
 	 	public byte FamilyFaction { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<FamilyLogDto> FamilyLogs { get; set; }
+	// foreign key injection of FamilyLogs
+		public System.Collections.Generic.ICollection<FamilyLogDto> FamilyLogsDto { get; set; }
 
 	 	public string FamilyMessage { get; set; }
 
@@ -73,7 +75,8 @@ namespace NosCore.Data.Dto
 	 	public byte WarehouseSize { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<WarehouseDto> Warehouses { get; set; }
+	// foreign key injection of Warehouses
+		public System.Collections.Generic.ICollection<WarehouseDto> WarehousesDto { get; set; }
 
 	 }
 }

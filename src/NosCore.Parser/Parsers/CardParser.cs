@@ -70,7 +70,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(CardDto.BuffType), chunk => (BCardType.CardType) Convert.ToByte(chunk["STYLE"][0][3])},
                 {nameof(CardDto.Duration), chunk => Convert.ToInt32(chunk["TIME"][0][2])},
                 {nameof(CardDto.Delay), chunk => Convert.ToInt32(chunk["TIME"][0][3])},
-                {nameof(CardDto.BCards), AddBCards},
+                {nameof(CardDto.BCardsDto), AddBCards},
                 {nameof(CardDto.TimeoutBuff), chunk => Convert.ToInt16(chunk["LAST"][0][2])},
                 {nameof(CardDto.TimeoutBuffChance), chunk => Convert.ToByte(chunk["LAST"][0][3])}
             };
@@ -78,7 +78,7 @@ namespace NosCore.Parser.Parsers
                 "#========================================================", 1, actionList, _logger);
             var cards = genericParser.GetDtos().GroupBy(p => p.CardId).Select(g => g.First()).ToList();
             _cardDao.InsertOrUpdate(cards);
-            _bcardDao.InsertOrUpdate(cards.Where(s=>s.BCards != null).SelectMany(s=>s.BCards));
+            _bcardDao.InsertOrUpdate(cards.Where(s=>s.BCardsDto != null).SelectMany(s=>s.BCardsDto));
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CARDS_PARSED), cards.Count);
         }

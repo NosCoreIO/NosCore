@@ -39,7 +39,8 @@ namespace NosCore.Data.StaticEntities
 	 	public int QuestType { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.HashSet<CharacterQuestDto> CharacterQuest { get; set; }
+	// foreign key injection of CharacterQuest
+		public System.Collections.Generic.HashSet<CharacterQuestDto> CharacterQuestDto { get; set; }
 
 	 	public byte LevelMin { get; set; }
 
@@ -50,7 +51,8 @@ namespace NosCore.Data.StaticEntities
 	 	public int? EndDialogId { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.HashSet<QuestObjectiveDto> QuestObjective { get; set; }
+	// foreign key injection of QuestObjective
+		public System.Collections.Generic.HashSet<QuestObjectiveDto> QuestObjectiveDto { get; set; }
 
 	 	public short? TargetMap { get; set; }
 

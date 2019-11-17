@@ -45,16 +45,20 @@ namespace NosCore.Data.StaticEntities
 	 	public int SecondData { get; set; }
 
 	 	[AdaptIgnore]
-		public CardDto Card { get; set; }
+	// foreign key injection of Card
+		public CardDto CardDto { get; set; }
 
 	 	[AdaptIgnore]
-		public ItemDto Item { get; set; }
+	// foreign key injection of Item
+		public ItemDto ItemDto { get; set; }
 
 	 	[AdaptIgnore]
-		public SkillDto Skill { get; set; }
+	// foreign key injection of Skill
+		public SkillDto SkillDto { get; set; }
 
 	 	[AdaptIgnore]
-		public NpcMonsterDto NpcMonster { get; set; }
+	// foreign key injection of NpcMonster
+		public NpcMonsterDto NpcMonsterDto { get; set; }
 
 	 	public short? CardId { get; set; }
 

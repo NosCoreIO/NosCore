@@ -38,7 +38,8 @@ namespace NosCore.Data.Dto
 	 	public long MinilandPoint { get; set; }
 
 	 	[AdaptIgnore]
-		public CharacterDto Owner { get; set; }
+	// foreign key injection of Owner
+		public CharacterDto OwnerDto { get; set; }
 
 	 	[Key]
 		public System.Guid MinilandId { get; set; }

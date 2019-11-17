@@ -39,7 +39,8 @@ namespace NosCore.Data.Dto
 	 	public NosCore.Data.Enumerations.Account.AuthorityType Authority { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<CharacterDto> Character { get; set; }
+	// foreign key injection of Character
+		public System.Collections.Generic.ICollection<CharacterDto> CharacterDto { get; set; }
 
 	 	public string Email { get; set; }
 
@@ -52,7 +53,8 @@ namespace NosCore.Data.Dto
 	 	public string NewAuthSalt { get; set; }
 
 	 	[AdaptIgnore]
-		public System.Collections.Generic.ICollection<PenaltyLogDto> PenaltyLog { get; set; }
+	// foreign key injection of PenaltyLog
+		public System.Collections.Generic.ICollection<PenaltyLogDto> PenaltyLogDto { get; set; }
 
 	 	public string RegistrationIp { get; set; }
 

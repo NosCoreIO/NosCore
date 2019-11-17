@@ -43,7 +43,8 @@ namespace NosCore.Data.StaticEntities
 	 	public short Hit { get; set; }
 
 	 	[AdaptIgnore]
-		public SkillDto Skill { get; set; }
+	// foreign key injection of Skill
+		public SkillDto SkillDto { get; set; }
 
 	 	public short SkillVNum { get; set; }
 

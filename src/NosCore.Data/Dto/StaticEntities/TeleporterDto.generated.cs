@@ -38,12 +38,14 @@ namespace NosCore.Data.StaticEntities
 	 	public NosCore.Data.Enumerations.Interaction.TeleporterType Type { get; set; }
 
 	 	[AdaptIgnore]
-		public MapDto Map { get; set; }
+	// foreign key injection of Map
+		public MapDto MapDto { get; set; }
 
 	 	public short MapId { get; set; }
 
 	 	[AdaptIgnore]
-		public MapNpcDto MapNpc { get; set; }
+	// foreign key injection of MapNpc
+		public MapNpcDto MapNpcDto { get; set; }
 
 	 	public int MapNpcId { get; set; }
 
