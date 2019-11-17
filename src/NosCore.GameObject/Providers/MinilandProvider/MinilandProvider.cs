@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -155,6 +155,8 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                 var ml = _minilandIds[characterId];
                 var miniland = _mapInstanceProvider.GetMapInstance(ml.MapInstanceId);
                 ml.State = state;
+
+                // TODO : If MinilandState.Private => Don't kick friends
                 if (ml.State != MinilandState.Open)
                 {
                     miniland.Kick(o => o.VisualId != characterId);
