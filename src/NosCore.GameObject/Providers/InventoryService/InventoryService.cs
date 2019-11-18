@@ -485,6 +485,33 @@ namespace NosCore.GameObject.Providers.InventoryService
             return null;
         }
 
+        public void RemoveItemAmountFromInventoryByVNum(short amount, short itemVNum)
+        {
+            var itemInstancesOfVNum = this.Select(s => s.Value).Where(w => w.ItemInstance.ItemVNum == itemVNum)
+                .OrderBy(o => o.ItemInstance.Amount).ToList();
+            var stayAmount = amount;
+            foreach (var itemInstance in itemInstancesOfVNum)
+            {
+                if (stayAmount == 0)
+                {
+                    return;
+                }
+
+                if (itemInstance.ItemInstance.Amount >= stayAmount)
+                {
+                    itemInstance.ItemInstance.Amount -= stayAmount;
+                    if (itemInstance.ItemInstance.Amount <= 0)
+                    {
+                        TryRemove(itemInstance.ItemInstanceId, out _);
+                    }
+
+                    return;
+                }
+                stayAmount -= itemInstance.ItemInstance.Amount;
+                TryRemove(itemInstance.ItemInstanceId, out _);
+            }
+        }
+
         private short? GetFreeSlot(NoscorePocketType type)
         {
             var itemInstanceSlotsByType = this.Select(s => s.Value).Where(i => i.Type == type).OrderBy(i => i.Slot)
