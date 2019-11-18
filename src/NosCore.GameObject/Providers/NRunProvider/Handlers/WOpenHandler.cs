@@ -35,6 +35,10 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 
         public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
+            if (requestData.ClientSession.Character.MapInstanceId != requestData.Data.Item1.MapInstanceId)
+            {
+                return;
+            }
             if (requestData.Data.Item2.Type != null)
             {
                 requestData.ClientSession.SendPacket(
