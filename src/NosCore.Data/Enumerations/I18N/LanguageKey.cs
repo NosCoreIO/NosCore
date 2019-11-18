@@ -147,7 +147,8 @@ namespace NosCore.Data.Enumerations.I18N
         DIRECT_ACCESS_OBJECT_DETECTED,
         TRY_OLD_AUTH,
         SHOPSKILLS_LOADED,
-        CHUNK_FORMAT_INVALID
+        CHUNK_FORMAT_INVALID,
+        UNKNOWN_UPGRADE_TYPE
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -302,6 +303,9 @@ namespace NosCore.Data.Enumerations.I18N
         LOGIN_MEDAL,
         GIFTED,
         NEW_MAIL,
-        DELAY_GROUP_REQUEST
+        DELAY_GROUP_REQUEST,
+        NOT_ENOUGH_ITEMS,
+        SUM_SUCCESS,
+        SUM_FAILED
     }
 }
