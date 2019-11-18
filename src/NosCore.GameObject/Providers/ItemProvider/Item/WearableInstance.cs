@@ -239,7 +239,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
                 clientSession.SendPacket(clientSession.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.SUM_FAILED, clientSession.Account.Language),
                     SayColorType.Purple));
-                clientSession.SendPacket(new ChickenAPI.Packets.ServerPackets.UI.GuriPacket
+                clientSession.SendPacket(new GuriPacket
                 {
                     Type = GuriPacketType.AfterSumming,
                     Unknown = 1,
