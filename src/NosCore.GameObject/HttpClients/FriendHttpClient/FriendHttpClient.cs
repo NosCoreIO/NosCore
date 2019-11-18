@@ -19,7 +19,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using ChickenAPI.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClient;
@@ -45,7 +47,9 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
 
         public List<CharacterRelationStatus> GetListFriends(long visualEntityVisualId)
         {
-            return Get<List<CharacterRelationStatus>>(visualEntityVisualId);
+            return Get<List<CharacterRelationStatus>>(visualEntityVisualId)
+                .Where(w => w.RelationType != CharacterRelationType.Blocked)
+                .ToList();
         }
 
         public void DeleteFriend(Guid characterRelationId)

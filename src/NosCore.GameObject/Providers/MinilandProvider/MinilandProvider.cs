@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -29,7 +29,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Providers.GuriProvider.Handlers;
+using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
@@ -39,15 +39,17 @@ namespace NosCore.GameObject.Providers.MinilandProvider
     public class MinilandProvider : IMinilandProvider
     {
         private readonly IMapInstanceProvider _mapInstanceProvider;
+        private readonly IFriendHttpClient _friendHttpClient;
         private readonly List<MapDto> _maps;
         private readonly IGenericDao<MinilandDto> _minilandDao;
         private readonly ConcurrentDictionary<long, Miniland> _minilandIds;
         private readonly IGenericDao<MinilandObjectDto> _minilandObjectsDao;
 
-        public MinilandProvider(IMapInstanceProvider mapInstanceProvider, List<MapDto> maps,
+        public MinilandProvider(IMapInstanceProvider mapInstanceProvider, IFriendHttpClient friendHttpClient, List<MapDto> maps,
             IGenericDao<MinilandDto> minilandDao, IGenericDao<MinilandObjectDto> minilandObjectsDao)
         {
             _mapInstanceProvider = mapInstanceProvider;
+            _friendHttpClient = friendHttpClient;
             _maps = maps;
             _minilandIds = new ConcurrentDictionary<long, Miniland>();
             _minilandDao = minilandDao;
@@ -155,9 +157,20 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                 var ml = _minilandIds[characterId];
                 var miniland = _mapInstanceProvider.GetMapInstance(ml.MapInstanceId);
                 ml.State = state;
+
                 if (ml.State != MinilandState.Open)
                 {
-                    miniland.Kick(o => o.VisualId != characterId);
+                    if (ml.State == MinilandState.Private)
+                    {
+                        List<long> friends = _friendHttpClient.GetListFriends(characterId)
+                            .Select(s => s.CharacterId)
+                            .ToList();
+                        // Kick all players in miniland except owner and his friends
+                        miniland.Kick(o => o.VisualId != characterId && !friends.Contains(o.VisualId));
+                    } else
+                    {
+                        miniland.Kick(o => o.VisualId != characterId);
+                    }
                 }
 
                 return;
