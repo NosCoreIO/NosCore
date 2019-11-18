@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -16,16 +16,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="Autofac" Version="4.9.4" />
-	<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="5.0.1" />
-	<PackageReference Include="FastExpressionCompiler" Version="2.0.0" />
-  <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.0.0" />
-	<PackageReference Include="Mapster" Version="4.1.1" />
-	<PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0" />
-	<PackageReference Include="Polly" Version="7.1.1" />
-	<PackageReference Include="Serilog.Extensions.Logging" Version="3.0.2-dev-10260" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Autofac" Version="4.9.4" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="FastExpressionCompiler" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.0.0" />
+    <PackageReference Include="Mapster" Version="4.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0" />
+    <PackageReference Include="Polly" Version="7.1.1" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.2-dev-10260" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Controllers\NosCore.PacketHandlers.csproj" />
     <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
