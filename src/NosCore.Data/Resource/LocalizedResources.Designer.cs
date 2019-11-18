@@ -1348,6 +1348,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à You don&apos;t have enough items..
+        /// </summary>
+        public static string NOT_ENOUGH_ITEMS {
+            get {
+                return ResourceManager.GetString("NOT_ENOUGH_ITEMS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à You do not have enough money to purchase that item!.
         /// </summary>
         public static string NOT_ENOUGH_MONEY {
@@ -1942,6 +1951,24 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Summing failed..
+        /// </summary>
+        public static string SUM_FAILED {
+            get {
+                return ResourceManager.GetString("SUM_FAILED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Summing successed!.
+        /// </summary>
+        public static string SUM_SUCCESS {
+            get {
+                return ResourceManager.GetString("SUM_SUCCESS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Support.
         /// </summary>
         public static string SUPPORT {
@@ -2019,6 +2046,15 @@ namespace NosCore.Data.Resource {
         public static string UNKNOWN_PICKERTYPE {
             get {
                 return ResourceManager.GetString("UNKNOWN_PICKERTYPE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Unknown upgrade type: {0}..
+        /// </summary>
+        public static string UNKNOWN_UPGRADE_TYPE {
+            get {
+                return ResourceManager.GetString("UNKNOWN_UPGRADE_TYPE", resourceCulture);
             }
         }
         

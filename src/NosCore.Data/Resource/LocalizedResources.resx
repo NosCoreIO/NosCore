@@ -818,4 +818,16 @@
   <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
     <value>You can not send the invitation yet. Please try again in {0} seconds.</value>
   </data>
+  <data name="UNKNOWN_UPGRADE_TYPE" xml:space="preserve">
+    <value>Unknown upgrade type: {0}.</value>
+  </data>
+  <data name="NOT_ENOUGH_ITEMS" xml:space="preserve">
+    <value>You don't have enough items.</value>
+  </data>
+  <data name="SUM_SUCCESS" xml:space="preserve">
+    <value>Summing successed!</value>
+  </data>
+  <data name="SUM_FAILED" xml:space="preserve">
+    <value>Summing failed.</value>
+  </data>
 </root>
