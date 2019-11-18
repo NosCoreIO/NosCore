@@ -487,10 +487,10 @@ namespace NosCore.GameObject.Providers.InventoryService
 
         public void RemoveItemAmountFromInventoryByVNum(short amount, short itemVNum)
         {
-            var itemInstancesOfVNum = this.Select(s => s.Value).Where(w => w.ItemInstance.ItemVNum == itemVNum)
-                .OrderBy(o => o.ItemInstance.Amount).ToList();
             var stayAmount = amount;
-            foreach (var itemInstance in itemInstancesOfVNum)
+            foreach (var itemInstance in this.Select(s => s.Value)
+                .Where(w => w.ItemInstance.ItemVNum == itemVNum)
+                .OrderBy(o => o.ItemInstance.Amount))
             {
                 if (stayAmount == 0)
                 {

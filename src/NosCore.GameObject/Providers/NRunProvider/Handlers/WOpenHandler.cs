@@ -30,7 +30,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
     {
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
         {
-            return (item.Item2.Runner == NrunRunnerType.ProbabilityUIs) && (item.Item1 != null);
+            return item.Item2.Runner == NrunRunnerType.ProbabilityUIs && item.Item1 != null;
         }
 
         public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)

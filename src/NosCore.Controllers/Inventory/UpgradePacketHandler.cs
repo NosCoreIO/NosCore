@@ -1,4 +1,5 @@
-﻿using ChickenAPI.Packets.ClientPackets.Player;
+﻿using System.Collections.Generic;
+using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Data;
@@ -33,28 +34,38 @@ namespace NosCore.PacketHandlers.Inventory
                     break;
                 case UpgradePacketType.SumResistance:
                     var receiverItem = clientSession.Character.Inventory.LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType);
-                    if (receiverItem == null)
+                    var acceptedItemType = new List<EquipmentType> { EquipmentType.Gloves, EquipmentType.Boots };
+
+                    if (!(receiverItem?.ItemInstance is WearableInstance))
                     {
                         return;
                     }
 
-                    if (receiverItem.ItemInstance is WearableInstance wearableReceiver)
+                    if (packet.Slot2 == null || packet.InventoryType2 == null)
                     {
-                        if ((packet.Slot2 == null) || (packet.InventoryType2 == null))
+                        return;
+                    }
+
+                    var sumItem = clientSession.Character.Inventory.LoadBySlotAndType((byte)packet.Slot2, (NoscorePocketType)packet.InventoryType2);
+                    if (sumItem == null)
+                    {
+                        return;
+                    }
+
+                    if (sumItem.ItemInstance is WearableInstance wearableSum)
+                    {
+                        if (receiverItem.ItemInstance.Upgrade + wearableSum.Upgrade > clientSession.WorldConfiguration.MaxSumLevel)
                         {
                             return;
                         }
 
-                        var sumItem = clientSession.Character.Inventory.LoadBySlotAndType((byte)packet.Slot2, (NoscorePocketType)packet.InventoryType2);
-                        if (sumItem == null)
+                        if (!acceptedItemType.Contains(receiverItem.ItemInstance.Item.EquipmentSlot) ||
+                            !acceptedItemType.Contains(wearableSum.Item.EquipmentSlot))
                         {
                             return;
                         }
 
-                        if (sumItem.ItemInstance is WearableInstance wearableSum)
-                        {
-                            wearableReceiver.Sum(clientSession, wearableSum);
-                        }
+                        ((WearableInstance)receiverItem.ItemInstance).Sum(clientSession, wearableSum);
                     }
                     break;
                 case UpgradePacketType.UpgradeItemProtected:
