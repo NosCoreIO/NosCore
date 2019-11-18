@@ -16,12 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Controllers - Copier\**" />
-    <EmbeddedResource Remove="Controllers - Copier\**" />
-    <None Remove="Controllers - Copier\**" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="FastExpressionCompiler" Version="2.0.0" />
