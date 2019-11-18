@@ -80,6 +80,7 @@ namespace NosCore.PacketHandlers.Miniland
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PUBLIC,
                                     clientSession.Account.Language)
                             });
+                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Open);
                             break;
 
                         default:
