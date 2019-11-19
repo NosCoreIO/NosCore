@@ -58,15 +58,5 @@ namespace NosCore.Configuration
         public int MaxSpPoints { get; set; }
 
         public int MaxAdditionalSpPoints { get; set; }
-
-        public byte MaxSumLevel { get; set; }
-
-        public short SumSandVNum { get; set; }
-
-        public short[] SumSuccessPercent { get; set; }
-
-        public int[] SumGoldPrice { get; set; }
-
-        public short[] SumSandAmount { get; set; }
     }
 }

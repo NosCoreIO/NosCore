@@ -5,6 +5,7 @@ using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
+using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
@@ -54,7 +55,7 @@ namespace NosCore.PacketHandlers.Inventory
 
                     if (sumItem.ItemInstance is WearableInstance wearableSum)
                     {
-                        if (receiverItem.ItemInstance.Upgrade + wearableSum.Upgrade > clientSession.WorldConfiguration.MaxSumLevel)
+                        if (receiverItem.ItemInstance.Upgrade + wearableSum.Upgrade > UpgradeHelper.Instance.MaxSumLevel)
                         {
                             return;
                         }

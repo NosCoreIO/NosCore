@@ -18,11 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
 using System.Reactive.Subjects;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.Shop;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core;
@@ -154,9 +152,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
 
         public void Sum(ClientSession clientSession, WearableInstance item)
         {
-            short[] upSuccess = clientSession.WorldConfiguration.SumSuccessPercent;
-            int[] goldPrice = clientSession.WorldConfiguration.SumGoldPrice;
-            short[] sandAmount = clientSession.WorldConfiguration.SumSandAmount;
+            short[] upSuccess = UpgradeHelper.Instance.SumSuccessPercent;
+            int[] goldPrice = UpgradeHelper.Instance.SumGoldPrice;
+            short[] sandAmount = UpgradeHelper.Instance.SumSandAmount;
 
             if (clientSession.Character.Gold < goldPrice[Upgrade + item.Upgrade])
             {
@@ -166,7 +164,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
                 return;
             }
 
-            if (clientSession.Character.Inventory.CountItem(clientSession.WorldConfiguration.SumSandVNum) < sandAmount[Upgrade + item.Upgrade])
+            if (clientSession.Character.Inventory.CountItem(1027) < sandAmount[Upgrade + item.Upgrade])
             {
                 clientSession.SendPacket(clientSession.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_ITEMS, clientSession.Account.Language),
@@ -175,7 +173,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
             }
 
             clientSession.Character.Inventory.RemoveItemAmountFromInventoryByVNum(
-                (byte) sandAmount[Upgrade + item.Upgrade], clientSession.WorldConfiguration.SumSandVNum);
+                (byte) sandAmount[Upgrade + item.Upgrade], 1027);
             clientSession.Character.Gold -= goldPrice[Upgrade + item.Upgrade];
 
             var random = (short)RandomFactory.Instance.RandomNumber();
@@ -188,7 +186,8 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
                 HandleFailedSum(clientSession, item);
             }
 
-            clientSession.SendPackets(clientSession.Character.GenerateInv());
+            // clientSession.SendPackets(clientSession.Character.GenerateInv());
+
             clientSession.SendPacket(clientSession.Character.GenerateGold());
             clientSession.SendPacket(new ShopEndPacket
             {

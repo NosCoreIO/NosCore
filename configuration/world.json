@@ -38,30 +38,5 @@
 	"MaxGoldAmount": 1000000000,
 	"MaxBankGoldAmount": 100000000000,
 	"MaxSpPoints": 10000,
-	"MaxAdditionalSpPoints": 1000000,
-	"SumSandVNum": 1027,
-	"SumSuccessPercent": [
-		100,
-		100,
-		85,
-		70,
-		50,
-		20
-	],
-	"SumGoldPrice": [
-		1500,
-		3000,
-		6000,
-		12000,
-		24000,
-		48000
-	],
-	"SumSandAmount": [
-		5,
-		10,
-		15,
-		20,
-		25,
-		30
-	]
+	"MaxAdditionalSpPoints": 1000000
 }
