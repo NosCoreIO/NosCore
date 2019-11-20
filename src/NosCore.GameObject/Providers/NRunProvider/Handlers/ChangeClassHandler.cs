@@ -63,7 +63,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                 return;
             }
 
-            if (requestData.ClientSession.Character.Inventory.Any(s => s.Value.Type == NoscorePocketType.Wear))
+            if (requestData.ClientSession.Character.InventoryService.Any(s => s.Value.Type == NoscorePocketType.Wear))
             {
                 requestData.ClientSession.SendPacket(new MsgPacket
                 {

@@ -207,7 +207,7 @@ namespace NosCore.PacketHandlers.Exchange
                     else
                     {
                         var itemList = _exchangeProvider.ProcessExchange(clientSession.Character.VisualId,
-                            exchangeTarget.VisualId, clientSession.Character.Inventory, exchangeTarget.Inventory);
+                            exchangeTarget.VisualId, clientSession.Character.InventoryService, exchangeTarget.InventoryService);
 
                         foreach (var item in itemList)
                         {

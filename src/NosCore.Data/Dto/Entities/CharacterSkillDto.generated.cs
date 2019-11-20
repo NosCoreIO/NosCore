@@ -33,15 +33,11 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class CharacterSkillDto : IDto
 	{
-		[AdaptIgnore]
-	// foreign key injection of Character
-		public CharacterDto CharacterDto { get; set; }
+		public CharacterDto Character { get; set; }
 
 	 	public long CharacterId { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Skill
-		public SkillDto SkillDto { get; set; }
+	 	public SkillDto Skill { get; set; }
 
 	 	public short SkillVNum { get; set; }
 

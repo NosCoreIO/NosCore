@@ -33,9 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class PenaltyLogDto : IDto
 	{
-		[AdaptIgnore]
-	// foreign key injection of Account
-		public AccountDto AccountDto { get; set; }
+		public AccountDto Account { get; set; }
 
 	 	public long AccountId { get; set; }
 

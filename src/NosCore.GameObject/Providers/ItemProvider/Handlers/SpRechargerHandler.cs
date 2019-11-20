@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.MaxAdditionalSpPoints)
             {
                 var itemInstance = requestData.Data.Item1;
-                requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1,
+                requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
                     itemInstance.ItemInstanceId);
                 requestData.ClientSession.SendPacket(
                     itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot));

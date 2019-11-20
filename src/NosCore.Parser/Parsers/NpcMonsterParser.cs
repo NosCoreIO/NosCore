@@ -135,9 +135,9 @@ namespace NosCore.Parser.Parsers
                 {nameof(NpcMonsterDto.Concentrate), chunk => ImportConcentrate(chunk)},
                 {nameof(NpcMonsterDto.CriticalChance), chunk => ImportCriticalChance(chunk)},
                 {nameof(NpcMonsterDto.CriticalRate), chunk => ImportCriticalRate(chunk)},
-                {nameof(NpcMonsterDto.NpcMonsterSkillDto), chunk => ImportNpcMonsterSkill(chunk)},
-                {nameof(NpcMonsterDto.BCardsDto), chunk => ImportBCards(chunk)},
-                {nameof(NpcMonsterDto.DropDto), chunk => ImportDrops(chunk)},
+                {nameof(NpcMonsterDto.NpcMonsterSkill), chunk => ImportNpcMonsterSkill(chunk)},
+                {nameof(NpcMonsterDto.BCards), chunk => ImportBCards(chunk)},
+                {nameof(NpcMonsterDto.Drop), chunk => ImportDrops(chunk)},
                 {nameof(NpcMonsterDto.MonsterType), chunk => ImportMonsterType(chunk)},
                 {nameof(NpcMonsterDto.NoAggresiveIcon), chunk => {
                         var unknowndata = LoadUnknownData(chunk);
@@ -152,9 +152,9 @@ namespace NosCore.Parser.Parsers
                 "#========================================================", 1, actionList, _logger);
             var monsters = genericParser.GetDtos().GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
             _npcMonsterDao.InsertOrUpdate(monsters);
-            _bCardDao.InsertOrUpdate(monsters.Where(s => s.BCardsDto != null).SelectMany(s => s.BCardsDto));
-            _dropDao.InsertOrUpdate(monsters.Where(s => s.DropDto != null).SelectMany(s => s.DropDto));
-            _npcMonsterSkillDao.InsertOrUpdate(monsters.Where(s => s.NpcMonsterSkillDto != null).SelectMany(s => s.NpcMonsterSkillDto));
+            _bCardDao.InsertOrUpdate(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards));
+            _dropDao.InsertOrUpdate(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop));
+            _npcMonsterSkillDao.InsertOrUpdate(monsters.Where(s => s.NpcMonsterSkill != null).SelectMany(s => s.NpcMonsterSkill));
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCMONSTERS_PARSED), monsters.Count);
         }
 

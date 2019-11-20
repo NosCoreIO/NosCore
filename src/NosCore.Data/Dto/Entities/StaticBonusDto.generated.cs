@@ -33,9 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class StaticBonusDto : IDto
 	{
-		[AdaptIgnore]
-	// foreign key injection of Character
-		public CharacterDto CharacterDto { get; set; }
+		public CharacterDto Character { get; set; }
 
 	 	public long CharacterId { get; set; }
 

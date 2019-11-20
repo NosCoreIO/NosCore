@@ -33,9 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class ScriptedInstanceDto : IDto
 	{
-		[AdaptIgnore]
-	// foreign key injection of Map
-		public MapDto MapDto { get; set; }
+		public MapDto Map { get; set; }
 
 	 	public short MapId { get; set; }
 

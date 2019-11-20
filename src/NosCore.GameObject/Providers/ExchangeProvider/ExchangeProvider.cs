@@ -119,10 +119,10 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                     dictionary);
             }
 
-            if (!session.Character.Inventory.EnoughPlace(
+            if (!session.Character.InventoryService.EnoughPlace(
                     targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
                     targetInfo.ExchangeItems.Keys.First().Type) ||
-                !targetSession.Inventory.EnoughPlace(
+                !targetSession.InventoryService.EnoughPlace(
                     exchangeInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
                     targetInfo.ExchangeItems.Keys.First().Type))
             {

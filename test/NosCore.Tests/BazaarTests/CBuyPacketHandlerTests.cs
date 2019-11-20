@@ -153,12 +153,12 @@ namespace NosCore.Tests.BazaarTests
         {
             var guid1 = Guid.NewGuid();
             var guid2 = Guid.NewGuid();
-            _session.Character.Inventory.AddItemToPocket(new InventoryItemInstance
+            _session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance
             {
                 Id = guid2, ItemInstanceId = guid2, Slot = 0, Type = NoscorePocketType.Main,
                 ItemInstance = new ItemInstance {ItemVNum = 1012, Amount = 999, Id = guid2}
             });
-            _session.Character.Inventory.AddItemToPocket(new InventoryItemInstance
+            _session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance
             {
                 Id = guid1, ItemInstanceId = guid1, Slot = 1, Type = NoscorePocketType.Main,
                 ItemInstance = new ItemInstance {ItemVNum = 1012, Amount = 999, Id = guid1}

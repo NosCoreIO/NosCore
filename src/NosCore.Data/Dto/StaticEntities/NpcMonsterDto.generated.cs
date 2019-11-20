@@ -70,9 +70,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short DistanceDefenceDodge { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Drop
-		public System.Collections.Generic.ICollection<DropDto> DropDto { get; set; }
+	 	public System.Collections.Generic.ICollection<DropDto> Drop { get; set; }
 
 	 	public byte Element { get; set; }
 
@@ -94,17 +92,11 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short MagicDefence { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of MapMonster
-		public System.Collections.Generic.ICollection<MapMonsterDto> MapMonsterDto { get; set; }
+	 	public System.Collections.Generic.ICollection<MapMonsterDto> MapMonster { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of MapNpc
-		public System.Collections.Generic.ICollection<MapNpcDto> MapNpcDto { get; set; }
+	 	public System.Collections.Generic.ICollection<MapNpcDto> MapNpc { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Mate
-		public System.Collections.Generic.ICollection<MateDto> MateDto { get; set; }
+	 	public System.Collections.Generic.ICollection<MateDto> Mate { get; set; }
 
 	 	public int MaxHp { get; set; }
 
@@ -121,9 +113,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public byte NoticeRange { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of NpcMonsterSkill
-		public System.Collections.Generic.ICollection<NpcMonsterSkillDto> NpcMonsterSkillDto { get; set; }
+	 	public System.Collections.Generic.ICollection<NpcMonsterSkillDto> NpcMonsterSkill { get; set; }
 
 	 	[Key]
 		public short NpcMonsterVNum { get; set; }
@@ -148,9 +138,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public int GiveDamagePercentage { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of BCards
-		public System.Collections.Generic.ICollection<BCardDto> BCardsDto { get; set; }
+	 	public System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
 
 	 }
 }

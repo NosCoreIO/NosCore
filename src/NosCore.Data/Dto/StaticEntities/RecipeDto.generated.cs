@@ -35,24 +35,18 @@ namespace NosCore.Data.StaticEntities
 	{
 		public byte Amount { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Item
-		public ItemDto ItemDto { get; set; }
+	 	public ItemDto Item { get; set; }
 
 	 	public short ItemVNum { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of MapNpc
-		public MapNpcDto MapNpcDto { get; set; }
+	 	public MapNpcDto MapNpc { get; set; }
 
 	 	public int MapNpcId { get; set; }
 
 	 	[Key]
 		public short RecipeId { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of RecipeItem
-		public System.Collections.Generic.ICollection<RecipeItemDto> RecipeItemDto { get; set; }
+	 	public System.Collections.Generic.ICollection<RecipeItemDto> RecipeItem { get; set; }
 
 	 }
 }

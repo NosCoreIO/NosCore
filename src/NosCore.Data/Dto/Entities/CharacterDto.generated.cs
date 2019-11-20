@@ -33,9 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class CharacterDto : IDto
 	{
-		[AdaptIgnore]
-	// foreign key injection of Account
-		public AccountDto AccountDto { get; set; }
+		public AccountDto Account { get; set; }
 
 	 	public long AccountId { get; set; }
 
@@ -47,13 +45,9 @@ namespace NosCore.Data.Dto
 
 	 	public int ArenaWinner { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of BazaarItem
-		public System.Collections.Generic.ICollection<BazaarItemDto> BazaarItemDto { get; set; }
+	 	public System.Collections.Generic.ICollection<BazaarItemDto> BazaarItem { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Miniland
-		public System.Collections.Generic.ICollection<MinilandDto> MinilandDto { get; set; }
+	 	public System.Collections.Generic.ICollection<MinilandDto> Miniland { get; set; }
 
 	 	public string Biography { get; set; }
 
@@ -62,17 +56,11 @@ namespace NosCore.Data.Dto
 	 	[Key]
 		public long CharacterId { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of CharacterRelation1
-		public System.Collections.Generic.ICollection<CharacterRelationDto> CharacterRelation1Dto { get; set; }
+	 	public System.Collections.Generic.ICollection<CharacterRelationDto> CharacterRelation1 { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of CharacterRelation2
-		public System.Collections.Generic.ICollection<CharacterRelationDto> CharacterRelation2Dto { get; set; }
+	 	public System.Collections.Generic.ICollection<CharacterRelationDto> CharacterRelation2 { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of CharacterSkill
-		public System.Collections.Generic.ICollection<CharacterSkillDto> CharacterSkillDto { get; set; }
+	 	public System.Collections.Generic.ICollection<CharacterSkillDto> CharacterSkill { get; set; }
 
 	 	public ChickenAPI.Packets.Enumerations.CharacterClassType Class { get; set; }
 
@@ -88,9 +76,7 @@ namespace NosCore.Data.Dto
 
 	 	public byte Faction { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of FamilyCharacter
-		public System.Collections.Generic.ICollection<FamilyCharacterDto> FamilyCharacterDto { get; set; }
+	 	public System.Collections.Generic.ICollection<FamilyCharacterDto> FamilyCharacter { get; set; }
 
 	 	public bool FamilyRequestBlocked { get; set; }
 
@@ -116,9 +102,7 @@ namespace NosCore.Data.Dto
 
 	 	public bool HpBlocked { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Inventory
-		public System.Collections.Generic.ICollection<InventoryItemInstanceDto> InventoryDto { get; set; }
+	 	public System.Collections.Generic.ICollection<InventoryItemInstanceDto> Inventory { get; set; }
 
 	 	public byte JobLevel { get; set; }
 
@@ -128,17 +112,11 @@ namespace NosCore.Data.Dto
 
 	 	public long LevelXp { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Mail
-		public System.Collections.Generic.ICollection<MailDto> MailDto { get; set; }
+	 	public System.Collections.Generic.ICollection<MailDto> Mail { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Mail1
-		public System.Collections.Generic.ICollection<MailDto> Mail1Dto { get; set; }
+	 	public System.Collections.Generic.ICollection<MailDto> Mail1 { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Map
-		public MapDto MapDto { get; set; }
+	 	public MapDto Map { get; set; }
 
 	 	public short MapId { get; set; }
 
@@ -150,13 +128,9 @@ namespace NosCore.Data.Dto
 
 	 	public int MasterTicket { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of CharacterQuest
-		public System.Collections.Generic.ICollection<CharacterQuestDto> CharacterQuestDto { get; set; }
+	 	public System.Collections.Generic.ICollection<CharacterQuestDto> CharacterQuest { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Mate
-		public System.Collections.Generic.ICollection<MateDto> MateDto { get; set; }
+	 	public System.Collections.Generic.ICollection<MateDto> Mate { get; set; }
 
 	 	public byte MaxMateCount { get; set; }
 
@@ -172,17 +146,13 @@ namespace NosCore.Data.Dto
 
 	 	public bool QuickGetUp { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of QuicklistEntry
-		public System.Collections.Generic.ICollection<QuicklistEntryDto> QuicklistEntryDto { get; set; }
+	 	public System.Collections.Generic.ICollection<QuicklistEntryDto> QuicklistEntry { get; set; }
 
 	 	public long RagePoint { get; set; }
 
 	 	public long Reput { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Respawn
-		public System.Collections.Generic.ICollection<RespawnDto> RespawnDto { get; set; }
+	 	public System.Collections.Generic.ICollection<RespawnDto> Respawn { get; set; }
 
 	 	public byte Slot { get; set; }
 
@@ -192,17 +162,11 @@ namespace NosCore.Data.Dto
 
 	 	public NosCore.Data.Enumerations.Character.CharacterState State { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of StaticBonus
-		public System.Collections.Generic.ICollection<StaticBonusDto> StaticBonusDto { get; set; }
+	 	public System.Collections.Generic.ICollection<StaticBonusDto> StaticBonus { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Title
-		public System.Collections.Generic.ICollection<TitleDto> TitleDto { get; set; }
+	 	public System.Collections.Generic.ICollection<TitleDto> Title { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of StaticBuff
-		public System.Collections.Generic.ICollection<StaticBuffDto> StaticBuffDto { get; set; }
+	 	public System.Collections.Generic.ICollection<StaticBuffDto> StaticBuff { get; set; }
 
 	 	public int TalentLose { get; set; }
 
@@ -212,9 +176,7 @@ namespace NosCore.Data.Dto
 
 	 	public bool WhisperBlocked { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Warehouses
-		public System.Collections.Generic.ICollection<WarehouseDto> WarehousesDto { get; set; }
+	 	public System.Collections.Generic.ICollection<WarehouseDto> Warehouses { get; set; }
 
 	 }
 }
