@@ -1260,7 +1260,7 @@ namespace NosCore.GameObject
                 FamilyId = -1,
                 FamilyName = null,
                 CharacterId = CharacterId,
-                Authority = (byte)Account.Authority,
+                Authority = (AuthorityUIType)Account.Authority,
                 Gender = Gender,
                 HairStyle = HairStyle,
                 HairColor = HairColor,
