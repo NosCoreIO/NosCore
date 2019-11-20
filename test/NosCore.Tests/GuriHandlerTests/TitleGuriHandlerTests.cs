@@ -66,7 +66,7 @@ namespace NosCore.Tests.GuriHandlerTests
         [TestMethod]
         public void Test_TitleGuriHandler()
         {
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
             ExecuteGuriEventHandler(new GuriPacket
             {
                 Type = GuriPacketType.Title,
@@ -81,7 +81,7 @@ namespace NosCore.Tests.GuriHandlerTests
         [TestMethod]
         public void Test_TitleGuriHandlerWhenDuplicate()
         {
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
             _session.Character.Titles = new List<TitleDto> { new TitleDto { TitleType = 1 } };
             ExecuteGuriEventHandler(new GuriPacket
             {

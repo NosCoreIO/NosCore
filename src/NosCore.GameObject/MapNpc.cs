@@ -102,7 +102,6 @@ namespace NosCore.GameObject
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
         public short PositionY { get; set; }
-        public NpcMonsterDto NpcMonster { get; set; }
         public MapInstance MapInstance { get; set; }
         public DateTime LastMove { get; set; }
         public bool IsAlive { get; set; }
@@ -116,7 +115,7 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        public Shop Shop { get; private set; }
+        public new Shop Shop { get; private set; }
 
         public Subject<RequestData> Requests { get; set; }
 

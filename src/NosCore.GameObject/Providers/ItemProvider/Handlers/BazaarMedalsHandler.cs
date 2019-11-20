@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.SendPacket(
                     itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot));
 
-                requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1,
+                requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
                     itemInstance.ItemInstanceId);
             }
         }

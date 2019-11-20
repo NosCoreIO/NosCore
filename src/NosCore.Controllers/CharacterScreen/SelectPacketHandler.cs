@@ -85,7 +85,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
 
                 var character = _adapter.Adapt<Character>(characterDto);
-
+                
                 character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId(character.MapId);
                 character.MapInstance = _mapInstanceProvider.GetMapInstance(character.MapInstanceId);
                 character.PositionX = character.MapX;
@@ -99,7 +99,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .ToList();
                 var ids = inventories.Select(o => o.ItemInstanceId).ToArray();
                 var items = _itemInstanceDao.Where(s => ids.Contains(s.Id)).ToList();
-                inventories.ForEach(k => character.Inventory[k.ItemInstanceId] =
+                inventories.ForEach(k => character.InventoryService[k.ItemInstanceId] =
                     InventoryItemInstance.Create(_itemProvider.Convert(items.First(s => s.Id == k.ItemInstanceId)),
                         character.CharacterId, k));
                 clientSession.SetCharacter(character);

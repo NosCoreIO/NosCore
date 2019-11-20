@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Exchange
                 byte i = 0;
                 foreach (var value in packet.SubPackets)
                 {
-                    var item = clientSession.Character.Inventory.LoadBySlotAndType(value.Slot,
+                    var item = clientSession.Character.InventoryService.LoadBySlotAndType(value.Slot,
                         (NoscorePocketType) value.PocketType);
 
                     if ((item == null) || (item.ItemInstance.Amount < value.Amount))

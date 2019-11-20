@@ -76,7 +76,6 @@ namespace NosCore.GameObject
 
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
-        public NpcMonsterDto NpcMonster { get; set; }
         public MapInstance MapInstance { get; set; }
         public DateTime LastMove { get; set; }
         public bool IsAlive { get; set; }

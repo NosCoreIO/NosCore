@@ -162,7 +162,7 @@ namespace NosCore.Tests.BazaarTests
         public void RegisterTooExpensiveWhenNoMedal()
         {
             _session.Character.Gold = 500000;
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0))
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0))
                 .First();
             _cregPacketHandler.Execute(new CRegPacket
             {
@@ -189,7 +189,7 @@ namespace NosCore.Tests.BazaarTests
             {
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0))
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0))
                 .First();
             _cregPacketHandler.Execute(new CRegPacket
             {
@@ -204,7 +204,7 @@ namespace NosCore.Tests.BazaarTests
                 Price = 10000000
             }, _session);
             var lastpacket = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(0, _session.Character.Inventory.Count);
+            Assert.AreEqual(0, _session.Character.InventoryService.Count);
             Assert.IsTrue(lastpacket.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
         }
@@ -213,7 +213,7 @@ namespace NosCore.Tests.BazaarTests
         public void RegisterTooExpensive()
         {
             _session.Character.Gold = 5000000;
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0))
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0))
                 .First();
             _cregPacketHandler.Execute(new CRegPacket
             {
@@ -236,7 +236,7 @@ namespace NosCore.Tests.BazaarTests
         public void RegisterTooLongWhenNoMedal()
         {
             _session.Character.Gold = 5000000;
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0))
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0))
                 .First();
             _cregPacketHandler.Execute(new CRegPacket
             {
@@ -258,7 +258,7 @@ namespace NosCore.Tests.BazaarTests
         public void RegisterUnvalidTime()
         {
             _session.Character.Gold = 5000000;
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0))
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0))
                 .First();
             _cregPacketHandler.Execute(new CRegPacket
             {
@@ -279,7 +279,7 @@ namespace NosCore.Tests.BazaarTests
         public void RegisterLimitExceeded()
         {
             _session.Character.Gold = 5000000;
-            _session.Character.Inventory
+            _session.Character.InventoryService
                 .AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 999), 0)).First();
             _bazaarHttpClient.Reset();
             _bazaarHttpClient.Setup(s => s.AddBazaar(It.IsAny<BazaarRequest>())).Returns(LanguageKey.LIMIT_EXCEEDED);
@@ -296,7 +296,7 @@ namespace NosCore.Tests.BazaarTests
                 Price = 1
             }, _session);
             var lastpacket = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(999, _session.Character.Inventory.FirstOrDefault().Value.ItemInstance.Amount);
+            Assert.AreEqual(999, _session.Character.InventoryService.FirstOrDefault().Value.ItemInstance.Amount);
             Assert.IsTrue(lastpacket.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.LIMIT_EXCEEDED, _session.Account.Language));
         }
@@ -305,7 +305,7 @@ namespace NosCore.Tests.BazaarTests
         public void RegisterAllSlot()
         {
             _session.Character.Gold = 5000000;
-            _session.Character.Inventory
+            _session.Character.InventoryService
                 .AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 999), 0)).First();
             _cregPacketHandler.Execute(new CRegPacket
             {
@@ -320,7 +320,7 @@ namespace NosCore.Tests.BazaarTests
                 Price = 1
             }, _session);
             var lastpacket = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(0, _session.Character.Inventory.Count);
+            Assert.AreEqual(0, _session.Character.InventoryService.Count);
             Assert.IsTrue(lastpacket.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
         }
@@ -329,7 +329,7 @@ namespace NosCore.Tests.BazaarTests
         public void RegisterLessThanInInventory()
         {
             _session.Character.Gold = 5000000;
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0))
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0))
                 .First();
             _cregPacketHandler.Execute(new CRegPacket
             {
@@ -350,7 +350,7 @@ namespace NosCore.Tests.BazaarTests
         public void RegisterPartialSlot()
         {
             _session.Character.Gold = 5000000;
-            _session.Character.Inventory
+            _session.Character.InventoryService
                 .AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 999), 0)).First();
             _cregPacketHandler.Execute(new CRegPacket
             {
@@ -365,7 +365,7 @@ namespace NosCore.Tests.BazaarTests
                 Price = 1
             }, _session);
             var lastpacket = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(50, _session.Character.Inventory.FirstOrDefault().Value.ItemInstance.Amount);
+            Assert.AreEqual(50, _session.Character.InventoryService.FirstOrDefault().Value.ItemInstance.Amount);
             Assert.IsTrue(lastpacket.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
         }

@@ -49,14 +49,14 @@ namespace NosCore.PacketHandlers.Inventory
             }
 
             var inventory =
-                clientSession.Character.Inventory.LoadBySlotAndType((short) removePacket.InventorySlot,
+                clientSession.Character.InventoryService.LoadBySlotAndType((short) removePacket.InventorySlot,
                     NoscorePocketType.Wear);
             if (inventory == null)
             {
                 return;
             }
 
-            var inv = clientSession.Character.Inventory.MoveInPocket((short) removePacket.InventorySlot,
+            var inv = clientSession.Character.InventoryService.MoveInPocket((short) removePacket.InventorySlot,
                 NoscorePocketType.Wear, NoscorePocketType.Equipment);
 
             if (inv == null)

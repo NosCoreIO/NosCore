@@ -38,9 +38,7 @@ namespace NosCore.Data.Dto
 
 	 	public short OriginalItemDesign { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of OriginalItem
-		public ItemDto OriginalItemDto { get; set; }
+	 	public ItemDto OriginalItem { get; set; }
 
 	 	public short OriginalItemVNum { get; set; }
 
@@ -58,9 +56,7 @@ namespace NosCore.Data.Dto
 
 	 	public short MaximumOriginalItemRare { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of ItemGenerated
-		public ItemDto ItemGeneratedDto { get; set; }
+	 	public ItemDto ItemGenerated { get; set; }
 
 	 	public bool IsSuperReward { get; set; }
 

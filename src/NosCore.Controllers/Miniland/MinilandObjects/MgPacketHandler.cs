@@ -119,13 +119,13 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
         private void UseCoupon()
         {
-            var item = _clientSession.Character.Inventory.Select(s => s.Value)
+            var item = _clientSession.Character.InventoryService.Select(s => s.Value)
                 .Where(s => (s.ItemInstance.ItemVNum == 1269) || (s.ItemInstance.ItemVNum == 1271)).OrderBy(s => s.Slot)
                 .FirstOrDefault();
             if (item != null)
             {
                 var point = item.ItemInstance.ItemVNum == 1269 ? 300 : 500;
-                _clientSession.Character.Inventory.RemoveItemAmountFromInventory(1, item.ItemInstance.Id);
+                _clientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, item.ItemInstance.Id);
                 _minilandObject.InventoryItemInstance.ItemInstance.DurabilityPoint += point;
                 _clientSession.SendPacket(new InfoPacket
                 {
@@ -200,7 +200,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 if (gifts.Count > i)
                 {
                     var item = _itemProvider.Create(gifts.ElementAt(i).VNum, gifts.ElementAt(i).Amount);
-                    var inv = _clientSession.Character.Inventory.AddItemToPocket(
+                    var inv = _clientSession.Character.InventoryService.AddItemToPocket(
                         InventoryItemInstance.Create(item, _clientSession.Character.CharacterId));
                     if (inv.Count != 0)
                     {
@@ -293,7 +293,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
             _clientSession.SendPacket(new MloRwPacket {Amount = obj.Amount, VNum = obj.VNum});
             // _clientSession.SendPacket(new MlptPacket {_miniland.MinilandPoint, 100});
-            var inv = _clientSession.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(
+            var inv = _clientSession.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
                 _itemProvider.Create(obj.VNum,
                     obj.Amount), _clientSession.Character.CharacterId));
             _miniland.MinilandPoint -= 100;

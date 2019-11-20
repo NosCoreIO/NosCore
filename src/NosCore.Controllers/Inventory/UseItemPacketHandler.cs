@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Inventory
         public override void Execute(UseItemPacket useItemPacket, ClientSession clientSession)
         {
             var inv =
-                clientSession.Character.Inventory.LoadBySlotAndType(useItemPacket.Slot,
+                clientSession.Character.InventoryService.LoadBySlotAndType(useItemPacket.Slot,
                     (NoscorePocketType) useItemPacket.Type);
             if (inv?.ItemInstance.Requests == null)
             {

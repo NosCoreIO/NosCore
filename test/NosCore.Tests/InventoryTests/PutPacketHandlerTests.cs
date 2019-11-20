@@ -59,21 +59,21 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void Test_PutPartialSlot()
         {
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 999), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 999), 0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 500
             }, _session);
-            Assert.IsTrue((_session.Character.Inventory.Count == 1) &&
-                (_session.Character.Inventory.FirstOrDefault().Value.ItemInstance.Amount == 499));
+            Assert.IsTrue((_session.Character.InventoryService.Count == 1) &&
+                (_session.Character.InventoryService.FirstOrDefault().Value.ItemInstance.Amount == 499));
         }
 
         [TestMethod]
         public void Test_PutNotDroppable()
         {
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1013, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1013, 1), 0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -83,21 +83,21 @@ namespace NosCore.Tests.InventoryTests
             var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
                 _session.Account.Language)) && (packet.Type == 0));
-            Assert.IsTrue(_session.Character.Inventory.Count > 0);
+            Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
 
 
         [TestMethod]
         public void Test_Put()
         {
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 1
             }, _session);
-            Assert.IsTrue(_session.Character.Inventory.Count == 0);
+            Assert.IsTrue(_session.Character.InventoryService.Count == 0);
         }
 
         [TestMethod]
@@ -105,7 +105,7 @@ namespace NosCore.Tests.InventoryTests
         {
             _session.Character.PositionX = 2;
             _session.Character.PositionY = 2;
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -115,7 +115,7 @@ namespace NosCore.Tests.InventoryTests
             var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
                 _session.Account.Language)) && (packet.Type == 0));
-            Assert.IsTrue(_session.Character.Inventory.Count > 0);
+            Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
 
         [TestMethod]
@@ -123,7 +123,7 @@ namespace NosCore.Tests.InventoryTests
         {
             _session.Character.PositionX = -1;
             _session.Character.PositionY = -1;
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
             _putPacketHandler.Execute(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -133,7 +133,7 @@ namespace NosCore.Tests.InventoryTests
             var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
                 _session.Account.Language)) && (packet.Type == 0));
-            Assert.IsTrue(_session.Character.Inventory.Count > 0);
+            Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
     }
 }

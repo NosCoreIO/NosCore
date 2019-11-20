@@ -97,7 +97,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             if (requestData.ClientSession.Character.UseSp &&
                 (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy))
             {
-                var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(
+                var sp = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(
                     (byte)EquipmentType.Sp, NoscorePocketType.Wear);
 
                 if ((sp != null) && (sp.ItemInstance.Item.Element != 0) &&
@@ -117,7 +117,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             {
                 var timeSpanSinceLastSpUsage =
                     (SystemTime.Now() - requestData.ClientSession.Character.LastSp).TotalSeconds;
-                var sp = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(
+                var sp = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(
                     (byte)EquipmentType.Sp, NoscorePocketType.Wear);
                 if ((timeSpanSinceLastSpUsage < requestData.ClientSession.Character.SpCooldown) && (sp != null))
                 {
@@ -158,11 +158,11 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 return;
             }
 
-            requestData.ClientSession.Character.Inventory.MoveInPocket(packet.Slot, (NoscorePocketType)packet.Type,
+            requestData.ClientSession.Character.InventoryService.MoveInPocket(packet.Slot, (NoscorePocketType)packet.Type,
                 NoscorePocketType.Wear,
                 (short)itemInstance.ItemInstance.Item.EquipmentSlot, true);
             var newItem =
-                requestData.ClientSession.Character.Inventory
+                requestData.ClientSession.Character.InventoryService
                     .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.Type);
 
             requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot));

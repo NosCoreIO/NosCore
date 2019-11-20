@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Miniland
         public override void Execute(AddobjPacket addobjPacket, ClientSession clientSession)
         {
             var minilandobject =
-                clientSession.Character.Inventory.LoadBySlotAndType(addobjPacket.Slot, NoscorePocketType.Miniland);
+                clientSession.Character.InventoryService.LoadBySlotAndType(addobjPacket.Slot, NoscorePocketType.Miniland);
             if (minilandobject == null)
             {
                 return;

@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 
         public void Execute(RequestData<GuriPacket> requestData)
         {
-            var inv = requestData.ClientSession.Character.Inventory.LoadBySlotAndType((short)requestData.Data.VisualId,
+            var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)requestData.Data.VisualId,
                 NoscorePocketType.Main);
             if (inv?.ItemInstance.Item.ItemType != ItemType.Title ||
                 requestData.ClientSession.Character.Titles.Any(s => s.TitleType == inv.ItemInstance.ItemVNum))
@@ -59,7 +59,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             });
             requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character.GenerateTitle());
             requestData.ClientSession.SendPacket(new InfoPacket { Message = requestData.ClientSession.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE) });
-            requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
+            requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
             requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
         }
     }

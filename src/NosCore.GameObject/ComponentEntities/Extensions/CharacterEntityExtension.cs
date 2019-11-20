@@ -94,9 +94,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         {
             return new ExtsPacket
             {
-                EquipmentExtension = (byte)(visualEntity.Inventory.Expensions[NoscorePocketType.Equipment] + conf.BackpackSize),
-                MainExtension = (byte)(visualEntity.Inventory.Expensions[NoscorePocketType.Main] + conf.BackpackSize),
-                EtcExtension = (byte)(visualEntity.Inventory.Expensions[NoscorePocketType.Etc] + conf.BackpackSize)
+                EquipmentExtension = (byte)(visualEntity.InventoryService.Expensions[NoscorePocketType.Equipment] + conf.BackpackSize),
+                MainExtension = (byte)(visualEntity.InventoryService.Expensions[NoscorePocketType.Main] + conf.BackpackSize),
+                EtcExtension = (byte)(visualEntity.InventoryService.Expensions[NoscorePocketType.Etc] + conf.BackpackSize)
             };
         }
 
@@ -248,7 +248,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Direction = visualEntity.Direction,
                 InCharacterSubPacket = new InCharacterSubPacket
                 {
-                    Authority = visualEntity.Authority > AuthorityType.Administrator ? AuthorityUIType.Administrator : (AuthorityUIType)visualEntity.Authority, //todo change chickenapi to short
+                    Authority = visualEntity.Authority > AuthorityType.Administrator ? AuthorityUIType.Administrator : (AuthorityUIType)(int)visualEntity.Authority,
                     Gender = visualEntity.Gender,
                     HairStyle = visualEntity.HairStyle,
                     HairColor = visualEntity.HairColor,

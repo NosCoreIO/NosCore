@@ -67,9 +67,9 @@ namespace NosCore.Tests.ItemHandlerTests
                 DateEnd = SystemTime.Now().AddDays(1),
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
-            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            _session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            Assert.AreEqual(1, _session.Character.Inventory.Count);
+            Assert.AreEqual(1, _session.Character.InventoryService.Count);
         }
 
         [TestMethod]
@@ -82,18 +82,18 @@ namespace NosCore.Tests.ItemHandlerTests
                 DateEnd = SystemTime.Now().AddDays(1),
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
-            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            _session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            Assert.AreEqual(1, _session.Character.Inventory.Count);
+            Assert.AreEqual(1, _session.Character.InventoryService.Count);
         }
 
         [TestMethod]
         public void Test_AddMedal()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            _session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            Assert.AreEqual(0, _session.Character.Inventory.Count);
+            Assert.AreEqual(0, _session.Character.InventoryService.Count);
             Assert.AreEqual(1, _session.Character.StaticBonusList.Count);
         }
     }

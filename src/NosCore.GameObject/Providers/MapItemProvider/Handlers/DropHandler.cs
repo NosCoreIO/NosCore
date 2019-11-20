@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
         public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             var amount = requestData.Data.Item1.Amount;
-            var inv = requestData.ClientSession.Character.Inventory.AddItemToPocket(
+            var inv = requestData.ClientSession.Character.InventoryService.AddItemToPocket(
                     InventoryItemInstance.Create(requestData.Data.Item1.ItemInstance,
                         requestData.ClientSession.Character.CharacterId))
                 .FirstOrDefault();

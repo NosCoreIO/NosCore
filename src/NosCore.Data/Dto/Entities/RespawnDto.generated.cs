@@ -33,24 +33,18 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class RespawnDto : IDto
 	{
-		[AdaptIgnore]
-	// foreign key injection of Character
-		public CharacterDto CharacterDto { get; set; }
+		public CharacterDto Character { get; set; }
 
 	 	public long CharacterId { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Map
-		public MapDto MapDto { get; set; }
+	 	public MapDto Map { get; set; }
 
 	 	public short MapId { get; set; }
 
 	 	[Key]
 		public long RespawnId { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of RespawnMapType
-		public RespawnMapTypeDto RespawnMapTypeDto { get; set; }
+	 	public RespawnMapTypeDto RespawnMapType { get; set; }
 
 	 	public long RespawnMapTypeId { get; set; }
 

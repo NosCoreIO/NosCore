@@ -35,9 +35,7 @@ namespace NosCore.Data.Dto
 	{
 		public NosCore.Data.Enumerations.Family.FamilyAuthority Authority { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Character
-		public CharacterDto CharacterDto { get; set; }
+	 	public CharacterDto Character { get; set; }
 
 	 	public long CharacterId { get; set; }
 
@@ -45,9 +43,7 @@ namespace NosCore.Data.Dto
 
 	 	public int Experience { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Family
-		public FamilyDto FamilyDto { get; set; }
+	 	public FamilyDto Family { get; set; }
 
 	 	[Key]
 		public long FamilyCharacterId { get; set; }

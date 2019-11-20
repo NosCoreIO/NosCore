@@ -34,26 +34,18 @@ namespace NosCore.Data.StaticEntities
 	[StaticMetaData(LoadedMessage = LogLanguageKey.MAPS_LOADED,EmptyMessage = LogLanguageKey.NO_MAP)]
 	public class MapDto : IStaticDto
 	{
-		[AdaptIgnore]
-	// foreign key injection of Character
-		public System.Collections.Generic.ICollection<CharacterDto> CharacterDto { get; set; }
+		public System.Collections.Generic.ICollection<CharacterDto> Character { get; set; }
 
 	 	public byte[] Data { get; set; }
 
 	 	[Key]
 		public short MapId { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of MapMonster
-		public System.Collections.Generic.ICollection<MapMonsterDto> MapMonsterDto { get; set; }
+	 	public System.Collections.Generic.ICollection<MapMonsterDto> MapMonster { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of MapNpc
-		public System.Collections.Generic.ICollection<MapNpcDto> MapNpcDto { get; set; }
+	 	public System.Collections.Generic.ICollection<MapNpcDto> MapNpc { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of MapTypeMap
-		public System.Collections.Generic.ICollection<MapTypeMapDto> MapTypeMapDto { get; set; }
+	 	public System.Collections.Generic.ICollection<MapTypeMapDto> MapTypeMap { get; set; }
 
 	 	public int Music { get; set; }
 
@@ -62,31 +54,19 @@ namespace NosCore.Data.StaticEntities
 		[AdaptMember("Name")]
 		public string NameI18NKey { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Portal
-		public System.Collections.Generic.ICollection<PortalDto> PortalDto { get; set; }
+	 	public System.Collections.Generic.ICollection<PortalDto> Portal { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Portal1
-		public System.Collections.Generic.ICollection<PortalDto> Portal1Dto { get; set; }
+	 	public System.Collections.Generic.ICollection<PortalDto> Portal1 { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Respawn
-		public System.Collections.Generic.ICollection<RespawnDto> RespawnDto { get; set; }
+	 	public System.Collections.Generic.ICollection<RespawnDto> Respawn { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of RespawnMapType
-		public System.Collections.Generic.ICollection<RespawnMapTypeDto> RespawnMapTypeDto { get; set; }
+	 	public System.Collections.Generic.ICollection<RespawnMapTypeDto> RespawnMapType { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of ScriptedInstance
-		public System.Collections.Generic.ICollection<ScriptedInstanceDto> ScriptedInstanceDto { get; set; }
+	 	public System.Collections.Generic.ICollection<ScriptedInstanceDto> ScriptedInstance { get; set; }
 
 	 	public bool ShopAllowed { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Teleporter
-		public System.Collections.Generic.ICollection<TeleporterDto> TeleporterDto { get; set; }
+	 	public System.Collections.Generic.ICollection<TeleporterDto> Teleporter { get; set; }
 
 	 }
 }

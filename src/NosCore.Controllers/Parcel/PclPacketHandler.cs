@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Parcel
                 var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == mail.ItemInstance.Id);
                 var item = _itemProvider.Convert(itemInstance);
                 item.Id = Guid.NewGuid();
-                var newInv = clientSession.Character.Inventory
+                var newInv = clientSession.Character.InventoryService
                     .AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId))
                     .FirstOrDefault();
                 if (newInv != null)

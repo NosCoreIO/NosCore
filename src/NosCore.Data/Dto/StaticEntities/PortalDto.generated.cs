@@ -41,13 +41,9 @@ namespace NosCore.Data.StaticEntities
 
 	 	public bool IsDisabled { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Map
-		public MapDto MapDto { get; set; }
+	 	public MapDto Map { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Map1
-		public MapDto Map1Dto { get; set; }
+	 	public MapDto Map1 { get; set; }
 
 	 	[Key]
 		public int PortalId { get; set; }
