@@ -247,7 +247,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Direction = visualEntity.Direction,
                 InCharacterSubPacket = new InCharacterSubPacket
                 {
-                    Authority = (byte)visualEntity.Authority, //todo change chickenapi to short
+                    Authority = visualEntity.Authority > AuthorityType.Administrator ? (byte)2 : (byte)visualEntity.Authority, //todo change chickenapi to short
                     Gender = visualEntity.Gender,
                     HairStyle = visualEntity.HairStyle,
                     HairColor = visualEntity.HairColor,
