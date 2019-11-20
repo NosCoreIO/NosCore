@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Entities;
 using ChickenAPI.Packets.ServerPackets.Exchanges;
@@ -247,7 +248,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Direction = visualEntity.Direction,
                 InCharacterSubPacket = new InCharacterSubPacket
                 {
-                    Authority = visualEntity.Authority > AuthorityType.Administrator ? (byte)2 : (byte)visualEntity.Authority, //todo change chickenapi to short
+                    Authority = visualEntity.Authority > AuthorityType.Administrator ? AuthorityUIType.Administrator : (AuthorityUIType)visualEntity.Authority, //todo change chickenapi to short
                     Gender = visualEntity.Gender,
                     HairStyle = visualEntity.HairStyle,
                     HairColor = visualEntity.HairColor,
