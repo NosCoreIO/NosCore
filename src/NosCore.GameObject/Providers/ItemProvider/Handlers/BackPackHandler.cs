@@ -82,7 +82,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 SayColorType.Green));
             requestData.ClientSession.SendPacket(
                 itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
-            requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1,
+            requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
                 itemInstance.ItemInstanceId);
 
             requestData.ClientSession.Character.LoadExpensions();

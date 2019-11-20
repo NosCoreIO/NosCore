@@ -35,15 +35,11 @@ namespace NosCore.Data.Dto
 	{
 		public short Amount { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Item
-		public ItemDto ItemDto { get; set; }
+	 	public ItemDto Item { get; set; }
 
 	 	public short ItemVNum { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Recipe
-		public RecipeDto RecipeDto { get; set; }
+	 	public RecipeDto Recipe { get; set; }
 
 	 	public short RecipeId { get; set; }
 

@@ -43,15 +43,11 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short CastTime { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of CharacterSkill
-		public System.Collections.Generic.ICollection<CharacterSkillDto> CharacterSkillDto { get; set; }
+	 	public System.Collections.Generic.ICollection<CharacterSkillDto> CharacterSkill { get; set; }
 
 	 	public byte Class { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Combo
-		public System.Collections.Generic.ICollection<ComboDto> ComboDto { get; set; }
+	 	public System.Collections.Generic.ICollection<ComboDto> Combo { get; set; }
 
 	 	public short Cooldown { get; set; }
 
@@ -86,17 +82,13 @@ namespace NosCore.Data.StaticEntities
 		[AdaptMember("Name")]
 		public string NameI18NKey { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of NpcMonsterSkill
-		public System.Collections.Generic.ICollection<NpcMonsterSkillDto> NpcMonsterSkillDto { get; set; }
+	 	public System.Collections.Generic.ICollection<NpcMonsterSkillDto> NpcMonsterSkill { get; set; }
 
 	 	public int Price { get; set; }
 
 	 	public byte Range { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of ShopSkill
-		public System.Collections.Generic.ICollection<ShopSkillDto> ShopSkillDto { get; set; }
+	 	public System.Collections.Generic.ICollection<ShopSkillDto> ShopSkill { get; set; }
 
 	 	public byte SkillType { get; set; }
 
@@ -113,9 +105,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short UpgradeType { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of BCards
-		public System.Collections.Generic.ICollection<BCardDto> BCardsDto { get; set; }
+	 	public System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
 
 	 }
 }

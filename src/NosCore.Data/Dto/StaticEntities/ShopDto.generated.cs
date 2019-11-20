@@ -34,9 +34,7 @@ namespace NosCore.Data.StaticEntities
 	[StaticMetaData(LoadedMessage = LogLanguageKey.SHOPS_LOADED)]
 	public class ShopDto : IStaticDto
 	{
-		[AdaptIgnore]
-	// foreign key injection of MapNpc
-		public MapNpcDto MapNpcDto { get; set; }
+		public MapNpcDto MapNpc { get; set; }
 
 	 	public int MapNpcId { get; set; }
 
@@ -47,13 +45,9 @@ namespace NosCore.Data.StaticEntities
 	 	[Key]
 		public int ShopId { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of ShopItem
-		public System.Collections.Generic.ICollection<ShopItemDto> ShopItemDto { get; set; }
+	 	public System.Collections.Generic.ICollection<ShopItemDto> ShopItem { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of ShopSkill
-		public System.Collections.Generic.ICollection<ShopSkillDto> ShopSkillDto { get; set; }
+	 	public System.Collections.Generic.ICollection<ShopSkillDto> ShopSkill { get; set; }
 
 	 	public byte ShopType { get; set; }
 

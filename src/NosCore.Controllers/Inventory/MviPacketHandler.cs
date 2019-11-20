@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Inventory
             }
 
             // actually move the item from source to destination
-            clientSession.Character.Inventory.TryMoveItem((NoscorePocketType) mviPacket.InventoryType, mviPacket.Slot,
+            clientSession.Character.InventoryService.TryMoveItem((NoscorePocketType) mviPacket.InventoryType, mviPacket.Slot,
                 mviPacket.Amount,
                 mviPacket.DestinationSlot, out var previousInventory, out var newInventory);
             clientSession.SendPacket(

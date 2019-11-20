@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Inventory
         public override void Execute(PutPacket putPacket, ClientSession clientSession)
         {
             var invitem =
-                clientSession.Character.Inventory.LoadBySlotAndType(putPacket.Slot,
+                clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
                     (NoscorePocketType) putPacket.PocketType);
             if ((invitem?.ItemInstance.Item.IsDroppable ?? false) && !clientSession.Character.InExchangeOrShop)
             {
@@ -64,7 +64,7 @@ namespace NosCore.PacketHandlers.Inventory
                             return;
                         }
 
-                        invitem = clientSession.Character.Inventory.LoadBySlotAndType(putPacket.Slot,
+                        invitem = clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
                             (NoscorePocketType) putPacket.PocketType);
                         clientSession.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
                         clientSession.Character.MapInstance.SendPacket(droppedItem.GenerateDrop());

@@ -482,6 +482,8 @@ namespace NosCore.WorldServer
             TypeAdapterConfig.GlobalSettings
                 .ForDestinationType<I18NString>()
                 .BeforeMapping(s => s.Clear());
+            TypeAdapterConfig.GlobalSettings.Default
+                 .IgnoreMember((member, side) => side == MemberSide.Destination && member.Type.GetInterfaces().Contains(typeof(IEntity)) || (member.Type.GetGenericArguments().Any() && member.Type.GetGenericArguments()[0].GetInterfaces().Contains(typeof(IEntity))));
             TypeAdapterConfig.GlobalSettings
                 .When(s => !s.SourceType.IsAssignableFrom(s.DestinationType) && typeof(IStaticDto).IsAssignableFrom(s.DestinationType))
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));

@@ -94,9 +94,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         {
             return new ExtsPacket
             {
-                EquipmentExtension = (byte)(visualEntity.Inventory.Expensions[NoscorePocketType.Equipment] + conf.BackpackSize),
-                MainExtension = (byte)(visualEntity.Inventory.Expensions[NoscorePocketType.Main] + conf.BackpackSize),
-                EtcExtension = (byte)(visualEntity.Inventory.Expensions[NoscorePocketType.Etc] + conf.BackpackSize)
+                EquipmentExtension = (byte)(visualEntity.InventoryService.Expensions[NoscorePocketType.Equipment] + conf.BackpackSize),
+                MainExtension = (byte)(visualEntity.InventoryService.Expensions[NoscorePocketType.Main] + conf.BackpackSize),
+                EtcExtension = (byte)(visualEntity.InventoryService.Expensions[NoscorePocketType.Etc] + conf.BackpackSize)
             };
         }
 

@@ -125,7 +125,7 @@ namespace NosCore.PacketHandlers.Command
                     ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
             }
 
-            var inv = session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(
+            var inv = session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(
                 vnum,
                 amount, rare, upgrade, design), session.Character.CharacterId));
 
@@ -143,7 +143,7 @@ namespace NosCore.PacketHandlers.Command
             session.SendPacket(inv.GeneratePocketChange());
             var firstItem = inv[0];
 
-            if (session.Character.Inventory.LoadBySlotAndType(firstItem.Slot,
+            if (session.Character.InventoryService.LoadBySlotAndType(firstItem.Slot,
                     firstItem.Type).ItemInstance is WearableInstance wearable)
             {
                 switch (wearable.Item.EquipmentSlot)

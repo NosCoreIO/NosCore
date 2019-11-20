@@ -33,9 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class MinilandObjectDto : IDto
 	{
-		[AdaptIgnore]
-	// foreign key injection of InventoryItemInstance
-		public InventoryItemInstanceDto InventoryItemInstanceDto { get; set; }
+		public InventoryItemInstanceDto InventoryItemInstance { get; set; }
 
 	 	public System.Guid? InventoryItemInstanceId { get; set; }
 

@@ -41,9 +41,7 @@ namespace NosCore.Data.Dto
 
 	 	public int Value { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of WearableInstance
-		public WearableInstanceDto WearableInstanceDto { get; set; }
+	 	public WearableInstanceDto WearableInstance { get; set; }
 
 	 	public System.Guid WearableInstanceId { get; set; }
 

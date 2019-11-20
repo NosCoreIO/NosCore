@@ -40,23 +40,17 @@ namespace NosCore.Data.StaticEntities
 	 	[Key]
 		public short DropId { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Item
-		public ItemDto ItemDto { get; set; }
+	 	public ItemDto Item { get; set; }
 
 	 	public short VNum { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of MapType
-		public MapTypeDto MapTypeDto { get; set; }
+	 	public MapTypeDto MapType { get; set; }
 
 	 	public short? MapTypeId { get; set; }
 
 	 	public short? MonsterVNum { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of NpcMonster
-		public NpcMonsterDto NpcMonsterDto { get; set; }
+	 	public NpcMonsterDto NpcMonster { get; set; }
 
 	 }
 }

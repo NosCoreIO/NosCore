@@ -33,9 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class FamilyLogDto : IDto
 	{
-		[AdaptIgnore]
-	// foreign key injection of Family
-		public FamilyDto FamilyDto { get; set; }
+		public FamilyDto Family { get; set; }
 
 	 	public long FamilyId { get; set; }
 

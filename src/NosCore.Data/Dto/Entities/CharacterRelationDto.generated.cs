@@ -33,13 +33,9 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class CharacterRelationDto : IDto
 	{
-		[AdaptIgnore]
-	// foreign key injection of Character1
-		public CharacterDto Character1Dto { get; set; }
+		public CharacterDto Character1 { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Character2
-		public CharacterDto Character2Dto { get; set; }
+	 	public CharacterDto Character2 { get; set; }
 
 	 	public long CharacterId { get; set; }
 

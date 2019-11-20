@@ -34,18 +34,14 @@ namespace NosCore.Data.StaticEntities
 	[StaticMetaData(LoadedMessage = LogLanguageKey.SHOPSKILLS_LOADED)]
 	public class ShopSkillDto : IStaticDto
 	{
-		[AdaptIgnore]
-	// foreign key injection of Shop
-		public ShopDto ShopDto { get; set; }
+		public ShopDto Shop { get; set; }
 
 	 	public int ShopId { get; set; }
 
 	 	[Key]
 		public int ShopSkillId { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Skill
-		public SkillDto SkillDto { get; set; }
+	 	public SkillDto Skill { get; set; }
 
 	 	public short SkillVNum { get; set; }
 
