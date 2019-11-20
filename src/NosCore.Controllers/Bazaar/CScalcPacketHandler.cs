@@ -68,7 +68,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 var soldedamount = bz.BazaarItem.Amount - bz.ItemInstance.Amount;
                 var taxes = bz.BazaarItem.MedalUsed ? (short) 0 : (short) (bz.BazaarItem.Price * 0.10 * soldedamount);
                 var price = bz.BazaarItem.Price * soldedamount - taxes;
-                if (clientSession.Character.Inventory.CanAddItem(bz.ItemInstance.ItemVNum))
+                if (clientSession.Character.InventoryService.CanAddItem(bz.ItemInstance.ItemVNum))
                 {
                     if (clientSession.Character.Gold + price <= _worldConfiguration.MaxGoldAmount)
                     {
@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         item.Id = Guid.NewGuid();
 
                         var newInv =
-                            clientSession.Character.Inventory.AddItemToPocket(
+                            clientSession.Character.InventoryService.AddItemToPocket(
                                 InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
                         clientSession.SendPacket(newInv.GeneratePocketChange());
                         var remove = _bazaarHttpClient.Remove(packet.BazaarId, bz.ItemInstance.Amount,

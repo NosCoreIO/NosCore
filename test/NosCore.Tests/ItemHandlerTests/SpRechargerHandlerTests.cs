@@ -59,12 +59,12 @@ namespace NosCore.Tests.ItemHandlerTests
         {
             _session.Character.SpAdditionPoint = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            _session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL, _session.Character.Account.Language), lastpacket.Message);
             Assert.AreEqual(1, _session.Character.SpAdditionPoint);
-            Assert.AreEqual(1, _session.Character.Inventory.Count);
+            Assert.AreEqual(1, _session.Character.InventoryService.Count);
         }
 
         [TestMethod]
@@ -72,11 +72,11 @@ namespace NosCore.Tests.ItemHandlerTests
         {
             _session.Character.SpAdditionPoint = 0;
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.Inventory.AddItemToPocket(itemInstance);
+            _session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(1, _session.Character.SpAdditionPoint);
-            Assert.AreEqual(0, _session.Character.Inventory.Count);
+            Assert.AreEqual(0, _session.Character.InventoryService.Count);
         }
     }
 }

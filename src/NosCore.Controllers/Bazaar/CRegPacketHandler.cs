@@ -87,7 +87,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            var it = clientSession.Character.Inventory.LoadBySlotAndType(cRegPacket.Slot,
+            var it = clientSession.Character.InventoryService.LoadBySlotAndType(cRegPacket.Slot,
                 cRegPacket.Inventory == 4 ? 0 : (NoscorePocketType) cRegPacket.Inventory);
             if ((it == null) || !it.ItemInstance.Item.IsSoldable || (it.ItemInstance.BoundCharacterId != null) ||
                 (cRegPacket.Amount > it.ItemInstance.Amount))
@@ -133,7 +133,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     return;
             }
 
-            var bazar = clientSession.Character.Inventory.LoadBySlotAndType(cRegPacket.Slot,
+            var bazar = clientSession.Character.InventoryService.LoadBySlotAndType(cRegPacket.Slot,
                 cRegPacket.Inventory == 4 ? NoscorePocketType.Equipment : (NoscorePocketType) cRegPacket.Inventory);
             IItemInstanceDto bazaaritem = bazar.ItemInstance;
             _itemInstanceDao.InsertOrUpdate(ref bazaaritem);
@@ -164,11 +164,11 @@ namespace NosCore.PacketHandlers.Bazaar
                     if (bazar.ItemInstance.Amount == cRegPacket.Amount)
                     {
                         _inventoryItemInstanceDao.Delete(bazar.Id);
-                        clientSession.Character.Inventory.DeleteById(bazar.ItemInstanceId);
+                        clientSession.Character.InventoryService.DeleteById(bazar.ItemInstanceId);
                     }
                     else
                     {
-                        clientSession.Character.Inventory.RemoveItemAmountFromInventory(cRegPacket.Amount,
+                        clientSession.Character.InventoryService.RemoveItemAmountFromInventory(cRegPacket.Amount,
                             bazar.ItemInstanceId);
                     }
 

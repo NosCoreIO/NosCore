@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            var inv = clientSession.Character.Inventory.MoveInPocket(mvePacket.Slot,
+            var inv = clientSession.Character.InventoryService.MoveInPocket(mvePacket.Slot,
                 (NoscorePocketType) mvePacket.InventoryType,
                 (NoscorePocketType) mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
             clientSession.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType,

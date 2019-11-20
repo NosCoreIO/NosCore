@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Shops
             {
                 var type = (NoscorePocketType) sellPacket.Data;
 
-                var inv = clientSession.Character.Inventory.LoadBySlotAndType(sellPacket.Slot.Value, type);
+                var inv = clientSession.Character.InventoryService.LoadBySlotAndType(sellPacket.Slot.Value, type);
                 if ((inv == null) || (sellPacket.Amount.Value > inv.ItemInstance.Amount))
                 {
                     //TODO log
@@ -97,7 +97,7 @@ namespace NosCore.PacketHandlers.Shops
                     )
                 });
 
-                clientSession.Character.Inventory.RemoveItemAmountFromInventory(sellPacket.Amount.Value,
+                clientSession.Character.InventoryService.RemoveItemAmountFromInventory(sellPacket.Amount.Value,
                     inv.ItemInstanceId);
                 clientSession.SendPacket(clientSession.Character.GenerateGold());
             }

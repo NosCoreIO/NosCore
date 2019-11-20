@@ -167,8 +167,8 @@ namespace NosCore.Tests.NRunTests
         {
             _session.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _session.Character.Inventory.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
-            var item = _session.Character.Inventory.First();
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
+            var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
             _nRunHandler.Execute(new NrunPacket
             {

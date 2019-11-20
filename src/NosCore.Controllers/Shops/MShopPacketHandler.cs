@@ -94,7 +94,7 @@ namespace NosCore.PacketHandlers.Shops
                             continue;
                         }
 
-                        var inv = clientSession.Character.Inventory.LoadBySlotAndType(item.Slot,
+                        var inv = clientSession.Character.InventoryService.LoadBySlotAndType(item.Slot,
                             (NoscorePocketType) item.Type);
                         if (inv == null)
                         {

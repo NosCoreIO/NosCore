@@ -86,7 +86,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 return;
             }
 
-            requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
+            requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
             requestData.ClientSession.SendPacket(
                 itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot));
             var miniland = _minilandProvider.GetMiniland(requestData.ClientSession.Character.CharacterId);

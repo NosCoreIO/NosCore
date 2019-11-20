@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
     {
         public Guid MapInstanceId { get; set; }
 
-        public ICharacterEntity Owner { get; set; }
+        public ICharacterEntity CharacterEntity { get; set; }
         public int CurrentMinigame { get; set; }
 
         public MlInfoBrPacket GenerateMlinfobr()
@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             return new MlInfoBrPacket
             {
                 Unknown1 = 3800,
-                Name = Owner.Name,
+                Name = CharacterEntity.Name,
                 MinilandMessage = MinilandMessage,
                 DailyVisitCount = DailyVisitCount,
                 Unknown2 = 0,

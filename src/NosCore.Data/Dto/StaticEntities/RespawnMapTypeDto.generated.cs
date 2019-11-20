@@ -39,23 +39,15 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short DefaultY { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Map
-		public MapDto MapDto { get; set; }
+	 	public MapDto Map { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of MapTypes
-		public System.Collections.Generic.ICollection<MapTypeDto> MapTypesDto { get; set; }
+	 	public System.Collections.Generic.ICollection<MapTypeDto> MapTypes { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of MapTypes1
-		public System.Collections.Generic.ICollection<MapTypeDto> MapTypes1Dto { get; set; }
+	 	public System.Collections.Generic.ICollection<MapTypeDto> MapTypes1 { get; set; }
 
 	 	public string Name { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Respawn
-		public System.Collections.Generic.ICollection<RespawnDto> RespawnDto { get; set; }
+	 	public System.Collections.Generic.ICollection<RespawnDto> Respawn { get; set; }
 
 	 	[Key]
 		public long RespawnMapTypeId { get; set; }

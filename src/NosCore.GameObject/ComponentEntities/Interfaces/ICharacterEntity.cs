@@ -71,7 +71,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         long BankGold { get; }
 
-        IInventoryService Inventory { get; }
+        IInventoryService InventoryService { get; }
 
         RegionType AccountLanguage { get; }
 

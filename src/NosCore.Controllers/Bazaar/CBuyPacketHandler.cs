@@ -70,7 +70,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 }
 
                 var price = bz.BazaarItem.Price * packet.Amount;
-                if (clientSession.Character.Inventory.CanAddItem(bz.ItemInstance.ItemVNum))
+                if (clientSession.Character.InventoryService.CanAddItem(bz.ItemInstance.ItemVNum))
                 {
                     if (clientSession.Character.Gold - price > 0)
                     {
@@ -81,7 +81,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         var item = _itemProvider.Convert(itemInstance);
                         item.Id = Guid.NewGuid();
                         var newInv =
-                            clientSession.Character.Inventory.AddItemToPocket(
+                            clientSession.Character.InventoryService.AddItemToPocket(
                                 InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
                         clientSession.SendPacket(newInv.GeneratePocketChange());
 

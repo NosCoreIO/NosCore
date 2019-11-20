@@ -130,13 +130,13 @@ namespace NosCore.GameObject.Providers.MinilandProvider
 
             var minilandInfo = minilandInfoDto.Adapt<Miniland>();
             minilandInfo.MapInstanceId = miniland.MapInstanceId;
-            minilandInfo.Owner = character;
+            minilandInfo.CharacterEntity = character;
 
             _minilandIds.TryAdd(character.CharacterId, minilandInfo);
             _mapInstanceProvider.AddMapInstance(miniland);
             miniland.LoadHandlers();
 
-            var listobjects = character.Inventory.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();
+            var listobjects = character.InventoryService.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();
             var idlist = listobjects.Select(s => s.Id).ToArray();
             var minilandObjectsDto = _minilandObjectsDao.Where(s => idlist.Contains((Guid) s.InventoryItemInstanceId))
                 .ToList();

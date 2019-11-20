@@ -33,9 +33,7 @@ namespace NosCore.Data.StaticEntities
 	/// </summary>
 	public class NpcMonsterSkillDto : IStaticDto
 	{
-		[AdaptIgnore]
-	// foreign key injection of NpcMonster
-		public NpcMonsterDto NpcMonsterDto { get; set; }
+		public NpcMonsterDto NpcMonster { get; set; }
 
 	 	[Key]
 		public long NpcMonsterSkillId { get; set; }
@@ -44,9 +42,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short Rate { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Skill
-		public SkillDto SkillDto { get; set; }
+	 	public SkillDto Skill { get; set; }
 
 	 	public short SkillVNum { get; set; }
 

@@ -37,9 +37,7 @@ namespace NosCore.Data.Dto
 
 	 	public bool CanPickUp { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of Character
-		public CharacterDto CharacterDto { get; set; }
+	 	public CharacterDto Character { get; set; }
 
 	 	public long CharacterId { get; set; }
 
@@ -72,9 +70,7 @@ namespace NosCore.Data.Dto
 
 	 	public string Name { get; set; }
 
-	 	[AdaptIgnore]
-	// foreign key injection of NpcMonster
-		public NpcMonsterDto NpcMonsterDto { get; set; }
+	 	public NpcMonsterDto NpcMonster { get; set; }
 
 	 	public short VNum { get; set; }
 
