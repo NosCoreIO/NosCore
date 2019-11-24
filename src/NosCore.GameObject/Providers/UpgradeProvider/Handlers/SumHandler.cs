@@ -183,7 +183,7 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
                 UpgradeHelper.Instance.SumGoldPrice[item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade - 1];
             clientSession.SendPacket(clientSession.Character.GenerateGold());
 
-            var invMainReload = new InvPacket
+            var invMainReload = new IvnPacket
             {
                 Type = PocketType.Main,
                 IvnSubPackets = new List<IvnSubPacket>()
@@ -200,7 +200,7 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
             }
 
             itemToSum.ItemInstance = null;
-            var invEquipReload = new InvPacket
+            var invEquipReload = new IvnPacket
             {
                 Type = PocketType.Equipment,
                 IvnSubPackets = new List<IvnSubPacket>
