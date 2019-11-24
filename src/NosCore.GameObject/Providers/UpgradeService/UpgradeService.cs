@@ -32,6 +32,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject.Providers.UpgradeService
 {
@@ -52,8 +53,6 @@ namespace NosCore.GameObject.Providers.UpgradeService
         {
             PacketsFunctions[type].DynamicInvoke(clientSession, item1, item2);
         }
-
-        #region Sum
 
         private InventoryItemInstance Sum(ClientSession clientSession, InventoryItemInstance item, InventoryItemInstance itemToSum)
         {
@@ -99,10 +98,10 @@ namespace NosCore.GameObject.Providers.UpgradeService
             InventoryItemInstance itemToSum)
         {
             item.ItemInstance.Upgrade += (byte)(itemToSum.ItemInstance.Upgrade + 1);
-            item.ItemInstance.Item.DarkResistance += itemToSum.ItemInstance.Item.DarkResistance;
-            item.ItemInstance.Item.LightResistance += itemToSum.ItemInstance.Item.LightResistance;
-            item.ItemInstance.Item.FireResistance += itemToSum.ItemInstance.Item.FireResistance;
-            item.ItemInstance.Item.WaterResistance += itemToSum.ItemInstance.Item.WaterResistance;
+            ((WearableInstance)item.ItemInstance).DarkResistance += ((WearableInstance)itemToSum.ItemInstance).DarkResistance;
+            ((WearableInstance)item.ItemInstance).LightResistance += ((WearableInstance)itemToSum.ItemInstance).LightResistance;
+            ((WearableInstance)item.ItemInstance).FireResistance += ((WearableInstance)itemToSum.ItemInstance).FireResistance;
+            ((WearableInstance)item.ItemInstance).WaterResistance += ((WearableInstance)itemToSum.ItemInstance).WaterResistance;
 
             clientSession.SendPacket(new PdtiPacket
             {
@@ -182,7 +181,5 @@ namespace NosCore.GameObject.Providers.UpgradeService
 
             clientSession.SendPackets(new List<IPacket> { invEquipReload, invMainReload });
         }
-
-        #endregion
     }
 }

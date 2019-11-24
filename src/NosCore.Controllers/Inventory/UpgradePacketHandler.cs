@@ -1,27 +1,22 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.Enumerations;
-using NosCore.Core.I18N;
 using NosCore.Data;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.UpgradeService;
-using Serilog;
 
 namespace NosCore.PacketHandlers.Inventory
 {
     public class UpgradePacketHandler : PacketHandler<UpgradePacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
         private readonly IUpgradeService _upgradeService;
 
-        public UpgradePacketHandler(ILogger logger, IUpgradeService upgradeService)
+        public UpgradePacketHandler(IUpgradeService upgradeService)
         {
-            _logger = logger;
             _upgradeService = upgradeService;
         }
 
