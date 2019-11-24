@@ -21,8 +21,6 @@ using System.Collections.Generic;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.Shop;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core;
@@ -181,36 +179,14 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
         {
             clientSession.Character.Gold -=
                 UpgradeHelper.Instance.SumGoldPrice[item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade - 1];
+            clientSession.Character.Inventory.RemoveItemAmountFromInventoryByVNum(
+                (byte) UpgradeHelper.Instance.SumSandAmount[
+                    item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade - 1],
+                1027).GeneratePocketChange();
             clientSession.SendPacket(clientSession.Character.GenerateGold());
-
-            var invMainReload = new IvnPacket
-            {
-                Type = PocketType.Main,
-                IvnSubPackets = new List<IvnSubPacket>()
-            };
-            List<InventoryItemInstance> removedSand =
-                clientSession.Character.Inventory.RemoveItemAmountFromInventoryByVNum(
-                    (byte)UpgradeHelper.Instance.SumSandAmount[item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade - 1],
-                    1027);
-            foreach (InventoryItemInstance inventoryItemInstance in removedSand)
-            {
-                invMainReload.IvnSubPackets.Add(
-                    inventoryItemInstance.ItemInstance.GenerateIvnSubPacket(PocketType.Main,
-                        inventoryItemInstance.Slot));
-            }
-
-            itemToSum.ItemInstance = null;
-            var invEquipReload = new IvnPacket
-            {
-                Type = PocketType.Equipment,
-                IvnSubPackets = new List<IvnSubPacket>
-                {
-                    item.ItemInstance.GenerateIvnSubPacket(PocketType.Equipment, item.Slot),
-                    itemToSum.ItemInstance.GenerateIvnSubPacket(PocketType.Equipment, itemToSum.Slot)
-                }
-            };
-
-            clientSession.SendPackets(new List<IPacket> { invEquipReload, invMainReload });
+            clientSession.SendPacket(
+                ((InventoryItemInstance) null).GeneratePocketChange(PocketType.Equipment, itemToSum.Slot));
+            clientSession.SendPacket(item.GeneratePocketChange(PocketType.Equipment, item.Slot));
         }
     }
 }
