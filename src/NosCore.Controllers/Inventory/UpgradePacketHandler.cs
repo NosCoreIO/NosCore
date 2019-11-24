@@ -7,7 +7,9 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.UpgradeService;
 using Serilog;
 
 namespace NosCore.PacketHandlers.Inventory
@@ -15,92 +17,52 @@ namespace NosCore.PacketHandlers.Inventory
     public class UpgradePacketHandler : PacketHandler<UpgradePacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
+        private readonly IUpgradeService _upgradeService;
 
-        public UpgradePacketHandler(ILogger logger)
+        public UpgradePacketHandler(ILogger logger, IUpgradeService upgradeService)
         {
             _logger = logger;
+            _upgradeService = upgradeService;
         }
 
         public override void Execute(UpgradePacket packet, ClientSession clientSession)
         {
-            switch (packet.UpgradeType)
+            InventoryItemInstance item1 = null;
+            InventoryItemInstance item2 = null;
+            if (packet.UpgradeType == UpgradePacketType.SumResistance)
             {
-                case UpgradePacketType.ItemToPart:
-                    break;
-                case UpgradePacketType.UpgradeItem:
-                    break;
-                case UpgradePacketType.CellonItem:
-                    break;
-                case UpgradePacketType.RarifyItem:
-                    break;
-                case UpgradePacketType.SumResistance:
-                    var receiverItem = clientSession.Character.Inventory.LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType);
-                    var acceptedItemType = new List<EquipmentType> { EquipmentType.Gloves, EquipmentType.Boots };
+                var acceptedItemType = new List<EquipmentType> { EquipmentType.Gloves, EquipmentType.Boots };
 
-                    if (!(receiverItem?.ItemInstance is WearableInstance))
-                    {
-                        return;
-                    }
-
-                    if (packet.Slot2 == null || packet.InventoryType2 == null)
-                    {
-                        return;
-                    }
-
-                    var sumItem = clientSession.Character.Inventory.LoadBySlotAndType((byte)packet.Slot2, (NoscorePocketType)packet.InventoryType2);
-                    if (sumItem == null)
-                    {
-                        return;
-                    }
-
-                    if (sumItem.ItemInstance is WearableInstance wearableSum)
-                    {
-                        if (receiverItem.ItemInstance.Upgrade + wearableSum.Upgrade > UpgradeHelper.Instance.MaxSumLevel)
-                        {
-                            return;
-                        }
-
-                        if (!acceptedItemType.Contains(receiverItem.ItemInstance.Item.EquipmentSlot) ||
-                            !acceptedItemType.Contains(wearableSum.Item.EquipmentSlot))
-                        {
-                            return;
-                        }
-
-                        ((WearableInstance)receiverItem.ItemInstance).Sum(clientSession, wearableSum);
-                    }
-                    break;
-                case UpgradePacketType.UpgradeItemProtected:
-                    break;
-                case UpgradePacketType.RarifyItemProtected:
-                    break;
-                case UpgradePacketType.UpgradeItemGoldScroll:
-                    break;
-                case UpgradePacketType.FusionItem:
-                    break;
-                case UpgradePacketType.UpgradeSpNoProtection:
-                    break;
-                case UpgradePacketType.UpgradeSpProtected:
-                    break;
-                case UpgradePacketType.UpgradeSpProtected2:
-                    break;
-                case UpgradePacketType.PerfectSp:
-                    break;
-                case UpgradePacketType.UpgradeSpChiken:
-                    break;
-                case UpgradePacketType.UpgradeSpPyjama:
-                    break;
-                case UpgradePacketType.UpgradeSpPirate:
-                    break;
-                case UpgradePacketType.CreateFairyFernon:
-                    break;
-                case UpgradePacketType.CreateFairyErenia:
-                    break;
-                case UpgradePacketType.CreateFairyZenas:
-                    break;
-                default:
-                    _logger.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKNOWN_UPGRADE_TYPE), (int)packet.UpgradeType));
+                item1 = clientSession.Character.Inventory.LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType);
+                if (!(item1?.ItemInstance is WearableInstance))
+                {
                     return;
+                }
+
+                if (packet.Slot2 == null || packet.InventoryType2 == null)
+                {
+                    return;
+                }
+
+                item2 = clientSession.Character.Inventory.LoadBySlotAndType((byte)packet.Slot2, (NoscorePocketType)packet.InventoryType2);
+                if (!(item2?.ItemInstance is WearableInstance))
+                {
+                    return;
+                }
+
+                if (item1.ItemInstance.Upgrade + item2.ItemInstance.Upgrade > UpgradeHelper.Instance.MaxSumLevel)
+                {
+                    return;
+                }
+
+                if (!acceptedItemType.Contains(item1.ItemInstance.Item.EquipmentSlot) ||
+                    !acceptedItemType.Contains(item2.ItemInstance.Item.EquipmentSlot))
+                {
+                    return;
+                }
+
             }
+            _upgradeService.HandlePacket(packet.UpgradeType, clientSession, item1, item2);
         }
     }
 }
