@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>Přijmul si místo návratu!</value>
+  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Účet se SessionID {0} se připojil</value>
   </data>
@@ -129,6 +132,9 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Již je na Černé Listině!</value>
   </data>
+  <data name="ALREADY_EXCHANGE" xml:space="preserve">
+    <value>Hráč nyní směňuje.</value>
+  </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Už jste přátelé</value>
   </data>
@@ -140,6 +146,9 @@
   </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Lukostřelec</value>
+  </data>
+  <data name="ASK_BIND" xml:space="preserve">
+    <value>Chceš spojit tyto položky?</value>
   </data>
   <data name="ASK_TO_DELETE" xml:space="preserve">
     <value>Chcete tento předmět smazat?</value>
@@ -164,8 +173,17 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Špatné množství k vyhození!</value>
   </data>
+  <data name="BAD_EQUIPMENT" xml:space="preserve">
+    <value>Tvá postava nesplňuje požadavky pro nošení tohoto vybavení.</value>
+  </data>
+  <data name="BAD_FAIRY" xml:space="preserve">
+    <value>Pro tuto SP potřebuješ jinou vílu!</value>
+  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Špatné Heslo</value>
+  </data>
+  <data name="BANK_FULL" xml:space="preserve">
+    <value>Tvůj bankovní účet je plný!</value>
   </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Byl přidát na černou listinu</value>
@@ -173,8 +191,20 @@
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
     <value>Černá listina Blokována!</value>
   </data>
+  <data name="BUY_ITEM_FROM" xml:space="preserve">
+    <value>Koupil si item od {0} {1} {2}!</value>
+  </data>
+  <data name="BUY_ITEM_VALID" xml:space="preserve">
+    <value>Koupil jsi předmět!</value>
+  </data>
   <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
     <value>Nemůžeš si zablokovat kamarády!</value>
+  </data>
+  <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
+    <value>Nemůžeš změnit povolání na stejné.</value>
+  </data>
+  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
+    <value>Nemůžeš nasadit zničenou SP.</value>
   </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Nemůžu najít Postavu!</value>
@@ -191,6 +221,9 @@
   </data>
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
     <value>Postava je Offline</value>
+  </data>
+  <data name="CLASS_CHANGED" xml:space="preserve">
+    <value>Povolání změněno!</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Uživatel se připojil, SessionId: {0} </value>
@@ -219,17 +252,29 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Mapa je plná předmětů více jich zde nemůže být!</value>
   </data>
+  <data name="EFFECT_ACTIVATED" xml:space="preserve">
+    <value>{0} efekt byl aktivován!</value>
+  </data>
   <data name="ENCODE_ERROR" xml:space="preserve">
     <value>Chyba v kódování: {0}</value>
   </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Zadejte složku se soubory, které chcete nahrát</value>
   </data>
+  <data name="EQ_NOT_EMPTY" xml:space="preserve">
+    <value>Pro změnu povolání sundej všechno vybavení!</value>
+  </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Nastala chyba při změně mapy. Nezneužívejte příkazy. {0}</value>
   </data>
   <data name="ERROR_DECODING" xml:space="preserve">
     <value>Chyba v Dekódování</value>
+  </data>
+  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
+    <value>Výměna blokována.</value>
+  </data>
+  <data name="EXCHANGE_REFUSED" xml:space="preserve">
+    <value>Odmítl jsi žádost o výměnu.</value>
   </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Vynucené odpojení Klienta {0}, příliž mnoho připojení</value>
@@ -273,14 +318,26 @@
   <data name="GROUP_FULL" xml:space="preserve">
     <value>Skupina je plná!</value>
   </data>
+  <data name="GROUP_INVITE" xml:space="preserve">
+    <value>Pozvánka poslána!</value>
+  </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Opustil si skupinu</value>
+  </data>
+  <data name="GROUP_REFUSED" xml:space="preserve">
+    <value>Pozvánka do skupiny byla odmítnuta!</value>
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Sdílel si místo návratu s členy skupiny</value>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Nelze najít Obsluhu implementace pro balíček s hlavičkou {0}</value>
+  </data>
+  <data name="HAS_SHOP_OPENED" xml:space="preserve">
+    <value>Nemůžeš vyměňovat s někým kdo má otevřený obchod.</value>
+  </data>
+  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
+    <value>Tvá úroveň šampiona byla změněna.</value>
   </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>{0} I18N ActDescs Nahráno! Region: {1}</value>
@@ -312,6 +369,12 @@
   <data name="I18N_SKILL_PARSED" xml:space="preserve">
     <value>{0} I18N Skilly Nahrány! Region: {1}</value>
   </data>
+  <data name="INCOMING_EXCHANGE" xml:space="preserve">
+    <value>{0} chce s tebou obchodovat.</value>
+  </data>
+  <data name="INFO_BAZAAR" xml:space="preserve">
+    <value>S medailí NosKupce můžeš otevřít NosBazar kdykoliv a kdekoliv!</value>
+  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Neexistující ID</value>
   </data>
@@ -321,8 +384,20 @@
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Špatné Heslo</value>
   </data>
+  <data name="INVENTORY_FULL" xml:space="preserve">
+    <value>Máš plný inventář.</value>
+  </data>
+  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
+    <value>Chceš sdílet se skupinou místo návratu?</value>
+  </data>
+  <data name="INVITED_YOU_GROUP" xml:space="preserve">
+    <value>[{0}] tě pozval do skupiny. Chceš pozvánku přijmout?</value>
+  </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý typ pozvánky</value>
+  </data>
+  <data name="IN_WAITING_FOR" xml:space="preserve">
+    <value>Čekání na {0}.</value>
   </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>Předměty načteny!</value>
@@ -342,14 +417,41 @@
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Tento předmět zde nejde vyhodit!</value>
   </data>
+  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
+    <value>Tento předmět nemůže být prodán!</value>
+  </data>
+  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
+    <value>Nemůžeš obchodovat s tímto itemem.</value>
+  </data>
+  <data name="ITEM_TIMEOUT" xml:space="preserve">
+    <value>Životnost Předmětu vypršela!</value>
+  </data>
+  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
+    <value>Tvá úroveň práce byla změněna.</value>
+  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Vstoupil si do skupiny!</value>
   </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Chybý jazyk!</value>
   </data>
+  <data name="LEAVE_GROUP" xml:space="preserve">
+    <value>[{0}] Opustil skupinu!</value>
+  </data>
+  <data name="LEVEL_CHANGED" xml:space="preserve">
+    <value>Tvá úroveň byla změněna.</value>
+  </data>
+  <data name="LIMIT_EXCEEDED" xml:space="preserve">
+    <value>Nemůžeš přidat více předmětů do Bazaru protože jsi překročil limit předmětů.</value>
+  </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Poslech Portu {0}</value>
+  </data>
+  <data name="LOW_JOB_LVL" xml:space="preserve">
+    <value>Na tuto SP potřebuješ větší Úroveň práce.</value>
+  </data>
+  <data name="LOW_REP" xml:space="preserve">
+    <value>Nemáš potřebnou pověst pro tuto SP.</value>
   </data>
   <data name="MAGICIAN" xml:space="preserve">
     <value>Mág</value>
@@ -387,8 +489,17 @@
   <data name="NEW_LEADER" xml:space="preserve">
     <value>Jsi nový vedoucí skupiny!</value>
   </data>
+  <data name="NOT_ADVENTURER" xml:space="preserve">
+    <value>Nejsi dobrodruh!</value>
+  </data>
+  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
+    <value>Nemáš dostatek financí ke koupení tohoto předmětu!</value>
+  </data>
   <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
     <value>Nemáš dostatek místa!</value>
+  </data>
+  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
+    <value>Nemáš dostatek pověsti ke koupení tohoto předmětu!</value>
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Není ve vaší černé listině</value>
@@ -396,11 +507,17 @@
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>Tento Item není tvůj!</value>
   </data>
+  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
+    <value>Nemáš medaili NosKupce.</value>
+  </data>
   <data name="NO_ITEM" xml:space="preserve">
     <value>Nebyly nalezeny žádné předměty!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Nebyly nalezeny žádné mapy. K chodu serveru potřebujete minimálně mapu Nosville.</value>
+  </data>
+  <data name="NO_SP" xml:space="preserve">
+    <value>Nemáš žádnou SP ke změně nasaď si nějakou.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Žádné speciální vlastnosti k nošení</value>
@@ -413,6 +530,9 @@
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>{0} NPC byly úspěšně nahrány!</value>
+  </data>
+  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
+    <value>Tvůj předmět byl přidán do Bazaru.</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Chceš nahrát účty?</value>
@@ -483,9 +603,28 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0}  Portály Nahrány</value>
   </data>
+  <data name="PORTAL_DELAY" xml:space="preserve">
+    <value>Prosím čekej před teleportováním.</value>
+  </data>
+  <data name="PRICE_EXCEEDED" xml:space="preserve">
+    <value>Cena byla překročena!</value>
+  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrováno na Master Serveru</value>
     <comment>check</comment>
+  </data>
+  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
+    <value>Prodej skončil obdržel si: {0} zlata.</value>
+  </data>
+  <data name="REMOVE_VEHICLE" xml:space="preserve">
+    <value>Pro transformaci sesedni z vozidla.</value>
+    <comment>Not used in the official</comment>
+  </data>
+  <data name="REPUTATION_CHANGED" xml:space="preserve">
+    <value>Tvá pověst byla změněna!</value>
+  </data>
+  <data name="REPUT_DECREASED" xml:space="preserve">
+    <value>Tvá pověst byla snížena!</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnType bylo úspěšně nahráno!</value>
@@ -496,14 +635,56 @@
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Prosím vybere ID Mapy</value>
   </data>
+  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
+    <value>Předmět byl úspěšně prodán!</value>
+  </data>
+  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
+    <value>Zpráva poslána hráči.</value>
+  </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Odmítl jsi sdílet místo návratu se skupinou!</value>
+  </data>
+  <data name="SHOP_EMPTY" xml:space="preserve">
+    <value>Nemůžeš otevřít prázdný obchod!</value>
+  </data>
+  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
+    <value>Nemůžeš otevřít obchod poblíž portálu!</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
+    <value>Nemůžeš otevřít obchod na této mapě!</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
+    <value>Nemůžeš otevřít obchod v nájezdu!</value>
+  </data>
+  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
+    <value>Můžeš obchodovat pouze obchodovatelné předměty! Podívej se na item, který chceš prodat.</value>
+  </data>
+  <data name="SHOP_OPEN" xml:space="preserve">
+    <value>Obchod otevřen.</value>
+  </data>
+  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
+    <value>Chceš otevřít obchod tak jak je nastavený?</value>
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Útoky byly úspěšně nahrány!</value>
   </data>
+  <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
+    <value>Máš plný počet dodatečných SP bodů!</value>
+  </data>
+  <data name="SP_BLOCKED" xml:space="preserve">
+    <value>Momentálně používáš SP. První sundej SP.</value>
+  </data>
+  <data name="SP_INLOADING" xml:space="preserve">
+    <value>Tvá SP stále načítá čekej {0}s.</value>
+  </data>
+  <data name="SP_NOPOINTS" xml:space="preserve">
+    <value>Nemáš dostatek SP Bodů pro změnu.</value>
+  </data>
   <data name="SP_POINTSADDED" xml:space="preserve">
     <value>Body SP Byly přidány! {0}</value>
+  </data>
+  <data name="STAY_TIME" xml:space="preserve">
+    <value>Zbývající čas sekundárních efektů: {0} sekund</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Úspeštně načtena!</value>
@@ -517,6 +698,15 @@
   <data name="SWORDMAN" xml:space="preserve">
     <value>Bojovník s Mečem</value>
   </data>
+  <data name="TOO_LOW_LEVEL" xml:space="preserve">
+    <value>Pro změnu povolaní potřebuješ mít "Úroveň 15" a "Úroveň práce 20"</value>
+  </data>
+  <data name="TOO_RICH_SELLER" xml:space="preserve">
+    <value>Obchodník má příliš mnoho zlata pro to aby mohl vzít další od tebe-</value>
+  </data>
+  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
+    <value>Sekundární efekty skončily. {0}</value>
+  </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Nemožné požádat o skupinu</value>
   </data>
@@ -528,6 +718,9 @@
   </data>
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
     <value>Neznámý ReceiverType</value>
+  </data>
+  <data name="UPDATE_GOLD" xml:space="preserve">
+    <value>Tvé zlato bylo změněno!</value>
   </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>Uživatel není Kamarád</value>
@@ -542,6 +735,6 @@
     <value>Špatně vybrané ID Mapy</value>
   </data>
   <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
-    <value>Poprosileś o wymianę z graczem: {0}.</value>
+    <value>Zeptal ses na výměnu hráče: {0}.</value>
   </data>
 </root>
