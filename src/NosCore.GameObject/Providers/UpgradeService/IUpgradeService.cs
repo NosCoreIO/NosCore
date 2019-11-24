@@ -27,5 +27,7 @@ namespace NosCore.GameObject.Providers.UpgradeService
     {
         public void HandlePacket(UpgradePacketType type, ClientSession clientSession, InventoryItemInstance item1,
             InventoryItemInstance item2);
+        public InventoryItemInstance Sum(ClientSession clientSession, InventoryItemInstance item,
+            InventoryItemInstance itemToSum);
     }
 }

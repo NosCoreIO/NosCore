@@ -54,7 +54,7 @@ namespace NosCore.GameObject.Providers.UpgradeService
             PacketsFunctions[type].DynamicInvoke(clientSession, item1, item2);
         }
 
-        private InventoryItemInstance Sum(ClientSession clientSession, InventoryItemInstance item, InventoryItemInstance itemToSum)
+        public InventoryItemInstance Sum(ClientSession clientSession, InventoryItemInstance item, InventoryItemInstance itemToSum)
         {
             if (clientSession.Character.Gold <
                 UpgradeHelper.Instance.SumGoldPrice[item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade])
