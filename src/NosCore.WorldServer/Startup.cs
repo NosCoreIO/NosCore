@@ -33,6 +33,7 @@ using AutofacSerilogIntegration;
 using ChickenAPI.Packets.ClientPackets.Drops;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Npcs;
+using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.ClientPackets.UI;
 using ChickenAPI.Packets.Interfaces;
 using DotNetty.Buffers;
@@ -73,7 +74,6 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
-using NosCore.Database.Entities.Base;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.DependancyInjection;
@@ -403,6 +403,13 @@ namespace NosCore.WorldServer
             containerBuilder
                 .RegisterAssemblyTypes(typeof(IEventHandler<GuriPacket, GuriPacket>).Assembly)
                 .Where(t => typeof(IEventHandler<GuriPacket, GuriPacket>)
+                    .IsAssignableFrom(t))
+                .SingleInstance()
+                .AsImplementedInterfaces();
+
+            containerBuilder
+                .RegisterAssemblyTypes(typeof(IEventHandler<UpgradePacket, UpgradePacket>).Assembly)
+                .Where(t => typeof(IEventHandler<UpgradePacket, UpgradePacket>)
                     .IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();

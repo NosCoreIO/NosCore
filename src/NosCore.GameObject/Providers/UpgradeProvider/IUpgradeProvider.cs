@@ -17,17 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.Enumerations;
+using ChickenAPI.Packets.ClientPackets.Player;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
 
-namespace NosCore.GameObject.Providers.UpgradeService
+namespace NosCore.GameObject.Providers.UpgradeProvider
 {
-    public interface IUpgradeService
+    public interface IUpgradeProvider
     {
-        public void HandlePacket(UpgradePacketType type, ClientSession clientSession, InventoryItemInstance item1,
-            InventoryItemInstance item2);
-        public InventoryItemInstance Sum(ClientSession clientSession, InventoryItemInstance item,
-            InventoryItemInstance itemToSum);
+        void UpgradeLaunch(ClientSession clientSession, UpgradePacket data);
     }
 }

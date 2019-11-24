@@ -17,9 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using ChickenAPI.Packets.ClientPackets.Inventory;
+using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.Interfaces;
 using ChickenAPI.Packets.ServerPackets.Inventory;
@@ -27,6 +27,7 @@ using ChickenAPI.Packets.ServerPackets.Shop;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Helper;
@@ -34,24 +35,54 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
-namespace NosCore.GameObject.Providers.UpgradeService
+namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
 {
-    public class UpgradeService: IUpgradeService
+    public class SumHandler : IEventHandler<UpgradePacket, UpgradePacket>
     {
-        private readonly Dictionary<UpgradePacketType,
-            Func<ClientSession, InventoryItemInstance, InventoryItemInstance, InventoryItemInstance>> PacketsFunctions;
-
-        public UpgradeService()
+        public bool Condition(UpgradePacket packet)
         {
-            PacketsFunctions = new Dictionary<UpgradePacketType, Func<ClientSession, InventoryItemInstance, InventoryItemInstance, InventoryItemInstance>>
-                {
-                    { UpgradePacketType.SumResistance, Sum }
-                };
+            return (packet.UpgradeType == UpgradePacketType.SumResistance);
         }
 
-        public void HandlePacket(UpgradePacketType type, ClientSession clientSession, InventoryItemInstance item1, InventoryItemInstance item2)
+        public void Execute(RequestData<UpgradePacket> requestData)
         {
-            PacketsFunctions[type].DynamicInvoke(clientSession, item1, item2);
+            InventoryItemInstance item1 = null;
+            InventoryItemInstance item2 = null;
+            if (requestData.Data.UpgradeType == UpgradePacketType.SumResistance)
+            {
+                var acceptedItemType = new List<EquipmentType> { EquipmentType.Gloves, EquipmentType.Boots };
+
+                item1 = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(requestData.Data.Slot, (NoscorePocketType)requestData.Data.InventoryType);
+                if (!(item1?.ItemInstance is WearableInstance))
+                {
+                    return;
+                }
+
+                if (requestData.Data.Slot2 == null || requestData.Data.InventoryType2 == null)
+                {
+                    return;
+                }
+
+                item2 = requestData.ClientSession.Character.Inventory.LoadBySlotAndType((byte)requestData.Data.Slot2, (NoscorePocketType)requestData.Data.InventoryType2);
+                if (!(item2?.ItemInstance is WearableInstance))
+                {
+                    return;
+                }
+
+                if (item1.ItemInstance.Upgrade + item2.ItemInstance.Upgrade > UpgradeHelper.Instance.MaxSumLevel)
+                {
+                    return;
+                }
+
+                if (!acceptedItemType.Contains(item1.ItemInstance.Item.EquipmentSlot) ||
+                    !acceptedItemType.Contains(item2.ItemInstance.Item.EquipmentSlot))
+                {
+                    return;
+                }
+
+            }
+
+            Sum(requestData.ClientSession, item1, item2);
         }
 
         public InventoryItemInstance Sum(ClientSession clientSession, InventoryItemInstance item, InventoryItemInstance itemToSum)
@@ -78,11 +109,11 @@ namespace NosCore.GameObject.Providers.UpgradeService
             if (random <=
                 UpgradeHelper.Instance.SumSuccessPercent[item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade])
             {
-                HandleSuccessSum(clientSession, item, itemToSum);
+                HandleSuccessSum(clientSession, (WearableInstance)item.ItemInstance, (WearableInstance)itemToSum.ItemInstance);
             }
             else
             {
-                HandleFailedSum(clientSession, item, itemToSum);
+                HandleFailedSum(clientSession, (WearableInstance)item.ItemInstance, (WearableInstance)itemToSum.ItemInstance);
             }
 
             UpdateInv(clientSession, item, itemToSum);
@@ -94,38 +125,38 @@ namespace NosCore.GameObject.Providers.UpgradeService
             return item;
         }
 
-        private void HandleSuccessSum(ClientSession clientSession, InventoryItemInstance item,
-            InventoryItemInstance itemToSum)
+        private void HandleSuccessSum(ClientSession clientSession, WearableInstance item,
+            WearableInstance itemToSum)
         {
-            item.ItemInstance.Upgrade += (byte)(itemToSum.ItemInstance.Upgrade + 1);
-            ((WearableInstance)item.ItemInstance).DarkResistance += ((WearableInstance)itemToSum.ItemInstance).DarkResistance;
-            ((WearableInstance)item.ItemInstance).LightResistance += ((WearableInstance)itemToSum.ItemInstance).LightResistance;
-            ((WearableInstance)item.ItemInstance).FireResistance += ((WearableInstance)itemToSum.ItemInstance).FireResistance;
-            ((WearableInstance)item.ItemInstance).WaterResistance += ((WearableInstance)itemToSum.ItemInstance).WaterResistance;
+            item.Upgrade += (byte)(itemToSum.Upgrade + 1);
+            item.DarkResistance += itemToSum.DarkResistance;
+            item.LightResistance += itemToSum.LightResistance;
+            item.FireResistance += itemToSum.FireResistance;
+            item.WaterResistance += itemToSum.WaterResistance;
 
             clientSession.SendPacket(new PdtiPacket
             {
                 Unknow = 10,
-                ItemVnum = item.ItemInstance.ItemVNum,
+                ItemVnum = item.ItemVNum,
                 RecipeAmount = 1,
                 Unknow3 = 27,
-                ItemUpgrade = item.ItemInstance.Upgrade,
+                ItemUpgrade = item.Upgrade,
                 Unknow4 = 0
             });
             SendSumResult(clientSession, itemToSum, true);
         }
 
-        private void HandleFailedSum(ClientSession clientSession, InventoryItemInstance item,
-            InventoryItemInstance itemToSum)
+        private void HandleFailedSum(ClientSession clientSession, WearableInstance item,
+            WearableInstance itemToSum)
         {
-            clientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemToSum.ItemInstanceId);
-            clientSession.Character.Inventory.RemoveItemAmountFromInventory(1, item.ItemInstanceId);
+            clientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemToSum.Id);
+            clientSession.Character.Inventory.RemoveItemAmountFromInventory(1, item.Id);
             SendSumResult(clientSession, itemToSum, false);
         }
 
-        private void SendSumResult(ClientSession clientSession, InventoryItemInstance itemToSum, bool success)
+        private void SendSumResult(ClientSession clientSession, WearableInstance itemToSum, bool success)
         {
-            clientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemToSum.ItemInstanceId);
+            clientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemToSum.Id);
             clientSession.SendPacket(new MsgPacket
             {
                 Message = Language.Instance.GetMessageFromKey(
@@ -149,7 +180,7 @@ namespace NosCore.GameObject.Providers.UpgradeService
         private void UpdateInv(ClientSession clientSession, InventoryItemInstance item, InventoryItemInstance itemToSum)
         {
             clientSession.Character.Gold -=
-                UpgradeHelper.Instance.SumGoldPrice[item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade];
+                UpgradeHelper.Instance.SumGoldPrice[item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade - 1];
             clientSession.SendPacket(clientSession.Character.GenerateGold());
 
             var invMainReload = new InvPacket
@@ -159,7 +190,7 @@ namespace NosCore.GameObject.Providers.UpgradeService
             };
             List<InventoryItemInstance> removedSand =
                 clientSession.Character.Inventory.RemoveItemAmountFromInventoryByVNum(
-                    (byte)UpgradeHelper.Instance.SumSandAmount[item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade],
+                    (byte)UpgradeHelper.Instance.SumSandAmount[item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade - 1],
                     1027);
             foreach (InventoryItemInstance inventoryItemInstance in removedSand)
             {
