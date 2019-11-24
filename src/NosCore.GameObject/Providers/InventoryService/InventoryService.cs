@@ -484,10 +484,9 @@ namespace NosCore.GameObject.Providers.InventoryService
             {
                 if (stayAmount == 0)
                 {
-                    break;
+                    continue;
                 }
 
-                InventoryItemInstance removedItem;
                 if (itemInstance.ItemInstance.Amount >= stayAmount)
                 {
                     itemInstance.ItemInstance.Amount -= stayAmount;
@@ -501,7 +500,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                     return result;
                 }
                 stayAmount -= itemInstance.ItemInstance.Amount;
-                TryRemove(itemInstance.ItemInstanceId, out removedItem);
+                TryRemove(itemInstance.ItemInstanceId, out _);
                 itemInstance.ItemInstance = null;
                 result.Add(itemInstance);
             }

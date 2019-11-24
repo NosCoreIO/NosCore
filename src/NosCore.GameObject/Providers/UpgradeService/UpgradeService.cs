@@ -113,7 +113,7 @@ namespace NosCore.GameObject.Providers.UpgradeService
                 ItemUpgrade = item.ItemInstance.Upgrade,
                 Unknow4 = 0
             });
-            SendSumResult(clientSession, item, itemToSum, true);
+            SendSumResult(clientSession, itemToSum, true);
         }
 
         private void HandleFailedSum(ClientSession clientSession, InventoryItemInstance item,
@@ -121,11 +121,10 @@ namespace NosCore.GameObject.Providers.UpgradeService
         {
             clientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemToSum.ItemInstanceId);
             clientSession.Character.Inventory.RemoveItemAmountFromInventory(1, item.ItemInstanceId);
-            SendSumResult(clientSession, item, itemToSum, false);
+            SendSumResult(clientSession, itemToSum, false);
         }
 
-        private void SendSumResult(ClientSession clientSession, InventoryItemInstance item,
-            InventoryItemInstance itemToSum, bool success)
+        private void SendSumResult(ClientSession clientSession, InventoryItemInstance itemToSum, bool success)
         {
             clientSession.Character.Inventory.RemoveItemAmountFromInventory(1, itemToSum.ItemInstanceId);
             clientSession.SendPacket(new MsgPacket

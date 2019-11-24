@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Helper
         {
             MaxSumLevel = 6;
             SumSuccessPercent = new short[] { 100, 100, 85, 70, 50, 20 };
-            SumGoldPrice = new int[] { 1500, 3000, 6000, 12000, 24000, 48000 };
+            SumGoldPrice = new[] { 1500, 3000, 6000, 12000, 24000, 48000 };
             SumSandAmount = new short[] { 5, 10, 15, 20, 25, 30 };
         }
     }
