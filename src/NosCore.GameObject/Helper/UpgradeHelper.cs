@@ -29,8 +29,7 @@ namespace NosCore.GameObject.Helper
 
         public byte MaxSumLevel { get; set; }
 
-        public short SandVNum = _sandVNum;
-        private static short _sandVNum = 1027;
+        public static short SandVNum = 1027;
 
         public List<SumHelper> SumHelpers { get; set; }
 
