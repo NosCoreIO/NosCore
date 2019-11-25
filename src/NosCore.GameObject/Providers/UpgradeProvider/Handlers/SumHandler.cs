@@ -113,7 +113,6 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
                 HandleFailedSum(clientSession, (WearableInstance)item.ItemInstance, (WearableInstance)itemToSum.ItemInstance);
             }
 
-            UpdateInv(clientSession, item, itemToSum);
             clientSession.SendPacket(new ShopEndPacket
             {
                 Type = ShopEndPacketType.CloseSubWindow
@@ -172,19 +171,6 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
                 EntityId = clientSession.Character.VisualId,
                 Value = success ? (uint)1324 : 1332
             });
-        }
-
-        private void UpdateInv(ClientSession clientSession, InventoryItemInstance item, InventoryItemInstance itemToSum)
-        {
-            var newUpgrade = item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade - 1;
-            clientSession.Character.Gold -= UpgradeHelper.Instance.SumHelpers[newUpgrade].GoldPrice;
-            clientSession.Character.Inventory.RemoveItemAmountFromInventoryByVNum(
-                UpgradeHelper.Instance.SumHelpers[newUpgrade].SandAmount,
-                UpgradeHelper.Instance.SandVNum).GeneratePocketChange();
-            clientSession.SendPacket(clientSession.Character.GenerateGold());
-            clientSession.SendPacket(
-                ((InventoryItemInstance) null).GeneratePocketChange(PocketType.Equipment, itemToSum.Slot));
-            clientSession.SendPacket(item.GeneratePocketChange(PocketType.Equipment, item.Slot));
         }
     }
 }

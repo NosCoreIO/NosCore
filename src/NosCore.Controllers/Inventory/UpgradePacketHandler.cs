@@ -18,8 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.ClientPackets.Player;
+using ChickenAPI.Packets.Enumerations;
+using NosCore.Data;
 using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.UpgradeProvider;
 
 namespace NosCore.PacketHandlers.Inventory
@@ -36,6 +41,29 @@ namespace NosCore.PacketHandlers.Inventory
         public override void Execute(UpgradePacket packet, ClientSession clientSession)
         {
             _upgradeService.UpgradeLaunch(clientSession, packet);
+
+            var item = clientSession.Character.Inventory.LoadBySlotAndType(packet.Slot,
+                (NoscorePocketType)packet.InventoryType);
+            if (packet.Slot2 == null || packet.InventoryType2 == null)
+            {
+                return;
+            }
+            var itemToSum = clientSession.Character.Inventory.LoadBySlotAndType((byte)packet.Slot2,
+                (NoscorePocketType)packet.InventoryType2);
+            UpdateInv(clientSession, item, itemToSum);
+        }
+
+        private void UpdateInv(ClientSession clientSession, InventoryItemInstance item, InventoryItemInstance itemToSum)
+        {
+            var newUpgrade = item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade - 1;
+            clientSession.Character.Gold -= UpgradeHelper.Instance.SumHelpers[newUpgrade].GoldPrice;
+            clientSession.Character.Inventory.RemoveItemAmountFromInventoryByVNum(
+                UpgradeHelper.Instance.SumHelpers[newUpgrade].SandAmount,
+                UpgradeHelper.Instance.SandVNum).GeneratePocketChange();
+            clientSession.SendPacket(clientSession.Character.GenerateGold());
+            clientSession.SendPacket(
+                ((InventoryItemInstance)null).GeneratePocketChange(PocketType.Equipment, itemToSum.Slot));
+            clientSession.SendPacket(item.GeneratePocketChange(PocketType.Equipment, item.Slot));
         }
     }
 }
