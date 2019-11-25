@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Dynamic;
 
 namespace NosCore.GameObject.Helper
 {
@@ -28,7 +29,8 @@ namespace NosCore.GameObject.Helper
 
         public byte MaxSumLevel { get; set; }
 
-        public short SandVNum = 1027;
+        public short SandVNum = _sandVNum;
+        private static short _sandVNum = 1027;
 
         public List<SumHelper> SumHelpers { get; set; }
 
