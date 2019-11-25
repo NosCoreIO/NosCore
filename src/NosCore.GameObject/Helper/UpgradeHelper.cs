@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+
 namespace NosCore.GameObject.Helper
 {
     public sealed class UpgradeHelper
@@ -26,11 +28,9 @@ namespace NosCore.GameObject.Helper
 
         public byte MaxSumLevel { get; set; }
 
-        public short[] SumSuccessPercent { get; set; }
+        public short SandVNum = 1027;
 
-        public int[] SumGoldPrice { get; set; }
-
-        public short[] SumSandAmount { get; set; }
+        public List<SumHelper> SumHelpers { get; set; }
 
         private UpgradeHelper()
         {
@@ -40,9 +40,15 @@ namespace NosCore.GameObject.Helper
         private void LoadSumData()
         {
             MaxSumLevel = 6;
-            SumSuccessPercent = new short[] { 100, 100, 85, 70, 50, 20 };
-            SumGoldPrice = new[] { 1500, 3000, 6000, 12000, 24000, 48000 };
-            SumSandAmount = new short[] { 5, 10, 15, 20, 25, 30 };
+            SumHelpers = new List<SumHelper>
+            {
+                new SumHelper {SuccessPercent = 100, GoldPrice = 1500, SandAmount = 5},
+                new SumHelper {SuccessPercent = 100, GoldPrice = 3000, SandAmount = 10},
+                new SumHelper {SuccessPercent = 85, GoldPrice = 6000, SandAmount = 15},
+                new SumHelper {SuccessPercent = 70, GoldPrice = 12000, SandAmount = 20},
+                new SumHelper {SuccessPercent = 50, GoldPrice = 24000, SandAmount = 25},
+                new SumHelper {SuccessPercent = 20, GoldPrice = 48000, SandAmount = 30}
+            };
         }
     }
 }
