@@ -67,7 +67,7 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
                     return;
                 }
 
-                if (item1.ItemInstance.Upgrade + item2.ItemInstance.Upgrade > UpgradeHelper.Instance.MaxSumLevel)
+                if (item1.ItemInstance.Upgrade + item2.ItemInstance.Upgrade + 1 > UpgradeHelper.Instance.MaxSumLevel)
                 {
                     return;
                 }
@@ -85,8 +85,8 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
 
         public InventoryItemInstance Sum(ClientSession clientSession, InventoryItemInstance item, InventoryItemInstance itemToSum)
         {
-            if (clientSession.Character.Gold <
-                UpgradeHelper.Instance.SumGoldPrice[item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade])
+            var newUpgrade = item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade;
+            if (clientSession.Character.Gold < UpgradeHelper.Instance.SumHelpers[newUpgrade].GoldPrice)
             {
                 clientSession.SendPacket(clientSession.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, clientSession.Account.Language),
@@ -94,8 +94,8 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
                 return null;
             }
 
-            if (clientSession.Character.Inventory.CountItem(1027) <
-                UpgradeHelper.Instance.SumSandAmount[item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade])
+            if (clientSession.Character.Inventory.CountItem(UpgradeHelper.Instance.SandVNum) <
+                UpgradeHelper.Instance.SumHelpers[newUpgrade].SandAmount)
             {
                 clientSession.SendPacket(clientSession.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_ITEMS, clientSession.Account.Language),
@@ -104,8 +104,7 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
             }
 
             var random = (short)RandomFactory.Instance.RandomNumber();
-            if (random <=
-                UpgradeHelper.Instance.SumSuccessPercent[item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade])
+            if (random <= UpgradeHelper.Instance.SumHelpers[newUpgrade].SuccessPercent)
             {
                 HandleSuccessSum(clientSession, (WearableInstance)item.ItemInstance, (WearableInstance)itemToSum.ItemInstance);
             }
@@ -177,12 +176,11 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
 
         private void UpdateInv(ClientSession clientSession, InventoryItemInstance item, InventoryItemInstance itemToSum)
         {
-            clientSession.Character.Gold -=
-                UpgradeHelper.Instance.SumGoldPrice[item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade - 1];
+            var newUpgrade = item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade - 1;
+            clientSession.Character.Gold -= UpgradeHelper.Instance.SumHelpers[newUpgrade].GoldPrice;
             clientSession.Character.Inventory.RemoveItemAmountFromInventoryByVNum(
-                (byte) UpgradeHelper.Instance.SumSandAmount[
-                    item.ItemInstance.Upgrade + itemToSum.ItemInstance.Upgrade - 1],
-                1027).GeneratePocketChange();
+                UpgradeHelper.Instance.SumHelpers[newUpgrade].SandAmount,
+                UpgradeHelper.Instance.SandVNum).GeneratePocketChange();
             clientSession.SendPacket(clientSession.Character.GenerateGold());
             clientSession.SendPacket(
                 ((InventoryItemInstance) null).GeneratePocketChange(PocketType.Equipment, itemToSum.Slot));
