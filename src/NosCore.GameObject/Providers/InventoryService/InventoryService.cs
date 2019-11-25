@@ -476,20 +476,19 @@ namespace NosCore.GameObject.Providers.InventoryService
 
         public List<InventoryItemInstance> RemoveItemAmountFromInventoryByVNum(short amount, short itemVNum)
         {
-            List<InventoryItemInstance> result = new List<InventoryItemInstance>();
-            var stayAmount = amount;
-            foreach (var itemInstance in this.Select(s => s.Value)
-                .Where(w => w.ItemInstance.ItemVNum == itemVNum)
-                .OrderBy(o => o.ItemInstance.Amount))
+            var result = new List<InventoryItemInstance>();
+            var stayAmount = (ushort)amount;
+            var itemVNumHere = this.Select(s => s.Value).Where(w => w.ItemInstance.ItemVNum == itemVNum);
+            foreach (var itemInstance in itemVNumHere.OrderBy(o => o.ItemInstance.Amount))
             {
                 if (stayAmount == 0)
                 {
-                    continue;
+                    return result;
                 }
 
                 if (itemInstance.ItemInstance.Amount >= stayAmount)
                 {
-                    itemInstance.ItemInstance.Amount -= stayAmount;
+                    itemInstance.ItemInstance.Amount = (short)stayAmount;
                     if (itemInstance.ItemInstance.Amount <= 0)
                     {
                         TryRemove(itemInstance.ItemInstanceId, out _);
@@ -499,7 +498,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                     result.Add(itemInstance);
                     return result;
                 }
-                stayAmount -= itemInstance.ItemInstance.Amount;
+                stayAmount -= (ushort)itemInstance.ItemInstance.Amount;
                 TryRemove(itemInstance.ItemInstanceId, out _);
                 itemInstance.ItemInstance = null;
                 result.Add(itemInstance);
