@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
             var item2 = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(
                 (byte) requestData.Data.Slot2, (NoscorePocketType) requestData.Data.InventoryType2);
 
-            if (item1.ItemInstance.Upgrade + item2.ItemInstance.Upgrade + 1 > UpgradeHelper.Instance.MaxSumLevel)
+            if (item1.ItemInstance.Upgrade + item2.ItemInstance.Upgrade + 1 > UpgradeHelper.Instance.SumHelpers.Count)
             {
                 return;
             }

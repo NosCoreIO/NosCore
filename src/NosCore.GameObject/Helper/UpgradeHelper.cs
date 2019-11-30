@@ -27,8 +27,6 @@ namespace NosCore.GameObject.Helper
         public static UpgradeHelper Instance => _instance ??= new UpgradeHelper();
         private static UpgradeHelper _instance;
 
-        public byte MaxSumLevel { get; set; }
-
         public const short SandVNum = 1027;
 
         public List<SumHelper> SumHelpers { get; set; }
@@ -40,7 +38,6 @@ namespace NosCore.GameObject.Helper
 
         private void LoadSumData()
         {
-            MaxSumLevel = 6;
             SumHelpers = new List<SumHelper>
             {
                 new SumHelper {SuccessPercent = 100, GoldPrice = 1500, SandAmount = 5},
