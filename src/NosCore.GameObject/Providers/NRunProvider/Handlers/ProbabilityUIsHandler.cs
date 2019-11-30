@@ -26,7 +26,7 @@ using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
-    public class WOpenEventHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
+    public class ProbabilityUIsEventHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
         {
