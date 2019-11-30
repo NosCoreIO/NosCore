@@ -930,9 +930,6 @@
   <data name="WEAR_NEW_TITLE" xml:space="preserve">
     <value>Nouveau titre activé.</value>
   </data>
-  <data name="UNKNOWN_UPGRADE_TYPE" xml:space="preserve">
-    <value>Type d'amélioration non connue: {0}.</value>
-  </data>
   <data name="NOT_ENOUGH_ITEMS" xml:space="preserve">
     <value>Vous n'avez pas assez d'objet.</value>
   </data>

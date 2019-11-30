@@ -147,8 +147,7 @@ namespace NosCore.Data.Enumerations.I18N
         DIRECT_ACCESS_OBJECT_DETECTED,
         TRY_OLD_AUTH,
         SHOPSKILLS_LOADED,
-        CHUNK_FORMAT_INVALID,
-        UNKNOWN_UPGRADE_TYPE
+        CHUNK_FORMAT_INVALID
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

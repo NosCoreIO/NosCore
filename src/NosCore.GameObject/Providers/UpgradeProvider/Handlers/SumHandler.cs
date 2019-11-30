@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
+using System;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.ClientPackets.Player;
 using ChickenAPI.Packets.Enumerations;
@@ -37,50 +37,45 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
 {
     public class SumHandler : IEventHandler<UpgradePacket, UpgradePacket>
     {
-        public bool Condition(UpgradePacket packet)
-        {
-            return (packet.UpgradeType == UpgradePacketType.SumResistance);
-        }
+        public EquipmentType[] acceptedItemType = { EquipmentType.Gloves, EquipmentType.Boots };
+        public bool Condition(UpgradePacket packet) => packet.UpgradeType == UpgradePacketType.SumResistance;
 
         public void Execute(RequestData<UpgradePacket> requestData)
         {
-            InventoryItemInstance item1 = null;
-            InventoryItemInstance item2 = null;
-            if (requestData.Data.UpgradeType == UpgradePacketType.SumResistance)
+            if (requestData.Data.Slot2 == null || requestData.Data.InventoryType2 == null)
             {
-                var acceptedItemType = new List<EquipmentType> { EquipmentType.Gloves, EquipmentType.Boots };
+                return;
+            }
 
-                item1 = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(requestData.Data.Slot, (NoscorePocketType)requestData.Data.InventoryType);
-                if (!(item1?.ItemInstance is WearableInstance))
-                {
-                    return;
-                }
+            var item1 = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(
+                requestData.Data.Slot, (NoscorePocketType) requestData.Data.InventoryType);
 
-                if (requestData.Data.Slot2 == null || requestData.Data.InventoryType2 == null)
-                {
-                    return;
-                }
+            var item2 = requestData.ClientSession.Character.Inventory.LoadBySlotAndType(
+                (byte) requestData.Data.Slot2, (NoscorePocketType) requestData.Data.InventoryType2);
 
-                item2 = requestData.ClientSession.Character.Inventory.LoadBySlotAndType((byte)requestData.Data.Slot2, (NoscorePocketType)requestData.Data.InventoryType2);
-                if (!(item2?.ItemInstance is WearableInstance))
-                {
-                    return;
-                }
+            if (item1.ItemInstance.Upgrade + item2.ItemInstance.Upgrade + 1 > UpgradeHelper.Instance.MaxSumLevel)
+            {
+                return;
+            }
 
-                if (item1.ItemInstance.Upgrade + item2.ItemInstance.Upgrade + 1 > UpgradeHelper.Instance.MaxSumLevel)
-                {
-                    return;
-                }
-
-                if (!acceptedItemType.Contains(item1.ItemInstance.Item.EquipmentSlot) ||
-                    !acceptedItemType.Contains(item2.ItemInstance.Item.EquipmentSlot))
-                {
-                    return;
-                }
-
+            if (!CheckAcceptedItemType(item1, item2))
+            {
+                return;
             }
 
             Sum(requestData.ClientSession, item1, item2);
+        }
+
+        private bool CheckAcceptedItemType(params InventoryItemInstance[] items)
+        {
+            foreach (var item in items)
+            {
+                if (Array.IndexOf(acceptedItemType, item.ItemInstance.Item.EquipmentSlot) < 0)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public InventoryItemInstance Sum(ClientSession clientSession, InventoryItemInstance item, InventoryItemInstance itemToSum)
@@ -94,7 +89,7 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
                 return null;
             }
 
-            if (clientSession.Character.Inventory.CountItem(UpgradeHelper.Instance.SandVNum) <
+            if (clientSession.Character.Inventory.CountItem(UpgradeHelper.SandVNum) <
                 UpgradeHelper.Instance.SumHelpers[newUpgrade].SandAmount)
             {
                 clientSession.SendPacket(clientSession.Character.GenerateSay(

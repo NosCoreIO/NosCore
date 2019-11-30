@@ -2050,15 +2050,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Unknown upgrade type: {0}..
-        /// </summary>
-        public static string UNKNOWN_UPGRADE_TYPE {
-            get {
-                return ResourceManager.GetString("UNKNOWN_UPGRADE_TYPE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Unknown Reciever type.
         /// </summary>
         public static string UNKWNOWN_RECEIVERTYPE {

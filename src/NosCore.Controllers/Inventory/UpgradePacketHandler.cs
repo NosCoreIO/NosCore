@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Inventory
             clientSession.Character.Gold -= UpgradeHelper.Instance.SumHelpers[newUpgrade].GoldPrice;
             clientSession.Character.Inventory.RemoveItemAmountFromInventoryByVNum(
                 UpgradeHelper.Instance.SumHelpers[newUpgrade].SandAmount,
-                UpgradeHelper.Instance.SandVNum).GeneratePocketChange();
+                UpgradeHelper.SandVNum).GeneratePocketChange();
             clientSession.SendPacket(clientSession.Character.GenerateGold());
             clientSession.SendPacket(
                 ((InventoryItemInstance)null).GeneratePocketChange(PocketType.Equipment, itemToSum.Slot));

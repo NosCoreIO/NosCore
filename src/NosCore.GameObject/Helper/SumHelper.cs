@@ -21,7 +21,7 @@ namespace NosCore.GameObject.Helper
 {
     public class SumHelper
     {
-        public short SuccessPercent { get; set; }
+        public byte SuccessPercent { get; set; }
         public int GoldPrice { get; set; }
         public short SandAmount { get; set; }
     }

@@ -26,19 +26,12 @@ using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
-    public class ProbabilityUIsEventHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
+    public class UpgradeNRunEventHandler : IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>
     {
-        public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
-        {
-            return item.Item2.Runner == NrunRunnerType.ProbabilityUIs && item.Item1 != null;
-        }
+        public bool Condition(Tuple<IAliveEntity, NrunPacket> item) => item.Item2.Runner == NrunRunnerType.ProbabilityUIs;
 
         public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
-            if (requestData.ClientSession.Character.MapInstanceId != requestData.Data.Item1.MapInstanceId)
-            {
-                return;
-            }
             if (requestData.Data.Item2.Type != null)
             {
                 requestData.ClientSession.SendPacket(
