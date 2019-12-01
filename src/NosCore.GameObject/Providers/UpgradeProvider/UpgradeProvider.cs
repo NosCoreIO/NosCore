@@ -28,16 +28,16 @@ namespace NosCore.GameObject.Providers.UpgradeProvider
 {
     public class UpgradeProvider : IUpgradeProvider
     {
-        private readonly List<IEventHandler<UpgradePacket, UpgradePacket>> _handlers;
+        private readonly List<IEventHandler<UpgradeProperties, UpgradeProperties>> _handlers;
 
-        public UpgradeProvider(IEnumerable<IEventHandler<UpgradePacket, UpgradePacket>> handlers)
+        public UpgradeProvider(IEnumerable<IEventHandler<UpgradeProperties, UpgradeProperties>> handlers)
         {
             _handlers = handlers.ToList();
         }
 
-        public void UpgradeLaunch(ClientSession clientSession, UpgradePacket data)
+        public void Upgrade(ClientSession clientSession, UpgradeProperties data)
         {
-            using var handlersRequest = new Subject<RequestData<UpgradePacket>>();
+            using var handlersRequest = new Subject<RequestData<UpgradeProperties>>();
             _handlers.ForEach(handler =>
             {
                 if (handler.Condition(data))
@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Providers.UpgradeProvider
                     handlersRequest.Subscribe(handler.Execute);
                 }
             });
-            handlersRequest.OnNext(new RequestData<UpgradePacket>(clientSession, data));
+            handlersRequest.OnNext(new RequestData<UpgradeProperties>(clientSession, data));
         }
     }
 }
