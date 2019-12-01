@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Helper
 
         public const short SandVNum = 1027;
 
-        public List<SumHelper> SumHelpers { get; set; }
+        public List<UpgradeData> SumHelpers { get; set; }
 
         private UpgradeHelper()
         {
@@ -38,14 +38,14 @@ namespace NosCore.GameObject.Helper
 
         private void LoadSumData()
         {
-            SumHelpers = new List<SumHelper>
+            SumHelpers = new List<UpgradeData>
             {
-                new SumHelper {SuccessPercent = 100, GoldPrice = 1500, SandAmount = 5},
-                new SumHelper {SuccessPercent = 100, GoldPrice = 3000, SandAmount = 10},
-                new SumHelper {SuccessPercent = 85, GoldPrice = 6000, SandAmount = 15},
-                new SumHelper {SuccessPercent = 70, GoldPrice = 12000, SandAmount = 20},
-                new SumHelper {SuccessPercent = 50, GoldPrice = 24000, SandAmount = 25},
-                new SumHelper {SuccessPercent = 20, GoldPrice = 48000, SandAmount = 30}
+                new UpgradeData {SuccessRate = 100, Cost = 1500, CellaCost = 5},
+                new UpgradeData {SuccessRate = 100, Cost = 3000, CellaCost = 10},
+                new UpgradeData {SuccessRate = 85, Cost = 6000, CellaCost = 15},
+                new UpgradeData {SuccessRate = 70, Cost = 12000, CellaCost = 20},
+                new UpgradeData {SuccessRate = 50, Cost = 24000, CellaCost = 25},
+                new UpgradeData {SuccessRate = 20, Cost = 48000, CellaCost = 30}
             };
         }
     }

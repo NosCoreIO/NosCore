@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
         public void Execute(RequestData<UpgradeProperties> requestData)
         {
             var newUpgrade = requestData.Data.Items[0].ItemInstance.Upgrade + requestData.Data.Items[1].ItemInstance.Upgrade;
-            if (requestData.ClientSession.Character.Gold < UpgradeHelper.Instance.SumHelpers[newUpgrade].GoldPrice)
+            if (requestData.ClientSession.Character.Gold < UpgradeHelper.Instance.SumHelpers[newUpgrade].Cost)
             {
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, requestData.ClientSession.Account.Language),
@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
             }
 
             if (requestData.ClientSession.Character.Inventory.CountItem(UpgradeHelper.SandVNum) <
-                UpgradeHelper.Instance.SumHelpers[newUpgrade].SandAmount)
+                UpgradeHelper.Instance.SumHelpers[newUpgrade].CellaCost)
             {
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_ITEMS, requestData.ClientSession.Account.Language),
@@ -68,14 +68,14 @@ namespace NosCore.GameObject.Providers.UpgradeProvider.Handlers
                 return;
             }
 
-            requestData.ClientSession.Character.Gold -= UpgradeHelper.Instance.SumHelpers[newUpgrade].GoldPrice;
+            requestData.ClientSession.Character.Gold -= UpgradeHelper.Instance.SumHelpers[newUpgrade].Cost;
             requestData.ClientSession.Character.Inventory.RemoveItemAmountFromInventoryByVNum(
-                UpgradeHelper.Instance.SumHelpers[newUpgrade].SandAmount,
+                UpgradeHelper.Instance.SumHelpers[newUpgrade].CellaCost,
                 UpgradeHelper.SandVNum).GeneratePocketChange();
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateGold());
 
             var random = (short)RandomFactory.Instance.RandomNumber();
-            var success = random <= UpgradeHelper.Instance.SumHelpers[newUpgrade].SuccessPercent;
+            var success = random <= UpgradeHelper.Instance.SumHelpers[newUpgrade].SuccessRate;
             if (success)
             {
                 HandleSuccessSum(requestData.ClientSession, requestData.Data.Items[0].ItemInstance as WearableInstance, requestData.Data.Items[1].ItemInstance as WearableInstance);

@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.GameObject.Helper
+namespace NosCore.GameObject
 {
-    public class SumHelper
+    public class UpgradeData
     {
-        public byte SuccessPercent { get; set; }
-        public int GoldPrice { get; set; }
-        public short SandAmount { get; set; }
+        public byte SuccessRate { get; set; }
+        public int Cost { get; set; }
+        public short CellaCost { get; set; }
     }
 }

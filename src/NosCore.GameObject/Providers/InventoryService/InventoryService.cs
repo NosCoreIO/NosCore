@@ -477,32 +477,30 @@ namespace NosCore.GameObject.Providers.InventoryService
         public List<InventoryItemInstance> RemoveItemAmountFromInventoryByVNum(short amount, short itemVNum)
         {
             var result = new List<InventoryItemInstance>();
-            var stayAmount = (ushort)amount;
-            var itemVNumHere = this.Select(s => s.Value).Where(w => w.ItemInstance.ItemVNum == itemVNum);
-            foreach (var itemInstance in itemVNumHere.OrderBy(o => o.ItemInstance.Amount))
-            {
-                if (stayAmount == 0)
-                {
-                    return result;
-                }
 
-                if (itemInstance.ItemInstance.Amount >= stayAmount)
+            var itemsWithVNum = this.Select(s => s.Value).Where(w => w.ItemInstance.ItemVNum == itemVNum).OrderBy(o => o.Slot).ToList();
+            int i = 0;
+            do
+            {
+                if (itemsWithVNum[i].ItemInstance.Amount >= amount)
                 {
-                    itemInstance.ItemInstance.Amount = (short)stayAmount;
-                    if (itemInstance.ItemInstance.Amount <= 0)
+                    itemsWithVNum[i].ItemInstance.Amount -= amount;
+                    if (itemsWithVNum[i].ItemInstance.Amount == 0)
                     {
-                        TryRemove(itemInstance.ItemInstanceId, out _);
-                        itemInstance.ItemInstance = null;
+                        TryRemove(itemsWithVNum[i].ItemInstanceId, out _);
+                        itemsWithVNum[i].ItemInstance = null;
                     }
 
-                    result.Add(itemInstance);
+                    result.Add(itemsWithVNum[i]);
                     return result;
                 }
-                stayAmount -= (ushort)itemInstance.ItemInstance.Amount;
-                TryRemove(itemInstance.ItemInstanceId, out _);
-                itemInstance.ItemInstance = null;
-                result.Add(itemInstance);
-            }
+
+                amount -= itemsWithVNum[i].ItemInstance.Amount;
+                TryRemove(itemsWithVNum[i].ItemInstanceId, out _);
+                itemsWithVNum[i].ItemInstance = null;
+                result.Add(itemsWithVNum[i]);
+                i++;
+            } while (amount > 0 && i <= itemsWithVNum.Count());
 
             return result;
         }
