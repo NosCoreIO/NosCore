@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0-alpine
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
     LC_ALL=en_US.UTF-8 \
@@ -9,7 +9,7 @@ COPY . .
 
 RUN dotnet build -nologo
 
-WORKDIR /app/build/netcoreapp3.0
+WORKDIR /app/build/netcoreapp3.1
 EXPOSE 4002
 
 ENTRYPOINT ["dotnet", "NosCore.LoginServer.dll"]
