@@ -7,7 +7,6 @@ addons:
       - name: dotnet-sdk
         confinement: classic
         channel: 3.1/stable
-sudo: required
 language: csharp
 mono: none
 install:
