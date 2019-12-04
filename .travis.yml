@@ -7,8 +7,6 @@ addons:
       - name: dotnet-sdk
         confinement: classic
         channel: 3.1/stable
-language: csharp
-mono: none
 install:
     - export PATH="$PATH:/home/travis/.dotnet/tools"
     - export PATH="$PATH:$HOME/.local/bin"
