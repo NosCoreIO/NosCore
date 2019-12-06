@@ -29,6 +29,7 @@ using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 
@@ -38,7 +39,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
     {
         public bool Condition(GuriPacket packet)
         {
-            return packet.Type == GuriPacketType.Effect && packet.Data == 3;
+            return packet.Type == GuriPacketType.TextInput && packet.Argument == 3;
         }
 
         private string CraftMessage(string message, string[] valuesplit)
@@ -55,7 +56,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
         public void Execute(RequestData<GuriPacket> requestData)
         {
             var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)requestData.Data.VisualId,
-                NoscorePocketType.Main);
+                NoscorePocketType.Etc);
             if (inv?.ItemInstance.Item.Effect != ItemEffectType.Speaker)
             {
                 return;
@@ -63,21 +64,21 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 
             string data = requestData.Data.Value;
             string[] valuesplit = data.Split(' ');
-
-            if (requestData.Data.Data == 999 && short.TryParse(valuesplit[1], out var slot) && Enum.TryParse(typeof(NoscorePocketType), valuesplit[1], out var type))
+            string message = $"<{Language.Instance.GetMessageFromKey(LanguageKey.SPEAKER, requestData.ClientSession.Account.Language)}> [{requestData.ClientSession.Character.Name}]:";
+            if (requestData.Data.Data == 999 && short.TryParse(valuesplit[1], out var slot) && Enum.TryParse(typeof(NoscorePocketType), valuesplit[0], out var type))
             {
                 var deeplink = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)type);
-                var message = CraftMessage("", valuesplit.Skip(2).ToArray());
-                Broadcaster.Instance.SendPacket(requestData.ClientSession.Character.GenerateSayItem(message, deeplink, $"<{Language.Instance.GetMessageFromKey(LanguageKey.SPEAKER, requestData.ClientSession.Account.Language)}>"));
+                message = CraftMessage(message, valuesplit.Skip(2).ToArray()).Replace(' ', '|');
+                Broadcaster.Instance.SendPacket(requestData.ClientSession.Character.GenerateSayItem(message, deeplink), new EveryoneBut(requestData.ClientSession.Channel.Id));
             }
             else
             {
-                string message = $"<{Language.Instance.GetMessageFromKey(LanguageKey.SPEAKER, requestData.ClientSession.Account.Language)}> [{requestData.ClientSession.Character.Name}]:";
                 message = CraftMessage(message, valuesplit);
-                Broadcaster.Instance.SendPacket(requestData.ClientSession.Character.GenerateSay(message, SayColorType.DarkGrey));
+                Broadcaster.Instance.SendPacket(requestData.ClientSession.Character.GenerateSay(message, (SayColorType)13), new EveryoneBut(requestData.ClientSession.Channel.Id));
             }
-            requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.Id);
-            inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot);
+
+            requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
+            requestData.ClientSession.Character.SendPacket(inv.GeneratePocketChange(PocketType.Etc, (short)requestData.Data.VisualId));
         }
     }
 }

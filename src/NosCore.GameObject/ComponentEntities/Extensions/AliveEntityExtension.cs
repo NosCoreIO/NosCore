@@ -187,23 +187,21 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static SayItemPacket GenerateSayItem(this IAliveEntity aliveEntity, string message, InventoryItemInstance item, string globalPrefix)
+        public static SayItemPacket GenerateSayItem(this IAliveEntity aliveEntity, string message, InventoryItemInstance item)
         {
             var isNormalItem = item.Type != NoscorePocketType.Equipment && item.Type != NoscorePocketType.Specialist;
             return new SayItemPacket
             {
                 VisualType = aliveEntity.VisualType,
                 VisualId = aliveEntity.VisualId,
-                OratorSlot = (byte)item.Slot,
-                GlobalPrefix = globalPrefix,
-                CharacterName = (aliveEntity as INamedEntity)?.Name,
-                ItemName = item.ItemInstance.Item.Name[(aliveEntity as ICharacterEntity)?.AccountLanguage ?? RegionType.EN],
+                OratorSlot = 17,
                 Message = message,
-                ItemData = isNormalItem ? new SayItemPacket.SayItemSubPacket
+                IconInfo = isNormalItem ? new IconInfoPacket
                 {
                     IconId = item.ItemInstance.ItemVNum
                 } : null,
                 EquipmentInfo = isNormalItem ? null : new EInfoPacket(),
+                SlInfo = item.Type != NoscorePocketType.Specialist ? null : new SlInfoPacket()
             };
         }
 
