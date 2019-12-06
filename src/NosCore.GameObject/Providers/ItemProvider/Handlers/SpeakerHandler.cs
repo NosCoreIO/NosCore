@@ -35,22 +35,19 @@ using Serilog;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
-    public class TitleHandler : IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>
+    public class SpeakerHandler : IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>
     {
-        public bool Condition(Item.Item item) => item.ItemType == ItemType.Title;
+        public bool Condition(Item.Item item) =>
+            item.ItemType == ItemType.Magical && item.Effect == ItemEffectType.Speaker;
 
         public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
-            requestData.ClientSession.SendPacket(new QnaPacket
+            requestData.ClientSession.SendPacket(new GuriPacket
             {
-                YesPacket = new GuriPacket
-                {
-                    Type = GuriPacketType.Title,
-                    Unknown = (uint)requestData.Data.Item1.ItemInstance.ItemVNum,
-                    EntityId = requestData.Data.Item1.Slot
-                },
-                Question = Language.Instance.GetMessageFromKey(LanguageKey.WANT_ENABLE_TITLE,
-                    requestData.ClientSession.Account.Language)
+                Type = GuriPacketType.Effect,
+                Unknown = 3,
+                EntityId = requestData.Data.Item1.Slot,
+                Value = 1
             });
         }
     }

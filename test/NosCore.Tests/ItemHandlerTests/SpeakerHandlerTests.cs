@@ -45,32 +45,33 @@ using Serilog;
 namespace NosCore.Tests.ItemHandlerTests
 {
     [TestClass]
-    public class TitleHandlerTests : UseItemEventHandlerTestsBase
+    public class SpeakerHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider _itemProvider;
+        private Mock<ILogger> _logger;
 
         [TestInitialize]
         public void Setup()
         {
+            _logger = new Mock<ILogger>();
             _session = TestHelpers.Instance.GenerateSession();
-            _handler = new TitleHandler();
+            _handler = new SpeakerHandler();
             var items = new List<ItemDto>
             {
-                new Item {VNum = 1, ItemType = ItemType.Title, EffectValue = 0},
+                new Item {VNum = 1, ItemType = ItemType.Magical, Effect = ItemEffectType.Speaker, EffectValue = 0},
             };
             _itemProvider = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
         }
 
         [TestMethod]
-        public void Test_TitleItemHandler()
+        public void Test_SpeakerItemHandler()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
             _session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (QnaPacket)_session.LastPackets.FirstOrDefault(s => s is QnaPacket);
+            var lastpacket = (GuriPacket)_session.LastPackets.FirstOrDefault(s => s is GuriPacket);
             Assert.IsNotNull(lastpacket);
-            Assert.IsTrue(lastpacket.YesPacket.GetType() == typeof(GuriPacket));
         }
     }
 }

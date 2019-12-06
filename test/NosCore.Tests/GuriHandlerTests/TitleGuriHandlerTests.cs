@@ -22,10 +22,8 @@ using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Dto;
@@ -36,10 +34,8 @@ using NosCore.GameObject;
 using NosCore.GameObject.Providers.GuriProvider.Handlers;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Tests.Helpers;
-using Serilog;
 using GuriPacket = ChickenAPI.Packets.ClientPackets.UI.GuriPacket;
 
 namespace NosCore.Tests.GuriHandlerTests
