@@ -302,6 +302,7 @@ namespace NosCore.Data.Enumerations.I18N
         LOGIN_MEDAL,
         GIFTED,
         NEW_MAIL,
-        DELAY_GROUP_REQUEST
+        DELAY_GROUP_REQUEST,
+        SPEAKER
     }
 }
