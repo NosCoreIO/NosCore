@@ -35,7 +35,7 @@ using NosCore.GameObject.Networking.Group;
 
 namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 {
-    public class SpeakerHandler : IEventHandler<GuriPacket, GuriPacket>
+    public class SpeakerGuriHandler : IEventHandler<GuriPacket, GuriPacket>
     {
         public bool Condition(GuriPacket packet)
         {
