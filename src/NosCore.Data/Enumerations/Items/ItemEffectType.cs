@@ -24,6 +24,7 @@ namespace NosCore.Data.Enumerations.Items
         NoEffect = 0,
         Teleport = 1,
         ApplyHairDie = 10,
+        Speaker= 15,
         MarriageProposal = 34,
         Undefined = 69,
         SpCharger = 71,
