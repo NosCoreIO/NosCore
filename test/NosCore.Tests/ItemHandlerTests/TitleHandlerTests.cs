@@ -48,14 +48,12 @@ namespace NosCore.Tests.ItemHandlerTests
     public class TitleHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider _itemProvider;
-        private Mock<ILogger> _logger;
 
         [TestInitialize]
         public void Setup()
         {
-            _logger = new Mock<ILogger>();
             _session = TestHelpers.Instance.GenerateSession();
-            _handler = new TitleHandler(_logger.Object);
+            _handler = new TitleHandler();
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, ItemType = ItemType.Title, EffectValue = 0},
