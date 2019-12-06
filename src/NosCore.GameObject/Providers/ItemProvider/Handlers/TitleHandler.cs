@@ -37,13 +37,6 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
     public class TitleHandler : IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>
     {
-        private readonly ILogger _logger;
-
-        public TitleHandler(ILogger logger)
-        {
-            _logger = logger;
-        }
-
         public bool Condition(Item.Item item) => item.ItemType == ItemType.Title;
 
         public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)

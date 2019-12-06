@@ -24,15 +24,18 @@ using ChickenAPI.Packets.ClientPackets.Inventory;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Chats;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Data;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Providers.GuriProvider.Handlers;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Tests.Helpers;
+using Serilog;
 using GuriPacket = ChickenAPI.Packets.ClientPackets.UI.GuriPacket;
 
 namespace NosCore.Tests.GuriHandlerTests
@@ -41,6 +44,7 @@ namespace NosCore.Tests.GuriHandlerTests
     public class SpeakerGuriHandlerTests : GuriEventHandlerTestsBase
     {
         private IItemProvider _itemProvider;
+        private Mock<ILogger> _logger;
 
         [TestInitialize]
         public void Setup()
@@ -53,7 +57,9 @@ namespace NosCore.Tests.GuriHandlerTests
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
             _session = TestHelpers.Instance.GenerateSession();
-            _handler = new SpeakerGuriHandler();
+            _logger = new Mock<ILogger>();
+            _handler = new SpeakerGuriHandler(_logger.Object);
+            Broadcaster.Instance.LastPackets.Clear();
         }
 
         [TestMethod]
@@ -65,11 +71,12 @@ namespace NosCore.Tests.GuriHandlerTests
                 Type = GuriPacketType.TextInput,
                 Argument = 3,
                 VisualId = 0,
+                Data = 999,
                 Value = "2 0 {test}"
             });
-            var sayitempacket = (SayItemPacket)_session.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNotNull(sayitempacket);
-            var saypacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNull(saypacket);
         }
 
@@ -83,11 +90,12 @@ namespace NosCore.Tests.GuriHandlerTests
                 Type = GuriPacketType.TextInput,
                 Argument = 3,
                 VisualId = 0,
-                Value = "2 0 {test}"
+                Data = 999,
+                Value = "2 1 {test}"
             });
-            var sayitempacket = (SayItemPacket)_session.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
-            var saypacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNull(saypacket);
         }
 
@@ -103,9 +111,9 @@ namespace NosCore.Tests.GuriHandlerTests
                 Argument = 3,
                 VisualId = 0,
             });
-            var sayitempacket = (SayItemPacket)_session.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
-            var saypacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNotNull(saypacket);
         }
 
@@ -118,9 +126,9 @@ namespace NosCore.Tests.GuriHandlerTests
                 Argument = 3,
                 VisualId = 0
             });
-            var sayitempacket = (SayItemPacket)_session.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
-            var saypacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNull(saypacket);
         }
     }

@@ -21,22 +21,29 @@ using System;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.UI;
 using ChickenAPI.Packets.Enumerations;
-using Microsoft.IdentityModel.Logging;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Providers.InventoryService;
+using Serilog;
 
 namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 {
     public class SpeakerGuriHandler : IEventHandler<GuriPacket, GuriPacket>
     {
+        private readonly ILogger _logger;
+        
+        public SpeakerGuriHandler(ILogger logger)
+        {
+            _logger = logger;
+        }
+
         public bool Condition(GuriPacket packet)
         {
             return packet.Type == GuriPacketType.TextInput && packet.Argument == 3;
@@ -59,15 +66,26 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
                 NoscorePocketType.Etc);
             if (inv?.ItemInstance.Item.Effect != ItemEffectType.Speaker)
             {
+                _logger.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEM_NOT_FOUND), NoscorePocketType.Etc, (short)requestData.Data.VisualId));
                 return;
             }
 
             string data = requestData.Data.Value;
-            string[] valuesplit = data.Split(' ');
+            string[] valuesplit = (data ?? string.Empty).Split(' ');
             string message = $"<{Language.Instance.GetMessageFromKey(LanguageKey.SPEAKER, requestData.ClientSession.Account.Language)}> [{requestData.ClientSession.Character.Name}]:";
-            if (requestData.Data.Data == 999 && short.TryParse(valuesplit[1], out var slot) && Enum.TryParse(typeof(NoscorePocketType), valuesplit[0], out var type))
+            if (requestData.Data.Data == 999)
             {
-                var deeplink = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)type);
+                InventoryItemInstance deeplink = null;
+                if (short.TryParse(valuesplit[1], out var slot) &
+                    Enum.TryParse(typeof(NoscorePocketType), valuesplit[0], out var type))
+                {
+                    deeplink = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)type);
+                }
+                if (deeplink == null)
+                {
+                    _logger.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEM_NOT_FOUND), type, slot));
+                    return;
+                }
                 message = CraftMessage(message, valuesplit.Skip(2).ToArray()).Replace(' ', '|');
                 Broadcaster.Instance.SendPacket(requestData.ClientSession.Character.GenerateSayItem(message, deeplink), new EveryoneBut(requestData.ClientSession.Channel.Id));
             }
