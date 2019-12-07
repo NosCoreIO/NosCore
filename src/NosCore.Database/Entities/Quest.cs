@@ -60,6 +60,10 @@ namespace NosCore.Database.Entities
 
         public bool IsDaily { get; set; }
 
+        public bool AutoFinish { get; set; }
+
+        public bool IsSecondary { get; set; }
+
         public int? SpecialData { get; set; }
 
         [MaxLength(255)]

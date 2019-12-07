@@ -10,15 +10,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    [Migration("20190924031848_Aphrodite6")]
-    partial class Aphrodite6
+    [Migration("20191207204502_Aphrodite1")]
+    partial class Aphrodite1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.0.0")
+                .HasAnnotation("ProductVersion", "3.1.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("NosCore.Database.Entities.Account", b =>
@@ -75,6 +75,42 @@ namespace NosCore.Database.Migrations
                         .IsUnique();
 
                     b.ToTable("Account");
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.Act", b =>
+                {
+                    b.Property<byte>("ActId")
+                        .HasColumnType("smallint");
+
+                    b.Property<byte>("Scene")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("character varying(255)")
+                        .HasMaxLength(255);
+
+                    b.HasKey("ActId");
+
+                    b.ToTable("Act");
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.ActPart", b =>
+                {
+                    b.Property<byte>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<byte>("ActId")
+                        .HasColumnType("smallint");
+
+                    b.Property<byte>("ActPartId")
+                        .HasColumnType("smallint");
+
+                    b.Property<byte>("MaxTs")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ActPart");
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.BCard", b =>
@@ -385,6 +421,26 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("MapId");
 
                     b.ToTable("Character");
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.CharacterActPart", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte>("ActPartId")
+                        .HasColumnType("smallint");
+
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActPartId");
+
+                    b.HasIndex("CharacterId");
+
+                    b.ToTable("CharacterActPart");
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.CharacterQuest", b =>
@@ -1876,13 +1932,20 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("QuestId")
                         .HasColumnType("smallint");
 
+                    b.Property<bool>("AutoFinish")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Desc")
+                        .HasColumnType("character varying(255)")
+                        .HasMaxLength(255);
+
                     b.Property<int?>("EndDialogId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("InfoId")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("IsDaily")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSecondary")
                         .HasColumnType("boolean");
 
                     b.Property<byte>("LevelMax")
@@ -1911,6 +1974,10 @@ namespace NosCore.Database.Migrations
 
                     b.Property<short?>("TargetY")
                         .HasColumnType("smallint");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("character varying(255)")
+                        .HasMaxLength(255);
 
                     b.HasKey("QuestId");
 
@@ -2401,7 +2468,7 @@ namespace NosCore.Database.Migrations
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime>("DateEnd")
+                    b.Property<DateTime?>("DateEnd")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<byte>("StaticBonusType")
@@ -2471,6 +2538,77 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("MapNpcId");
 
                     b.ToTable("Teleporter");
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.Title", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<short>("TitleType")
+                        .HasColumnType("smallint");
+
+                    b.Property<bool>("Visible")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId", "TitleType")
+                        .IsUnique();
+
+                    b.ToTable("Title");
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.Warehouse", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<long?>("CharacterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("FamilyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte>("Type")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId");
+
+                    b.HasIndex("FamilyId");
+
+                    b.ToTable("Warehouse");
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.WarehouseItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ItemInstanceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<short>("Slot")
+                        .HasColumnType("smallint");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemInstanceId");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("WarehouseItem");
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.UsableInstance", b =>
@@ -2644,6 +2782,15 @@ namespace NosCore.Database.Migrations
                     b.HasDiscriminator().HasValue("BoxInstance");
                 });
 
+            modelBuilder.Entity("NosCore.Database.Entities.ActPart", b =>
+                {
+                    b.HasOne("NosCore.Database.Entities.Act", "Act")
+                        .WithMany("ActParts")
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("NosCore.Database.Entities.BCard", b =>
                 {
                     b.HasOne("NosCore.Database.Entities.Card", "Card")
@@ -2693,6 +2840,21 @@ namespace NosCore.Database.Migrations
                     b.HasOne("NosCore.Database.Entities.Map", "Map")
                         .WithMany("Character")
                         .HasForeignKey("MapId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.CharacterActPart", b =>
+                {
+                    b.HasOne("NosCore.Database.Entities.ActPart", "ActPart")
+                        .WithMany("CharacterActParts")
+                        .HasForeignKey("ActPartId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NosCore.Database.Entities.Character", "Character")
+                        .WithMany("CharacterActParts")
+                        .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -3159,6 +3321,43 @@ namespace NosCore.Database.Migrations
                     b.HasOne("NosCore.Database.Entities.MapNpc", "MapNpc")
                         .WithMany("Teleporter")
                         .HasForeignKey("MapNpcId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.Title", b =>
+                {
+                    b.HasOne("NosCore.Database.Entities.Character", "Character")
+                        .WithMany("Title")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.Warehouse", b =>
+                {
+                    b.HasOne("NosCore.Database.Entities.Character", "Character")
+                        .WithMany("Warehouses")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("NosCore.Database.Entities.Family", "Family")
+                        .WithMany("Warehouses")
+                        .HasForeignKey("FamilyId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.WarehouseItem", b =>
+                {
+                    b.HasOne("NosCore.Database.Entities.ItemInstance", "ItemInstance")
+                        .WithMany("WarehouseItems")
+                        .HasForeignKey("ItemInstanceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NosCore.Database.Entities.Warehouse", "Warehouse")
+                        .WithMany("WarehouseItems")
+                        .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
