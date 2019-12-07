@@ -413,17 +413,42 @@ namespace NosCore.Database.Migrations
                     TargetMap = table.Column<short>(nullable: true),
                     TargetX = table.Column<short>(nullable: true),
                     TargetY = table.Column<short>(nullable: true),
-                    NextQuestId = table.Column<long>(nullable: true),
+                    NextQuestId = table.Column<short>(nullable: true),
                     IsDaily = table.Column<bool>(nullable: false),
                     AutoFinish = table.Column<bool>(nullable: false),
                     IsSecondary = table.Column<bool>(nullable: false),
                     SpecialData = table.Column<int>(nullable: true),
+                    RequiredQuestId = table.Column<short>(nullable: true),
                     Title = table.Column<string>(maxLength: 255, nullable: true),
                     Desc = table.Column<string>(maxLength: 255, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Quest", x => x.QuestId);
+                    table.ForeignKey(
+                        name: "FK_Quest_Quest_NextQuestId",
+                        column: x => x.NextQuestId,
+                        principalTable: "Quest",
+                        principalColumn: "QuestId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "QuestReward",
+                columns: table => new
+                {
+                    QuestRewardId = table.Column<short>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RewardType = table.Column<byte>(nullable: false),
+                    Data = table.Column<int>(nullable: false),
+                    Design = table.Column<byte>(nullable: false),
+                    Rarity = table.Column<byte>(nullable: false),
+                    Upgrade = table.Column<byte>(nullable: false),
+                    Amount = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QuestReward", x => x.QuestRewardId);
                 });
 
             migrationBuilder.CreateTable(
@@ -787,11 +812,12 @@ namespace NosCore.Database.Migrations
                 name: "QuestObjective",
                 columns: table => new
                 {
-                    QuestObjectiveId = table.Column<short>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Data = table.Column<int>(nullable: false),
-                    Objective = table.Column<int>(nullable: false),
-                    SpecialData = table.Column<int>(nullable: true),
+                    QuestObjectiveId = table.Column<Guid>(nullable: false),
+                    FirstData = table.Column<int>(nullable: false),
+                    SecondData = table.Column<int>(nullable: true),
+                    ThirdData = table.Column<int>(nullable: true),
+                    FourthData = table.Column<int>(nullable: true),
+                    FifthData = table.Column<int>(nullable: true),
                     QuestId = table.Column<short>(nullable: false)
                 },
                 constraints: table =>
@@ -806,28 +832,28 @@ namespace NosCore.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "QuestReward",
+                name: "QuestQuestReward",
                 columns: table => new
                 {
-                    QuestRewardId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    RewardType = table.Column<byte>(nullable: false),
-                    Data = table.Column<int>(nullable: false),
-                    Design = table.Column<byte>(nullable: false),
-                    Rarity = table.Column<byte>(nullable: false),
-                    Upgrade = table.Column<byte>(nullable: false),
-                    Amount = table.Column<int>(nullable: false),
+                    Id = table.Column<Guid>(nullable: false),
+                    QuestRewardId = table.Column<short>(nullable: false),
                     QuestId = table.Column<short>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QuestReward", x => x.QuestRewardId);
+                    table.PrimaryKey("PK_QuestQuestReward", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_QuestReward_Quest_QuestId",
+                        name: "FK_QuestQuestReward_Quest_QuestId",
                         column: x => x.QuestId,
                         principalTable: "Quest",
                         principalColumn: "QuestId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_QuestQuestReward_QuestReward_QuestRewardId",
+                        column: x => x.QuestRewardId,
+                        principalTable: "QuestReward",
+                        principalColumn: "QuestRewardId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -2115,14 +2141,24 @@ namespace NosCore.Database.Migrations
                 column: "SourceMapId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Quest_NextQuestId",
+                table: "Quest",
+                column: "NextQuestId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_QuestObjective_QuestId",
                 table: "QuestObjective",
                 column: "QuestId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_QuestReward_QuestId",
-                table: "QuestReward",
+                name: "IX_QuestQuestReward_QuestId",
+                table: "QuestQuestReward",
                 column: "QuestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuestQuestReward_QuestRewardId",
+                table: "QuestQuestReward",
+                column: "QuestRewardId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_QuicklistEntry_CharacterId",
@@ -2357,7 +2393,7 @@ namespace NosCore.Database.Migrations
                 name: "QuestObjective");
 
             migrationBuilder.DropTable(
-                name: "QuestReward");
+                name: "QuestQuestReward");
 
             migrationBuilder.DropTable(
                 name: "QuicklistEntry");
@@ -2406,6 +2442,9 @@ namespace NosCore.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "Quest");
+
+            migrationBuilder.DropTable(
+                name: "QuestReward");
 
             migrationBuilder.DropTable(
                 name: "Recipe");

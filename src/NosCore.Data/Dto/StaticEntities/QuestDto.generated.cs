@@ -40,6 +40,8 @@ namespace NosCore.Data.StaticEntities
 
 	 	public System.Collections.Generic.HashSet<CharacterQuestDto> CharacterQuest { get; set; }
 
+	 	public System.Collections.Generic.HashSet<QuestQuestRewardDto> QuestQuestReward { get; set; }
+
 	 	public byte LevelMin { get; set; }
 
 	 	public byte LevelMax { get; set; }
@@ -56,7 +58,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short? TargetY { get; set; }
 
-	 	public long? NextQuestId { get; set; }
+	 	public short? NextQuestId { get; set; }
 
 	 	public bool IsDaily { get; set; }
 
@@ -65,6 +67,10 @@ namespace NosCore.Data.StaticEntities
 	 	public bool IsSecondary { get; set; }
 
 	 	public int? SpecialData { get; set; }
+
+	 	public QuestDto RequiredQuest { get; set; }
+
+	 	public short? RequiredQuestId { get; set; }
 
 	 	[I18NFrom(typeof(I18NQuestDto))]
 		public I18NString Title { get; set; } = new I18NString();

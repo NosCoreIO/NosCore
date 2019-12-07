@@ -30,6 +30,7 @@ namespace NosCore.Database.Entities
         {
             QuestObjective = new HashSet<QuestObjective>();
             CharacterQuest = new HashSet<CharacterQuest>();
+            QuestQuestReward = new HashSet<QuestQuestReward>();
         }
 
         [Key]
@@ -39,6 +40,8 @@ namespace NosCore.Database.Entities
         public int QuestType { get; set; }
 
         public virtual HashSet<CharacterQuest> CharacterQuest { get; set; }
+
+        public virtual HashSet<QuestQuestReward> QuestQuestReward { get; set; }
 
         public byte LevelMin { get; set; }
 
@@ -56,7 +59,7 @@ namespace NosCore.Database.Entities
 
         public short? TargetY { get; set; }
 
-        public long? NextQuestId { get; set; }
+        public short? NextQuestId { get; set; }
 
         public bool IsDaily { get; set; }
 
@@ -66,6 +69,10 @@ namespace NosCore.Database.Entities
 
         public int? SpecialData { get; set; }
 
+        public virtual Quest RequiredQuest { get; set; }
+
+        public short? RequiredQuestId { get; set; }
+        
         [MaxLength(255)]
         [I18NString(typeof(I18NQuest))]
         public string Title { get; set; }
