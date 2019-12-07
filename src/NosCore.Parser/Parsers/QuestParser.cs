@@ -33,15 +33,15 @@ namespace NosCore.Parser.Parsers
 {
 
     //BEGIN
-    //VNUM    {QuestId} {QuestType}    0	1	-1	-1
-    //LEVEL	{LevelMin}	{LevelMax}
-    //TITLE {Title}
-    //DESC {Desc}
-    //TALK	{StartDialogId}	{EndDialogId}	0	0
-    //TARGET	{TargetX}	{TargetY}	{TargetMap}
-    //DATA	0	1	-1	1
-    //PRIZE	-1	-1	-1	-1
-    //LINK	2
+    //VNUM    {QuestId}     {QuestType}   {autoFinish}    {Daily}	{requiredQuest}    {Secondary}
+    //LEVEL   {LevelMin}	{LevelMax}
+    //TITLE   {Title}
+    //DESC    {Desc}
+    //TALK    {StartDialogId}	{EndDialogId}	0	0
+    //TARGET  {TargetX}    {TargetY}	{TargetMap}
+    //DATA	  0    1	-1     1
+    //PRIZE	  {firstPrizeVNUM}	{secondPrizeVNUM}	{thirdPrizeVNUM}	{fourthPrizeVNUM}
+    //LINK	  {NextQuest}
     //END
     //
     //#=======
@@ -67,6 +67,9 @@ namespace NosCore.Parser.Parsers
             {
                 {nameof(QuestDto.QuestId), chunk => Convert.ToInt16(chunk["VNUM"][0][1])},
                 {nameof(QuestDto.QuestType), chunk => Convert.ToInt32(chunk["VNUM"][0][2])},
+                {nameof(QuestDto.AutoFinish), chunk => chunk["VNUM"][0][3] == "1"},
+                {nameof(QuestDto.IsDaily), chunk => chunk["VNUM"][0][4] != "-1"},
+                {nameof(QuestDto.IsSecondary), chunk => chunk["VNUM"][0][5] != "-1"},
                 {nameof(QuestDto.LevelMin), chunk => Convert.ToByte(chunk["LEVEL"][0][1])},
                 {nameof(QuestDto.LevelMax), chunk => Convert.ToByte(chunk["LEVEL"][0][2])},
                 {nameof(QuestDto.Title), chunk => chunk["TITLE"][0][1]},
@@ -91,29 +94,6 @@ namespace NosCore.Parser.Parsers
     //{
     //                switch (currentLine[0])
     //                {
-    //                    case "VNUM":
-    //                        switch (quest.QuestId)
-    //                        {
-    //                            //TODO: Legendary Hunter quests will be markes ad daily, but should be in the "secondary" slot and be daily nevertheless
-    //                            case 6057: // John the adventurer
-    //                            case 7519: // Legendary Hunter 1 time Kertos
-    //                            case 7520: // Legendary Hunter 1 time Valakus
-    //                            case 7521: // Legendary Hunter Grenigas
-    //                            case 7522: // Legendary Hunter Draco
-    //                            case 7523: // Legendary Hunter Glacerus
-    //                            case 7524: // Legendary Hunter Laurena
-    //                            case 5514: // Sherazade ice flower (n_run 65)
-    //                            case 5919: // Akamur's military engineer (n_run 68)
-    //                            case 5908: // John (n_run 67)
-    //                            case 5914: // Alchemist (n_run 66)
-    //                                quest.IsDaily = true;
-    //                                break;
-    //                        }
-
-    //                        objectiveIndex = 0;
-    //                        currentRewards.Clear();
-    //                        currentObjectives.Clear();
-    //                        break;
 
     //                    case "LINK":
     //                        if (int.Parse(currentLine[1]) != -1) // Base Quest Order (ex: SpQuest)

@@ -94,15 +94,19 @@ namespace NosCore.Database.Migrations
 
             modelBuilder.Entity("NosCore.Database.Entities.ActPart", b =>
                 {
-                    b.Property<byte>("ActPartId")
+                    b.Property<byte>("Id")
                         .HasColumnType("smallint");
 
                     b.Property<byte>("ActId")
                         .HasColumnType("smallint");
 
-                    b.HasKey("ActPartId");
+                    b.Property<byte>("ActPartId")
+                        .HasColumnType("smallint");
 
-                    b.HasIndex("ActId");
+                    b.Property<byte>("MaxTs")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
 
                     b.ToTable("ActPart");
                 });
@@ -1926,6 +1930,9 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("QuestId")
                         .HasColumnType("smallint");
 
+                    b.Property<bool>("AutoFinish")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Desc")
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
@@ -1934,6 +1941,9 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsDaily")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSecondary")
                         .HasColumnType("boolean");
 
                     b.Property<byte>("LevelMax")
@@ -2774,7 +2784,7 @@ namespace NosCore.Database.Migrations
                 {
                     b.HasOne("NosCore.Database.Entities.Act", "Act")
                         .WithMany("ActParts")
-                        .HasForeignKey("ActId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

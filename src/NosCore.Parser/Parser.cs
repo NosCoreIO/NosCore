@@ -322,7 +322,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            //factory.ImportQuests();
+                            factory.ImportQuests();
                         }
                     }
 

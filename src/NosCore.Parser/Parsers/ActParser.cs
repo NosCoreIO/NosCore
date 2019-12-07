@@ -101,7 +101,7 @@ namespace NosCore.Parser.Parsers
                             Id = Convert.ToByte(splitted[2]),
                             ActPartId = Convert.ToByte(splitted[4]),
                             ActId = Convert.ToByte(splitted[3]),
-                            TsMax = Convert.ToByte(splitted[5]),
+                            MaxTs = Convert.ToByte(splitted[5]),
                         });
                     }
                 }
