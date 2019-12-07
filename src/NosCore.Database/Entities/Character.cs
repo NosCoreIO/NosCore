@@ -37,6 +37,7 @@ namespace NosCore.Database.Entities
             StaticBuff = new HashSet<StaticBuff>();
             BazaarItem = new HashSet<BazaarItem>();
             Inventory = new HashSet<InventoryItemInstance>();
+            CharacterActParts = new HashSet<CharacterActPart>();
             QuicklistEntry = new HashSet<QuicklistEntry>();
             Respawn = new HashSet<Respawn>();
             Mail = new HashSet<Mail>();
@@ -62,6 +63,8 @@ namespace NosCore.Database.Entities
         public virtual ICollection<BazaarItem> BazaarItem { get; set; }
 
         public virtual ICollection<Miniland> Miniland { get; set; }
+
+        public virtual ICollection<CharacterActPart> CharacterActParts { get; set; }
 
         [MaxLength(255)]
         public string Biography { get; set; }
