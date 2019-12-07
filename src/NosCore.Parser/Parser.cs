@@ -159,7 +159,7 @@ namespace NosCore.Parser
                         factory.ImportShopItems();
                         //factory.ImportShopSkills();
                         //factory.ImportRecipe();
-                        //factory.ImportQuests();
+                        factory.ImportQuests();
                     }
                     else
                     {

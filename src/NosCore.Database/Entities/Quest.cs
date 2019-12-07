@@ -56,12 +56,18 @@ namespace NosCore.Database.Entities
 
         public short? TargetY { get; set; }
 
-        public int InfoId { get; set; }
-
         public long? NextQuestId { get; set; }
 
         public bool IsDaily { get; set; }
 
         public int? SpecialData { get; set; }
+
+        [MaxLength(255)]
+        [I18NString(typeof(I18NQuest))]
+        public string Title { get; set; }
+
+        [MaxLength(255)]
+        [I18NString(typeof(I18NQuest))]
+        public string Desc { get; set; }
     }
 }

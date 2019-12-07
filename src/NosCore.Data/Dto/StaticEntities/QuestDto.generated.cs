@@ -56,13 +56,21 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short? TargetY { get; set; }
 
-	 	public int InfoId { get; set; }
-
 	 	public long? NextQuestId { get; set; }
 
 	 	public bool IsDaily { get; set; }
 
 	 	public int? SpecialData { get; set; }
+
+	 	[I18NFrom(typeof(I18NQuestDto))]
+		public I18NString Title { get; set; } = new I18NString();
+		[AdaptMember("Title")]
+		public string TitleI18NKey { get; set; }
+
+	 	[I18NFrom(typeof(I18NQuestDto))]
+		public I18NString Desc { get; set; } = new I18NString();
+		[AdaptMember("Desc")]
+		public string DescI18NKey { get; set; }
 
 	 }
 }
