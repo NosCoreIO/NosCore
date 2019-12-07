@@ -1952,11 +1952,14 @@ namespace NosCore.Database.Migrations
                     b.Property<byte>("LevelMin")
                         .HasColumnType("smallint");
 
-                    b.Property<long?>("NextQuestId")
-                        .HasColumnType("bigint");
+                    b.Property<short?>("NextQuestId")
+                        .HasColumnType("smallint");
 
                     b.Property<int>("QuestType")
                         .HasColumnType("integer");
+
+                    b.Property<short?>("RequiredQuestId")
+                        .HasColumnType("smallint");
 
                     b.Property<int?>("SpecialData")
                         .HasColumnType("integer");
@@ -1979,26 +1982,33 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("QuestId");
 
+                    b.HasIndex("NextQuestId");
+
                     b.ToTable("Quest");
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.QuestObjective", b =>
                 {
-                    b.Property<short>("QuestObjectiveId")
+                    b.Property<Guid>("QuestObjectiveId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("Data")
+                    b.Property<int?>("FifthData")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Objective")
+                    b.Property<int>("FirstData")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("FourthData")
                         .HasColumnType("integer");
 
                     b.Property<short>("QuestId")
                         .HasColumnType("smallint");
 
-                    b.Property<int?>("SpecialData")
+                    b.Property<int?>("SecondData")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ThirdData")
                         .HasColumnType("integer");
 
                     b.HasKey("QuestObjectiveId");
@@ -2008,11 +2018,31 @@ namespace NosCore.Database.Migrations
                     b.ToTable("QuestObjective");
                 });
 
+            modelBuilder.Entity("NosCore.Database.Entities.QuestQuestReward", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<short>("QuestId")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("QuestRewardId")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestId");
+
+                    b.HasIndex("QuestRewardId");
+
+                    b.ToTable("QuestQuestReward");
+                });
+
             modelBuilder.Entity("NosCore.Database.Entities.QuestReward", b =>
                 {
-                    b.Property<long>("QuestRewardId")
+                    b.Property<short>("QuestRewardId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("smallint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<int>("Amount")
@@ -2022,9 +2052,6 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("integer");
 
                     b.Property<byte>("Design")
-                        .HasColumnType("smallint");
-
-                    b.Property<short>("QuestId")
                         .HasColumnType("smallint");
 
                     b.Property<byte>("Rarity")
@@ -2037,8 +2064,6 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.HasKey("QuestRewardId");
-
-                    b.HasIndex("QuestId");
 
                     b.ToTable("QuestReward");
                 });
@@ -3135,6 +3160,14 @@ namespace NosCore.Database.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("NosCore.Database.Entities.Quest", b =>
+                {
+                    b.HasOne("NosCore.Database.Entities.Quest", "RequiredQuest")
+                        .WithMany()
+                        .HasForeignKey("NextQuestId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("NosCore.Database.Entities.QuestObjective", b =>
                 {
                     b.HasOne("NosCore.Database.Entities.Quest", "Quest")
@@ -3144,12 +3177,18 @@ namespace NosCore.Database.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NosCore.Database.Entities.QuestReward", b =>
+            modelBuilder.Entity("NosCore.Database.Entities.QuestQuestReward", b =>
                 {
                     b.HasOne("NosCore.Database.Entities.Quest", "Quest")
-                        .WithMany()
+                        .WithMany("QuestQuestReward")
                         .HasForeignKey("QuestId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NosCore.Database.Entities.QuestReward", "QuestReward")
+                        .WithMany("QuestQuestReward")
+                        .HasForeignKey("QuestRewardId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

@@ -34,13 +34,17 @@ namespace NosCore.Data.StaticEntities
 	public class QuestObjectiveDto : IStaticDto
 	{
 		[Key]
-		public short QuestObjectiveId { get; set; }
+		public System.Guid QuestObjectiveId { get; set; }
 
-	 	public int Data { get; set; }
+	 	public int FirstData { get; set; }
 
-	 	public int Objective { get; set; }
+	 	public int? SecondData { get; set; }
 
-	 	public int? SpecialData { get; set; }
+	 	public int? ThirdData { get; set; }
+
+	 	public int? FourthData { get; set; }
+
+	 	public int? FifthData { get; set; }
 
 	 	public short QuestId { get; set; }
 

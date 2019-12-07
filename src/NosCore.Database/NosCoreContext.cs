@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Database.Entities;
 
@@ -579,6 +580,30 @@ namespace NosCore.Database
                 .HasMany(e => e.CharacterQuest)
                 .WithOne(e => e.Quest)
                 .HasForeignKey(e => e.QuestId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Quest>()
+                .HasOne(e => e.RequiredQuest)
+                .WithMany()
+                .HasForeignKey(e => e.RequiredQuestId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Quest>()
+                .HasOne(e => e.RequiredQuest)
+                .WithMany()
+                .HasForeignKey(e => e.NextQuestId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<QuestQuestReward>()
+                .HasOne(e => e.Quest)
+                .WithMany(e=>e.QuestQuestReward)
+                .HasForeignKey(e => e.QuestId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<QuestQuestReward>()
+                .HasOne(e => e.QuestReward)
+                .WithMany(e => e.QuestQuestReward)
+                .HasForeignKey(e => e.QuestRewardId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<NpcMonster>()
