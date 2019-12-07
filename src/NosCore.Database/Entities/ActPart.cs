@@ -33,12 +33,14 @@ namespace NosCore.Database.Entities
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public byte Id { get; set; }
+
         public byte ActPartId { get; set; }
 
         public byte ActId { get; set; }
         public virtual Act Act { get; set; }
 
-        public byte MaxTs;
+        public byte MaxTs { get; set; }
 
         public virtual HashSet<CharacterActPart> CharacterActParts { get; set; }
     }

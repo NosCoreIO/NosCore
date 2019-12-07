@@ -654,7 +654,7 @@ namespace NosCore.Database
             modelBuilder.Entity<ActPart>()
                 .HasOne(e => e.Act)
                 .WithMany(e => e.ActParts)
-                .HasForeignKey(e => e.ActId)
+                .HasForeignKey(e => e.Id)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ActPart>()

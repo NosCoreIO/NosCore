@@ -34,11 +34,15 @@ namespace NosCore.Data.StaticEntities
 	public class ActPartDto : IStaticDto
 	{
 		[Key]
-		public byte ActPartId { get; set; }
+		public byte Id { get; set; }
+
+	 	public byte ActPartId { get; set; }
 
 	 	public byte ActId { get; set; }
 
 	 	public ActDto Act { get; set; }
+
+	 	public byte MaxTs { get; set; }
 
 	 	public System.Collections.Generic.HashSet<CharacterActPartDto> CharacterActParts { get; set; }
 

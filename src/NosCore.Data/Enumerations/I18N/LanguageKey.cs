@@ -150,7 +150,8 @@ namespace NosCore.Data.Enumerations.I18N
         CHUNK_FORMAT_INVALID,
         ITEM_NOT_FOUND,
         QUEST_PRIZES_PARSED,
-        QUESTS_PARSED
+        QUESTS_PARSED,
+        ACTS_PARTS_PARSED
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
