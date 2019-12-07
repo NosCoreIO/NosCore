@@ -42,6 +42,8 @@ namespace NosCore.Parser
         private readonly MapNpcParser _mapNpcParser;
         private readonly MapParser _mapParser;
         private readonly MapTypeMapParser _mapTypeMapParser;
+        private readonly QuestParser _questParser;
+        private readonly QuestPrizeParser _questPrizeParser;
         private readonly MapTypeParser _mapTypeParser;
         private readonly NpcMonsterParser _npcMonsterParser;
         private readonly List<string[]> _packetList = new List<string[]>();
@@ -69,7 +71,7 @@ namespace NosCore.Parser
             MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser,
             MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser,
             PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
-            ShopItemParser shopItemParser, ShopParser shopParser, SkillParser skillParser,
+            ShopItemParser shopItemParser, ShopParser shopParser, SkillParser skillParser, QuestPrizeParser questPrizeParser, QuestParser questParser,
             IGenericDao<AccountDto> accountDao, IGenericDao<I18NQuestDto> i18NQuestDao, IGenericDao<I18NSkillDto> i18NSkillDao,
             IGenericDao<I18NNpcMonsterTalkDto> i18NNpcMonsterTalkDao,
             IGenericDao<I18NNpcMonsterDto> i18NNpcMonsterDao, IGenericDao<I18NMapPointDataDto> i18NMapPointDataDao,
@@ -77,6 +79,8 @@ namespace NosCore.Parser
             IGenericDao<I18NItemDto> i18NItemDao, IGenericDao<I18NBCardDto> i18NbCardDao,
             IGenericDao<I18NCardDto> i18NCardDao, IGenericDao<I18NActDescDto> i18NActDescDao, ILogger logger)
         {
+            _questPrizeParser = questPrizeParser;
+            _questParser = questParser;
             _cardParser = cardParser;
             _dropParser = dropParser;
             _itemParser = itemParser;
@@ -160,6 +164,12 @@ namespace NosCore.Parser
         public void ImportMaps()
         {
             _mapParser.InsertOrUpdateMaps(_folder, _packetList);
+        }
+
+        public void ImportQuests()
+        {
+            _questParser.ImportQuests(_folder);
+            _questPrizeParser.ImportQuestPrizes(_folder);
         }
 
         public void ImportMapType()
