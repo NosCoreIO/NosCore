@@ -86,6 +86,12 @@ namespace NosCore.Database
 
         public virtual DbSet<PenaltyLog> PenaltyLog { get; set; }
 
+        public virtual DbSet<CharacterActPart> CharacterActPart { get; set; }
+
+        public virtual DbSet<ActPart> ActPart { get; set; }
+
+        public virtual DbSet<Act> Act { get; set; }
+
         public virtual DbSet<Portal> Portal { get; set; }
 
         public virtual DbSet<Quest> Quest { get; set; }
@@ -643,6 +649,24 @@ namespace NosCore.Database
                 .HasOne(e => e.Warehouse)
                 .WithMany(e => e.WarehouseItems)
                 .HasForeignKey(e => e.WarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ActPart>()
+                .HasOne(e => e.Act)
+                .WithMany(e => e.ActParts)
+                .HasForeignKey(e => e.ActId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ActPart>()
+                .HasMany(e => e.CharacterActParts)
+                .WithOne(e => e.ActPart)
+                .HasForeignKey(e => e.ActPartId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Character>()
+                .HasMany(e => e.CharacterActParts)
+                .WithOne(e => e.Character)
+                .HasForeignKey(e => e.CharacterId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<WarehouseItem>()
