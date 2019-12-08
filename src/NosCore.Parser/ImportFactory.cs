@@ -171,8 +171,8 @@ namespace NosCore.Parser
         public void ImportQuests()
         {
             _actParser.ImportAct(_folder);
-            _questParser.ImportQuests(_folder);
             _questPrizeParser.ImportQuestPrizes(_folder);
+            _questParser.ImportQuests(_folder);
         }
 
         public void ImportMapType()

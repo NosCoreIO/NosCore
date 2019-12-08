@@ -84,6 +84,9 @@ namespace NosCore.Parser
             Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
             TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
+            TypeAdapterConfig.GlobalSettings.Default
+                .IgnoreMember((member, side) => side == MemberSide.Destination && member.Type.GetInterfaces().Contains(typeof(IEntity)) 
+                    || (member.Type.GetGenericArguments().Any() && member.Type.GetGenericArguments()[0].GetInterfaces().Contains(typeof(IEntity))));
             try
             {
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();

@@ -53,17 +53,24 @@ namespace NosCore.Parser.Parsers
         private readonly ILogger _logger;
         private readonly IGenericDao<QuestDto> _questDao;
         private readonly IGenericDao<QuestObjectiveDto> _questObjectiveDao;
+        private readonly IGenericDao<QuestQuestRewardDto> _questQuestRewardDao;
+        private readonly IGenericDao<QuestRewardDto> _questRewardDao;
+        private Dictionary<short, QuestRewardDto> _questRewards;
 
-
-        public QuestParser(IGenericDao<QuestDto> questDao, IGenericDao<QuestObjectiveDto> questObjectiveDao, ILogger logger)
+        public QuestParser(IGenericDao<QuestDto> questDao, IGenericDao<QuestObjectiveDto> questObjectiveDao, 
+            IGenericDao<QuestRewardDto> questRewardDao, IGenericDao<QuestQuestRewardDto> questQuestRewardDao, ILogger logger)
         {
             _logger = logger;
             _questDao = questDao;
             _questObjectiveDao = questObjectiveDao;
+            _questQuestRewardDao = questQuestRewardDao;
+            _questRewardDao = questRewardDao;
         }
 
         public void ImportQuests(string folder)
         {
+            _questRewards = _questRewardDao.LoadAll().ToDictionary(x => x.QuestRewardId, x => x);
+
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
             {
                 {nameof(QuestDto.QuestId), chunk => Convert.ToInt16(chunk["VNUM"][0][1])},
@@ -74,8 +81,8 @@ namespace NosCore.Parser.Parsers
                 {nameof(QuestDto.IsSecondary), chunk => chunk["VNUM"][0][6] != "-1"},
                 {nameof(QuestDto.LevelMin), chunk => Convert.ToByte(chunk["LEVEL"][0][1])},
                 {nameof(QuestDto.LevelMax), chunk => Convert.ToByte(chunk["LEVEL"][0][2])},
-                {nameof(QuestDto.Title), chunk => chunk["TITLE"][0][1]},
-                {nameof(QuestDto.Desc), chunk => chunk["DESC"][0][1]},
+                {nameof(QuestDto.TitleI18NKey), chunk => chunk["TITLE"][0][1]},
+                {nameof(QuestDto.DescI18NKey), chunk => chunk["DESC"][0][1]},
                 {nameof(QuestDto.TargetX), chunk =>  chunk["TARGET"][0][1] == "-1" ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][1])},
                 {nameof(QuestDto.TargetY), chunk =>  chunk["TARGET"][0][2] == "-1"  ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][2])},
                 {nameof(QuestDto.TargetMap), chunk => chunk["TARGET"][0][3] == "-1"  ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][3])},
@@ -85,10 +92,11 @@ namespace NosCore.Parser.Parsers
                 {nameof(QuestDto.QuestQuestReward), chunk => ImportQuestQuestRewards(chunk)},
                 {nameof(QuestDto.QuestObjective), chunk => ImportQuestObjectives(chunk)},
             };
-            var genericParser = new GenericParser<QuestDto>(folder + _fileQuestDat, "#=======", 0, actionList, _logger);
-            var quests = genericParser.GetDtos("    ");
+            var genericParser = new GenericParser<QuestDto>(folder + _fileQuestDat, "END", 0, actionList, _logger);
+            var quests = genericParser.GetDtos();
 
             _questDao.InsertOrUpdate(quests);
+            _questQuestRewardDao.InsertOrUpdate(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward));
             _questObjectiveDao.InsertOrUpdate(quests.Where(s => s.QuestObjective != null).SelectMany(s => s.QuestObjective));
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUESTS_PARSED), quests.Count);
@@ -100,7 +108,7 @@ namespace NosCore.Parser.Parsers
             for (var i = 1; i < 5; i++)
             {
                 var prize = Convert.ToInt16(chunk["PRIZE"][0][i]);
-                if (prize == 1)
+                if (prize == -1 || !_questRewards.ContainsKey(prize))
                 {
                     continue;
                 }
@@ -130,7 +138,6 @@ namespace NosCore.Parser.Parsers
                         SecondData = line[2] == "-1" ? (int?)null : Convert.ToInt32(line[2]),
                         ThirdData = line[3] == "-1" ? (int?)null : Convert.ToInt32(line[3]),
                         FourthData = line[4] == "-1" ? (int?)null : Convert.ToInt32(line[4]),
-                        FifthData = line[5] == "-1" ? (int?)null : Convert.ToInt32(line[5]),
                         QuestObjectiveId = Guid.NewGuid()
                     });
                 }

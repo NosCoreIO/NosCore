@@ -39,9 +39,9 @@ namespace NosCore.Database.Entities
 
         public int QuestType { get; set; }
 
-        public virtual HashSet<CharacterQuest> CharacterQuest { get; set; }
+        public virtual ICollection<CharacterQuest> CharacterQuest { get; set; }
 
-        public virtual HashSet<QuestQuestReward> QuestQuestReward { get; set; }
+        public virtual ICollection<QuestQuestReward> QuestQuestReward { get; set; }
 
         public byte LevelMin { get; set; }
 
@@ -51,7 +51,7 @@ namespace NosCore.Database.Entities
 
         public int? EndDialogId { get; set; }
 
-        public virtual HashSet<QuestObjective> QuestObjective { get; set; }
+        public virtual ICollection<QuestObjective> QuestObjective { get; set; }
 
         public short? TargetMap { get; set; }
 
@@ -59,6 +59,7 @@ namespace NosCore.Database.Entities
 
         public short? TargetY { get; set; }
 
+        //this would create circular reference if it was FK
         public short? NextQuestId { get; set; }
 
         public bool IsDaily { get; set; }
@@ -69,8 +70,7 @@ namespace NosCore.Database.Entities
 
         public int? SpecialData { get; set; }
 
-        public virtual Quest RequiredQuest { get; set; }
-
+        //this would create circular reference if it was FK
         public short? RequiredQuestId { get; set; }
         
         [MaxLength(255)]

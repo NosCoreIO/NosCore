@@ -1982,8 +1982,6 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("QuestId");
 
-                    b.HasIndex("NextQuestId");
-
                     b.ToTable("Quest");
                 });
 
@@ -1992,9 +1990,6 @@ namespace NosCore.Database.Migrations
                     b.Property<Guid>("QuestObjectiveId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<int?>("FifthData")
-                        .HasColumnType("integer");
 
                     b.Property<int>("FirstData")
                         .HasColumnType("integer");
@@ -3158,14 +3153,6 @@ namespace NosCore.Database.Migrations
                         .HasForeignKey("SourceMapId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("NosCore.Database.Entities.Quest", b =>
-                {
-                    b.HasOne("NosCore.Database.Entities.Quest", "RequiredQuest")
-                        .WithMany()
-                        .HasForeignKey("NextQuestId")
-                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.QuestObjective", b =>
