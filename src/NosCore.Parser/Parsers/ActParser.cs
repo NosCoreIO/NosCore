@@ -93,8 +93,10 @@ namespace NosCore.Parser.Parsers
                             ActId = Convert.ToByte(splitted[2]),
                             Scene = (byte)(39 + Convert.ToByte(splitted[2]))
                         });
+                        continue;
                     }
-                    else if (splitted.Length > 5 && splitted[1] == "Data")
+
+                    if (splitted.Length > 5 && splitted[1] == "Data")
                     {
                         actParts.Add(new ActPartDto
                         {
@@ -103,6 +105,7 @@ namespace NosCore.Parser.Parsers
                             ActId = Convert.ToByte(splitted[3]),
                             MaxTs = Convert.ToByte(splitted[5]),
                         });
+                        continue;
                     }
                 }
             }
