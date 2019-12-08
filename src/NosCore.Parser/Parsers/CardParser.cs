@@ -75,7 +75,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(CardDto.TimeoutBuffChance), chunk => Convert.ToByte(chunk["LAST"][0][3])}
             };
             var genericParser = new GenericParser<CardDto>(folder + FileCardDat,
-                "#========================================================", 1, actionList, _logger);
+                "END", 1, actionList, _logger);
             var cards = genericParser.GetDtos().GroupBy(p => p.CardId).Select(g => g.First()).ToList();
             _cardDao.InsertOrUpdate(cards);
             _bcardDao.InsertOrUpdate(cards.Where(s=>s.BCards != null).SelectMany(s=>s.BCards));

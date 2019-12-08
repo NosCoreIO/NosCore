@@ -17,27 +17,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class QuestObjective : IStaticEntity
+    public class ActPart : IStaticEntity
     {
+        public ActPart()
+        {
+            CharacterActParts = new HashSet<CharacterActPart>();
+        }
+
         [Key]
-        public Guid QuestObjectiveId { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public byte Id { get; set; }
 
-        public int FirstData { get; set; }
+        public byte ActPartId { get; set; }
 
-        public int? SecondData { get; set; }
+        public byte ActId { get; set; }
+        public virtual Act Act { get; set; }
 
-        public int? ThirdData { get; set; }
+        public byte MaxTs { get; set; }
 
-        public int? FourthData { get; set; }
-
-        public short QuestId { get; set; }
-
-        public virtual Quest Quest { get; set; }
+        public virtual HashSet<CharacterActPart> CharacterActParts { get; set; }
     }
 }

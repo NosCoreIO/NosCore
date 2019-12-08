@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Database.Entities.Base;
 
@@ -24,8 +25,12 @@ namespace NosCore.Database.Entities
 {
     public class QuestReward : IStaticEntity
     {
+        public QuestReward()
+        {
+            QuestQuestReward = new HashSet<QuestQuestReward>();
+        }
         [Key]
-        public long QuestRewardId { get; set; }
+        public short QuestRewardId { get; set; }
 
         public byte RewardType { get; set; }
 
@@ -39,8 +44,6 @@ namespace NosCore.Database.Entities
 
         public int Amount { get; set; }
 
-        public short QuestId { get; set; }
-
-        public virtual Quest Quest { get; set; }
+        public virtual ICollection<QuestQuestReward> QuestQuestReward { get; set; }
     }
 }

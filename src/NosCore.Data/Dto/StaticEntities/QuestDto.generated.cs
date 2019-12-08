@@ -38,7 +38,9 @@ namespace NosCore.Data.StaticEntities
 
 	 	public int QuestType { get; set; }
 
-	 	public System.Collections.Generic.HashSet<CharacterQuestDto> CharacterQuest { get; set; }
+	 	public System.Collections.Generic.ICollection<CharacterQuestDto> CharacterQuest { get; set; }
+
+	 	public System.Collections.Generic.ICollection<QuestQuestRewardDto> QuestQuestReward { get; set; }
 
 	 	public byte LevelMin { get; set; }
 
@@ -48,7 +50,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public int? EndDialogId { get; set; }
 
-	 	public System.Collections.Generic.HashSet<QuestObjectiveDto> QuestObjective { get; set; }
+	 	public System.Collections.Generic.ICollection<QuestObjectiveDto> QuestObjective { get; set; }
 
 	 	public short? TargetMap { get; set; }
 
@@ -56,13 +58,29 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short? TargetY { get; set; }
 
-	 	public int InfoId { get; set; }
-
-	 	public long? NextQuestId { get; set; }
+	 	public short? NextQuestId { get; set; }
 
 	 	public bool IsDaily { get; set; }
 
+	 	public bool AutoFinish { get; set; }
+
+	 	public bool IsSecondary { get; set; }
+
 	 	public int? SpecialData { get; set; }
+
+	 	public QuestDto RequiredQuest { get; set; }
+
+	 	public short? RequiredQuestId { get; set; }
+
+	 	[I18NFrom(typeof(I18NQuestDto))]
+		public I18NString Title { get; set; } = new I18NString();
+		[AdaptMember("Title")]
+		public string TitleI18NKey { get; set; }
+
+	 	[I18NFrom(typeof(I18NQuestDto))]
+		public I18NString Desc { get; set; } = new I18NString();
+		[AdaptMember("Desc")]
+		public string DescI18NKey { get; set; }
 
 	 }
 }

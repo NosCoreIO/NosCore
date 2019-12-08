@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Database.Entities;
 
@@ -85,6 +86,12 @@ namespace NosCore.Database
         public virtual DbSet<NpcMonsterSkill> NpcMonsterSkill { get; set; }
 
         public virtual DbSet<PenaltyLog> PenaltyLog { get; set; }
+
+        public virtual DbSet<CharacterActPart> CharacterActPart { get; set; }
+
+        public virtual DbSet<ActPart> ActPart { get; set; }
+
+        public virtual DbSet<Act> Act { get; set; }
 
         public virtual DbSet<Portal> Portal { get; set; }
 
@@ -575,6 +582,18 @@ namespace NosCore.Database
                 .HasForeignKey(e => e.QuestId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<QuestQuestReward>()
+                .HasOne(e => e.Quest)
+                .WithMany(e=>e.QuestQuestReward)
+                .HasForeignKey(e => e.QuestId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<QuestQuestReward>()
+                .HasOne(e => e.QuestReward)
+                .WithMany(e => e.QuestQuestReward)
+                .HasForeignKey(e => e.QuestRewardId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<NpcMonster>()
                 .HasMany(e => e.MapMonster)
                 .WithOne(e => e.NpcMonster)
@@ -643,6 +662,24 @@ namespace NosCore.Database
                 .HasOne(e => e.Warehouse)
                 .WithMany(e => e.WarehouseItems)
                 .HasForeignKey(e => e.WarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ActPart>()
+                .HasOne(e => e.Act)
+                .WithMany(e => e.ActParts)
+                .HasForeignKey(e => e.Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ActPart>()
+                .HasMany(e => e.CharacterActParts)
+                .WithOne(e => e.ActPart)
+                .HasForeignKey(e => e.ActPartId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Character>()
+                .HasMany(e => e.CharacterActParts)
+                .WithOne(e => e.Character)
+                .HasForeignKey(e => e.CharacterId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<WarehouseItem>()
