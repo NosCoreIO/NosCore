@@ -34,9 +34,9 @@ namespace NosCore.Data.StaticEntities
 	public class ActPartDto : IStaticDto
 	{
 		[Key]
-		public byte Id { get; set; }
+		public byte ActPartId { get; set; }
 
-	 	public byte ActPartId { get; set; }
+	 	public byte ActPartNumber { get; set; }
 
 	 	public byte ActId { get; set; }
 

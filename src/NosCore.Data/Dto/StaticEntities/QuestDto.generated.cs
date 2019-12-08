@@ -68,8 +68,6 @@ namespace NosCore.Data.StaticEntities
 
 	 	public int? SpecialData { get; set; }
 
-	 	public QuestDto RequiredQuest { get; set; }
-
 	 	public short? RequiredQuestId { get; set; }
 
 	 	[I18NFrom(typeof(I18NQuestDto))]
