@@ -19,11 +19,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Map;
 using NosCore.Data.Enumerations.Quest;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;

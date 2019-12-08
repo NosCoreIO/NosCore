@@ -24,7 +24,6 @@ using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
 using Serilog;

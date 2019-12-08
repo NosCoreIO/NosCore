@@ -18,19 +18,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NosCore.Core;
-using NosCore.Core.Extensions;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.I18N;
 using Serilog;
 
 namespace NosCore.Parser.Parsers
