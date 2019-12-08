@@ -425,12 +425,6 @@ namespace NosCore.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Quest", x => x.QuestId);
-                    table.ForeignKey(
-                        name: "FK_Quest_Quest_NextQuestId",
-                        column: x => x.NextQuestId,
-                        principalTable: "Quest",
-                        principalColumn: "QuestId",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -817,7 +811,6 @@ namespace NosCore.Database.Migrations
                     SecondData = table.Column<int>(nullable: true),
                     ThirdData = table.Column<int>(nullable: true),
                     FourthData = table.Column<int>(nullable: true),
-                    FifthData = table.Column<int>(nullable: true),
                     QuestId = table.Column<short>(nullable: false)
                 },
                 constraints: table =>
@@ -2139,11 +2132,6 @@ namespace NosCore.Database.Migrations
                 name: "IX_Portal_SourceMapId",
                 table: "Portal",
                 column: "SourceMapId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Quest_NextQuestId",
-                table: "Quest",
-                column: "NextQuestId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_QuestObjective_QuestId",

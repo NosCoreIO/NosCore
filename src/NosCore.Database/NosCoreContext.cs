@@ -582,18 +582,6 @@ namespace NosCore.Database
                 .HasForeignKey(e => e.QuestId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Quest>()
-                .HasOne(e => e.RequiredQuest)
-                .WithMany()
-                .HasForeignKey(e => e.RequiredQuestId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Quest>()
-                .HasOne(e => e.RequiredQuest)
-                .WithMany()
-                .HasForeignKey(e => e.NextQuestId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             modelBuilder.Entity<QuestQuestReward>()
                 .HasOne(e => e.Quest)
                 .WithMany(e=>e.QuestQuestReward)

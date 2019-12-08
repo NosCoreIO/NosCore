@@ -55,13 +55,13 @@ namespace NosCore.Parser.Parsers
         {
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
             {
-                {nameof(QuestRewardDto.QuestRewardId), chunk => Convert.ToInt64(chunk["VNUM"][0][1])},
-                {nameof(QuestRewardDto.RewardType), chunk => Convert.ToInt64(chunk["VNUM"][0][2])},
+                {nameof(QuestRewardDto.QuestRewardId), chunk => Convert.ToInt16(chunk["VNUM"][0][1])},
+                {nameof(QuestRewardDto.RewardType), chunk => Convert.ToByte(chunk["VNUM"][0][2])},
                 {nameof(QuestRewardDto.Data), chunk => ImportData(chunk)},
                 {nameof(QuestRewardDto.Amount), chunk => ImportAmount(chunk)},
             };
-            var genericParser = new GenericParser<QuestRewardDto>(folder + _fileQuestPrizeDat, "#=======", 0, actionList, _logger);
-            var questRewardDtos = genericParser.GetDtos("    ");
+            var genericParser = new GenericParser<QuestRewardDto>(folder + _fileQuestPrizeDat, "END", 0, actionList, _logger);
+            var questRewardDtos = genericParser.GetDtos();
             _questRewardDtoDao.InsertOrUpdate(questRewardDtos);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUEST_PRIZES_PARSED), questRewardDtos.Count);
         }

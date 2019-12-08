@@ -36,8 +36,6 @@ namespace NosCore.Database.Entities
 
         public int? FourthData { get; set; }
 
-        public int? FifthData { get; set; }
-
         public short QuestId { get; set; }
 
         public virtual Quest Quest { get; set; }

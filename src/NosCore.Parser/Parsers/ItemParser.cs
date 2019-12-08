@@ -132,7 +132,7 @@ namespace NosCore.Parser.Parsers
             };
 
             var genericParser = new GenericParser<ItemDto>(folder + ItemCardDto,
-                "#========================================================", 1, actionList, _logger);
+                "END", 1, actionList, _logger);
             var items = genericParser.GetDtos().GroupBy(p => p.VNum).Select(g => g.First()).ToList();
             foreach (var item in items)
             {

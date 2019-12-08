@@ -71,15 +71,15 @@ namespace NosCore.Parser.Parsers.Generic
                         catch (Exception ex)
                         {
                             ex.Data.Add("actionKey", actionOnKey);
-                            _logger.Verbose(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHUNK_FORMAT_INVALID), ex);
+                            throw;
                         }
                     }
 
                     resultCollection.Add(parsedItem);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHUNK_FORMAT_INVALID), lines);
+                    _logger.Verbose(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHUNK_FORMAT_INVALID), lines, ex);
                 }
             });
             return resultCollection.ToList();

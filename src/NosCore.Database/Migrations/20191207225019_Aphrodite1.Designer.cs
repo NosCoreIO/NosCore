@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    [Migration("20191207220450_Aphrodite1")]
+    [Migration("20191207225019_Aphrodite1")]
     partial class Aphrodite1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1984,8 +1984,6 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("QuestId");
 
-                    b.HasIndex("NextQuestId");
-
                     b.ToTable("Quest");
                 });
 
@@ -1994,9 +1992,6 @@ namespace NosCore.Database.Migrations
                     b.Property<Guid>("QuestObjectiveId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<int?>("FifthData")
-                        .HasColumnType("integer");
 
                     b.Property<int>("FirstData")
                         .HasColumnType("integer");
@@ -3160,14 +3155,6 @@ namespace NosCore.Database.Migrations
                         .HasForeignKey("SourceMapId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("NosCore.Database.Entities.Quest", b =>
-                {
-                    b.HasOne("NosCore.Database.Entities.Quest", "RequiredQuest")
-                        .WithMany()
-                        .HasForeignKey("NextQuestId")
-                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.QuestObjective", b =>
