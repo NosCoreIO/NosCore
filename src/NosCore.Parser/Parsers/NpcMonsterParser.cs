@@ -447,9 +447,9 @@ namespace NosCore.Parser.Parsers
 
         }
 
-        private short ImportHeroXp(Dictionary<string, string[][]> chunk)
+        private int ImportHeroXp(Dictionary<string, string[][]> chunk)
         {
-            return (short)(Convert.ToInt16(chunk["VNUM"][0][2]) switch
+            return (Convert.ToInt32(chunk["VNUM"][0][2]) switch
             {
                 2510 => 881,
                 2501 => 881,
