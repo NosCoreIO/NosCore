@@ -33,9 +33,9 @@ namespace NosCore.Database.Entities
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public byte Id { get; set; }
-
         public byte ActPartId { get; set; }
+
+        public byte ActPartNumber { get; set; }
 
         public byte ActId { get; set; }
         public virtual Act Act { get; set; }

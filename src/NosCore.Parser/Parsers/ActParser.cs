@@ -31,31 +31,31 @@ namespace NosCore.Parser.Parsers
 {
     //# Act Data
     //#===================================
-    //    Data {ActPartId} {ActId} {} 10
-    //    Data 2 1 2 6
-    //    Data 3 1 3 8
-    //    Data 4 1 4 10
-    //    Data 5 1 5 6
-    //    Data 6 1 6 6
-    //    Data 7 2 1 3
-    //    Data 8 2 2 2
-    //    Data 9 2 3 3
-    //    Data 10 2 4 3
-    //    Data 11 2 5 1
-    //    Data 12 2 6 1
-    //    Data 13 3 1 2
-    //    Data 14 3 2 3
-    //    Data 15 3 3 2
-    //    Data 16 3 4 3
-    //    Data 17 3 5 3
-    //    Data 18 3 6 2
-    //    Data 19 4 1 1
-    //    Data 20 5 1 1
-    //    end
+    //Data {ActPartId} {ActId} {} 10
+    //Data 2 1 2 6
+    //Data 3 1 3 8
+    //Data 4 1 4 10
+    //Data 5 1 5 6
+    //Data 6 1 6 6
+    //Data 7 2 1 3
+    //Data 8 2 2 2
+    //Data 9 2 3 3
+    //Data 10 2 4 3
+    //Data 11 2 5 1
+    //Data 12 2 6 1
+    //Data 13 3 1 2
+    //Data 14 3 2 3
+    //Data 15 3 3 2
+    //Data 16 3 4 3
+    //Data 17 3 5 3
+    //Data 18 3 6 2
+    //Data 19 4 1 1
+    //Data 20 5 1 1
+    //end
     //#==================================#
     //# Title
-    //    A   {ActId}	{Name}
-    //    ~
+    //A   {ActId}	{Name}
+    //~
 
     public class ActParser
     {
@@ -81,26 +81,26 @@ namespace NosCore.Parser.Parsers
                 string line;
                 while ((line = stream.ReadLine()) != null)
                 {
-                    var splitted = line.Split("  ");
-                    if (splitted.Length > 3 && splitted[1] == "A")
+                    var splitted = line.Split(' ','\t');
+                    if (splitted.Length == 3 && splitted[0] == "A")
                     {
                         acts.Add(new ActDto
                         {
-                            TitleI18NKey = splitted[3],
-                            ActId = Convert.ToByte(splitted[2]),
-                            Scene = (byte)(39 + Convert.ToByte(splitted[2]))
+                            TitleI18NKey = splitted[2],
+                            ActId = Convert.ToByte(splitted[1]),
+                            Scene = (byte)(39 + Convert.ToByte(splitted[1]))
                         });
                         continue;
                     }
 
-                    if (splitted.Length > 5 && splitted[1] == "Data")
+                    if (splitted.Length == 5 && splitted[0] == "Data")
                     {
                         actParts.Add(new ActPartDto
                         {
-                            Id = Convert.ToByte(splitted[2]),
-                            ActPartId = Convert.ToByte(splitted[4]),
-                            ActId = Convert.ToByte(splitted[3]),
-                            MaxTs = Convert.ToByte(splitted[5]),
+                            ActPartId = Convert.ToByte(splitted[1]),
+                            ActPartNumber = Convert.ToByte(splitted[3]),
+                            ActId = Convert.ToByte(splitted[2]),
+                            MaxTs = Convert.ToByte(splitted[4]),
                         });
                         continue;
                     }
