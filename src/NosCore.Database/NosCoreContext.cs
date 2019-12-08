@@ -667,19 +667,19 @@ namespace NosCore.Database
             modelBuilder.Entity<ActPart>()
                 .HasOne(e => e.Act)
                 .WithMany(e => e.ActParts)
-                .HasForeignKey(e => e.Id)
+                .HasForeignKey(e => e.ActId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ActPart>()
-                .HasMany(e => e.CharacterActParts)
-                .WithOne(e => e.ActPart)
-                .HasForeignKey(e => e.ActPartId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Character>()
-                .HasMany(e => e.CharacterActParts)
-                .WithOne(e => e.Character)
+            modelBuilder.Entity<CharacterActPart>()
+                .HasOne(e => e.Character)
+                .WithMany(e => e.CharacterActParts)
                 .HasForeignKey(e => e.CharacterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CharacterActPart>()
+                .HasOne(e => e.ActPart)
+                .WithMany(e => e.CharacterActParts)
+                .HasForeignKey(e => e.ActPartId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<WarehouseItem>()
