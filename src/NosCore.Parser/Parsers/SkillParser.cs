@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;

@@ -20,14 +20,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-using NosCore.Parser.Parsers.Generic;
 using Serilog;
 
 namespace NosCore.Parser.Parsers
@@ -110,6 +107,8 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
+            _actDao.InsertOrUpdate(acts);
+            _actDescDao.InsertOrUpdate(actParts);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACTS_PARTS_PARSED), actParts.Count);
         }
     }
