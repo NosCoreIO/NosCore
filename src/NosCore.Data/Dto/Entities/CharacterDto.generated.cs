@@ -49,6 +49,8 @@ namespace NosCore.Data.Dto
 
 	 	public System.Collections.Generic.ICollection<MinilandDto> Miniland { get; set; }
 
+	 	public System.Collections.Generic.ICollection<CharacterActPartDto> CharacterActParts { get; set; }
+
 	 	public string Biography { get; set; }
 
 	 	public bool BuffBlocked { get; set; }

@@ -34,7 +34,7 @@ namespace NosCore.Data.StaticEntities
 	public class QuestRewardDto : IStaticDto
 	{
 		[Key]
-		public long QuestRewardId { get; set; }
+		public short QuestRewardId { get; set; }
 
 	 	public byte RewardType { get; set; }
 
@@ -48,9 +48,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public int Amount { get; set; }
 
-	 	public short QuestId { get; set; }
-
-	 	public QuestDto Quest { get; set; }
+	 	public System.Collections.Generic.ICollection<QuestQuestRewardDto> QuestQuestReward { get; set; }
 
 	 }
 }
