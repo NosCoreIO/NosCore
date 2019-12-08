@@ -40,7 +40,7 @@ namespace NosCore.Parser.Parsers
     //DESC    {Desc}
     //TALK    {StartDialogId}	{EndDialogId}	0	0
     //TARGET  {TargetX}    {TargetY}	{TargetMap}
-    //DATA	  0    1	-1     1
+    //DATA	  {FirstData}    {SecondData}	{ThirdData}     {FourthData}
     //PRIZE	  {firstPrizeVNUM}	{secondPrizeVNUM}	{thirdPrizeVNUM}	{fourthPrizeVNUM}
     //LINK	  {NextQuest}
     //END
