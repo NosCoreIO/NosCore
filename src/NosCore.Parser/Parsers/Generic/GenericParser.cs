@@ -50,7 +50,10 @@ namespace NosCore.Parser.Parsers.Generic
                 MaxDegreeOfParallelism = System.Diagnostics.Debugger.IsAttached ? 1 : -1
             }, item =>
             {
-                var lines = item.Split(Environment.NewLine.ToCharArray())
+                var lines = item.Split(
+                        new[] { "\r\n", "\r", "\n" },
+                        StringSplitOptions.None
+                    )
                     .Select(s => s.Split(splitter))
                     .Where(s => s.Length > _firstIndex)
                     .GroupBy(x => x[_firstIndex]).ToDictionary(x => x.Key, y => y.ToArray());

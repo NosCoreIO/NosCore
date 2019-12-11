@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -38,7 +39,7 @@ namespace NosCore.Parser.Parsers
 
     public class QuestPrizeParser
     {
-        private readonly string _fileQuestPrizeDat = "\\qstprize.dat";
+        private readonly string _fileQuestPrizeDat = $"{Path.DirectorySeparatorChar}qstprize.dat";
         private readonly ILogger _logger;
         private readonly IGenericDao<QuestRewardDto> _questRewardDtoDao;
 
