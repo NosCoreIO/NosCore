@@ -20,6 +20,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Data.Enumerations.Quest;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
@@ -37,7 +38,7 @@ namespace NosCore.Database.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public short QuestId { get; set; }
 
-        public int QuestType { get; set; }
+        public QuestType QuestType { get; set; }
 
         public virtual ICollection<CharacterQuest> CharacterQuest { get; set; }
 

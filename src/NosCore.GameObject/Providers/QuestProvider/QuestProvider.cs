@@ -22,25 +22,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 using ChickenAPI.Packets.ClientPackets.Npcs;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.GameObject.Providers.NRunProvider
+namespace NosCore.GameObject.Providers.QuestProvider
 {
-    public class NrunProvider : IQuestProvider
+    public class QuestProvider : IQuestProvider
     {
-        private readonly List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
+        private readonly List<IEventHandler<QuestData, Tuple<CharacterQuestDto, QuestData>>>
             _handlers;
 
-        public NrunProvider(
-            IEnumerable<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> handlers)
+        public QuestProvider(
+            IEnumerable<IEventHandler<QuestData, Tuple<CharacterQuestDto, QuestData>>> handlers)
         {
             _handlers = handlers.ToList();
         }
 
-        public void NRunLaunch(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data)
+        public void UpdateQuest(ClientSession clientSession, QuestData data)
         {
-            var handlersRequest = new Subject<RequestData<Tuple<IAliveEntity, NrunPacket>>>();
+            //search for quest with Objective Matching.
+            var handlersRequest = new Subject<RequestData<Tuple<CharacterQuestDto, QuestData>>>();
             _handlers.ForEach(handler =>
             {
                 if (handler.Condition(data))
@@ -48,7 +51,24 @@ namespace NosCore.GameObject.Providers.NRunProvider
                     handlersRequest.Subscribe(handler.Execute);
                 }
             });
-            handlersRequest.OnNext(new RequestData<Tuple<IAliveEntity, NrunPacket>>(clientSession, data));
+            foreach (var quest in quests)
+            {
+                handlersRequest.OnNext(new RequestData<Tuple<CharacterQuestDto, QuestData>>(clientSession,
+                    new Tuple<CharacterQuestDto, QuestData>(quest, data)));
+                if(quest.AutoFinish)
+                {
+                    ValidateQuest(clientSession, quest.Id);
+                }
+            }
+        }
+
+        public void ValidateQuest(ClientSession clientSession, Guid characterQuestId)
+        {
+            //get quest
+            //check all valid
+            //ApplyBonus
+            //delete objectives
+            //delete quest
         }
     }
 }

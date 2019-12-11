@@ -49,6 +49,7 @@ namespace NosCore.Data.Enumerations.Quest
         UnKnow = 23,
         Inspect = 24,
         WinRaid = 25,
-        FlowerQuest = 26
+        FlowerQuest = 26,
+        Act = 255
     }
 }

@@ -24,6 +24,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
+using NosCore.Data.Enumerations.Quest;
 
 namespace NosCore.Data.StaticEntities
 {
@@ -36,7 +37,7 @@ namespace NosCore.Data.StaticEntities
 		[Key]
 		public short QuestId { get; set; }
 
-	 	public int QuestType { get; set; }
+	 	public QuestType QuestType { get; set; }
 
 	 	public System.Collections.Generic.ICollection<CharacterQuestDto> CharacterQuest { get; set; }
 
