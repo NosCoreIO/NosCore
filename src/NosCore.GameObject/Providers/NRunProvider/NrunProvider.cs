@@ -27,7 +27,7 @@ using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject.Providers.NRunProvider
 {
-    public class NrunProvider : IQuestProvider
+    public class NrunProvider : INRunProvider
     {
         private readonly List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
             _handlers;
