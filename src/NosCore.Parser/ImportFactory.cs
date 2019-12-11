@@ -197,7 +197,7 @@ namespace NosCore.Parser
 
         public void ImportPackets()
         {
-            var filePacket = $"{_folder}\\packet.txt";
+            var filePacket = $"{_folder}{Path.DirectorySeparatorChar}packet.txt";
             using (var packetTxtStream =
                 new StreamReader(filePacket, Encoding.Default))
             {
@@ -227,16 +227,16 @@ namespace NosCore.Parser
 
         public void ImportI18N()
         {
-            new I18NParser<I18NActDescDto>(_i18NActDescDao, _logger).InsertI18N(_folder + "\\_code_{0}_act_desc.txt", LogLanguageKey.I18N_ACTDESC_PARSED);
-            new I18NParser<I18NBCardDto>(_i18NbCardDao, _logger).InsertI18N(_folder + "\\_code_{0}_BCard.txt", LogLanguageKey.I18N_BCARD_PARSED);
-            new I18NParser<I18NCardDto>(_i18NCardDao, _logger).InsertI18N(_folder + "\\_code_{0}_Card.txt", LogLanguageKey.I18N_CARD_PARSED);
-            new I18NParser<I18NItemDto>(_i18NItemDao, _logger).InsertI18N(_folder + "\\_code_{0}_Item.txt", LogLanguageKey.I18N_ITEM_PARSED);
-            new I18NParser<I18NMapIdDataDto>(_i18NMapIdDataDao, _logger).InsertI18N(_folder + "\\_code_{0}_MapIDData.txt", LogLanguageKey.I18N_MAPIDDATA_PARSED);
-            new I18NParser<I18NMapPointDataDto>(_i18NMapPointDataDao, _logger).InsertI18N(_folder + "\\_code_{0}_MapPointData.txt", LogLanguageKey.I18N_MAPPOINTDATA_PARSED);
-            new I18NParser<I18NNpcMonsterDto>(_i18NNpcMonsterDao, _logger).InsertI18N(_folder + "\\_code_{0}_monster.txt", LogLanguageKey.I18N_MPCMONSTER_PARSED);
-            new I18NParser<I18NQuestDto>(_i18NQuestDao, _logger).InsertI18N(_folder + "\\_code_{0}_quest.txt", LogLanguageKey.I18N_QUEST_PARSED);
-            new I18NParser<I18NSkillDto>(_i18NSkillDao, _logger).InsertI18N(_folder + "\\_code_{0}_Skill.txt", LogLanguageKey.I18N_SKILL_PARSED);
-            new I18NParser<I18NNpcMonsterTalkDto>(_i18NNpcMonsterTalkDao, _logger).InsertI18N(_folder + "\\_code_{0}_npctalk.txt", LogLanguageKey.I18N_NPCMONSTERTALK_PARSED);
+            new I18NParser<I18NActDescDto>(_i18NActDescDao, _logger).InsertI18N(_folder + $"{Path.DirectorySeparatorChar}_code_{0}_act_desc.txt", LogLanguageKey.I18N_ACTDESC_PARSED);
+            new I18NParser<I18NBCardDto>(_i18NbCardDao, _logger).InsertI18N(_folder + $"{Path.DirectorySeparatorChar}_code_{0}_BCard.txt", LogLanguageKey.I18N_BCARD_PARSED);
+            new I18NParser<I18NCardDto>(_i18NCardDao, _logger).InsertI18N(_folder + $"{Path.DirectorySeparatorChar}_code_{0}_Card.txt", LogLanguageKey.I18N_CARD_PARSED);
+            new I18NParser<I18NItemDto>(_i18NItemDao, _logger).InsertI18N(_folder + $"{Path.DirectorySeparatorChar}_code_{0}_Item.txt", LogLanguageKey.I18N_ITEM_PARSED);
+            new I18NParser<I18NMapIdDataDto>(_i18NMapIdDataDao, _logger).InsertI18N(_folder + $"{Path.DirectorySeparatorChar}_code_{0}_MapIDData.txt", LogLanguageKey.I18N_MAPIDDATA_PARSED);
+            new I18NParser<I18NMapPointDataDto>(_i18NMapPointDataDao, _logger).InsertI18N(_folder + $"{Path.DirectorySeparatorChar}_code_{0}_MapPointData.txt", LogLanguageKey.I18N_MAPPOINTDATA_PARSED);
+            new I18NParser<I18NNpcMonsterDto>(_i18NNpcMonsterDao, _logger).InsertI18N(_folder + $"{Path.DirectorySeparatorChar}_code_{0}_monster.txt", LogLanguageKey.I18N_MPCMONSTER_PARSED);
+            new I18NParser<I18NQuestDto>(_i18NQuestDao, _logger).InsertI18N(_folder + $"{Path.DirectorySeparatorChar}_code_{0}_quest.txt", LogLanguageKey.I18N_QUEST_PARSED);
+            new I18NParser<I18NSkillDto>(_i18NSkillDao, _logger).InsertI18N(_folder + $"{Path.DirectorySeparatorChar}_code_{0}_Skill.txt", LogLanguageKey.I18N_SKILL_PARSED);
+            new I18NParser<I18NNpcMonsterTalkDto>(_i18NNpcMonsterTalkDao, _logger).InsertI18N(_folder + $"{Path.DirectorySeparatorChar}_code_{0}_npctalk.txt", LogLanguageKey.I18N_NPCMONSTERTALK_PARSED);
         }
 
         internal void ImportItems()

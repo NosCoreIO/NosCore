@@ -48,7 +48,7 @@ namespace NosCore.Parser.Parsers
 
     public class QuestParser
     {
-        private readonly string _fileQuestDat = "\\quest.dat";
+        private readonly string _fileQuestDat = $"{Path.DirectorySeparatorChar}quest.dat";
         private readonly ILogger _logger;
         private readonly IGenericDao<QuestDto> _questDao;
         private readonly IGenericDao<QuestObjectiveDto> _questObjectiveDao;

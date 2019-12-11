@@ -59,7 +59,7 @@ namespace NosCore.Parser.Parsers
 
     public class ActParser
     {
-        private readonly string _fileQuestDat = "\\act_desc.dat";
+        private readonly string _fileQuestDat = $"{Path.DirectorySeparatorChar}act_desc.dat";
         private readonly ILogger _logger;
         private readonly IGenericDao<ActDto> _actDao;
         private readonly IGenericDao<ActPartDto> _actDescDao;
