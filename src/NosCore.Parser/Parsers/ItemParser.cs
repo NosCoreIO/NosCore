@@ -46,7 +46,7 @@ namespace NosCore.Parser.Parsers
         //{Desc}
         //    END
         //#========================================================
-        private const string ItemCardDto = "\\Item.dat";
+        private const string ItemCardDto = $"{Path.DirectorySeparatorChar}Item.dat";
 
         private readonly IGenericDao<ItemDto> _itemDao;
         private readonly IGenericDao<BCardDto> _bcardDao;
