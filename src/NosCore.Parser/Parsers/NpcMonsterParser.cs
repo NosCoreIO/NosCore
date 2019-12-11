@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -58,7 +59,7 @@ namespace NosCore.Parser.Parsers
 
     public class NpcMonsterParser
     {
-        private const string FileNpcId = "\\monster.dat";
+        private string FileNpcId = $"{Path.DirectorySeparatorChar}monster.dat";
         private readonly IGenericDao<BCardDto> _bCardDao;
         private readonly IGenericDao<DropDto> _dropDao;
         private readonly ILogger _logger;

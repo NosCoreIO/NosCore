@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -46,7 +47,7 @@ namespace NosCore.Parser.Parsers
         //
         //  END
         //#========================================================
-        private const string FileCardDat = "\\Card.dat";
+        private string FileCardDat = $"{Path.DirectorySeparatorChar}Card.dat";
 
         private readonly IGenericDao<CardDto> _cardDao;
         private readonly IGenericDao<BCardDto> _bcardDao;

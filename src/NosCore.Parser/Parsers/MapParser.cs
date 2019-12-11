@@ -35,8 +35,8 @@ namespace NosCore.Parser.Parsers
         //{ID} {ID} {MapPoint} {MapPoint} {Name}
         //DATA 0
 
-        private readonly string _fileMapIdDat = "\\MapIDData.dat";
-        private readonly string _folderMap = "\\map";
+        private readonly string _fileMapIdDat = $"{Path.DirectorySeparatorChar}MapIDData.dat";
+        private readonly string _folderMap = $"{Path.DirectorySeparatorChar}map";
         private readonly ILogger _logger;
         private readonly IGenericDao<MapDto> _mapDao;
 

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -50,7 +51,7 @@ namespace NosCore.Parser.Parsers
         //	Z_DESC	0
 
         //#=========================================================
-        private const string FileCardDat = "\\Skill.dat";
+        private string FileCardDat = $"{Path.DirectorySeparatorChar}Skill.dat";
         private readonly IGenericDao<BCardDto> _bCardDao;
         private readonly IGenericDao<ComboDto> _comboDao;
         private readonly IGenericDao<SkillDto> _skillDao;
