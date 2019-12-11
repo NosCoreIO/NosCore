@@ -51,7 +51,7 @@ namespace NosCore.Parser.Parsers
         //	Z_DESC	0
 
         //#=========================================================
-        private const string FileCardDat = $"{Path.DirectorySeparatorChar}Skill.dat";
+        private string FileCardDat = $"{Path.DirectorySeparatorChar}Skill.dat";
         private readonly IGenericDao<BCardDto> _bCardDao;
         private readonly IGenericDao<ComboDto> _comboDao;
         private readonly IGenericDao<SkillDto> _skillDao;

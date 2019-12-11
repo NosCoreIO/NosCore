@@ -47,7 +47,7 @@ namespace NosCore.Parser.Parsers
         //
         //  END
         //#========================================================
-        private const string FileCardDat = $"{Path.DirectorySeparatorChar}Card.dat";
+        private string FileCardDat = $"{Path.DirectorySeparatorChar}Card.dat";
 
         private readonly IGenericDao<CardDto> _cardDao;
         private readonly IGenericDao<BCardDto> _bcardDao;

@@ -59,7 +59,7 @@ namespace NosCore.Parser.Parsers
 
     public class NpcMonsterParser
     {
-        private const string FileNpcId = $"{Path.DirectorySeparatorChar}monster.dat";
+        private string FileNpcId = $"{Path.DirectorySeparatorChar}monster.dat";
         private readonly IGenericDao<BCardDto> _bCardDao;
         private readonly IGenericDao<DropDto> _dropDao;
         private readonly ILogger _logger;
