@@ -7,6 +7,14 @@
 [![Travis build status](https://travis-ci.org/NosCoreIO/NosCore.svg?branch=master)](https://travis-ci.org/NosCoreIO/NosCore)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/NosCoreIO/NosCore.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/NosCoreIO/NosCore/alerts/)
 
+# Special Thanks for Contributions #
+<p align="left">
+<img height="100px" src="https://chiefit.me/wp-content/uploads/2019/06/Amazon-Web-Services_logo835x396.png"/>
+<img height="100px" src="https://i.ibb.co/kx9WJgv/Navicat-Premium.png"/>
+<img height="100px" src="https://miro.medium.com/max/1200/1*i9kC4ubPz2fC3fk-o3YYHw.jpeg"/>
+<img height="100px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/JetBrains_Logo_2016.svg/1200px-JetBrains_Logo_2016.svg.png"/>
+</p>
+
 ## You want to contribute ? ##
 [![Discord](https://i.gyazo.com/2115a3ecb258220f5b1a8ebd8c50eb8f.png)](https://discord.gg/Eu3ETSw)
 
