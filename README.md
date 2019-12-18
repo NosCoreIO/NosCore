@@ -9,10 +9,10 @@
 
 # Special Thanks for Contributions #
 <p align="left">
-<img height="100px" src="https://chiefit.me/wp-content/uploads/2019/06/Amazon-Web-Services_logo835x396.png"/>
-<img height="100px" src="https://i.ibb.co/kx9WJgv/Navicat-Premium.png"/>
-<img height="100px" src="https://miro.medium.com/max/1200/1*i9kC4ubPz2fC3fk-o3YYHw.jpeg"/>
-<img height="100px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/JetBrains_Logo_2016.svg/1200px-JetBrains_Logo_2016.svg.png"/>
+<a href="https://aws.amazon.com"><img height="100px" src="https://chiefit.me/wp-content/uploads/2019/06/Amazon-Web-Services_logo835x396.png"/></a>
+<a href="https://www.navicat.com"><img height="100px" src="https://i.ibb.co/kx9WJgv/Navicat-Premium.png"/></a>
+<a href="https://travis-ci.org/"><img height="100px" src="https://miro.medium.com/max/1200/1*i9kC4ubPz2fC3fk-o3YYHw.jpeg"/></a>
+<a href="https://www.jetbrains.com"><img height="100px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/JetBrains_Logo_2016.svg/1200px-JetBrains_Logo_2016.svg.png"/></a>
 </p>
 
 ## You want to contribute ? ##
