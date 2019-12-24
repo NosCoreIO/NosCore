@@ -30,6 +30,8 @@ namespace NosCore.Database
         }
 
         public virtual DbSet<Account> Account { get; set; }
+        
+        public virtual DbSet<AuditLog> AuditLog { get; set; }
 
         public virtual DbSet<BazaarItem> BazaarItem { get; set; }
 
