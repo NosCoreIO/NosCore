@@ -7,7 +7,7 @@ namespace NosCore.Database.Entities
     public class AuditLog
     {
         [Key]
-        public long AuditId { get; set; }
+        public Guid AuditId { get; set; }
         
         [MaxLength(80)]
         public string TargetId { get; set; }
