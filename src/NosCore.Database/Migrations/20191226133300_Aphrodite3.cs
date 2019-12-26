@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace NosCore.Database.Migrations
 {
@@ -12,8 +11,7 @@ namespace NosCore.Database.Migrations
                 name: "AuditLog",
                 columns: table => new
                 {
-                    AuditId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    AuditId = table.Column<Guid>(nullable: false),
                     TargetId = table.Column<string>(maxLength: 80, nullable: true),
                     TargetType = table.Column<string>(maxLength: 32, nullable: true),
                     Time = table.Column<DateTime>(nullable: false),

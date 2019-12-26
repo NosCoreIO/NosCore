@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    [Migration("20191226092420_Aphrodite3")]
+    [Migration("20191226133300_Aphrodite3")]
     partial class Aphrodite3
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -117,10 +117,9 @@ namespace NosCore.Database.Migrations
 
             modelBuilder.Entity("NosCore.Database.Entities.AuditLog", b =>
                 {
-                    b.Property<long>("AuditId")
+                    b.Property<Guid>("AuditId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("uuid");
 
                     b.Property<int>("AuditLogType")
                         .HasColumnType("integer");
