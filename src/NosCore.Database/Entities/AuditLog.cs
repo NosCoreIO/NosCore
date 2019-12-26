@@ -9,7 +9,8 @@ namespace NosCore.Database.Entities
         [Key]
         public long AuditId { get; set; }
         
-        public long TargetId { get; set; }
+        [MaxLength(80)]
+        public string TargetId { get; set; }
         
         [MaxLength(32)]
         public string TargetType { get; set; }
