@@ -36,7 +36,7 @@ namespace NosCore.Data.Dto
 		[Key]
 		public long AuditId { get; set; }
 
-	 	public long TargetId { get; set; }
+	 	public string TargetId { get; set; }
 
 	 	public string TargetType { get; set; }
 
