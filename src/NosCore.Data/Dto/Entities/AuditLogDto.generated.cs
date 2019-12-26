@@ -34,7 +34,7 @@ namespace NosCore.Data.Dto
 	public class AuditLogDto : IDto
 	{
 		[Key]
-		public long AuditId { get; set; }
+		public System.Guid AuditId { get; set; }
 
 	 	public string TargetId { get; set; }
 
