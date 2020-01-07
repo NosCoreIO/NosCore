@@ -61,7 +61,7 @@ namespace NosCore.PathFinder.Gui
 
         public static void Main()
         {
-            Console.Title = Title;
+            try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
             Core.I18N.Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
             TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
