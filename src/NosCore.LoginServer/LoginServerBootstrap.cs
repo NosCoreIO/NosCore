@@ -167,7 +167,7 @@ namespace NosCore.LoginServer
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureServices((hostContext, services) =>
                 {
-                    Console.Title = Title;
+                    try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
                     Logger.PrintHeader(ConsoleText);
                     InitializeConfiguration();
 

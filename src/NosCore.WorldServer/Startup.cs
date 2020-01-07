@@ -412,7 +412,7 @@ namespace NosCore.WorldServer
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            Console.Title = Title;
+            try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
             Logger.PrintHeader(ConsoleText);
             //PacketFactory.Initialize<NoS0575Packet>();
             InitializeConfiguration();

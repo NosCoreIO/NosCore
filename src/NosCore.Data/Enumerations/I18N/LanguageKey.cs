@@ -151,7 +151,8 @@ namespace NosCore.Data.Enumerations.I18N
         ITEM_NOT_FOUND,
         QUEST_PRIZES_PARSED,
         QUESTS_PARSED,
-        ACTS_PARTS_PARSED
+        ACTS_PARTS_PARSED,
+        PLATFORM_UNSUPORTED_CONSOLE_TITLE
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

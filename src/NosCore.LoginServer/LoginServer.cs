@@ -48,9 +48,16 @@ namespace NosCore.LoginServer
             _channelHttpClient.Connect();
             try
             {
+                try
+                {
+                    Console.Title += $@" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
+                }
+                catch (PlatformNotSupportedException)
+                {
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLATFORM_UNSUPORTED_CONSOLE_TITLE));
+                }
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                     _loginConfiguration.Port);
-                Console.Title += $" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
                 _networkManager.RunServerAsync().Wait();
             }
             catch

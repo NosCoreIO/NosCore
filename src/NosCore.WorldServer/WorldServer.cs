@@ -67,12 +67,20 @@ namespace NosCore.WorldServer
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHANNEL_WILL_EXIT));
                 Thread.Sleep(30000);
             };
+
             try
             {
+                try
+                {
+                    Console.Title +=
+                        $@" - Port : {_worldConfiguration.Port} - WebApi : {_worldConfiguration.WebApi}";
+                }
+                catch (PlatformNotSupportedException)
+                {
+                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLATFORM_UNSUPORTED_CONSOLE_TITLE));
+                }
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                     _worldConfiguration.Port);
-                Console.Title +=
-                    $" - Port : {_worldConfiguration.Port} - WebApi : {_worldConfiguration.WebApi}";
                 _networkManager.RunServerAsync().Wait();
             }
             catch
