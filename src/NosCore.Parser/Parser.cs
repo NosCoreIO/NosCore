@@ -80,7 +80,7 @@ namespace NosCore.Parser
 
         public static void Main(string[] args)
         {
-            Console.Title = Title;
+            try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
             Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
             TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));

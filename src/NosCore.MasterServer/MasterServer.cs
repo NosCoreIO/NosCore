@@ -64,7 +64,7 @@ namespace NosCore.MasterServer
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             try
             {
-                Console.Title += $" - WebApi : {_masterConfiguration.WebApi}";
+                Console.Title += $@" - WebApi : {_masterConfiguration.WebApi}";
             }
             catch
             {
