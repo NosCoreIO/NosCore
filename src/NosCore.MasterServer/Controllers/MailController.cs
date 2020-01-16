@@ -103,7 +103,7 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPatch]
-        public MailData ViewMail(long id, [FromBody] JsonPatchDocument<MailDto> mailData)
+        public MailData? ViewMail(long id, [FromBody] JsonPatchDocument<MailDto> mailData)
         {
             var mail = _mailDao.FirstOrDefault(s => s.MailId == id);
             if (mail != null)
@@ -137,7 +137,7 @@ namespace NosCore.MasterServer.Controllers
 
             var receiverName = receivdto.Name;
             var it = _items.Find(item => item.VNum == mail.VNum);
-            IItemInstanceDto itemInstance = null;
+            IItemInstanceDto? itemInstance = null;
             if ((mail.Mail.ItemInstanceId == null) && (mail.VNum != null))
             {
                 if (it == null)

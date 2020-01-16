@@ -188,15 +188,15 @@ namespace NosCore.Core.Controllers
     [Serializable]
     public class ApiSession
     {
-        public string GfLang { get; set; }
-        public string Identity { get; set; }
-        public string Locale { get; set; }
-        public string Password { get; set; }
+        public string? GfLang { get; set; }
+        public string? Identity { get; set; }
+        public string? Locale { get; set; }
+        public string? Password { get; set; }
     }
 
     [Serializable]
     public class ApiPlatformGameAccount
     {
-        public string PlatformGameAccountId { get; set; }
+        public string? PlatformGameAccountId { get; set; }
     }
 }

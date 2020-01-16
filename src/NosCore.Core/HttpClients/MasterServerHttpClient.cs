@@ -77,7 +77,7 @@ namespace NosCore.Core.HttpClients
             var client = Connect();
             using var content = new StringContent(JsonConvert.SerializeObject(objectToPost),
                 Encoding.Default, "application/json");
-            var response = client.PostAsync(ApiUrl, content).Result;
+            var response = client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
@@ -90,9 +90,9 @@ namespace NosCore.Core.HttpClients
         protected T Patch<T>(object id, object objectToPost)
         {
             var client = Connect();
-            var content = new StringContent(JsonConvert.SerializeObject(objectToPost),
+            using var content = new StringContent(JsonConvert.SerializeObject(objectToPost),
                 Encoding.Default, "application/json");
-            var response = client.PatchAsync($"{ApiUrl}?id={id}", content).Result;
+            var response = client.PatchAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}"), content).Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
@@ -104,9 +104,9 @@ namespace NosCore.Core.HttpClients
         protected Task Post(object objectToPost)
         {
             var client = Connect();
-            var content = new StringContent(JsonConvert.SerializeObject(objectToPost),
+            using var content = new StringContent(JsonConvert.SerializeObject(objectToPost),
                 Encoding.Default, "application/json");
-            return client.PostAsync(ApiUrl, content);
+            return client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content);
         }
 
         protected T Get<T>()
@@ -117,7 +117,7 @@ namespace NosCore.Core.HttpClients
         protected T Get<T>(object id)
         {
             var client = Connect();
-            var response = client.GetAsync($"{ApiUrl}{(id != null ? $"?id={id}" : "")}").Result;
+            var response = client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}{(id != null ? $"?id={id}" : "")}")).Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
@@ -129,7 +129,7 @@ namespace NosCore.Core.HttpClients
         protected Task Delete(object id)
         {
             var client = Connect();
-            return client.DeleteAsync($"{ApiUrl}?id={id}");
+            return client.DeleteAsync($"{client.BaseAddress}{ApiUrl}?id={id}");
         }
     }
 }
