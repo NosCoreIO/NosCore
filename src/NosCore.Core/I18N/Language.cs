@@ -32,15 +32,12 @@ namespace NosCore.Core.I18N
         private Language()
         {
             var assem = typeof(LanguageKey).Assembly;
-            if (assem != null)
-            {
-                _manager = new ResourceManager(
-                    assem.GetName().Name + ".Resource.LocalizedResources",
-                    assem);
-            }
+            _manager = new ResourceManager(
+                assem.GetName().Name + ".Resource.LocalizedResources",
+                assem);
         }
 
-        public static Language Instance => _instance ?? (_instance = new Language());
+        public static Language Instance => _instance ??= new Language();
 
         public string GetMessageFromKey(LanguageKey messageKey, RegionType culture)
         {

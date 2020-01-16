@@ -69,7 +69,7 @@ namespace NosCore.Database
                 {
                     foreach (var dto in enumerable)
                     {
-                        object value;
+                        object? value;
                         try
                         {
                             value = _primaryKey.GetValue(dto, null);
@@ -79,7 +79,7 @@ namespace NosCore.Database
                             value = dto;
                         }
 
-                        ItemInstance entityfound = value is object[] objects ? dbset.Find(objects) : dbset.Find(value);
+                        ItemInstance? entityfound = value is object[] objects ? dbset.Find(objects) : dbset.Find(value);
                         if (entityfound == null)
                         {
                             continue;
@@ -91,7 +91,7 @@ namespace NosCore.Database
                 }
                 else
                 {
-                    object value;
+                    object? value;
                     try
                     {
                         value = _primaryKey.GetValue(dtokey, null);

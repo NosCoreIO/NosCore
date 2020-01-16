@@ -89,7 +89,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static IvnPacket GeneratePocketChange(this List<InventoryItemInstance> itemInstance)
+        public static IvnPacket? GeneratePocketChange(this List<InventoryItemInstance> itemInstance)
         {
             if (itemInstance.Count > 0)
             {

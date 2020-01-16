@@ -75,7 +75,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             string message = $"<{Language.Instance.GetMessageFromKey(LanguageKey.SPEAKER, requestData.ClientSession.Account.Language)}> [{requestData.ClientSession.Character.Name}]:";
             if (requestData.Data.Data == 999)
             {
-                InventoryItemInstance deeplink = null;
+                InventoryItemInstance? deeplink = null;
                 if (short.TryParse(valuesplit[1], out var slot) &
                     Enum.TryParse(typeof(NoscorePocketType), valuesplit[0], out var type))
                 {
