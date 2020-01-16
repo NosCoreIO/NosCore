@@ -129,7 +129,7 @@ namespace NosCore.Core.HttpClients
         protected Task Delete(object id)
         {
             var client = Connect();
-            return client.DeleteAsync($"{client.BaseAddress}{ApiUrl}?id={id}");
+            return client.DeleteAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}"));
         }
     }
 }
