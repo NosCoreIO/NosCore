@@ -71,7 +71,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
                         _logger.Error(string.Format(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
                             timeSpan.TotalSeconds))
-                ).ExecuteAsync(() => client.PostAsync("api/channel", content));
+                ).ExecuteAsync(() => client.PostAsync(new Uri($"{client.BaseAddress}api/channel"), content));
 
             var result =
                 JsonConvert.DeserializeObject<ConnectionInfo>(message.Result.Content.ReadAsStringAsync().Result);
@@ -103,7 +103,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
                 "application/json");
 
             var postResponse = client
-                .PatchAsync("api/channel?id=" + MasterClientListSingleton.Instance.ChannelId ?? "", content).Result;
+                .PatchAsync(new Uri($"{client.BaseAddress}api/channel?id=" + MasterClientListSingleton.Instance.ChannelId ?? ""), content).Result;
             if (postResponse.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<HttpStatusCode>(postResponse.Content.ReadAsStringAsync().Result);
@@ -153,7 +153,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
                 _channel.Token = handler.WriteToken(securityToken);
                 var content = new StringContent(JsonConvert.SerializeObject(_channel),
                     Encoding.Default, "application/json");
-                var message = client.PutAsync("api/channel", content);
+                var message = client.PutAsync(new Uri($"{client.BaseAddress}api/channel"), content);
                 var result =
                     JsonConvert.DeserializeObject<ConnectionInfo>(message.Result.Content.ReadAsStringAsync().Result);
                 _token = result.Token;

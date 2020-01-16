@@ -71,7 +71,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
             client.BaseAddress = new Uri(channel.WebApi.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
 
-            var response = client.GetAsync("api/connectedAccount").Result;
+            var response = client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}")).Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<List<ConnectedAccount>>(
