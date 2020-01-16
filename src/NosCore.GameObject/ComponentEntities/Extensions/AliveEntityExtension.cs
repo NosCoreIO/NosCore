@@ -232,7 +232,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static PairyPacket GeneratePairy(this IAliveEntity aliveEntity, WearableInstance fairy)
+        public static PairyPacket GeneratePairy(this IAliveEntity aliveEntity, WearableInstance? fairy)
         {
             var isBuffed = false; //TODO aliveEntity.Buff.Any(b => b.Card.CardId == 131);
             return new PairyPacket

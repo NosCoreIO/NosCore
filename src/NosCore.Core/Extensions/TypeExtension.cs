@@ -61,11 +61,10 @@ namespace NosCore.Core.Extensions
                 if (argTypes.Length == 0)
                 {
                     throw new InvalidProgramException(
-                        string.Format("Type '{0}' doesn't have a parameterless constructor.", type.Name));
+                        $"Type '{type.Name}' doesn't have a parameterless constructor.");
                 }
 
-                throw new InvalidProgramException(string.Format("Type '{0}' doesn't have the requested constructor.",
-                    type.Name));
+                throw new InvalidProgramException($"Type '{type.Name}' doesn't have the requested constructor.");
             }
 
             var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, argTypes, type);

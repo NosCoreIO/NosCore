@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Game
 
         public override void Execute(NcifPacket ncifPacket, ClientSession session)
         {
-            IAliveEntity entity;
+            IAliveEntity? entity;
 
             switch (ncifPacket.Type)
             {
@@ -60,7 +60,10 @@ namespace NosCore.PacketHandlers.Game
                     return;
             }
 
-            session.SendPacket(entity?.GenerateStatInfo());
+            if (entity != null)
+            {
+                session.SendPacket(entity.GenerateStatInfo());
+            }
         }
     }
 }

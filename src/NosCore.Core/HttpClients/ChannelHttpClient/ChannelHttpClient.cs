@@ -170,11 +170,10 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
             if (!MasterClientListSingleton.Instance.Channels.Any())
             {
                 using var client = _httpClientFactory.CreateClient();
-                client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
                 client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
 
-                var response = client.GetAsync("api/channel").Result;
+                var response = client.GetAsync(new Uri($"{_channel.MasterCommunication}/api/channel")).Result;
                 if (response.IsSuccessStatusCode)
                 {
                     channels = JsonConvert.DeserializeObject<List<ChannelInfo>>(response.Content.ReadAsStringAsync()
@@ -195,7 +194,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
                 client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
 
-                var response = client.GetAsync($"api/channel?id={channelId}").Result;
+                var response = client.GetAsync(new Uri($"{_channel.MasterCommunication}/api/channel?id={channelId}")).Result;
                 if (response.IsSuccessStatusCode)
                 {
                     channels = JsonConvert.DeserializeObject<List<ChannelInfo>>(response.Content.ReadAsStringAsync()
