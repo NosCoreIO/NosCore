@@ -34,7 +34,7 @@ namespace NosCore.Core
         {
         }
 
-        public static RandomFactory Instance => _instance ?? (_instance = new RandomFactory());
+        public static RandomFactory Instance => _instance ??= new RandomFactory();
 
         public void Dispose()
         {

@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Net.Http;
 using Newtonsoft.Json;
 using NosCore.Core.HttpClients.ChannelHttpClient;
@@ -37,7 +38,7 @@ namespace NosCore.Core.HttpClients.AuthHttpClient
         {
             var client = Connect();
             var response = client
-                .GetAsync($"{ApiUrl}?id={name}&token={packetPassword}&sessionId={clientSessionSessionId}").Result;
+                .GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={name}&token={packetPassword}&sessionId={clientSessionSessionId}")).Result;
             if (response.IsSuccessStatusCode)
             {
                 return JsonConvert.DeserializeObject<bool>(response.Content.ReadAsStringAsync().Result);

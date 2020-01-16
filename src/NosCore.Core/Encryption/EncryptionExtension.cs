@@ -37,16 +37,12 @@ namespace NosCore.Core.Encryption
         {
             var saltBytes = Convert.FromBase64String(Convert.ToBase64String(Encoding.Default.GetBytes(salt)));
 
-            using (var pbkdf2 = new Rfc2898DeriveBytes(
+            using var pbkdf2 = new Rfc2898DeriveBytes(
                 Encoding.Default.GetBytes(inputString),
                 saltBytes,
                 150000,
-                HashAlgorithmName.SHA512))
-            {
-                return string.Concat(pbkdf2.GetBytes(64).Select(item => item.ToString("x2")));
-            }
-
-            throw new ArgumentException();
+                HashAlgorithmName.SHA512);
+            return string.Concat(pbkdf2.GetBytes(64).Select(item => item.ToString("x2")));
         }
 
         public static string ToBcrypt(this string inputString, string salt)

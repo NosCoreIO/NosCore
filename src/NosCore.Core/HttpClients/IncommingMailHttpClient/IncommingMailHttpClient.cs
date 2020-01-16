@@ -42,7 +42,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
         public void DeleteIncommingMail(int channelId, long id, short mailId, byte postType)
         {
             using var client = Connect(channelId);
-            client.DeleteAsync($"{ApiUrl}?id={id}&mailId={mailId}&postType={postType}").Wait();
+            client.DeleteAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}&mailId={mailId}&postType={postType}")).Wait();
         }
 
         public void NotifyIncommingMail(int channelId, MailData mailRequest)
@@ -50,7 +50,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
             using var client = Connect(channelId);
             var content = new StringContent(JsonConvert.SerializeObject(mailRequest), Encoding.Default,
                 "application/json");
-            client.PostAsync(ApiUrl, content).Wait();
+            client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).Wait();
         }
 
         public void OpenIncommingMail(int channelId, MailData mailData)
