@@ -1627,6 +1627,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à This platform doesn&apos;t support console title..
+        /// </summary>
+        public static string PLATFORM_UNSUPORTED_CONSOLE_TITLE {
+            get {
+                return ResourceManager.GetString("PLATFORM_UNSUPORTED_CONSOLE_TITLE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à The {0} player is in store mode..
         /// </summary>
         public static string PLAYER_IN_SHOP {
