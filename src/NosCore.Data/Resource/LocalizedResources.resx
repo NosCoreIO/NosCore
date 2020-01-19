@@ -821,4 +821,7 @@
   <data name="PLATFORM_UNSUPORTED_CONSOLE_TITLE" xml:space="preserve">
     <value>This platform doesn't support console title.</value>
   </data>
+  <data name="QUESTS_PARSED" xml:space="preserve">
+    <value>{0} Quests Parsed!</value>
+  </data>
 </root>
