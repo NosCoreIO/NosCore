@@ -1681,6 +1681,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à {0} Quests Parsed!.
+        /// </summary>
+        public static string QUESTS_PARSED {
+            get {
+                return ResourceManager.GetString("QUESTS_PARSED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Registered on MasterServer.
         /// </summary>
         public static string REGISTRED_ON_MASTER {
