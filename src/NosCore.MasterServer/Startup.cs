@@ -229,7 +229,7 @@ namespace NosCore.MasterServer
                     };
                 });
 
-            services.AddController(o =>
+            services.AddMvc(o =>
                 {
                     o.EnableEndpointRouting = false;
                     var policy = new AuthorizationPolicyBuilder()
@@ -260,9 +260,7 @@ namespace NosCore.MasterServer
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore Master API"));
             app.UseAuthentication();
-            app.UseEndpoints(endpoints => {
-                 endpoints.MapControllers();
-            });
+            app.UseMvc();
         }
     }
 }
