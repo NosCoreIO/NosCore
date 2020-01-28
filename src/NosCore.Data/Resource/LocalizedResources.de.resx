@@ -275,7 +275,7 @@
     <value>Es befinden sich zu viele Items auf der Karte! Versuch es später nocheinmal!</value>
   </data>
   <data name="EFFECT_ACTIVATED" xml:space="preserve">
-    <value>Effekt aktiviert!</value>
+    <value>Effekt {0} aktiviert!</value>
   </data>
   <data name="ENCODE_ERROR" xml:space="preserve">
     <value>Encodierungs fehler: {0}</value>
@@ -551,7 +551,8 @@
     <value>Du bist nun der Party-Leiter!</value>
   </data>
   <data name="NEW_MAIL" xml:space="preserve">
-    <value>Nachricht schreiben</value>
+    <value>Du hast {0} neue Nachrichten!</value>
+    <comment>check</comment>
   </data>
   <data name="NOT_ADVENTURER" xml:space="preserve">
     <value>Du bist kein Abenteurer</value>
@@ -686,7 +687,7 @@
     <comment>check</comment>
   </data>
   <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
-    <value>Möchtest du dies vom Bazar entfernen?</value>
+    <value>Möchtest du {0} vom Bazar entfernen?</value>
   </data>
   <data name="REMOVE_VEHICLE" xml:space="preserve">
     <value>Um dich zu transformieren, steige bitte von deinem Fahrzeug ab!</value>
