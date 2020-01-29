@@ -164,6 +164,9 @@
     <value>Authentifizierung erfolgreich!</value>
     <comment>check</comment>
   </data>
+  <data name="AUTH_API_SUCCESS" xml:space="preserve">
+    <value>Authentifikation-API erfolgreich</value>
+  </data>
   <data name="AUTH_ERROR" xml:space="preserve">
     <value>Authentifizierungs Fehler</value>
   </data>
@@ -218,6 +221,9 @@
   <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Du kannst ein Item nicht im Shop benutzen!</value>
   </data>
+  <data name="CAN_NOT_MODIFY_SOLD_ITEMS" xml:space="preserve">
+    <value>Du kannst verkauft Items nicht mehr modifizieren!</value>
+  </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>{0} Karten geladen!</value>
   </data>
@@ -267,6 +273,9 @@
   </data>
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Es befinden sich zu viele Items auf der Karte! Versuch es später nocheinmal!</value>
+  </data>
+  <data name="EFFECT_ACTIVATED" xml:space="preserve">
+    <value>Effekt {0} aktiviert!</value>
   </data>
   <data name="ENCODE_ERROR" xml:space="preserve">
     <value>Encodierungs fehler: {0}</value>
@@ -323,6 +332,9 @@
   </data>
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Freundschaftsanfrage gesendet!</value>
+  </data>
+  <data name="GIFTED" xml:space="preserve">
+    <value>Du hast {0} verschenkt!</value>
   </data>
   <data name="GIFT_SENT" xml:space="preserve">
     <value>Das Geschenk wurde versendet.</value>
@@ -441,6 +453,9 @@
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Du kannst dieses Item nicht fallen lassen!</value>
   </data>
+  <data name="ITEM_NOT_FOUND" xml:space="preserve">
+    <value>Item wurde nicht gefunden!</value>
+  </data>
   <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
     <value>Das Item kann nicht verkauft werden!</value>
   </data>
@@ -483,6 +498,9 @@
   </data>
   <data name="MAGICIAN" xml:space="preserve">
     <value>Magier</value>
+  </data>
+  <data name="MAILED" xml:space="preserve">
+    <value>Nachricht verschickt!</value>
   </data>
   <data name="MAIL_DELETED" xml:space="preserve">
     <value>Mail wurde gelöscht!</value>
@@ -532,11 +550,18 @@
   <data name="MINILAND_PUBLIC" xml:space="preserve">
     <value>Dein Miniland ist nun Öffentlich.</value>
   </data>
+  <data name="MINILAND_VISITOR" xml:space="preserve">
+    <value>Miniland Besucher: {0}, Tägliche Besucher: {1}</value>
+  </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters Parsed!</value>
   </data>
   <data name="NEW_LEADER" xml:space="preserve">
     <value>Du bist nun der Party-Leiter!</value>
+  </data>
+  <data name="NEW_MAIL" xml:space="preserve">
+    <value>Du hast {0} neue Nachrichten!</value>
+    <comment>check</comment>
   </data>
   <data name="NOT_ADVENTURER" xml:space="preserve">
     <value>Du bist kein Abenteurer</value>
@@ -663,9 +688,15 @@
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Bitte warte bevor du dich teleportieren willst!</value>
   </data>
+  <data name="PRICE_EXCEEDED" xml:space="preserve">
+    <value>Maximal Preis überstiegen!</value>
+  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Angemeldet auf MasterServer</value>
     <comment>check</comment>
+  </data>
+  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
+    <value>Möchtest du {0} vom Bazar entfernen?</value>
   </data>
   <data name="REMOVE_VEHICLE" xml:space="preserve">
     <value>Um dich zu transformieren, steige bitte von deinem Fahrzeug ab!</value>
@@ -681,6 +712,9 @@
   </data>
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Speichere alle Dateien!</value>
+  </data>
+  <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
+    <value>Sicherheitstoken geändert!</value>
   </data>
   <data name="SELECT_MAPID" xml:space="preserve">
     <value>Bitte wähle eine MapId</value>
@@ -731,6 +765,9 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills geladen!</value>
   </data>
+  <data name="SPEAKER" xml:space="preserve">
+    <value>Servernachricht</value>
+  </data>
   <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
     <value>Du hast bereits die maximale Anzahl an Bonus SPs erreicht!</value>
   </data>
@@ -774,6 +811,9 @@
     <value>Die Sekundären Effekte sind abgeklungen. {0}</value>
     <comment>The secondary effects have finished. {0}</comment>
   </data>
+  <data name="TRY_OLD_AUTH" xml:space="preserve">
+    <value>Alte Authentikation versuchen</value>
+  </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Die Gruppe kann nicht erriecht werden</value>
   </data>
@@ -792,7 +832,7 @@
     <comment>insert missing type data</comment>
   </data>
   <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>Dein GOld wurde erfolgreich geändert!</value>
+    <value>Dein Gold wurde erfolgreich geändert!</value>
   </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>Benutzer ist kein Freund!</value>
