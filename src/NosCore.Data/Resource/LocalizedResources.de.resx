@@ -333,6 +333,9 @@
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Freundschaftsanfrage gesendet!</value>
   </data>
+  <data name="GIFTED" xml:space="preserve">
+    <value>Geschenk verschickt!</value>
+  </data>
   <data name="GIFT_SENT" xml:space="preserve">
     <value>Das Geschenk wurde versendet.</value>
   </data>
@@ -496,6 +499,9 @@
   <data name="MAGICIAN" xml:space="preserve">
     <value>Magier</value>
   </data>
+  <data name="MAILED" xml:space="preserve">
+    <value>Nachricht verschickt!</value>
+  </data>
   <data name="MAIL_DELETED" xml:space="preserve">
     <value>Mail wurde gelöscht!</value>
   </data>
@@ -543,6 +549,9 @@
   </data>
   <data name="MINILAND_PUBLIC" xml:space="preserve">
     <value>Dein Miniland ist nun Öffentlich.</value>
+  </data>
+  <data name="MINILAND_VISITOR" xml:space="preserve">
+    <value>Miniland Besucher: {0}, Tägliche Besucher: {1}</value>
   </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters Parsed!</value>
