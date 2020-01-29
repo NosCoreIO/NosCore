@@ -334,7 +334,7 @@
     <value>Freundschaftsanfrage gesendet!</value>
   </data>
   <data name="GIFTED" xml:space="preserve">
-    <value>Geschenk verschickt!</value>
+    <value>Du hast {0} verschenkt!</value>
   </data>
   <data name="GIFT_SENT" xml:space="preserve">
     <value>Das Geschenk wurde versendet.</value>
