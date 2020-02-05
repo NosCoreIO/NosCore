@@ -31,7 +31,7 @@
     <PackageReference Include="ChickenAPI.Packets" Version="0.17.0" />
     <PackageReference Include="FastMember" Version="1.5.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
-    <PackageReference Include="Mapster" Version="4.1.1" />
+    <PackageReference Include="Mapster" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
