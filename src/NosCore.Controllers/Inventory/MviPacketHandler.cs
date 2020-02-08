@@ -24,7 +24,10 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -44,6 +47,27 @@ namespace NosCore.PacketHandlers.Inventory
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
                 return;
+            }
+
+            // check if the item is a palced MinilandObject
+            if (mviPacket.InventoryType == ChickenAPI.Packets.Enumerations.PocketType.Miniland)
+            {
+                InventoryItemInstance sourceMinilandObject = clientSession.Character.InventoryService.LoadBySlotAndType(mviPacket.Slot, NoscorePocketType.Miniland);
+                InventoryItemInstance destMinilandObject = clientSession.Character.InventoryService.LoadBySlotAndType(mviPacket.DestinationSlot, NoscorePocketType.Miniland);
+
+                if (sourceMinilandObject != null || destMinilandObject != null)
+                {
+                    MapDesignObject designObject = 
+                        clientSession.Character.MapInstance.MapDesignObjects.Values.FirstOrDefault(m => m.InventoryItemInstanceId == sourceMinilandObject?.Id);
+
+                    MapDesignObject designObject2 =
+                        clientSession.Character.MapInstance.MapDesignObjects.Values.FirstOrDefault(m => m.InventoryItemInstanceId == destMinilandObject?.Id);
+
+                    if (designObject != null || designObject2 != null)
+                    {
+                        return;
+                    }
+                }
             }
 
             // actually move the item from source to destination
