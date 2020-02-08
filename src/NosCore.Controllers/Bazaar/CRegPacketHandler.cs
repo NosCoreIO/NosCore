@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            if ((cRegPacket.Amount <= 0) || clientSession.Character.InExchangeOrShop)
+            if ((cRegPacket.Amount <= 0) || clientSession.Character.InExchangeOrShop || cRegPacket.Inventory > (byte)PocketType.Etc)
             {
                 return;
             }
