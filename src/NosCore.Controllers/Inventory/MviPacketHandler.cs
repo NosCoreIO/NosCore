@@ -49,27 +49,6 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            // check if the item is a palced MinilandObject
-            if (mviPacket.InventoryType == ChickenAPI.Packets.Enumerations.PocketType.Miniland)
-            {
-                InventoryItemInstance sourceMinilandObject = clientSession.Character.InventoryService.LoadBySlotAndType(mviPacket.Slot, NoscorePocketType.Miniland);
-                InventoryItemInstance destMinilandObject = clientSession.Character.InventoryService.LoadBySlotAndType(mviPacket.DestinationSlot, NoscorePocketType.Miniland);
-
-                if (sourceMinilandObject != null || destMinilandObject != null)
-                {
-                    MapDesignObject designObject = 
-                        clientSession.Character.MapInstance.MapDesignObjects.Values.FirstOrDefault(m => m.InventoryItemInstanceId == sourceMinilandObject?.Id);
-
-                    MapDesignObject designObject2 =
-                        clientSession.Character.MapInstance.MapDesignObjects.Values.FirstOrDefault(m => m.InventoryItemInstanceId == destMinilandObject?.Id);
-
-                    if (designObject != null || designObject2 != null)
-                    {
-                        return;
-                    }
-                }
-            }
-
             // actually move the item from source to destination
             clientSession.Character.InventoryService.TryMoveItem((NoscorePocketType) mviPacket.InventoryType, mviPacket.Slot,
                 mviPacket.Amount,

@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NosCore.Configuration;
 using NosCore.Data;
+using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
@@ -348,6 +349,15 @@ namespace NosCore.GameObject.Providers.InventoryService
                 || (destinationSlot > GetMaxSlot(sourcetype)))
             {
                 return false;
+            }
+
+            // check if the item is a palced MinilandObject
+            if (sourcetype == NoscorePocketType.Miniland)
+            {
+                if (sourcePocket.ItemInstance is MinilandObjectDto || destinationPocket.ItemInstance is MinilandObjectDto)
+                {
+                    return false;
+                }
             }
 
             if ((sourcePocket != null) && (amount <= sourcePocket.ItemInstance.Amount))
