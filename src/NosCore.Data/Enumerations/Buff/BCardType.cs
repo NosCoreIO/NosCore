@@ -25,7 +25,6 @@ namespace NosCore.Data.Enumerations.Buff
         {
             // 1-20
             SpecialAttack = 1,
-
             SpecialDefence = 2,
             AttackPower = 3,
             Target = 4,
@@ -48,7 +47,6 @@ namespace NosCore.Data.Enumerations.Buff
 
             // 21-40
             DrainAndSteal = 21,
-
             HealingBurningAndCasting = 22,
             Hpmp = 23,
             SpecialisationBuffResistance = 24,
@@ -71,7 +69,6 @@ namespace NosCore.Data.Enumerations.Buff
 
             // 41-60
             Mode = 41,
-
             NoCharacteristicValue = 42,
             LightAndShadow = 43,
             Item = 44,
@@ -94,7 +91,6 @@ namespace NosCore.Data.Enumerations.Buff
 
             // 61-80 Missingno = 61,
             HideBarrelSkill = 62,
-
             FocusEnemyAttentionSkill = 63,
             TauntSkill = 64,
             FireCannoneerRangeBuff = 65,
@@ -114,12 +110,37 @@ namespace NosCore.Data.Enumerations.Buff
             ArenaCamera = 79,
             DarkCloneSummon = 80,
 
-            // 81-??
+            // 81-100
             AbsorbedSpirit = 81,
-
             AngerSkill = 82,
             MeteoriteTeleport = 83,
             StealBuff = 84,
+            Type85 = 85,
+            Type86 = 86,
+            Type87 = 87,
+            Type88 = 88,
+            Type89 = 89,
+            Type90 = 90,
+            Type91 = 91,
+            Type92 = 92,
+            Type93 = 93,
+            Type94 = 94,
+            Type95 = 95,
+            Type96 = 96,
+            Type97 = 97,
+            Type98 = 98,
+            Type99 = 99,
+            Type100 = 100,
+
+            //101 - ???
+            Type101 = 101,
+            Type102 = 102,
+            Type103 = 103,
+            Type104 = 104,
+            Type107 = 107,
+            Type108 = 108,
+            Type109 = 109,
+            Type110 = 110,
 
             Spsl = 200
         }
