@@ -611,6 +611,7 @@ namespace NosCore.Database
             modelBuilder.Entity<NpcMonster>()
                 .HasMany(e => e.NpcMonsterSkill)
                 .WithOne(e => e.NpcMonster)
+                .HasForeignKey(e => e.NpcMonsterVNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Recipe>()
@@ -631,21 +632,25 @@ namespace NosCore.Database
             modelBuilder.Entity<Skill>()
                 .HasMany(e => e.CharacterSkill)
                 .WithOne(e => e.Skill)
+                .HasForeignKey(e => e.SkillVNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Skill>()
                 .HasMany(e => e.Combo)
                 .WithOne(e => e.Skill)
+                .HasForeignKey(e => e.SkillVNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Skill>()
                 .HasMany(e => e.NpcMonsterSkill)
                 .WithOne(e => e.Skill)
+                .HasForeignKey(e => e.SkillVNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Skill>()
                 .HasMany(e => e.ShopSkill)
                 .WithOne(e => e.Skill)
+                .HasForeignKey(e => e.SkillVNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Character>()
