@@ -24,7 +24,10 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Inventory
 {
