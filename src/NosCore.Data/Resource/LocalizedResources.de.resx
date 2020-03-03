@@ -296,7 +296,7 @@
     <value>Datenbank befindet sich nicht auf dem neusten Stand.</value>
   </data>
   <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
-    <value />
+    <value>Du kannst momentan keine Freundschaftsanfragen Senden. Bitte Versuche es in {0} Sekunden nochmal.</value>
   </data>
   <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
     <value>Direkter Objekt Zugriff erkannt.</value>
@@ -364,7 +364,7 @@
     <value>Freundschaftsanfrage blockiert!</value>
   </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
-    <value />
+    <value>Deine Freundschaftsanfrage wurde nicht gesendet, da der Spieler nicht Online ist.</value>
   </data>
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Freundschaftsanfrage gesendet!</value>
@@ -447,7 +447,7 @@
     <value>Tausch von {0} akzeptieren?</value>
   </data>
   <data name="INFO_BAZAAR" xml:space="preserve">
-    <value />
+    <value>Mit der NosMedalie kannst du überall den Bazaar öffnen.</value>
   </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Falsche ID!</value>
