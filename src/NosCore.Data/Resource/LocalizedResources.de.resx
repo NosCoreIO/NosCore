@@ -587,6 +587,9 @@
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>Das Item gehört dir nicht!</value>
   </data>
+  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
+    <value>Du hast keine Bazaar Medalie aktiv.</value>
+  </data>
   <data name="NO_ITEM" xml:space="preserve">
     <value>Item existiert nicht!</value>
   </data>
