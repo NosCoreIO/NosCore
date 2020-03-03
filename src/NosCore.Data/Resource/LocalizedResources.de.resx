@@ -927,7 +927,7 @@
     <value>Unbekannter PicketTyp</value>
   </data>
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
-    <value>Unbekannter Empfänger typ</value>
+    <value>Unbekannter Empfänger typ: {0}</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="UPDATE_GOLD" xml:space="preserve">
