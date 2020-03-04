@@ -204,7 +204,7 @@
     <value />
   </data>
   <data name="BAZAAR_PRICE_CHANGED" xml:space="preserve">
-    <value>Du hast dein Item Preis geändert.</value>
+    <value>Du hast dein Item Preis auf {0} geändert.</value>
   </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Charakter wurde der Blacklist hinzugefügt!</value>
@@ -323,11 +323,11 @@
     <value>Charakter während des Kartenwechseln geändert. Missbrauche keine Befehle.{0}</value>
   </data>
   <data name="ERROR_DECODING" xml:space="preserve">
-    <value>Entschlüsselungs fehler</value>
+    <value>Entschlüsselungs fehler {0}.</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="ERROR_SESSIONID" xml:space="preserve">
-    <value>SessionId fehler</value>
+    <value>SessionId fehler ID {0}.</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="EXCEPTION" xml:space="preserve">
@@ -376,7 +376,7 @@
     <value>Das Geschenk wurde versendet.</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
-    <value>Unbekannter Gruppeneinladungs Typ</value>
+    <value>Unbekannter Gruppeneinladungs Typ {0}</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
@@ -474,7 +474,7 @@
     <value>Dir wurde eine Gruppeneinladung gesendet! {0}</value>
   </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
-    <value>Unbekannter Einladungs typ</value>
+    <value>Unbekannter Einladungs typ {0}.</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="IN_WAITING_FOR" xml:space="preserve">
@@ -493,7 +493,7 @@
     <value>Item erlangt {0}</value>
   </data>
   <data name="ITEM_GIFTED" xml:space="preserve">
-    <value>Item wurde Verschenkt.</value>
+    <value>{0} Item's wurde Verschenkt.</value>
   </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
     <value>Du kannst dieses Item nicht fallen lassen!</value>
@@ -523,7 +523,7 @@
     <value>Du bist der Gruppe beigetreten!</value>
   </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
-    <value>Fehlende Sprache/Übersetzung!</value>
+    <value>Fehlende Sprache/Übersetzung {0} !</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="LEAVE_GROUP" xml:space="preserve">
@@ -773,7 +773,7 @@
     <value>Es wurden {0} Quest Preise geparsed.</value>
   </data>
   <data name="REFILL_MINIGAME" xml:space="preserve">
-    <value>Bitte fülle deine Minigame Punkte auf damit du Weiter Spielen kannst.</value>
+    <value>Bitte fülle deine Minigame Punkte auf damit du Weiter Spielen kannst {0}.</value>
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Angemeldet auf MasterServer</value>
