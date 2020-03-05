@@ -123,6 +123,9 @@
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Account mit SessionId {0} ist angekommen.</value>
   </data>
+  <data name="ACTS_PARTS_PARSED" xml:space="preserve">
+    <value>Es wurden {0} Teile des Akts geparsed.</value>
+  </data>
   <data name="ADMINISTRATOR" xml:space="preserve">
     <value>Administrator</value>
   </data>
@@ -143,6 +146,9 @@
   </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Dieser Name ist bereits belegt.</value>
+  </data>
+  <data name="ALREADY_THIS_MINILANDOBJECT" xml:space="preserve">
+    <value>Es ist bereits ein gleiches Objekt im Miniland vorhanden.</value>
   </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Bogenschütze</value>
@@ -188,6 +194,18 @@
   <data name="BANK_FULL" xml:space="preserve">
     <value>Deine Bank ist voll</value>
   </data>
+  <data name="BAZAAR_BUY_ERROR" xml:space="preserve">
+    <value>Dein Item wurde leider nicht gekauft aufgrund eines Fehlers.</value>
+  </data>
+  <data name="BAZAAR_DELETE_ERROR" xml:space="preserve">
+    <value>Dein Item wurde aufgrund eines Fehlers nicht gelöscht.</value>
+  </data>
+  <data name="BAZAAR_MOD_ERROR" xml:space="preserve">
+    <value />
+  </data>
+  <data name="BAZAAR_PRICE_CHANGED" xml:space="preserve">
+    <value>Du hast dein Item Preis auf {0} geändert.</value>
+  </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Charakter wurde der Blacklist hinzugefügt!</value>
   </data>
@@ -218,6 +236,12 @@
   <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Du kannst ein Item im Shop nicht bewegen!</value>
   </data>
+  <data name="CANT_USE" xml:space="preserve">
+    <value>Du kannst es nicht benutzen.</value>
+  </data>
+  <data name="CANT_USE_IN_VEHICLE" xml:space="preserve">
+    <value>Du kannst das Item nicht benutzen wärend du auf einem Fortbewegungsmittel bist.</value>
+  </data>
   <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Du kannst ein Item nicht im Shop benutzen!</value>
   </data>
@@ -239,6 +263,9 @@
   </data>
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
     <value>Der Charakter ist offline!</value>
+  </data>
+  <data name="CHUNK_FORMAT_INVALID" xml:space="preserve">
+    <value>Das Chunkformat ist falsch.</value>
   </data>
   <data name="CLASS_CHANGED" xml:space="preserve">
     <value>Deine Klasse wurde erfolgreich geändert!</value>
@@ -268,6 +295,12 @@
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
     <value>Datenbank befindet sich nicht auf dem neusten Stand.</value>
   </data>
+  <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
+    <value>Du kannst momentan keine Freundschaftsanfragen Senden. Bitte Versuche es in {0} Sekunden nochmal.</value>
+  </data>
+  <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
+    <value>Direkter Objekt Zugriff erkannt.</value>
+  </data>
   <data name="DONE" xml:space="preserve">
     <value>Laden abgeschlossen!</value>
   </data>
@@ -290,11 +323,11 @@
     <value>Charakter während des Kartenwechseln geändert. Missbrauche keine Befehle.{0}</value>
   </data>
   <data name="ERROR_DECODING" xml:space="preserve">
-    <value>Entschlüsselungs fehler</value>
+    <value>Entschlüsselungs fehler {0}.</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="ERROR_SESSIONID" xml:space="preserve">
-    <value>SessionId fehler</value>
+    <value>SessionId fehler ID {0}.</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="EXCEPTION" xml:space="preserve">
@@ -330,6 +363,9 @@
   <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
     <value>Freundschaftsanfrage blockiert!</value>
   </data>
+  <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
+    <value>Deine Freundschaftsanfrage wurde nicht gesendet, da der Spieler nicht Online ist.</value>
+  </data>
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Freundschaftsanfrage gesendet!</value>
   </data>
@@ -340,7 +376,7 @@
     <value>Das Geschenk wurde versendet.</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
-    <value>Unbekannter Gruppeneinladungs Typ</value>
+    <value>Unbekannter Gruppeneinladungs Typ {0}</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
@@ -410,11 +446,20 @@
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>Tausch von {0} akzeptieren?</value>
   </data>
+  <data name="INFO_BAZAAR" xml:space="preserve">
+    <value>Mit der NosMedalie kannst du überall den Bazaar öffnen.</value>
+  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Falsche ID!</value>
   </data>
   <data name="INVALID_CHARNAME" xml:space="preserve">
     <value>Ungültige Zeichen in deinem Nickname!</value>
+  </data>
+  <data name="INVALID_EXCHANGE" xml:space="preserve">
+    <value>Ungültiger Tausch.</value>
+  </data>
+  <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
+    <value>Ungültige Tausch Liste.</value>
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Falsches Password!</value>
@@ -429,7 +474,7 @@
     <value>Dir wurde eine Gruppeneinladung gesendet! {0}</value>
   </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
-    <value>Unbekannter Einladungs typ</value>
+    <value>Unbekannter Einladungs typ {0}.</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="IN_WAITING_FOR" xml:space="preserve">
@@ -446,6 +491,9 @@
   </data>
   <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
     <value>Item erlangt {0}</value>
+  </data>
+  <data name="ITEM_GIFTED" xml:space="preserve">
+    <value>{0} Item's wurde Verschenkt.</value>
   </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
     <value>Du kannst dieses Item nicht fallen lassen!</value>
@@ -475,7 +523,7 @@
     <value>Du bist der Gruppe beigetreten!</value>
   </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
-    <value>Fehlende Sprache/Übersetzung!</value>
+    <value>Fehlende Sprache/Übersetzung {0} !</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="LEAVE_GROUP" xml:space="preserve">
@@ -484,11 +532,17 @@
   <data name="LEVEL_CHANGED" xml:space="preserve">
     <value>Dein Level hat sich geändert!</value>
   </data>
+  <data name="LIMIT_EXCEEDED" xml:space="preserve">
+    <value>Du hast die Itemmenge überschritten.</value>
+  </data>
   <data name="LISTENING_PORT" xml:space="preserve">
     <value>Listening Port {0}</value>
   </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Lade MapInstanzen</value>
+  </data>
+  <data name="LOGIN_MEDAL" xml:space="preserve">
+    <value />
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Dieser Spezialist erfordert ein höheres Job Level um ihn zu benutzen!</value>
@@ -538,11 +592,17 @@
   <data name="MAX_GOLD" xml:space="preserve">
     <value>Maximale Menage an Gold erreicht!</value>
   </data>
+  <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
+    <value>Miniland für Freunde geschlossen.</value>
+  </data>
   <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
     <value>Miniland Beschreibung geändert!</value>
   </data>
   <data name="MINILAND_LOCK" xml:space="preserve">
     <value>Miniland wurde gesperrt!</value>
+  </data>
+  <data name="MINILAND_NEED_LOCK" xml:space="preserve">
+    <value>Dein Miniland muss geschlossen sein.</value>
   </data>
   <data name="MINILAND_PRIVATE" xml:space="preserve">
     <value>Dein Miniland ist nun Privat.</value>
@@ -566,8 +626,14 @@
   <data name="NOT_ADVENTURER" xml:space="preserve">
     <value>Du bist kein Abenteurer</value>
   </data>
+  <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
+    <value>Du hast nicht genügend Haltbarkeitspunkte.</value>
+  </data>
   <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
     <value>Nicht genügend Gold</value>
+  </data>
+  <data name="NOT_ENOUGH_MINILAND_POINT" xml:space="preserve">
+    <value>Du hast nicht genügend Minilandpunkte.</value>
   </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Nicht genügend Geld!</value>
@@ -586,6 +652,9 @@
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>Das Item gehört dir nicht!</value>
+  </data>
+  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
+    <value>Du hast keine Bazaar Medalie aktiv.</value>
   </data>
   <data name="NO_ITEM" xml:space="preserve">
     <value>Item existiert nicht!</value>
@@ -607,6 +676,9 @@
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>{0} MapNpcs geladen!</value>
+  </data>
+  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
+    <value>Das Objekt wurde im Bazaar gelegt.</value>
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Packet erhalten ohne dass ein Charakter gesetzt ist {0}</value>
@@ -676,6 +748,9 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Möchtest du die TimeSpaces laden?</value>
   </data>
+  <data name="PLATFORM_UNSUPORTED_CONSOLE_TITLE" xml:space="preserve">
+    <value>Platform Supportet leider nicht den Konsolen Titel.</value>
+  </data>
   <data name="PLAYER_IN_SHOP" xml:space="preserve">
     <value>{0} befindet sich im Shop.</value>
   </data>
@@ -690,6 +765,15 @@
   </data>
   <data name="PRICE_EXCEEDED" xml:space="preserve">
     <value>Maximal Preis überstiegen!</value>
+  </data>
+  <data name="QUESTS_PARSED" xml:space="preserve">
+    <value>{0} Quests wurden geparsed.</value>
+  </data>
+  <data name="QUEST_PRIZES_PARSED" xml:space="preserve">
+    <value>Es wurden {0} Quest Preise geparsed.</value>
+  </data>
+  <data name="REFILL_MINIGAME" xml:space="preserve">
+    <value>Bitte fülle deine Minigame Punkte auf damit du Weiter Spielen kannst {0}.</value>
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Angemeldet auf MasterServer</value>
@@ -733,6 +817,9 @@
   </data>
   <data name="SHOPITEMS_PARSED" xml:space="preserve">
     <value>{0} ShopItems geparsed!</value>
+  </data>
+  <data name="SHOPSKILLS_LOADED" xml:space="preserve">
+    <value>Es wurden {0} Shopskills geladen.</value>
   </data>
   <data name="SHOPS_LOADED" xml:space="preserve">
     <value>{0} Shops geladen!</value>
@@ -783,6 +870,9 @@
   <data name="SP_POINTSADDED" xml:space="preserve">
     <value>Du hast SP Points erhalten! {0}</value>
   </data>
+  <data name="STATE_CHANGED_BAZAAR" xml:space="preserve">
+    <value />
+  </data>
   <data name="STAY_TIME" xml:space="preserve">
     <value>Verbleibende Zeit: {0} sekunden</value>
   </data>
@@ -797,6 +887,12 @@
   </data>
   <data name="SWORDMAN" xml:space="preserve">
     <value>Schwertkämpfer</value>
+  </data>
+  <data name="TITLE_EFFECT_CHANGED" xml:space="preserve">
+    <value>Titel Effekt wurde geändert.</value>
+  </data>
+  <data name="TITLE_VISIBILITY_CHANGED" xml:space="preserve">
+    <value>Titel Sichtbarkeit wurde geändert.</value>
   </data>
   <data name="TOKEN_UPDATED" xml:space="preserve">
     <value>Token aktualisiert.</value>
@@ -814,6 +910,9 @@
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Alte Authentikation versuchen</value>
   </data>
+  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
+    <value>Das Entfernen ist fehlgeschlagen.</value>
+  </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Die Gruppe kann nicht erriecht werden</value>
   </data>
@@ -828,7 +927,7 @@
     <value>Unbekannter PicketTyp</value>
   </data>
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
-    <value>Unbekannter Empfänger typ</value>
+    <value>Unbekannter Empfänger typ: {0}</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="UPDATE_GOLD" xml:space="preserve">
@@ -854,6 +953,12 @@
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Unbekannter VisualType: {0}</value>
+  </data>
+  <data name="WANT_ENABLE_TITLE" xml:space="preserve">
+    <value>Möchtest du den Titel Aktivieren?</value>
+  </data>
+  <data name="WEAR_NEW_TITLE" xml:space="preserve">
+    <value />
   </data>
   <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
     <value>Falsche MapId!</value>
