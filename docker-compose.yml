@@ -41,6 +41,7 @@ services:
       - master
     ports:
       - 1337:1337
+      - 5001:5001
     networks: 
       - noscore-network
 
