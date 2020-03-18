@@ -30,7 +30,7 @@ services:
     networks: 
       - noscore-network
     volumes:
-      - ./build/netcoreapp3.1/alpine-x64:/app/build/bin
+      - ./build/netcoreapp3.1/linux-x64:/app/build/bin
       - ./configuration/:/app/configuration
   
   world:
@@ -50,7 +50,7 @@ services:
     links:
       - master
     volumes:
-      - ./build/netcoreapp3.1/alpine-x64:/app/build/bin
+      - ./build/netcoreapp3.1/linux-x64:/app/build/bin
       - ./configuration/:/app/configuration
       
   login:
@@ -69,7 +69,7 @@ services:
     links:
       - master
     volumes:
-      - ./build/netcoreapp3.1/alpine-x64:/app/build/bin
+      - ./build/netcoreapp3.1/linux-x64:/app/build/bin
       - ./configuration/:/app/configuration
 
 networks:

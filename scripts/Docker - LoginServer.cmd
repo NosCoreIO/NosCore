@@ -1,4 +1,4 @@
 cd ..
-dotnet build --runtime alpine-x64
+dotnet build --runtime linux-x64 --nologo
 docker-compose up login
 PAUSE
