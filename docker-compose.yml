@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.7'
 
 services:
   db:
@@ -29,6 +29,9 @@ services:
       - 6969
     networks: 
       - noscore-network
+    volumes:
+      - ./build/netcoreapp3.1/alpine-x64:/app/build/bin
+      - ./configuration/:/app/configuration
   
   world:
     container_name: noscore-world
@@ -44,7 +47,12 @@ services:
       - 5001:5001
     networks: 
       - noscore-network
-
+    links:
+      - master
+    volumes:
+      - ./build/netcoreapp3.1/alpine-x64:/app/build/bin
+      - ./configuration/:/app/configuration
+      
   login:
     container_name: noscore-login
     build:
@@ -54,11 +62,16 @@ services:
     depends_on:
       - db
       - master
-      - world
     ports:
       - 4002:4002
     networks: 
       - noscore-network
-      
+    links:
+      - master
+    volumes:
+      - ./build/netcoreapp3.1/alpine-x64:/app/build/bin
+      - ./configuration/:/app/configuration
+
 networks:
-  noscore-network: 
+  noscore-network:
+    driver: bridge

@@ -1,3 +1,3 @@
-cd ..\
+cd ..
 docker-compose down
 PAUSE
