@@ -57,10 +57,6 @@ We recommend usage of :
 - Choose Project NosCore.Database
 - Type 'update-database' and update the Database
 
-# Docker deploy #
+## 3. Start services ##
+- script to start services are in .\scripts 
 
-- Start database container with `docker-compose up -d db`
-- Update database through Nuget Manager Console
-- Import your data into database
-- Edit configuration file (Change all IP with container name)
-- Run noscore with `docker-compose up -d`
