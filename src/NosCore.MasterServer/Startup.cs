@@ -80,8 +80,7 @@ namespace NosCore.MasterServer
             var masterConfiguration = new MasterConfiguration();
             builder
                 .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("master.yml", true)
-                .AddJsonFile("master.json", true)
+                .AddYamlFile("master.yml", false)
                 .Build()
                 .Bind(masterConfiguration);
 

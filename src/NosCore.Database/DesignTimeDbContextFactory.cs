@@ -35,8 +35,7 @@ namespace NosCore.Database
             var builder = new ConfigurationBuilder();
             builder
                 .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("database.yml", true)
-                .AddJsonFile("database.json", true)
+                .AddYamlFile("database.yml", false)
                 .Build()
                 .Bind(databaseConfiguration);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
