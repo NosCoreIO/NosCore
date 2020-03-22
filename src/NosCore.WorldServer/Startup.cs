@@ -284,7 +284,7 @@ namespace NosCore.WorldServer
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterType<Mapper>().AsImplementedInterfaces().PropertiesAutowired();
+            containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces().PropertiesAutowired();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => (p.Namespace != "ChickenAPI.Packets.ServerPackets.Login") && (p.Name != "NoS0575Packet")
                     && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();

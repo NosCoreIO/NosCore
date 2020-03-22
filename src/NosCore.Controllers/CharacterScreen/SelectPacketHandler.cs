@@ -22,6 +22,7 @@ using System.Linq;
 using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
 using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
+using MapsterMapper;
 using NosCore.Core;
 using NosCore.Data;
 using NosCore.Data.Dto;
@@ -37,7 +38,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class SelectPacketHandler : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
-        private readonly IAdapter _adapter;
+        private readonly IMapper _adapter;
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
@@ -48,7 +49,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
         private readonly IGenericDao<TitleDto> _titleDao;
 
-        public SelectPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao, ILogger logger,
+        public SelectPacketHandler(IMapper adapter, IGenericDao<CharacterDto> characterDao, ILogger logger,
             IItemProvider itemProvider,
             IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao,
             IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao,
@@ -84,7 +85,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     return;
                 }
 
-                var character = _adapter.Adapt<Character>(characterDto);
+                var character = characterDto.Adapt<Character>();
                 
                 character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId(character.MapId);
                 character.MapInstance = _mapInstanceProvider.GetMapInstance(character.MapInstanceId);
