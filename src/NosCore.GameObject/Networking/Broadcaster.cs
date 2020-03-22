@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Networking
         private ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; } =
             new ConcurrentDictionary<long, ClientSession.ClientSession>();
 
-        public static Broadcaster Instance => _instance ?? (_instance = new Broadcaster());
+        public static Broadcaster Instance => _instance ??= new Broadcaster();
 
         public IChannelGroup Sessions { get; set; }
 

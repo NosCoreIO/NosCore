@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Networking
         {
         }
 
-        public static TransportFactory Instance => _instance ?? (_instance = new TransportFactory());
+        public static TransportFactory Instance => _instance ??= new TransportFactory();
 
         public long GenerateTransportId()
         {
