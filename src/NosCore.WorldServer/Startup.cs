@@ -199,59 +199,59 @@ namespace NosCore.WorldServer
                     {
                         {
                             typeof(I18NActDescDto),
-                            c.Resolve<IGenericDao<I18NActDescDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NActDescDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NBCardDto),
-                            c.Resolve<IGenericDao<I18NBCardDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NBCardDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NCardDto),
-                            c.Resolve<IGenericDao<I18NCardDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key,
+                            c.Resolve<IGenericDao<I18NCardDto>>().LoadAll().GroupBy(x => x.Key ?? "").ToDictionary(x => x.Key,
                                 x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NItemDto),
-                            c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key,
+                            c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().GroupBy(x => x.Key ?? "").ToDictionary(x => x.Key,
                                 x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NMapIdDataDto),
-                            c.Resolve<IGenericDao<I18NMapIdDataDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NMapIdDataDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NMapPointDataDto),
-                            c.Resolve<IGenericDao<I18NMapPointDataDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NMapPointDataDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NNpcMonsterDto),
-                            c.Resolve<IGenericDao<I18NNpcMonsterDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NNpcMonsterDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NNpcMonsterTalkDto),
-                            c.Resolve<IGenericDao<I18NNpcMonsterTalkDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NNpcMonsterTalkDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NQuestDto),
-                            c.Resolve<IGenericDao<I18NQuestDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NQuestDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NSkillDto),
-                            c.Resolve<IGenericDao<I18NSkillDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NSkillDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         }
