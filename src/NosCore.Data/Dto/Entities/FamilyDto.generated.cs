@@ -66,7 +66,7 @@ namespace NosCore.Data.Dto
 
 	 	public bool MemberCanGetHistory { get; set; }
 
-	 	public string Name { get; set; }
+	 	public string? Name { get; set; }
 
 	 	public byte WarehouseSize { get; set; }
 

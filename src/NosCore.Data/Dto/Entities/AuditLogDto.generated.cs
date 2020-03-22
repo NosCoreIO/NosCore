@@ -36,15 +36,15 @@ namespace NosCore.Data.Dto
 		[Key]
 		public System.Guid AuditId { get; set; }
 
-	 	public string TargetId { get; set; }
+	 	public string? TargetId { get; set; }
 
-	 	public string TargetType { get; set; }
+	 	public string? TargetType { get; set; }
 
 	 	public System.DateTime Time { get; set; }
 
 	 	public NosCore.Data.Enumerations.Audit.AuditLogType AuditLogType { get; set; }
 
-	 	public string Value { get; set; }
+	 	public string? Value { get; set; }
 
 	 }
 }

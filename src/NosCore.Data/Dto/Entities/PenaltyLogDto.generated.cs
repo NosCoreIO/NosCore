@@ -37,7 +37,7 @@ namespace NosCore.Data.Dto
 
 	 	public long AccountId { get; set; }
 
-	 	public string AdminName { get; set; }
+	 	public string? AdminName { get; set; }
 
 	 	public System.DateTime DateEnd { get; set; }
 
@@ -48,7 +48,7 @@ namespace NosCore.Data.Dto
 	 	[Key]
 		public int PenaltyLogId { get; set; }
 
-	 	public string Reason { get; set; }
+	 	public string? Reason { get; set; }
 
 	 }
 }
