@@ -46,7 +46,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
     public class EntryPointPacketHandler : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {
         private readonly IGenericDao<AccountDto> _accountDao;
-        private readonly IMapper _adapter;
         private readonly IAuthHttpClient _authHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IGenericDao<CharacterDto> _characterDao;
@@ -54,13 +53,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly ILogger _logger;
         private readonly IGenericDao<MateDto> _mateDao;
 
-        public EntryPointPacketHandler(IMapper adapter, IGenericDao<CharacterDto> characterDao,
+        public EntryPointPacketHandler(IGenericDao<CharacterDto> characterDao,
             IGenericDao<AccountDto> accountDao,
             IGenericDao<MateDto> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient,
             IChannelHttpClient channelHttpClient)
         {
-            _adapter = adapter;
             _characterDao = characterDao;
             _accountDao = accountDao;
             _mateDao = mateDao;

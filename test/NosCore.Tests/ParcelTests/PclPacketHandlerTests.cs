@@ -41,7 +41,6 @@ namespace NosCore.Tests.ParcelTests
     [TestClass]
     public class PclPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private Mock<IMailHttpClient> _mailHttpClient;
         private PclPacketHandler _pclPacketHandler;
         private IItemProvider _item;

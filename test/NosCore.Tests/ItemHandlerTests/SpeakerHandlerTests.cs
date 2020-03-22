@@ -40,12 +40,10 @@ namespace NosCore.Tests.ItemHandlerTests
     public class SpeakerHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider _itemProvider;
-        private Mock<ILogger> _logger;
 
         [TestInitialize]
         public void Setup()
         {
-            _logger = new Mock<ILogger>();
             _session = TestHelpers.Instance.GenerateSession();
             _handler = new SpeakerHandler();
             var items = new List<ItemDto>

@@ -38,7 +38,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class SelectPacketHandler : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
-        private readonly IMapper _adapter;
         private readonly IGenericDao<CharacterDto> _characterDao;
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
         private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
@@ -49,13 +48,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
         private readonly IGenericDao<TitleDto> _titleDao;
 
-        public SelectPacketHandler(IMapper adapter, IGenericDao<CharacterDto> characterDao, ILogger logger,
+        public SelectPacketHandler(IGenericDao<CharacterDto> characterDao, ILogger logger,
             IItemProvider itemProvider,
             IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao,
             IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao,
             IGenericDao<QuicklistEntryDto> quickListEntriesDao, IGenericDao<TitleDto> titleDao)
         {
-            _adapter = adapter;
             _characterDao = characterDao;
             _logger = logger;
             _mapInstanceProvider = mapInstanceProvider;

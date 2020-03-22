@@ -5,6 +5,7 @@
     <TieredCompilation>true</TieredCompilation>
     <LangVersion>latest</LangVersion>
     <UseNETCoreGenerator>true</UseNETCoreGenerator>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

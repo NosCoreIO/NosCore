@@ -200,20 +200,13 @@ namespace NosCore.MasterServer
             LogLanguage.Language = _configuration.Language;
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
-            string password;
-            switch (_configuration.WebApi.HashingType)
+            var password = _configuration.WebApi.HashingType switch
             {
-                case HashingType.BCrypt:
-                    password = _configuration.WebApi.Password.ToBcrypt(_configuration.WebApi.Salt);
-                    break;
-                case HashingType.Pbkdf2:
-                    password = _configuration.WebApi.Password.ToPbkdf2Hash(_configuration.WebApi.Salt);
-                    break;
-                case HashingType.Sha512:
-                default:
-                    password = _configuration.WebApi.Password.ToSha512();
-                    break;
-            }
+                HashingType.BCrypt => _configuration.WebApi.Password.ToBcrypt(_configuration.WebApi.Salt),
+                HashingType.Pbkdf2 => _configuration.WebApi.Password.ToPbkdf2Hash(_configuration.WebApi.Salt),
+                HashingType.Sha512 => _configuration.WebApi.Password.ToSha512(),
+                _ => _configuration.WebApi.Password.ToSha512()
+            };
 
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);

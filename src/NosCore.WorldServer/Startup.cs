@@ -434,22 +434,15 @@ namespace NosCore.WorldServer
             });
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
-            string password;
-            switch (_worldConfiguration.MasterCommunication.HashingType)
+            var password = _worldConfiguration.MasterCommunication.HashingType switch
             {
-                case HashingType.BCrypt:
-                    password = _worldConfiguration.MasterCommunication.Password.ToBcrypt(_worldConfiguration
-                        .MasterCommunication.Salt);
-                    break;
-                case HashingType.Pbkdf2:
-                    password = _worldConfiguration.MasterCommunication.Password.ToPbkdf2Hash(_worldConfiguration
-                        .MasterCommunication.Salt);
-                    break;
-                case HashingType.Sha512:
-                default:
-                    password = _worldConfiguration.MasterCommunication.Password.ToSha512();
-                    break;
-            }
+                HashingType.BCrypt => _worldConfiguration.MasterCommunication.Password.ToBcrypt(_worldConfiguration
+                    .MasterCommunication?.Salt ?? ""),
+                HashingType.Pbkdf2 => _worldConfiguration.MasterCommunication.Password.ToPbkdf2Hash(_worldConfiguration
+                    .MasterCommunication?.Salt ?? ""),
+                HashingType.Sha512 => _worldConfiguration.MasterCommunication.Password.ToSha512(),
+                _ => _worldConfiguration.MasterCommunication.Password.ToSha512()
+            };
 
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(cfg =>

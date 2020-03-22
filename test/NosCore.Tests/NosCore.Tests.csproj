@@ -6,6 +6,8 @@
     <IsPackable>false</IsPackable>
 
     <LangVersion>latest</LangVersion>
+
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
