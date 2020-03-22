@@ -33,9 +33,11 @@ namespace NosCore.Database
         {
             var databaseConfiguration = new SqlConnectionConfiguration();
             var builder = new ConfigurationBuilder();
-            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-            builder.AddJsonFile("database.json", false);
-            builder.Build().Bind(databaseConfiguration);
+            builder
+                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                .AddYamlFile("database.yml", false)
+                .Build()
+                .Bind(databaseConfiguration);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(databaseConfiguration.ConnectionString);
             return new NosCoreContext(optionsBuilder.Options);

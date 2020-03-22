@@ -47,10 +47,10 @@ namespace NosCore.Core
 
         public int ConnectedAccountLimit { get; set; }
 
-        public ServerConfiguration WebApi { get; set; }
+        public ServerConfiguration? WebApi { get; set; }
 
         public RegionType UserLanguage { get; set; }
 
-        public string Token { get; set; }
+        public string? Token { get; set; }
     }
 }

@@ -24,7 +24,6 @@ using ChickenAPI.Packets.Enumerations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
@@ -38,12 +37,10 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
     public class BackPackHandler : IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>
     {
-        private readonly ILogger _logger;
         private readonly WorldConfiguration _conf;
 
-        public BackPackHandler(ILogger logger, WorldConfiguration conf)
+        public BackPackHandler(WorldConfiguration conf)
         {
-            _logger = logger;
             _conf = conf;
         }
 

@@ -51,10 +51,10 @@ namespace NosCore.Tests
                     @"string\.Format\([\s\n]*[Log]*Language.Instance.GetMessageFromKey\((?<key>[\s\n]*LanguageKey\.[\s\n]*[0-9A-Za-z_]*)[\s\n]*,[\s\n]*[\.0-9A-Za-z_]*\)(?<parameter>[\s\n]*,[\s\n]*[\.0-9A-Za-z_\[\]]*)*[\s\n]*\)",
                     RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
                 var matches = regex.Matches(content);
-                foreach (Match match in matches)
+                foreach (Match? match in matches)
                 {
-                    var param = match.Groups?.Values?.Where(s => s.Name == "parameter").FirstOrDefault()?.Captures.Count() ?? 0;
-                    var key = match.Groups?.Values?.FirstOrDefault(s => s.Name == "key")?.Value;
+                    var param = match?.Groups?.Values?.Where(s => s.Name == "parameter").FirstOrDefault()?.Captures.Count() ?? 0;
+                    var key = match?.Groups?.Values?.FirstOrDefault(s => s.Name == "key")?.Value ?? "";
                     if (_dict.ContainsKey(key))
                     {
                         if (_dict[key] != param)
@@ -121,9 +121,9 @@ namespace NosCore.Tests
                 var content = File.ReadAllText(file);
                 var regex = new Regex(@"(Log)?LanguageKey\.[0-9A-Za-z_]*");
                 var matches = regex.Matches(content);
-                foreach (Match match in matches)
+                foreach (Match? match in matches)
                 {
-                    if (match.Success)
+                    if (match?.Success == true)
                     {
                         if (dict.ContainsKey(match.Value))
                         {
@@ -137,11 +137,11 @@ namespace NosCore.Tests
                 }
             }
 
-            foreach (LanguageKey val in Enum.GetValues(typeof(LanguageKey)))
+            foreach (LanguageKey? val in Enum.GetValues(typeof(LanguageKey)))
             {
-                var type = val.GetType();
+                var type = val!.GetType();
                 var typeInfo = type.GetTypeInfo();
-                var memberInfo = typeInfo.GetMember(val.ToString());
+                var memberInfo = typeInfo.GetMember(val.ToString() ?? "");
                 var attributes = memberInfo[0].GetCustomAttributes<UsedImplicitlyAttribute>();
                 var attribute = attributes.FirstOrDefault();
 
@@ -220,9 +220,9 @@ namespace NosCore.Tests
             var values = Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s => s.ToString()).ToList();
             var logvalues = Enum.GetValues(typeof(LogLanguageKey)).OfType<LogLanguageKey>().Select(s => s.ToString())
                 .ToList();
-            foreach (DictionaryEntry entry in LogLanguage.Instance.GetRessourceSet(type.ToString()))
+            foreach (DictionaryEntry? entry in LogLanguage.Instance.GetRessourceSet(type.ToString()))
             {
-                var resourceKey = entry.Key.ToString();
+                var resourceKey = entry?.Key.ToString() ?? "";
                 if (!values.Contains(resourceKey) && !logvalues.Contains(resourceKey))
                 {
                     unfound.Append("key ").Append(resourceKey).Append(" is useless\n");

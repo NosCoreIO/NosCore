@@ -35,9 +35,10 @@ namespace NosCore.Database.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public byte ActId { get; set; }
 
+        [Required]
         [MaxLength(255)]
         [I18NString(typeof(I18NQuest))]
-        public string Title { get; set; }
+        public string Title { get; set; } = "";
 
         public virtual HashSet<ActPart> ActParts { get; set; }
 

@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Helper
             LoadMpHealthStand();
         }
 
-        public static CharacterHelper Instance => _instance ?? (_instance = new CharacterHelper());
+        public static CharacterHelper Instance => _instance ??= new CharacterHelper();
 
         // STAT DATA
 

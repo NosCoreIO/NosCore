@@ -5,6 +5,7 @@
     <TieredCompilation>true</TieredCompilation>
     <LangVersion>latest</LangVersion>
     <UseNETCoreGenerator>true</UseNETCoreGenerator>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -25,6 +26,13 @@
     <None Remove="Dto\I18NGenerated\**" />
     <None Remove="Dto\StaticEntitiesGenerated\**" />
     <None Remove="StaticEntities\Text\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Dto\GenerateDtos.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>GenerateDtos.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -65,5 +73,4 @@
     <Folder Include="Dto\I18N\" />
     <Folder Include="Dto\StaticEntities\" />
   </ItemGroup>
-
 </Project>

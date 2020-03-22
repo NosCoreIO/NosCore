@@ -40,8 +40,9 @@ namespace NosCore.Data.StaticEntities
 
 	 	public System.Collections.Generic.ICollection<MapTypeMapDto> MapTypeMap { get; set; }
 
-	 	public string MapTypeName { get; set; }
-
+	 	#nullable enable
+		public string? MapTypeName { get; set; }
+		#nullable disable
 	 	public short PotionDelay { get; set; }
 
 	 	public RespawnMapTypeDto RespawnMapType { get; set; }

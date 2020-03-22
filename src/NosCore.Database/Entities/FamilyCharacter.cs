@@ -32,7 +32,7 @@ namespace NosCore.Database.Entities
         public long CharacterId { get; set; }
 
         [MaxLength(255)]
-        public string DailyMessage { get; set; }
+        public string? DailyMessage { get; set; }
 
         public int Experience { get; set; }
 

@@ -7,11 +7,16 @@
     <LangVersion>latest</LangVersion>
     <ApplicationIcon />
     <StartupObject />
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\build\</OutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NetEscapades.Configuration.Yaml" Version="2.0.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />

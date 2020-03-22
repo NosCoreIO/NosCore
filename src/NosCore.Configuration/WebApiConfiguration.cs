@@ -29,6 +29,6 @@ namespace NosCore.Configuration
 
         public HashingType HashingType { get; set; }
 
-        public string Salt { get; set; }
+        public string? Salt { get; set; }
     }
 }

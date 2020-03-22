@@ -56,9 +56,12 @@ namespace NosCore.Parser
         private static void InitializeConfiguration()
         {
             var builder = new ConfigurationBuilder();
-            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-            builder.AddJsonFile("parser.json", false);
-            builder.Build().Bind(ParserConfiguration);
+            builder
+                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                .AddYamlFile("parser.yml", false)
+                .Build()
+                .Bind(ParserConfiguration);
+
             Validator.ValidateObject(ParserConfiguration, new ValidationContext(ParserConfiguration),
                 true);
             LogLanguage.Language = ParserConfiguration.Language;

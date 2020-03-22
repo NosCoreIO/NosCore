@@ -20,7 +20,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -75,7 +74,7 @@ namespace NosCore.Database.DAL
                             value = dto;
                         }
 
-                        TEntity entityfound = null;
+                        TEntity entityfound;
                         if (value is object[] objects)
                         {
                             entityfound = dbset.Find(objects);

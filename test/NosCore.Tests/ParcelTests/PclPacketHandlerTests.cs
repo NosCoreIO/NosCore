@@ -22,23 +22,16 @@ using System.Linq;
 using System.Linq.Expressions;
 using ChickenAPI.Packets.ClientPackets.Parcel;
 using ChickenAPI.Packets.ServerPackets.Parcel;
-using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Data;
-using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.Database;
 using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.PacketHandlers.Command;
-using NosCore.PacketHandlers.Inventory;
 using NosCore.PacketHandlers.Parcel;
 using NosCore.Tests.Helpers;
 using Serilog;
@@ -48,7 +41,6 @@ namespace NosCore.Tests.ParcelTests
     [TestClass]
     public class PclPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private Mock<IMailHttpClient> _mailHttpClient;
         private PclPacketHandler _pclPacketHandler;
         private IItemProvider _item;

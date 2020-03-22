@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Dto;
@@ -57,28 +58,33 @@ namespace NosCore.Core.Controllers
         [HttpPost("sessions")]
         public IActionResult ConnectUser(ApiSession session)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || session == null)
             {
                 return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
             }
 
             var account = _accountDao.FirstOrDefault(s => s.Name == session.Identity);
+            if (account == null)
+            {
+                return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
+            }
+
             switch (_apiConfiguration.HashingType)
             {
                 case HashingType.BCrypt:
-                    if (!(account?.NewAuthPassword.Equals(Encoding.Default
-                            .GetString(Convert.FromBase64String(account?.NewAuthPassword))
-                            .ToBcrypt(account.NewAuthSalt)) ??
-                        false))
+                    if (account?.NewAuthPassword != Encoding.Default
+                            .GetString(Convert.FromBase64String(account!.NewAuthPassword))
+                            .ToBcrypt(account.NewAuthSalt
+                        ))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
                     }
 
                     break;
                 case HashingType.Pbkdf2:
-                    if (!(account?.NewAuthPassword.Equals(Encoding.Default
-                        .GetString(Convert.FromBase64String(account?.NewAuthPassword))
-                        .ToPbkdf2Hash(account.NewAuthSalt)) ?? false))
+                    if (account.NewAuthPassword != Encoding.Default
+                        .GetString(Convert.FromBase64String(account.NewAuthPassword))
+                        .ToPbkdf2Hash(account.NewAuthSalt))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
                     }
@@ -86,7 +92,7 @@ namespace NosCore.Core.Controllers
                     break;
                 case HashingType.Sha512:
                 default:
-                    if (!(account?.Password.ToLower().Equals(session.Password.ToSha512()) ?? false))
+                    if (account.Password.ToLower() != (session.Password?.ToSha512() ?? ""))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
                     }
@@ -94,7 +100,7 @@ namespace NosCore.Core.Controllers
                     break;
             }
 
-            account.Language = Enum.Parse<RegionType>(session.GfLang.ToUpper(CultureInfo.CurrentCulture));
+            account.Language = Enum.Parse<RegionType>(session.GfLang?.ToUpper(CultureInfo.CurrentCulture) ?? "");
             _accountDao.InsertOrUpdate(ref account);
             var platformGameAccountId = Guid.NewGuid();
             var claims = new ClaimsIdentity(new[]
@@ -103,20 +109,13 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.Sid, platformGameAccountId.ToString()),
                 new Claim(ClaimTypes.Role, account.Authority.ToString())
             });
-            string password;
-            switch (_apiConfiguration.HashingType)
+            var password = _apiConfiguration.HashingType switch
             {
-                case HashingType.BCrypt:
-                    password = _apiConfiguration.Password.ToBcrypt(_apiConfiguration.Salt);
-                    break;
-                case HashingType.Pbkdf2:
-                    password = _apiConfiguration.Password.ToPbkdf2Hash(_apiConfiguration.Salt);
-                    break;
-                case HashingType.Sha512:
-                default:
-                    password = _apiConfiguration.Password.ToSha512();
-                    break;
-            }
+                HashingType.BCrypt => _apiConfiguration.Password.ToBcrypt(_apiConfiguration.Salt ?? ""),
+                HashingType.Pbkdf2 => _apiConfiguration.Password.ToPbkdf2Hash(_apiConfiguration.Salt ?? ""),
+                HashingType.Sha512 => _apiConfiguration.Password.ToSha512(),
+                _ => _apiConfiguration.Password.ToSha512()
+            };
 
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
@@ -140,7 +139,7 @@ namespace NosCore.Core.Controllers
         [HttpPost("codes")]
         public IActionResult GetAuthCode(ApiPlatformGameAccount platformGameAccount)
         {
-            var identity = (ClaimsIdentity) User.Identity;
+            var identity = (ClaimsIdentity)User.Identity;
             if (!identity.Claims.Any(s =>
                 (s.Type == ClaimTypes.Sid) && (s.Value == platformGameAccount.PlatformGameAccountId)))
             {
@@ -150,16 +149,16 @@ namespace NosCore.Core.Controllers
             var authCode = Guid.NewGuid();
             SessionFactory.Instance.AuthCodes[identity.Claims.First(s => s.Type == ClaimTypes.NameIdentifier).Value] =
                 authCode.ToString();
-            return Ok(new {code = authCode});
+            return Ok(new { code = authCode });
         }
 
 
         [HttpGet]
-        public IActionResult IsExpectingConnection(string id, string token, long sessionId)
+        public IActionResult IsExpectingConnection(string id, string? token, long sessionId)
         {
             if (SessionFactory.Instance.AuthCodes.ContainsKey(id))
             {
-                if ((token != "thisisgfmode") && (SessionFactory.Instance.AuthCodes[id] == HexStringToString(token)))
+                if ((token != "thisisgfmode") && (SessionFactory.Instance.AuthCodes[id] == HexStringToString(token ?? "")))
                 {
                     SessionFactory.Instance.ReadyForAuth.AddOrUpdate(id, sessionId, (key, oldValue) => sessionId);
                     return Ok(true);

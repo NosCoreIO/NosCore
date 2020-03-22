@@ -61,8 +61,9 @@ namespace NosCore.Database.Entities
         [Key]
         public long MailId { get; set; }
 
+        [Required]
         [MaxLength(255)]
-        public string Message { get; set; }
+        public string Message { get; set; } = "";
 
         public virtual Character Receiver { get; set; }
 
@@ -82,7 +83,8 @@ namespace NosCore.Database.Entities
 
         public short? SenderMorphId { get; set; }
 
+        [Required]
         [MaxLength(255)]
-        public string Title { get; set; }
+        public string Title { get; set; } = "";
     }
 }

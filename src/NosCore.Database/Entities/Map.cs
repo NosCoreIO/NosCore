@@ -59,9 +59,10 @@ namespace NosCore.Database.Entities
 
         public int Music { get; set; }
 
+        [Required]
         [MaxLength(255)]
         [I18NString(typeof(I18NMapIdData))]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         public virtual ICollection<Portal> Portal { get; set; }
 

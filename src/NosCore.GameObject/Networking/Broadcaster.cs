@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Networking
         private ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; } =
             new ConcurrentDictionary<long, ClientSession.ClientSession>();
 
-        public static Broadcaster Instance => _instance ?? (_instance = new Broadcaster());
+        public static Broadcaster Instance => _instance ??= new Broadcaster();
 
         public IChannelGroup Sessions { get; set; }
 
@@ -74,13 +74,13 @@ namespace NosCore.GameObject.Networking
             return GetCharacters(null);
         }
 
-        public IEnumerable<ICharacterEntity> GetCharacters(Func<ICharacterEntity, bool> func)
+        public IEnumerable<ICharacterEntity> GetCharacters(Func<ICharacterEntity, bool>? func)
         {
             return func == null ? ClientSessions.Values.Where(s => s.Character != null).Select(s => s.Character)
                 : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).Where(func);
         }
 
-        public ICharacterEntity GetCharacter(Func<ICharacterEntity, bool> func)
+        public ICharacterEntity? GetCharacter(Func<ICharacterEntity, bool>? func)
         {
             return func == null ? ClientSessions.Values.FirstOrDefault(s => s.Character != null)?.Character
                 : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character).FirstOrDefault(func);

@@ -20,7 +20,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using NosCore.Data;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities

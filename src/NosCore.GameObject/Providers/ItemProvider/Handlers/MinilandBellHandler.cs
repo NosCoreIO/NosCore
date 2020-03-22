@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -30,7 +29,6 @@ using ChickenAPI.Packets.ServerPackets.Chats;
 using ChickenAPI.Packets.ServerPackets.UI;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers

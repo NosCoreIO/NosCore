@@ -61,7 +61,7 @@ namespace NosCore.Database.Entities
         public int Mp { get; set; }
 
         [MaxLength(255)]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public virtual NpcMonster NpcMonster { get; set; }
 

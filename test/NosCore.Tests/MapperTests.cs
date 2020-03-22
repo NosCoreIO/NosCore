@@ -44,7 +44,7 @@ namespace NosCore.Tests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Account, AccountDto, long>(_logger);
-        private readonly Adapter _adapter = new Adapter();
+        private readonly MapsterMapper.Mapper _mapper = new MapsterMapper.Mapper();
 
         private readonly IGenericDao<CharacterDto> _characterDao =
             new GenericDao<Character, CharacterDto, long>(_logger);
@@ -66,7 +66,7 @@ namespace NosCore.Tests
         public void GoToDtoMappingWorks()
         {
             var monsterGo = new MapMonster(new List<NpcMonsterDto>(), _logger);
-            var monsterDto = _adapter.Adapt<MapMonsterDto>(monsterGo);
+            var monsterDto = _mapper.Map<MapMonsterDto>(monsterGo);
             Assert.IsNotNull(monsterDto);
         }
 
@@ -74,7 +74,7 @@ namespace NosCore.Tests
         public void DtoToGoMappingWorks()
         {
             var monsterDto = new MapMonsterDto();
-            var monsterGo = _adapter.Adapt<MapMonster>(monsterDto);
+            var monsterGo = _mapper.Map<MapMonster>(monsterDto);
             Assert.IsNotNull(monsterGo);
         }
 
@@ -82,7 +82,7 @@ namespace NosCore.Tests
         public void GoToEntityMappingWorks()
         {
             var monsterGo = new MapMonster(new List<NpcMonsterDto>(), _logger);
-            var monsterEntity = _adapter.Adapt<Database.Entities.MapMonster>(monsterGo);
+            var monsterEntity = _mapper.Map<Database.Entities.MapMonster>(monsterGo);
             Assert.IsNotNull(monsterEntity);
         }
 
@@ -90,7 +90,7 @@ namespace NosCore.Tests
         public void DtoToEntityMappingWorks()
         {
             var monsterDto = new MapMonsterDto();
-            var monsterEntity = _adapter.Adapt<Database.Entities.MapMonster>(monsterDto);
+            var monsterEntity = _mapper.Map<Database.Entities.MapMonster>(monsterDto);
             Assert.IsNotNull(monsterEntity);
         }
 
@@ -98,7 +98,7 @@ namespace NosCore.Tests
         public void EntityToDtoMappingWorks()
         {
             var monsterEntity = new Database.Entities.MapMonster();
-            var monsterDto = _adapter.Adapt<MapMonsterDto>(monsterEntity);
+            var monsterDto = _mapper.Map<MapMonsterDto>(monsterEntity);
             Assert.IsNotNull(monsterDto);
         }
 
@@ -106,7 +106,7 @@ namespace NosCore.Tests
         public void WearableInstanceToItemInstanceEntity()
         {
             var wearableInstanceGo = new WearableInstance(new Item());
-            var itemInstanceEntity = _adapter.Adapt<ItemInstance>(wearableInstanceGo);
+            var itemInstanceEntity = _mapper.Map<ItemInstance>(wearableInstanceGo);
             Assert.IsNotNull(itemInstanceEntity);
         }
 
@@ -115,7 +115,7 @@ namespace NosCore.Tests
         {
             var wearableInstanceGo = new WearableInstance(new Item());
             var itemInstanceGo =
-                _adapter.Adapt<GameObject.Providers.ItemProvider.Item.ItemInstance>(wearableInstanceGo);
+                _mapper.Map<GameObject.Providers.ItemProvider.Item.ItemInstance>(wearableInstanceGo);
             Assert.IsNotNull(itemInstanceGo);
         }
 
@@ -123,7 +123,7 @@ namespace NosCore.Tests
         public void WearableInstanceToItemInstanceDto()
         {
             var wearableInstanceGo = new WearableInstance(new Item());
-            var itemInstancedto = _adapter.Adapt<ItemInstanceDto>(wearableInstanceGo);
+            var itemInstancedto = _mapper.Map<ItemInstanceDto>(wearableInstanceGo);
             Assert.IsNotNull(itemInstancedto);
         }
 
@@ -131,7 +131,7 @@ namespace NosCore.Tests
         public void ItemInstanceToItemInstanceEntity()
         {
             var itemInstanceGo = new GameObject.Providers.ItemProvider.Item.ItemInstance(new Item());
-            var itemInstanceEntity = _adapter.Adapt<ItemInstance>(itemInstanceGo);
+            var itemInstanceEntity = _mapper.Map<ItemInstance>(itemInstanceGo);
             Assert.IsNotNull(itemInstanceEntity);
         }
 
@@ -140,7 +140,7 @@ namespace NosCore.Tests
         public void ItemInstanceDtoToItemInstanceEntity()
         {
             var itemInstanceDto = new ItemInstanceDto();
-            var itemInstanceEntity = _adapter.Adapt<ItemInstance>(itemInstanceDto);
+            var itemInstanceEntity = _mapper.Map<ItemInstance>(itemInstanceDto);
             Assert.IsNotNull(itemInstanceEntity);
         }
 
@@ -148,7 +148,7 @@ namespace NosCore.Tests
         public void WearableDtoToSpecialistDtoShouldFail()
         {
             var wearableInstanceDto = new WearableInstanceDto();
-            var specialistInstanceDto = _adapter.Adapt<SpecialistInstanceDto>(wearableInstanceDto);
+            var specialistInstanceDto = _mapper.Map<SpecialistInstanceDto>(wearableInstanceDto);
             Assert.IsNull(specialistInstanceDto);
         }
 
@@ -156,7 +156,7 @@ namespace NosCore.Tests
         public void WearableToSpecialistDtoShouldFail()
         {
             var wearableInstance = new WearableInstance();
-            var specialistInstanceDto = _adapter.Adapt<SpecialistInstanceDto>(wearableInstance);
+            var specialistInstanceDto = _mapper.Map<SpecialistInstanceDto>(wearableInstance);
             Assert.IsNull(specialistInstanceDto);
         }
 
@@ -164,7 +164,7 @@ namespace NosCore.Tests
         public void SpecialistDtoToSpecialistShouldPass()
         {
             var specialistInstanceDto = new SpecialistInstanceDto();
-            var specialistInstance = _adapter.Adapt<SpecialistInstance>(specialistInstanceDto);
+            var specialistInstance = _mapper.Map<SpecialistInstance>(specialistInstanceDto);
             Assert.IsNotNull(specialistInstance);
         }
 
@@ -172,7 +172,7 @@ namespace NosCore.Tests
         public void BoxDtoToBoxShouldPass()
         {
             var boxInstanceDto = new BoxInstanceDto();
-            var boxInstance = _adapter.Adapt<BoxInstance>(boxInstanceDto);
+            var boxInstance = _mapper.Map<BoxInstance>(boxInstanceDto);
             Assert.IsNotNull(boxInstance);
         }
 
@@ -180,7 +180,7 @@ namespace NosCore.Tests
         public void UsableDtoToUsableShouldPass()
         {
             var usableInstanceDto = new UsableInstanceDto();
-            var usableInstance = _adapter.Adapt<UsableInstance>(usableInstanceDto);
+            var usableInstance = _mapper.Map<UsableInstance>(usableInstanceDto);
             Assert.IsNotNull(usableInstance);
         }
     }

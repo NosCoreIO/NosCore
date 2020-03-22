@@ -30,7 +30,7 @@ namespace NosCore.Core.I18N
 
         private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-            .AddJsonFile("logger.json")
+            .AddYamlFile("logger.yml", false)
             .Build();
 
         private static readonly string[] AsciiTitle =
