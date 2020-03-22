@@ -144,8 +144,9 @@ namespace NosCore.Data.Dto
 
 	 	public string Prefix { get; set; }
 
-	 	public string? Name { get; set; }
-
+	 	#nullable enable
+		public string? Name { get; set; }
+		#nullable disable
 	 	public bool QuickGetUp { get; set; }
 
 	 	public System.Collections.Generic.ICollection<QuicklistEntryDto> QuicklistEntry { get; set; }

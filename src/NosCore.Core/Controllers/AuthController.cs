@@ -155,7 +155,7 @@ namespace NosCore.Core.Controllers
 
 
         [HttpGet]
-        public IActionResult IsExpectingConnection(string id, string token, long sessionId)
+        public IActionResult IsExpectingConnection(string id, string? token, long sessionId)
         {
             if (SessionFactory.Instance.AuthCodes.ContainsKey(id))
             {

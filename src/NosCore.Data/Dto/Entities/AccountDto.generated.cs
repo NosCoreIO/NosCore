@@ -42,8 +42,9 @@ namespace NosCore.Data.Dto
 
 	 	public string Email { get; set; }
 
-	 	public string? Name { get; set; }
-
+	 	#nullable enable
+		public string? Name { get; set; }
+		#nullable disable
 	 	public string Password { get; set; }
 
 	 	public string NewAuthPassword { get; set; }
