@@ -80,7 +80,8 @@ namespace NosCore.MasterServer
             var builder = new ConfigurationBuilder();
             var masterConfiguration = new MasterConfiguration();
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-            builder.AddJsonFile("master.json", false);
+            builder.AddYamlFile("master.yml", true);
+            builder.AddJsonFile("master.json", true);
             builder.Build().Bind(masterConfiguration);
             Validator.ValidateObject(masterConfiguration, new ValidationContext(masterConfiguration),
                 true);
