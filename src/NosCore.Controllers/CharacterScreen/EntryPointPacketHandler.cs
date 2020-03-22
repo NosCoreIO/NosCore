@@ -70,6 +70,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public override void Execute(EntryPointPacket packet, ClientSession clientSession)
         {
+            if (clientSession == null)
+            {
+                throw new ArgumentNullException(nameof(clientSession));
+            }
+
             if (clientSession.Account == null)
             {
                 var alreadyConnnected = false;
@@ -130,9 +135,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             var characters = _characterDao.Where(s =>
-                (s.AccountId == clientSession.Account.AccountId) && (s.State == CharacterState.Active));
+                (s.AccountId == clientSession.Account!.AccountId) && (s.State == CharacterState.Active));
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
-                clientSession.Account.Name);
+                clientSession.Account!.Name);
 
             // load characterlist packet for each character in Character
             clientSession.SendPacket(new ClistStartPacket {Type = 0});
