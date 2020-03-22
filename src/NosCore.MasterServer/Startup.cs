@@ -55,6 +55,7 @@ using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
@@ -79,10 +80,13 @@ namespace NosCore.MasterServer
         {
             var builder = new ConfigurationBuilder();
             var masterConfiguration = new MasterConfiguration();
-            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-            builder.AddYamlFile("master.yml", true);
-            builder.AddJsonFile("master.json", true);
-            builder.Build().Bind(masterConfiguration);
+            builder
+                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                .AddYamlFile("master.yml", true)
+                .AddJsonFile("master.json", true)
+                .Build()
+                .Bind(masterConfiguration);
+
             Validator.ValidateObject(masterConfiguration, new ValidationContext(masterConfiguration),
                 true);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
@@ -108,7 +112,7 @@ namespace NosCore.MasterServer
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                     var typepk = type.FindKey();
                     registerDatabaseObject.MakeGenericMethod(t, type, typepk.PropertyType)
-                        .Invoke(null, new[] {containerBuilder});
+                        .Invoke(null, new[] { containerBuilder });
                 });
 
             containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
@@ -131,11 +135,15 @@ namespace NosCore.MasterServer
                     var accessors = TypeAccessor.Create(typeof(ItemDto));
                     Parallel.ForEach(items, s => s.InjectI18N(props, dic, regions, accessors));
                     var staticMetaDataAttribute = typeof(ItemDto).GetCustomAttribute<StaticMetaDataAttribute>();
-                    if (items.Count != 0)
+                    if ((items.Count != 0) || (staticMetaDataAttribute == null) ||
+                        (staticMetaDataAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))
                     {
-                        c.Resolve<ILogger>().Information(
-                            LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.LoadedMessage),
-                            items.Count);
+                        if (items.Count != 0)
+                        {
+                            c.Resolve<ILogger>().Information(
+                                LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.LoadedMessage),
+                                items.Count);
+                        }
                     }
                     else
                     {
@@ -190,11 +198,11 @@ namespace NosCore.MasterServer
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = {_configuration.WebApi.ToString()}
+                Addresses = { _configuration.WebApi.ToString() }
             });
             LogLanguage.Language = _configuration.Language;
             services.AddSwaggerGen(c =>
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "NosCore Master API", Version = "v1"}));
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
             string password;
             switch (_configuration.WebApi.HashingType)
             {

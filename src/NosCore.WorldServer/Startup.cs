@@ -110,10 +110,13 @@ namespace NosCore.WorldServer
         {
             var builder = new ConfigurationBuilder();
             _worldConfiguration = new WorldConfiguration();
-            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-            builder.AddYamlFile("world.yml", true);
-            builder.AddJsonFile("world.json", true);
-            builder.Build().Bind(_worldConfiguration);
+            builder
+                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                .AddYamlFile("world.yml", true)
+                .AddJsonFile("world.json", true)
+                .Build()
+                .Bind(_worldConfiguration);
+
             Validator.ValidateObject(_worldConfiguration, new ValidationContext(_worldConfiguration),
                 true);
 
