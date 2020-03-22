@@ -66,7 +66,7 @@ namespace NosCore.Data.Dto
 	 	[Key]
 		public long MailId { get; set; }
 
-	 	public string Message { get; set; }
+	 	public string? Message { get; set; }
 
 	 	public CharacterDto Receiver { get; set; }
 
@@ -86,7 +86,7 @@ namespace NosCore.Data.Dto
 
 	 	public short? SenderMorphId { get; set; }
 
-	 	public string Title { get; set; }
+	 	public string? Title { get; set; }
 
 	 }
 }

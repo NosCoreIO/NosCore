@@ -50,7 +50,7 @@ namespace NosCore.Data.Dto
 
 	 	public int VisitCount { get; set; }
 
-	 	public string WelcomeMusicInfo { get; set; }
+	 	public string? WelcomeMusicInfo { get; set; }
 
 	 }
 }

@@ -144,7 +144,7 @@ namespace NosCore.Data.Dto
 
 	 	public string Prefix { get; set; }
 
-	 	public string Name { get; set; }
+	 	public string? Name { get; set; }
 
 	 	public bool QuickGetUp { get; set; }
 

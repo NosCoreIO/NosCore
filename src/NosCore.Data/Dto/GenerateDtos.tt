@@ -37,8 +37,6 @@
 				directory = "StaticEntities";
 				dtoInterface = "IStaticDto";
 				classNamespace = "NosCore.Data.StaticEntities";
-
-				//[StaticMetaDataAttribute(LoadedMessage = LogLanguageKey.ITEMS_LOADED)]
 			}
 #>
 //  __  _  __    __   ___ __  ___ ___  
@@ -106,8 +104,13 @@ namespace <#= classNamespace #>
 	 <#
 				} else {
 					var isDto = false;
+					var isNullable = false;
 					if(prop.OverrideKind != EnvDTE80.vsCMOverrideKind.vsCMOverrideKindNone ) {
 						isDto = true;
+					}
+					if (prop.Type.AsString == "string" && prop.Attributes.Cast<EnvDTE.CodeAttribute>().FirstOrDefault(s=> s.Name == "Required") != null)
+					{
+					    isNullable = true;
 					}
 					var attr = prop.Attributes.Cast<EnvDTE.CodeAttribute>().FirstOrDefault(s=> s.Name == "Key");
 					if(attr!=null)
@@ -118,7 +121,7 @@ namespace <#= classNamespace #>
 	<#
 					}
 #>
-	public <#= isDto ?  ConvertToDtoName(prop.Type.AsString) : prop.Type.AsString #> <#= prop.Name #> { get; set; }
+	public <#= isDto ?  ConvertToDtoName(prop.Type.AsString) : prop.Type.AsString #><#= isNullable ? "?":"" #> <#= prop.Name #> { get; set; }
 
 	 <#
 			}
