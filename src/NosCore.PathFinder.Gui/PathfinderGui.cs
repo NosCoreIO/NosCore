@@ -55,7 +55,8 @@ namespace NosCore.PathFinder.Gui
         {
             var builder = new ConfigurationBuilder();
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-            builder.AddJsonFile("pathfinder.json", false);
+            builder.AddYamlFile("pathfinder.yml", true);
+            builder.AddJsonFile("pathfinder.json", true);
             builder.Build().Bind(DatabaseConfiguration);
         }
 

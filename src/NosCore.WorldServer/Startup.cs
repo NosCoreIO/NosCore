@@ -111,7 +111,8 @@ namespace NosCore.WorldServer
             var builder = new ConfigurationBuilder();
             _worldConfiguration = new WorldConfiguration();
             builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-            builder.AddJsonFile("world.json", false);
+            builder.AddYamlFile("world.yml", true);
+            builder.AddJsonFile("world.json", true);
             builder.Build().Bind(_worldConfiguration);
             Validator.ValidateObject(_worldConfiguration, new ValidationContext(_worldConfiguration),
                 true);
