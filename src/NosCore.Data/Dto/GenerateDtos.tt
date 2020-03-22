@@ -120,9 +120,15 @@ namespace <#= classNamespace #>
 #>	[<#= attr.Name #>]
 	<#
 					}
+					if (isNullable)
+					{
+#>
+	#nullable enable
+	<#
+					}
 #>
 	public <#= isDto ?  ConvertToDtoName(prop.Type.AsString) : prop.Type.AsString #><#= isNullable ? "?":"" #> <#= prop.Name #> { get; set; }
-
+<#= isNullable ? "		#nullable disable":"" #>
 	 <#
 			}
 		}
