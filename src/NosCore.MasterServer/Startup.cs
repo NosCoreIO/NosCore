@@ -36,7 +36,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,7 +60,6 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
-using NosCore.Database.Entities.Base;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
@@ -238,15 +236,15 @@ namespace NosCore.MasterServer
                     };
                 });
 
-            services.AddMvc(o =>
+            services.AddAuthorization(o =>
                 {
-                    o.EnableEndpointRouting = false;
-                    var policy = new AuthorizationPolicyBuilder()
+                    o.DefaultPolicy = new AuthorizationPolicyBuilder()
                         .RequireAuthenticatedUser()
                         .Build();
-                    o.Filters.Add(new AuthorizeFilter(policy));
-                })
-                .AddNewtonsoftJson()
+                });
+
+            services
+                .AddControllers()
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
@@ -269,7 +267,14 @@ namespace NosCore.MasterServer
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore Master API"));
             app.UseAuthentication();
-            app.UseMvc();
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }

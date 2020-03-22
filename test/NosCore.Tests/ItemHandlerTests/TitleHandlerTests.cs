@@ -21,17 +21,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using NosCore.Configuration;
-using NosCore.Core.I18N;
-using NosCore.Data;
-using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.Buff;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
@@ -40,7 +31,6 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Tests.Helpers;
-using Serilog;
 
 namespace NosCore.Tests.ItemHandlerTests
 {
