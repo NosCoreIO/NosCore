@@ -42,9 +42,10 @@ namespace NosCore.Database.Entities
 
         public byte Level { get; set; }
 
+        [Required]
         [MaxLength(255)]
         [I18NString(typeof(I18NBCard))]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         public int Delay { get; set; }
 

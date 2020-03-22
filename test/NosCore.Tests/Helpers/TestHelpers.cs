@@ -272,7 +272,7 @@ namespace NosCore.Tests.Helpers
                     new UseItemPacketHandler(),
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
                         ConnectedAccountHttpClient.Object),
-                    new SelectPacketHandler(new Adapter(), CharacterDao, _logger, null, MapInstanceProvider,
+                    new SelectPacketHandler(CharacterDao, _logger, null, MapInstanceProvider,
                         _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, null, null)
                 }, FriendHttpClient.Object, null, PacketHttpClient.Object, minilandProvider.Object)
             {

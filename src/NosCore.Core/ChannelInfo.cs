@@ -26,17 +26,17 @@ namespace NosCore.Core
     public class ChannelInfo
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Host { get; set; }
+        public string? Name { get; set; }
+        public string? Host { get; set; }
         public int Port { get; set; }
 
         public int ConnectedAccountLimit { get; set; }
 
-        public ServerConfiguration WebApi { get; set; }
+        public ServerConfiguration? WebApi { get; set; }
 
         public DateTime LastPing { get; set; }
 
         public ServerType Type { get; set; }
-        public string Token { get; set; }
+        public string? Token { get; set; }
     }
 }

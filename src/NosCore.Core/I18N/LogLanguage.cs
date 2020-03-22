@@ -26,7 +26,7 @@ namespace NosCore.Core.I18N
 {
     public sealed class LogLanguage
     {
-        private static LogLanguage _instance;
+        private static LogLanguage? _instance;
 
         private static readonly CultureInfo _resourceCulture = new CultureInfo(Language.ToString());
 
@@ -35,17 +35,14 @@ namespace NosCore.Core.I18N
         private LogLanguage()
         {
             var assem = typeof(LogLanguageKey).Assembly;
-            if (assem != null)
-            {
-                _manager = new ResourceManager(
-                    assem.GetName().Name + ".Resource.LocalizedResources",
-                    assem);
-            }
+            _manager = new ResourceManager(
+                assem.GetName().Name + ".Resource.LocalizedResources",
+                assem);
         }
 
         public static RegionType Language { get; set; }
 
-        public static LogLanguage Instance => _instance ?? (_instance = new LogLanguage());
+        public static LogLanguage Instance => _instance ??= new LogLanguage();
 
         public string GetMessageFromKey(LogLanguageKey messageKey)
         {
@@ -57,7 +54,7 @@ namespace NosCore.Core.I18N
             var cult = culture != null ? new CultureInfo(culture) : _resourceCulture;
             var resourceMessage = (_manager != null) && (messageKey.ToString() != null)
                 ? _manager.GetResourceSet(cult, true,
-                        cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower())
+                        cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower(cult))
                     ?.GetString(messageKey.ToString()) : string.Empty;
 
             return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString()}>";

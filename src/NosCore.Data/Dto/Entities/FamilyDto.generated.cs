@@ -66,8 +66,9 @@ namespace NosCore.Data.Dto
 
 	 	public bool MemberCanGetHistory { get; set; }
 
-	 	public string Name { get; set; }
-
+	 	#nullable enable
+		public string? Name { get; set; }
+		#nullable disable
 	 	public byte WarehouseSize { get; set; }
 
 	 	public System.Collections.Generic.ICollection<WarehouseDto> Warehouses { get; set; }

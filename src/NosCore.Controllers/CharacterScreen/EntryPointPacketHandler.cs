@@ -23,6 +23,7 @@ using System.Linq;
 using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
+using MapsterMapper;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClient;
@@ -45,7 +46,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
     public class EntryPointPacketHandler : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {
         private readonly IGenericDao<AccountDto> _accountDao;
-        private readonly IAdapter _adapter;
         private readonly IAuthHttpClient _authHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IGenericDao<CharacterDto> _characterDao;
@@ -53,13 +53,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly ILogger _logger;
         private readonly IGenericDao<MateDto> _mateDao;
 
-        public EntryPointPacketHandler(IAdapter adapter, IGenericDao<CharacterDto> characterDao,
+        public EntryPointPacketHandler(IGenericDao<CharacterDto> characterDao,
             IGenericDao<AccountDto> accountDao,
             IGenericDao<MateDto> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient,
             IChannelHttpClient channelHttpClient)
         {
-            _adapter = adapter;
             _characterDao = characterDao;
             _accountDao = accountDao;
             _mateDao = mateDao;
@@ -71,6 +70,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public override void Execute(EntryPointPacket packet, ClientSession clientSession)
         {
+            if (clientSession == null)
+            {
+                throw new ArgumentNullException(nameof(clientSession));
+            }
+
             if (clientSession.Account == null)
             {
                 var alreadyConnnected = false;
@@ -131,13 +135,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             var characters = _characterDao.Where(s =>
-                (s.AccountId == clientSession.Account.AccountId) && (s.State == CharacterState.Active));
+                (s.AccountId == clientSession.Account!.AccountId) && (s.State == CharacterState.Active));
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
-                clientSession.Account.Name);
+                clientSession.Account!.Name);
 
             // load characterlist packet for each character in Character
             clientSession.SendPacket(new ClistStartPacket {Type = 0});
-            foreach (var character in characters.Select(characterDto => _adapter.Adapt<Character>(characterDto)))
+            foreach (var character in characters.Select(characterDto => characterDto.Adapt<Character>()))
             {
                 var equipment = new WearableInstance[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = _iteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);

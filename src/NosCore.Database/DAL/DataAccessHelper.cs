@@ -36,7 +36,7 @@ namespace NosCore.Database.DAL
         {
         }
 
-        public static DataAccessHelper Instance => _instance ?? (_instance = new DataAccessHelper());
+        public static DataAccessHelper Instance => _instance ??= new DataAccessHelper();
 
         /// <summary>
         ///     Creates new instance of database context.

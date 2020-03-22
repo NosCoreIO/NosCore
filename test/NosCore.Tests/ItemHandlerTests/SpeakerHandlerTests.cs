@@ -21,17 +21,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Inventory;
 using ChickenAPI.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Configuration;
-using NosCore.Core.I18N;
-using NosCore.Data;
-using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.Buff;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
@@ -48,12 +40,10 @@ namespace NosCore.Tests.ItemHandlerTests
     public class SpeakerHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider _itemProvider;
-        private Mock<ILogger> _logger;
 
         [TestInitialize]
         public void Setup()
         {
-            _logger = new Mock<ILogger>();
             _session = TestHelpers.Instance.GenerateSession();
             _handler = new SpeakerHandler();
             var items = new List<ItemDto>

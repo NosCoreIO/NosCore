@@ -49,7 +49,7 @@ namespace NosCore.Database.Entities
         public virtual ICollection<FamilyLog> FamilyLogs { get; set; }
 
         [MaxLength(255)]
-        public string FamilyMessage { get; set; }
+        public string? FamilyMessage { get; set; }
 
         public FamilyAuthorityType ManagerAuthorityType { get; set; }
 
@@ -67,8 +67,9 @@ namespace NosCore.Database.Entities
 
         public bool MemberCanGetHistory { get; set; }
 
+        [Required]
         [MaxLength(255)]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         public byte WarehouseSize { get; set; }
 

@@ -43,6 +43,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -84,6 +85,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -123,10 +125,12 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("TargetId")
+                        .IsRequired()
                         .HasColumnType("character varying(80)")
                         .HasMaxLength(80);
 
                     b.Property<string>("TargetType")
+                        .IsRequired()
                         .HasColumnType("character varying(32)")
                         .HasMaxLength(32);
 
@@ -134,6 +138,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Value")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -259,6 +264,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -402,6 +408,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255)
                         .IsUnicode(false);
@@ -685,6 +692,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -766,12 +774,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NActDescId");
@@ -790,12 +800,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NbCardId");
@@ -814,12 +826,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NCardId");
@@ -838,12 +852,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NItemId");
@@ -862,12 +878,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NMapIdDataId");
@@ -886,12 +904,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NMapPointDataId");
@@ -910,12 +930,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NNpcMonsterId");
@@ -934,12 +956,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NNpcMonsterTalkId");
@@ -958,12 +982,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NQuestId");
@@ -982,12 +1008,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NSkillId");
@@ -1211,6 +1239,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1358,6 +1387,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Message")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1386,6 +1416,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1412,12 +1443,14 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<byte[]>("Data")
+                        .IsRequired()
                         .HasColumnType("bytea");
 
                     b.Property<int>("Music")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1517,6 +1550,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("MapTypeName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<short>("PotionDelay")
@@ -1657,6 +1691,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("WelcomeMusicInfo")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("MinilandId");
@@ -1808,6 +1843,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1882,6 +1918,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("AdminName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("DateEnd")
@@ -1894,6 +1931,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Reason")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1953,6 +1991,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Desc")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1996,6 +2035,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -2316,6 +2356,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -2460,6 +2501,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 

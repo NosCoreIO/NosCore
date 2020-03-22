@@ -17,14 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Quicklist;
-using ChickenAPI.Packets.Enumerations;
 using ChickenAPI.Packets.ServerPackets.Player;
-using ChickenAPI.Packets.ServerPackets.Quicklist;
 using ChickenAPI.Packets.ServerPackets.UI;
-using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -36,13 +31,6 @@ namespace NosCore.PacketHandlers.Game
 {
     public class TitEqPacketHandler : PacketHandler<TitEqPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-
-        public TitEqPacketHandler(ILogger logger)
-        {
-            _logger = logger;
-        }
-
         public override void Execute(TitEqPacket titEqPacket, ClientSession session)
         {
             var tit = session.Character.Titles.FirstOrDefault(s => s.TitleType == titEqPacket.TitleId);

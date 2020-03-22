@@ -72,13 +72,15 @@ namespace NosCore.Database.Entities
 
         //this would create circular reference if it was FK
         public short? RequiredQuestId { get; set; }
-        
-        [MaxLength(255)]
-        [I18NString(typeof(I18NQuest))]
-        public string Title { get; set; }
 
+        [Required]
         [MaxLength(255)]
         [I18NString(typeof(I18NQuest))]
-        public string Desc { get; set; }
+        public string Title { get; set; } = "";
+
+        [Required]
+        [MaxLength(255)]
+        [I18NString(typeof(I18NQuest))]
+        public string Desc { get; set; } = "";
     }
 }

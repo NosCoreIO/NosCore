@@ -45,7 +45,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -110,9 +109,12 @@ namespace NosCore.WorldServer
         {
             var builder = new ConfigurationBuilder();
             _worldConfiguration = new WorldConfiguration();
-            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-            builder.AddJsonFile("world.json", false);
-            builder.Build().Bind(_worldConfiguration);
+            builder
+                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                .AddYamlFile("world.yml", false)
+                .Build()
+                .Bind(_worldConfiguration);
+
             Validator.ValidateObject(_worldConfiguration, new ValidationContext(_worldConfiguration),
                 true);
 
@@ -144,7 +146,7 @@ namespace NosCore.WorldServer
                         {
                             var regions = Enum.GetValues(typeof(RegionType));
                             var accessors = TypeAccessor.Create(typeof(TDto));
-                            Parallel.ForEach(items, s => ((IStaticDto) s).InjectI18N(props, dic, regions, accessors));
+                            Parallel.ForEach(items, s => ((IStaticDto)s).InjectI18N(props, dic, regions, accessors));
                         }
 
                         if ((items.Count != 0) || (staticMetaDataAttribute == null) ||
@@ -184,7 +186,7 @@ namespace NosCore.WorldServer
                 {
                     assemblyGo.Where(p => t.IsAssignableFrom(p)).ToList().ForEach(tgo =>
                     {
-                        registerMapper.MakeGenericMethod(tgo, t).Invoke(null, new[] {container});
+                        registerMapper.MakeGenericMethod(tgo, t).Invoke(null, new[] { container });
                     });
                 });
         }
@@ -197,59 +199,59 @@ namespace NosCore.WorldServer
                     {
                         {
                             typeof(I18NActDescDto),
-                            c.Resolve<IGenericDao<I18NActDescDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NActDescDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NBCardDto),
-                            c.Resolve<IGenericDao<I18NBCardDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NBCardDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NCardDto),
-                            c.Resolve<IGenericDao<I18NCardDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key,
+                            c.Resolve<IGenericDao<I18NCardDto>>().LoadAll().GroupBy(x => x.Key ?? "").ToDictionary(x => x.Key,
                                 x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NItemDto),
-                            c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key,
+                            c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().GroupBy(x => x.Key ?? "").ToDictionary(x => x.Key,
                                 x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NMapIdDataDto),
-                            c.Resolve<IGenericDao<I18NMapIdDataDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NMapIdDataDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NMapPointDataDto),
-                            c.Resolve<IGenericDao<I18NMapPointDataDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NMapPointDataDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NNpcMonsterDto),
-                            c.Resolve<IGenericDao<I18NNpcMonsterDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NNpcMonsterDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NNpcMonsterTalkDto),
-                            c.Resolve<IGenericDao<I18NNpcMonsterTalkDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NNpcMonsterTalkDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NQuestDto),
-                            c.Resolve<IGenericDao<I18NQuestDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NQuestDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NSkillDto),
-                            c.Resolve<IGenericDao<I18NSkillDto>>().LoadAll().GroupBy(x => x.Key)
+                            c.Resolve<IGenericDao<I18NSkillDto>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         }
@@ -274,7 +276,7 @@ namespace NosCore.WorldServer
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                     var typepk = type.FindKey();
                     registerDatabaseObject.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
-                        new[] {containerBuilder, (object) typeof(IStaticDto).IsAssignableFrom(t)});
+                        new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                 });
 
             containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
@@ -282,7 +284,7 @@ namespace NosCore.WorldServer
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterType<Adapter>().AsImplementedInterfaces().PropertiesAutowired();
+            containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces().PropertiesAutowired();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => (p.Namespace != "ChickenAPI.Packets.ServerPackets.Login") && (p.Name != "NoS0575Packet")
                     && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
@@ -419,11 +421,11 @@ namespace NosCore.WorldServer
 
             services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
             services.AddSwaggerGen(c =>
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "NosCore World API", Version = "v1"}));
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = {_worldConfiguration.WebApi.ToString()}
+                Addresses = { _worldConfiguration.WebApi.ToString() }
             });
             services.Configure<IServerAddressesFeature>(o =>
             {
@@ -432,22 +434,15 @@ namespace NosCore.WorldServer
             });
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
-            string password;
-            switch (_worldConfiguration.MasterCommunication.HashingType)
+            var password = _worldConfiguration.MasterCommunication.HashingType switch
             {
-                case HashingType.BCrypt:
-                    password = _worldConfiguration.MasterCommunication.Password.ToBcrypt(_worldConfiguration
-                        .MasterCommunication.Salt);
-                    break;
-                case HashingType.Pbkdf2:
-                    password = _worldConfiguration.MasterCommunication.Password.ToPbkdf2Hash(_worldConfiguration
-                        .MasterCommunication.Salt);
-                    break;
-                case HashingType.Sha512:
-                default:
-                    password = _worldConfiguration.MasterCommunication.Password.ToSha512();
-                    break;
-            }
+                HashingType.BCrypt => _worldConfiguration.MasterCommunication.Password.ToBcrypt(_worldConfiguration
+                    .MasterCommunication?.Salt ?? ""),
+                HashingType.Pbkdf2 => _worldConfiguration.MasterCommunication.Password.ToPbkdf2Hash(_worldConfiguration
+                    .MasterCommunication?.Salt ?? ""),
+                HashingType.Sha512 => _worldConfiguration.MasterCommunication.Password.ToSha512(),
+                _ => _worldConfiguration.MasterCommunication.Password.ToSha512()
+            };
 
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(cfg =>
@@ -465,18 +460,18 @@ namespace NosCore.WorldServer
                     };
                 });
 
-            services.AddMvc(o =>
+            services.AddAuthorization(o =>
                 {
-                    o.EnableEndpointRouting = false;
-                    var policy = new AuthorizationPolicyBuilder()
+                    o.DefaultPolicy = new AuthorizationPolicyBuilder()
                         .RequireAuthenticatedUser()
                         .Build();
-                    o.Filters.Add(new AuthorizeFilter(policy));
-                })
-                .AddNewtonsoftJson()
-                .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
-                .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
-                .AddControllersAsServices();
+                });
+
+            services.AddControllers()
+            .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
+            .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
+            .AddControllersAsServices();
+
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
 
             TypeAdapterConfig.GlobalSettings
@@ -508,7 +503,14 @@ namespace NosCore.WorldServer
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore World API"));
             app.UseAuthentication();
-            app.UseMvc();
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }

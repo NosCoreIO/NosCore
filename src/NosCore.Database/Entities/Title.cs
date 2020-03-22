@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using NosCore.Data.Enumerations.Buff;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
