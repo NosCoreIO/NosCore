@@ -31,13 +31,6 @@ namespace NosCore.PacketHandlers.Game
 {
     public class TitEqPacketHandler : PacketHandler<TitEqPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-
-        public TitEqPacketHandler(ILogger logger)
-        {
-            _logger = logger;
-        }
-
         public override void Execute(TitEqPacket titEqPacket, ClientSession session)
         {
             var tit = session.Character.Titles.FirstOrDefault(s => s.TitleType == titEqPacket.TitleId);

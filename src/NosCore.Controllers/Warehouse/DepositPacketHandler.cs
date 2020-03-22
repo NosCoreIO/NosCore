@@ -29,12 +29,10 @@ namespace NosCore.PacketHandlers.Warehouse
 {
     public class DepositPacketHandler : PacketHandler<DepositPacket>, IWorldPacketHandler
     {
-        private readonly IMinilandProvider _minilandProvider;
         private readonly IWarehouseHttpClient _warehouseHttpClient;
 
-        public DepositPacketHandler(IMinilandProvider minilandProvider, IWarehouseHttpClient warehouseHttpClient)
+        public DepositPacketHandler(IWarehouseHttpClient warehouseHttpClient)
         {
-            _minilandProvider = minilandProvider;
             _warehouseHttpClient = warehouseHttpClient;
         }
 

@@ -28,123 +28,123 @@ namespace NosCore.Database
         {
         }
 
-        public virtual DbSet<Account> Account { get; set; }
+        public virtual DbSet<Account>? Account { get; set; }
         
-        public virtual DbSet<AuditLog> AuditLog { get; set; }
+        public virtual DbSet<AuditLog>? AuditLog { get; set; }
 
-        public virtual DbSet<BazaarItem> BazaarItem { get; set; }
+        public virtual DbSet<BazaarItem>? BazaarItem { get; set; }
 
-        public virtual DbSet<Card> Card { get; set; }
+        public virtual DbSet<Card>? Card { get; set; }
 
-        public virtual DbSet<Miniland> Miniland { get; set; }
+        public virtual DbSet<Miniland>? Miniland { get; set; }
 
-        public virtual DbSet<BCard> BCard { get; set; }
+        public virtual DbSet<BCard>? BCard { get; set; }
 
-        public virtual DbSet<EquipmentOption> EquipmentOption { get; set; }
+        public virtual DbSet<EquipmentOption>? EquipmentOption { get; set; }
 
-        public virtual DbSet<Character> Character { get; set; }
+        public virtual DbSet<Character>? Character { get; set; }
 
-        public virtual DbSet<CharacterQuest> CharacterQuest { get; set; }
+        public virtual DbSet<CharacterQuest>? CharacterQuest { get; set; }
 
-        public virtual DbSet<CharacterRelation> CharacterRelation { get; set; }
+        public virtual DbSet<CharacterRelation>? CharacterRelation { get; set; }
 
-        public virtual DbSet<CharacterSkill> CharacterSkill { get; set; }
+        public virtual DbSet<CharacterSkill>? CharacterSkill { get; set; }
 
-        public virtual DbSet<RollGeneratedItem> RollGeneratedItem { get; set; }
+        public virtual DbSet<RollGeneratedItem>? RollGeneratedItem { get; set; }
 
-        public virtual DbSet<Combo> Combo { get; set; }
+        public virtual DbSet<Combo>? Combo { get; set; }
 
-        public virtual DbSet<Drop> Drop { get; set; }
+        public virtual DbSet<Drop>? Drop { get; set; }
 
-        public virtual DbSet<Family> Family { get; set; }
+        public virtual DbSet<Family>? Family { get; set; }
 
-        public virtual DbSet<FamilyCharacter> FamilyCharacter { get; set; }
+        public virtual DbSet<FamilyCharacter>? FamilyCharacter { get; set; }
 
-        public virtual DbSet<FamilyLog> FamilyLog { get; set; }
+        public virtual DbSet<FamilyLog>? FamilyLog { get; set; }
 
-        public virtual DbSet<Item> Item { get; set; }
+        public virtual DbSet<Item>? Item { get; set; }
 
-        public virtual DbSet<ItemInstance> ItemInstance { get; set; }
+        public virtual DbSet<ItemInstance>? ItemInstance { get; set; }
 
-        public virtual DbSet<Mail> Mail { get; set; }
+        public virtual DbSet<Mail>? Mail { get; set; }
 
-        public virtual DbSet<Map> Map { get; set; }
+        public virtual DbSet<Map>? Map { get; set; }
 
-        public virtual DbSet<MapMonster> MapMonster { get; set; }
+        public virtual DbSet<MapMonster>? MapMonster { get; set; }
 
-        public virtual DbSet<MapNpc> MapNpc { get; set; }
+        public virtual DbSet<MapNpc>? MapNpc { get; set; }
 
-        public virtual DbSet<MapType> MapType { get; set; }
+        public virtual DbSet<MapType>? MapType { get; set; }
 
-        public virtual DbSet<MapTypeMap> MapTypeMap { get; set; }
+        public virtual DbSet<MapTypeMap>? MapTypeMap { get; set; }
 
-        public virtual DbSet<Mate> Mate { get; set; }
+        public virtual DbSet<Mate>? Mate { get; set; }
 
-        public virtual DbSet<MinilandObject> MinilandObject { get; set; }
+        public virtual DbSet<MinilandObject>? MinilandObject { get; set; }
 
-        public virtual DbSet<NpcMonster> NpcMonster { get; set; }
+        public virtual DbSet<NpcMonster>? NpcMonster { get; set; }
 
-        public virtual DbSet<NpcMonsterSkill> NpcMonsterSkill { get; set; }
+        public virtual DbSet<NpcMonsterSkill>? NpcMonsterSkill { get; set; }
 
-        public virtual DbSet<PenaltyLog> PenaltyLog { get; set; }
+        public virtual DbSet<PenaltyLog>? PenaltyLog { get; set; }
 
-        public virtual DbSet<CharacterActPart> CharacterActPart { get; set; }
+        public virtual DbSet<CharacterActPart>? CharacterActPart { get; set; }
 
-        public virtual DbSet<ActPart> ActPart { get; set; }
+        public virtual DbSet<ActPart>? ActPart { get; set; }
 
-        public virtual DbSet<Act> Act { get; set; }
+        public virtual DbSet<Act>? Act { get; set; }
 
-        public virtual DbSet<Portal> Portal { get; set; }
+        public virtual DbSet<Portal>? Portal { get; set; }
 
-        public virtual DbSet<Quest> Quest { get; set; }
+        public virtual DbSet<Quest>? Quest { get; set; }
 
-        public virtual DbSet<QuestReward> QuestReward { get; set; }
+        public virtual DbSet<QuestReward>? QuestReward { get; set; }
 
-        public virtual DbSet<QuicklistEntry> QuicklistEntry { get; set; }
+        public virtual DbSet<QuicklistEntry>? QuicklistEntry { get; set; }
 
-        public virtual DbSet<Recipe> Recipe { get; set; }
+        public virtual DbSet<Recipe>? Recipe { get; set; }
 
-        public virtual DbSet<RecipeItem> RecipeItem { get; set; }
+        public virtual DbSet<RecipeItem>? RecipeItem { get; set; }
 
-        public virtual DbSet<Respawn> Respawn { get; set; }
+        public virtual DbSet<Respawn>? Respawn { get; set; }
 
-        public virtual DbSet<RespawnMapType> RespawnMapType { get; set; }
+        public virtual DbSet<RespawnMapType>? RespawnMapType { get; set; }
 
-        public virtual DbSet<ScriptedInstance> ScriptedInstance { get; set; }
+        public virtual DbSet<ScriptedInstance>? ScriptedInstance { get; set; }
 
-        public virtual DbSet<Shop> Shop { get; set; }
+        public virtual DbSet<Shop>? Shop { get; set; }
 
-        public virtual DbSet<ShopItem> ShopItem { get; set; }
+        public virtual DbSet<ShopItem>? ShopItem { get; set; }
 
-        public virtual DbSet<ShopSkill> ShopSkill { get; set; }
+        public virtual DbSet<ShopSkill>? ShopSkill { get; set; }
 
-        public virtual DbSet<Skill> Skill { get; set; }
+        public virtual DbSet<Skill>? Skill { get; set; }
 
-        public virtual DbSet<StaticBonus> StaticBonus { get; set; }
+        public virtual DbSet<StaticBonus>? StaticBonus { get; set; }
 
-        public virtual DbSet<Teleporter> Teleporter { get; set; }
+        public virtual DbSet<Teleporter>? Teleporter { get; set; }
 
-        public virtual DbSet<StaticBuff> StaticBuff { get; set; }
+        public virtual DbSet<StaticBuff>? StaticBuff { get; set; }
 
-        public virtual DbSet<I18NActDesc> I18NActDesc { get; set; }
+        public virtual DbSet<I18NActDesc>? I18NActDesc { get; set; }
 
-        public virtual DbSet<I18NBCard> I18NbCard { get; set; }
+        public virtual DbSet<I18NBCard>? I18NbCard { get; set; }
 
-        public virtual DbSet<I18NCard> I18NCard { get; set; }
+        public virtual DbSet<I18NCard>? I18NCard { get; set; }
 
-        public virtual DbSet<I18NItem> I18NItem { get; set; }
+        public virtual DbSet<I18NItem>? I18NItem { get; set; }
 
-        public virtual DbSet<I18NMapIdData> I18NMapIdData { get; set; }
+        public virtual DbSet<I18NMapIdData>? I18NMapIdData { get; set; }
 
-        public virtual DbSet<I18NMapPointData> I18NMapPointData { get; set; }
+        public virtual DbSet<I18NMapPointData>? I18NMapPointData { get; set; }
 
-        public virtual DbSet<I18NNpcMonster> I18NNpcMonster { get; set; }
+        public virtual DbSet<I18NNpcMonster>? I18NNpcMonster { get; set; }
 
-        public virtual DbSet<I18NNpcMonsterTalk> I18NNpcMonsterTalk { get; set; }
+        public virtual DbSet<I18NNpcMonsterTalk>? I18NNpcMonsterTalk { get; set; }
 
-        public virtual DbSet<I18NQuest> I18NQuest { get; set; }
+        public virtual DbSet<I18NQuest>? I18NQuest { get; set; }
 
-        public virtual DbSet<I18NSkill> I18NSkill { get; set; }
+        public virtual DbSet<I18NSkill>? I18NSkill { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

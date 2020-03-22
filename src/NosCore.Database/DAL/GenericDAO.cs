@@ -74,7 +74,7 @@ namespace NosCore.Database.DAL
                             value = dto;
                         }
 
-                        TEntity entityfound = null;
+                        TEntity entityfound;
                         if (value is object[] objects)
                         {
                             entityfound = dbset.Find(objects);

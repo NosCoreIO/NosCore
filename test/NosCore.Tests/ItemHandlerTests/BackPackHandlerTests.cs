@@ -44,14 +44,12 @@ namespace NosCore.Tests.ItemHandlerTests
     public class BackPackHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider _itemProvider;
-        private Mock<ILogger> _logger;
 
         [TestInitialize]
         public void Setup()
         {
-            _logger = new Mock<ILogger>();
             _session = TestHelpers.Instance.GenerateSession();
-            _handler = new BackPackHandler(_logger.Object, new WorldConfiguration { MaxAdditionalSpPoints = 1 });
+            _handler = new BackPackHandler(new WorldConfiguration { MaxAdditionalSpPoints = 1 });
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, ItemType = ItemType.Special, Effect = ItemEffectType.InventoryTicketUpgrade, EffectValue = 0},
