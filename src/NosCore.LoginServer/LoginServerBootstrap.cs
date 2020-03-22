@@ -80,10 +80,13 @@ namespace NosCore.LoginServer
         {
             var builder = new ConfigurationBuilder();
             _loginConfiguration = new LoginConfiguration();
-            builder.SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
-            builder.AddYamlFile("login.yml", true);
-            builder.AddJsonFile("login.json", true);
-            builder.Build().Bind(_loginConfiguration);
+            builder
+                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                .AddYamlFile("login.yml", true)
+                .AddJsonFile("login.json", true)
+                .Build()
+                .Bind(_loginConfiguration);
+
             Validator.ValidateObject(_loginConfiguration, new ValidationContext(_loginConfiguration),
                 true);
 
