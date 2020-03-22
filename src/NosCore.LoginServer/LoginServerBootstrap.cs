@@ -80,8 +80,7 @@ namespace NosCore.LoginServer
             _loginConfiguration = new LoginConfiguration();
             builder
                 .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("login.yml", true)
-                .AddJsonFile("login.json", true)
+                .AddYamlFile("login.yml", false)
                 .Build()
                 .Bind(_loginConfiguration);
 

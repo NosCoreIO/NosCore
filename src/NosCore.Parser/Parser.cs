@@ -58,8 +58,7 @@ namespace NosCore.Parser
             var builder = new ConfigurationBuilder();
             builder
                 .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("parser.yml", true)
-                .AddJsonFile("parser.json", true)
+                .AddYamlFile("parser.yml", false)
                 .Build()
                 .Bind(ParserConfiguration);
 
