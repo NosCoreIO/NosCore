@@ -111,9 +111,10 @@ namespace NosCore.Database.Entities
 
         public MonsterType MonsterType { get; set; }
 
+        [Required]
         [MaxLength(255)]
         [I18NString(typeof(I18NNpcMonster))]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         public bool NoAggresiveIcon { get; set; }
 

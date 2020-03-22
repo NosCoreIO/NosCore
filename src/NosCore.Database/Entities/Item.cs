@@ -169,9 +169,10 @@ namespace NosCore.Database.Entities
 
         public short MpRegeneration { get; set; }
 
+        [Required]
         [MaxLength(255)]
         [I18NString(typeof(I18NItem))]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         public long Price { get; set; }
 

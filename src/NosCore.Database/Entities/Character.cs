@@ -67,7 +67,7 @@ namespace NosCore.Database.Entities
         public virtual ICollection<CharacterActPart> CharacterActParts { get; set; }
 
         [MaxLength(255)]
-        public string Biography { get; set; }
+        public string? Biography { get; set; }
 
         public bool BuffBlocked { get; set; }
 
@@ -159,10 +159,11 @@ namespace NosCore.Database.Entities
         public int Mp { get; set; }
 
         [MaxLength(25)]
-        public string Prefix { get; set; }
+        public string? Prefix { get; set; }
 
+        [Required]
         [MaxLength(255)]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         public bool QuickGetUp { get; set; }
 

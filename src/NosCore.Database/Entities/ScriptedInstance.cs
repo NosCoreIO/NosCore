@@ -33,10 +33,10 @@ namespace NosCore.Database.Entities
 
         public short PositionY { get; set; }
 
-        public string Label { get; set; }
+        public string? Label { get; set; }
 
         [MaxLength(int.MaxValue)]
-        public string Script { get; set; }
+        public string? Script { get; set; }
 
         [Key]
         public short ScriptedInstanceId { get; set; }
