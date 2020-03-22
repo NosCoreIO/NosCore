@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Helper
             LoadMinilandGifts();
         }
 
-        public static MinilandHelper Instance => _instance ?? (_instance = new MinilandHelper());
+        public static MinilandHelper Instance => _instance ??= new MinilandHelper();
 
         private void LoadMinilandGifts()
         {
