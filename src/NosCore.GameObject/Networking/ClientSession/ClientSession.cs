@@ -118,7 +118,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public AccountDto Account { get; set; }
 
-        public Character Character
+        public Character? Character
         {
             get
             {
