@@ -24,7 +24,6 @@ using ChickenAPI.Packets.Enumerations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;

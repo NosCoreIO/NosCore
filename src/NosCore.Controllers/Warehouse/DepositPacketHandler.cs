@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using ChickenAPI.Packets.ClientPackets.Warehouse;
-using NosCore.Data;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.WarehouseHttpClient;

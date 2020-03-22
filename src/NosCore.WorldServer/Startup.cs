@@ -45,7 +45,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -148,7 +147,7 @@ namespace NosCore.WorldServer
                         {
                             var regions = Enum.GetValues(typeof(RegionType));
                             var accessors = TypeAccessor.Create(typeof(TDto));
-                            Parallel.ForEach(items, s => ((IStaticDto) s).InjectI18N(props, dic, regions, accessors));
+                            Parallel.ForEach(items, s => ((IStaticDto)s).InjectI18N(props, dic, regions, accessors));
                         }
 
                         if ((items.Count != 0) || (staticMetaDataAttribute == null) ||
@@ -188,7 +187,7 @@ namespace NosCore.WorldServer
                 {
                     assemblyGo.Where(p => t.IsAssignableFrom(p)).ToList().ForEach(tgo =>
                     {
-                        registerMapper.MakeGenericMethod(tgo, t).Invoke(null, new[] {container});
+                        registerMapper.MakeGenericMethod(tgo, t).Invoke(null, new[] { container });
                     });
                 });
         }
@@ -278,7 +277,7 @@ namespace NosCore.WorldServer
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                     var typepk = type.FindKey();
                     registerDatabaseObject.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
-                        new[] {containerBuilder, (object) typeof(IStaticDto).IsAssignableFrom(t)});
+                        new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                 });
 
             containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
@@ -286,7 +285,7 @@ namespace NosCore.WorldServer
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterType<Adapter>().AsImplementedInterfaces().PropertiesAutowired();
+            containerBuilder.RegisterType<Mapper>().AsImplementedInterfaces().PropertiesAutowired();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => (p.Namespace != "ChickenAPI.Packets.ServerPackets.Login") && (p.Name != "NoS0575Packet")
                     && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
@@ -423,11 +422,11 @@ namespace NosCore.WorldServer
 
             services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
             services.AddSwaggerGen(c =>
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "NosCore World API", Version = "v1"}));
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = {_worldConfiguration.WebApi.ToString()}
+                Addresses = { _worldConfiguration.WebApi.ToString() }
             });
             services.Configure<IServerAddressesFeature>(o =>
             {
@@ -469,18 +468,18 @@ namespace NosCore.WorldServer
                     };
                 });
 
-            services.AddMvc(o =>
+            services.AddAuthorization(o =>
                 {
-                    o.EnableEndpointRouting = false;
-                    var policy = new AuthorizationPolicyBuilder()
+                    o.DefaultPolicy = new AuthorizationPolicyBuilder()
                         .RequireAuthenticatedUser()
                         .Build();
-                    o.Filters.Add(new AuthorizeFilter(policy));
-                })
-                .AddNewtonsoftJson()
-                .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
-                .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
-                .AddControllersAsServices();
+                });
+
+            services.AddControllers()
+            .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
+            .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
+            .AddControllersAsServices();
+
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
 
             TypeAdapterConfig.GlobalSettings
@@ -512,7 +511,14 @@ namespace NosCore.WorldServer
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore World API"));
             app.UseAuthentication();
-            app.UseMvc();
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }
