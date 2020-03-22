@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    [Migration("20191207225019_Aphrodite1")]
+    [Migration("20200322071152_Aphrodite1")]
     partial class Aphrodite1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -18,7 +18,7 @@ namespace NosCore.Database.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.0")
+                .HasAnnotation("ProductVersion", "3.1.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("NosCore.Database.Entities.Account", b =>
@@ -45,6 +45,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -86,6 +87,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -96,21 +98,55 @@ namespace NosCore.Database.Migrations
 
             modelBuilder.Entity("NosCore.Database.Entities.ActPart", b =>
                 {
-                    b.Property<byte>("Id")
+                    b.Property<byte>("ActPartId")
                         .HasColumnType("smallint");
 
                     b.Property<byte>("ActId")
                         .HasColumnType("smallint");
 
-                    b.Property<byte>("ActPartId")
+                    b.Property<byte>("ActPartNumber")
                         .HasColumnType("smallint");
 
                     b.Property<byte>("MaxTs")
                         .HasColumnType("smallint");
 
-                    b.HasKey("Id");
+                    b.HasKey("ActPartId");
+
+                    b.HasIndex("ActId");
 
                     b.ToTable("ActPart");
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.AuditLog", b =>
+                {
+                    b.Property<Guid>("AuditId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AuditLogType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TargetId")
+                        .IsRequired()
+                        .HasColumnType("character varying(80)")
+                        .HasMaxLength(80);
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasColumnType("character varying(32)")
+                        .HasMaxLength(32);
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("character varying(255)")
+                        .HasMaxLength(255);
+
+                    b.HasKey("AuditId");
+
+                    b.ToTable("AuditLog");
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.BCard", b =>
@@ -230,6 +266,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -373,6 +410,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255)
                         .IsUnicode(false);
@@ -516,14 +554,11 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("SkillVNum")
                         .HasColumnType("smallint");
 
-                    b.Property<short?>("SkillVNum1")
-                        .HasColumnType("smallint");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CharacterId");
 
-                    b.HasIndex("SkillVNum1");
+                    b.HasIndex("SkillVNum");
 
                     b.ToTable("CharacterSkill");
                 });
@@ -547,12 +582,9 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("SkillVNum")
                         .HasColumnType("smallint");
 
-                    b.Property<short?>("SkillVNum1")
-                        .HasColumnType("smallint");
-
                     b.HasKey("ComboId");
 
-                    b.HasIndex("SkillVNum1");
+                    b.HasIndex("SkillVNum");
 
                     b.ToTable("Combo");
                 });
@@ -662,6 +694,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -743,12 +776,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NActDescId");
@@ -767,12 +802,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NbCardId");
@@ -791,12 +828,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NCardId");
@@ -815,12 +854,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NItemId");
@@ -839,12 +880,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NMapIdDataId");
@@ -863,12 +906,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NMapPointDataId");
@@ -887,12 +932,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NNpcMonsterId");
@@ -911,12 +958,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NNpcMonsterTalkId");
@@ -935,12 +984,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NQuestId");
@@ -959,12 +1010,14 @@ namespace NosCore.Database.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegionType")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("I18NSkillId");
@@ -1188,6 +1241,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1335,6 +1389,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Message")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1363,6 +1418,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1389,12 +1445,14 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<byte[]>("Data")
+                        .IsRequired()
                         .HasColumnType("bytea");
 
                     b.Property<int>("Music")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1494,6 +1552,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("MapTypeName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<short>("PotionDelay")
@@ -1634,6 +1693,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("WelcomeMusicInfo")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("MinilandId");
@@ -1785,6 +1845,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1833,23 +1894,17 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("NpcMonsterVNum")
                         .HasColumnType("smallint");
 
-                    b.Property<short?>("NpcMonsterVNum1")
-                        .HasColumnType("smallint");
-
                     b.Property<short>("Rate")
                         .HasColumnType("smallint");
 
                     b.Property<short>("SkillVNum")
                         .HasColumnType("smallint");
 
-                    b.Property<short?>("SkillVNum1")
-                        .HasColumnType("smallint");
-
                     b.HasKey("NpcMonsterSkillId");
 
-                    b.HasIndex("NpcMonsterVNum1");
+                    b.HasIndex("NpcMonsterVNum");
 
-                    b.HasIndex("SkillVNum1");
+                    b.HasIndex("SkillVNum");
 
                     b.ToTable("NpcMonsterSkill");
                 });
@@ -1865,6 +1920,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("AdminName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("DateEnd")
@@ -1877,6 +1933,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Reason")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1936,6 +1993,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Desc")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -1979,6 +2037,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -2299,6 +2358,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -2362,9 +2422,6 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("SkillVNum")
                         .HasColumnType("smallint");
 
-                    b.Property<short?>("SkillVNum1")
-                        .HasColumnType("smallint");
-
                     b.Property<byte>("Slot")
                         .HasColumnType("smallint");
 
@@ -2375,7 +2432,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("ShopId");
 
-                    b.HasIndex("SkillVNum1");
+                    b.HasIndex("SkillVNum");
 
                     b.ToTable("ShopSkill");
                 });
@@ -2446,6 +2503,7 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
@@ -2806,7 +2864,7 @@ namespace NosCore.Database.Migrations
                 {
                     b.HasOne("NosCore.Database.Entities.Act", "Act")
                         .WithMany("ActParts")
-                        .HasForeignKey("Id")
+                        .HasForeignKey("ActId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2919,16 +2977,18 @@ namespace NosCore.Database.Migrations
 
                     b.HasOne("NosCore.Database.Entities.Skill", "Skill")
                         .WithMany("CharacterSkill")
-                        .HasForeignKey("SkillVNum1")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("SkillVNum")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Combo", b =>
                 {
                     b.HasOne("NosCore.Database.Entities.Skill", "Skill")
                         .WithMany("Combo")
-                        .HasForeignKey("SkillVNum1")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("SkillVNum")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Drop", b =>
@@ -3124,13 +3184,15 @@ namespace NosCore.Database.Migrations
                 {
                     b.HasOne("NosCore.Database.Entities.NpcMonster", "NpcMonster")
                         .WithMany("NpcMonsterSkill")
-                        .HasForeignKey("NpcMonsterVNum1")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("NpcMonsterVNum")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("NosCore.Database.Entities.Skill", "Skill")
                         .WithMany("NpcMonsterSkill")
-                        .HasForeignKey("SkillVNum1")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("SkillVNum")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.PenaltyLog", b =>
@@ -3308,8 +3370,9 @@ namespace NosCore.Database.Migrations
 
                     b.HasOne("NosCore.Database.Entities.Skill", "Skill")
                         .WithMany("ShopSkill")
-                        .HasForeignKey("SkillVNum1")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("SkillVNum")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.StaticBonus", b =>
