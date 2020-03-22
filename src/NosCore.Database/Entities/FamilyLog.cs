@@ -31,7 +31,7 @@ namespace NosCore.Database.Entities
         public long FamilyId { get; set; }
 
         [MaxLength(255)]
-        public string FamilyLogData { get; set; }
+        public string? FamilyLogData { get; set; }
 
         [Key]
         public long FamilyLogId { get; set; }

@@ -34,34 +34,37 @@ namespace NosCore.Database.Entities
         }
 
         [Key]
+        [Required]
         public long AccountId { get; set; }
 
+        [Required]
         public AuthorityType Authority { get; set; }
 
         public virtual ICollection<Character> Character { get; set; }
 
         [MaxLength(255)]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
+        [Required]
         [MaxLength(255)]
         public string Name { get; set; }
 
         [MaxLength(255)]
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
         [MaxLength(255)]
-        public string NewAuthPassword { get; set; }
+        public string? NewAuthPassword { get; set; }
 
         [MaxLength(255)]
-        public string NewAuthSalt { get; set; }
+        public string? NewAuthSalt { get; set; }
 
         public virtual ICollection<PenaltyLog> PenaltyLog { get; set; }
 
         [MaxLength(45)]
-        public string RegistrationIp { get; set; }
+        public string? RegistrationIp { get; set; }
 
         [MaxLength(32)]
-        public string VerificationToken { get; set; }
+        public string? VerificationToken { get; set; }
 
         public RegionType Language { get; set; }
 

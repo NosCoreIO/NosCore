@@ -46,7 +46,7 @@ namespace NosCore.Database.Entities
         public virtual ICollection<MapType> MapTypes1 { get; set; }
 
         [MaxLength(255)]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public virtual ICollection<Respawn> Respawn { get; set; }
 

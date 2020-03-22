@@ -64,10 +64,10 @@ namespace NosCore.Core.Controllers
             switch (_apiConfiguration.HashingType)
             {
                 case HashingType.BCrypt:
-                    password = _apiConfiguration.Password.ToBcrypt(_apiConfiguration.Salt);
+                    password = _apiConfiguration.Password.ToBcrypt(_apiConfiguration.Salt ?? "");
                     break;
                 case HashingType.Pbkdf2:
-                    password = _apiConfiguration.Password.ToPbkdf2Hash(_apiConfiguration.Salt);
+                    password = _apiConfiguration.Password.ToPbkdf2Hash(_apiConfiguration.Salt ?? "");
                     break;
                 case HashingType.Sha512:
                 default:

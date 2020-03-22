@@ -40,7 +40,8 @@ namespace NosCore.Database.Entities
 
         public virtual ICollection<MapTypeMap> MapTypeMap { get; set; }
 
-        public string MapTypeName { get; set; }
+        [Required]
+        public string MapTypeName { get; set; } = "";
 
         public short PotionDelay { get; set; }
 

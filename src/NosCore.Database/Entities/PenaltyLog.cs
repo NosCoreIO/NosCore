@@ -30,7 +30,8 @@ namespace NosCore.Database.Entities
 
         public long AccountId { get; set; }
 
-        public string AdminName { get; set; }
+        [Required]
+        public string AdminName { get; set; } = "";
 
         public DateTime DateEnd { get; set; }
 
@@ -41,7 +42,8 @@ namespace NosCore.Database.Entities
         [Key]
         public int PenaltyLogId { get; set; }
 
+        [Required]
         [MaxLength(255)]
-        public string Reason { get; set; }
+        public string Reason { get; set; } = "";
     }
 }

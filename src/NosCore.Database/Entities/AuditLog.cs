@@ -27,18 +27,21 @@ namespace NosCore.Database.Entities
     {
         [Key]
         public Guid AuditId { get; set; }
-        
+
+        [Required]
         [MaxLength(80)]
-        public string TargetId { get; set; }
-        
+        public string TargetId { get; set; } = "";
+
+        [Required]
         [MaxLength(32)]
-        public string TargetType { get; set; }
+        public string TargetType { get; set; } = "";
         
         public DateTime Time { get; set; }
         
         public AuditLogType AuditLogType { get; set; }
-        
+
+        [Required]
         [MaxLength(255)]
-        public string Value { get; set; }
+        public string Value { get; set; } = "";
     }
 }
