@@ -9,7 +9,7 @@
 		}
   },
   "Host": "127.0.0.1",
-  "Port": ${PORT || 4002},
+  "Port": 4002,
   "Language" : "en",
   "UserLanguage": "fr",
   "Database": {
