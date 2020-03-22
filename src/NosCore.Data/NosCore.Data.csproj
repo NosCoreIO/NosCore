@@ -29,11 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Dto\GenerateDtos.\">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>GenerateDtos.tt</DependentUpon>
-    </Compile>
+    <None Update="Dto\GenerateDtos.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>GenerateDtos.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -44,11 +43,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Dto\GenerateDtos.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>GenerateDtos.tt</DependentUpon>
-    </Compile>
     <Compile Update="Resource\LocalizedResources.Designer.cs">
       <DependentUpon>LocalizedResources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -79,5 +73,4 @@
     <Folder Include="Dto\I18N\" />
     <Folder Include="Dto\StaticEntities\" />
   </ItemGroup>
-
 </Project>
