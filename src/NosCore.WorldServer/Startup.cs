@@ -75,7 +75,6 @@ using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.DependancyInjection;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Mapping;
@@ -419,7 +418,6 @@ namespace NosCore.WorldServer
             //PacketFactory.Initialize<NoS0575Packet>();
             InitializeConfiguration();
 
-            services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature

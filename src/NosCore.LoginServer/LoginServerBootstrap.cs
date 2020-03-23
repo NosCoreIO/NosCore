@@ -172,7 +172,6 @@ namespace NosCore.LoginServer
                     Logger.PrintHeader(ConsoleText);
                     InitializeConfiguration();
 
-                    services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
                     services.AddHttpClient();
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
