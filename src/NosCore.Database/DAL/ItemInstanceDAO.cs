@@ -20,6 +20,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -114,6 +115,7 @@ namespace NosCore.Database
             return SaveResult.Saved;
         }
 
+        [return: MaybeNull]
         public IItemInstanceDto FirstOrDefault(Expression<Func<IItemInstanceDto, bool>> predicate)
         {
             try

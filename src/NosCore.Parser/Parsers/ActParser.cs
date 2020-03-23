@@ -78,31 +78,29 @@ namespace NosCore.Parser.Parsers
             var actParts = new List<ActPartDto>();
             using (var stream = new StreamReader(folder + _fileQuestDat, Encoding.Default))
             {
-                string line;
+                string? line;
                 while ((line = stream.ReadLine()) != null)
                 {
                     var splitted = line.Split(' ','\t');
-                    if (splitted.Length == 3 && splitted[0] == "A")
+                    switch (splitted.Length)
                     {
-                        acts.Add(new ActDto
-                        {
-                            TitleI18NKey = splitted[2],
-                            ActId = Convert.ToByte(splitted[1]),
-                            Scene = (byte)(39 + Convert.ToByte(splitted[1]))
-                        });
-                        continue;
-                    }
-
-                    if (splitted.Length == 5 && splitted[0] == "Data")
-                    {
-                        actParts.Add(new ActPartDto
-                        {
-                            ActPartId = Convert.ToByte(splitted[1]),
-                            ActPartNumber = Convert.ToByte(splitted[3]),
-                            ActId = Convert.ToByte(splitted[2]),
-                            MaxTs = Convert.ToByte(splitted[4]),
-                        });
-                        continue;
+                        case 3 when splitted[0] == "A":
+                            acts.Add(new ActDto
+                            {
+                                TitleI18NKey = splitted[2],
+                                ActId = Convert.ToByte(splitted[1]),
+                                Scene = (byte)(39 + Convert.ToByte(splitted[1]))
+                            });
+                            continue;
+                        case 5 when splitted[0] == "Data":
+                            actParts.Add(new ActPartDto
+                            {
+                                ActPartId = Convert.ToByte(splitted[1]),
+                                ActPartNumber = Convert.ToByte(splitted[3]),
+                                ActId = Convert.ToByte(splitted[2]),
+                                MaxTs = Convert.ToByte(splitted[4]),
+                            });
+                            continue;
                     }
                 }
             }

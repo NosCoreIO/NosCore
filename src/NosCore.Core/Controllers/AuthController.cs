@@ -92,7 +92,7 @@ namespace NosCore.Core.Controllers
                     break;
                 case HashingType.Sha512:
                 default:
-                    if (account.Password.ToLower() != (session.Password?.ToSha512() ?? ""))
+                    if (account.Password.ToLower(CultureInfo.CurrentCulture) != (session.Password?.ToSha512() ?? ""))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
                     }

@@ -143,7 +143,7 @@ namespace NosCore.GameObject
         public Subject<RequestData> Requests { get; set; }
 
         public short Race => (byte)Class;
-        public Shop Shop { get; set; }
+        public Shop? Shop { get; set; }
 
         public bool Camouflage { get; set; }
 

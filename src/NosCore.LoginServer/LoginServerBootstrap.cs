@@ -54,7 +54,6 @@ using NosCore.Database.DAL;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.DependancyInjection;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -72,7 +71,7 @@ namespace NosCore.LoginServer
         private const string ConsoleText = "LOGIN SERVER - NosCoreIO";
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        private static LoginConfiguration _loginConfiguration;
+        private static LoginConfiguration? _loginConfiguration;
 
         private static void InitializeConfiguration()
         {
@@ -97,7 +96,7 @@ namespace NosCore.LoginServer
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterInstance(_loginConfiguration).As<LoginConfiguration>().As<ServerConfiguration>();
+            containerBuilder.RegisterInstance(_loginConfiguration!).As<LoginConfiguration>().As<ServerConfiguration>();
             containerBuilder.RegisterType<GenericDao<Account, AccountDto, long>>().As<IGenericDao<AccountDto>>()
                 .SingleInstance();
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
@@ -116,7 +115,7 @@ namespace NosCore.LoginServer
                 .PropertiesAutowired();
             containerBuilder.Register(c => new Channel
             {
-                MasterCommunication = _loginConfiguration.MasterCommunication,
+                MasterCommunication = _loginConfiguration!.MasterCommunication,
                 ClientType = ServerType.LoginServer,
                 ClientName = $"{ServerType.LoginServer}({_loginConfiguration.UserLanguage})",
                 Port = _loginConfiguration.Port,
@@ -148,7 +147,7 @@ namespace NosCore.LoginServer
         {
             try
             {
-                BuildHost(null).Run();
+                BuildHost(new string[0]).Run();
             }
             catch (Exception ex)
             {
@@ -172,7 +171,6 @@ namespace NosCore.LoginServer
                     Logger.PrintHeader(ConsoleText);
                     InitializeConfiguration();
 
-                    services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
                     services.AddHttpClient();
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();

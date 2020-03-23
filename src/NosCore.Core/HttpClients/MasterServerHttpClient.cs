@@ -18,10 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 
@@ -41,7 +44,7 @@ namespace NosCore.Core.HttpClients
             _channelHttpClient = channelHttpClient;
         }
 
-        public virtual string ApiUrl { get; set; }
+        public virtual string ApiUrl { get; set; } = "";
         public virtual bool RequireConnection { get; set; }
 
         public virtual HttpClient Connect()
@@ -83,7 +86,7 @@ namespace NosCore.Core.HttpClients
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
             }
 
-            throw new ArgumentException();
+            throw new WebException();
         }
 
 
@@ -98,7 +101,7 @@ namespace NosCore.Core.HttpClients
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
             }
 
-            throw new ArgumentException();
+            throw new WebException();
         }
 
         protected Task Post(object objectToPost)
@@ -109,12 +112,14 @@ namespace NosCore.Core.HttpClients
             return client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content);
         }
 
+        [return: MaybeNull]
         protected T Get<T>()
         {
             return Get<T>(null);
         }
 
-        protected T Get<T>(object id)
+        [return: MaybeNull]
+        protected T Get<T>(object? id)
         {
             var client = Connect();
             var response = client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}{(id != null ? $"?id={id}" : "")}")).Result;
@@ -123,7 +128,7 @@ namespace NosCore.Core.HttpClients
                 return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
             }
 
-            throw new ArgumentException();
+            throw new WebException();
         }
 
         protected Task Delete(object id)

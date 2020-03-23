@@ -19,10 +19,10 @@ namespace NosCore.Parser.Parsers.Generic
         private readonly string _fileAddress;
         private readonly string _endPattern;
         private readonly TypeAccessor _typeAccessor;
-        private Dictionary<string, Func<Dictionary<string, string[][]>, object>> _actionList;
+        private readonly Dictionary<string, Func<Dictionary<string, string[][]>, object?>> _actionList;
         private readonly int _firstIndex;
 
-        public GenericParser(string fileAddress, string endPattern, int firstIndex, Dictionary<string, Func<Dictionary<string, string[][]>, object>> actionList, ILogger logger)
+        public GenericParser(string fileAddress, string endPattern, int firstIndex, Dictionary<string, Func<Dictionary<string, string[][]>, object?>> actionList, ILogger logger)
         {
             _fileAddress = fileAddress;
             _endPattern = endPattern;
@@ -34,11 +34,9 @@ namespace NosCore.Parser.Parsers.Generic
 
         private IEnumerable<string> ParseTextFromFile()
         {
-            using (var stream = new StreamReader(_fileAddress, Encoding.Default))
-            {
-                var content = stream.ReadToEnd();
-                return content.Split(_endPattern);
-            }
+            using var stream = new StreamReader(_fileAddress, Encoding.Default);
+            var content = stream.ReadToEnd();
+            return content.Split(_endPattern);
         }
         public List<T> GetDtos() => GetDtos("\t");
         public List<T> GetDtos(string splitter)

@@ -49,7 +49,7 @@ namespace NosCore.Core.I18N
             return GetMessageFromKey(messageKey, null);
         }
 
-        public string GetMessageFromKey(LogLanguageKey messageKey, string culture)
+        public string GetMessageFromKey(LogLanguageKey messageKey, string? culture)
         {
             var cult = culture != null ? new CultureInfo(culture) : _resourceCulture;
             var resourceMessage = (_manager != null) && (messageKey.ToString() != null)
@@ -60,12 +60,12 @@ namespace NosCore.Core.I18N
             return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString()}>";
         }
 
-        public ResourceSet GetRessourceSet()
+        public ResourceSet? GetRessourceSet()
         {
             return GetRessourceSet(null);
         }
 
-        public ResourceSet GetRessourceSet(string culture)
+        public ResourceSet? GetRessourceSet(string? culture)
         {
             return _manager?.GetResourceSet(culture != null ? new CultureInfo(culture) : _resourceCulture, true, true);
         }

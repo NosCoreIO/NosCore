@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
-        private Character _character;
+        private Character? _character;
         private int? _waitForPacketsAmount;
 
         public ClientSession(ServerConfiguration configuration,
