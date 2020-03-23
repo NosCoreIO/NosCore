@@ -39,6 +39,7 @@ namespace NosCore.Core
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public int RandomNumber()

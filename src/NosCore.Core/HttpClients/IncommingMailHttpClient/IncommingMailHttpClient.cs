@@ -48,7 +48,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
         public void NotifyIncommingMail(int channelId, MailData mailRequest)
         {
             using var client = Connect(channelId);
-            var content = new StringContent(JsonConvert.SerializeObject(mailRequest), Encoding.Default,
+            using var content = new StringContent(JsonConvert.SerializeObject(mailRequest), Encoding.Default,
                 "application/json");
             client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).Wait();
         }

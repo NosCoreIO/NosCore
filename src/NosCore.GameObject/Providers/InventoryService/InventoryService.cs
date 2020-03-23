@@ -67,9 +67,9 @@ namespace NosCore.GameObject.Providers.InventoryService
             { NoscorePocketType.Wear, 0 },
         };
 
-        public InventoryItemInstance LoadBySlotAndType(short slot, NoscorePocketType type)
+        public InventoryItemInstance? LoadBySlotAndType(short slot, NoscorePocketType type)
         {
-            InventoryItemInstance retItem = default;
+            InventoryItemInstance? retItem = default;
             try
             {
                 retItem = this.Select(s => s.Value)
@@ -85,8 +85,8 @@ namespace NosCore.GameObject.Providers.InventoryService
 
         public bool CanAddItem(short itemVnum)
         {
-            var type = _items.Find(item => item.VNum == itemVnum).Type;
-            return GetFreeSlot(type).HasValue;
+            var type = _items.Find(item => item.VNum == itemVnum)?.Type;
+            return type != null && GetFreeSlot((NoscorePocketType)type).HasValue;
         }
 
         public int CountItem(int itemVNum)

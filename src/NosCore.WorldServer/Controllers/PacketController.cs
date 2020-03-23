@@ -62,7 +62,7 @@ namespace NosCore.WorldServer.Controllers
                     Broadcaster.Instance.SendPacket(message);
                     break;
                 case ReceiverType.OnlySomeone:
-                    ICharacterEntity receiverSession;
+                    ICharacterEntity? receiverSession;
 
                     if (postedPacket.ReceiverCharacter.Name != null)
                     {

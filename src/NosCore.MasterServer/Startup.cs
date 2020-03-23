@@ -120,7 +120,7 @@ namespace NosCore.MasterServer
                     {
                         {
                             typeof(I18NItemDto),
-                            c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key,
+                            c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key ?? "",
                                 x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         }
                     };

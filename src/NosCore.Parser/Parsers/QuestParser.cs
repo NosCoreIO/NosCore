@@ -54,7 +54,7 @@ namespace NosCore.Parser.Parsers
         private readonly IGenericDao<QuestObjectiveDto> _questObjectiveDao;
         private readonly IGenericDao<QuestQuestRewardDto> _questQuestRewardDao;
         private readonly IGenericDao<QuestRewardDto> _questRewardDao;
-        private Dictionary<short, QuestRewardDto> _questRewards;
+        private Dictionary<short, QuestRewardDto>? _questRewards;
 
         public QuestParser(IGenericDao<QuestDto> questDao, IGenericDao<QuestObjectiveDto> questObjectiveDao, 
             IGenericDao<QuestRewardDto> questRewardDao, IGenericDao<QuestQuestRewardDto> questQuestRewardDao, ILogger logger)
@@ -70,7 +70,7 @@ namespace NosCore.Parser.Parsers
         {
             _questRewards = _questRewardDao.LoadAll().ToDictionary(x => x.QuestRewardId, x => x);
 
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
+            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
                 {nameof(QuestDto.QuestId), chunk => Convert.ToInt16(chunk["VNUM"][0][1])},
                 {nameof(QuestDto.QuestType), chunk => Convert.ToInt32(chunk["VNUM"][0][2])},
@@ -88,8 +88,8 @@ namespace NosCore.Parser.Parsers
                 {nameof(QuestDto.StartDialogId), chunk => chunk["TARGET"][0][1] == "-1" ? (int?)null :  Convert.ToInt32(chunk["TALK"][0][1])},
                 {nameof(QuestDto.EndDialogId), chunk => chunk["TARGET"][0][2] == "-1" ? (int?)null :  Convert.ToInt32(chunk["TALK"][0][2])},
                 {nameof(QuestDto.NextQuestId), chunk => chunk["LINK"][0][1] == "-1" ? (short?)null :  Convert.ToInt16(chunk["LINK"][0][1])},
-                {nameof(QuestDto.QuestQuestReward), chunk => ImportQuestQuestRewards(chunk)},
-                {nameof(QuestDto.QuestObjective), chunk => ImportQuestObjectives(chunk)},
+                {nameof(QuestDto.QuestQuestReward), ImportQuestQuestRewards},
+                {nameof(QuestDto.QuestObjective), ImportQuestObjectives},
             };
             var genericParser = new GenericParser<QuestDto>(folder + _fileQuestDat, "END", 0, actionList, _logger);
             var quests = genericParser.GetDtos();
@@ -107,7 +107,7 @@ namespace NosCore.Parser.Parsers
             for (var i = 1; i < 5; i++)
             {
                 var prize = Convert.ToInt16(chunk["PRIZE"][0][i]);
-                if (prize == -1 || !_questRewards.ContainsKey(prize))
+                if ((prize == -1) || (_questRewards?.ContainsKey(prize) == false))
                 {
                     continue;
                 }

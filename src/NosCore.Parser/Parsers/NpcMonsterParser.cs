@@ -71,8 +71,8 @@ namespace NosCore.Parser.Parsers
         private readonly int[] _basicSecondaryMp = new int[100];
         private readonly int[] _basicXp = new int[100];
         private readonly int[] _basicJXp = new int[100];
-        private Dictionary<short, SkillDto> _skilldb;
-        private Dictionary<short, List<DropDto>> _dropdb;
+        private Dictionary<short, SkillDto>? _skilldb;
+        private Dictionary<short, List<DropDto>>? _dropdb;
 
         public NpcMonsterParser(IGenericDao<SkillDto> skillDao, IGenericDao<BCardDto> bCardDao,
             IGenericDao<DropDto> dropDao, IGenericDao<NpcMonsterSkillDto> npcMonsterSkillDao,
@@ -91,8 +91,8 @@ namespace NosCore.Parser.Parsers
         public void InsertNpcMonsters(string folder)
         {
             _skilldb = _skillDao.LoadAll().ToDictionary(x => x.SkillVNum, x => x);
-            _dropdb = _dropDao.LoadAll().Where(x => x.MonsterVNum != null).GroupBy(x => x.MonsterVNum).ToDictionary(x => (short)x.Key, x => x.ToList());
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
+            _dropdb = _dropDao.LoadAll().Where(x => x.MonsterVNum != null).GroupBy(x => x.MonsterVNum).ToDictionary(x => x.Key ?? 0, x => x.ToList());
+            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
                 {nameof(NpcMonsterDto.NpcMonsterVNum), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
                 {nameof(NpcMonsterDto.NameI18NKey), chunk => chunk["NAME"][0][2]},
@@ -217,7 +217,7 @@ namespace NosCore.Parser.Parsers
                     break;
                 }
 
-                if (!_skilldb.ContainsKey(vnum))
+                if (_skilldb?.ContainsKey(vnum) == false)
                 {
                     continue;
                 }
@@ -295,7 +295,7 @@ namespace NosCore.Parser.Parsers
                     break;
                 }
 
-                if (_dropdb.ContainsKey(monstervnum) && _dropdb[monstervnum].Count(s => s.VNum == vnum) != 0)
+                if (_dropdb?.ContainsKey(monstervnum) == true && (_dropdb[monstervnum].Count(s => s.VNum == vnum) != 0))
                 {
                     continue;
                 }
