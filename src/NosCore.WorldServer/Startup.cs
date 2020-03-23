@@ -102,7 +102,7 @@ namespace NosCore.WorldServer
         private const string Title = "NosCore - WorldServer";
         private const string ConsoleText = "WORLD SERVER - NosCoreIO";
 
-        private static WorldConfiguration _worldConfiguration;
+        private static WorldConfiguration? _worldConfiguration;
 
         private static void InitializeConfiguration()
         {
@@ -124,7 +124,7 @@ namespace NosCore.WorldServer
             LogLanguage.Language = _worldConfiguration.Language;
         }
 
-        public static void RegisterMapper<TGameObject, TDto>(IContainer container)
+        public static void RegisterMapper<TGameObject, TDto>(IContainer container) where TGameObject : notnull
         {
             TypeAdapterConfig<TDto, TGameObject>.NewConfig().ConstructUsing(src => container.Resolve<TGameObject>());
         }
@@ -145,7 +145,7 @@ namespace NosCore.WorldServer
                         {
                             var regions = Enum.GetValues(typeof(RegionType));
                             var accessors = TypeAccessor.Create(typeof(TDto));
-                            Parallel.ForEach(items, s => ((IStaticDto)s).InjectI18N(props, dic, regions, accessors));
+                            Parallel.ForEach(items, s => ((IStaticDto)s!).InjectI18N(props, dic, regions, accessors));
                         }
 
                         if ((items.Count != 0) || (staticMetaDataAttribute == null) ||
@@ -183,9 +183,9 @@ namespace NosCore.WorldServer
                 .ToList()
                 .ForEach(t =>
                 {
-                    assemblyGo.Where(p => t.IsAssignableFrom(p)).ToList().ForEach(tgo =>
+                    assemblyGo.Where(t.IsAssignableFrom).ToList().ForEach(tgo =>
                     {
-                        registerMapper.MakeGenericMethod(tgo, t).Invoke(null, new[] { container });
+                        registerMapper?.MakeGenericMethod(tgo, t).Invoke(null, new object?[] { container });
                     });
                 });
         }
@@ -274,7 +274,7 @@ namespace NosCore.WorldServer
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                     var typepk = type.FindKey();
-                    registerDatabaseObject.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
+                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
                         new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                 });
 
@@ -297,8 +297,8 @@ namespace NosCore.WorldServer
                 .SingleInstance();
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterInstance(_worldConfiguration).As<WorldConfiguration>().As<ServerConfiguration>();
-            containerBuilder.RegisterInstance(_worldConfiguration.MasterCommunication).As<WebApiConfiguration>();
+            containerBuilder.RegisterInstance(_worldConfiguration!).As<WorldConfiguration>().As<ServerConfiguration>();
+            containerBuilder.RegisterInstance(_worldConfiguration!.MasterCommunication).As<WebApiConfiguration>();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
@@ -423,7 +423,7 @@ namespace NosCore.WorldServer
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
-                Addresses = { _worldConfiguration.WebApi.ToString() }
+                Addresses = { _worldConfiguration!.WebApi.ToString() }
             });
             services.Configure<IServerAddressesFeature>(o =>
             {

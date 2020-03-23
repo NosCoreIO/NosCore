@@ -46,7 +46,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
         private DateTime _lastUpdateToken;
-        private string _token;
+        private string? _token;
 
         public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger)
         {
@@ -60,7 +60,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
 
-            var content = new StringContent(JsonConvert.SerializeObject(_channel),
+            using var content = new StringContent(JsonConvert.SerializeObject(_channel),
                 Encoding.Default, "application/json");
 
             var message = Policy
@@ -99,7 +99,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
-            var content = new StringContent(JsonConvert.SerializeObject(SystemTime.Now()), Encoding.Default,
+            using var content = new StringContent(JsonConvert.SerializeObject(SystemTime.Now()), Encoding.Default,
                 "application/json");
 
             var postResponse = client
@@ -151,7 +151,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
                     SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
                 });
                 _channel.Token = handler.WriteToken(securityToken);
-                var content = new StringContent(JsonConvert.SerializeObject(_channel),
+                using var content = new StringContent(JsonConvert.SerializeObject(_channel),
                     Encoding.Default, "application/json");
                 var message = client.PutAsync(new Uri($"{client.BaseAddress}api/channel"), content);
                 var result =

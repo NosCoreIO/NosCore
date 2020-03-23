@@ -39,8 +39,8 @@ namespace NosCore.GameObject.Providers.InventoryService
         int CountItemInAnPocket(NoscorePocketType inv);
         InventoryItemInstance DeleteById(Guid id);
         InventoryItemInstance DeleteFromTypeAndSlot(NoscorePocketType type, short slot);
-        InventoryItemInstance LoadByItemInstanceId(Guid id);
-        InventoryItemInstance LoadBySlotAndType(short slot, NoscorePocketType type);
+        InventoryItemInstance? LoadByItemInstanceId(Guid id);
+        InventoryItemInstance? LoadBySlotAndType(short slot, NoscorePocketType type);
 
         InventoryItemInstance MoveInPocket(short sourceSlot, NoscorePocketType sourceType,
             NoscorePocketType targetType);
