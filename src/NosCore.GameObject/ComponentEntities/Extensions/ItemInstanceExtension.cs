@@ -30,7 +30,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class IItemInstanceExtension
     {
-        public static IvnSubPacket GenerateIvnSubPacket([CanBeNull] this IItemInstance itemInstance, PocketType type,
+        public static IvnSubPacket GenerateIvnSubPacket(this IItemInstance? itemInstance, PocketType type,
             short slot)
         {
             if (itemInstance == null)
@@ -66,7 +66,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return new IvnPacket
                 {
                     Type = type,
-                    IvnSubPackets = new List<IvnSubPacket> {((IItemInstance) null).GenerateIvnSubPacket(type, slot)}
+                    IvnSubPackets = new List<IvnSubPacket> {((IItemInstance?) null).GenerateIvnSubPacket(type, slot)}
                 };
             }
 

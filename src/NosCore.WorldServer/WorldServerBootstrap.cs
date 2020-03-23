@@ -36,9 +36,11 @@ namespace NosCore.WorldServer
 
         public static void Main()
         {
-            var host = BuildWebHost(null);
+            var host = BuildWebHost(new string[0]);
             // ReSharper disable PossibleNullReferenceException
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             (host.ServerFeatures[typeof(IServerAddressesFeature)] as IServerAddressesFeature).Addresses.Add(
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                 (host.Services.GetService(typeof(IServerAddressesFeature)) as IServerAddressesFeature)?.Addresses
                 .First());
             // ReSharper enable PossibleNullReferenceException

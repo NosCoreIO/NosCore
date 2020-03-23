@@ -18,12 +18,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using ChickenAPI.Packets.ClientPackets.Inventory;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -34,9 +37,13 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
+using NosCore.GameObject;
 using NosCore.GameObject.Mapping;
+using NosCore.GameObject.Providers.ItemProvider;
 using OpenTK.Graphics;
 using Serilog;
+using InventoryItemInstance = NosCore.GameObject.Providers.InventoryService.InventoryItemInstance;
+using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 
 namespace NosCore.PathFinder.Gui
 {
@@ -46,7 +53,7 @@ namespace NosCore.PathFinder.Gui
         private const string Title = "NosCore - Pathfinder GUI";
         private const string ConsoleText = "PATHFINDER GUI - NosCoreIO";
         private static readonly PathfinderGuiConfiguration DatabaseConfiguration = new PathfinderGuiConfiguration();
-        private static GuiWindow _guiWindow;
+        private static GuiWindow? _guiWindow;
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private static readonly IGenericDao<MapDto> _mapDao = new GenericDao<Map, MapDto, short>(Logger);
         private static readonly IGenericDao<NpcMonsterDto> _npcMonsterDao = new GenericDao<NpcMonster, NpcMonsterDto, long>(Logger);
@@ -76,7 +83,7 @@ namespace NosCore.PathFinder.Gui
 
                 var npcMonsters = _npcMonsterDao.LoadAll().ToList();
                 TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig().ConstructUsing(src => new GameObject.MapMonster(npcMonsters, Logger));
-                TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig().ConstructUsing(src => new GameObject.MapNpc(null, null, null, npcMonsters, Logger));
+                TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig().ConstructUsing(src => new GameObject.MapNpc(new Mock<IItemProvider>().Object, new Mock<IGenericDao<ShopDto>>().Object, new Mock<IGenericDao<ShopItemDto>>().Object, npcMonsters, Logger));
                 while (true)
                 {
                     Logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
@@ -87,7 +94,7 @@ namespace NosCore.PathFinder.Gui
                         continue;
                     }
 
-                    var map = _mapDao.FirstOrDefault(m => m.MapId == askMapId).Adapt<GameObject.Map.Map>();
+                    var map = _mapDao.FirstOrDefault(m => m.MapId == askMapId)?.Adapt<GameObject.Map.Map>();
 
                     if ((map?.XLength > 0) && (map.YLength > 0))
                     {

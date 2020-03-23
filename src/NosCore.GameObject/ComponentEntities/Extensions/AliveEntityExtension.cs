@@ -336,7 +336,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static NInvPacket GenerateNInv(this IAliveEntity aliveEntity, double percent, short typeshop,
             byte shopKind)
         {
-            var shopItemList = new List<NInvItemSubPacket>();
+            var shopItemList = new List<NInvItemSubPacket?>();
             var list = aliveEntity.Shop.ShopItems.Values.Where(s => s.Type == typeshop).ToList();
             for (var i = 0; i < aliveEntity.Shop.Size; i++)
             {

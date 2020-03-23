@@ -65,7 +65,7 @@ namespace NosCore.Parser
         private readonly IGenericDao<I18NSkillDto> _i18NSkillDao;
         private readonly ILogger _logger;
         private readonly string password = "test".ToSha512();
-        private string _folder;
+        private string _folder = "";
 
         public ImportFactory(CardParser cardParser, DropParser dropParser, ItemParser itemParser,
             MapMonsterParser mapMonsterParser,
@@ -198,15 +198,13 @@ namespace NosCore.Parser
         public void ImportPackets()
         {
             var filePacket = $"{_folder}{Path.DirectorySeparatorChar}packet.txt";
-            using (var packetTxtStream =
-                new StreamReader(filePacket, Encoding.Default))
+            using var packetTxtStream =
+                new StreamReader(filePacket, Encoding.Default);
+            string? line;
+            while ((line = packetTxtStream.ReadLine()) != null)
             {
-                string line;
-                while ((line = packetTxtStream.ReadLine()) != null)
-                {
-                    var linesave = line.Split(' ');
-                    _packetList.Add(linesave);
-                }
+                var linesave = line.Split(' ');
+                _packetList.Add(linesave);
             }
         }
 
