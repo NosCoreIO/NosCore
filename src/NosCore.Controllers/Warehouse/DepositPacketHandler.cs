@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.Warehouse
 
         public override void Execute(DepositPacket depositPacket, ClientSession clientSession)
         {
-            IItemInstance itemInstance = null;
+            IItemInstance itemInstance = new ItemInstance();
             short slot = 0;
             var warehouseItems = _warehouseHttpClient.DepositItem(clientSession.Character!.CharacterId,
                 WarehouseType.Warehouse, itemInstance, slot);

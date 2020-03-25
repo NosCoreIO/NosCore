@@ -35,7 +35,7 @@ namespace NosCore.GameObject
 
         public ConcurrentDictionary<int, ShopItem> ShopItems { get; set; }
 
-        public ClientSession Session { get; set; }
+        public ClientSession? Session { get; set; }
         public long Sell { get; internal set; }
 
         public int Size
