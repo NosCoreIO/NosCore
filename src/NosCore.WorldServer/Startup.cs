@@ -101,7 +101,7 @@ namespace NosCore.WorldServer
         private const string Title = "NosCore - WorldServer";
         private const string ConsoleText = "WORLD SERVER - NosCoreIO";
 
-        private static readonly WorldConfiguration _worldConfiguration = new WorldConfiguration();
+        private static WorldConfiguration _worldConfiguration = new WorldConfiguration();
 
         public Startup(IConfiguration configuration)
         {
@@ -283,7 +283,7 @@ namespace NosCore.WorldServer
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterInstance(_worldConfiguration!).As<WorldConfiguration>().As<ServerConfiguration>();
-            containerBuilder.RegisterInstance(_worldConfiguration!.MasterCommunication!).As<WebApiConfiguration>();
+            containerBuilder.RegisterInstance(_worldConfiguration!.MasterCommunication).As<WebApiConfiguration>();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
@@ -296,7 +296,7 @@ namespace NosCore.WorldServer
                 new Claim(ClaimTypes.NameIdentifier, "Server"),
                 new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
             });
-            var keyByteArray = Encoding.Default.GetBytes(_worldConfiguration.MasterCommunication!.Password!.ToSha512());
+            var keyByteArray = Encoding.Default.GetBytes(_worldConfiguration.MasterCommunication.Password.ToSha512());
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
@@ -309,12 +309,12 @@ namespace NosCore.WorldServer
             containerBuilder.Register(c => new Channel
             {
                 MasterCommunication = _worldConfiguration.MasterCommunication,
-                ClientName = _worldConfiguration.ServerName!,
+                ClientName = _worldConfiguration.ServerName,
                 ClientType = ServerType.WorldServer,
                 ConnectedAccountLimit = _worldConfiguration.ConnectedAccountLimit,
                 Port = _worldConfiguration.Port,
                 ServerGroup = _worldConfiguration.ServerGroup,
-                Host = _worldConfiguration.Host!,
+                Host = _worldConfiguration.Host,
                 WebApi = _worldConfiguration.WebApi,
                 Token = handler.WriteToken(securityToken)
             });
@@ -402,7 +402,7 @@ namespace NosCore.WorldServer
             Logger.PrintHeader(ConsoleText);
             //PacketFactory.Initialize<NoS0575Packet>();
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
-                .UseNpgsql(_worldConfiguration.Database!.ConnectionString);
+                .UseNpgsql(_worldConfiguration.Database.ConnectionString);
             DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
             LogLanguage.Language = _worldConfiguration.Language;
 
@@ -411,14 +411,14 @@ namespace NosCore.WorldServer
 
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
-            var password = _worldConfiguration.MasterCommunication!.HashingType switch
+            var password = _worldConfiguration.MasterCommunication.HashingType switch
             {
-                HashingType.BCrypt => _worldConfiguration.MasterCommunication!.Password!.ToBcrypt(_worldConfiguration
-                    .MasterCommunication!.Salt ?? ""),
-                HashingType.Pbkdf2 => _worldConfiguration.MasterCommunication!.Password!.ToPbkdf2Hash(_worldConfiguration
-                    .MasterCommunication!.Salt ?? ""),
-                HashingType.Sha512 => _worldConfiguration.MasterCommunication!.Password!.ToSha512(),
-                _ => _worldConfiguration.MasterCommunication!.Password!.ToSha512()
+                HashingType.BCrypt => _worldConfiguration.MasterCommunication.Password.ToBcrypt(_worldConfiguration
+                    .MasterCommunication?.Salt ?? ""),
+                HashingType.Pbkdf2 => _worldConfiguration.MasterCommunication.Password.ToPbkdf2Hash(_worldConfiguration
+                    .MasterCommunication?.Salt ?? ""),
+                HashingType.Sha512 => _worldConfiguration.MasterCommunication.Password.ToSha512(),
+                _ => _worldConfiguration.MasterCommunication.Password.ToSha512()
             };
 
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
@@ -455,12 +455,12 @@ namespace NosCore.WorldServer
                 .ForDestinationType<I18NString>()
                 .BeforeMapping(s => s.Clear());
             TypeAdapterConfig.GlobalSettings.Default
-                 .IgnoreMember((member, side) => ((side == MemberSide.Destination) && member.Type.GetInterfaces().Contains(typeof(IEntity))) || (member.Type.GetGenericArguments().Any() && member.Type.GetGenericArguments()[0].GetInterfaces().Contains(typeof(IEntity))));
+                 .IgnoreMember((member, side) => side == MemberSide.Destination && member.Type.GetInterfaces().Contains(typeof(IEntity)) || (member.Type.GetGenericArguments().Any() && member.Type.GetGenericArguments()[0].GetInterfaces().Contains(typeof(IEntity))));
             TypeAdapterConfig.GlobalSettings
                 .When(s => !s.SourceType.IsAssignableFrom(s.DestinationType) && typeof(IStaticDto).IsAssignableFrom(s.DestinationType))
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
-                .AfterMapping(dest => Task.Run(dest.Initialize));
+                .AfterMapping(dest => Task.Run(() => dest.Initialize()));
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
             var containerBuilder = new ContainerBuilder();
             InitializeContainer(containerBuilder);

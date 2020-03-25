@@ -44,7 +44,7 @@ namespace NosCore.MasterServer.DataHolders
                 x => new BazaarLink
                 {
                     ItemInstance = itemInstancelist.First(s => s.Id == x.ItemInstanceId).Adapt<ItemInstanceDto>(),
-                    BazaarItem = x, SellerName = characterList.First(s => s.CharacterId == x.SellerId).Name!
+                    BazaarItem = x, SellerName = characterList.First(s => s.CharacterId == x.SellerId).Name
                 }));
         }
 
