@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
@@ -126,7 +127,7 @@ namespace NosCore.Core.Controllers
             data.ChannelId = _id;
 
 
-            return Ok(new ConnectionInfo {Token = GenerateToken(), ChannelInfo = data});
+            return Ok(new ConnectionInfo { Token = GenerateToken(), ChannelInfo = data });
         }
 
         [HttpPut]
@@ -134,43 +135,38 @@ namespace NosCore.Core.Controllers
         {
             var channel = MasterClientListSingleton.Instance.Channels.First(s =>
                 (s.Name == data.ClientName) && (s.Host == data.Host) && (s.Port == data.Port));
-            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TOKEN_UPDATED), channel.Id.ToString(),
+            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TOKEN_UPDATED), channel.Id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
             channel.Token = data.Token;
-            return Ok(new ConnectionInfo {Token = GenerateToken(), ChannelInfo = data});
+            return Ok(new ConnectionInfo { Token = GenerateToken(), ChannelInfo = data });
         }
 
         // GET api/channel
         [HttpGet]
-        public List<ChannelInfo> GetChannels(long? id)
+        public static List<ChannelInfo> GetChannels(long? id)
         {
-            if (id != null)
-            {
-                return MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList();
-            }
-
-            return MasterClientListSingleton.Instance.Channels;
+            return id != null ? MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList() : MasterClientListSingleton.Instance.Channels;
         }
 
         [HttpPatch]
         public HttpStatusCode PingUpdate(int id, [FromBody] DateTime data)
         {
             var chann = MasterClientListSingleton.Instance.Channels.FirstOrDefault(s => s.Id == id);
-            if (chann != null)
+            if (chann == null)
             {
-                if ((chann.LastPing.AddSeconds(10) < SystemTime.Now()) && !Debugger.IsAttached)
-                {
-                    MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
-                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),
-                        _id.ToString());
-                    return HttpStatusCode.RequestTimeout;
-                }
-
-                chann.LastPing = data;
-                return HttpStatusCode.OK;
+                return HttpStatusCode.NotFound;
             }
 
-            return HttpStatusCode.NotFound;
+            if ((chann.LastPing.AddSeconds(10) < SystemTime.Now()) && !Debugger.IsAttached)
+            {
+                MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
+                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),
+                    _id.ToString(CultureInfo.CurrentCulture));
+                return HttpStatusCode.RequestTimeout;
+            }
+
+            chann.LastPing = data;
+            return HttpStatusCode.OK;
         }
     }
 }

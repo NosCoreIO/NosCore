@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -30,7 +31,7 @@ namespace NosCore.Core.Encryption
         {
             using var hash = SHA512.Create();
             return string.Concat(hash.ComputeHash(Encoding.Default.GetBytes(inputString))
-.Select(item => item.ToString("x2")));
+.Select(item => item.ToString("x2", CultureInfo.CurrentCulture)));
         }
 
         public static string ToPbkdf2Hash(this string inputString, string salt)
@@ -42,7 +43,7 @@ namespace NosCore.Core.Encryption
                 saltBytes,
                 150000,
                 HashAlgorithmName.SHA512);
-            return string.Concat(pbkdf2.GetBytes(64).Select(item => item.ToString("x2")));
+            return string.Concat(pbkdf2.GetBytes(64).Select(item => item.ToString("x2", CultureInfo.CurrentCulture)));
         }
 
         public static string ToBcrypt(this string inputString, string salt)

@@ -28,11 +28,11 @@ namespace NosCore.Data.WebApi
 {
     public class MailData
     {
-        public string ReceiverName { get; set; }
-        public string SenderName { get; set; }
+        public string? ReceiverName { get; set; }
+        public string? SenderName { get; set; }
         public long MailId { get; set; }
-        public MailDto MailDto { get; set; }
-        public ItemInstanceDto ItemInstance { get; set; }
+        public MailDto MailDto { get; set; } = new MailDto();
+        public ItemInstanceDto? ItemInstance { get; set; }
         public short ItemType { get; set; }
 
         public PostPacket GeneratePostMessage(int type)
@@ -70,13 +70,13 @@ namespace NosCore.Data.WebApi
             };
         }
 
-        public IPacket GeneratePost(byte type)
+        public IPacket? GeneratePost(byte type)
         {
             switch (type)
             {
                 case 3:
                 case 0:
-                    return new ParcelPacket
+                    return ItemInstance == null ? null : new ParcelPacket
                     {
                         Type = 1,
                         Unknown = type == 0 ? (byte) 1 : (byte) 2,
