@@ -78,7 +78,7 @@ namespace NosCore.Parser.Parsers
                         };
 
 
-                        if ((sitem == null) || shopitems.Any(s =>
+                        if (shopitems.Any(s =>
                                 s.ItemVNum.Equals(sitem.ItemVNum) && s.ShopId.Equals(sitem.ShopId))
                             || shopItemdb.Where(s => s.ShopId == sitem.ShopId)
                                 .Any(s => s.ItemVNum.Equals(sitem.ItemVNum)))

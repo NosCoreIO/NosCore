@@ -62,7 +62,7 @@ namespace NosCore.Parser.Parsers
 
         public void InsertCards(string folder)
         {
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
+            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
                 {nameof(CardDto.CardId), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
                 {nameof(CardDto.NameI18NKey), chunk => chunk["NAME"][0][2]},

@@ -34,7 +34,7 @@ namespace NosCore.Configuration
         public RegionType UserLanguage { get; set; }
 
         public ClientVersionSubPacket? ClientVersion { get; set; }
-        public string Md5String { get; set; } = "";
+        public string? Md5String { get; set; }
         public bool EnforceNewAuth { get; set; }
     }
 }

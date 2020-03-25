@@ -95,7 +95,7 @@ namespace NosCore.MasterServer.Controllers
             {
                 charList.Add(new CharacterRelationStatus
                 {
-                    CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name,
+                    CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId)?.Name ?? "",
                     CharacterId = rel.RelatedCharacterId,
                     IsConnected = _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
                     RelationType = rel.RelationType,
@@ -111,6 +111,10 @@ namespace NosCore.MasterServer.Controllers
         {
             var rel = _characterRelationDao.FirstOrDefault(s =>
                 (s.CharacterRelationId == id) && (s.RelationType == CharacterRelationType.Blocked));
+            if (rel == null)
+            {
+                return NotFound();
+            }
             _characterRelationDao.Delete(rel);
             return Ok();
         }
