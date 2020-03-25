@@ -26,8 +26,8 @@ namespace NosCore.Core
     [Serializable]
     public class Channel
     {
-        private string _clientName;
-        public WebApiConfiguration MasterCommunication { get; set; }
+        private string _clientName = ""; 
+        public WebApiConfiguration? MasterCommunication { get; set; }
 
         public string ClientName
         {
@@ -43,7 +43,7 @@ namespace NosCore.Core
 
         public int ChannelId { get; set; }
 
-        public string Host { get; set; }
+        public string Host { get; set; } = "";
 
         public int ConnectedAccountLimit { get; set; }
 

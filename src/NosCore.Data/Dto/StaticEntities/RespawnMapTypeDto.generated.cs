@@ -45,8 +45,9 @@ namespace NosCore.Data.StaticEntities
 
 	 	public System.Collections.Generic.ICollection<MapTypeDto> MapTypes1 { get; set; }
 
-	 	public string Name { get; set; }
-
+	 	#nullable enable
+		public string? Name { get; set; } = "";
+		#nullable disable
 	 	public System.Collections.Generic.ICollection<RespawnDto> Respawn { get; set; }
 
 	 	[Key]

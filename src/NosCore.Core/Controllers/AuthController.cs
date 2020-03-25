@@ -111,10 +111,10 @@ namespace NosCore.Core.Controllers
             });
             var password = _apiConfiguration.HashingType switch
             {
-                HashingType.BCrypt => _apiConfiguration.Password.ToBcrypt(_apiConfiguration.Salt ?? ""),
-                HashingType.Pbkdf2 => _apiConfiguration.Password.ToPbkdf2Hash(_apiConfiguration.Salt ?? ""),
-                HashingType.Sha512 => _apiConfiguration.Password.ToSha512(),
-                _ => _apiConfiguration.Password.ToSha512()
+                HashingType.BCrypt => _apiConfiguration.Password!.ToBcrypt(_apiConfiguration.Salt ?? ""),
+                HashingType.Pbkdf2 => _apiConfiguration.Password!.ToPbkdf2Hash(_apiConfiguration.Salt ?? ""),
+                HashingType.Sha512 => _apiConfiguration.Password!.ToSha512(),
+                _ => _apiConfiguration.Password!.ToSha512()
             };
 
             var keyByteArray = Encoding.Default.GetBytes(password);
@@ -174,7 +174,7 @@ namespace NosCore.Core.Controllers
             return Ok(false);
         }
 
-        private string HexStringToString(string hexString)
+        private static string HexStringToString(string hexString)
         {
             var bb = Enumerable.Range(0, hexString.Length)
                 .Where(x => x % 2 == 0)

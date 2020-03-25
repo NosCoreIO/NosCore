@@ -49,7 +49,7 @@ namespace NosCore.Parser.Parsers
 
         public List<MapDto> ParseDat(string folder)
         {
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
+            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
                 {nameof(MapDto.MapId), chunk => Convert.ToInt16(chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0][0])},
                 {nameof(MapDto.NameI18NKey), chunk => chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0][4]}

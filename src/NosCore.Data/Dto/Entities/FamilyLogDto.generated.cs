@@ -37,8 +37,9 @@ namespace NosCore.Data.Dto
 
 	 	public long FamilyId { get; set; }
 
-	 	public string FamilyLogData { get; set; }
-
+	 	#nullable enable
+		public string? FamilyLogData { get; set; } = "";
+		#nullable disable
 	 	[Key]
 		public long FamilyLogId { get; set; }
 

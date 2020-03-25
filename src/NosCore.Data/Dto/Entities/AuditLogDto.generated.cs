@@ -36,18 +36,15 @@ namespace NosCore.Data.Dto
 		[Key]
 		public System.Guid AuditId { get; set; }
 
-	 	#nullable enable
-		public string? TargetId { get; set; }
-		#nullable disable
-	 	#nullable enable
-		public string? TargetType { get; set; }
-		#nullable disable
+	 	public string TargetId { get; set; }
+
+	 	public string TargetType { get; set; }
+
 	 	public System.DateTime Time { get; set; }
 
 	 	public NosCore.Data.Enumerations.Audit.AuditLogType AuditLogType { get; set; }
 
-	 	#nullable enable
-		public string? Value { get; set; }
-		#nullable disable
+	 	public string Value { get; set; }
+
 	 }
 }

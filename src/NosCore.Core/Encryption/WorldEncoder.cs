@@ -41,6 +41,11 @@ namespace NosCore.Core.Encryption
         protected override void Encode(IChannelHandlerContext context, IEnumerable<IPacket> message,
             List<object> output)
         {
+            if (output == null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
             output.Add(Unpooled.WrappedBuffer(message.SelectMany(packet =>
             {
                 var region = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()].RegionType.GetEncoding();

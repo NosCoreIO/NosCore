@@ -34,107 +34,107 @@ namespace NosCore.GameObject.Mapping
             TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
             /*GO to Dto*/
-            TypeAdapterConfig<ItemInstance, WearableInstanceDto>.NewConfig()
+            TypeAdapterConfig<ItemInstance?, WearableInstanceDto?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<ItemInstance, SpecialistInstanceDto>.NewConfig()
+            TypeAdapterConfig<ItemInstance?, SpecialistInstanceDto?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<ItemInstance, BoxInstanceDto>.NewConfig()
-                .MapWith(src => null);
-
-            TypeAdapterConfig<WearableInstance, SpecialistInstanceDto>.NewConfig()
-                .MapWith(src => null);
-            TypeAdapterConfig<WearableInstance, BoxInstanceDto>.NewConfig()
+            TypeAdapterConfig<ItemInstance?, BoxInstanceDto?>.NewConfig()
                 .MapWith(src => null);
 
-            TypeAdapterConfig<SpecialistInstance, BoxInstanceDto>.NewConfig()
+            TypeAdapterConfig<WearableInstance?, SpecialistInstanceDto?>.NewConfig()
+                .MapWith(src => null);
+            TypeAdapterConfig<WearableInstance?, BoxInstanceDto?>.NewConfig()
                 .MapWith(src => null);
 
-            TypeAdapterConfig<UsableInstance, BoxInstanceDto>.NewConfig()
+            TypeAdapterConfig<SpecialistInstance?, BoxInstanceDto?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<UsableInstance, SpecialistInstanceDto>.NewConfig()
+
+            TypeAdapterConfig<UsableInstance?, BoxInstanceDto?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<UsableInstance, WearableInstanceDto>.NewConfig()
+            TypeAdapterConfig<UsableInstance?, SpecialistInstanceDto?>.NewConfig()
+                .MapWith(src => null);
+            TypeAdapterConfig<UsableInstance?, WearableInstanceDto?>.NewConfig()
                 .MapWith(src => null);
 
             /*Dto to GO*/
-            TypeAdapterConfig<ItemInstanceDto, WearableInstance>.NewConfig()
+            TypeAdapterConfig<ItemInstanceDto?, WearableInstance?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<ItemInstanceDto, SpecialistInstance>.NewConfig()
+            TypeAdapterConfig<ItemInstanceDto?, SpecialistInstance?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<ItemInstanceDto, BoxInstance>.NewConfig()
-                .MapWith(src => null);
-
-            TypeAdapterConfig<ItemInstanceDto, SpecialistInstance>.NewConfig()
+            TypeAdapterConfig<ItemInstanceDto?, BoxInstance?>.NewConfig()
                 .MapWith(src => null);
 
-            TypeAdapterConfig<ItemInstanceDto, BoxInstance>.NewConfig()
+            TypeAdapterConfig<ItemInstanceDto?, SpecialistInstance?>.NewConfig()
+                .MapWith(src => null);
+
+            TypeAdapterConfig<ItemInstanceDto?, BoxInstance?>.NewConfig()
                 .MapWith(src => null);
 
 
-            TypeAdapterConfig<WearableInstanceDto, BoxInstance>.NewConfig()
+            TypeAdapterConfig<WearableInstanceDto?, BoxInstance?>.NewConfig()
                 .MapWith(src => null);
 
-            TypeAdapterConfig<WearableInstanceDto, SpecialistInstance>.NewConfig()
+            TypeAdapterConfig<WearableInstanceDto?, SpecialistInstance?>.NewConfig()
                 .MapWith(src => null);
 
-            TypeAdapterConfig<SpecialistInstanceDto, BoxInstance>.NewConfig()
+            TypeAdapterConfig<SpecialistInstanceDto?, BoxInstance?>.NewConfig()
                 .MapWith(src => null);
 
-            TypeAdapterConfig<UsableInstanceDto, BoxInstance>.NewConfig()
+            TypeAdapterConfig<UsableInstanceDto?, BoxInstance?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<UsableInstanceDto, SpecialistInstance>.NewConfig()
+            TypeAdapterConfig<UsableInstanceDto?, SpecialistInstance?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<UsableInstanceDto, WearableInstance>.NewConfig()
-                .MapWith(src => null);
-
-            ///*GO to GO*/
-            TypeAdapterConfig<ItemInstance, WearableInstance>.NewConfig()
+            TypeAdapterConfig<UsableInstanceDto?, WearableInstance?>.NewConfig()
                 .MapWith(src => null);
 
-            TypeAdapterConfig<ItemInstance, BoxInstance>.NewConfig()
+            /*GO to GO*/
+            TypeAdapterConfig<ItemInstance?, WearableInstance?>.NewConfig()
                 .MapWith(src => null);
 
-            TypeAdapterConfig<ItemInstance, SpecialistInstance>.NewConfig()
+            TypeAdapterConfig<ItemInstance?, BoxInstance?>.NewConfig()
                 .MapWith(src => null);
 
-            TypeAdapterConfig<WearableInstance, BoxInstance>.NewConfig()
+            TypeAdapterConfig<ItemInstance?, SpecialistInstance?>.NewConfig()
                 .MapWith(src => null);
 
-            TypeAdapterConfig<WearableInstance, SpecialistInstance>.NewConfig()
+            TypeAdapterConfig<WearableInstance?, BoxInstance?>.NewConfig()
                 .MapWith(src => null);
 
-            TypeAdapterConfig<SpecialistInstance, BoxInstance>.NewConfig()
+            TypeAdapterConfig<WearableInstance?, SpecialistInstance?>.NewConfig()
                 .MapWith(src => null);
 
-            TypeAdapterConfig<UsableInstance, BoxInstance>.NewConfig()
+            TypeAdapterConfig<SpecialistInstance?, BoxInstance?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<UsableInstance, SpecialistInstance>.NewConfig()
+
+            TypeAdapterConfig<UsableInstance?, BoxInstance?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<UsableInstance, WearableInstance>.NewConfig()
+            TypeAdapterConfig<UsableInstance?, SpecialistInstance?>.NewConfig()
+                .MapWith(src => null);
+            TypeAdapterConfig<UsableInstance?, WearableInstance?>.NewConfig()
                 .MapWith(src => null);
 
             /*DTO to DTO*/
-            TypeAdapterConfig<ItemInstanceDto, WearableInstanceDto>.NewConfig()
+            TypeAdapterConfig<ItemInstanceDto?, WearableInstanceDto?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<ItemInstanceDto, SpecialistInstanceDto>.NewConfig()
+            TypeAdapterConfig<ItemInstanceDto?, SpecialistInstanceDto?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<ItemInstanceDto, BoxInstanceDto>.NewConfig()
-                .MapWith(src => null);
-
-            TypeAdapterConfig<WearableInstanceDto, SpecialistInstanceDto>.NewConfig()
-                .MapWith(src => null);
-            TypeAdapterConfig<WearableInstanceDto, BoxInstanceDto>.NewConfig()
-                .MapWith(src => null);
-            TypeAdapterConfig<SpecialistInstanceDto, BoxInstanceDto>.NewConfig()
-                .MapWith(src => null);
-            TypeAdapterConfig<SpecialistInstanceDto, WearableInstanceDto>.NewConfig()
+            TypeAdapterConfig<ItemInstanceDto?, BoxInstanceDto?>.NewConfig()
                 .MapWith(src => null);
 
-            TypeAdapterConfig<UsableInstanceDto, BoxInstanceDto>.NewConfig()
+            TypeAdapterConfig<WearableInstanceDto?, SpecialistInstanceDto?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<UsableInstanceDto, SpecialistInstanceDto>.NewConfig()
+            TypeAdapterConfig<WearableInstanceDto?, BoxInstanceDto?>.NewConfig()
                 .MapWith(src => null);
-            TypeAdapterConfig<UsableInstanceDto, WearableInstanceDto>.NewConfig()
+            TypeAdapterConfig<SpecialistInstanceDto?, BoxInstanceDto?>.NewConfig()
+                .MapWith(src => null);
+            TypeAdapterConfig<SpecialistInstanceDto?, WearableInstanceDto?>.NewConfig()
+                .MapWith(src => null);
+
+            TypeAdapterConfig<UsableInstanceDto?, BoxInstanceDto?>.NewConfig()
+                .MapWith(src => null);
+            TypeAdapterConfig<UsableInstanceDto?, SpecialistInstanceDto?>.NewConfig()
+                .MapWith(src => null);
+            TypeAdapterConfig<UsableInstanceDto?, WearableInstanceDto?>.NewConfig()
                 .MapWith(src => null);
         }
     }

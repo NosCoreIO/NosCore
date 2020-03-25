@@ -17,7 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace NosCore.Core.Extensions
@@ -26,6 +28,11 @@ namespace NosCore.Core.Extensions
     {
         public static IEnumerable<T> GetInstancesOfImplementingTypes<T>(this Assembly assembly)
         {
+            if (assembly == null)
+            {
+                throw new ArgumentNullException(nameof(assembly));
+            }
+
             foreach (var t in assembly.GetTypes())
             {
                 if (typeof(T).IsAssignableFrom(t))

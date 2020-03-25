@@ -39,8 +39,9 @@ namespace NosCore.Data.Dto
 
 	 	public long CharacterId { get; set; }
 
-	 	public string DailyMessage { get; set; }
-
+	 	#nullable enable
+		public string? DailyMessage { get; set; } = "";
+		#nullable disable
 	 	public int Experience { get; set; }
 
 	 	public FamilyDto Family { get; set; }

@@ -65,7 +65,7 @@ namespace NosCore.Database.DAL
                 {
                     foreach (var dto in enumerable)
                     {
-                        object value;
+                        object? value;
                         try
                         {
                             value = _primaryKey.GetValue(dto, null);
@@ -75,7 +75,7 @@ namespace NosCore.Database.DAL
                             value = dto;
                         }
 
-                        TEntity entityfound;
+                        TEntity? entityfound;
                         if (value is object[] objects)
                         {
                             entityfound = dbset.Find(objects);

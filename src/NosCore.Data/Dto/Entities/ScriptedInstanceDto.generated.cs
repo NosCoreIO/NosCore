@@ -41,10 +41,12 @@ namespace NosCore.Data.Dto
 
 	 	public short PositionY { get; set; }
 
-	 	public string Label { get; set; }
-
-	 	public string Script { get; set; }
-
+	 	#nullable enable
+		public string? Label { get; set; } = "";
+		#nullable disable
+	 	#nullable enable
+		public string? Script { get; set; } = "";
+		#nullable disable
 	 	[Key]
 		public short ScriptedInstanceId { get; set; }
 

@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.Command
         public override void Execute(GiftPacket giftPacket, ClientSession session)
         {
             var receiver =
-                _connectedAccountHttpClient.GetCharacter(null, giftPacket.CharacterName ?? session.Character.Name);
+                _connectedAccountHttpClient.GetCharacter(null, giftPacket.CharacterName ?? session.Character!.Name);
 
             if (receiver.Item2 == null)
             {
@@ -56,9 +56,9 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            _mailHttpClient.SendGift(session.Character, receiver.Item2.ConnectedCharacter.Id, giftPacket.VNum,
+            _mailHttpClient.SendGift(session.Character!, receiver.Item2.ConnectedCharacter.Id, giftPacket.VNum,
                 giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false);
-            session.SendPacket(session.Character.GenerateSay(Language.Instance.GetMessageFromKey(
+            session.SendPacket(session.Character!.GenerateSay(Language.Instance.GetMessageFromKey(
                 LanguageKey.GIFT_SENT,
                 session.Account.Language), SayColorType.Yellow));
         }
