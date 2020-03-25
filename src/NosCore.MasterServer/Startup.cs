@@ -69,28 +69,14 @@ namespace NosCore.MasterServer
 {
     public class Startup
     {
-        private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - MasterServer";
         private const string ConsoleText = "MASTER SERVER - NosCoreIO";
-        private MasterConfiguration _configuration;
+        private static readonly MasterConfiguration _configuration = new MasterConfiguration();
 
-        private MasterConfiguration InitializeConfiguration()
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder();
-            var masterConfiguration = new MasterConfiguration();
-            builder
-                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("master.yml", false)
-                .Build()
-                .Bind(masterConfiguration);
-
-            Validator.ValidateObject(masterConfiguration, new ValidationContext(masterConfiguration),
-                true);
-            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-            optionsBuilder.UseNpgsql(masterConfiguration.Database.ConnectionString);
-            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
-
-            return masterConfiguration;
+            configuration.Bind(_configuration);
+            Validator.ValidateObject(_configuration, new ValidationContext(_configuration), true);
         }
 
         private static void RegisterDto(ContainerBuilder containerBuilder)
@@ -191,7 +177,11 @@ namespace NosCore.MasterServer
         {
             try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
             Logger.PrintHeader(ConsoleText);
-            _configuration = InitializeConfiguration();
+            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
+                .UseNpgsql(_configuration.Database.ConnectionString);
+            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
+            LogLanguage.Language = _configuration.Language;
+
             services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
             {
                 PreferHostingUrls = true,
