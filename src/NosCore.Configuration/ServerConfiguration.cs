@@ -23,7 +23,7 @@ namespace NosCore.Configuration
 {
     public class ServerConfiguration : LanguageConfiguration
     {
-        public string Host { get; set; }
+        public string? Host { get; set; }
 
         [Range(1, int.MaxValue)]
         public int Port { get; set; }

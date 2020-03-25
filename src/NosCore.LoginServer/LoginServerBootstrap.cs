@@ -71,13 +71,11 @@ namespace NosCore.LoginServer
         private const string ConsoleText = "LOGIN SERVER - NosCoreIO";
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        private static LoginConfiguration? _loginConfiguration;
+        private static LoginConfiguration _loginConfiguration = new LoginConfiguration();
 
         private static void InitializeConfiguration()
         {
-            var builder = new ConfigurationBuilder();
-            _loginConfiguration = new LoginConfiguration();
-            builder
+            new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
                 .AddYamlFile("login.yml", false)
                 .Build()
@@ -181,7 +179,7 @@ namespace NosCore.LoginServer
                     var container = containerBuilder.Build();
 
                     TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
-                       .AfterMapping(dest => Task.Run(() => dest.Initialize()));
+                       .AfterMapping(dest => Task.Run(dest.Initialize));
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
 
 
