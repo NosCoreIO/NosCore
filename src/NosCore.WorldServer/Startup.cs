@@ -101,7 +101,7 @@ namespace NosCore.WorldServer
         private const string Title = "NosCore - WorldServer";
         private const string ConsoleText = "WORLD SERVER - NosCoreIO";
 
-        private static WorldConfiguration _worldConfiguration = new WorldConfiguration();
+        private static readonly WorldConfiguration _worldConfiguration = new WorldConfiguration();
 
         public Startup(IConfiguration configuration)
         {
