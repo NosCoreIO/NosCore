@@ -64,9 +64,9 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
             return Post<LanguageKey>(bazaarRequest);
         }
 
-        public BazaarLink GetBazaarLink(long bazaarId)
+        public BazaarLink? GetBazaarLink(long bazaarId)
         {
-            return Get<List<BazaarLink>>(bazaarId).FirstOrDefault();
+            return Get<List<BazaarLink?>>(bazaarId).FirstOrDefault();
         }
 
         public bool Remove(long bazaarId, int count, string requestCharacterName)
