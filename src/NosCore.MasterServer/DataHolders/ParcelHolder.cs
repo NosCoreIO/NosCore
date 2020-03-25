@@ -67,21 +67,21 @@ namespace NosCore.MasterServer.DataHolders
 
         private void Initialize()
         {
-            var mails = _mailDao.LoadAll();
+            var mails = _mailDao.LoadAll().ToList();
             var idcopy = 0;
             var idmail = 0;
             var charactersIds = mails.Select(s => s.ReceiverId)
-                .Union(mails.Where(s => s.SenderId != null).Select(s => (long) s.SenderId));
-            var characternames = new Dictionary<long, string>();
+                .Union(mails.Where(s => s.SenderId != null).Select(s => (long) s.SenderId!));
+            var characternames = new Dictionary<long, string?>();
             foreach (var characterId in charactersIds)
             {
-                characternames.Add(characterId, _characterDao.FirstOrDefault(s => s.CharacterId == characterId).Name);
+                characternames.Add(characterId, _characterDao.FirstOrDefault(s => s.CharacterId == characterId)?.Name);
             }
 
             foreach (var mail in mails)
             {
                 var itinst = _itemInstanceDao.FirstOrDefault(s => s.Id == mail.ItemInstanceId);
-                ItemDto it = null;
+                ItemDto? it = null;
                 if (itinst != null)
                 {
                     it = _items.FirstOrDefault(s => s.VNum == itinst.ItemVNum);
@@ -90,10 +90,10 @@ namespace NosCore.MasterServer.DataHolders
                 var senderName = mail.SenderId == null ? "NOSMALL" : characternames[(long) mail.SenderId];
                 var receiverName = characternames[mail.ReceiverId];
                 var mailId = mail.IsSenderCopy ? (short) idcopy : (short) idmail;
-                this[mail.IsSenderCopy ? (long) mail.SenderId : mail.ReceiverId][mail.IsSenderCopy].TryAdd(mailId,
+                this[mail.IsSenderCopy ? mail.SenderId ?? 0 : mail.ReceiverId][mail.IsSenderCopy].TryAdd(mailId,
                     new MailData
                     {
-                        ItemInstance = itinst.Adapt<ItemInstanceDto>(),
+                        ItemInstance = itinst?.Adapt<ItemInstanceDto>(),
                         SenderName = senderName,
                         ReceiverName = receiverName,
                         MailId = mailId,

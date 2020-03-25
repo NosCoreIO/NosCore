@@ -17,13 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Dto;
 
 namespace NosCore.Data.WebApi
 {
     public class MailRequest
     {
-        public MailDto Mail { get; set; }
+        [Required]
+        public MailDto? Mail { get; set; }
         public short? VNum { get; set; }
         public short? Amount { get; set; }
         public sbyte? Rare { get; set; }
