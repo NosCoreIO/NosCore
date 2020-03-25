@@ -174,7 +174,7 @@ namespace NosCore.Core.Controllers
             return Ok(false);
         }
 
-        private static string HexStringToString(string hexString)
+        private string HexStringToString(string hexString)
         {
             var bb = Enumerable.Range(0, hexString.Length)
                 .Where(x => x % 2 == 0)

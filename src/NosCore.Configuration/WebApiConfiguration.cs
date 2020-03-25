@@ -17,17 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations;
 
 namespace NosCore.Configuration
 {
-    [Serializable]
     public class WebApiConfiguration : ServerConfiguration
     {
         [Required]
-        public string? Password { get; set; }
+        public string Password { get; set; }
 
         public HashingType HashingType { get; set; }
 

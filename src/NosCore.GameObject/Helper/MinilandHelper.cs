@@ -26,7 +26,21 @@ namespace NosCore.GameObject.Helper
     public sealed class MinilandHelper
     {
         private static MinilandHelper _instance;
-        private readonly Dictionary<short, Gift[][]> gifts = new Dictionary<short, Gift[][]>
+        public Dictionary<short, Gift[][]> gifts;
+
+        public int[][] MinilandMaxPoint;
+
+        private MinilandHelper()
+        {
+            LoadMinilandMaxPoint();
+            LoadMinilandGifts();
+        }
+
+        public static MinilandHelper Instance => _instance ??= new MinilandHelper();
+
+        private void LoadMinilandGifts()
+        {
+            gifts = new Dictionary<short, Gift[][]>
             {
                 {
                     3117,
@@ -239,22 +253,18 @@ namespace NosCore.GameObject.Helper
                     }
                 }
             };
-
-        public int[][] MinilandMaxPoint = new int[6][]
-        {
-            new[] { 999, 4999, 7999, 11999, 15999, 1000000 },
-            new[] { 999, 4999, 9999, 13999, 17999, 1000000 },
-            new[] { 999, 3999, 7999, 14999, 24999, 1000000 },
-            new[] { 999, 3999, 7999, 11999, 19999, 1000000 },
-            new[] { 999, 4999, 7999, 11999, 15999, 1000000 },
-            new[] { 999, 4999, 7999, 11999, 15999, 1000000 }
-        };
-
-        private MinilandHelper()
-        {
         }
 
-        public static MinilandHelper Instance => _instance ??= new MinilandHelper();
+        private void LoadMinilandMaxPoint()
+        {
+            MinilandMaxPoint = new int[6][];
+            MinilandMaxPoint[0] = new[] {999, 4999, 7999, 11999, 15999, 1000000};
+            MinilandMaxPoint[1] = new[] {999, 4999, 9999, 13999, 17999, 1000000};
+            MinilandMaxPoint[2] = new[] {999, 3999, 7999, 14999, 24999, 1000000};
+            MinilandMaxPoint[3] = new[] {999, 3999, 7999, 11999, 19999, 1000000};
+            MinilandMaxPoint[4] = new[] {999, 4999, 7999, 11999, 15999, 1000000};
+            MinilandMaxPoint[5] = new[] {999, 4999, 7999, 11999, 15999, 1000000};
+        }
 
         public Gift GetMinilandGift(short game, int point)
         {
