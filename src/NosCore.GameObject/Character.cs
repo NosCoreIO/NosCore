@@ -174,7 +174,7 @@ namespace NosCore.GameObject
             Session.SendPackets(packetDefinitions);
         }
 
-        public MapInstance MapInstance { get; set; }
+        public MapInstance? MapInstance { get; set; }
 
         public VisualType VisualType => VisualType.Player;
 

@@ -42,14 +42,14 @@ namespace NosCore.PacketHandlers.Shops
 
         public override void Execute(ShoppingPacket shoppingPacket, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrTrade)
+            if (clientSession.Character!.InExchangeOrTrade)
             {
                 //TODO log
                 return;
             }
 
             var shopRate = new Tuple<double, byte>(0, 0);
-            IAliveEntity aliveEntity;
+            IAliveEntity? aliveEntity;
             switch (shoppingPacket.VisualType)
             {
                 case VisualType.Player:
@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Shops
                 case VisualType.Npc:
                     shopRate = clientSession.Character.GenerateShopRates();
                     aliveEntity =
-                        clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == shoppingPacket.VisualId);
+                        clientSession.Character.MapInstance!.Npcs.Find(s => s.VisualId == shoppingPacket.VisualId);
                     break;
 
                 default:
