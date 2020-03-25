@@ -30,7 +30,7 @@ namespace NosCore.Data.CommandPackets
         public CharacterClassType ClassType { get; set; }
 
         [PacketIndex(1, IsOptional = true)]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         public override string Help()
         {

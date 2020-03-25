@@ -62,8 +62,8 @@ namespace NosCore.MasterServer.Controllers
             var character = _connectedAccountHttpClient.GetCharacter(friendPacket.CharacterId, null);
             var targetCharacter = _connectedAccountHttpClient.GetCharacter(friendPacket.FinsPacket.CharacterId, null);
             var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
-                (s.Value.Item2 == character.Item2.ConnectedCharacter.Id) &&
-                (s.Value.Item1 == targetCharacter.Item2.ConnectedCharacter.Id)).ToList();
+                (s.Value.Item2 == character.Item2?.ConnectedCharacter.Id) &&
+                (s.Value.Item1 == targetCharacter.Item2?.ConnectedCharacter.Id)).ToList();
             if ((character.Item2 != null) && (targetCharacter.Item2 != null))
             {
                 if (character.Item2.ChannelId != targetCharacter.Item2.ChannelId)
@@ -150,7 +150,7 @@ namespace NosCore.MasterServer.Controllers
             {
                 charList.Add(new CharacterRelationStatus
                 {
-                    CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name,
+                    CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId)?.Name,
                     CharacterId = rel.RelatedCharacterId,
                     IsConnected = _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
                     RelationType = rel.RelationType,
@@ -166,9 +166,17 @@ namespace NosCore.MasterServer.Controllers
         {
             var rel = _characterRelationDao.FirstOrDefault(s =>
                 (s.CharacterRelationId == id) && (s.RelationType == CharacterRelationType.Friend));
+            if (rel == null)
+            {
+                return NotFound();
+            }
             var rel2 = _characterRelationDao.FirstOrDefault(s =>
                 (s.CharacterId == rel.RelatedCharacterId) && (s.RelatedCharacterId == rel.CharacterId) &&
                 (s.RelationType == CharacterRelationType.Friend));
+            if (rel2 == null)
+            {
+                return NotFound();
+            }
             _characterRelationDao.Delete(rel);
             _characterRelationDao.Delete(rel2);
             return Ok();

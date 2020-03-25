@@ -57,7 +57,7 @@ namespace NosCore.Tests.BazaarTests
             var mockCharacterDao = new Mock<IGenericDao<CharacterDto>>();
             var itemList = new List<ItemDto>();
             _bazaarItemsHolder =
-                new BazaarItemsHolder(_mockBzDao.Object, _mockItemDao.Object, itemList, mockCharacterDao.Object);
+                new BazaarItemsHolder(_mockBzDao.Object, _mockItemDao.Object, mockCharacterDao.Object);
             _bazaarController = new BazaarController(_bazaarItemsHolder, _mockBzDao.Object, _mockItemDao.Object);
         }
 

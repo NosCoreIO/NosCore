@@ -49,6 +49,11 @@ namespace NosCore.Core.Encryption
         protected override void Encode(IChannelHandlerContext context, IEnumerable<IPacket> message,
             [NotNull] List<object> output)
         {
+            if (output == null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
             try
             {
                 output.Add(Unpooled.WrappedBuffer(message.SelectMany(packet =>

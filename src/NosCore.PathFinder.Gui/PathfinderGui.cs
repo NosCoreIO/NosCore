@@ -78,7 +78,7 @@ namespace NosCore.PathFinder.Gui
             try
             {
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-                optionsBuilder.UseNpgsql(DatabaseConfiguration.Database.ConnectionString);
+                optionsBuilder.UseNpgsql(DatabaseConfiguration.Database!.ConnectionString);
                 DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
 
                 var npcMonsters = _npcMonsterDao.LoadAll().ToList();

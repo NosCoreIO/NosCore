@@ -48,8 +48,9 @@ namespace NosCore.Data.Dto
 
 	 	public System.Collections.Generic.ICollection<FamilyLogDto> FamilyLogs { get; set; }
 
-	 	public string FamilyMessage { get; set; }
-
+	 	#nullable enable
+		public string? FamilyMessage { get; set; } = "";
+		#nullable disable
 	 	public ChickenAPI.Packets.Enumerations.FamilyAuthorityType ManagerAuthorityType { get; set; }
 
 	 	public bool ManagerCanGetHistory { get; set; }
@@ -66,9 +67,8 @@ namespace NosCore.Data.Dto
 
 	 	public bool MemberCanGetHistory { get; set; }
 
-	 	#nullable enable
-		public string? Name { get; set; }
-		#nullable disable
+	 	public string Name { get; set; }
+
 	 	public byte WarehouseSize { get; set; }
 
 	 	public System.Collections.Generic.ICollection<WarehouseDto> Warehouses { get; set; }

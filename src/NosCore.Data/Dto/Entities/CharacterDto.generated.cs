@@ -51,8 +51,9 @@ namespace NosCore.Data.Dto
 
 	 	public System.Collections.Generic.ICollection<CharacterActPartDto> CharacterActParts { get; set; }
 
-	 	public string Biography { get; set; }
-
+	 	#nullable enable
+		public string? Biography { get; set; } = "";
+		#nullable disable
 	 	public bool BuffBlocked { get; set; }
 
 	 	[Key]
@@ -142,11 +143,11 @@ namespace NosCore.Data.Dto
 
 	 	public int Mp { get; set; }
 
-	 	public string Prefix { get; set; }
-
 	 	#nullable enable
-		public string? Name { get; set; }
+		public string? Prefix { get; set; } = "";
 		#nullable disable
+	 	public string Name { get; set; }
+
 	 	public bool QuickGetUp { get; set; }
 
 	 	public System.Collections.Generic.ICollection<QuicklistEntryDto> QuicklistEntry { get; set; }

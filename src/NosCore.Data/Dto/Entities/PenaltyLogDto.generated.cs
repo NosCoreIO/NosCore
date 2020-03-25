@@ -37,9 +37,8 @@ namespace NosCore.Data.Dto
 
 	 	public long AccountId { get; set; }
 
-	 	#nullable enable
-		public string? AdminName { get; set; }
-		#nullable disable
+	 	public string AdminName { get; set; }
+
 	 	public System.DateTime DateEnd { get; set; }
 
 	 	public System.DateTime DateStart { get; set; }
@@ -49,8 +48,7 @@ namespace NosCore.Data.Dto
 	 	[Key]
 		public int PenaltyLogId { get; set; }
 
-	 	#nullable enable
-		public string? Reason { get; set; }
-		#nullable disable
+	 	public string Reason { get; set; }
+
 	 }
 }

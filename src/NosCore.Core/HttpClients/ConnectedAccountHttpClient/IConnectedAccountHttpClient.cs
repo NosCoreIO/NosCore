@@ -28,6 +28,6 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
         List<ConnectedAccount> GetConnectedAccount(ChannelInfo channel);
         void Disconnect(long connectedCharacterId);
 
-        (ServerConfiguration, ConnectedAccount) GetCharacter(long? characterId, string characterName);
+        (ServerConfiguration, ConnectedAccount?) GetCharacter(long? characterId, string? characterName);
     }
 }

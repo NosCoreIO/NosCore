@@ -58,7 +58,7 @@ namespace NosCore.MasterServer.Controllers
 #pragma warning restore IDE0060 // Supprimer le paramètre inutilisé
         {
             var bzlist = new List<BazaarLink>();
-
+#pragma warning disable CS0219 // Variable is assigned but its value is never used
             var applyRareFilter = false;
             var applyUpgradeFilter = false;
             var applySpLevelFilter = false;
@@ -67,6 +67,7 @@ namespace NosCore.MasterServer.Controllers
             PocketType? pocketType = null;
             ItemType? itemType = null;
             byte? subtypeFilter = null;
+#pragma warning restore CS0219 // Variable is assigned but its value is never used
             IEnumerable<BazaarLink> bzlinks;
             if (id != -1)
             {
@@ -262,19 +263,20 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPatch]
-        public BazaarLink ModifyBazaar(long id, [FromBody] JsonPatchDocument<BazaarLink> bzMod)
+        public BazaarLink? ModifyBazaar(long id, [FromBody] JsonPatchDocument<BazaarLink> bzMod)
         {
             var item = _holder.BazaarItems.Values
                 .FirstOrDefault(o => o.BazaarItem.BazaarItemId == id);
-            if ((item != null) && (item.BazaarItem.Amount == item.ItemInstance.Amount))
+            if ((item == null) || (item.BazaarItem.Amount != item.ItemInstance.Amount))
             {
-                bzMod.ApplyTo(item);
-                var bz = item.BazaarItem;
-                _bazaarItemDao.InsertOrUpdate(ref bz);
-                return item;
+                return null;
             }
 
-            return null;
+            bzMod.ApplyTo(item);
+            var bz = item.BazaarItem;
+            _bazaarItemDao.InsertOrUpdate(ref bz);
+            return item;
+
         }
     }
 }

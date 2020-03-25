@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Bazaar
 
         public override void Execute(CScalcPacket packet, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrTrade)
+            if (clientSession.Character!.InExchangeOrTrade)
             {
                 return;
             }
@@ -78,6 +78,10 @@ namespace NosCore.PacketHandlers.Bazaar
                             Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_FROM_BAZAAR,
                                 clientSession.Account.Language), price), SayColorType.Yellow));
                         var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == bz.ItemInstance.Id);
+                        if (itemInstance == null)
+                        {
+                            return;
+                        }
                         var item = _itemProvider.Convert(itemInstance);
                         item.Id = Guid.NewGuid();
 

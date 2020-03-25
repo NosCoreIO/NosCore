@@ -68,8 +68,9 @@ namespace NosCore.Data.Dto
 
 	 	public int Mp { get; set; }
 
-	 	public string Name { get; set; }
-
+	 	#nullable enable
+		public string? Name { get; set; } = "";
+		#nullable disable
 	 	public NpcMonsterDto NpcMonster { get; set; }
 
 	 	public short VNum { get; set; }
