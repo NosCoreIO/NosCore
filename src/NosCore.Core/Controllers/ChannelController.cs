@@ -60,20 +60,13 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.NameIdentifier, "Server"),
                 new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
             });
-            string password;
-            switch (_apiConfiguration.HashingType)
+            var password = _apiConfiguration.HashingType switch
             {
-                case HashingType.BCrypt:
-                    password = _apiConfiguration.Password.ToBcrypt(_apiConfiguration.Salt ?? "");
-                    break;
-                case HashingType.Pbkdf2:
-                    password = _apiConfiguration.Password.ToPbkdf2Hash(_apiConfiguration.Salt ?? "");
-                    break;
-                case HashingType.Sha512:
-                default:
-                    password = _apiConfiguration.Password.ToSha512();
-                    break;
-            }
+                HashingType.BCrypt => _apiConfiguration.Password.ToBcrypt(_apiConfiguration.Salt ?? ""),
+                HashingType.Pbkdf2 => _apiConfiguration.Password.ToPbkdf2Hash(_apiConfiguration.Salt ?? ""),
+                HashingType.Sha512 => _apiConfiguration.Password.ToSha512(),
+                _ => _apiConfiguration.Password.ToSha512()
+            };
 
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
