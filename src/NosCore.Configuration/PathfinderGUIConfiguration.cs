@@ -24,6 +24,6 @@ namespace NosCore.Configuration
     public class PathfinderGuiConfiguration : LanguageConfiguration
     {
         [Required]
-        public SqlConnectionConfiguration Database { get; set; }
+        public SqlConnectionConfiguration? Database { get; set; }
     }
 }
