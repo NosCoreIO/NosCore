@@ -18,10 +18,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -33,18 +35,13 @@ namespace NosCore.MasterServer
     public static class MasterServerBootstrap
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private const string ConfigurationPath = "../../../configuration";
 
         public static void Main()
         {
-            var host = BuildWebHost(null);
-            //// ReSharper disable PossibleNullReferenceException
-            (host.ServerFeatures[typeof(IServerAddressesFeature)] as IServerAddressesFeature).Addresses.Add(
-                (host.Services.GetService(typeof(IServerAddressesFeature)) as IServerAddressesFeature)?.Addresses
-                .First());
-            //// ReSharper enable PossibleNullReferenceException
             try
             {
-                host.Run();
+                BuildWebHost(new string[0]).Run();
             }
             catch (Exception ex)
             {
@@ -54,12 +51,19 @@ namespace NosCore.MasterServer
 
         private static IWebHost BuildWebHost(string[] args)
         {
+            var conf = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                .AddYamlFile("master.yml", false)
+                .Build();
+            var webapi = conf.GetSection("WebApi");
             return WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
                     logging.AddSerilog();
                 })
+                .UseConfiguration(conf)
+                .UseUrls($"{webapi.GetValue<string>("Host")}:{webapi.GetValue<string>("Port")}")
                 .UseStartup<Startup>()
                 .PreferHostingUrls(true)
                 .SuppressStatusMessages(true)
