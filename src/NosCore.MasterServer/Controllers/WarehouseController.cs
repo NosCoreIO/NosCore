@@ -70,10 +70,6 @@ namespace NosCore.MasterServer.Controllers
         public bool DeleteWarehouseItem(Guid id)
         {
             var item = _warehouseItemDao.FirstOrDefault(s => s.Id == id);
-            if (item == null)
-            {
-                return false;
-            }
             _warehouseItemDao.Delete(item.Id);
             _warehouseDao.Delete(item.WarehouseId);
             _itemInstanceDao.Delete(item.ItemInstanceId);

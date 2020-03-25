@@ -45,16 +45,6 @@ namespace NosCore.Core.Encryption
 
         protected override void Decode(IChannelHandlerContext context, IByteBuffer message, [NotNull] List<object> output)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (message == null)
-            {
-                throw new ArgumentNullException(nameof(message));
-            }
-
             try
             {
                 var decryptedPacket = new StringBuilder();

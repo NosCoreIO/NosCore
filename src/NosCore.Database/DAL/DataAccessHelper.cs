@@ -27,7 +27,7 @@ namespace NosCore.Database.DAL
 {
     public sealed class DataAccessHelper
     {
-        private static DataAccessHelper? _instance;
+        private static DataAccessHelper _instance;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private DbContextOptions _option;

@@ -133,9 +133,9 @@ namespace NosCore.Parser.Parsers
                 {nameof(NpcMonsterDto.Concentrate), chunk => ImportConcentrate(chunk)},
                 {nameof(NpcMonsterDto.CriticalChance), chunk => ImportCriticalChance(chunk)},
                 {nameof(NpcMonsterDto.CriticalRate), chunk => ImportCriticalRate(chunk)},
-                {nameof(NpcMonsterDto.NpcMonsterSkill), ImportNpcMonsterSkill},
-                {nameof(NpcMonsterDto.BCards), ImportBCards},
-                {nameof(NpcMonsterDto.Drop), ImportDrops},
+                {nameof(NpcMonsterDto.NpcMonsterSkill), chunk => ImportNpcMonsterSkill(chunk)},
+                {nameof(NpcMonsterDto.BCards), chunk => ImportBCards(chunk)},
+                {nameof(NpcMonsterDto.Drop), chunk => ImportDrops(chunk)},
                 {nameof(NpcMonsterDto.MonsterType), chunk => ImportMonsterType(chunk)},
                 {nameof(NpcMonsterDto.NoAggresiveIcon), chunk => {
                         var unknowndata = LoadUnknownData(chunk);
