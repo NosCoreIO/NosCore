@@ -24,12 +24,12 @@ namespace NosCore.Configuration
     public class FriendConfiguration : LanguageConfiguration
     {
         [Required]
-        public WebApiConfiguration MasterCommunication { get; set; }
+        public WebApiConfiguration? MasterCommunication { get; set; }
 
         [Required]
-        public ServerConfiguration WebApi { get; set; }
+        public ServerConfiguration? WebApi { get; set; }
 
         [Required]
-        public SqlConnectionConfiguration Database { get; set; }
+        public SqlConnectionConfiguration? Database { get; set; }
     }
 }

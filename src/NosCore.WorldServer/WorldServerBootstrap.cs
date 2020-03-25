@@ -18,11 +18,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
@@ -32,21 +35,14 @@ namespace NosCore.WorldServer
 {
     public static class WorldServerBootstrap
     {
+        private const string ConfigurationPath = "../../../configuration";
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         public static void Main()
         {
-            var host = BuildWebHost(new string[0]);
-            // ReSharper disable PossibleNullReferenceException
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            (host.ServerFeatures[typeof(IServerAddressesFeature)] as IServerAddressesFeature).Addresses.Add(
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-                (host.Services.GetService(typeof(IServerAddressesFeature)) as IServerAddressesFeature)?.Addresses
-                .First());
-            // ReSharper enable PossibleNullReferenceException
             try
             {
-                host.Run();
+                BuildWebHost(new string[0]).Run();
             }
             catch (Exception ex)
             {
@@ -56,12 +52,19 @@ namespace NosCore.WorldServer
 
         private static IWebHost BuildWebHost(string[] args)
         {
+            var conf = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                .AddYamlFile("world.yml", false)
+                .Build();
+            var webapi = conf.GetSection("WebApi");
             return WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
                     logging.AddSerilog();
                 })
+                .UseConfiguration(conf)
+                .UseUrls($"{webapi.GetValue<string>("Host")}:{webapi.GetValue<string>("Port")}")
                 .UseStartup<Startup>()
                 .PreferHostingUrls(true)
                 .SuppressStatusMessages(true)

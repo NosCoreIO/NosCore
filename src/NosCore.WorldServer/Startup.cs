@@ -98,30 +98,15 @@ namespace NosCore.WorldServer
 {
     public class Startup
     {
-        private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - WorldServer";
         private const string ConsoleText = "WORLD SERVER - NosCoreIO";
 
-        private static WorldConfiguration? _worldConfiguration;
+        private static WorldConfiguration _worldConfiguration = new WorldConfiguration();
 
-        private static void InitializeConfiguration()
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder();
-            _worldConfiguration = new WorldConfiguration();
-            builder
-                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("world.yml", false)
-                .Build()
-                .Bind(_worldConfiguration);
-
-            Validator.ValidateObject(_worldConfiguration, new ValidationContext(_worldConfiguration),
-                true);
-
-            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-            optionsBuilder.UseNpgsql(_worldConfiguration.Database.ConnectionString);
-            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
-
-            LogLanguage.Language = _worldConfiguration.Language;
+            configuration.Bind(_worldConfiguration);
+            Validator.ValidateObject(_worldConfiguration, new ValidationContext(_worldConfiguration), true);
         }
 
         public static void RegisterMapper<TGameObject, TDto>(IContainer container) where TGameObject : notnull
@@ -416,20 +401,14 @@ namespace NosCore.WorldServer
             try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
             Logger.PrintHeader(ConsoleText);
             //PacketFactory.Initialize<NoS0575Packet>();
-            InitializeConfiguration();
+            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
+                .UseNpgsql(_worldConfiguration.Database.ConnectionString);
+            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
+            LogLanguage.Language = _worldConfiguration.Language;
 
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
-            services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
-            {
-                PreferHostingUrls = true,
-                Addresses = { _worldConfiguration!.WebApi.ToString() }
-            });
-            services.Configure<IServerAddressesFeature>(o =>
-            {
-                o.PreferHostingUrls = true;
-                o.Addresses.Add(_worldConfiguration.WebApi.ToString());
-            });
+
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
             var password = _worldConfiguration.MasterCommunication.HashingType switch

@@ -24,13 +24,13 @@ namespace NosCore.Configuration
     public class WorldConfiguration : ServerConfiguration
     {
         [Required]
-        public WebApiConfiguration MasterCommunication { get; set; }
+        public WebApiConfiguration? MasterCommunication { get; set; }
 
         [Required]
-        public ServerConfiguration WebApi { get; set; }
+        public ServerConfiguration? WebApi { get; set; }
 
         [Required]
-        public SqlConnectionConfiguration Database { get; set; }
+        public SqlConnectionConfiguration? Database { get; set; }
 
         [Range(1, short.MaxValue)]
         public short ConnectedAccountLimit { get; set; }
@@ -42,7 +42,7 @@ namespace NosCore.Configuration
         public bool SceneOnCreate { get; set; }
 
         [Required]
-        public string ServerName { get; set; }
+        public string? ServerName { get; set; }
 
         public FeatureFlags FeatureFlags { get; set; } = new FeatureFlags();
 
