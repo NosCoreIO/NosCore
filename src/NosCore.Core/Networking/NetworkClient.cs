@@ -49,7 +49,7 @@ namespace NosCore.Core.Networking
         public bool IsAuthenticated { get; set; }
 
         public int SessionId { get; set; }
-        public ConcurrentQueue<IPacket?> LastPackets { get; }
+        public ConcurrentQueue<IPacket> LastPackets { get; }
 
         public long ClientId { get; set; }
 
@@ -60,18 +60,17 @@ namespace NosCore.Core.Networking
             Channel?.DisconnectAsync();
         }
 
-        public void SendPacket(IPacket? packet)
+        public void SendPacket(IPacket packet)
         {
             SendPackets(new[] {packet});
         }
 
-        public void SendPackets(IEnumerable<IPacket?> packets)
+        public void SendPackets(IEnumerable<IPacket> packets)
         {
-            var packetlist = packets.ToList();
-            var packetDefinitions = (packets as IPacket?[] ?? packetlist.ToArray()).Where(c => c != null);
+            var packetDefinitions = (packets as IPacket[] ?? packets.ToArray()).Where(c => c != null);
             if (packetDefinitions.Any())
             {
-                Parallel.ForEach(packetlist, packet => LastPackets.Enqueue(packet));
+                Parallel.ForEach(packets, packet => LastPackets.Enqueue(packet));
                 Parallel.For(0, LastPackets.Count - maxPacketsBuffer, (_, __) => LastPackets.TryDequeue(out var ___));
                 Channel?.WriteAndFlushAsync(packetDefinitions);
             }

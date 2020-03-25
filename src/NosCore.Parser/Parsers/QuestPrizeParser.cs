@@ -52,7 +52,7 @@ namespace NosCore.Parser.Parsers
 
         public void ImportQuestPrizes(string folder)
         {
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
+            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
             {
                 {nameof(QuestRewardDto.QuestRewardId), chunk => Convert.ToInt16(chunk["VNUM"][0][1])},
                 {nameof(QuestRewardDto.RewardType), chunk => Convert.ToByte(chunk["VNUM"][0][2])},

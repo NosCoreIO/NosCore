@@ -93,7 +93,7 @@ namespace NosCore.Parser
             try
             {
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-                optionsBuilder.UseNpgsql(ParserConfiguration.Database!.ConnectionString);
+                optionsBuilder.UseNpgsql(ParserConfiguration.Database.ConnectionString);
                 DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
                 try
                 {
