@@ -18,7 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
@@ -27,13 +28,13 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
 {
     public interface IBazaarHttpClient
     {
-        List<BazaarLink> GetBazaarLinks(int i, int packetIndex, int pagesize, BazaarListType packetTypeFilter,
+        Task<List<BazaarLink>> GetBazaarLinks(int i, int packetIndex, int pagesize, BazaarListType packetTypeFilter,
             byte packetSubTypeFilter, byte packetLevelFilter,
             byte packetRareFilter, byte packetUpgradeFilter, long? sellerFilter);
 
-        LanguageKey AddBazaar(BazaarRequest bazaarRequest);
-        BazaarLink GetBazaarLink(long bazaarId);
-        bool Remove(long bazaarId, int count, string requestCharacterName);
-        BazaarLink Modify(long bazaarId, JsonPatchDocument<BazaarLink> patchBz);
+        Task<LanguageKey?> AddBazaar(BazaarRequest bazaarRequest);
+        Task<BazaarLink?> GetBazaarLink(long bazaarId);
+        Task<bool> Remove(long bazaarId, int count, string requestCharacterName);
+        Task<BazaarLink> Modify(long bazaarId, JsonPatchDocument<BazaarLink> patchBz);
     }
 }

@@ -18,9 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Drops;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -36,7 +37,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             return item.VNum == 1046;
         }
 
-        public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
+        public Task Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             // handle gold drop
             var maxGold = requestData.ClientSession.WorldConfiguration.MaxGoldAmount;
@@ -69,6 +70,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
             requestData.ClientSession.Character.MapInstance.SendPacket(
                 requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
+            return Task.CompletedTask;
         }
     }
 }

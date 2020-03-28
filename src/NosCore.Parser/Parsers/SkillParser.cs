@@ -51,7 +51,7 @@ namespace NosCore.Parser.Parsers
         //	Z_DESC	0
 
         //#=========================================================
-        private string FileCardDat = $"{Path.DirectorySeparatorChar}Skill.dat";
+        private readonly string FileCardDat = $"{Path.DirectorySeparatorChar}Skill.dat";
         private readonly IGenericDao<BCardDto> _bCardDao;
         private readonly IGenericDao<ComboDto> _comboDao;
         private readonly IGenericDao<SkillDto> _skillDao;
@@ -68,7 +68,7 @@ namespace NosCore.Parser.Parsers
 
         public void InsertSkills(string folder)
         {
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
+            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
                 {nameof(SkillDto.SkillVNum), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
                 {nameof(SkillDto.NameI18NKey), chunk => chunk["NAME"][0][2]},

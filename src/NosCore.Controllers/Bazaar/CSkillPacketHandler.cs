@@ -19,9 +19,10 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Buff;
@@ -33,11 +34,11 @@ namespace NosCore.PacketHandlers.Bazaar
 {
     public class CSkillPacketHandler : PacketHandler<CSkillPacket>, IWorldPacketHandler
     {
-        public override void Execute(CSkillPacket packet, ClientSession clientSession)
+        public override Task Execute(CSkillPacket packet, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var medalBonus = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
@@ -69,6 +70,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         clientSession.Account.Language)
                 });
             }
+            return Task.CompletedTask;
         }
     }
 }

@@ -17,7 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Login;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Login;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -41,16 +42,16 @@ namespace NosCore.PacketHandlers.Login
             _logger = logger;
         }
 
-        public override void Execute(NoS0575Packet packet, ClientSession clientSession)
+        public override Task Execute(NoS0575Packet packet, ClientSession clientSession)
         {
             if (_loginConfiguration.EnforceNewAuth)
             {
                 _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TRY_OLD_AUTH), packet.Username);
-                return;
+                return Task.CompletedTask;
             }
 
-            _loginService.Login(packet.Username, packet.Md5String, packet.ClientVersion, clientSession, packet.Password,
-                false);
+            return _loginService.Login(packet.Username, packet.Md5String, packet.ClientVersion, clientSession, packet.Password,
+                 false);
         }
     }
 }

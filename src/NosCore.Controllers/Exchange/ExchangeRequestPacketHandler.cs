@@ -19,10 +19,11 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Exchanges;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Exchanges;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Exchanges;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Exchanges;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -49,7 +50,7 @@ namespace NosCore.PacketHandlers.Exchange
             _blacklistHttpClient = blacklistHttpClient;
         }
 
-        public override void Execute(ExchangeRequestPacket packet, ClientSession clientSession)
+        public override async Task Execute(ExchangeRequestPacket packet, ClientSession clientSession)
         {
             var target = Broadcaster.Instance.GetCharacter(s =>
                 (s.VisualId == packet.VisualId) &&
@@ -93,7 +94,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    var blacklisteds = _blacklistHttpClient.GetBlackLists(clientSession.Character.VisualId);
+                    var blacklisteds = await _blacklistHttpClient.GetBlackLists(clientSession.Character.VisualId);
                     if (blacklisteds.Any(s => s.CharacterId == target.VisualId))
                     {
                         clientSession.SendPacket(new InfoPacket

@@ -18,7 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Data;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
@@ -28,18 +29,19 @@ namespace NosCore.PacketHandlers.Inventory
 {
     public class UseItemPacketHandler : PacketHandler<UseItemPacket>, IWorldPacketHandler
     {
-        public override void Execute(UseItemPacket useItemPacket, ClientSession clientSession)
+        public override Task Execute(UseItemPacket useItemPacket, ClientSession clientSession)
         {
             var inv =
                 clientSession.Character.InventoryService.LoadBySlotAndType(useItemPacket.Slot,
                     (NoscorePocketType) useItemPacket.Type);
             if (inv?.ItemInstance.Requests == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             inv.ItemInstance.Requests.OnNext(new RequestData<Tuple<InventoryItemInstance, UseItemPacket>>(clientSession,
-                new Tuple<InventoryItemInstance, UseItemPacket>(inv, useItemPacket)));
+                new Tuple<InventoryItemInstance, UseItemPacket>(inv, useItemPacket))); 
+            return Task.CompletedTask;
         }
     }
 }

@@ -36,13 +36,11 @@ namespace NosCore.Data.I18N
 		[Key]
 		public int I18NSkillId { get; set; }
 
-	 	#nullable enable
-		public string? Key { get; set; }
-		#nullable disable
+	 	public string Key { get; set; }
+
 	 	public NosCore.Data.Enumerations.RegionType RegionType { get; set; }
 
-	 	#nullable enable
-		public string? Text { get; set; }
-		#nullable disable
+	 	public string Text { get; set; }
+
 	 }
 }

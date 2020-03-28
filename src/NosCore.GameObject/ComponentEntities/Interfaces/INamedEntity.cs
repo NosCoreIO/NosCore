@@ -23,7 +23,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
     {
         Group Group { get; set; }
 
-        string Name { get; }
+        string? Name { get; }
 
         long LevelXp { get; set; }
     }

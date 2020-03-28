@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.Data.WebApi
 {
@@ -27,7 +27,7 @@ namespace NosCore.Data.WebApi
         public Guid CharacterRelationId { get; set; }
         public CharacterRelationType RelationType { get; set; }
         public long CharacterId { get; set; }
-        public string CharacterName { get; set; }
+        public string? CharacterName { get; set; }
         public bool IsConnected { get; set; }
     }
 }

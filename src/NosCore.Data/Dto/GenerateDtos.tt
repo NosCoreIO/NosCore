@@ -105,12 +105,14 @@ namespace <#= classNamespace #>
 				} else {
 					var isDto = false;
 					var isNullable = false;
+					var declaration = "";
 					if(prop.OverrideKind != EnvDTE80.vsCMOverrideKind.vsCMOverrideKindNone ) {
 						isDto = true;
 					}
-					if (prop.Type.AsString == "string" && prop.Attributes.Cast<EnvDTE.CodeAttribute>().FirstOrDefault(s=> s.Name == "Required") != null)
+					if (prop.Type.AsString == "string" && prop.Attributes.Cast<EnvDTE.CodeAttribute>().FirstOrDefault(s=> s.Name == "Required") == null)
 					{
 					    isNullable = true;
+					    declaration = " = \"\";";
 					}
 					var attr = prop.Attributes.Cast<EnvDTE.CodeAttribute>().FirstOrDefault(s=> s.Name == "Key");
 					if(attr!=null)
@@ -127,7 +129,7 @@ namespace <#= classNamespace #>
 	<#
 					}
 #>
-	public <#= isDto ?  ConvertToDtoName(prop.Type.AsString) : prop.Type.AsString #><#= isNullable ? "?":"" #> <#= prop.Name #> { get; set; }
+	public <#= isDto ?  ConvertToDtoName(prop.Type.AsString) : prop.Type.AsString #><#= isNullable ? "?":"" #> <#= prop.Name #> { get; set; }<#= declaration #>
 <#= isNullable ? "		#nullable disable":"" #>
 	 <#
 			}

@@ -18,8 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Npcs;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -39,7 +40,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                     (mapNpc.Dialog == 16) || (mapNpc.Dialog == 9768));
         }
 
-        public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
+        public Task Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
             switch (requestData.Data.Item2.Type)
             {
@@ -53,6 +54,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                     RemoveGoldAndTeleport(requestData.ClientSession, 1, 0, 77, 82, 113, 119);
                     break;
             }
+            return Task.CompletedTask;
         }
 
         private void RemoveGoldAndTeleport(ClientSession clientSession, short mapId, long GoldToPay, short x1, short x2,

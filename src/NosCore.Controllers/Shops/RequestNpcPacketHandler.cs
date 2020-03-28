@@ -17,8 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Npcs;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -38,7 +39,7 @@ namespace NosCore.PacketHandlers.Shops
             _logger = logger;
         }
 
-        public override void Execute(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
+        public override Task Execute(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
         {
             IRequestableEntity requestableEntity;
             switch (requestNpcPacket.Type)
@@ -54,16 +55,17 @@ namespace NosCore.PacketHandlers.Shops
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
                         requestNpcPacket.Type);
-                    return;
+                    return Task.CompletedTask;
             }
 
             if (requestableEntity == null)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
-                return;
+                return Task.CompletedTask;
             }
 
             requestableEntity.Requests.OnNext(new RequestData(clientSession));
+            return Task.CompletedTask;
         }
     }
 }

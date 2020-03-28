@@ -18,8 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
-using ChickenAPI.Packets.ServerPackets.Player;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -31,7 +32,7 @@ namespace NosCore.PacketHandlers.Game
 {
     public class TitEqPacketHandler : PacketHandler<TitEqPacket>, IWorldPacketHandler
     {
-        public override void Execute(TitEqPacket titEqPacket, ClientSession session)
+        public override Task Execute(TitEqPacket titEqPacket, ClientSession session)
         {
             var tit = session.Character.Titles.FirstOrDefault(s => s.TitleType == titEqPacket.TitleId);
             if (tit != null)
@@ -64,6 +65,7 @@ namespace NosCore.PacketHandlers.Game
                 session.Character.MapInstance.SendPacket(session.Character.GenerateTitInfo());
                 session.Character.SendPacket(session.Character.GenerateTitle());
             }
+            return Task.CompletedTask;
         }
     }
 }

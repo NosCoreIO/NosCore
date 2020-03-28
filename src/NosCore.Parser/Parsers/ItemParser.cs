@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data;
@@ -47,7 +47,7 @@ namespace NosCore.Parser.Parsers
         //{Desc}
         //    END
         //#========================================================
-        private string ItemCardDto = $"{Path.DirectorySeparatorChar}Item.dat";
+        private readonly string ItemCardDto = $"{Path.DirectorySeparatorChar}Item.dat";
 
         private readonly IGenericDao<ItemDto> _itemDao;
         private readonly IGenericDao<BCardDto> _bcardDao;
@@ -62,7 +62,7 @@ namespace NosCore.Parser.Parsers
 
         public void Parse(string folder)
         {
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object>>
+            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
                 {nameof(ItemDto.VNum), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
                 {nameof(ItemDto.Price), chunk => Convert.ToInt64(chunk["VNUM"][0][3])},

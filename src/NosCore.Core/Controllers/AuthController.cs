@@ -111,10 +111,10 @@ namespace NosCore.Core.Controllers
             });
             var password = _apiConfiguration.HashingType switch
             {
-                HashingType.BCrypt => _apiConfiguration.Password.ToBcrypt(_apiConfiguration.Salt ?? ""),
-                HashingType.Pbkdf2 => _apiConfiguration.Password.ToPbkdf2Hash(_apiConfiguration.Salt ?? ""),
-                HashingType.Sha512 => _apiConfiguration.Password.ToSha512(),
-                _ => _apiConfiguration.Password.ToSha512()
+                HashingType.BCrypt => _apiConfiguration.Password!.ToBcrypt(_apiConfiguration.Salt ?? ""),
+                HashingType.Pbkdf2 => _apiConfiguration.Password!.ToPbkdf2Hash(_apiConfiguration.Salt ?? ""),
+                HashingType.Sha512 => _apiConfiguration.Password!.ToSha512(),
+                _ => _apiConfiguration.Password!.ToSha512()
             };
 
             var keyByteArray = Encoding.Default.GetBytes(password);
@@ -147,34 +147,38 @@ namespace NosCore.Core.Controllers
             }
 
             var authCode = Guid.NewGuid();
-            SessionFactory.Instance.AuthCodes[identity.Claims.First(s => s.Type == ClaimTypes.NameIdentifier).Value] =
-                authCode.ToString();
+            SessionFactory.Instance.AuthCodes[authCode.ToString()] =
+                identity.Claims.First(s => s.Type == ClaimTypes.NameIdentifier).Value;
+
             return Ok(new { code = authCode });
         }
 
 
         [HttpGet]
-        public IActionResult IsExpectingConnection(string id, string? token, long sessionId)
+        public IActionResult GetExpectingConnection(string? id, string? token, long sessionId)
         {
-            if (SessionFactory.Instance.AuthCodes.ContainsKey(id))
+            if (token != "thisisgfmode")
             {
-                if ((token != "thisisgfmode") && (SessionFactory.Instance.AuthCodes[id] == HexStringToString(token ?? "")))
+                var sessionGuid = HexStringToString(token ?? "");
+                if (!SessionFactory.Instance.AuthCodes.ContainsKey(sessionGuid))
                 {
-                    SessionFactory.Instance.ReadyForAuth.AddOrUpdate(id, sessionId, (key, oldValue) => sessionId);
-                    return Ok(true);
+                    return Ok(null);
                 }
-
-                if (SessionFactory.Instance.ReadyForAuth.ContainsKey(id) &&
-                    (sessionId == SessionFactory.Instance.ReadyForAuth[id]))
-                {
-                    return Ok(true);
-                }
+                var username = SessionFactory.Instance.AuthCodes[sessionGuid];
+                SessionFactory.Instance.ReadyForAuth.AddOrUpdate(username, sessionId, (key, oldValue) => sessionId);
+                return Ok(username);
             }
 
-            return Ok(false);
+            if (id != null && (SessionFactory.Instance.ReadyForAuth.ContainsKey(id) &&
+                (sessionId == SessionFactory.Instance.ReadyForAuth[id])))
+            {
+                return Ok(id);
+            }
+
+            return Ok(null);
         }
 
-        private string HexStringToString(string hexString)
+        private static string HexStringToString(string hexString)
         {
             var bb = Enumerable.Range(0, hexString.Length)
                 .Where(x => x % 2 == 0)

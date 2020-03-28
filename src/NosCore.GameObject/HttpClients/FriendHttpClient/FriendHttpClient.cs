@@ -21,7 +21,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClient;
@@ -40,21 +41,21 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
             RequireConnection = true;
         }
 
-        public LanguageKey AddFriend(FriendShipRequest friendShipRequest)
+        public Task<LanguageKey> AddFriend(FriendShipRequest friendShipRequest)
         {
             return Post<LanguageKey>(friendShipRequest);
         }
 
-        public List<CharacterRelationStatus> GetListFriends(long visualEntityVisualId)
+        public async Task<List<CharacterRelationStatus>> GetListFriends(long visualEntityVisualId)
         {
-            return Get<List<CharacterRelationStatus>>(visualEntityVisualId)
+            return (await Get<List<CharacterRelationStatus>>(visualEntityVisualId))
                 .Where(w => w.RelationType != CharacterRelationType.Blocked)
                 .ToList();
         }
 
-        public void DeleteFriend(Guid characterRelationId)
+        public Task DeleteFriend(Guid characterRelationId)
         {
-            Delete(characterRelationId);
+            return Delete(characterRelationId);
         }
     }
 }

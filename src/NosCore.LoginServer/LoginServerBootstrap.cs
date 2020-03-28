@@ -26,8 +26,8 @@ using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
-using ChickenAPI.Packets;
-using ChickenAPI.Packets.Interfaces;
+using NosCore.Packets;
+using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using FastExpressionCompiler;
@@ -71,7 +71,7 @@ namespace NosCore.LoginServer
         private const string ConsoleText = "LOGIN SERVER - NosCoreIO";
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        private static LoginConfiguration _loginConfiguration = new LoginConfiguration();
+        private static readonly LoginConfiguration _loginConfiguration = new LoginConfiguration();
 
         private static void InitializeConfiguration()
         {
@@ -85,7 +85,7 @@ namespace NosCore.LoginServer
                 true);
 
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-            optionsBuilder.UseNpgsql(_loginConfiguration.Database.ConnectionString);
+            optionsBuilder.UseNpgsql(_loginConfiguration.Database!.ConnectionString);
             DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
 
             LogLanguage.Language = _loginConfiguration.Language;
@@ -117,7 +117,7 @@ namespace NosCore.LoginServer
                 ClientType = ServerType.LoginServer,
                 ClientName = $"{ServerType.LoginServer}({_loginConfiguration.UserLanguage})",
                 Port = _loginConfiguration.Port,
-                Host = _loginConfiguration.Host
+                Host = _loginConfiguration.Host!
             });
             foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
             {
@@ -130,8 +130,8 @@ namespace NosCore.LoginServer
             }
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => ((p.Namespace == "ChickenAPI.Packets.ServerPackets.Login") ||
-                        (p.Namespace == "ChickenAPI.Packets.ClientPackets.Login"))
+                .Where(p => ((p.Namespace == "NosCore.Packets.ServerPackets.Login") ||
+                        (p.Namespace == "NosCore.Packets.ClientPackets.Login"))
                     && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
             containerBuilder.Register(c => new Deserializer(listofpacket))
                 .AsImplementedInterfaces()
@@ -180,6 +180,7 @@ namespace NosCore.LoginServer
 
                     TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
                        .AfterMapping(dest => Task.Run(dest.Initialize));
+                    TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
 
 

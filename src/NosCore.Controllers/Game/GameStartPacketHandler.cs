@@ -17,11 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
@@ -36,6 +36,7 @@ using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -66,7 +67,7 @@ namespace NosCore.PacketHandlers.Game
             _mailHttpClient = mailHttpClient;
         }
 
-        public override void Execute(GameStartPacket packet, ClientSession session)
+        public override async Task Execute(GameStartPacket packet, ClientSession session)
         {
             if (session.GameStarted || !session.HasSelectedCharacter)
             {
@@ -168,11 +169,11 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            session.Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, true);
+            await session.Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, true);
 
-            session.SendPacket(session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient,
+            session.SendPacket(await session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient,
                 _connectedAccountHttpClient));
-            session.SendPacket(session.Character.GenerateBlinit(_blacklistHttpClient));
+            session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient));
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);
@@ -206,7 +207,7 @@ namespace NosCore.PacketHandlers.Game
             //            }
 
             //            // finfo - friends info
-            var mails = _mailHttpClient.GetGifts(session.Character.CharacterId);
+            var mails = await _mailHttpClient.GetGifts(session.Character.CharacterId);
             session.Character.GenerateMail(mails);
 
             session.SendPacket(session.Character.GenerateTitle());

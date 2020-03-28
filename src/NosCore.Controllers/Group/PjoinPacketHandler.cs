@@ -19,9 +19,10 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Groups;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Groups;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Group;
@@ -48,7 +49,7 @@ namespace NosCore.PacketHandlers.Group
             _blacklistHttpCLient = blacklistHttpCLient;
         }
 
-        public override void Execute(PjoinPacket pjoinPacket, ClientSession clientSession)
+        public override async Task Execute(PjoinPacket pjoinPacket, ClientSession clientSession)
         {
             var targetSession =
                 Broadcaster.Instance.GetCharacter(s =>
@@ -90,7 +91,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    var blacklisteds = _blacklistHttpCLient.GetBlackLists(clientSession.Character.VisualId);
+                    var blacklisteds = await _blacklistHttpCLient.GetBlackLists(clientSession.Character.VisualId);
                     if (blacklisteds != null && blacklisteds.Any(s => s.CharacterId == pjoinPacket.CharacterId))
                     {
                         clientSession.SendPacket(new InfoPacket

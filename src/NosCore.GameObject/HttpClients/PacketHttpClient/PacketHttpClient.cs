@@ -23,7 +23,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Data.Enumerations;
@@ -42,50 +43,44 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
             _httpClientFactory = httpClientFactory;
         }
 
-        public void BroadcastPacket(PostedPacket packet, int channelId)
+        public async Task BroadcastPacket(PostedPacket packet, int channelId)
         {
-            var channel = _channelHttpClient.GetChannel(channelId);
+            var channel = await _channelHttpClient.GetChannel(channelId);
             if (channel != null)
             {
                 SendPacketToChannel(packet, channel.WebApi.ToString());
             }
         }
 
-        public void BroadcastPacket(PostedPacket packet)
+        public async Task BroadcastPacket(PostedPacket packet)
         {
-            foreach (var channel in _channelHttpClient.GetChannels()
+            foreach (var channel in (await _channelHttpClient.GetChannels())
                 ?.Where(c => c.Type == ServerType.WorldServer) ?? new List<ChannelInfo>())
             {
                 SendPacketToChannel(packet, channel.WebApi.ToString());
             }
         }
 
-        public void BroadcastPackets(List<PostedPacket> packets)
+        public Task BroadcastPacketsAsync(List<PostedPacket> packets)
         {
-            foreach (var packet in packets)
-            {
-                BroadcastPacket(packet);
-            }
+            return Task.WhenAll(packets.Select(packet => BroadcastPacket(packet)));
         }
 
-        public void BroadcastPackets(List<PostedPacket> packets, int channelId)
+        public Task BroadcastPackets(List<PostedPacket> packets, int channelId)
         {
-            foreach (var packet in packets)
-            {
-                BroadcastPacket(packet, channelId);
-            }
+            return Task.WhenAll(packets.Select(packet => BroadcastPacket(packet, channelId)));
         }
 
-        private void SendPacketToChannel(PostedPacket postedPacket, string channel)
+        private async void SendPacketToChannel(PostedPacket postedPacket, string channel)
         {
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(channel);
             client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _channelHttpClient.GetOrRefreshToken());
-            var content = new StringContent(JsonConvert.SerializeObject(postedPacket),
+                new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshToken());
+            var content = new StringContent(JsonSerializer.Serialize(postedPacket),
                 Encoding.Default, "application/json");
 
-            client.PostAsync("api/packet", content);
+            await client.PostAsync("api/packet", content);
         }
     }
 }

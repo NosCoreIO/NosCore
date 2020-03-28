@@ -18,10 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Shops;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Shop;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Shops;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Shop;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.Group;
@@ -37,12 +38,12 @@ namespace NosCore.PacketHandlers.Shops
 {
     public class MShopPacketHandler : PacketHandler<MShopPacket>, IWorldPacketHandler
     {
-        public override void Execute(MShopPacket mShopPacket, ClientSession clientSession)
+        public override Task Execute(MShopPacket mShopPacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
                 //todo log
-                return;
+                return Task.CompletedTask;
             }
 
             var portal = clientSession.Character.MapInstance.Portals.Find(port =>
@@ -56,7 +57,7 @@ namespace NosCore.PacketHandlers.Shops
                         clientSession.Account.Language),
                     Type = 0
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             if ((clientSession.Character.Group != null) && (clientSession.Character.Group?.Type != GroupType.Group))
@@ -67,7 +68,7 @@ namespace NosCore.PacketHandlers.Shops
                         clientSession.Account.Language),
                     Type = MessageType.White
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             if (!clientSession.Character.MapInstance.ShopAllowed)
@@ -78,7 +79,7 @@ namespace NosCore.PacketHandlers.Shops
                         clientSession.Account.Language),
                     Type = MessageType.White
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             switch (mShopPacket.Type)
@@ -105,7 +106,7 @@ namespace NosCore.PacketHandlers.Shops
                         if (inv.ItemInstance.Amount < item.Amount)
                         {
                             //todo log
-                            return;
+                            return Task.CompletedTask;
                         }
 
                         if (!inv.ItemInstance.Item.IsTradable || (inv.ItemInstance.BoundCharacterId != null))
@@ -116,7 +117,7 @@ namespace NosCore.PacketHandlers.Shops
                                     clientSession.Account.Language),
                                 SayColorType.Yellow));
                             clientSession.Character.Shop = null;
-                            return;
+                            return Task.CompletedTask;
                         }
 
                         clientSession.Character.Shop.ShopItems.TryAdd(shopSlot,
@@ -137,7 +138,7 @@ namespace NosCore.PacketHandlers.Shops
                             Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, clientSession.Account.Language),
                             SayColorType.Yellow));
                         clientSession.Character.Shop = null;
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     clientSession.Character.Shop.Session = clientSession;
@@ -174,8 +175,9 @@ namespace NosCore.PacketHandlers.Shops
                     break;
                 default:
                     //todo log
-                    return;
+                    return Task.CompletedTask;
             }
+            return Task.CompletedTask;
         }
     }
 }

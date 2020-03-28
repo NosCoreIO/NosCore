@@ -17,7 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Player;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Player;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 
@@ -25,9 +26,9 @@ namespace NosCore.PacketHandlers.NoAction
 {
     public class SnapPacketHandler : PacketHandler<SnapPacket>, IWorldPacketHandler
     {
-        public override void Execute(SnapPacket packet, ClientSession clientSession)
+        public override Task Execute(SnapPacket packet, ClientSession clientSession)
         {
-            //noaction
+            return Task.CompletedTask;
         }
     }
 }

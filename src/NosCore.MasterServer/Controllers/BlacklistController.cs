@@ -20,7 +20,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
@@ -48,10 +49,10 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPost]
-        public LanguageKey AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
+        public async Task<LanguageKey> AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
         {
-            var character = _connectedAccountHttpClient.GetCharacter(blacklistRequest.CharacterId, null);
-            var targetCharacter =
+            var character = await _connectedAccountHttpClient.GetCharacter(blacklistRequest.CharacterId, null);
+            var targetCharacter = await
                 _connectedAccountHttpClient.GetCharacter(blacklistRequest.BlInsPacket.CharacterId, null);
             if ((character.Item2 != null) && (targetCharacter.Item2 != null))
             {
@@ -86,7 +87,7 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpGet]
-        public List<CharacterRelationStatus> GetBlacklisted(long id)
+        public async Task<List<CharacterRelationStatus>> GetBlacklisted(long id)
         {
             var charList = new List<CharacterRelationStatus>();
             var list = _characterRelationDao
@@ -95,9 +96,9 @@ namespace NosCore.MasterServer.Controllers
             {
                 charList.Add(new CharacterRelationStatus
                 {
-                    CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId).Name,
+                    CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId)?.Name ?? "",
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
+                    IsConnected = (await _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null)).Item1 != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId
                 });
@@ -111,6 +112,10 @@ namespace NosCore.MasterServer.Controllers
         {
             var rel = _characterRelationDao.FirstOrDefault(s =>
                 (s.CharacterRelationId == id) && (s.RelationType == CharacterRelationType.Blocked));
+            if (rel == null)
+            {
+                return NotFound();
+            }
             _characterRelationDao.Delete(rel);
             return Ok();
         }

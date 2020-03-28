@@ -19,9 +19,11 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.ServerPackets.Bazaar;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.ServerPackets.Bazaar;
+using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
@@ -46,11 +48,11 @@ namespace NosCore.Tests.BazaarTests
     public class CScalcPacketHandlerTest
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private Mock<IBazaarHttpClient> _bazaarHttpClient;
-        private CScalcPacketHandler _cScalcPacketHandler;
-        private Mock<IGenericDao<IItemInstanceDto>> _itemInstanceDao;
-        private Mock<IItemProvider> _itemProvider;
-        private ClientSession _session;
+        private Mock<IBazaarHttpClient>? _bazaarHttpClient;
+        private CScalcPacketHandler? _cScalcPacketHandler;
+        private Mock<IGenericDao<IItemInstanceDto>>? _itemInstanceDao;
+        private Mock<IItemProvider>? _itemProvider;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
@@ -64,31 +66,31 @@ namespace NosCore.Tests.BazaarTests
             _cScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration,
                 _bazaarHttpClient.Object, _itemProvider.Object, _logger, _itemInstanceDao.Object);
 
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).Returns(
+            _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).ReturnsAsync(
                 new BazaarLink
                 {
-                    SellerName = _session.Character.Name,
+                    SellerName = _session.Character!.Name,
                     BazaarItem = new BazaarItemDto {Price = 50, Amount = 1},
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 0}
                 });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(2)).Returns(
+            _bazaarHttpClient.Setup(b => b.GetBazaarLink(2)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = "test",
                     BazaarItem = new BazaarItemDto {Price = 60, Amount = 1},
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 0}
                 });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(1)).Returns((BazaarLink) null);
-            _bazaarHttpClient.Setup(b => b.Remove(It.IsAny<long>(), It.IsAny<int>(), It.IsAny<string>())).Returns(true);
+            _bazaarHttpClient.Setup(b => b.GetBazaarLink(1)).ReturnsAsync((BazaarLink?) null);
+            _bazaarHttpClient.Setup(b => b.Remove(It.IsAny<long>(), It.IsAny<int>(), It.IsAny<string>())).ReturnsAsync(true);
             _itemProvider.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>())).Returns(new ItemInstance
                 {Amount = 0, ItemVNum = 1012, Item = new Item()});
         }
 
         [TestMethod]
-        public void RetrieveWhenInExchangeOrTrade()
+        public async Task RetrieveWhenInExchangeOrTrade()
         {
-            _session.Character.InExchangeOrTrade = true;
-            _cScalcPacketHandler.Execute(new CScalcPacket
+            _session!.Character!.InExchangeOrTrade = true;
+            await _cScalcPacketHandler!.Execute(new CScalcPacket
             {
                 BazaarId = 1,
                 Price = 50,
@@ -99,39 +101,39 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public void RetrieveWhenNoItem()
+        public async Task RetrieveWhenNoItem()
         {
-            _cScalcPacketHandler.Execute(new CScalcPacket
+            await _cScalcPacketHandler!.Execute(new CScalcPacket
             {
                 BazaarId = 1,
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session);
-            var lastpacket = (RCScalcPacket) _session.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
-            Assert.AreEqual(0, lastpacket.Price);
+            }, _session!);
+            var lastpacket = (RCScalcPacket?) _session!.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
+            Assert.AreEqual(0, lastpacket?.Price);
         }
 
         [TestMethod]
-        public void RetrieveWhenNotYourItem()
+        public async Task RetrieveWhenNotYourItem()
         {
-            _cScalcPacketHandler.Execute(new CScalcPacket
+           await _cScalcPacketHandler.Execute(new CScalcPacket
             {
                 BazaarId = 2,
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session);
-            var lastpacket = (RCScalcPacket) _session.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
-            Assert.AreEqual(0, lastpacket.Price);
+            }, _session!);
+            var lastpacket = (RCScalcPacket?) _session!.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
+            Assert.AreEqual(0, lastpacket?.Price);
         }
 
         [TestMethod]
-        public void RetrieveWhenNotEnoughPlace()
+        public async Task RetrieveWhenNotEnoughPlace()
         {
             var guid1 = Guid.NewGuid();
             var guid2 = Guid.NewGuid();
-            _session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance
+            _session.Character!.InventoryService.AddItemToPocket(new InventoryItemInstance
             {
                 Id = guid2, ItemInstanceId = guid2, Slot = 0, Type = NoscorePocketType.Main,
                 ItemInstance = new ItemInstance {ItemVNum = 1012, Amount = 999, Id = guid2}
@@ -141,46 +143,48 @@ namespace NosCore.Tests.BazaarTests
                 Id = guid1, ItemInstanceId = guid1, Slot = 1, Type = NoscorePocketType.Main,
                 ItemInstance = new ItemInstance {ItemVNum = 1012, Amount = 999, Id = guid1}
             });
-            _cScalcPacketHandler.Execute(new CScalcPacket
+           await _cScalcPacketHandler!.Execute(new CScalcPacket
             {
                 BazaarId = 0,
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
             }, _session);
-            var lastpacket = (RCScalcPacket) _session.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
-            Assert.AreEqual(50, lastpacket.Price);
+            var lastpacket = (RCScalcPacket?) _session.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
+            Assert.AreEqual(50, lastpacket?.Price);
         }
 
         [TestMethod]
-        public void RetrieveWhenMaxGold()
+        public async Task RetrieveWhenMaxGold()
         {
-            _session.Character.Gold = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount;
-            _cScalcPacketHandler.Execute(new CScalcPacket
+            _session.Character!.Gold = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount;
+            await _cScalcPacketHandler!.Execute(new CScalcPacket
             {
                 BazaarId = 0,
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
             }, _session);
-            var lastpacket = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
-                _session.Account.Language), lastpacket.Message);
+                _session.Account.Language), lastpacket?.Message);
         }
 
 
         [TestMethod]
-        public void Retrieve()
+        public async Task Retrieve()
         {
-            _cScalcPacketHandler.Execute(new CScalcPacket
+            _itemInstanceDao.Setup(s=>s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto,bool>>>()))
+                .Returns(new ItemInstanceDto { ItemVNum = 1012, Amount = 0 });
+            await _cScalcPacketHandler!.Execute(new CScalcPacket
             {
                 BazaarId = 0,
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session);
-            var lastpacket = (RCScalcPacket) _session.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
-            Assert.AreEqual(50, lastpacket.Total);
+            }, _session!);
+            var lastpacket = (RCScalcPacket?) _session!.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
+            Assert.AreEqual(50, lastpacket?.Total);
         }
     }
 }

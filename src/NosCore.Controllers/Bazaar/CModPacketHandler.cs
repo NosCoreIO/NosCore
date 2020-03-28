@@ -17,9 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -43,14 +44,14 @@ namespace NosCore.PacketHandlers.Bazaar
             _logger = logger;
         }
 
-        public override void Execute(CModPacket packet, ClientSession clientSession)
+        public override async Task Execute(CModPacket packet, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
                 return;
             }
 
-            var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
+            var bz = await _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name) &&
                 (bz.BazaarItem.Price != packet.NewPrice))
             {
@@ -69,11 +70,11 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     var patch = new JsonPatchDocument<BazaarLink>();
                     patch.Replace(link => link.BazaarItem.Price, packet.NewPrice);
-                    var bzMod = _bazaarHttpClient.Modify(packet.BazaarId, patch);
+                    var bzMod = await _bazaarHttpClient.Modify(packet.BazaarId, patch);
 
                     if ((bzMod != null) && (bzMod.BazaarItem.Price != bz.BazaarItem.Price))
                     {
-                        clientSession.HandlePackets(new[]
+                        await clientSession.HandlePackets(new[]
                             {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}});
                         clientSession.SendPacket(clientSession.Character.GenerateSay(
                             string.Format(

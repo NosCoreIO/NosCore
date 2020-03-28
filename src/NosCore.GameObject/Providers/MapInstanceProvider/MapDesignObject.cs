@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ServerPackets.Map;
-using ChickenAPI.Packets.ServerPackets.Miniland;
+using NosCore.Packets.ServerPackets.Map;
+using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Providers.InventoryService;
 

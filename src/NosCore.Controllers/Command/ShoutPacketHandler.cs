@@ -18,10 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.Chats;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
@@ -45,7 +46,7 @@ namespace NosCore.PacketHandlers.Command
             _packetHttpClient = packetHttpClient;
         }
 
-        public override void Execute(ShoutPacket shoutPacket, ClientSession session)
+        public override Task Execute(ShoutPacket shoutPacket, ClientSession session)
         {
             var message =
                 $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, session.Account.Language)}) {shoutPacket.Message}";
@@ -80,7 +81,8 @@ namespace NosCore.PacketHandlers.Command
                 ReceiverType = ReceiverType.All
             };
 
-            _packetHttpClient.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
+            _packetHttpClient.BroadcastPacketsAsync(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
+            return Task.CompletedTask;
         }
     }
 }

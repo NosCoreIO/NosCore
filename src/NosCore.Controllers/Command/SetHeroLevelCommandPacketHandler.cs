@@ -19,7 +19,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClient;
@@ -50,7 +51,7 @@ namespace NosCore.PacketHandlers.Command
             _statHttpClient = statHttpClient;
         }
 
-        public override void Execute(SetHeroLevelCommandPacket levelPacket, ClientSession session)
+        public override async Task Execute(SetHeroLevelCommandPacket levelPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
@@ -65,15 +66,15 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var channels = _channelHttpClient.GetChannels()
+            var channels = (await _channelHttpClient.GetChannels())
                 ?.Where(c => c.Type == ServerType.WorldServer);
 
-            ConnectedAccount receiver = null;
-            ServerConfiguration config = null;
+            ConnectedAccount? receiver = null;
+            ServerConfiguration? config = null;
 
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
-                var accounts =
+                var accounts = await
                     _connectedAccountHttpClient.GetConnectedAccount(channel);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
@@ -95,7 +96,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            _statHttpClient.ChangeStat(data, config);
+            await _statHttpClient.ChangeStat(data, config);
         }
     }
 }

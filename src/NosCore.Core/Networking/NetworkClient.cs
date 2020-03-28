@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using ChickenAPI.Packets.Interfaces;
+using NosCore.Packets.Interfaces;
 using DotNetty.Transport.Channels;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -33,13 +33,13 @@ namespace NosCore.Core.Networking
 {
     public class NetworkClient : ChannelHandlerAdapter, INetworkClient
     {
-        private const short maxPacketsBuffer = 50;
+        private const short MaxPacketsBuffer = 50;
         private readonly ILogger _logger;
 
         public NetworkClient(ILogger logger)
         {
             _logger = logger;
-            LastPackets = new ConcurrentQueue<IPacket>();
+            LastPackets = new ConcurrentQueue<IPacket?>();
         }
 
         public IChannel Channel { get; private set; }
@@ -49,29 +49,28 @@ namespace NosCore.Core.Networking
         public bool IsAuthenticated { get; set; }
 
         public int SessionId { get; set; }
-        public ConcurrentQueue<IPacket> LastPackets { get; }
-
-        public long ClientId { get; set; }
+        public ConcurrentQueue<IPacket?> LastPackets { get; }
 
         public void Disconnect()
         {
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FORCED_DISCONNECTION),
-                ClientId);
+                SessionId);
             Channel?.DisconnectAsync();
         }
 
-        public void SendPacket(IPacket packet)
+        public void SendPacket(IPacket? packet)
         {
             SendPackets(new[] {packet});
         }
 
-        public void SendPackets(IEnumerable<IPacket> packets)
+        public void SendPackets(IEnumerable<IPacket?> packets)
         {
-            var packetDefinitions = (packets as IPacket[] ?? packets.ToArray()).Where(c => c != null);
+            var packetlist = packets.ToList();
+            var packetDefinitions = (packets as IPacket?[] ?? packetlist.ToArray()).Where(c => c != null);
             if (packetDefinitions.Any())
             {
-                Parallel.ForEach(packets, packet => LastPackets.Enqueue(packet));
-                Parallel.For(0, LastPackets.Count - maxPacketsBuffer, (_, __) => LastPackets.TryDequeue(out var ___));
+                Parallel.ForEach(packetlist, packet => LastPackets.Enqueue(packet));
+                Parallel.For(0, LastPackets.Count - MaxPacketsBuffer, (_, __) => LastPackets.TryDequeue(out var ___));
                 Channel?.WriteAndFlushAsync(packetDefinitions);
             }
         }
@@ -83,6 +82,11 @@ namespace NosCore.Core.Networking
 
         public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
         {
+            if ((exception == null) || (context == null))
+            {
+                throw new ArgumentNullException(nameof(exception));
+            }
+
             if (exception is SocketException sockException)
             {
                 switch (sockException.SocketErrorCode)
@@ -90,7 +94,7 @@ namespace NosCore.Core.Networking
                     case SocketError.ConnectionReset:
                         _logger.Information(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED),
-                            ClientId);
+                            SessionId);
                         break;
                     default:
                         _logger.Fatal(exception.StackTrace);

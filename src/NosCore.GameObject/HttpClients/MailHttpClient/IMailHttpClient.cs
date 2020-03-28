@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Data;
 using NosCore.Data.Dto;
@@ -28,15 +29,15 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
 {
     public interface IMailHttpClient
     {
-        void SendGift(ICharacterEntity characterEntity, long receiverId, IItemInstanceDto itemInstance, bool isNosmall);
+        Task SendGift(ICharacterEntity characterEntity, long receiverId, IItemInstanceDto itemInstance, bool isNosmall);
 
-        void SendGift(ICharacterEntity characterEntity, long receiverId, short vnum, short amount, sbyte rare,
+        Task SendGift(ICharacterEntity characterEntity, long receiverId, short vnum, short amount, sbyte rare,
             byte upgrade, bool isNosmall);
 
-        IEnumerable<MailData> GetGifts(long characterId);
-        MailData GetGift(long id, long characterId, bool isCopy);
-        void DeleteGift(long giftId, long visualId, bool isCopy);
-        void ViewGift(long giftId, JsonPatchDocument<MailDto> mailData);
-        void SendMessage(ICharacterEntity character, long characterId, string title, string text);
+        Task<IEnumerable<MailData>> GetGifts(long characterId);
+        Task<MailData> GetGift(long id, long characterId, bool isCopy);
+        Task DeleteGift(long giftId, long visualId, bool isCopy);
+        Task ViewGift(long giftId, JsonPatchDocument<MailDto> mailData);
+        Task SendMessage(ICharacterEntity character, long characterId, string title, string text);
     }
 }

@@ -18,10 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Bazaar;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Bazaar;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -55,7 +56,7 @@ namespace NosCore.PacketHandlers.Bazaar
             _inventoryItemInstanceDao = inventoryItemInstanceDao;
         }
 
-        public override void Execute(CRegPacket cRegPacket, ClientSession clientSession)
+        public override async Task Execute(CRegPacket cRegPacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
@@ -138,7 +139,7 @@ namespace NosCore.PacketHandlers.Bazaar
             IItemInstanceDto bazaaritem = bazar.ItemInstance;
             _itemInstanceDao.InsertOrUpdate(ref bazaaritem);
 
-            var result = _bazaarHttpClient.AddBazaar(new BazaarRequest
+            var result = await _bazaarHttpClient.AddBazaar(new BazaarRequest
             {
                 ItemInstanceId = bazar.ItemInstance.Id,
                 CharacterId = clientSession.Character.CharacterId,

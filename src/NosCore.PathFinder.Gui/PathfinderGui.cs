@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ClientPackets.Inventory;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -78,7 +78,7 @@ namespace NosCore.PathFinder.Gui
             try
             {
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-                optionsBuilder.UseNpgsql(DatabaseConfiguration.Database.ConnectionString);
+                optionsBuilder.UseNpgsql(DatabaseConfiguration.Database!.ConnectionString);
                 DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
 
                 var npcMonsters = _npcMonsterDao.LoadAll().ToList();

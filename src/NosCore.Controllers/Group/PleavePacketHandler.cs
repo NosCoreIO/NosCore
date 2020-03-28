@@ -19,9 +19,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Groups;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Groups;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
@@ -36,13 +37,13 @@ namespace NosCore.PacketHandlers.Group
 {
     public class PleavePacketHandler : PacketHandler<PleavePacket>, IWorldPacketHandler
     {
-        public override void Execute(PleavePacket bIPacket, ClientSession clientSession)
+        public override Task Execute(PleavePacket bIPacket, ClientSession clientSession)
         {
             var group = clientSession.Character.Group;
 
             if (group.Count == 1)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if (group.Count > 2)
@@ -57,7 +58,7 @@ namespace NosCore.PacketHandlers.Group
 
                     if (targetsession == null)
                     {
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     targetsession.SendPacket(new InfoPacket
@@ -69,7 +70,7 @@ namespace NosCore.PacketHandlers.Group
 
                 if (group.Type != GroupType.Group)
                 {
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 foreach (var member in group.Values.Where(s => s.Item2 is ICharacterEntity))
@@ -124,6 +125,7 @@ namespace NosCore.PacketHandlers.Group
 
                 GroupAccess.Instance.Groups.TryRemove(group.GroupId, out _);
             }
+            return Task.CompletedTask;
         }
     }
 }

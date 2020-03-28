@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
 using NosCore.GameObject;

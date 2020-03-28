@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Helper
 {
@@ -26,23 +26,23 @@ namespace NosCore.GameObject.Helper
     {
         private static CharacterHelper _instance;
 
-        private int[][] _criticalDist;
-        private int[][] _criticalDistRate;
-        private int[][] _criticalHit;
-        private int[][] _criticalHitRate;
-        private int[][] _distDef;
-        private int[][] _distDodge;
-        private int[][] _distRate;
-        private int[][] _hitDef;
-        private int[][] _hitDodge;
-        private int[][] _hitRate;
-        private int[][] _magicalDef;
-        private int[][] _maxDist;
-        private int[][] _maxHit;
-        private int[][] _minDist;
+        private int[][]? _criticalDist;
+        private int[][]? _criticalDistRate;
+        private int[][]? _criticalHit;
+        private int[][]? _criticalHitRate;
+        private int[][]? _distDef;
+        private int[][]? _distDodge;
+        private int[][]? _distRate;
+        private int[][]? _hitDef;
+        private int[][]? _hitDodge;
+        private int[][]? _hitRate;
+        private int[][]? _magicalDef;
+        private int[][]? _maxDist;
+        private int[][]? _maxHit;
+        private int[][]? _minDist;
 
         // difference between class
-        private int[][] _minHit;
+        private int[][]? _minHit;
 
         private CharacterHelper()
         {
@@ -66,29 +66,29 @@ namespace NosCore.GameObject.Helper
 
         // same for all class
 
-        public double[] FirstJobXpData { get; private set; }
+        public double[]? FirstJobXpData { get; private set; }
 
-        public double[] HeroXpData { get; private set; }
+        public double[]? HeroXpData { get; private set; }
 
-        public int[][] HpData { get; private set; }
+        public int[][]? HpData { get; private set; }
 
-        public int[] HpHealth { get; private set; }
+        public int[]? HpHealth { get; private set; }
 
-        public int[] HpHealthStand { get; private set; }
+        public int[]? HpHealthStand { get; private set; }
 
-        public int[][] MpData { get; private set; }
+        public int[][]? MpData { get; private set; }
 
-        public int[] MpHealth { get; private set; }
+        public int[]? MpHealth { get; private set; }
 
-        public int[] MpHealthStand { get; private set; }
+        public int[]? MpHealthStand { get; private set; }
 
-        public double[] SecondJobXpData { get; private set; }
+        public double[]? SecondJobXpData { get; private set; }
 
-        public byte[] SpeedData { get; private set; }
+        public byte[]? SpeedData { get; private set; }
 
-        public double[] SpxpData { get; private set; }
+        public double[]? SpxpData { get; private set; }
 
-        public double[] XpData { get; private set; }
+        public double[]? XpData { get; private set; }
 
         public double HeroXpLoad(byte heroLevel)
         {

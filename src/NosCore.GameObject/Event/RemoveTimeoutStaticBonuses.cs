@@ -19,7 +19,7 @@
 
 using System;
 using System.Threading.Tasks;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 using JetBrains.Annotations;
 using NosCore.Core;
 using NosCore.Core.I18N;

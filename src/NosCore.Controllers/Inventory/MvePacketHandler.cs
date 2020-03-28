@@ -17,7 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Inventory;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
@@ -38,12 +39,12 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override void Execute(MvePacket mvePacket, ClientSession clientSession)
+        public override Task Execute(MvePacket mvePacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrShop)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
-                return;
+                return Task.CompletedTask;
             }
 
             var inv = clientSession.Character.InventoryService.MoveInPocket(mvePacket.Slot,
@@ -53,6 +54,7 @@ namespace NosCore.PacketHandlers.Inventory
                 mvePacket.DestinationSlot));
             clientSession.SendPacket(
                 ((InventoryItemInstance) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+            return Task.CompletedTask;
         }
     }
 }

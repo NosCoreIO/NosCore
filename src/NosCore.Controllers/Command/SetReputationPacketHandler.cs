@@ -17,7 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
@@ -43,7 +44,7 @@ namespace NosCore.PacketHandlers.Command
             _statHttpClient = statHttpClient;
         }
 
-        public override void Execute(SetReputationPacket setReputationPacket, ClientSession session)
+        public override async Task Execute(SetReputationPacket setReputationPacket, ClientSession session)
         {
             if ((setReputationPacket.Name == session.Character.Name) || string.IsNullOrEmpty(setReputationPacket.Name))
             {
@@ -58,7 +59,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = setReputationPacket.Reputation
             };
 
-            var receiver = _connectedAccountHttpClient.GetCharacter(null, setReputationPacket.Name);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(null, setReputationPacket.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -70,7 +71,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            _statHttpClient.ChangeStat(data, receiver.Item1);
+            await _statHttpClient.ChangeStat(data, receiver.Item1);
         }
     }
 }

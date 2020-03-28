@@ -18,13 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using Mapster;
 using NosCore.Core;
 using NosCore.Data;
 using NosCore.Data.Dto;
-using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 
 namespace NosCore.MasterServer.DataHolders
@@ -32,7 +30,7 @@ namespace NosCore.MasterServer.DataHolders
     public class BazaarItemsHolder
     {
         public BazaarItemsHolder(IGenericDao<BazaarItemDto> bazaarItemDao,
-            IGenericDao<IItemInstanceDto> itemInstanceDao, List<ItemDto> items, IGenericDao<CharacterDto> characterDao)
+            IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<CharacterDto> characterDao)
         {
             var billist = bazaarItemDao.LoadAll().ToList();
             var bzItemInstanceIds = billist.Select(o => o.ItemInstanceId).ToList();
@@ -44,7 +42,7 @@ namespace NosCore.MasterServer.DataHolders
                 x => new BazaarLink
                 {
                     ItemInstance = itemInstancelist.First(s => s.Id == x.ItemInstanceId).Adapt<ItemInstanceDto>(),
-                    BazaarItem = x, SellerName = characterList.First(s => s.CharacterId == x.SellerId).Name
+                    BazaarItem = x, SellerName = characterList.First(s => s.CharacterId == x.SellerId).Name!
                 }));
         }
 

@@ -18,13 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using ChickenAPI.Packets.Interfaces;
+using NosCore.Packets.Interfaces;
 
 namespace NosCore.Core.Networking
 {
     public interface INetworkClient
     {
-        long ClientId { get; set; }
+        int SessionId { get; set; }
 
         void Disconnect();
 

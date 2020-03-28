@@ -19,10 +19,11 @@
 
 using System;
 using System.Collections.Generic;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Bazaar;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Bazaar;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data;
@@ -53,14 +54,14 @@ namespace NosCore.PacketHandlers.Bazaar
             _itemInstanceDao = itemInstanceDao;
         }
 
-        public override void Execute(CBuyPacket packet, ClientSession clientSession)
+        public override async Task Execute(CBuyPacket packet, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
                 return;
             }
 
-            var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
+            var bz = await _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
             if ((bz != null) && (bz.SellerName != clientSession.Character.Name) &&
                 (packet.Price == bz.BazaarItem.Price) && (bz.ItemInstance.Amount >= packet.Amount))
             {
@@ -85,11 +86,11 @@ namespace NosCore.PacketHandlers.Bazaar
                                 InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
                         clientSession.SendPacket(newInv.GeneratePocketChange());
 
-                        var remove = _bazaarHttpClient.Remove(packet.BazaarId, packet.Amount,
+                        var remove = await _bazaarHttpClient.Remove(packet.BazaarId, packet.Amount,
                             clientSession.Character.Name);
                         if (remove)
                         {
-                            clientSession.HandlePackets(new[]
+                            await clientSession.HandlePackets(new[]
                                 {new CBListPacket {Index = 0, ItemVNumFilter = new List<short>()}});
                             clientSession.SendPacket(new RCBuyPacket
                             {

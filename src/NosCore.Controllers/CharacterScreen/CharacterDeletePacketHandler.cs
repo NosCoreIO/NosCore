@@ -17,8 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Data.CommandPackets;
@@ -41,18 +42,18 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _accountDao = accountDao;
         }
 
-        public override void Execute(CharacterDeletePacket packet, ClientSession clientSession)
+        public override Task Execute(CharacterDeletePacket packet, ClientSession clientSession)
         {
             if (clientSession.HasCurrentMapInstance)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var account = _accountDao
                 .FirstOrDefault(s => s.AccountId.Equals(clientSession.Account.AccountId));
             if (account == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if ((account.Password.ToLower() == packet.Password.ToSha512()) || (account.Name == packet.Password))
@@ -62,13 +63,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     && (s.State == CharacterState.Active));
                 if (character == null)
                 {
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 character.State = CharacterState.Inactive;
                 _characterDao.InsertOrUpdate(ref character);
 
-                clientSession.HandlePackets(new[]
+                return clientSession.HandlePackets(new[]
                 {
                     new EntryPointPacket
                     {
@@ -85,6 +86,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     Message = clientSession.GetMessageFromKey(LanguageKey.BAD_PASSWORD)
                 });
             }
+            return Task.CompletedTask;
         }
     }
 }

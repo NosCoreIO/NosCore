@@ -17,8 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Parcel;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Parcel;
+using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -42,10 +43,10 @@ namespace NosCore.PacketHandlers.Parcel
             _characterDao = characterDao;
         }
 
-        public override void Execute(PstClientPacket pstClientPacket, ClientSession clientSession)
+        public override async Task Execute(PstClientPacket pstClientPacket, ClientSession clientSession)
         {
             var isCopy = pstClientPacket.Type == 2;
-            var mail = _mailHttpClient.GetGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
+            var mail = await _mailHttpClient.GetGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
             switch (pstClientPacket.ActionType)
             {
                 case 3:
@@ -56,7 +57,7 @@ namespace NosCore.PacketHandlers.Parcel
 
                     var patch = new JsonPatchDocument<MailDto>();
                     patch.Replace(link => link.IsOpened, true);
-                    _mailHttpClient.ViewGift(mail.MailDto.MailId, patch);
+                    await _mailHttpClient.ViewGift(mail.MailDto.MailId, patch);
                     clientSession.SendPacket(mail.GeneratePostMessage(pstClientPacket.Type));
                     break;
                 case 2:
@@ -65,7 +66,7 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    _mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
+                    await _mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
                     clientSession.SendPacket(
                         clientSession.Character.GenerateSay(
                             Language.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED,
@@ -81,7 +82,7 @@ namespace NosCore.PacketHandlers.Parcel
                     var dest = _characterDao.FirstOrDefault(s => s.Name == pstClientPacket.ReceiverName);
                     if (dest != null)
                     {
-                        _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
+                        await _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
                             pstClientPacket.Text);
                         clientSession.SendPacket(clientSession.Character.GenerateSay(
                             Language.Instance.GetMessageFromKey(

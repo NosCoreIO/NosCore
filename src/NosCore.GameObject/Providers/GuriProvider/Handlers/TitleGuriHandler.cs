@@ -19,8 +19,9 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -28,7 +29,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using GuriPacket = ChickenAPI.Packets.ClientPackets.UI.GuriPacket;
+using GuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
 
 namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 {
@@ -39,14 +40,14 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             return (packet.Type == GuriPacketType.Title);
         }
 
-        public void Execute(RequestData<GuriPacket> requestData)
+        public Task Execute(RequestData<GuriPacket> requestData)
         {
             var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)requestData.Data.VisualId,
                 NoscorePocketType.Main);
             if (inv?.ItemInstance.Item.ItemType != ItemType.Title ||
                 requestData.ClientSession.Character.Titles.Any(s => s.TitleType == inv.ItemInstance.ItemVNum))
             {
-                return;
+                return Task.CompletedTask;
             }
 
             requestData.ClientSession.Character.Titles.Add(new TitleDto
@@ -61,6 +62,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             requestData.ClientSession.SendPacket(new InfoPacket { Message = requestData.ClientSession.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE) });
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
             requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+            return Task.CompletedTask;
         }
     }
 }

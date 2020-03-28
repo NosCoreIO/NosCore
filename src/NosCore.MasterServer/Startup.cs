@@ -94,8 +94,8 @@ namespace NosCore.MasterServer
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                     var typepk = type.FindKey();
-                    registerDatabaseObject.MakeGenericMethod(t, type, typepk.PropertyType)
-                        .Invoke(null, new[] { containerBuilder });
+                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk.PropertyType)
+                        .Invoke(null, new object?[] { containerBuilder });
                 });
 
             containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
@@ -121,7 +121,7 @@ namespace NosCore.MasterServer
                     if ((items.Count != 0) || (staticMetaDataAttribute == null) ||
                         (staticMetaDataAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))
                     {
-                        if (items.Count != 0)
+                        if ((items.Count != 0) && (staticMetaDataAttribute != null))
                         {
                             c.Resolve<ILogger>().Information(
                                 LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.LoadedMessage),
@@ -178,24 +178,17 @@ namespace NosCore.MasterServer
             try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
             Logger.PrintHeader(ConsoleText);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
-                .UseNpgsql(_configuration.Database.ConnectionString);
+                .UseNpgsql(_configuration.Database!.ConnectionString);
             DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
-            LogLanguage.Language = _configuration.Language;
-
-            services.AddSingleton<IServerAddressesFeature>(new ServerAddressesFeature
-            {
-                PreferHostingUrls = true,
-                Addresses = { _configuration.WebApi.ToString() }
-            });
             LogLanguage.Language = _configuration.Language;
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
-            var password = _configuration.WebApi.HashingType switch
+            var password = _configuration.WebApi!.HashingType switch
             {
-                HashingType.BCrypt => _configuration.WebApi.Password.ToBcrypt(_configuration.WebApi.Salt),
-                HashingType.Pbkdf2 => _configuration.WebApi.Password.ToPbkdf2Hash(_configuration.WebApi.Salt),
-                HashingType.Sha512 => _configuration.WebApi.Password.ToSha512(),
-                _ => _configuration.WebApi.Password.ToSha512()
+                HashingType.BCrypt => _configuration.WebApi.Password!.ToBcrypt(_configuration.WebApi.Salt!),
+                HashingType.Pbkdf2 => _configuration.WebApi.Password!.ToPbkdf2Hash(_configuration.WebApi.Salt!),
+                HashingType.Sha512 => _configuration.WebApi.Password!.ToSha512(),
+                _ => _configuration.WebApi.Password!.ToSha512()
             };
 
             var keyByteArray = Encoding.Default.GetBytes(password);
@@ -230,9 +223,9 @@ namespace NosCore.MasterServer
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
-
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
+            TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
 
             var containerBuilder = InitializeContainer(services);

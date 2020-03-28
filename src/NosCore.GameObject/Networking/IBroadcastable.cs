@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Concurrent;
-using ChickenAPI.Packets.Interfaces;
+using NosCore.Packets.Interfaces;
 using DotNetty.Transport.Channels.Groups;
 
 namespace NosCore.GameObject.Networking
