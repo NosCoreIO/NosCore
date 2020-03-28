@@ -19,10 +19,10 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Exchanges;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Exchanges;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Exchanges;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Exchanges;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;

@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities

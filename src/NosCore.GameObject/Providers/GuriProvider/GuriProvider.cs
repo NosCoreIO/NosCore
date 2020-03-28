@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
-using ChickenAPI.Packets.ClientPackets.UI;
+using NosCore.Packets.ClientPackets.UI;
 using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject.Providers.GuriProvider

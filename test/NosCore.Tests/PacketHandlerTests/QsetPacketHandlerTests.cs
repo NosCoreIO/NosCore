@@ -18,9 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Quicklist;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Quicklist;
+using NosCore.Packets.ClientPackets.Quicklist;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Quicklist;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Game;

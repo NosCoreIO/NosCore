@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;

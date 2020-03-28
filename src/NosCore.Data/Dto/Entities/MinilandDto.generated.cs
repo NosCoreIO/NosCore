@@ -43,7 +43,7 @@ namespace NosCore.Data.Dto
 	 	[Key]
 		public System.Guid MinilandId { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.MinilandState State { get; set; }
+	 	public NosCore.Packets.Enumerations.MinilandState State { get; set; }
 
 	 	public long OwnerId { get; set; }
 

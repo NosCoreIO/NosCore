@@ -19,7 +19,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClient;

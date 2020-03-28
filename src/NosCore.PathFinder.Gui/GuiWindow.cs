@@ -23,7 +23,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ChickenAPI.Packets.ClientPackets.Drops;
+using NosCore.Packets.ClientPackets.Drops;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.I18N;

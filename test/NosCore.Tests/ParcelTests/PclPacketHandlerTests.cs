@@ -20,8 +20,8 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using ChickenAPI.Packets.ClientPackets.Parcel;
-using ChickenAPI.Packets.ServerPackets.Parcel;
+using NosCore.Packets.ClientPackets.Parcel;
+using NosCore.Packets.ServerPackets.Parcel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;

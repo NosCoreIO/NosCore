@@ -44,7 +44,7 @@ namespace NosCore.Data.Dto
 
 	 	public long RelatedCharacterId { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.CharacterRelationType RelationType { get; set; }
+	 	public NosCore.Packets.Enumerations.CharacterRelationType RelationType { get; set; }
 
 	 }
 }

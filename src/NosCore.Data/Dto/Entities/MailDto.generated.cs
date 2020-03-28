@@ -76,13 +76,13 @@ namespace NosCore.Data.Dto
 
 	 	public long? SenderId { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.CharacterClassType? SenderCharacterClass { get; set; }
+	 	public NosCore.Packets.Enumerations.CharacterClassType? SenderCharacterClass { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.GenderType? SenderGender { get; set; }
+	 	public NosCore.Packets.Enumerations.GenderType? SenderGender { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.HairColorType? SenderHairColor { get; set; }
+	 	public NosCore.Packets.Enumerations.HairColorType? SenderHairColor { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.HairStyleType? SenderHairStyle { get; set; }
+	 	public NosCore.Packets.Enumerations.HairStyleType? SenderHairStyle { get; set; }
 
 	 	public short? SenderMorphId { get; set; }
 

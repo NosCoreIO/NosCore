@@ -19,8 +19,8 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -28,7 +28,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using GuriPacket = ChickenAPI.Packets.ClientPackets.UI.GuriPacket;
+using GuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
 
 namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 {

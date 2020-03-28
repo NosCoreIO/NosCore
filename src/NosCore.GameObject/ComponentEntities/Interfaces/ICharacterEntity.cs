@@ -19,10 +19,10 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.Inventory;
-using ChickenAPI.Packets.ServerPackets.Visibility;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Visibility;
 using DotNetty.Transport.Channels;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;

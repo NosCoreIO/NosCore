@@ -20,8 +20,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Movement;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.ClientPackets.Movement;
+using NosCore.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;

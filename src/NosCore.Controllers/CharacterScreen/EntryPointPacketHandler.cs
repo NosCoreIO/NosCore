@@ -20,8 +20,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
 using MapsterMapper;
 using NosCore.Core;

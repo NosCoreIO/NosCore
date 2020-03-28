@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Movement;
+using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;

@@ -37,7 +37,7 @@ namespace NosCore.Data.Dto
 
 	 	public int FamilyExperience { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.GenderType FamilyHeadGender { get; set; }
+	 	public NosCore.Packets.Enumerations.GenderType FamilyHeadGender { get; set; }
 
 	 	[Key]
 		public long FamilyId { get; set; }
@@ -51,7 +51,7 @@ namespace NosCore.Data.Dto
 	 	#nullable enable
 		public string? FamilyMessage { get; set; } = "";
 		#nullable disable
-	 	public ChickenAPI.Packets.Enumerations.FamilyAuthorityType ManagerAuthorityType { get; set; }
+	 	public NosCore.Packets.Enumerations.FamilyAuthorityType ManagerAuthorityType { get; set; }
 
 	 	public bool ManagerCanGetHistory { get; set; }
 
@@ -63,7 +63,7 @@ namespace NosCore.Data.Dto
 
 	 	public byte MaxSize { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.FamilyAuthorityType MemberAuthorityType { get; set; }
+	 	public NosCore.Packets.Enumerations.FamilyAuthorityType MemberAuthorityType { get; set; }
 
 	 	public bool MemberCanGetHistory { get; set; }
 

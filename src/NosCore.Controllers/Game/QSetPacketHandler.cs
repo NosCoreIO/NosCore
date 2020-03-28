@@ -18,9 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Quicklist;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Quicklist;
+using NosCore.Packets.ClientPackets.Quicklist;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Data.Dto;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;

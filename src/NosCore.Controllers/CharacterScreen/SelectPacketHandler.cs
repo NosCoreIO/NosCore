@@ -19,8 +19,8 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
 using MapsterMapper;
 using NosCore.Core;

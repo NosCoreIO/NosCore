@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using ChickenAPI.Packets.Interfaces;
+using NosCore.Packets.Interfaces;
 using DotNetty.Transport.Channels;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;

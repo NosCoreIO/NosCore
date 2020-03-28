@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.JsonPatch;
 using Newtonsoft.Json;
 using NosCore.Core;

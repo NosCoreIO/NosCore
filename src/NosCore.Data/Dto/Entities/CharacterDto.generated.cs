@@ -65,7 +65,7 @@ namespace NosCore.Data.Dto
 
 	 	public System.Collections.Generic.ICollection<CharacterSkillDto> CharacterSkill { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.CharacterClassType Class { get; set; }
+	 	public NosCore.Packets.Enumerations.CharacterClassType Class { get; set; }
 
 	 	public short Compliment { get; set; }
 
@@ -85,15 +85,15 @@ namespace NosCore.Data.Dto
 
 	 	public bool FriendRequestBlocked { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.GenderType Gender { get; set; }
+	 	public NosCore.Packets.Enumerations.GenderType Gender { get; set; }
 
 	 	public long Gold { get; set; }
 
 	 	public bool GroupRequestBlocked { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.HairColorType HairColor { get; set; }
+	 	public NosCore.Packets.Enumerations.HairColorType HairColor { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.HairStyleType HairStyle { get; set; }
+	 	public NosCore.Packets.Enumerations.HairStyleType HairStyle { get; set; }
 
 	 	public bool HeroChatBlocked { get; set; }
 

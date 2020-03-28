@@ -20,7 +20,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ChickenAPI.Packets.Interfaces;
+using NosCore.Packets.Interfaces;
 using DotNetty.Transport.Channels.Groups;
 
 namespace NosCore.GameObject.Networking.Group

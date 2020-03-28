@@ -20,10 +20,10 @@
 using System;
 using System.Linq;
 using System.Text;
-using ChickenAPI.Packets.ClientPackets.Chat;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.Chats;
+using NosCore.Packets.ClientPackets.Chat;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;

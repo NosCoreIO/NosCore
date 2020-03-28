@@ -18,9 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Miniland;
-using ChickenAPI.Packets.ServerPackets.Warehouse;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Miniland;
+using NosCore.Packets.ServerPackets.Warehouse;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;

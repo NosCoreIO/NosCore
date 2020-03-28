@@ -19,7 +19,7 @@
 
 using System.Linq;
 using System.Reflection;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 using NosCore.Core.Extensions;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;

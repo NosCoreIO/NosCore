@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.Data.WebApi
 {

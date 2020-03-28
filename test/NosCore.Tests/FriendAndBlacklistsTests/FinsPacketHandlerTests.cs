@@ -19,8 +19,8 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Relations;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.Enumerations;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

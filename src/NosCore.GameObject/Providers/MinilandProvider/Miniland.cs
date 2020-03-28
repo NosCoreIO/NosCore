@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ServerPackets.Miniland;
+using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Data.Dto;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 
