@@ -80,7 +80,7 @@ namespace NosCore.PacketHandlers.Chat
 
             if (receiverSession != null)
             {
-                receiverSession.SendPacket(session.Character.GenerateTalk(message));
+                await receiverSession.SendPacket(session.Character.GenerateTalk(message));
                 return;
             }
 
@@ -88,7 +88,7 @@ namespace NosCore.PacketHandlers.Chat
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
-                session.SendPacket(new InfoPacket
+                await session.SendPacket(new InfoPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, session.Account.Language)
                 });

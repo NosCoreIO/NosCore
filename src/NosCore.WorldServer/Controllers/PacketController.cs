@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
@@ -47,7 +48,7 @@ namespace NosCore.WorldServer.Controllers
 
         // POST api/packet
         [HttpPost]
-        public IActionResult PostPacket([FromBody] PostedPacket postedPacket)
+        public async Task<IActionResult> PostPacket([FromBody] PostedPacket postedPacket)
         {
             if (!ModelState.IsValid)
             {
@@ -59,7 +60,7 @@ namespace NosCore.WorldServer.Controllers
             switch (postedPacket.ReceiverType)
             {
                 case ReceiverType.All:
-                    Broadcaster.Instance.SendPacket(message);
+                    await Broadcaster.Instance.SendPacket(message);
                     break;
                 case ReceiverType.OnlySomeone:
                     ICharacterEntity? receiverSession;
@@ -80,7 +81,7 @@ namespace NosCore.WorldServer.Controllers
                         return Ok(); //TODO: not found
                     }
 
-                    receiverSession.SendPacket(message);
+                    await receiverSession.SendPacket(message);
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKWNOWN_RECEIVERTYPE));

@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                             ? (4 + minilandObject.InventoryItemInstance.ItemInstance.ItemVNum) % 10
                             : (int) minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot / 3);
                     var full = false;
-                    clientSession.SendPacket(new MloInfoPacket
+                    await clientSession.SendPacket(new MloInfoPacket
                     {
                         IsOwner = miniland.MapInstanceId == clientSession.Character.MapInstanceId,
                         ObjectVNum = minilandObject.InventoryItemInstance.ItemInstance.ItemVNum,
@@ -102,7 +102,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 {
                     var warehouseItems = await _warehouseHttpClient.GetWarehouseItems(clientSession.Character.CharacterId,
                         WarehouseType.Warehouse);
-                    clientSession.SendPacket(new StashAllPacket
+                    await clientSession.SendPacket(new StashAllPacket
                     {
                         WarehouseSize =
                             (byte) minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint,

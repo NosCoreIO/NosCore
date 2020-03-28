@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Packets.Interfaces;
 
 namespace NosCore.Core.Networking
@@ -26,10 +27,10 @@ namespace NosCore.Core.Networking
     {
         int SessionId { get; set; }
 
-        void Disconnect();
+        Task Disconnect();
 
-        void SendPacket(IPacket packet);
+        Task SendPacket(IPacket packet);
 
-        void SendPackets(IEnumerable<IPacket> packets);
+        Task SendPackets(IEnumerable<IPacket> packets);
     }
 }

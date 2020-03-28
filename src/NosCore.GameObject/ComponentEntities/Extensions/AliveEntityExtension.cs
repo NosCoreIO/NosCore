@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
@@ -43,10 +44,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class AliveEntityExtension
     {
-        public static void ChangeDir(this IAliveEntity aliveEntity, byte direction)
+        public static Task ChangeDir(this IAliveEntity aliveEntity, byte direction)
         {
             aliveEntity.Direction = direction;
-            aliveEntity.MapInstance.SendPacket(
+            return aliveEntity.MapInstance.SendPacket(
                 aliveEntity.GenerateChangeDir());
         }
 
@@ -116,11 +117,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static void Move(this INonPlayableEntity nonPlayableEntity)
+        public static Task Move(this INonPlayableEntity nonPlayableEntity)
         {
             if (!nonPlayableEntity.IsAlive)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if (nonPlayableEntity.IsMoving && (nonPlayableEntity.Speed > 0))
@@ -147,17 +148,18 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                                 });
 
                         nonPlayableEntity.LastMove = SystemTime.Now().AddMilliseconds(value);
-                        nonPlayableEntity.MapInstance.SendPacket(
+                        return nonPlayableEntity.MapInstance.SendPacket(
                             nonPlayableEntity.GenerateMove(mapX, mapY));
                     }
                 }
             }
+            return Task.CompletedTask;
         }
 
-        public static void Rest(this IAliveEntity aliveEntity)
+        public static Task Rest(this IAliveEntity aliveEntity)
         {
             aliveEntity.IsSitting = !aliveEntity.IsSitting;
-            aliveEntity.MapInstance.SendPacket(
+            return aliveEntity.MapInstance.SendPacket(
                 aliveEntity.GenerateRest());
         }
 

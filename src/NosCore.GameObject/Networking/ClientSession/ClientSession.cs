@@ -157,7 +157,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        public override void ChannelRead(IChannelHandlerContext context, object message)
+        public override async void ChannelRead(IChannelHandlerContext context, object message)
         {
             if (!(message is IEnumerable<IPacket> buff))
             {
@@ -170,52 +170,56 @@ namespace NosCore.GameObject.Networking.ClientSession
             ).Result;
         }
 
-        public override void ChannelUnregistered(IChannelHandlerContext context)
+        public override async void ChannelUnregistered(IChannelHandlerContext context)
         {
-            if ((Character == null) || !Character.IsDisconnecting)
+            try
             {
-                if (Character != null)
+                if ((Character == null) || !Character.IsDisconnecting)
                 {
-                    Character.IsDisconnecting = true;
-                    if (Character.Hp < 1)
+                    if (Character != null)
                     {
-                        Character.Hp = 1;
-                    }
-
-                    Task.Run(async () =>
-                    {
-                        await Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, false);
-                    }).ConfigureAwait(false);
-
-                    var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
-                    if (targetId.HasValue)
-                    {
-                        var closeExchange =
-                            _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
-                        if (Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
+                        Character.IsDisconnecting = true;
+                        if (Character.Hp < 1)
                         {
-                            target.SendPacket(closeExchange);
+                            Character.Hp = 1;
                         }
+
+                        await Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, false);
+
+                        var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
+                        if (targetId.HasValue)
+                        {
+                            var closeExchange =
+                                _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
+                            if (Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
+                            {
+                                await target.SendPacket(closeExchange);
+                            }
+                        }
+
+                        await Character.LeaveGroup();
+                        Character.MapInstance?.SendPacket(Character.GenerateOut());
+                        Character.Save();
+
+                        _minilandProvider.DeleteMiniland(Character.CharacterId);
                     }
 
-                    Character.LeaveGroup();
-                    Character.MapInstance?.SendPacket(Character.GenerateOut());
-                    Character.Save();
-
-                    _minilandProvider.DeleteMiniland(Character.CharacterId);
+                    Broadcaster.Instance.UnregisterSession(this);
+                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED));
                 }
-
-                Broadcaster.Instance.UnregisterSession(this);
+            }
+            catch
+            {
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED));
             }
         }
 
-        public void ChangeMap()
+        public Task ChangeMap()
         {
-            ChangeMap(null, null, null);
+            return ChangeMap(null, null, null);
         }
 
-        public void ChangeMap(short? mapId, short? mapX, short? mapY)
+        public async Task ChangeMap(short? mapId, short? mapX, short? mapY)
         {
             if (Character == null)
             {
@@ -236,15 +240,15 @@ namespace NosCore.GameObject.Networking.ClientSession
                 return;
             }
 
-            ChangeMapInstance(Character.MapInstanceId, mapX, mapY);
+            await ChangeMapInstance(Character.MapInstanceId, mapX, mapY);
         }
 
-        public void ChangeMapInstance(Guid mapInstanceId)
+        public async Task ChangeMapInstance(Guid mapInstanceId)
         {
-            ChangeMapInstance(mapInstanceId, null, null);
+            await ChangeMapInstance(mapInstanceId, null, null);
         }
 
-        public void ChangeMapInstance(Guid mapInstanceId, int? mapX, int? mapY)
+        public async Task ChangeMapInstance(Guid mapInstanceId, int? mapX, int? mapY)
         {
             if ((Character?.MapInstance == null) || Character.IsChangingMapInstance)
             {
@@ -261,7 +265,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 Character.MapInstance.LastUnregister = SystemTime.Now();
-                LeaveMap();
+                await LeaveMap();
                 if (Character.MapInstance.Sessions.Count == 0)
                 {
                     Character.MapInstance.IsSleeping = true;
@@ -291,20 +295,20 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.PositionY = (short)mapY;
                 }
 
-                SendPacket(Character.GenerateCInfo());
-                SendPacket(Character.GenerateCMode());
-                SendPacket(Character.GenerateEq());
-                SendPacket(Character.GenerateEquipment());
-                SendPacket(Character.GenerateLev());
-                SendPacket(Character.GenerateStat());
-                SendPacket(Character.GenerateAt());
-                SendPacket(Character.GenerateCond());
-                SendPacket(Character.MapInstance.GenerateCMap());
-                SendPacket(Character.GeneratePairy(
+                await SendPacket(Character.GenerateCInfo());
+                await SendPacket(Character.GenerateCMode());
+                await SendPacket(Character.GenerateEq());
+                await SendPacket(Character.GenerateEquipment());
+                await SendPacket(Character.GenerateLev());
+                await SendPacket(Character.GenerateStat());
+                await SendPacket(Character.GenerateAt());
+                await SendPacket(Character.GenerateCond());
+                await SendPacket(Character.MapInstance.GenerateCMap());
+                await SendPacket(Character.GeneratePairy(
                     Character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy,
                         NoscorePocketType.Wear)?.ItemInstance as WearableInstance));
-                SendPackets(Character.MapInstance.GetMapItems());
-                SendPackets(Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
+                await SendPackets(Character.MapInstance.GetMapItems());
+                await SendPackets(Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
 
                 var minilandPortals = _minilandProvider
                     .GetMinilandPortals(Character.CharacterId)
@@ -313,18 +317,18 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 if (minilandPortals.Count > 0)
                 {
-                    SendPackets(minilandPortals.Select(s => s.GenerateGp()));
+                    await SendPackets(minilandPortals.Select(s => s.GenerateGp()));
                 }
 
-                SendPacket(Character.Group.GeneratePinit());
+                await SendPacket(Character.Group.GeneratePinit());
                 if (!Character.Group.IsEmpty)
                 {
-                    SendPackets(Character.Group.GeneratePst());
+                    await SendPackets(Character.Group.GeneratePst());
                 }
 
                 if ((Character.Group.Type == GroupType.Group) && (Character.Group.Count > 1))
                 {
-                    Character.MapInstance.SendPacket(Character.Group.GeneratePidx(Character));
+                    await Character.MapInstance.SendPacket(Character.Group.GeneratePidx(Character));
                 }
 
                 var mapSessions = Broadcaster.Instance.GetCharacters(s =>
@@ -342,13 +346,13 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
                 });
 
-                Character.MapInstance.SendPacket(Character.GenerateTitInfo());
+                await Character.MapInstance.SendPacket(Character.GenerateTitInfo());
                 Character.MapInstance.IsSleeping = false;
                 if (Channel.Id != null)
                 {
                     if (!Character.Invisible)
                     {
-                        Character.MapInstance.SendPacket(Character.GenerateIn(Character.Authority == AuthorityType.Moderator
+                        await Character.MapInstance.SendPacket(Character.GenerateIn(Character.Authority == AuthorityType.Moderator
                                 ? $"[{Character.Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" : string.Empty),
                             new EveryoneBut(Character.Channel.Id));
                     }
@@ -368,10 +372,10 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        private void LeaveMap()
+        private async Task LeaveMap()
         {
-            SendPacket(new MapOutPacket());
-            Character.MapInstance.SendPacket(Character.GenerateOut(),
+            await SendPacket(new MapOutPacket());
+            await Character.MapInstance.SendPacket(Character.GenerateOut(),
                 new EveryoneBut(Channel.Id));
         }
 
@@ -393,7 +397,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         {
                             _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPTED_KEEPALIVE),
                                 SessionId);
-                            Disconnect();
+                            await Disconnect();
                             return;
                         }
 
@@ -410,7 +414,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                         if (packet.KeepAliveId == null)
                         {
-                            Disconnect();
+                            await Disconnect();
                         }
                     }
 
@@ -446,7 +450,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         {
                             _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET),
                                 packet);
-                            Disconnect();
+                            await Disconnect();
                             return;
                         }
 
@@ -487,7 +491,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     var packetHeader = packet.Header;
                     if (string.IsNullOrWhiteSpace(packetHeader))
                     {
-                        Disconnect();
+                        await Disconnect();
                         return;
                     }
 

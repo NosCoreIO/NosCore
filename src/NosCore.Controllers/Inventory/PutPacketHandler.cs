@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Inventory
             _worldConfiguration = worldConfiguration;
         }
 
-        public override Task Execute(PutPacket putPacket, ClientSession clientSession)
+        public override async Task Execute(PutPacket putPacket, ClientSession clientSession)
         {
             var invitem =
                 clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
@@ -56,23 +56,23 @@ namespace NosCore.PacketHandlers.Inventory
                                 clientSession);
                         if (droppedItem == null)
                         {
-                            clientSession.SendPacket(new MsgPacket
+                            await clientSession.SendPacket(new MsgPacket
                             {
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
                                     clientSession.Account.Language),
                                 Type = 0
                             });
-                            return Task.CompletedTask;
+                            return;
                         }
 
                         invitem = clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
                             (NoscorePocketType) putPacket.PocketType);
-                        clientSession.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
-                        clientSession.Character.MapInstance.SendPacket(droppedItem.GenerateDrop());
+                        await clientSession.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
+                        await clientSession.Character.MapInstance.SendPacket(droppedItem.GenerateDrop());
                     }
                     else
                     {
-                        clientSession.SendPacket(new MsgPacket
+                        await clientSession.SendPacket(new MsgPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.DROP_MAP_FULL,
                                 clientSession.Account.Language),
@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Inventory
                 }
                 else
                 {
-                    clientSession.SendPacket(new MsgPacket
+                    await clientSession.SendPacket(new MsgPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_DROP_AMOUNT,
                             clientSession.Account.Language),
@@ -92,14 +92,13 @@ namespace NosCore.PacketHandlers.Inventory
             }
             else
             {
-                clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
                         clientSession.Account.Language),
                     Type = 0
                 });
             }
-            return Task.CompletedTask;
         }
     }
 }

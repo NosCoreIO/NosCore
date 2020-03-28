@@ -40,14 +40,14 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             return (packet.Type == GuriPacketType.Title);
         }
 
-        public Task Execute(RequestData<GuriPacket> requestData)
+        public async Task Execute(RequestData<GuriPacket> requestData)
         {
             var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)requestData.Data.VisualId,
                 NoscorePocketType.Main);
             if (inv?.ItemInstance.Item.ItemType != ItemType.Title ||
                 requestData.ClientSession.Character.Titles.Any(s => s.TitleType == inv.ItemInstance.ItemVNum))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             requestData.ClientSession.Character.Titles.Add(new TitleDto
@@ -58,11 +58,10 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
                 Active = false,
                 CharacterId = requestData.ClientSession.Character.VisualId
             });
-            requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character.GenerateTitle());
-            requestData.ClientSession.SendPacket(new InfoPacket { Message = requestData.ClientSession.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE) });
+            await requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character.GenerateTitle());
+            await requestData.ClientSession.SendPacket(new InfoPacket { Message = requestData.ClientSession.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE) });
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
-            requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
-            return Task.CompletedTask;
+            await requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
         }
     }
 }

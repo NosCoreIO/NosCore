@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Command
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
-                session.SendPacket(new InfoPacket
+                await session.SendPacket(new InfoPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)

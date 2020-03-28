@@ -37,10 +37,9 @@ namespace NosCore.PacketHandlers.Group
                 return Task.CompletedTask;
             }
 
-            clientSession.Character.Group.SendPacket(
+            return clientSession.Character.Group.SendPacket(
                 clientSession.Character.GenerateSpk(new SpeakPacket
                     {Message = groupTalkPacket.Message, SpeakType = SpeakType.Group}));
-            return Task.CompletedTask;
         }
     }
 }

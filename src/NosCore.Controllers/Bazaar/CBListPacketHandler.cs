@@ -81,7 +81,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     .ToList()
             };
 
-            clientSession.SendPacket(new RcbListPacket
+            await clientSession.SendPacket(new RcbListPacket
             {
                 PageIndex = packet.Index,
                 Items = definitivelist
