@@ -35,7 +35,7 @@ namespace NosCore.PacketHandlers.Login
 
         public override void Execute(NoS0577Packet packet, ClientSession clientSession)
         {
-            _loginService.Login(packet.Username, packet.Md5String, packet.ClientVersion, clientSession,
+            _loginService.Login(null, packet.Md5String, packet.ClientVersion, clientSession,
                 packet.AuthToken, true);
         }
     }

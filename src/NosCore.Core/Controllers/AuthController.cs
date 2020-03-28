@@ -147,31 +147,36 @@ namespace NosCore.Core.Controllers
             }
 
             var authCode = Guid.NewGuid();
-            SessionFactory.Instance.AuthCodes[identity.Claims.First(s => s.Type == ClaimTypes.NameIdentifier).Value] =
-                authCode.ToString();
+            SessionFactory.Instance.AuthCodes[authCode.ToString()] = 
+                identity.Claims.First(s => s.Type == ClaimTypes.NameIdentifier).Value;
+
             return Ok(new { code = authCode });
         }
 
 
         [HttpGet]
-        public IActionResult IsExpectingConnection(string id, string? token, long sessionId)
+        public IActionResult GetExpectingConnection(string? id, string? token, long sessionId)
         {
-            if (SessionFactory.Instance.AuthCodes.ContainsKey(id))
+            if (token == null || !SessionFactory.Instance.AuthCodes.ContainsKey(token))
             {
-                if ((token != "thisisgfmode") && (SessionFactory.Instance.AuthCodes[id] == HexStringToString(token ?? "")))
-                {
-                    SessionFactory.Instance.ReadyForAuth.AddOrUpdate(id, sessionId, (key, oldValue) => sessionId);
-                    return Ok(true);
-                }
-
-                if (SessionFactory.Instance.ReadyForAuth.ContainsKey(id) &&
-                    (sessionId == SessionFactory.Instance.ReadyForAuth[id]))
-                {
-                    return Ok(true);
-                }
+                return Ok(null);
             }
 
-            return Ok(false);
+            var username = SessionFactory.Instance.AuthCodes[token];
+            SessionFactory.Instance.ReadyForAuth.AddOrUpdate(username, sessionId, (key, oldValue) => sessionId);
+            return Ok(username);
+
+            //if ((token != "thisisgfmode") && (SessionFactory.Instance.AuthCodes[id] == HexStringToString(token ?? "")))
+            //{
+            //    SessionFactory.Instance.ReadyForAuth.AddOrUpdate(id, sessionId, (key, oldValue) => sessionId);
+            //    return Ok(true);
+            //}
+
+            //if (SessionFactory.Instance.ReadyForAuth.ContainsKey(id) &&
+            //    (sessionId == SessionFactory.Instance.ReadyForAuth[id]))
+            //{
+            //    return Ok(true);
+            //}
         }
 
         private static string HexStringToString(string hexString)
