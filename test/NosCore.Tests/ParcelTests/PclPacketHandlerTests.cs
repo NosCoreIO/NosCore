@@ -20,6 +20,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Parcel;
 using NosCore.Packets.ServerPackets.Parcel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -59,10 +60,10 @@ namespace NosCore.Tests.ParcelTests
         }
 
         [TestMethod]
-        public void Test_GiftNotFound()
+        public async Task Test_GiftNotFound()
         {
-            _mailHttpClient.Setup(s => s.GetGift(1, _session.Character.CharacterId, false)).Returns((MailData)null);
-            _pclPacketHandler.Execute(new PclPacket
+            _mailHttpClient.Setup(s => s.GetGift(1, _session.Character.CharacterId, false)).ReturnsAsync((MailData)null);
+            await _pclPacketHandler.Execute(new PclPacket
             {
                 Type = 5,
                 GiftId = 1
@@ -72,10 +73,10 @@ namespace NosCore.Tests.ParcelTests
         }
 
         [TestMethod]
-        public void Test_DeleteGift()
+        public async Task Test_DeleteGift()
         {
-            _mailHttpClient.Setup(s => s.GetGift(1, _session.Character.CharacterId, false)).Returns(new MailData());
-            _pclPacketHandler.Execute(new PclPacket
+            _mailHttpClient.Setup(s => s.GetGift(1, _session.Character.CharacterId, false)).ReturnsAsync(new MailData());
+            await _pclPacketHandler.Execute(new PclPacket
             {
                 Type = 5,
                 GiftId = 1
@@ -85,7 +86,7 @@ namespace NosCore.Tests.ParcelTests
         }
 
         [TestMethod]
-        public void Test_ReceiveGift()
+        public async Task Test_ReceiveGift()
         {
             var item = _item.Create(1);
             var mail = new MailData
@@ -98,8 +99,8 @@ namespace NosCore.Tests.ParcelTests
             };
             _itemInstanceDao.Setup(o => o.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
                 .Returns(item);
-            _mailHttpClient.Setup(s => s.GetGift(1, _session.Character.CharacterId, false)).Returns(mail);
-            _pclPacketHandler.Execute(new PclPacket
+            _mailHttpClient.Setup(s => s.GetGift(1, _session.Character.CharacterId, false)).ReturnsAsync(mail);
+            await _pclPacketHandler.Execute(new PclPacket
             {
                 Type = 4,
                 GiftId = 1
@@ -109,7 +110,7 @@ namespace NosCore.Tests.ParcelTests
         }
 
         [TestMethod]
-        public void Test_ReceiveGiftNoPlace()
+        public async Task Test_ReceiveGiftNoPlace()
         {
             TestHelpers.Instance.WorldConfiguration.BackpackSize = 0;
             var item = _item.Create(1);
@@ -123,8 +124,8 @@ namespace NosCore.Tests.ParcelTests
             };
             _itemInstanceDao.Setup(o => o.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
                 .Returns(item);
-            _mailHttpClient.Setup(s => s.GetGift(1, _session.Character.CharacterId, false)).Returns(mail);
-            _pclPacketHandler.Execute(new PclPacket
+            _mailHttpClient.Setup(s => s.GetGift(1, _session.Character.CharacterId, false)).ReturnsAsync(mail);
+            await _pclPacketHandler.Execute(new PclPacket
             {
                 Type = 4,
                 GiftId = 1

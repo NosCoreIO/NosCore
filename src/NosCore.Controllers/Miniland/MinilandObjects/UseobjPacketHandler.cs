@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             _warehouseHttpClient = warehouseHttpClient;
         }
 
-        public override Task Execute(UseObjPacket useobjPacket, ClientSession clientSession)
+        public override async Task Execute(UseObjPacket useobjPacket, ClientSession clientSession)
         {
             var miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             var minilandObject =
@@ -100,7 +100,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 }
                 else
                 {
-                    var warehouseItems = _warehouseHttpClient.GetWarehouseItems(clientSession.Character.CharacterId,
+                    var warehouseItems = await _warehouseHttpClient.GetWarehouseItems(clientSession.Character.CharacterId,
                         WarehouseType.Warehouse);
                     clientSession.SendPacket(new StashAllPacket
                     {
@@ -112,7 +112,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     });
                 }
             }
-            return Task.CompletedTask;
+            return;
         }
     }
 }

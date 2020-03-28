@@ -80,9 +80,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 var alreadyConnnected = false;
                 var name = packet.Name;
-                foreach (var channel in _channelHttpClient.GetChannels().Where(c => c.Type == ServerType.WorldServer))
+                foreach (var channel in (await _channelHttpClient.GetChannels()).Where(c => c.Type == ServerType.WorldServer))
                 {
-                    var accounts = _connectedAccountHttpClient.GetConnectedAccount(channel);
+                    var accounts = await _connectedAccountHttpClient.GetConnectedAccount(channel);
                     var target = accounts.FirstOrDefault(s => s.Name == name);
 
                     if (target != null)
@@ -104,7 +104,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 {
                     var result =
                         await _authHttpClient.GetAwaitingConnection(name, packet.Password, clientSession.SessionId);
-                    if (result != null || account.Password?.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) == true)
+                    if (result != null || (packet.Password != "thisisgfmode" && account.Password?.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) == true))
                     {
                         var accountobject = new AccountDto
                         {

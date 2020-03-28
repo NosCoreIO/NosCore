@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using Mapster;
@@ -75,13 +76,13 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(_logger);
             _friendRequestHolder = new FriendRequestHolder();
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     {
                         ChannelId = 1, ConnectedCharacter = new Character {Id = _targetSession.Character.CharacterId}
                     }));
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                         {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
             _finsPacketHandler = new FinsPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
@@ -89,7 +90,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         }
 
         [TestMethod]
-        public void Test_Add_Friend()
+        public async Task Test_Add_Friend()
         {
             _friendRequestHolder.FriendRequestCharacters.TryAdd(Guid.NewGuid(),
                 new Tuple<long, long>(_targetSession.Character.CharacterId, _session.Character.CharacterId));
@@ -104,12 +105,12 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest
                     {CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket}));
-            _finsPacketHandler.Execute(finsPacket, _session);
+            await _finsPacketHandler.Execute(finsPacket, _session);
             Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 2);
         }
 
         [TestMethod]
-        public void Test_Add_Friend_When_Disconnected()
+        public async Task Test_Add_Friend_When_Disconnected()
         {
             var finsPacket = new FinsPacket
             {
@@ -121,13 +122,13 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>())).Returns(
                 friend.AddFriend(new FriendShipRequest
                     {CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket}));
-            _finsPacketHandler.Execute(finsPacket, _session);
+            await _finsPacketHandler.Execute(finsPacket, _session);
 
             Assert.IsFalse(_characterRelationDao.LoadAll().Any());
         }
 
         [TestMethod]
-        public void Test_Add_Not_Requested_Friend()
+        public async Task Test_Add_Not_Requested_Friend()
         {
             var finsPacket = new FinsPacket
             {
@@ -140,7 +141,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 .Returns(friend.AddFriend(new FriendShipRequest
                     {CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket}));
 
-            _finsPacketHandler.Execute(finsPacket, _session);
+            await _finsPacketHandler.Execute(finsPacket, _session);
             Assert.IsFalse(_characterRelationDao.LoadAll().Any());
         }
     }

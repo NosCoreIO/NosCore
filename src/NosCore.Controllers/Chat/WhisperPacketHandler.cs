@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Chat
             _packetHttpClient = packetHttpClient;
         }
 
-        public override Task Execute(WhisperPacket whisperPacket, ClientSession session)
+        public override async Task Execute(WhisperPacket whisperPacket, ClientSession session)
         {
             try
             {
@@ -96,17 +96,17 @@ namespace NosCore.PacketHandlers.Chat
                 var receiverSession =
                     Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
 
-                var receiver = _connectedAccountHttpClient.GetCharacter(null, receiverName);
+                var receiver = await _connectedAccountHttpClient.GetCharacter(null, receiverName);
 
                 if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
                 {
                     session.SendPacket(session.Character!.GenerateSay(
                         Language.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, session.Account.Language),
                         SayColorType.Yellow));
-                    return Task.CompletedTask;
+                    return;
                 }
 
-                var blacklisteds = _blacklistHttpClient.GetBlackLists(session.Character!.VisualId);
+                var blacklisteds = await _blacklistHttpClient.GetBlackLists(session.Character!.VisualId);
                 if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter.Id))
                 {
                     session.SendPacket(new SayPacket
@@ -115,13 +115,13 @@ namespace NosCore.PacketHandlers.Chat
                             session.Account.Language),
                         Type = SayColorType.Yellow
                     });
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Item2.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
-                _packetHttpClient.BroadcastPacket(new PostedPacket
+                await _packetHttpClient.BroadcastPacket(new PostedPacket
                 {
                     Packet = _packetSerializer.Serialize(new[] {speakPacket}),
                     ReceiverCharacter = new Character {Name = receiverName},
@@ -138,7 +138,6 @@ namespace NosCore.PacketHandlers.Chat
             {
                 _logger.Error("Whisper failed.", e);
             }
-            return Task.CompletedTask;
         }
     }
 }

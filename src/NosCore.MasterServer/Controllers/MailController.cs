@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Mapster;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -87,7 +88,7 @@ namespace NosCore.MasterServer.Controllers
 
 
         [HttpDelete]
-        public bool DeleteMail(long id, long characterId, bool senderCopy)
+        public async Task<bool> DeleteMail(long id, long characterId, bool senderCopy)
         {
             var mail = _parcelHolder[characterId][senderCopy][id];
             _mailDao.Delete(mail.MailDto.MailId);
@@ -101,7 +102,7 @@ namespace NosCore.MasterServer.Controllers
             {
                 return false;
             }
-            var receiver = _connectedAccountHttpClient.GetCharacter(characterId, null);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(characterId, null);
             Notify(1, receiver, maildata);
             return true;
         }
@@ -134,7 +135,7 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPost]
-        public bool SendMail([FromBody] MailRequest mail)
+        public async Task<bool> SendMail([FromBody] MailRequest mail)
         {
             if (!ModelState.IsValid)
             {
@@ -199,8 +200,8 @@ namespace NosCore.MasterServer.Controllers
                 mailref.ItemInstanceId = itemInstance.Id;
             }
 
-            var receiver = _connectedAccountHttpClient.GetCharacter(mailref.ReceiverId, null);
-            var sender = _connectedAccountHttpClient.GetCharacter(mailref.SenderId, null);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(mailref.ReceiverId, null);
+            var sender = await _connectedAccountHttpClient.GetCharacter(mailref.SenderId, null);
 
             _mailDao.InsertOrUpdate(ref mailref);
             if (itemInstance == null)
@@ -246,7 +247,7 @@ namespace NosCore.MasterServer.Controllers
             };
         }
 
-        private void Notify(byte notifyType, (ServerConfiguration, ConnectedAccount?) receiver, MailData mailData)
+        private void Notify(byte notifyType, Tuple<ServerConfiguration, ConnectedAccount?> receiver, MailData mailData)
         {
             var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver.Item2?.Name)
                 ? mailData.ItemInstance != null ? (byte) 0 : (byte) 1 : (byte) 2;

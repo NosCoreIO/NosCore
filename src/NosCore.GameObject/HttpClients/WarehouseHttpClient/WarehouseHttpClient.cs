@@ -20,8 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Mapster;
-using Newtonsoft.Json;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClient;
@@ -50,17 +51,20 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
             _itemInstanceDao = itemInstanceDao;
         }
 
-        public List<WarehouseItem> GetWarehouseItems(long characterId, WarehouseType warehouse)
+        public async Task<List<WarehouseItem>> GetWarehouseItems(long characterId, WarehouseType warehouse)
         {
-            var client = Connect();
-            var response = client
-                .GetAsync($"{ApiUrl}?id=null&ownerId={characterId}&warehouseType={warehouse}&slot=null")
-                .Result;
+            var client = await Connect();
+            var response = await client
+                .GetAsync($"{ApiUrl}?id=null&ownerId={characterId}&warehouseType={warehouse}&slot=null");
+
             if (response.IsSuccessStatusCode)
             {
                 var warehouseItems = new List<WarehouseItem>();
                 var warehouselinks =
-                    JsonConvert.DeserializeObject<List<WarehouseLink>>(response.Content.ReadAsStringAsync().Result);
+                    JsonSerializer.Deserialize<List<WarehouseLink>>(response.Content.ReadAsStringAsync().Result, new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
                 foreach (var warehouselink in warehouselinks)
                 {
                     var warehouseItem = warehouselink.Warehouse.Adapt<WarehouseItem>();
@@ -73,7 +77,7 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
             throw new ArgumentException();
         }
 
-        public bool DepositItem(long characterId, WarehouseType warehouse, IItemInstance itemInstance, short slot)
+        public Task<bool> DepositItem(long characterId, WarehouseType warehouse, IItemInstance itemInstance, short slot)
         {
             return Post<bool>(new WareHouseDepositRequest
             {
@@ -84,12 +88,12 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
             });
         }
 
-        public void DeleteWarehouseItem(long characterId, WarehouseType warehouse, short slot)
+        public Task DeleteWarehouseItem(long characterId, WarehouseType warehouse, short slot)
         {
             throw new NotImplementedException();
         }
 
-        public List<WarehouseItem> MoveWarehouseItem(long characterId, WarehouseType warehouse, short slot,
+        public Task<List<WarehouseItem>> MoveWarehouseItem(long characterId, WarehouseType warehouse, short slot,
             short destinationSlot)
         {
             throw new NotImplementedException();

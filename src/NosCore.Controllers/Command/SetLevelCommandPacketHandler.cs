@@ -51,12 +51,12 @@ namespace NosCore.PacketHandlers.Command
             _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
-        public override Task Execute(SetLevelCommandPacket levelPacket, ClientSession session)
+        public override async Task Execute(SetLevelCommandPacket levelPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
                 session.Character.SetLevel(levelPacket.Level);
-                return Task.CompletedTask;
+                return;
             }
 
             var data = new StatData
@@ -66,15 +66,15 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var channels = _channelHttpClient.GetChannels()
+            var channels = (await _channelHttpClient.GetChannels())
                 ?.Where(c => c.Type == ServerType.WorldServer);
 
-            ConnectedAccount receiver = null;
-            ServerConfiguration config = null;
+            ConnectedAccount? receiver = null;
+            ServerConfiguration? config = null;
 
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
-                var accounts =
+                var accounts = await
                     _connectedAccountHttpClient.GetConnectedAccount(channel);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
@@ -93,11 +93,10 @@ namespace NosCore.PacketHandlers.Command
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
-                return Task.CompletedTask;
+                return;
             }
 
-            _statHttpClient.ChangeStat(data, config);
-            return Task.CompletedTask;
+            await _statHttpClient.ChangeStat(data, config);
         }
     }
 }

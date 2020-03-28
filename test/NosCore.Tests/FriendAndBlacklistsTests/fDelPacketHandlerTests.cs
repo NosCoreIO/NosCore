@@ -21,17 +21,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
@@ -42,6 +45,7 @@ using NosCore.MasterServer.DataHolders;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
+using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
 {
@@ -67,6 +71,10 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _session = TestHelpers.Instance.GenerateSession();
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
+            _connectedAccountHttpClient.Setup(s => s.GetCharacter(It.IsAny<long?>(), It.IsAny<string?>()))
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
+                    new ConnectedAccount
+                        { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
             _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
                 _connectedAccountHttpClient.Object);
@@ -74,13 +82,13 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _friendController = new FriendController(_logger, _characterRelationDao, _characterDao.Object,
                 new FriendRequestHolder(), _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>()))
-                .Returns((long id) => _friendController.GetFriends(id));
+                .Returns(async (long id) => await _friendController.GetFriends(id));
             _friendHttpClient.Setup(s => s.DeleteFriend(It.IsAny<Guid>()))
                 .Callback((Guid id) => _friendController.Delete(id));
         }
 
         [TestMethod]
-        public void Test_Delete_Friend_When_Disconnected()
+        public async Task Test_Delete_Friend_When_Disconnected()
         {
             var guid = Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
@@ -113,13 +121,13 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = 2
             };
 
-            _fDelPacketHandler.Execute(fdelPacket, _session);
+            await _fDelPacketHandler.Execute(fdelPacket, _session);
 
             Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 0);
         }
 
         [TestMethod]
-        public void Test_Delete_Friend()
+        public async Task Test_Delete_Friend()
         {
             var targetSession = TestHelpers.Instance.GenerateSession();
             var guid = Guid.NewGuid();
@@ -153,13 +161,13 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            _fDelPacketHandler.Execute(fdelPacket, _session);
+            await _fDelPacketHandler.Execute(fdelPacket, _session);
 
             Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 0);
         }
 
         [TestMethod]
-        public void Test_Delete_Friend_No_Friend()
+        public async Task Test_Delete_Friend_No_Friend()
         {
             var targetSession = TestHelpers.Instance.GenerateSession();
             var guid = Guid.NewGuid();
@@ -177,8 +185,8 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            _fDelPacketHandler.Execute(fdelPacket, _session);
-            var lastpacket = (InfoPacket) _session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            await _fDelPacketHandler.Execute(fdelPacket, _session);
+            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_FRIENDLIST,
                 _session.Account.Language), lastpacket.Message);
         }

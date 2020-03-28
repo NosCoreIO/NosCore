@@ -56,11 +56,11 @@ namespace NosCore.PacketHandlers.Bazaar
             _inventoryItemInstanceDao = inventoryItemInstanceDao;
         }
 
-        public override Task Execute(CRegPacket cRegPacket, ClientSession clientSession)
+        public override async Task Execute(CRegPacket cRegPacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             var medal = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
@@ -80,12 +80,12 @@ namespace NosCore.PacketHandlers.Bazaar
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
                         clientSession.Account.Language)
                 });
-                return Task.CompletedTask;
+                return;
             }
 
             if ((cRegPacket.Amount <= 0) || clientSession.Character.InExchangeOrShop || cRegPacket.Inventory > (byte)PocketType.Etc)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             var it = clientSession.Character.InventoryService.LoadBySlotAndType(cRegPacket.Slot,
@@ -93,7 +93,7 @@ namespace NosCore.PacketHandlers.Bazaar
             if ((it == null) || !it.ItemInstance.Item.IsSoldable || (it.ItemInstance.BoundCharacterId != null) ||
                 (cRegPacket.Amount > it.ItemInstance.Amount))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             if (price > (medal == null ? 100000000 : maxGold))
@@ -103,12 +103,12 @@ namespace NosCore.PacketHandlers.Bazaar
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED,
                         clientSession.Account.Language)
                 });
-                return Task.CompletedTask;
+                return;
             }
 
             if ((medal == null) && (cRegPacket.Durability > 1))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             short duration;
@@ -131,7 +131,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     break;
 
                 default:
-                    return Task.CompletedTask;
+                    return;
             }
 
             var bazar = clientSession.Character.InventoryService.LoadBySlotAndType(cRegPacket.Slot,
@@ -139,7 +139,7 @@ namespace NosCore.PacketHandlers.Bazaar
             IItemInstanceDto bazaaritem = bazar.ItemInstance;
             _itemInstanceDao.InsertOrUpdate(ref bazaaritem);
 
-            var result = _bazaarHttpClient.AddBazaar(new BazaarRequest
+            var result = await _bazaarHttpClient.AddBazaar(new BazaarRequest
             {
                 ItemInstanceId = bazar.ItemInstance.Id,
                 CharacterId = clientSession.Character.CharacterId,
@@ -191,7 +191,6 @@ namespace NosCore.PacketHandlers.Bazaar
                     clientSession.SendPacket(new RCRegPacket {Type = VisualType.Player});
                     break;
             }
-            return Task.CompletedTask;
         }
     }
 }

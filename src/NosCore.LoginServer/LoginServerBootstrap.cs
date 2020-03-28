@@ -180,6 +180,7 @@ namespace NosCore.LoginServer
 
                     TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
                        .AfterMapping(dest => Task.Run(dest.Initialize));
+                    TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
 
 

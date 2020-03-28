@@ -41,9 +41,9 @@ namespace NosCore.PacketHandlers.Friend
             _blacklistHttpClient = blacklistHttpClient;
         }
 
-        public override Task Execute(BlInsPacket blinsPacket, ClientSession session)
+        public override async Task Execute(BlInsPacket blinsPacket, ClientSession session)
         {
-            var result = _blacklistHttpClient.AddToBlacklist(new BlacklistRequest
+            var result = await _blacklistHttpClient.AddToBlacklist(new BlacklistRequest
                 {CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket});
             switch (result)
             {
@@ -67,13 +67,12 @@ namespace NosCore.PacketHandlers.Friend
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED,
                             session.Account.Language)
                     });
-                    session.SendPacket(session.Character.GenerateBlinit(_blacklistHttpClient));
+                    session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient));
                     break;
                 default:
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_REQUEST_DISCONNECTED));
                     break;
             }
-            return Task.CompletedTask;
         }
     }
 }

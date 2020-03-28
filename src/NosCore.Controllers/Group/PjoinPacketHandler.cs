@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Group
             _blacklistHttpCLient = blacklistHttpCLient;
         }
 
-        public override Task Execute(PjoinPacket pjoinPacket, ClientSession clientSession)
+        public override async Task Execute(PjoinPacket pjoinPacket, ClientSession clientSession)
         {
             var targetSession =
                 Broadcaster.Instance.GetCharacter(s =>
@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Group
             {
                 _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.UNABLE_TO_REQUEST_GROUP,
                     clientSession.Account.Language));
-                return Task.CompletedTask;
+                return;
             }
 
             switch (pjoinPacket.RequestType)
@@ -68,7 +68,7 @@ namespace NosCore.PacketHandlers.Group
                 case GroupRequestType.Invited:
                     if (pjoinPacket.CharacterId == clientSession.Character.CharacterId)
                     {
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     if (targetSession.Group.IsGroupFull)
@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Group
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
                                 clientSession.Account.Language)
                         });
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     if ((targetSession.Group.Count > 1) && (clientSession.Character.Group.Count > 1))
@@ -88,10 +88,10 @@ namespace NosCore.PacketHandlers.Group
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_IN_GROUP,
                                 clientSession.Account.Language)
                         });
-                        return Task.CompletedTask;
+                        return;
                     }
 
-                    var blacklisteds = _blacklistHttpCLient.GetBlackLists(clientSession.Character.VisualId);
+                    var blacklisteds = await _blacklistHttpCLient.GetBlackLists(clientSession.Character.VisualId);
                     if (blacklisteds != null && blacklisteds.Any(s => s.CharacterId == pjoinPacket.CharacterId))
                     {
                         clientSession.SendPacket(new InfoPacket
@@ -99,7 +99,7 @@ namespace NosCore.PacketHandlers.Group
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
                                 clientSession.Account.Language)
                         });
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     if (targetSession.GroupRequestBlocked)
@@ -109,7 +109,7 @@ namespace NosCore.PacketHandlers.Group
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_BLOCKED,
                                 clientSession.Account.Language)
                         });
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     if (clientSession.Character.LastGroupRequest != null)
@@ -123,7 +123,7 @@ namespace NosCore.PacketHandlers.Group
                                     Language.Instance.GetMessageFromKey(LanguageKey.DELAY_GROUP_REQUEST,
                                         clientSession.Account.Language), diffTimeSpan.Seconds)
                             });
-                            return Task.CompletedTask;
+                            return;
                         }
                     }
 
@@ -161,7 +161,7 @@ namespace NosCore.PacketHandlers.Group
 
                     if (clientSession.Character.Group.Count == 1)
                     {
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     clientSession.SendPacket(new InfoPacket
@@ -205,14 +205,14 @@ namespace NosCore.PacketHandlers.Group
                 case GroupRequestType.Accepted:
                     if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
 
                     if ((clientSession.Character.Group.Count > 1) && (targetSession.Group.Count > 1))
                     {
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     if (clientSession.Character.Group.IsGroupFull || targetSession.Group.IsGroupFull)
@@ -228,7 +228,7 @@ namespace NosCore.PacketHandlers.Group
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
                                 targetSession.AccountLanguage)
                         });
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     if (clientSession.Character.Group.Count > 1)
@@ -269,7 +269,7 @@ namespace NosCore.PacketHandlers.Group
 
                     if (clientSession.Character.Group.Type != GroupType.Group)
                     {
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     var currentGroup = clientSession.Character.Group;
@@ -291,7 +291,7 @@ namespace NosCore.PacketHandlers.Group
                 case GroupRequestType.Declined:
                     if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
@@ -304,12 +304,12 @@ namespace NosCore.PacketHandlers.Group
                 case GroupRequestType.AcceptedShare:
                     if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     if (clientSession.Character.Group.Count == 1)
                     {
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
@@ -325,7 +325,7 @@ namespace NosCore.PacketHandlers.Group
                 case GroupRequestType.DeclinedShare:
                     if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
@@ -339,7 +339,6 @@ namespace NosCore.PacketHandlers.Group
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.GROUPREQUESTTYPE_UNKNOWN));
                     break;
             }
-            return Task.CompletedTask;
         }
     }
 }

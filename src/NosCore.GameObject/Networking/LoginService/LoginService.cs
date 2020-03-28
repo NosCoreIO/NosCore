@@ -129,14 +129,14 @@ namespace NosCore.GameObject.Networking.LoginService
                         });
                         break;
                     default:
-                        var servers = _channelHttpClient.GetChannels()
+                        var servers = (await _channelHttpClient.GetChannels())
                             ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
                         var i = 1;
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
-                            var channelList = _connectedAccountHttpClient.GetConnectedAccount(
+                            var channelList = await _connectedAccountHttpClient.GetConnectedAccount(
                                 server);
                             connectedAccount.Add(i, channelList);
                             i++;

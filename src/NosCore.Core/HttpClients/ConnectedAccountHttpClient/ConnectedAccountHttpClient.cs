@@ -22,7 +22,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Threading.Tasks;
 using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Data.Enumerations;
@@ -43,39 +44,42 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
             RequireConnection = true;
         }
 
-        public void Disconnect(long connectedCharacterId)
+        public async Task Disconnect(long connectedCharacterId)
         {
-            Delete(connectedCharacterId);
+            await Delete(connectedCharacterId).ConfigureAwait(false);
         }
 
-        public (ServerConfiguration, ConnectedAccount) GetCharacter(long? characterId, string characterName)
+        public async Task<Tuple<ServerConfiguration?, ConnectedAccount?>> GetCharacter(long? characterId, string characterName)
         {
-            foreach (var channel in _channelHttpClient.GetChannels().Where(c => c.Type == ServerType.WorldServer))
+            foreach (var channel in (await _channelHttpClient.GetChannels().ConfigureAwait(false)).Where(c => c.Type == ServerType.WorldServer))
             {
-                var accounts = GetConnectedAccount(channel);
+                var accounts = await GetConnectedAccount(channel).ConfigureAwait(false);
                 var target = accounts.FirstOrDefault(s =>
                     (s.ConnectedCharacter.Name == characterName) || (s.ConnectedCharacter.Id == characterId));
 
                 if (target != null)
                 {
-                    return (channel.WebApi, target);
+                    return new Tuple<ServerConfiguration?, ConnectedAccount?>(channel.WebApi, target);
                 }
             }
 
-            return (null, null);
+            return new Tuple<ServerConfiguration?, ConnectedAccount?>(null, null);
         }
 
-        public List<ConnectedAccount> GetConnectedAccount(ChannelInfo channel)
+        public async Task<List<ConnectedAccount>> GetConnectedAccount(ChannelInfo channel)
         {
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(channel.WebApi.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
 
-            var response = client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}")).Result;
+            var response = await client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}")).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<List<ConnectedAccount>>(
-                    response.Content.ReadAsStringAsync().Result);
+                return JsonSerializer.Deserialize<List<ConnectedAccount>>(
+                    await response.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
             }
 
             return new List<ConnectedAccount>();

@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
+            var bz = await _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
             if ((bz != null) && (bz.SellerName != clientSession.Character.Name) &&
                 (packet.Price == bz.BazaarItem.Price) && (bz.ItemInstance.Amount >= packet.Amount))
             {
@@ -86,7 +86,7 @@ namespace NosCore.PacketHandlers.Bazaar
                                 InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
                         clientSession.SendPacket(newInv.GeneratePocketChange());
 
-                        var remove = _bazaarHttpClient.Remove(packet.BazaarId, packet.Amount,
+                        var remove = await _bazaarHttpClient.Remove(packet.BazaarId, packet.Amount,
                             clientSession.Character.Name);
                         if (remove)
                         {

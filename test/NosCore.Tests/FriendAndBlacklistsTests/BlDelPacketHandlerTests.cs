@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -75,7 +76,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         }
 
         [TestMethod]
-        public void Test_Delete_Friend_When_Disconnected()
+        public async Task Test_Delete_Friend_When_Disconnected()
         {
             var guid = Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
@@ -101,13 +102,13 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = 2
             };
 
-            _BlDelPacketHandler.Execute(blDelPacket, _session);
+            await _BlDelPacketHandler.Execute(blDelPacket, _session);
 
             Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 0);
         }
 
         [TestMethod]
-        public void Test_Delete_Friend()
+        public async Task Test_Delete_Friend()
         {
             var targetSession = TestHelpers.Instance.GenerateSession();
             var guid = Guid.NewGuid();
@@ -134,13 +135,13 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            _BlDelPacketHandler.Execute(blDelPacket, _session);
+            await _BlDelPacketHandler.Execute(blDelPacket, _session);
 
             Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 0);
         }
 
         [TestMethod]
-        public void Test_Delete_Friend_No_Friend()
+        public async Task Test_Delete_Friend_No_Friend()
         {
             var targetSession = TestHelpers.Instance.GenerateSession();
             var guid = Guid.NewGuid();
@@ -158,8 +159,8 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            _BlDelPacketHandler.Execute(blDelPacket, _session);
-            var lastpacket = (InfoPacket) _session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            await _BlDelPacketHandler.Execute(blDelPacket, _session);
+            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
                 _session.Account.Language), lastpacket.Message);
         }

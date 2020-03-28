@@ -195,9 +195,7 @@ namespace NosCore.Core.Encryption
             var str = ((Span<byte>)message.Array).Slice(message.ArrayOffset, message.ReadableBytes).ToArray();
             if (_sessionId == 0)
             {
-                var pack =
-                    _deserializer.Deserialize(DecryptCustomParameter(str, out var endofPacket)) as UnresolvedPacket;
-                if (pack == null)
+                if (!(_deserializer.Deserialize(DecryptCustomParameter(str, out var endofPacket)) is UnresolvedPacket pack))
                 {
                     throw new ArgumentNullException(nameof(context));
                 }

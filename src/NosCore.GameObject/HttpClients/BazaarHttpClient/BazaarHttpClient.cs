@@ -23,12 +23,13 @@ using System.Linq;
 using System.Net.Http;
 using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.JsonPatch;
-using Newtonsoft.Json;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.HttpClients.BazaarHttpClient
 {
@@ -42,48 +43,52 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
             RequireConnection = true;
         }
 
-        public List<BazaarLink> GetBazaarLinks(int i, int packetIndex, int pagesize, BazaarListType packetTypeFilter,
+        public async Task<List<BazaarLink>> GetBazaarLinks(int i, int packetIndex, int pagesize, BazaarListType packetTypeFilter,
             byte packetSubTypeFilter,
             byte packetLevelFilter, byte packetRareFilter, byte packetUpgradeFilter, long? sellerFilter)
         {
-            var client = Connect();
-            var response = client
+            var client = await Connect();
+            var response = await client
                 .GetAsync(
-                    $"{ApiUrl}?id={i}&Index={packetIndex}&PageSize={pagesize}&TypeFilter={packetTypeFilter}&SubTypeFilter={packetSubTypeFilter}&LevelFilter={packetLevelFilter}&RareFilter={packetRareFilter}&UpgradeFilter={packetUpgradeFilter}&SellerFilter={sellerFilter}")
-                .Result;
+                    $"{ApiUrl}?id={i}&Index={packetIndex}&PageSize={pagesize}&TypeFilter={packetTypeFilter}&SubTypeFilter={packetSubTypeFilter}&LevelFilter={packetLevelFilter}&RareFilter={packetRareFilter}&UpgradeFilter={packetUpgradeFilter}&SellerFilter={sellerFilter}");
             if (response.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<List<BazaarLink>>(response.Content.ReadAsStringAsync().Result);
+                return JsonSerializer.Deserialize<List<BazaarLink>>(response.Content.ReadAsStringAsync().Result, new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
             }
 
             throw new ArgumentException();
         }
 
-        public LanguageKey AddBazaar(BazaarRequest bazaarRequest)
+        public Task<LanguageKey?> AddBazaar(BazaarRequest bazaarRequest)
         {
-            return Post<LanguageKey>(bazaarRequest);
+            return Post<LanguageKey?>(bazaarRequest);
         }
 
-        public BazaarLink? GetBazaarLink(long bazaarId)
+        public async Task<BazaarLink?> GetBazaarLink(long bazaarId)
         {
-            return Get<List<BazaarLink?>>(bazaarId).FirstOrDefault();
+            return (await Get<List<BazaarLink?>>(bazaarId)).FirstOrDefault();
         }
 
-        public bool Remove(long bazaarId, int count, string requestCharacterName)
+        public async Task<bool> Remove(long bazaarId, int count, string requestCharacterName)
         {
-            var client = Connect();
-            var response = client
-                .DeleteAsync($"{ApiUrl}?id={bazaarId}&Count={count}&requestCharacterName={requestCharacterName}")
-                .Result;
+            var client = await Connect();
+            var response = await client
+                .DeleteAsync($"{ApiUrl}?id={bazaarId}&Count={count}&requestCharacterName={requestCharacterName}");
             if (response.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<bool>(response.Content.ReadAsStringAsync().Result);
+                return JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
             }
 
             throw new ArgumentException();
         }
 
-        public BazaarLink Modify(long bazaarId, JsonPatchDocument<BazaarLink> patchBz)
+        public Task<BazaarLink> Modify(long bazaarId, JsonPatchDocument<BazaarLink> patchBz)
         {
             return Patch<BazaarLink>(bazaarId, patchBz);
         }

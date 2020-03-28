@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 
@@ -26,8 +27,8 @@ namespace NosCore.GameObject.HttpClients.BlacklistHttpClient
 {
     public interface IBlacklistHttpClient
     {
-        List<CharacterRelationStatus> GetBlackLists(long characterVisualId);
-        LanguageKey AddToBlacklist(BlacklistRequest blacklistRequest);
-        void DeleteFromBlacklist(Guid characterRelationId);
+        Task<List<CharacterRelationStatus>> GetBlackLists(long characterVisualId);
+        Task<LanguageKey> AddToBlacklist(BlacklistRequest blacklistRequest);
+        Task DeleteFromBlacklist(Guid characterRelationId);
     }
 }

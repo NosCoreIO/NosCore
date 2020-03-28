@@ -39,7 +39,7 @@ namespace NosCore.PacketHandlers.Miniland
             _minilandProvider = minilandProvider;
         }
 
-        public override Task Execute(MLEditPacket mlEditPacket, ClientSession clientSession)
+        public override async Task Execute(MLEditPacket mlEditPacket, ClientSession clientSession)
         {
             var miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             switch (mlEditPacket.Type)
@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Miniland
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PRIVATE,
                                     clientSession.Account.Language)
                             });
-                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Private);
+                            await _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Private);
                             break;
 
                         case MinilandState.Lock:
@@ -72,7 +72,7 @@ namespace NosCore.PacketHandlers.Miniland
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_LOCK,
                                     clientSession.Account.Language)
                             });
-                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Lock);
+                            await _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Lock);
                             break;
 
                         case MinilandState.Open:
@@ -81,16 +81,15 @@ namespace NosCore.PacketHandlers.Miniland
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PUBLIC,
                                     clientSession.Account.Language)
                             });
-                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Open);
+                            await _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Open);
                             break;
 
                         default:
-                            return Task.CompletedTask;
+                            return;
                     }
 
                     break;
             }
-            return Task.CompletedTask;
         }
     }
 }

@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -39,7 +40,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                 (item.Item2.Type > 0) && (item.Item2.Type < 4) && (item.Item1 != null);
         }
 
-        public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
+        public Task Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
             if (requestData.ClientSession.Character.Class != (byte) CharacterClassType.Adventurer)
             {
@@ -49,7 +50,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                         requestData.ClientSession.Account.Language),
                     Type = MessageType.White
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             if ((requestData.ClientSession.Character.Level < 15) || (requestData.ClientSession.Character.JobLevel < 20))
@@ -60,7 +61,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                         requestData.ClientSession.Account.Language),
                     Type = MessageType.White
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             if (requestData.ClientSession.Character.InventoryService.Any(s => s.Value.Type == NoscorePocketType.Wear))
@@ -71,10 +72,11 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                         requestData.ClientSession.Account.Language),
                     Type = MessageType.White
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             requestData.ClientSession.Character.ChangeClass((CharacterClassType) requestData.Data.Item2.Type);
+            return Task.CompletedTask;
         }
     }
 }

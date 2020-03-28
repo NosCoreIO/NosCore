@@ -81,7 +81,7 @@ namespace NosCore.PacketHandlers.Command
                 ReceiverType = ReceiverType.All
             };
 
-            _packetHttpClient.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
+            _packetHttpClient.BroadcastPacketsAsync(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
             return Task.CompletedTask;
         }
     }

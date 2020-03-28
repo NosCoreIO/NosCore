@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
+            var bz = await _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name) &&
                 (bz.BazaarItem.Price != packet.NewPrice))
             {
@@ -70,7 +70,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     var patch = new JsonPatchDocument<BazaarLink>();
                     patch.Replace(link => link.BazaarItem.Price, packet.NewPrice);
-                    var bzMod = _bazaarHttpClient.Modify(packet.BazaarId, patch);
+                    var bzMod = await _bazaarHttpClient.Modify(packet.BazaarId, patch);
 
                     if ((bzMod != null) && (bzMod.BazaarItem.Price != bz.BazaarItem.Price))
                     {

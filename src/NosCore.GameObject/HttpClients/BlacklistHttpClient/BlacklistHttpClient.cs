@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClient;
@@ -38,19 +39,19 @@ namespace NosCore.GameObject.HttpClients.BlacklistHttpClient
             RequireConnection = true;
         }
 
-        public List<CharacterRelationStatus> GetBlackLists(long characterVisualId)
+        public Task<List<CharacterRelationStatus>> GetBlackLists(long characterVisualId)
         {
             return Get<List<CharacterRelationStatus>>(characterVisualId);
         }
 
-        public LanguageKey AddToBlacklist(BlacklistRequest blacklistRequest)
+        public Task<LanguageKey> AddToBlacklist(BlacklistRequest blacklistRequest)
         {
             return Post<LanguageKey>(blacklistRequest);
         }
 
-        public void DeleteFromBlacklist(Guid characterRelationId)
+        public Task DeleteFromBlacklist(Guid characterRelationId)
         {
-            Delete(characterRelationId);
+            return Delete(characterRelationId);
         }
     }
 }

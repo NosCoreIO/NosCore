@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Core;
@@ -49,7 +50,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 || (item.Effect == ItemEffectType.GoldNosMerchantUpgrade);
         }
 
-        public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             if (!requestData.ClientSession.Character.StaticBonusList.Any(s =>
                 (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
@@ -74,6 +75,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
                     itemInstance.ItemInstanceId);
             }
+            return Task.CompletedTask;
         }
     }
 }

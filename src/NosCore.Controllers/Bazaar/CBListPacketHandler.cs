@@ -44,11 +44,11 @@ namespace NosCore.PacketHandlers.Bazaar
             _items = items;
         }
 
-        public override Task Execute(CBListPacket packet, ClientSession clientSession)
+        public override async Task Execute(CBListPacket packet, ClientSession clientSession)
         {
             var itemssearch = packet.ItemVNumFilter.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
 
-            var bzlist = _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
+            var bzlist = await _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
                 packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null);
             var bzlistsearched = bzlist.Where(s => itemssearch.Contains(s.ItemInstance.ItemVNum)).ToList();
 
@@ -106,7 +106,6 @@ namespace NosCore.PacketHandlers.Bazaar
                         EInfo = new EInfoPacket()
                     }).ToList()
             });
-            return Task.CompletedTask;
         }
     }
 }

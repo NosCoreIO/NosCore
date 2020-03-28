@@ -67,12 +67,12 @@ namespace NosCore.PacketHandlers.Game
             _mailHttpClient = mailHttpClient;
         }
 
-        public override Task Execute(GameStartPacket packet, ClientSession session)
+        public override async Task Execute(GameStartPacket packet, ClientSession session)
         {
             if (session.GameStarted || !session.HasSelectedCharacter)
             {
                 // character should have been selected in SelectCharacter
-                return Task.CompletedTask;
+                return;
             }
 
             session.GameStarted = true;
@@ -169,11 +169,11 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            session.Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, true);
+            await session.Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, true);
 
-            session.SendPacket(session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient,
+            session.SendPacket(await session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient,
                 _connectedAccountHttpClient));
-            session.SendPacket(session.Character.GenerateBlinit(_blacklistHttpClient));
+            session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient));
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);
@@ -207,7 +207,7 @@ namespace NosCore.PacketHandlers.Game
             //            }
 
             //            // finfo - friends info
-            var mails = _mailHttpClient.GetGifts(session.Character.CharacterId);
+            var mails = await _mailHttpClient.GetGifts(session.Character.CharacterId);
             session.Character.GenerateMail(mails);
 
             session.SendPacket(session.Character.GenerateTitle());
@@ -231,7 +231,6 @@ namespace NosCore.PacketHandlers.Game
             //            {
             //                Session.Character.ConnectAct4();
             //            }
-            return Task.CompletedTask;
         }
     }
 }

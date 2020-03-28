@@ -37,9 +37,9 @@ namespace NosCore.PacketHandlers.Command
             _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
-        public override Task Execute(KickPacket kickPacket, ClientSession session)
+        public override async Task Execute(KickPacket kickPacket, ClientSession session)
         {
-            var receiver = _connectedAccountHttpClient.GetCharacter(null, kickPacket.Name);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(null, kickPacket.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -48,11 +48,10 @@ namespace NosCore.PacketHandlers.Command
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
-                return Task.CompletedTask;
+                return;
             }
 
-            _connectedAccountHttpClient.Disconnect(receiver.Item2.ConnectedCharacter.Id);
-            return Task.CompletedTask;
+            await _connectedAccountHttpClient.Disconnect(receiver.Item2.ConnectedCharacter.Id);
         }
     }
 }
