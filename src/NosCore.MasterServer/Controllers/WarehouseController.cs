@@ -55,6 +55,14 @@ namespace NosCore.MasterServer.Controllers
                     => s.Type == warehouseType
                     && s.CharacterId == (warehouseType == WarehouseType.FamilyWareHouse ? null : ownerId)
                     && s.FamilyId == (warehouseType == WarehouseType.FamilyWareHouse ? ownerId : null));
+                if (slot == null)
+                {
+                    //todo add
+                }
+                else
+                {
+                    //todo add
+                }
             }
             else
             {
@@ -70,6 +78,10 @@ namespace NosCore.MasterServer.Controllers
         public bool DeleteWarehouseItem(Guid id)
         {
             var item = _warehouseItemDao.FirstOrDefault(s => s.Id == id);
+            if (item == null)
+            {
+                return false;
+            }
             _warehouseItemDao.Delete(item.Id);
             _warehouseDao.Delete(item.WarehouseId);
             _itemInstanceDao.Delete(item.ItemInstanceId);

@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.Interfaces;
+using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
@@ -41,6 +41,11 @@ namespace NosCore.Core.Encryption
         protected override void Encode(IChannelHandlerContext context, IEnumerable<IPacket> message,
             List<object> output)
         {
+            if (output == null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
             output.Add(Unpooled.WrappedBuffer(message.SelectMany(packet =>
             {
                 var region = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()].RegionType.GetEncoding();
@@ -61,7 +66,7 @@ namespace NosCore.Core.Encryption
                     encryptedData[i + j] = (byte) ~strBytes[i];
                 }
 
-                encryptedData[encryptedData.Length - 1] = 0xFF;
+                encryptedData[^1] = 0xFF;
                 return encryptedData;
             }).ToArray()));
         }

@@ -19,15 +19,16 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.Entities;
-using ChickenAPI.Packets.ServerPackets.Exchanges;
-using ChickenAPI.Packets.ServerPackets.Inventory;
-using ChickenAPI.Packets.ServerPackets.Player;
-using ChickenAPI.Packets.ServerPackets.Relations;
-using ChickenAPI.Packets.ServerPackets.UI;
-using ChickenAPI.Packets.ServerPackets.Visibility;
+using System.Threading.Tasks;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.Exchanges;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Relations;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClient;
@@ -110,11 +111,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static BlinitPacket GenerateBlinit(this ICharacterEntity visualEntity,
+        public static async Task<BlinitPacket> GenerateBlinit(this ICharacterEntity visualEntity,
             IBlacklistHttpClient blacklistHttpClient)
         {
             var subpackets = new List<BlinitSubPacket>();
-            var blackList = blacklistHttpClient.GetBlackLists(visualEntity.VisualId);
+            var blackList = await blacklistHttpClient.GetBlackLists(visualEntity.VisualId);
             foreach (var relation in blackList)
             {
                 if (relation.CharacterId == visualEntity.VisualId)
@@ -132,21 +133,21 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new BlinitPacket { SubPackets = subpackets };
         }
 
-        public static FinitPacket GenerateFinit(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
+        public static async Task<FinitPacket> GenerateFinit(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
             IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             //same canal
-            var servers = channelHttpClient.GetChannels()
+            var servers = (await channelHttpClient.GetChannels())
                 ?.Where(c => c.Type == ServerType.WorldServer).ToList();
             var accounts = new List<ConnectedAccount>();
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
                 accounts.AddRange(
-                    connectedAccountHttpClient.GetConnectedAccount(server));
+                    await connectedAccountHttpClient.GetConnectedAccount(server));
             }
 
             var subpackets = new List<FinitSubPacket>();
-            var friendlist = friendHttpClient.GetListFriends(visualEntity.VisualId);
+            var friendlist = await friendHttpClient.GetListFriends(visualEntity.VisualId);
             //TODO add spouselist
             //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
             foreach (var relation in friendlist)
@@ -165,19 +166,18 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new FinitPacket { SubPackets = subpackets };
         }
 
-        public static void SendFinfo(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
+        public static async Task SendFinfo(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
             IPacketHttpClient packetHttpClient, ISerializer packetSerializer, bool isConnected)
         {
-            var friendlist = friendHttpClient.GetListFriends(visualEntity.VisualId);
-            foreach (var friend in friendlist)
-            {
+            var friendlist = await friendHttpClient.GetListFriends(visualEntity.VisualId);
+           await Task.WhenAll(friendlist.Select(friend =>
                 packetHttpClient.BroadcastPacket(new PostedPacket
                 {
                     Packet = packetSerializer.Serialize(new[]
                     {
                         new FinfoPacket
                         {
-                            FriendList = new List<FinfoSubPackets>
+                            FriendList = new List<FinfoSubPackets?>
                             {
                                 new FinfoSubPackets
                                 {
@@ -194,8 +194,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         Id = friend.CharacterId,
                         Name = friend.CharacterName
                     }
-                });
-            }
+                })));
         }
 
         public static ServerGetPacket GenerateGet(this ICharacterEntity visualEntity, long itemId)

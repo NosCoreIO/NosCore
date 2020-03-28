@@ -19,9 +19,10 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Drops;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -40,7 +41,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             return (item.ItemInstance.Item.ItemType != ItemType.Map) && (item.VNum != 1046);
         }
 
-        public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
+        public Task Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             var amount = requestData.Data.Item1.Amount;
             var inv = requestData.ClientSession.Character.InventoryService.AddItemToPocket(
@@ -84,6 +85,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                     Type = 0
                 });
             }
+            return Task.CompletedTask;
         }
     }
 }

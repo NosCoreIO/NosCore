@@ -17,8 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Battle;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Battle;
+using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -39,7 +40,7 @@ namespace NosCore.PacketHandlers.Game
             _logger = logger;
         }
 
-        public override void Execute(NcifPacket ncifPacket, ClientSession session)
+        public override Task Execute(NcifPacket ncifPacket, ClientSession session)
         {
             IAliveEntity? entity;
 
@@ -57,13 +58,14 @@ namespace NosCore.PacketHandlers.Game
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
                         ncifPacket.Type);
-                    return;
+                    return Task.CompletedTask;
             }
 
             if (entity != null)
             {
                 session.SendPacket(entity.GenerateStatInfo());
             }
+            return Task.CompletedTask;
         }
     }
 }

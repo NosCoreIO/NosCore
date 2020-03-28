@@ -20,8 +20,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Inventory;
 using Mapster;
 using NosCore.Data;
 using NosCore.Data.Dto;
@@ -106,11 +108,15 @@ namespace NosCore.GameObject.Providers.ItemProvider
         private void LoadHandlers(IItemInstance itemInstance)
         {
             var handlersRequest = new Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>>();
+
             _handlers.ForEach(handler =>
             {
                 if (handler.Condition(itemInstance.Item))
                 {
-                    handlersRequest.Subscribe(handler.Execute);
+                    handlersRequest.Subscribe(async o => await Observable.FromAsync(async () =>
+                      {
+                          await handler.Execute(o);
+                      }));
                 }
             });
             itemInstance.Requests = handlersRequest;

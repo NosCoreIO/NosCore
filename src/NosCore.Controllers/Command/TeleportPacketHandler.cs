@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
@@ -39,7 +40,7 @@ namespace NosCore.PacketHandlers.Command
             _mapInstanceProvider = mapInstanceProvider;
         }
 
-        public override void Execute(TeleportPacket teleportPacket, ClientSession session)
+        public override Task Execute(TeleportPacket teleportPacket, ClientSession session)
         {
             var targetSession =
                 Broadcaster.Instance.GetCharacter(s =>
@@ -51,11 +52,11 @@ namespace NosCore.PacketHandlers.Command
                 {
                     _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
                         session.Account.Language));
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 session.ChangeMapInstance(targetSession.MapInstanceId, targetSession.MapX, targetSession.MapY);
-                return;
+                return Task.CompletedTask;
             }
 
             var mapInstance = _mapInstanceProvider.GetBaseMapById(mapId);
@@ -64,10 +65,11 @@ namespace NosCore.PacketHandlers.Command
             {
                 _logger.Error(
                     Language.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, session.Account.Language));
-                return;
+                return Task.CompletedTask;
             }
 
             session.ChangeMap(mapId, teleportPacket.MapX, teleportPacket.MapY);
+            return Task.CompletedTask;
         }
     }
 }

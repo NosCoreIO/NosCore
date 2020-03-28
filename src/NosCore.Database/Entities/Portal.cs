@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
@@ -33,9 +33,9 @@ namespace NosCore.Database.Entities
 
         public bool IsDisabled { get; set; }
 
-        public virtual Map Map { get; set; }
+        public virtual Map Map { get; set; } = new Map();
 
-        public virtual Map Map1 { get; set; }
+        public virtual Map Map1 { get; set; } = new Map();
 
         [Key]
         public int PortalId { get; set; }

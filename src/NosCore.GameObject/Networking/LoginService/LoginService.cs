@@ -20,9 +20,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Login;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Login;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Login;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Login;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.AuthHttpClient;
@@ -55,7 +56,7 @@ namespace NosCore.GameObject.Networking.LoginService
             _channelHttpClient = channelHttpClient;
         }
 
-        public void Login(string username, string md5String, ClientVersionSubPacket clientVersion,
+        public async Task Login(string? username, string md5String, ClientVersionSubPacket clientVersion,
             ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth)
         {
             try
@@ -84,6 +85,11 @@ namespace NosCore.GameObject.Networking.LoginService
                     return;
                 }
 
+                if(useApiAuth)
+                {
+                    username = await _authHttpClient.GetAwaitingConnection(null, passwordToken, clientSession.SessionId);
+                }
+
                 var acc = _accountDao.FirstOrDefault(s => s.Name.ToLower() == username.ToLower());
 
                 if ((acc != null) && (acc.Name != username))
@@ -97,9 +103,7 @@ namespace NosCore.GameObject.Networking.LoginService
                 }
 
                 if ((acc == null)
-                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase))
-                    || (useApiAuth &&
-                        !_authHttpClient.IsAwaitingConnection(username, passwordToken, clientSession.SessionId)))
+                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase)))
                 {
                     clientSession.SendPacket(new FailcPacket
                     {
@@ -125,14 +129,14 @@ namespace NosCore.GameObject.Networking.LoginService
                         });
                         break;
                     default:
-                        var servers = _channelHttpClient.GetChannels()
+                        var servers = (await _channelHttpClient.GetChannels())
                             ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
                         var i = 1;
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
-                            var channelList = _connectedAccountHttpClient.GetConnectedAccount(
+                            var channelList = await _connectedAccountHttpClient.GetConnectedAccount(
                                 server);
                             connectedAccount.Add(i, channelList);
                             i++;

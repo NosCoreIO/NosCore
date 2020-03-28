@@ -20,8 +20,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ServerPackets.Inventory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;

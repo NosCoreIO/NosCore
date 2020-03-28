@@ -18,9 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -47,7 +48,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 (item.Effect <= ItemEffectType.CraftedSpRecharger);
         }
 
-        public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.MaxAdditionalSpPoints)
             {
@@ -67,6 +68,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     Type = MessageType.White
                 });
             }
+            return Task.CompletedTask;
         }
     }
 }

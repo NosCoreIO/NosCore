@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Configuration;
 using NosCore.Data.WebApi;
 
@@ -24,6 +25,6 @@ namespace NosCore.GameObject.HttpClients.StatHttpClient
 {
     public interface IStatHttpClient
     {
-        void ChangeStat(StatData data, ServerConfiguration item1);
+        Task ChangeStat(StatData data, ServerConfiguration item1);
     }
 }

@@ -40,9 +40,8 @@ namespace NosCore.Data.StaticEntities
 
 	 	public byte MenuType { get; set; }
 
-	 	#nullable enable
-		public string? Name { get; set; }
-		#nullable disable
+	 	public string Name { get; set; }
+
 	 	[Key]
 		public int ShopId { get; set; }
 

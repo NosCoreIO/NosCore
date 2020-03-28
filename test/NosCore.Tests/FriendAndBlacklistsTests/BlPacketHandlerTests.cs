@@ -17,8 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Relations;
-using ChickenAPI.Packets.Enumerations;
+using System;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;
@@ -55,11 +57,11 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _session = TestHelpers.Instance.GenerateSession();
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                         {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
             TestHelpers.Instance.ConnectedAccountHttpClient.Setup(s => s.GetCharacter(null, _session.Character.Name))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                         {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
             _blPacketHandler = new BlPacketHandler();
@@ -75,7 +77,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             };
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacter(targetSession.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     {
                         ChannelId = 1, ConnectedCharacter = new Character {Id = targetSession.Character.CharacterId}

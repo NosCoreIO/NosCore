@@ -19,9 +19,9 @@
 
 using System;
 using System.Reactive.Subjects;
-using ChickenAPI.Packets.ClientPackets.Drops;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Entities;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Entities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;

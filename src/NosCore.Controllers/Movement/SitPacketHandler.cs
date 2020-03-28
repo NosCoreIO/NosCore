@@ -17,8 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Movement;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Movement;
+using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -39,7 +40,7 @@ namespace NosCore.PacketHandlers.Movement
             _logger = logger;
         }
 
-        public override void Execute(SitPacket sitpacket, ClientSession clientSession)
+        public override Task Execute(SitPacket sitpacket, ClientSession clientSession)
         {
             sitpacket.Users.ForEach(u =>
             {
@@ -66,6 +67,7 @@ namespace NosCore.PacketHandlers.Movement
 
                 entity.Rest();
             });
+            return Task.CompletedTask;
         }
     }
 }

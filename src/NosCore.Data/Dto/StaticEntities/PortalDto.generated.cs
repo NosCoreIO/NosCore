@@ -54,7 +54,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short SourceY { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.PortalType Type { get; set; }
+	 	public NosCore.Packets.Enumerations.PortalType Type { get; set; }
 
 	 }
 }

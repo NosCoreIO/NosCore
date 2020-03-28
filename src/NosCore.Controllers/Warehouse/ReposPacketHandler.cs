@@ -17,7 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Warehouse;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Warehouse;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 
@@ -29,8 +30,9 @@ namespace NosCore.PacketHandlers.Warehouse
         {
         }
 
-        public override void Execute(ReposPacket reposPacket, ClientSession clientSession)
+        public override Task Execute(ReposPacket reposPacket, ClientSession clientSession)
         {
+            return Task.CompletedTask;
         }
     }
 }

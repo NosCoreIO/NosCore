@@ -19,11 +19,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Miniland;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.Miniland;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Miniland;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Miniland;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -53,7 +54,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             _itemProvider = itemProvider;
         }
 
-        public override void Execute(MinigamePacket minigamePacket, ClientSession clientSession)
+        public override Task Execute(MinigamePacket minigamePacket, ClientSession clientSession)
         {
             _clientSession = clientSession;
             _minigamePacket = minigamePacket;
@@ -63,12 +64,12 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     s.Slot == minigamePacket.Id);
             if ((_minilandObject == null) || (_miniland == null))
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if (_minilandObject.InventoryItemInstance.ItemInstance.Item.IsWarehouse)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var game = (byte) (_minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot ==
@@ -115,6 +116,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     UseCoupon();
                     break;
             }
+            return Task.CompletedTask;
         }
 
         private void UseCoupon()

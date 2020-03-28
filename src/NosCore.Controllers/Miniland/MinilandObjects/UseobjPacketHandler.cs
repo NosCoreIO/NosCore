@@ -18,9 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Miniland;
-using ChickenAPI.Packets.ServerPackets.Warehouse;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Miniland;
+using NosCore.Packets.ServerPackets.Warehouse;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -28,6 +28,7 @@ using NosCore.GameObject.Helper;
 using NosCore.GameObject.HttpClients.WarehouseHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MinilandProvider;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
@@ -42,7 +43,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             _warehouseHttpClient = warehouseHttpClient;
         }
 
-        public override void Execute(UseObjPacket useobjPacket, ClientSession clientSession)
+        public override async Task Execute(UseObjPacket useobjPacket, ClientSession clientSession)
         {
             var miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             var minilandObject =
@@ -99,7 +100,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 }
                 else
                 {
-                    var warehouseItems = _warehouseHttpClient.GetWarehouseItems(clientSession.Character.CharacterId,
+                    var warehouseItems = await _warehouseHttpClient.GetWarehouseItems(clientSession.Character.CharacterId,
                         WarehouseType.Warehouse);
                     clientSession.SendPacket(new StashAllPacket
                     {
@@ -111,6 +112,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     });
                 }
             }
+            return;
         }
     }
 }

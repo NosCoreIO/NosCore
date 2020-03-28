@@ -19,8 +19,9 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -49,20 +50,20 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             return (item.Effect == ItemEffectType.InventoryUpgrade || item.Effect == ItemEffectType.InventoryTicketUpgrade);
         }
 
-        public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             var itemInstance = requestData.Data.Item1;
 
             if (itemInstance.ItemInstance.Item.Effect == ItemEffectType.InventoryUpgrade 
                 && requestData.ClientSession.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BackPack))
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if (itemInstance.ItemInstance.Item.Effect == ItemEffectType.InventoryTicketUpgrade
                 && requestData.ClientSession.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.InventoryTicketUpgrade))
             {
-                return;
+                return Task.CompletedTask;
             }
 
             requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto
@@ -84,6 +85,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
             requestData.ClientSession.Character.LoadExpensions();
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateExts(_conf));
+            return Task.CompletedTask;
         }
     }
 }

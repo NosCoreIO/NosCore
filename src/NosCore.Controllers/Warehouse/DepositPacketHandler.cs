@@ -17,7 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Warehouse;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Warehouse;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.WarehouseHttpClient;
@@ -36,12 +37,13 @@ namespace NosCore.PacketHandlers.Warehouse
             _warehouseHttpClient = warehouseHttpClient;
         }
 
-        public override void Execute(DepositPacket depositPacket, ClientSession clientSession)
+        public override Task Execute(DepositPacket depositPacket, ClientSession clientSession)
         {
-            IItemInstance itemInstance = null;
+            IItemInstance itemInstance = new ItemInstance();
             short slot = 0;
-            var warehouseItems = _warehouseHttpClient.DepositItem(clientSession.Character.CharacterId,
+            var warehouseItems = _warehouseHttpClient.DepositItem(clientSession.Character!.CharacterId,
                 WarehouseType.Warehouse, itemInstance, slot);
+            return Task.CompletedTask;
         }
     }
 }

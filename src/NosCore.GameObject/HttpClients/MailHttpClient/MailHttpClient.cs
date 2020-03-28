@@ -20,7 +20,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.Enumerations;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core;
@@ -43,44 +44,44 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
             RequireConnection = true;
         }
 
-        public void SendGift(ICharacterEntity characterEntity, long receiverId, IItemInstanceDto itemInstance,
+        public Task SendGift(ICharacterEntity characterEntity, long receiverId, IItemInstanceDto itemInstance,
             bool isNosmall)
         {
-            Post<bool>(GenerateMailRequest(characterEntity, receiverId, itemInstance, null, null, null, null, isNosmall,
+            return Post<bool>(GenerateMailRequest(characterEntity, receiverId, itemInstance, null, null, null, null, isNosmall,
                 null, null));
         }
 
-        public void SendGift(ICharacterEntity characterEntity, long receiverId, short vnum, short amount, sbyte rare,
+        public Task SendGift(ICharacterEntity characterEntity, long receiverId, short vnum, short amount, sbyte rare,
             byte upgrade, bool isNosmall)
         {
-            Post<bool>(GenerateMailRequest(characterEntity, receiverId, null, vnum, amount, rare, upgrade, isNosmall,
+            return Post<bool>(GenerateMailRequest(characterEntity, receiverId, null, vnum, amount, rare, upgrade, isNosmall,
                 null, null));
         }
 
-        public void SendMessage(ICharacterEntity characterEntity, long receiverId, string title, string text)
+        public Task SendMessage(ICharacterEntity characterEntity, long receiverId, string title, string text)
         {
-            Post<bool>(GenerateMailRequest(characterEntity, receiverId, null, null, null, null, null, false, title,
+            return Post<bool>(GenerateMailRequest(characterEntity, receiverId, null, null, null, null, null, false, title,
                 text));
         }
 
-        public IEnumerable<MailData> GetGifts(long characterId)
+        public Task<IEnumerable<MailData>> GetGifts(long characterId)
         {
             return Get<IEnumerable<MailData>>($"-1&characterId={characterId}");
         }
 
-        public MailData GetGift(long id, long characterId, bool isCopy)
+        public async Task<MailData> GetGift(long id, long characterId, bool isCopy)
         {
-            return Get<IEnumerable<MailData>>($"{id}&characterId={characterId}&senderCopy={isCopy}").FirstOrDefault();
+            return (await Get<IEnumerable<MailData>>($"{id}&characterId={characterId}&senderCopy={isCopy}")).FirstOrDefault();
         }
 
-        public void DeleteGift(long giftId, long visualId, bool isCopy)
+        public Task DeleteGift(long giftId, long visualId, bool isCopy)
         {
-            Delete($"{giftId}&characterId={visualId}&senderCopy={isCopy}").Wait();
+            return Delete($"{giftId}&characterId={visualId}&senderCopy={isCopy}");
         }
 
-        public void ViewGift(long giftId, JsonPatchDocument<MailDto> mailData)
+        public Task ViewGift(long giftId, JsonPatchDocument<MailDto> mailData)
         {
-            Patch<MailData>(giftId, mailData);
+            return Patch<MailData>(giftId, mailData);
         }
 
         private MailRequest GenerateMailRequest(ICharacterEntity characterEntity, long receiverId,

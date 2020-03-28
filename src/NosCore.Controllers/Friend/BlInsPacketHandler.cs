@@ -17,8 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Relations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
@@ -40,9 +41,9 @@ namespace NosCore.PacketHandlers.Friend
             _blacklistHttpClient = blacklistHttpClient;
         }
 
-        public override void Execute(BlInsPacket blinsPacket, ClientSession session)
+        public override async Task Execute(BlInsPacket blinsPacket, ClientSession session)
         {
-            var result = _blacklistHttpClient.AddToBlacklist(new BlacklistRequest
+            var result = await _blacklistHttpClient.AddToBlacklist(new BlacklistRequest
                 {CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket});
             switch (result)
             {
@@ -66,7 +67,7 @@ namespace NosCore.PacketHandlers.Friend
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED,
                             session.Account.Language)
                     });
-                    session.SendPacket(session.Character.GenerateBlinit(_blacklistHttpClient));
+                    session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient));
                     break;
                 default:
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_REQUEST_DISCONNECTED));

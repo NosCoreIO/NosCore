@@ -19,7 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ClientPackets.Inventory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;

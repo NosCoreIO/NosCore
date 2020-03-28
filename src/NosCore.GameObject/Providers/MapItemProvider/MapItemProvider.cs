@@ -20,8 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using ChickenAPI.Packets.ClientPackets.Drops;
+using NosCore.Packets.ClientPackets.Drops;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
@@ -57,7 +58,10 @@ namespace NosCore.GameObject.Providers.MapItemProvider
             {
                 if (handler.Condition(item))
                 {
-                    handlersRequest.Subscribe(handler.Execute);
+                    handlersRequest.Subscribe(async o => await Observable.FromAsync(async () =>
+                    {
+                        await handler.Execute(o);
+                    }));
                 }
             });
             item.Requests = handlersRequest;

@@ -18,15 +18,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.ServerPackets.Chats;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.MinilandProvider;
@@ -44,7 +45,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
         public bool Condition(Item.Item item) => item.Effect == ItemEffectType.Teleport && item.EffectValue == 2;
 
-        public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
@@ -57,7 +58,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                         requestData.ClientSession.Character.Account.Language),
                     Type = SayColorType.Yellow
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             if (requestData.ClientSession.Character.IsVehicled)
@@ -68,7 +69,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                         requestData.ClientSession.Character.Account.Language),
                     Type = SayColorType.Yellow
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             if (packet.Mode == 0)
@@ -81,7 +82,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                         itemInstance.Slot,
                         2, 0)
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
@@ -89,6 +90,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot));
             var miniland = _minilandProvider.GetMiniland(requestData.ClientSession.Character.CharacterId);
             requestData.ClientSession.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
+            return Task.CompletedTask;
         }
     }
 }

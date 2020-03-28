@@ -19,10 +19,11 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Miniland;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Miniland;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Miniland;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Miniland;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
@@ -43,7 +44,7 @@ namespace NosCore.PacketHandlers.Miniland
             _minilandProvider = minilandProvider;
         }
 
-        public override void Execute(AddobjPacket addobjPacket, ClientSession clientSession)
+        public override async Task Execute(AddobjPacket addobjPacket, ClientSession clientSession)
         {
             var minilandobject =
                 clientSession.Character.InventoryService.LoadBySlotAndType(addobjPacket.Slot, NoscorePocketType.Miniland);
@@ -93,7 +94,7 @@ namespace NosCore.PacketHandlers.Miniland
                             minilandobject.ItemInstance.Item.ItemSubType)).Value;
                 if (min != null)
                 {
-                    clientSession.HandlePackets(new[] {new RmvobjPacket {Slot = min.InventoryItemInstance.Slot}});
+                    await clientSession.HandlePackets(new[] {new RmvobjPacket {Slot = min.InventoryItemInstance.Slot}});
                 }
             }
 

@@ -18,9 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Quicklist;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Quicklist;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Quicklist;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Data.Dto;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
@@ -45,7 +46,7 @@ namespace NosCore.PacketHandlers.Game
             });
         }
 
-        public override void Execute(QsetPacket qSetPacket, ClientSession session)
+        public override Task Execute(QsetPacket qSetPacket, ClientSession session)
         {
             short data1 = 0, data2 = 0, q1 = qSetPacket.OriginQuickList, q2 = qSetPacket.OriginQuickListSlot;
             var type = qSetPacket.Type;
@@ -114,8 +115,9 @@ namespace NosCore.PacketHandlers.Game
                     break;
 
                 default:
-                    return;
+                    return Task.CompletedTask;
             }
+            return Task.CompletedTask;
         }
     }
 }

@@ -18,10 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Bazaar;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Bazaar;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -55,14 +56,14 @@ namespace NosCore.PacketHandlers.Bazaar
             _itemInstanceDao = itemInstanceDao;
         }
 
-        public override void Execute(CScalcPacket packet, ClientSession clientSession)
+        public override async Task Execute(CScalcPacket packet, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrTrade)
+            if (clientSession.Character!.InExchangeOrTrade)
             {
                 return;
             }
 
-            var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
+            var bz =  await _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name))
             {
                 var soldedamount = bz.BazaarItem.Amount - bz.ItemInstance.Amount;
@@ -78,6 +79,10 @@ namespace NosCore.PacketHandlers.Bazaar
                             Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_FROM_BAZAAR,
                                 clientSession.Account.Language), price), SayColorType.Yellow));
                         var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == bz.ItemInstance.Id);
+                        if (itemInstance == null)
+                        {
+                            return;
+                        }
                         var item = _itemProvider.Convert(itemInstance);
                         item.Id = Guid.NewGuid();
 
@@ -85,7 +90,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             clientSession.Character.InventoryService.AddItemToPocket(
                                 InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
                         clientSession.SendPacket(newInv.GeneratePocketChange());
-                        var remove = _bazaarHttpClient.Remove(packet.BazaarId, bz.ItemInstance.Amount,
+                        var remove = await _bazaarHttpClient.Remove(packet.BazaarId, bz.ItemInstance.Amount,
                             clientSession.Character.Name);
                         if (remove)
                         {
@@ -98,7 +103,7 @@ namespace NosCore.PacketHandlers.Bazaar
                                 Taxes = taxes,
                                 Total = price + taxes
                             });
-                            clientSession.HandlePackets(new[]
+                            await clientSession.HandlePackets(new[]
                                 {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}});
                             return;
                         }

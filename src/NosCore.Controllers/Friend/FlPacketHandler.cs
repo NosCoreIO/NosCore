@@ -17,9 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Relations;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -30,7 +31,7 @@ namespace NosCore.PacketHandlers.Friend
 {
     public class FlPacketHandler : PacketHandler<FlPacket>, IWorldPacketHandler
     {
-        public override void Execute(FlPacket flPacket, ClientSession session)
+        public override Task Execute(FlPacket flPacket, ClientSession session)
         {
             var target =
                 Broadcaster.Instance.GetCharacter(s => s.Name == flPacket.CharacterName);
@@ -42,7 +43,7 @@ namespace NosCore.PacketHandlers.Friend
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             var fins = new FinsPacket
@@ -51,7 +52,7 @@ namespace NosCore.PacketHandlers.Friend
                 Type = FinsPacketType.Accepted
             };
 
-            session.HandlePackets(new[] {fins});
+            return session.HandlePackets(new[] {fins});
         }
     }
 }

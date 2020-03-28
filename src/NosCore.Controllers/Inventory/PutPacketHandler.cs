@@ -17,8 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data;
@@ -39,7 +40,7 @@ namespace NosCore.PacketHandlers.Inventory
             _worldConfiguration = worldConfiguration;
         }
 
-        public override void Execute(PutPacket putPacket, ClientSession clientSession)
+        public override Task Execute(PutPacket putPacket, ClientSession clientSession)
         {
             var invitem =
                 clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
@@ -61,7 +62,7 @@ namespace NosCore.PacketHandlers.Inventory
                                     clientSession.Account.Language),
                                 Type = 0
                             });
-                            return;
+                            return Task.CompletedTask;
                         }
 
                         invitem = clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
@@ -98,6 +99,7 @@ namespace NosCore.PacketHandlers.Inventory
                     Type = 0
                 });
             }
+            return Task.CompletedTask;
         }
     }
 }

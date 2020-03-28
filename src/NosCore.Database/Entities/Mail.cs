@@ -19,7 +19,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 using JetBrains.Annotations;
 using NosCore.Database.Entities.Base;
 

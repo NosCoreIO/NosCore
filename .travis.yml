@@ -1,12 +1,15 @@
 language: csharp
 mono: none
-sudo: required
 dist: xenial
 addons:
     snaps:
       - name: dotnet-sdk
         confinement: classic
         channel: 3.1/stable
+env:
+    global:
+      - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
+      - DOTNET_CLI_TELEMETRY_OPTOUT=1
 install:
     - export PATH="$PATH:/home/travis/.dotnet/tools"
     - export PATH="$PATH:$HOME/.local/bin"
@@ -23,6 +26,3 @@ after_script:
     - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --no-build --filter TestCategory=OPTIONAL-TEST
     - aws ecr get-login --region us-west-2 --no-include-email
     - aws lambda invoke --function-name noscore-travis --region us-west-2 --payload '{"Build_Id":"'"$TRAVIS_JOB_ID"'", "Travis_Branch":"'"$TRAVIS_BRANCH"'", "Travis_Test_Result":"'"$TRAVIS_TEST_RESULT"'", "Travis_Commit":"'"$TRAVIS_COMMIT"'", "Travis_Repo_Slug":"'"$TRAVIS_REPO_SLUG"'", "Travis_Pull_Request":"'"$TRAVIS_PULL_REQUEST"'"}' outputfile
-global:
-    - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
-    - DOTNET_CLI_TELEMETRY_OPTOUT=1

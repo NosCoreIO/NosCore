@@ -19,9 +19,10 @@
 
 using System;
 using System.Text.RegularExpressions;
-using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
@@ -42,11 +43,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _minilandDao = minilandDao;
         }
 
-        public override void Execute(CharNewPacket packet, ClientSession clientSession)
+        public override Task Execute(CharNewPacket packet, ClientSession clientSession)
         {
             if (clientSession.HasCurrentMapInstance)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             // TODO: Hold Account Information in Authorized object
@@ -56,7 +57,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             if (_characterDao.FirstOrDefault(s =>
                 (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active)) != null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var rg = new Regex(
@@ -101,7 +102,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         WelcomeMusicInfo = "Spring^Melody"
                     };
                     _minilandDao.InsertOrUpdate(ref miniland);
-                    clientSession.HandlePackets(new[] {new SelectPacket {Slot = chara.Slot}});
+                    return clientSession.HandlePackets(new[] {new SelectPacket {Slot = chara.Slot}});
                 }
                 else
                 {
@@ -118,6 +119,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     Message = clientSession.GetMessageFromKey(LanguageKey.INVALID_CHARNAME)
                 });
             }
+            return Task.CompletedTask;
         }
     }
 }

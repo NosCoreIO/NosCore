@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.Attributes;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Attributes;
+using NosCore.Packets.Enumerations;
 using NosCore.Data.Enumerations.Account;
 
 namespace NosCore.Data.CommandPackets
@@ -30,7 +30,7 @@ namespace NosCore.Data.CommandPackets
         public CharacterClassType ClassType { get; set; }
 
         [PacketIndex(1, IsOptional = true)]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         public override string Help()
         {

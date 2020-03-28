@@ -19,16 +19,17 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.ServerPackets.Auction;
-using ChickenAPI.Packets.ServerPackets.Inventory;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.ServerPackets.Auction;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Core;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using static ChickenAPI.Packets.ServerPackets.Auction.RcbListPacket;
+using static NosCore.Packets.ServerPackets.Auction.RcbListPacket;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
@@ -43,11 +44,11 @@ namespace NosCore.PacketHandlers.Bazaar
             _items = items;
         }
 
-        public override void Execute(CBListPacket packet, ClientSession clientSession)
+        public override async Task Execute(CBListPacket packet, ClientSession clientSession)
         {
             var itemssearch = packet.ItemVNumFilter.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
 
-            var bzlist = _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
+            var bzlist = await _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
                 packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null);
             var bzlistsearched = bzlist.Where(s => itemssearch.Contains(s.ItemInstance.ItemVNum)).ToList();
 

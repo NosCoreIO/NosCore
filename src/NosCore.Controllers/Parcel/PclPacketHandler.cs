@@ -19,10 +19,11 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Parcel;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Parcel;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Parcel;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Parcel;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data;
@@ -50,10 +51,10 @@ namespace NosCore.PacketHandlers.Parcel
             _itemInstanceDao = itemInstanceDao;
         }
 
-        public override void Execute(PclPacket getGiftPacket, ClientSession clientSession)
+        public override async Task Execute(PclPacket getGiftPacket, ClientSession clientSession)
         {
             var isCopy = getGiftPacket.Type == 2;
-            var mail = _mailHttpClient.GetGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
+            var mail = await _mailHttpClient.GetGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
             if (mail == null)
             {
                 return;
@@ -76,7 +77,7 @@ namespace NosCore.PacketHandlers.Parcel
                             newInv.ItemInstance.Item.Name, newInv.ItemInstance.Amount), SayColorType.Green));
                     clientSession.SendPacket(
                         new ParcelPacket {Type = 2, Unknown = 1, Id = (short) getGiftPacket.GiftId});
-                    _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
+                    await _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
                 }
                 else
                 {
@@ -92,7 +93,7 @@ namespace NosCore.PacketHandlers.Parcel
             else if (getGiftPacket.Type == 5)
             {
                 clientSession.SendPacket(new ParcelPacket {Type = 7, Unknown = 1, Id = (short) getGiftPacket.GiftId});
-                _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
+                await _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
             }
         }
     }

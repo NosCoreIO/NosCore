@@ -17,7 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.Enumerations;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -27,12 +28,13 @@ namespace NosCore.PacketHandlers.Command
 {
     public class PositionPacketHandler : PacketHandler<PositionPacket>, IWorldPacketHandler
     {
-        public override void Execute(PositionPacket _, ClientSession session)
+        public override Task Execute(PositionPacket _, ClientSession session)
         {
             session.SendPacket(session.Character.GenerateSay(
                 $"Map:{session.Character.MapInstance.Map.MapId} - X:{session.Character.PositionX} - Y:{session.Character.PositionY} - " +
                 $"Dir:{session.Character.Direction} - Cell:{session.Character.MapInstance.Map[session.Character.PositionX, session.Character.PositionY]}",
                 SayColorType.Green));
+            return Task.CompletedTask;
         }
     }
 }

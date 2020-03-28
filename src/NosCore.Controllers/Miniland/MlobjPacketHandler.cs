@@ -17,10 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Miniland;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Miniland;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Miniland;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Miniland;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -38,7 +39,7 @@ namespace NosCore.PacketHandlers.Miniland
             _minilandProvider = minilandProvider;
         }
 
-        public override void Execute(MLEditPacket mlEditPacket, ClientSession clientSession)
+        public override async Task Execute(MLEditPacket mlEditPacket, ClientSession clientSession)
         {
             var miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             switch (mlEditPacket.Type)
@@ -62,7 +63,7 @@ namespace NosCore.PacketHandlers.Miniland
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PRIVATE,
                                     clientSession.Account.Language)
                             });
-                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Private);
+                            await _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Private);
                             break;
 
                         case MinilandState.Lock:
@@ -71,7 +72,7 @@ namespace NosCore.PacketHandlers.Miniland
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_LOCK,
                                     clientSession.Account.Language)
                             });
-                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Lock);
+                            await _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Lock);
                             break;
 
                         case MinilandState.Open:
@@ -80,7 +81,7 @@ namespace NosCore.PacketHandlers.Miniland
                                 Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PUBLIC,
                                     clientSession.Account.Language)
                             });
-                            _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Open);
+                            await _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Open);
                             break;
 
                         default:

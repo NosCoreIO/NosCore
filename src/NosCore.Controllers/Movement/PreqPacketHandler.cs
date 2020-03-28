@@ -20,8 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Movement;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Movement;
+using NosCore.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -46,7 +47,7 @@ namespace NosCore.PacketHandlers.Movement
             _minilandProvider = minilandProvider;
         }
 
-        public override void Execute(PreqPacket _, ClientSession session)
+        public override Task Execute(PreqPacket _, ClientSession session)
         {
             if (((SystemTime.Now() - session.Character.LastPortal).TotalSeconds < 4) ||
                 (session.Character.LastPortal > session.Character.LastMove))
@@ -54,7 +55,7 @@ namespace NosCore.PacketHandlers.Movement
                 session.SendPacket(session.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.PORTAL_DELAY, session.Account.Language),
                     SayColorType.Yellow));
-                return;
+                return Task.CompletedTask;
             }
 
             var portals = new List<Portal>();
@@ -67,12 +68,12 @@ namespace NosCore.PacketHandlers.Movement
                     Math.Abs(session.Character.PositionY - port.SourceY)) <= 2);
             if (portal == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if (portal.DestinationMapInstanceId == default)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             session.Character.LastPortal = SystemTime.Now();
@@ -89,6 +90,7 @@ namespace NosCore.PacketHandlers.Movement
                 session.ChangeMapInstance(portal.DestinationMapInstanceId, portal.DestinationX,
                     portal.DestinationY);
             }
+            return Task.CompletedTask;
         }
     }
 }

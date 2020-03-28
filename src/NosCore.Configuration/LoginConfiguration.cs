@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
-using ChickenAPI.Packets.ClientPackets.Login;
+using NosCore.Packets.ClientPackets.Login;
 using NosCore.Data.Enumerations;
 
 namespace NosCore.Configuration

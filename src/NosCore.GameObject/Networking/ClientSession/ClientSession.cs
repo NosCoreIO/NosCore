@@ -18,14 +18,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using ChickenAPI.Packets.Attributes;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.Map;
+using NosCore.Packets.Attributes;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Map;
 using DotNetty.Transport.Channels;
 using NosCore.Configuration;
 using NosCore.Core;
@@ -68,6 +69,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
         private Character? _character;
         private int? _waitForPacketsAmount;
+        private ConcurrentQueue<Tuple<IEnumerable<ushort?>, Task>> _packetHandlingQueue = new ConcurrentQueue<Tuple<IEnumerable<ushort?>, Task>>();
 
         public ClientSession(ServerConfiguration configuration,
             ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
@@ -162,7 +164,10 @@ namespace NosCore.GameObject.Networking.ClientSession
                 return;
             }
 
-            HandlePackets(buff, context);
+            //https://github.com/Azure/DotNetty/issues/265
+            var runner = Task.Run<Task>(async () =>
+                await HandlePackets(buff, context)
+            ).Result;
         }
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
@@ -177,7 +182,10 @@ namespace NosCore.GameObject.Networking.ClientSession
                         Character.Hp = 1;
                     }
 
-                    Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, false);
+                    Task.Run(async () =>
+                    {
+                        await Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, false);
+                    }).ConfigureAwait(false);
 
                     var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
                     if (targetId.HasValue)
@@ -372,7 +380,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             return Language.Instance.GetMessageFromKey(languageKey, Account.Language);
         }
 
-        public void HandlePackets(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext contex = null)
+        public async Task HandlePackets(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext contex = null)
         {
             foreach (var pack in packetConcatenated)
             {
@@ -384,7 +392,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         if ((LastKeepAliveIdentity != 0) && (packet.KeepAliveId != LastKeepAliveIdentity + 1))
                         {
                             _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPTED_KEEPALIVE),
-                                ClientId);
+                                SessionId);
                             Disconnect();
                             return;
                         }
@@ -464,7 +472,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                                     continue;
                                 }
 
-                                handler.Execute(packet, this);
+                                await handler.Execute(packet, this);
                             }
                         }
                         else
@@ -487,7 +495,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         s.GetType().BaseType.GenericTypeArguments[0] == packet.GetType());
                     if (handler != null)
                     {
-                        handler.Execute(packet, this);
+                        await handler.Execute(packet, this);
                     }
                     else
                     {

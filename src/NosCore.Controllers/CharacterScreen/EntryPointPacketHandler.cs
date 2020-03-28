@@ -20,8 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.CharacterSelectionScreen;
+using System.Threading.Tasks;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
 using MapsterMapper;
 using NosCore.Core;
@@ -68,7 +69,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _channelHttpClient = channelHttpClient;
         }
 
-        public override void Execute(EntryPointPacket packet, ClientSession clientSession)
+        public override async Task Execute(EntryPointPacket packet, ClientSession clientSession)
         {
             if (clientSession == null)
             {
@@ -79,9 +80,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 var alreadyConnnected = false;
                 var name = packet.Name;
-                foreach (var channel in _channelHttpClient.GetChannels().Where(c => c.Type == ServerType.WorldServer))
+                foreach (var channel in (await _channelHttpClient.GetChannels()).Where(c => c.Type == ServerType.WorldServer))
                 {
-                    var accounts = _connectedAccountHttpClient.GetConnectedAccount(channel);
+                    var accounts = await _connectedAccountHttpClient.GetConnectedAccount(channel);
                     var target = accounts.FirstOrDefault(s => s.Name == name);
 
                     if (target != null)
@@ -101,9 +102,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 if (account != null)
                 {
-                    if (_authHttpClient.IsAwaitingConnection(name, packet.Password, clientSession.SessionId) ||
-                        (account.Password.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) &&
-                            !_authHttpClient.IsAwaitingConnection(name, "", clientSession.SessionId)))
+                    var result =
+                        await _authHttpClient.GetAwaitingConnection(name, packet.Password, clientSession.SessionId);
+                    if (result != null || (packet.Password != "thisisgfmode" && account.Password?.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) == true))
                     {
                         var accountobject = new AccountDto
                         {

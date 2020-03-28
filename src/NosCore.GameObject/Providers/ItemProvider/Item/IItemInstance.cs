@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Providers.InventoryService;

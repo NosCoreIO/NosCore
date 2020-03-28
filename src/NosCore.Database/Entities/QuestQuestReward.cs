@@ -30,12 +30,16 @@ namespace NosCore.Database.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public Guid Id { get; set; }
 
+        [Required]
         public short QuestRewardId { get; set; }
 
-        public virtual QuestReward QuestReward { get; set; }
+        [Required]
+        public virtual QuestReward QuestReward { get; set; } = new QuestReward();
 
+        [Required]
         public short QuestId { get; set; }
 
-        public virtual Quest Quest { get; set; }
+        [Required]
+        public virtual Quest Quest { get; set; } = new Quest();
     }
 }

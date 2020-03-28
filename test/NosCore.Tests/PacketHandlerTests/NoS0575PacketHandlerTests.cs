@@ -19,9 +19,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Login;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Login;
+using NosCore.Packets.ClientPackets.Login;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Login;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;
@@ -136,9 +136,9 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Login()
         {
-            _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo> {new ChannelInfo()});
+            _channelHttpClient.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo> {new ChannelInfo()});
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
-                .Returns(new List<ConnectedAccount>());
+                .ReturnsAsync(new List<ConnectedAccount>());
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {
                 Password = password,
@@ -151,8 +151,8 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void LoginAlreadyConnected()
         {
-            _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo> {new ChannelInfo()});
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>())).Returns(
+            _channelHttpClient.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo> {new ChannelInfo()});
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>())).ReturnsAsync(
                 new List<ConnectedAccount>
                     {new ConnectedAccount {Name = _session.Account.Name}});
             _noS0575PacketHandler.Execute(new NoS0575Packet
@@ -167,9 +167,9 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void LoginNoServer()
         {
-            _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo>());
+            _channelHttpClient.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo>());
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
-                .Returns(new List<ConnectedAccount>());
+                .ReturnsAsync(new List<ConnectedAccount>());
 
             _noS0575PacketHandler.Execute(new NoS0575Packet
             {

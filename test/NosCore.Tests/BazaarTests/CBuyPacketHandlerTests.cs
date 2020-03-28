@@ -19,9 +19,10 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.ServerPackets.Chats;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
@@ -64,36 +65,36 @@ namespace NosCore.Tests.BazaarTests
             _cbuyPacketHandler = new CBuyPacketHandler(_bazaarHttpClient.Object, _itemProvider.Object, _logger,
                 _itemInstanceDao.Object);
 
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).Returns(
+            _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = "test",
-                    BazaarItem = new BazaarItemDto {Price = 50, Amount = 1},
-                    ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
+                    BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
+                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
                 });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(2)).Returns(
+            _bazaarHttpClient.Setup(b => b.GetBazaarLink(2)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = _session.Character.Name,
-                    BazaarItem = new BazaarItemDto {Price = 60, Amount = 1},
-                    ItemInstance = new ItemInstanceDto {ItemVNum = 1012}
+                    BazaarItem = new BazaarItemDto { Price = 60, Amount = 1 },
+                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012 }
                 });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(3)).Returns(
+            _bazaarHttpClient.Setup(b => b.GetBazaarLink(3)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = "test",
-                    BazaarItem = new BazaarItemDto {Price = 50, Amount = 99, IsPackage = true},
-                    ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 99}
+                    BazaarItem = new BazaarItemDto { Price = 50, Amount = 99, IsPackage = true },
+                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 99 }
                 });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(1)).Returns((BazaarLink) null);
-            _bazaarHttpClient.Setup(b => b.Remove(It.IsAny<long>(), It.IsAny<int>(), It.IsAny<string>())).Returns(true);
+            _bazaarHttpClient.Setup(b => b.GetBazaarLink(1)).ReturnsAsync((BazaarLink)null);
+            _bazaarHttpClient.Setup(b => b.Remove(It.IsAny<long>(), It.IsAny<int>(), It.IsAny<string>())).ReturnsAsync(true);
         }
 
         [TestMethod]
-        public void BuyWhenExchangeOrTrade()
+        public async Task BuyWhenExchangeOrTrade()
         {
             _session.Character.InExchangeOrTrade = true;
-            _cbuyPacketHandler.Execute(new CBuyPacket
+            await _cbuyPacketHandler.Execute(new CBuyPacket
             {
                 BazaarId = 1,
                 Price = 50,
@@ -104,98 +105,98 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public void BuyWhenNoItemFound()
+        public async Task BuyWhenNoItemFound()
         {
-            _cbuyPacketHandler.Execute(new CBuyPacket
+            await _cbuyPacketHandler.Execute(new CBuyPacket
             {
                 BazaarId = 1,
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
             }, _session);
-            var lastpacket = (ModalPacket) _session.LastPackets.FirstOrDefault(s => s is ModalPacket);
+            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
 
         [TestMethod]
-        public void BuyWhenSeller()
+        public async Task BuyWhenSeller()
         {
-            _cbuyPacketHandler.Execute(new CBuyPacket
+            await _cbuyPacketHandler.Execute(new CBuyPacket
             {
                 BazaarId = 2,
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
             }, _session);
-            var lastpacket = (ModalPacket) _session.LastPackets.FirstOrDefault(s => s is ModalPacket);
+            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
 
         [TestMethod]
-        public void BuyWhenDifferentPrice()
+        public async Task BuyWhenDifferentPrice()
         {
-            _cbuyPacketHandler.Execute(new CBuyPacket
+            await _cbuyPacketHandler.Execute(new CBuyPacket
             {
                 BazaarId = 0,
                 Price = 40,
                 Amount = 1,
                 VNum = 1012
             }, _session);
-            var lastpacket = (ModalPacket) _session.LastPackets.FirstOrDefault(s => s is ModalPacket);
+            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
 
         [TestMethod]
-        public void BuyWhenCanNotAddItem()
+        public async Task BuyWhenCanNotAddItem()
         {
             var guid1 = Guid.NewGuid();
             var guid2 = Guid.NewGuid();
             _session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance
             {
                 Id = guid2, ItemInstanceId = guid2, Slot = 0, Type = NoscorePocketType.Main,
-                ItemInstance = new ItemInstance {ItemVNum = 1012, Amount = 999, Id = guid2}
+                ItemInstance = new ItemInstance { ItemVNum = 1012, Amount = 999, Id = guid2 }
             });
             _session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance
             {
                 Id = guid1, ItemInstanceId = guid1, Slot = 1, Type = NoscorePocketType.Main,
-                ItemInstance = new ItemInstance {ItemVNum = 1012, Amount = 999, Id = guid1}
+                ItemInstance = new ItemInstance { ItemVNum = 1012, Amount = 999, Id = guid1 }
             });
-            _cbuyPacketHandler.Execute(new CBuyPacket
+            await _cbuyPacketHandler.Execute(new CBuyPacket
             {
                 BazaarId = 0,
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
             }, _session);
-            var lastpacket = (InfoPacket) _session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.IsTrue(lastpacket.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, _session.Account.Language));
         }
 
         [TestMethod]
-        public void BuyMoreThanSelling()
+        public async Task BuyMoreThanSelling()
         {
             _session.Character.Gold = 5000;
-            _cbuyPacketHandler.Execute(new CBuyPacket
+            await _cbuyPacketHandler.Execute(new CBuyPacket
             {
                 BazaarId = 0,
                 Price = 50,
                 Amount = 2,
                 VNum = 1012
             }, _session);
-            var lastpacket = (ModalPacket) _session.LastPackets.FirstOrDefault(s => s is ModalPacket);
+            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
 
         [TestMethod]
-        public void BuyPartialPackage()
+        public async Task BuyPartialPackage()
         {
             _session.Character.Gold = 5000;
-            _cbuyPacketHandler.Execute(new CBuyPacket
+            await _cbuyPacketHandler.Execute(new CBuyPacket
             {
                 BazaarId = 3,
                 Price = 50,
@@ -206,54 +207,54 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public void BuyPackage()
+        public async Task BuyPackage()
         {
             _session.Character.Gold = 5000;
-            var item = new Item {Type = NoscorePocketType.Main};
+            var item = new Item { Type = NoscorePocketType.Main };
             _itemProvider.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>()))
-                .Returns(new ItemInstance {Amount = 1, ItemVNum = 1012, Item = item});
-            _cbuyPacketHandler.Execute(new CBuyPacket
+                .Returns(new ItemInstance { Amount = 1, ItemVNum = 1012, Item = item });
+            await _cbuyPacketHandler.Execute(new CBuyPacket
             {
                 BazaarId = 3,
                 Price = 50,
                 Amount = 99,
                 VNum = 1012
             }, _session);
-            var lastpacket = (SayPacket) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue(lastpacket.Message ==
                 $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, _session.Account.Language)}: {item.Name[_session.Account.Language]} x {99}");
         }
 
         [TestMethod]
-        public void BuyNotEnoughMoney()
+        public async Task BuyNotEnoughMoney()
         {
-            _cbuyPacketHandler.Execute(new CBuyPacket
+            await _cbuyPacketHandler.Execute(new CBuyPacket
             {
                 BazaarId = 0,
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
             }, _session);
-            var lastpacket = (ModalPacket) _session.LastPackets.FirstOrDefault(s => s is ModalPacket);
+            var lastpacket = (ModalPacket)_session.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
         }
 
         [TestMethod]
-        public void Buy()
+        public async Task Buy()
         {
             _session.Character.Gold = 5000;
-            var item = new Item {Type = NoscorePocketType.Main};
+            var item = new Item { Type = NoscorePocketType.Main };
             _itemProvider.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>()))
-                .Returns(new ItemInstance {Amount = 1, ItemVNum = 1012, Item = item});
-            _cbuyPacketHandler.Execute(new CBuyPacket
+                .Returns(new ItemInstance { Amount = 1, ItemVNum = 1012, Item = item });
+            await _cbuyPacketHandler.Execute(new CBuyPacket
             {
                 BazaarId = 0,
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
             }, _session);
-            var lastpacket = (SayPacket) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue(lastpacket.Message ==
                 $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, _session.Account.Language)}: {item.Name[_session.Account.Language]} x {1}");
         }

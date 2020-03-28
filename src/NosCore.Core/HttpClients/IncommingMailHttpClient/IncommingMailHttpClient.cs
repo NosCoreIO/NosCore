@@ -20,7 +20,8 @@
 using System;
 using System.Net.Http;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Threading.Tasks;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Data.WebApi;
 
@@ -39,21 +40,21 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
             _channelHttpClient = channelHttpClient;
         }
 
-        public void DeleteIncommingMail(int channelId, long id, short mailId, byte postType)
+        public async Task DeleteIncommingMail(int channelId, long id, short mailId, byte postType)
         {
-            using var client = Connect(channelId);
-            client.DeleteAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}&mailId={mailId}&postType={postType}")).Wait();
+            using var client = await Connect(channelId).ConfigureAwait(false); 
+            await client.DeleteAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}&mailId={mailId}&postType={postType}")).ConfigureAwait(false);
         }
 
-        public void NotifyIncommingMail(int channelId, MailData mailRequest)
+        public async Task NotifyIncommingMail(int channelId, MailData mailRequest)
         {
-            using var client = Connect(channelId);
-            using var content = new StringContent(JsonConvert.SerializeObject(mailRequest), Encoding.Default,
+            using var client = await Connect(channelId).ConfigureAwait(false);
+            using var content = new StringContent(JsonSerializer.Serialize(mailRequest), Encoding.Default,
                 "application/json");
-            client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).Wait();
+            await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
         }
 
-        public void OpenIncommingMail(int channelId, MailData mailData)
+        public Task OpenIncommingMail(int channelId, MailData mailData)
         {
             throw new NotImplementedException();
         }

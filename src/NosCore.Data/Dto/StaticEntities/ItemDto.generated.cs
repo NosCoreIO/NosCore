@@ -86,11 +86,11 @@ namespace NosCore.Data.StaticEntities
 
 	 	public int EffectValue { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.ElementType Element { get; set; }
+	 	public NosCore.Packets.Enumerations.ElementType Element { get; set; }
 
 	 	public short ElementRate { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.EquipmentType EquipmentSlot { get; set; }
+	 	public NosCore.Packets.Enumerations.EquipmentType EquipmentSlot { get; set; }
 
 	 	public byte FireElement { get; set; }
 
@@ -189,7 +189,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public long ReputPrice { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.ElementType SecondaryElement { get; set; }
+	 	public NosCore.Packets.Enumerations.ElementType SecondaryElement { get; set; }
 
 	 	public byte Sex { get; set; }
 

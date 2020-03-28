@@ -18,8 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Relations;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;
@@ -71,16 +72,16 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             };
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacter(targetSession.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character {Id = targetSession.Character.CharacterId}
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId }
                     }));
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
-                        {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
+                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             using var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
                 friendRequestHolder, TestHelpers.Instance.ConnectedAccountHttpClient.Object);
             TestHelpers.Instance.FriendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))

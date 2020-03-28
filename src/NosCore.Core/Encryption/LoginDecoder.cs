@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using ChickenAPI.Packets.Interfaces;
+using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
@@ -45,6 +45,16 @@ namespace NosCore.Core.Encryption
 
         protected override void Decode(IChannelHandlerContext context, IByteBuffer message, [NotNull] List<object> output)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
             try
             {
                 var decryptedPacket = new StringBuilder();

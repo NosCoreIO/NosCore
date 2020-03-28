@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
@@ -45,7 +46,7 @@ namespace NosCore.Core.Controllers
     {
         private readonly WebApiConfiguration _apiConfiguration;
         private readonly ILogger _logger;
-        private int _id;
+        private int _id = 0;
 
         public ChannelController(WebApiConfiguration apiConfiguration, ILogger logger)
         {
@@ -60,20 +61,13 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.NameIdentifier, "Server"),
                 new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
             });
-            string password;
-            switch (_apiConfiguration.HashingType)
+            var password = _apiConfiguration.HashingType switch
             {
-                case HashingType.BCrypt:
-                    password = _apiConfiguration.Password.ToBcrypt(_apiConfiguration.Salt ?? "");
-                    break;
-                case HashingType.Pbkdf2:
-                    password = _apiConfiguration.Password.ToPbkdf2Hash(_apiConfiguration.Salt ?? "");
-                    break;
-                case HashingType.Sha512:
-                default:
-                    password = _apiConfiguration.Password.ToSha512();
-                    break;
-            }
+                HashingType.BCrypt => _apiConfiguration.Password!.ToBcrypt(_apiConfiguration.Salt ?? ""),
+                HashingType.Pbkdf2 => _apiConfiguration.Password!.ToPbkdf2Hash(_apiConfiguration.Salt ?? ""),
+                HashingType.Sha512 => _apiConfiguration.Password!.ToSha512(),
+                _ => _apiConfiguration.Password!.ToSha512()
+            };
 
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
@@ -92,29 +86,28 @@ namespace NosCore.Core.Controllers
         [HttpPost]
         public IActionResult Connect([FromBody] Channel data)
         {
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
             if (!ModelState.IsValid)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_ERROR));
                 return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
             }
 
-            if (data.MasterCommunication.Password != _apiConfiguration.Password)
+            if (data.MasterCommunication!.Password != _apiConfiguration.Password)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_ERROR));
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
             }
 
-            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_SUCCESS), _id.ToString(),
+            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_SUCCESS), _id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
 
-            try
-            {
-                _id = ++MasterClientListSingleton.Instance.ConnectionCounter;
-            }
-            catch
-            {
-                _id = 0;
-            }
+
+            _id = ++MasterClientListSingleton.Instance.ConnectionCounter;
 
             var serv = new ChannelInfo
             {
@@ -133,7 +126,7 @@ namespace NosCore.Core.Controllers
             data.ChannelId = _id;
 
 
-            return Ok(new ConnectionInfo {Token = GenerateToken(), ChannelInfo = data});
+            return Ok(new ConnectionInfo { Token = GenerateToken(), ChannelInfo = data });
         }
 
         [HttpPut]
@@ -141,43 +134,38 @@ namespace NosCore.Core.Controllers
         {
             var channel = MasterClientListSingleton.Instance.Channels.First(s =>
                 (s.Name == data.ClientName) && (s.Host == data.Host) && (s.Port == data.Port));
-            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TOKEN_UPDATED), channel.Id.ToString(),
+            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TOKEN_UPDATED), channel.Id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
             channel.Token = data.Token;
-            return Ok(new ConnectionInfo {Token = GenerateToken(), ChannelInfo = data});
+            return Ok(new ConnectionInfo { Token = GenerateToken(), ChannelInfo = data });
         }
 
         // GET api/channel
         [HttpGet]
         public List<ChannelInfo> GetChannels(long? id)
         {
-            if (id != null)
-            {
-                return MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList();
-            }
-
-            return MasterClientListSingleton.Instance.Channels;
+            return id != null ? MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList() : MasterClientListSingleton.Instance.Channels;
         }
 
         [HttpPatch]
         public HttpStatusCode PingUpdate(int id, [FromBody] DateTime data)
         {
             var chann = MasterClientListSingleton.Instance.Channels.FirstOrDefault(s => s.Id == id);
-            if (chann != null)
+            if (chann == null)
             {
-                if ((chann.LastPing.AddSeconds(10) < SystemTime.Now()) && !Debugger.IsAttached)
-                {
-                    MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
-                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),
-                        _id.ToString());
-                    return HttpStatusCode.RequestTimeout;
-                }
-
-                chann.LastPing = data;
-                return HttpStatusCode.OK;
+                return HttpStatusCode.NotFound;
             }
 
-            return HttpStatusCode.NotFound;
+            if ((chann.LastPing.AddSeconds(10) < SystemTime.Now()) && !Debugger.IsAttached)
+            {
+                MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
+                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),
+                    _id.ToString(CultureInfo.CurrentCulture));
+                return HttpStatusCode.RequestTimeout;
+            }
+
+            chann.LastPing = data;
+            return HttpStatusCode.OK;
         }
     }
 }

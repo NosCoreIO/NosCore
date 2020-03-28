@@ -33,8 +33,9 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class MinilandDto : IDto
 	{
-		public string MinilandMessage { get; set; }
-
+		#nullable enable
+		public string? MinilandMessage { get; set; } = "";
+		#nullable disable
 	 	public long MinilandPoint { get; set; }
 
 	 	public CharacterDto Owner { get; set; }
@@ -42,7 +43,7 @@ namespace NosCore.Data.Dto
 	 	[Key]
 		public System.Guid MinilandId { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.MinilandState State { get; set; }
+	 	public NosCore.Packets.Enumerations.MinilandState State { get; set; }
 
 	 	public long OwnerId { get; set; }
 
@@ -50,8 +51,7 @@ namespace NosCore.Data.Dto
 
 	 	public int VisitCount { get; set; }
 
-	 	#nullable enable
-		public string? WelcomeMusicInfo { get; set; }
-		#nullable disable
+	 	public string WelcomeMusicInfo { get; set; }
+
 	 }
 }

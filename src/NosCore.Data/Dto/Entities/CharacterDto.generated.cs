@@ -51,8 +51,9 @@ namespace NosCore.Data.Dto
 
 	 	public System.Collections.Generic.ICollection<CharacterActPartDto> CharacterActParts { get; set; }
 
-	 	public string Biography { get; set; }
-
+	 	#nullable enable
+		public string? Biography { get; set; } = "";
+		#nullable disable
 	 	public bool BuffBlocked { get; set; }
 
 	 	[Key]
@@ -64,7 +65,7 @@ namespace NosCore.Data.Dto
 
 	 	public System.Collections.Generic.ICollection<CharacterSkillDto> CharacterSkill { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.CharacterClassType Class { get; set; }
+	 	public NosCore.Packets.Enumerations.CharacterClassType Class { get; set; }
 
 	 	public short Compliment { get; set; }
 
@@ -84,15 +85,15 @@ namespace NosCore.Data.Dto
 
 	 	public bool FriendRequestBlocked { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.GenderType Gender { get; set; }
+	 	public NosCore.Packets.Enumerations.GenderType Gender { get; set; }
 
 	 	public long Gold { get; set; }
 
 	 	public bool GroupRequestBlocked { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.HairColorType HairColor { get; set; }
+	 	public NosCore.Packets.Enumerations.HairColorType HairColor { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.HairStyleType HairStyle { get; set; }
+	 	public NosCore.Packets.Enumerations.HairStyleType HairStyle { get; set; }
 
 	 	public bool HeroChatBlocked { get; set; }
 
@@ -142,11 +143,11 @@ namespace NosCore.Data.Dto
 
 	 	public int Mp { get; set; }
 
-	 	public string Prefix { get; set; }
-
 	 	#nullable enable
-		public string? Name { get; set; }
+		public string? Prefix { get; set; } = "";
 		#nullable disable
+	 	public string Name { get; set; }
+
 	 	public bool QuickGetUp { get; set; }
 
 	 	public System.Collections.Generic.ICollection<QuicklistEntryDto> QuicklistEntry { get; set; }

@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;

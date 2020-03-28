@@ -20,10 +20,11 @@
 using System;
 using System.Linq;
 using System.Text;
-using ChickenAPI.Packets.ClientPackets.Chat;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.Chats;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Chat;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -61,7 +62,7 @@ namespace NosCore.PacketHandlers.Chat
             _packetHttpClient = packetHttpClient;
         }
 
-        public override void Execute(WhisperPacket whisperPacket, ClientSession session)
+        public override async Task Execute(WhisperPacket whisperPacket, ClientSession session)
         {
             try
             {
@@ -79,13 +80,13 @@ namespace NosCore.PacketHandlers.Chat
                 var message = new StringBuilder(messageBuilder.ToString().Length > 60
                     ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
 
-                session.SendPacket(session.Character.GenerateSpk(new SpeakPacket
+                session.SendPacket(session.Character!.GenerateSpk(new SpeakPacket
                 {
                     SpeakType = SpeakType.Player,
                     Message = message.ToString()
                 }));
 
-                var speakPacket = session.Character.GenerateSpk(new SpeakPacket
+                var speakPacket = session.Character!.GenerateSpk(new SpeakPacket
                 {
                     SpeakType = session.Account.Authority >= AuthorityType.GameMaster ? SpeakType.GameMaster
                         : SpeakType.Player,
@@ -95,17 +96,17 @@ namespace NosCore.PacketHandlers.Chat
                 var receiverSession =
                     Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
 
-                var receiver = _connectedAccountHttpClient.GetCharacter(null, receiverName);
+                var receiver = await _connectedAccountHttpClient.GetCharacter(null, receiverName);
 
                 if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
                 {
-                    session.SendPacket(session.Character.GenerateSay(
+                    session.SendPacket(session.Character!.GenerateSay(
                         Language.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, session.Account.Language),
                         SayColorType.Yellow));
                     return;
                 }
 
-                var blacklisteds = _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
+                var blacklisteds = await _blacklistHttpClient.GetBlackLists(session.Character!.VisualId);
                 if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter.Id))
                 {
                     session.SendPacket(new SayPacket
@@ -120,7 +121,7 @@ namespace NosCore.PacketHandlers.Chat
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
                     $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Item2.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
-                _packetHttpClient.BroadcastPacket(new PostedPacket
+                await _packetHttpClient.BroadcastPacket(new PostedPacket
                 {
                     Packet = _packetSerializer.Serialize(new[] {speakPacket}),
                     ReceiverCharacter = new Character {Name = receiverName},

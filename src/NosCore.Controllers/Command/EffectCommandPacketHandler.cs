@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -27,10 +28,11 @@ namespace NosCore.PacketHandlers.Command
 {
     public class EffectCommandPackettHandler : PacketHandler<EffectCommandPacket>, IWorldPacketHandler
     {
-        public override void Execute(EffectCommandPacket effectCommandpacket, ClientSession session)
+        public override Task Execute(EffectCommandPacket effectCommandpacket, ClientSession session)
         {
             session.Character.MapInstance.SendPacket(
                 session.Character.GenerateEff(effectCommandpacket.EffectId));
+            return Task.CompletedTask;
         }
     }
 }

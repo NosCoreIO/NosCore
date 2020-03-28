@@ -66,9 +66,8 @@ namespace NosCore.Data.Dto
 	 	[Key]
 		public long MailId { get; set; }
 
-	 	#nullable enable
-		public string? Message { get; set; }
-		#nullable disable
+	 	public string Message { get; set; }
+
 	 	public CharacterDto Receiver { get; set; }
 
 	 	public long ReceiverId { get; set; }
@@ -77,18 +76,17 @@ namespace NosCore.Data.Dto
 
 	 	public long? SenderId { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.CharacterClassType? SenderCharacterClass { get; set; }
+	 	public NosCore.Packets.Enumerations.CharacterClassType? SenderCharacterClass { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.GenderType? SenderGender { get; set; }
+	 	public NosCore.Packets.Enumerations.GenderType? SenderGender { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.HairColorType? SenderHairColor { get; set; }
+	 	public NosCore.Packets.Enumerations.HairColorType? SenderHairColor { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.HairStyleType? SenderHairStyle { get; set; }
+	 	public NosCore.Packets.Enumerations.HairStyleType? SenderHairStyle { get; set; }
 
 	 	public short? SenderMorphId { get; set; }
 
-	 	#nullable enable
-		public string? Title { get; set; }
-		#nullable disable
+	 	public string Title { get; set; }
+
 	 }
 }

@@ -17,8 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.UI;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.UI;
+using NosCore.Packets.Enumerations;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
@@ -32,11 +33,11 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             return (packet.Type == GuriPacketType.Effect) && (packet.Data >= 973) && (packet.Data <= 999);
         }
 
-        public void Execute(RequestData<GuriPacket> requestData)
+        public Task Execute(RequestData<GuriPacket> requestData)
         {
             if (requestData.ClientSession.Character.EmoticonsBlocked)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if (requestData.Data.VisualId.GetValueOrDefault() == requestData.ClientSession.Character.CharacterId)
@@ -45,6 +46,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
                     requestData.ClientSession.Character.GenerateEff((int) requestData.Data.Data +
                         4099)); //TODO , ReceiverType.AllNoEmoBlocked
             }
+            return Task.CompletedTask;
         }
     }
 }

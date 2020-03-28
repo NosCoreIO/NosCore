@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Mapster;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -87,7 +88,7 @@ namespace NosCore.MasterServer.Controllers
 
 
         [HttpDelete]
-        public bool DeleteMail(long id, long characterId, bool senderCopy)
+        public async Task<bool> DeleteMail(long id, long characterId, bool senderCopy)
         {
             var mail = _parcelHolder[characterId][senderCopy][id];
             _mailDao.Delete(mail.MailDto.MailId);
@@ -97,7 +98,11 @@ namespace NosCore.MasterServer.Controllers
             }
 
             _parcelHolder[characterId][senderCopy].TryRemove(id, out var maildata);
-            var receiver = _connectedAccountHttpClient.GetCharacter(characterId, null);
+            if (maildata == null)
+            {
+                return false;
+            }
+            var receiver = await _connectedAccountHttpClient.GetCharacter(characterId, null);
             Notify(1, receiver, maildata);
             return true;
         }
@@ -112,12 +117,16 @@ namespace NosCore.MasterServer.Controllers
                 var bz = mail;
                 _mailDao.InsertOrUpdate(ref bz);
                 var savedData =
-                    _parcelHolder[mail.IsSenderCopy ? (long) mail.SenderId : mail.ReceiverId][mail.IsSenderCopy]
+                    _parcelHolder[mail.IsSenderCopy ? (long) mail.SenderId! : mail.ReceiverId][mail.IsSenderCopy]
                         .FirstOrDefault(s => s.Value.MailDto.MailId == id);
+                if (savedData.Value.ItemInstance == null || savedData.Value.ReceiverName == null)
+                {
+                    return null;
+                }
                 var maildata = GenerateMailData(mail, savedData.Value.ItemType, savedData.Value.ItemInstance,
                     savedData.Value.ReceiverName);
                 maildata.MailId = savedData.Value.MailId;
-                _parcelHolder[mail.IsSenderCopy ? (long) mail.SenderId : mail.ReceiverId][mail.IsSenderCopy][
+                _parcelHolder[mail.IsSenderCopy ? mail.SenderId ?? 0 : mail.ReceiverId][mail.IsSenderCopy][
                     savedData.Key] = maildata;
                 return maildata;
             }
@@ -126,19 +135,23 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPost]
-        public bool SendMail([FromBody] MailRequest mail)
+        public async Task<bool> SendMail([FromBody] MailRequest mail)
         {
-            var mailref = mail.Mail;
+            if (!ModelState.IsValid)
+            {
+                return false;
+            }
+            var mailref = mail.Mail!;
             var receivdto = _characterDto.FirstOrDefault(s => s.CharacterId == mailref.ReceiverId);
             if (receivdto == null)
             {
                 return false;
             }
 
-            var receiverName = receivdto.Name;
+            var receiverName = receivdto.Name!;
             var it = _items.Find(item => item.VNum == mail.VNum);
             IItemInstanceDto? itemInstance = null;
-            if ((mail.Mail.ItemInstanceId == null) && (mail.VNum != null))
+            if ((mail.Mail?.ItemInstanceId == null) && (mail.VNum != null))
             {
                 if (it == null)
                 {
@@ -176,8 +189,8 @@ namespace NosCore.MasterServer.Controllers
 
                 mail.Amount = (it.Type == NoscorePocketType.Etc) || (it.Type == NoscorePocketType.Main) ? mail.Amount
                     : 1;
-                itemInstance = _itemProvider.Create((short) mail.VNum, (short) mail.Amount, (sbyte) mail.Rare,
-                    (byte) mail.Upgrade);
+                itemInstance = _itemProvider.Create((short) mail.VNum, mail.Amount ?? 1, mail.Rare ?? 0,
+                    mail.Upgrade ?? 0);
                 if (itemInstance == null)
                 {
                     return false;
@@ -187,10 +200,14 @@ namespace NosCore.MasterServer.Controllers
                 mailref.ItemInstanceId = itemInstance.Id;
             }
 
-            var receiver = _connectedAccountHttpClient.GetCharacter(mailref.ReceiverId, null);
-            var sender = _connectedAccountHttpClient.GetCharacter(mailref.SenderId, null);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(mailref.ReceiverId, null);
+            var sender = await _connectedAccountHttpClient.GetCharacter(mailref.SenderId, null);
 
             _mailDao.InsertOrUpdate(ref mailref);
+            if (itemInstance == null)
+            {
+                return false;
+            }
             var mailData = GenerateMailData(mailref, (short?) it?.ItemType ?? -1, itemInstance, receiverName);
             _parcelHolder[mailref.ReceiverId][mailData.MailDto.IsSenderCopy].TryAdd(mailData.MailId, mailData);
             Notify(0, receiver, mailData);
@@ -218,7 +235,7 @@ namespace NosCore.MasterServer.Controllers
             var count = _parcelHolder[mailref.ReceiverId][mailref.IsSenderCopy].Select(s => s.Key).DefaultIfEmpty(-1)
                 .Max();
             var sender = mailref.SenderId != null
-                ? _characterDto.FirstOrDefault(s => s.CharacterId == mailref.SenderId).Name : "NOSMALL";
+                ? _characterDto.FirstOrDefault(s => s.CharacterId == mailref.SenderId)?.Name : "NOSMALL";
             return new MailData
             {
                 ReceiverName = receiverName,
@@ -230,37 +247,25 @@ namespace NosCore.MasterServer.Controllers
             };
         }
 
-        private void Notify(byte notifyType, (ServerConfiguration, ConnectedAccount) receiver, MailData mailData)
+        private void Notify(byte notifyType, Tuple<ServerConfiguration, ConnectedAccount?> receiver, MailData mailData)
         {
-            byte type;
-            if (!mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver.Item2.Name))
+            var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver.Item2?.Name)
+                ? mailData.ItemInstance != null ? (byte) 0 : (byte) 1 : (byte) 2;
+
+            if (receiver.Item2 == null)
             {
-                if (mailData.ItemInstance != null)
-                {
-                    type = 0;
-                }
-                else
-                {
-                    type = 1;
-                }
-            }
-            else
-            {
-                type = 2;
+                return;
             }
 
-            if (receiver.Item2 != null)
+            switch (notifyType)
             {
-                switch (notifyType)
-                {
-                    case 0:
-                        _incommingMailHttpClient.NotifyIncommingMail(receiver.Item2.ChannelId, mailData);
-                        break;
-                    case 1:
-                        _incommingMailHttpClient.DeleteIncommingMail(receiver.Item2.ChannelId,
-                            receiver.Item2.ConnectedCharacter.Id, (short) mailData.MailId, type);
-                        break;
-                }
+                case 0:
+                    _incommingMailHttpClient.NotifyIncommingMail(receiver.Item2.ChannelId, mailData);
+                    break;
+                case 1:
+                    _incommingMailHttpClient.DeleteIncommingMail(receiver.Item2.ChannelId,
+                        receiver.Item2.ConnectedCharacter.Id, (short) mailData.MailId, type);
+                    break;
             }
         }
     }

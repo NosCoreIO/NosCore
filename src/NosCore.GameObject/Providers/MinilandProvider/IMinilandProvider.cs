@@ -19,7 +19,8 @@
 
 using System;
 using System.Collections.Generic;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 
@@ -33,6 +34,6 @@ namespace NosCore.GameObject.Providers.MinilandProvider
         List<Portal> GetMinilandPortals(long characterId);
         Miniland GetMinilandFromMapInstanceId(Guid mapInstanceId);
         void AddMinilandObject(MapDesignObject mapObject, long characterId, InventoryItemInstance minilandobject);
-        void SetState(long characterId, MinilandState state);
+        Task SetState(long characterId, MinilandState state);
     }
 }

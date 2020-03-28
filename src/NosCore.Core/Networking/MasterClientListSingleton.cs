@@ -23,7 +23,7 @@ namespace NosCore.Core.Networking
 {
     public sealed class MasterClientListSingleton
     {
-        private static MasterClientListSingleton _instance;
+        private static MasterClientListSingleton? _instance;
 
         private MasterClientListSingleton()
         {

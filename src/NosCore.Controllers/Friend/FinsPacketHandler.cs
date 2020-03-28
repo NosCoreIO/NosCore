@@ -18,9 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Relations;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
@@ -31,6 +31,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
@@ -48,12 +49,12 @@ namespace NosCore.PacketHandlers.Friend
             _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
-        public override void Execute(FinsPacket finsPacket, ClientSession session)
+        public override async Task Execute(FinsPacket finsPacket, ClientSession session)
         {
             var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == finsPacket.CharacterId);
             if (targetCharacter != null)
             {
-                var result = _friendHttpClient.AddFriend(new FriendShipRequest
+                var result = await _friendHttpClient.AddFriend(new FriendShipRequest
                     {CharacterId = session.Character.CharacterId, FinsPacket = finsPacket});
 
                 switch (result)
@@ -121,9 +122,9 @@ namespace NosCore.PacketHandlers.Friend
                                 session.Character.AccountLanguage)
                         });
 
-                        targetCharacter.SendPacket(targetCharacter.GenerateFinit(_friendHttpClient, _channelHttpClient,
+                        targetCharacter.SendPacket(await targetCharacter.GenerateFinit(_friendHttpClient, _channelHttpClient,
                             _connectedAccountHttpClient));
-                        session.Character.SendPacket(session.Character.GenerateFinit(_friendHttpClient,
+                        session.Character.SendPacket(await session.Character.GenerateFinit(_friendHttpClient,
                             _channelHttpClient, _connectedAccountHttpClient));
                         break;
 

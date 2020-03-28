@@ -18,20 +18,26 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
     public class WarehouseItem : SynchronizableBaseEntity
     {
-        public virtual Warehouse Warehouse { get; set; }
+        [Required]
+        public virtual Warehouse Warehouse { get; set; } = new Warehouse();
 
+        [Required]
         public Guid WarehouseId { get; set; }
 
-        public virtual ItemInstance ItemInstance { get; set; }
+        [Required]
+        public virtual ItemInstance ItemInstance { get; set; } = new ItemInstance();
 
+        [Required]
         public Guid ItemInstanceId { get; set; }
 
+        [Required]
         public short Slot { get; set; }
     }
 }

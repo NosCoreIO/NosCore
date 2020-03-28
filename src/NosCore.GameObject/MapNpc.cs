@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 using Mapster;
 using NosCore.Core;
 using NosCore.Data.Dto;
@@ -54,9 +54,10 @@ namespace NosCore.GameObject
             _shopItems = shopItems;
             _itemProvider = itemProvider;
             _logger = logger;
+            Requests = new Subject<RequestData>();
         }
 
-        public IDisposable Life { get; private set; }
+        public IDisposable? Life { get; private set; }
 
         public void Initialize()
         {
@@ -67,7 +68,6 @@ namespace NosCore.GameObject
             PositionX = MapX;
             PositionY = MapY;
             IsAlive = true;
-            Requests = new Subject<RequestData>();
             Requests.Subscribe(ShowDialog);
             var shopObj = _shops.FirstOrDefault(s => s.MapNpcId == MapNpcId);
             if (shopObj != null)
@@ -102,7 +102,7 @@ namespace NosCore.GameObject
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
         public short PositionY { get; set; }
-        public MapInstance MapInstance { get; set; }
+        public MapInstance? MapInstance { get; set; }
         public DateTime LastMove { get; set; }
         public bool IsAlive { get; set; }
 
@@ -115,7 +115,7 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        public new Shop Shop { get; private set; }
+        public new Shop? Shop { get; private set; }
 
         public Subject<RequestData> Requests { get; set; }
 
@@ -136,7 +136,7 @@ namespace NosCore.GameObject
             {
                 try
                 {
-                    if (!MapInstance.IsSleeping)
+                    if (!MapInstance!.IsSleeping)
                     {
                         MonsterLife();
                     }

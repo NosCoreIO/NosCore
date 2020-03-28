@@ -17,7 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.Enumerations;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -27,7 +28,7 @@ namespace NosCore.PacketHandlers.Command
 {
     public class SpeedPacketHandler : PacketHandler<SpeedPacket>, IWorldPacketHandler
     {
-        public override void Execute(SpeedPacket speedPacket, ClientSession session)
+        public override Task Execute(SpeedPacket speedPacket, ClientSession session)
         {
             if ((speedPacket.Speed > 0) && (speedPacket.Speed < 60))
             {
@@ -38,6 +39,7 @@ namespace NosCore.PacketHandlers.Command
             {
                 session.SendPacket(session.Character.GenerateSay(speedPacket.Help(), SayColorType.Yellow));
             }
+            return Task.CompletedTask;
         }
     }
 }

@@ -20,8 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using ChickenAPI.Packets.ClientPackets.Npcs;
+using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 
@@ -45,7 +46,10 @@ namespace NosCore.GameObject.Providers.NRunProvider
             {
                 if (handler.Condition(data))
                 {
-                    handlersRequest.Subscribe(handler.Execute);
+                    handlersRequest.Subscribe(async o => await Observable.FromAsync(async () =>
+                    {
+                        await handler.Execute(o);
+                    }));
                 }
             });
             handlersRequest.OnNext(new RequestData<Tuple<IAliveEntity, NrunPacket>>(clientSession, data));

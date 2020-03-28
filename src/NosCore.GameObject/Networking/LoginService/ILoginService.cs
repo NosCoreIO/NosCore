@@ -17,13 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Login;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Login;
 
 namespace NosCore.GameObject.Networking.LoginService
 {
     public interface ILoginService
     {
-        void Login(string username, string md5String, ClientVersionSubPacket clientVersion,
+        Task Login(string? username, string md5String, ClientVersionSubPacket clientVersion,
             ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth);
     }
 }

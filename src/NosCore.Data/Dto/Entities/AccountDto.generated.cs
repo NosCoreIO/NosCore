@@ -40,23 +40,28 @@ namespace NosCore.Data.Dto
 
 	 	public System.Collections.Generic.ICollection<CharacterDto> Character { get; set; }
 
-	 	public string Email { get; set; }
+	 	#nullable enable
+		public string? Email { get; set; } = "";
+		#nullable disable
+	 	public string Name { get; set; }
 
 	 	#nullable enable
-		public string? Name { get; set; }
+		public string? Password { get; set; } = "";
 		#nullable disable
-	 	public string Password { get; set; }
-
-	 	public string NewAuthPassword { get; set; }
-
-	 	public string NewAuthSalt { get; set; }
-
+	 	#nullable enable
+		public string? NewAuthPassword { get; set; } = "";
+		#nullable disable
+	 	#nullable enable
+		public string? NewAuthSalt { get; set; } = "";
+		#nullable disable
 	 	public System.Collections.Generic.ICollection<PenaltyLogDto> PenaltyLog { get; set; }
 
-	 	public string RegistrationIp { get; set; }
-
-	 	public string VerificationToken { get; set; }
-
+	 	#nullable enable
+		public string? RegistrationIp { get; set; } = "";
+		#nullable disable
+	 	#nullable enable
+		public string? VerificationToken { get; set; } = "";
+		#nullable disable
 	 	public NosCore.Data.Enumerations.RegionType Language { get; set; }
 
 	 	public long BankMoney { get; set; }

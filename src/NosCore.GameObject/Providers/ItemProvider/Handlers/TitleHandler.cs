@@ -18,9 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -33,7 +34,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
     {
         public bool Condition(Item.Item item) => item.ItemType == ItemType.Title;
 
-        public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             requestData.ClientSession.SendPacket(new QnaPacket
             {
@@ -46,6 +47,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 Question = Language.Instance.GetMessageFromKey(LanguageKey.WANT_ENABLE_TITLE,
                     requestData.ClientSession.Account.Language)
             });
+            return Task.CompletedTask;
         }
     }
 }

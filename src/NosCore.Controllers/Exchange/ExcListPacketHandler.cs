@@ -18,9 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using ChickenAPI.Packets.ClientPackets.Exchanges;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Exchanges;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Exchanges;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
@@ -44,12 +45,12 @@ namespace NosCore.PacketHandlers.Exchange
             _logger = logger;
         }
 
-        public override void Execute(ExcListPacket packet, ClientSession clientSession)
+        public override Task Execute(ExcListPacket packet, ClientSession clientSession)
         {
             if ((packet.Gold > clientSession.Character.Gold) || (packet.BankGold > clientSession.Account.BankMoney))
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NOT_ENOUGH_GOLD));
-                return;
+                return Task.CompletedTask;
             }
 
             var subPacketList = new List<ServerExcListSubPacket>();
@@ -74,7 +75,7 @@ namespace NosCore.PacketHandlers.Exchange
                         clientSession.SendPacket(closeExchange);
                         target.SendPacket(closeExchange);
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE_LIST));
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     if (!item.ItemInstance.Item.IsTradable)
@@ -84,7 +85,7 @@ namespace NosCore.PacketHandlers.Exchange
                         target.SendPacket(_exchangeProvider.CloseExchange(target.VisualId, ExchangeResultType.Failure));
                         _logger.Error(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM));
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     _exchangeProvider.AddItems(clientSession.Character.CharacterId, item, value.Amount);
@@ -111,6 +112,7 @@ namespace NosCore.PacketHandlers.Exchange
             _exchangeProvider.SetGold(clientSession.Character.CharacterId, packet.Gold, packet.BankGold);
             target?.SendPacket(
                 clientSession.Character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList));
+            return Task.CompletedTask;
         }
     }
 }

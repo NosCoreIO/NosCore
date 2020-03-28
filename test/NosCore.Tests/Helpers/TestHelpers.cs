@@ -20,10 +20,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ChickenAPI.Packets.ClientPackets.Drops;
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
 using DotNetty.Transport.Channels;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -102,9 +102,9 @@ namespace NosCore.Tests.Helpers
         private TestHelpers()
         {
             BlacklistHttpClient.Setup(s => s.GetBlackLists(It.IsAny<long>()))
-                .Returns(new List<CharacterRelationStatus>());
+                .ReturnsAsync(new List<CharacterRelationStatus>());
             FriendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>()))
-                .Returns(new List<CharacterRelationStatus>());
+                .ReturnsAsync(new List<CharacterRelationStatus>());
             AccountDao = new GenericDao<Account, AccountDto, long>(_logger);
             _portalDao = new GenericDao<Portal, PortalDto, int>(_logger);
             _mapMonsterDao = new GenericDao<MapMonster, MapMonsterDto, long>(_logger);

@@ -18,8 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Relations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -38,14 +39,14 @@ namespace NosCore.PacketHandlers.Friend
             _blacklistHttpClient = blacklistHttpClient;
         }
 
-        public override void Execute(BlDelPacket bldelPacket, ClientSession session)
+        public override async Task Execute(BlDelPacket bldelPacket, ClientSession session)
         {
-            var list = _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
+            var list = await _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == bldelPacket.CharacterId);
             if (idtorem != null)
             {
-                _blacklistHttpClient.DeleteFromBlacklist(idtorem.CharacterRelationId);
-                session.SendPacket(session.Character.GenerateBlinit(_blacklistHttpClient));
+                await _blacklistHttpClient.DeleteFromBlacklist(idtorem.CharacterRelationId);
+                session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient));
             }
             else
             {

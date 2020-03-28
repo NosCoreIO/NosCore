@@ -17,7 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
@@ -44,7 +45,7 @@ namespace NosCore.PacketHandlers.Command
             _statHttpClient = statHttpClient;
         }
 
-        public override void Execute(SetGoldCommandPacket goldPacket, ClientSession session)
+        public override async Task Execute(SetGoldCommandPacket goldPacket, ClientSession session)
         {
             var data = new StatData
             {
@@ -53,7 +54,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = goldPacket.Gold
             };
 
-            var receiver = _connectedAccountHttpClient.GetCharacter(null, goldPacket.Name ?? session.Character.Name);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(null, goldPacket.Name ?? session.Character.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -65,7 +66,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            _statHttpClient.ChangeStat(data, receiver.Item1);
+            await _statHttpClient.ChangeStat(data, receiver.Item1);
 
             session.SendPacket(session.Character.GenerateGold());
         }

@@ -17,14 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Net.Http;
+using System.Threading.Tasks;
 using NosCore.Data.WebApi;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
 {
     public interface IIncommingMailHttpClient
     {
-        void NotifyIncommingMail(int channelId, MailData mailRequest);
-        void OpenIncommingMail(int channelId, MailData mailData);
-        void DeleteIncommingMail(int channelId, long id, short mailId, byte postType);
+        Task NotifyIncommingMail(int channelId, MailData mailRequest);
+        Task OpenIncommingMail(int channelId, MailData mailData);
+        Task DeleteIncommingMail(int channelId, long id, short mailId, byte postType);
     }
 }

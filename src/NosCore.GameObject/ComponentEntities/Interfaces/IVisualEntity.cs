@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
@@ -35,7 +35,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         Guid MapInstanceId { get; }
 
-        MapInstance MapInstance { get; }
+        MapInstance? MapInstance { get; }
 
         short PositionX { get; set; }
 

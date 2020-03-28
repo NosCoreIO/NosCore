@@ -18,9 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Npcs;
-using ChickenAPI.Packets.ClientPackets.Shops;
-using ChickenAPI.Packets.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Packets.ClientPackets.Shops;
+using NosCore.Packets.Enumerations;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 
@@ -33,9 +34,9 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             return (item.Item2.Runner == NrunRunnerType.OpenShop) && (item.Item1 != null);
         }
 
-        public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
+        public Task Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
-            requestData.ClientSession.HandlePackets(new[]
+            return requestData.ClientSession.HandlePackets(new[]
             {
                 new ShoppingPacket
                 {
