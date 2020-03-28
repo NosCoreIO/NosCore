@@ -75,7 +75,7 @@ namespace NosCore.Tests.ItemHandlerTests
             _useItem.Mode = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (DelayPacket)_session.LastPackets.FirstOrDefault(s => s is DelayPacket);
+            var lastpacket = (DelayPacket?)_session.LastPackets.FirstOrDefault(s => s is DelayPacket);
             Assert.IsNotNull(lastpacket);
         }
 

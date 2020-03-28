@@ -41,8 +41,8 @@ namespace NosCore.Tests.PacketHandlerTests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly Dictionary<int, Character> _characters = new Dictionary<int, Character>();
-        private PjoinPacketHandler _pJoinPacketHandler;
-        private PleavePacketHandler _pLeavePacketHandler;
+        private PjoinPacketHandler? _pJoinPacketHandler;
+        private PleavePacketHandler? _pLeavePacketHandler;
 
         [TestInitialize]
         public void Setup()
@@ -53,8 +53,8 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 var session = TestHelpers.Instance.GenerateSession();
                 session.RegisterChannel(null);
-                _characters.Add(i, session.Character);
-                session.Character.Group.JoinGroup(session.Character);
+                _characters.Add(i, session.Character!);
+                session.Character!.Group.JoinGroup(session.Character);
             }
 
             _pLeavePacketHandler = new PleavePacketHandler();

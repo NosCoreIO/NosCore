@@ -100,17 +100,17 @@ namespace NosCore.GameObject.Providers.InventoryService
             return this.Count(s => s.Value.Type == inv);
         }
 
-        public List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem)
+        public List<InventoryItemInstance>? AddItemToPocket(InventoryItemInstance newItem)
         {
             return AddItemToPocket(newItem, null, null);
         }
 
-        public List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type)
+        public List<InventoryItemInstance>? AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type)
         {
             return AddItemToPocket(newItem, type, null);
         }
 
-        public List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type,
+        public List<InventoryItemInstance>? AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type,
             short? slot)
         {
             var invlist = new List<InventoryItemInstance>();

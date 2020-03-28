@@ -94,7 +94,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
             {
-                _session.Character,
+                _session.Character!,
                 new CharacterDto {CharacterId = 2, Name = "test"}
             };
             _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
@@ -105,7 +105,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 {
                     CharacterId = 2,
                     CharacterRelationId = guid,
-                    RelatedCharacterId = _session.Character.CharacterId,
+                    RelatedCharacterId = _session.Character!.CharacterId,
                     RelationType = CharacterRelationType.Friend
                 },
                 new CharacterRelationDto
@@ -134,8 +134,8 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
             {
-                _session.Character,
-                targetSession.Character
+                _session.Character!,
+                targetSession.Character!
             };
             _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
@@ -143,9 +143,9 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             {
                 new CharacterRelationDto
                 {
-                    CharacterId = targetSession.Character.CharacterId,
+                    CharacterId = targetSession.Character!.CharacterId,
                     CharacterRelationId = guid,
-                    RelatedCharacterId = _session.Character.CharacterId,
+                    RelatedCharacterId = _session.Character!.CharacterId,
                     RelationType = CharacterRelationType.Friend
                 },
                 new CharacterRelationDto

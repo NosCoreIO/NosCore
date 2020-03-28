@@ -52,10 +52,10 @@ namespace NosCore.Core.HttpClients
             return _httpClientFactory.CreateClient();
         }
 
-        public virtual async Task<HttpClient?> Connect()
+        public virtual async Task<HttpClient> Connect()
         {
             var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
+            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
 
             if (RequireConnection)
             {

@@ -69,7 +69,7 @@ namespace NosCore.Tests.ItemHandlerTests
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
             _session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var lastpacket = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE, _session.Character.Account.Language), lastpacket.Message);
             Assert.AreEqual(1, _session.Character.InventoryService.Count);
         }
@@ -81,7 +81,7 @@ namespace NosCore.Tests.ItemHandlerTests
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
             _session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var lastpacket = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE_IN_VEHICLE, _session.Character.Account.Language), lastpacket.Message);
             Assert.AreEqual(1, _session.Character.InventoryService.Count);
         }
@@ -92,7 +92,7 @@ namespace NosCore.Tests.ItemHandlerTests
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
             _session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (DelayPacket)_session.LastPackets.FirstOrDefault(s => s is DelayPacket);
+            var lastpacket = (DelayPacket?)_session.LastPackets.FirstOrDefault(s => s is DelayPacket);
             Assert.IsNotNull(lastpacket);
             Assert.AreEqual(1, _session.Character.InventoryService.Count);
         }

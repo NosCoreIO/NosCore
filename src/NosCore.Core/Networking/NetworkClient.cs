@@ -77,7 +77,7 @@ namespace NosCore.Core.Networking
             return Task.CompletedTask;
         }
 
-        public void RegisterChannel(IChannel channel)
+        public void RegisterChannel(IChannel? channel)
         {
             Channel = channel;
         }

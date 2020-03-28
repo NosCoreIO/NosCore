@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Friend
 
         public override async Task Execute(FdelPacket fdelPacket, ClientSession session)
         {
-            var list = await _friendHttpClient.GetListFriends(session.Character.VisualId);
+            var list = await _friendHttpClient.GetListFriends(session.Character!.VisualId);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == fdelPacket.CharacterId);
             if (idtorem != null)
             {

@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Inventory
 
         public override Task Execute(MvePacket mvePacket, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrShop)
+            if (clientSession.Character!.InExchangeOrShop)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
                 return Task.CompletedTask;
@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Inventory
             clientSession.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType,
                 mvePacket.DestinationSlot));
             clientSession.SendPacket(
-                ((InventoryItemInstance) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+                ((InventoryItemInstance?) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
             return Task.CompletedTask;
         }
     }

@@ -41,9 +41,9 @@ namespace NosCore.Tests.PacketHandlerTests
     public class CharNewPacketHandlerTests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private Character _chara;
-        private CharNewPacketHandler _charNewPacketHandler;
-        private ClientSession _session;
+        private Character? _chara;
+        private CharNewPacketHandler? _charNewPacketHandler;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
@@ -59,13 +59,13 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void CreateCharacterWhenInGame_Does_Not_Create_Character()
         {
-            _session.SetCharacter(_chara);
-            _session.Character.MapInstance =
+            _session!.SetCharacter(_chara);
+            _session.Character!.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     _logger, new List<IMapInstanceEventHandler>());
             const string name = "TestCharacter";
-            _charNewPacketHandler.Execute(new CharNewPacket
+            _charNewPacketHandler!.Execute(new CharNewPacket
             {
                 Name = name
             }, _session);
@@ -76,10 +76,10 @@ namespace NosCore.Tests.PacketHandlerTests
         public void CreateCharacter()
         {
             const string name = "TestCharacter";
-            _charNewPacketHandler.Execute(new CharNewPacket
+            _charNewPacketHandler!.Execute(new CharNewPacket
             {
                 Name = name
-            }, _session);
+            }, _session!);
             Assert.IsNotNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
         }
 
@@ -88,10 +88,10 @@ namespace NosCore.Tests.PacketHandlerTests
         public void InvalidName_Does_Not_Create_Character()
         {
             const string name = "Test Character";
-            _charNewPacketHandler.Execute(new CharNewPacket
+            _charNewPacketHandler!.Execute(new CharNewPacket
             {
                 Name = name
-            }, _session);
+            }, _session!);
             Assert.IsNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
         }
 
@@ -99,10 +99,10 @@ namespace NosCore.Tests.PacketHandlerTests
         public void ExistingName_Does_Not_Create_Character()
         {
             const string name = "TestExistingCharacter";
-            _charNewPacketHandler.Execute(new CharNewPacket
+            _charNewPacketHandler!.Execute(new CharNewPacket
             {
                 Name = name
-            }, _session);
+            }, _session!);
             Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Name == name).Skip(1).Any());
         }
 
@@ -110,11 +110,11 @@ namespace NosCore.Tests.PacketHandlerTests
         public void NotEmptySlot_Does_Not_Create_Character()
         {
             const string name = "TestCharacter";
-            _charNewPacketHandler.Execute(new CharNewPacket
+            _charNewPacketHandler!.Execute(new CharNewPacket
             {
                 Name = name,
                 Slot = 1
-            }, _session);
+            }, _session!);
             Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Slot == 1).Skip(1).Any());
         }
     }

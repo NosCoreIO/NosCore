@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Friend
             if (targetCharacter != null)
             {
                 var result = await _friendHttpClient.AddFriend(new FriendShipRequest
-                    {CharacterId = session.Character.CharacterId, FinsPacket = finsPacket});
+                    {CharacterId = session.Character!.CharacterId, FinsPacket = finsPacket});
 
                 switch (result)
                 {

@@ -63,9 +63,9 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_Get()
         {
-            _session.Character.PositionX = 0;
+            _session.Character!.PositionX = 0;
             _session.Character.PositionY = 0;
-            _session.Character.MapInstance.MapItems.TryAdd(100001,
+            _session.Character.MapInstance!.MapItems.TryAdd(100001,
                 TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1012, 1), 1,
                     1));
 
@@ -81,10 +81,10 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_GetInStack()
         {
-            _session.Character.PositionX = 0;
+            _session.Character!.PositionX = 0;
             _session.Character.PositionY = 0;
 
-            _session.Character.MapInstance.MapItems.TryAdd(100001,
+            _session.Character.MapInstance!.MapItems.TryAdd(100001,
                 TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1012, 1), 1,
                     1));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
@@ -121,9 +121,9 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_Get_KeepRarity()
         {
-            _session.Character.PositionX = 0;
+            _session.Character!.PositionX = 0;
             _session.Character.PositionY = 0;
-            _session.Character.MapInstance.MapItems.TryAdd(100001,
+            _session.Character.MapInstance!.MapItems.TryAdd(100001,
                 TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1, 1, 6), 1,
                     1));
 
@@ -139,15 +139,15 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_Get_NotYourObject()
         {
-            _session.Character.PositionX = 0;
+            _session.Character!.PositionX = 0;
             _session.Character.PositionY = 0;
             var mapItem =
-                TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1012, 1), 1,
+                TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance!, _item.Create(1012, 1), 1,
                     1);
             mapItem.VisualId = 1012;
             mapItem.OwnerId = 2;
             mapItem.DroppedAt = SystemTime.Now();
-            _session.Character.MapInstance.MapItems.TryAdd(100001, mapItem);
+            _session.Character.MapInstance!.MapItems.TryAdd(100001, mapItem);
 
             _getPacketHandler.Execute(new GetPacket
             {
@@ -157,7 +157,7 @@ namespace NosCore.Tests.PacketHandlerTests
             }, _session);
             var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM,
-                _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
+                _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
             Assert.IsTrue(_session.Character.InventoryService.Count == 0);
         }
 
@@ -168,12 +168,12 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.PositionY = 0;
 
             var mapItem =
-                TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1012, 1), 1,
+                TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance!, _item.Create(1012, 1), 1,
                     1);
             mapItem.VisualId = 1012;
             mapItem.OwnerId = 2;
             mapItem.DroppedAt = SystemTime.Now().AddSeconds(-30);
-            _session.Character.MapInstance.MapItems.TryAdd(100001, mapItem);
+            _session.Character.MapInstance!.MapItems.TryAdd(100001, mapItem);
 
             _getPacketHandler.Execute(new GetPacket
             {

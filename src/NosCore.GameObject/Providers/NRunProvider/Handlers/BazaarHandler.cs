@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 
         public Task Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
-            if (requestData.ClientSession.Character.InExchangeOrTrade)
+            if (requestData.ClientSession.Character!.InExchangeOrTrade)
             {
                 return Task.CompletedTask;
             }

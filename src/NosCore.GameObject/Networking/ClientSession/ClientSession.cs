@@ -145,7 +145,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             Broadcaster.Instance.RegisterSession(this);
         }
 
-        public void SetCharacter(Character character)
+        public void SetCharacter(Character? character)
         {
             Character = character;
             HasSelectedCharacter = character != null;

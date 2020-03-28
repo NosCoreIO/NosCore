@@ -316,7 +316,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task UserCanShopFromSession()
         {
             var session2 = PrepareSessionShop();
-            await _session.Character.Buy(session2.Character.Shop, 0, 999);
+            await _session.Character.Buy(session2.Character.Shop!, 0, 999);
             Assert.IsTrue(session2.Character.Gold == 999);
             Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 0);
         }
@@ -325,7 +325,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task UserCanShopFromSessionPartial()
         {
             var session2 = PrepareSessionShop();
-            await _session.Character.Buy(session2.Character.Shop, 0, 998);
+            await _session.Character!.Buy(session2.Character.Shop!, 0, 998);
             Assert.IsTrue(session2.Character.Gold == 998);
             Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 1);
         }
@@ -334,7 +334,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task UserCanNotShopMoreThanShop()
         {
             var session2 = PrepareSessionShop();
-            await _session.Character.Buy(session2.Character.Shop, 1, 501);
+            await _session.Character!.Buy(session2.Character.Shop!, 1, 501);
             Assert.IsTrue(session2.Character.Gold == 0);
             Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 999);
         }
@@ -343,7 +343,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task UserCanShopFull()
         {
             var session2 = PrepareSessionShop();
-            await _session.Character.Buy(session2.Character.Shop, 1, 500);
+            await _session.Character!.Buy(session2.Character.Shop!, 1, 500);
             Assert.IsTrue(session2.Character.Gold == 500);
             Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 499);
         }
@@ -352,8 +352,8 @@ namespace NosCore.Tests.InventoryTests
         public async Task UserCanNotShopTooRich()
         {
             var session2 = PrepareSessionShop();
-            session2.Character.Gold = 999_999_999;
-            await _session.Character.Buy(session2.Character.Shop, 0, 999);
+            session2.Character!.Gold = 999_999_999;
+            await _session.Character!.Buy(session2.Character.Shop!, 0, 999);
             Assert.IsTrue(session2.Character.Gold == 999_999_999);
             Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 999);
             var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);

@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider
             Requests = new Subject<RequestData<Tuple<MapItem, GetPacket>>>();
         }
 
-        public IItemInstance ItemInstance { get; set; }
+        public IItemInstance? ItemInstance { get; set; }
 
         public long? OwnerId { get; set; }
         public DateTime DroppedAt { get; set; }
@@ -69,7 +69,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
         public short PositionY { get; set; }
-        public MapInstance MapInstance { get; set; }
+        public MapInstance? MapInstance { get; set; }
 
         public Subject<RequestData<Tuple<MapItem, GetPacket>>> Requests { get; set; }
 

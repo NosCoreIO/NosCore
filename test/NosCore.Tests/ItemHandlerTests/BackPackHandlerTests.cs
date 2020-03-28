@@ -81,7 +81,7 @@ namespace NosCore.Tests.ItemHandlerTests
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(2), _session.Character.CharacterId);
             _session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (ExtsPacket)_session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
+            var lastpacket = (ExtsPacket?)_session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
             Assert.IsNotNull(lastpacket);
             Assert.AreEqual(1, _session.Character.StaticBonusList.Count);
             Assert.AreEqual(12, _session.Character.InventoryService.Expensions[NoscorePocketType.Etc]);
@@ -113,7 +113,7 @@ namespace NosCore.Tests.ItemHandlerTests
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
             _session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (ExtsPacket)_session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
+            var lastpacket = (ExtsPacket?)_session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
             Assert.IsNotNull(lastpacket);
             Assert.AreEqual(1, _session.Character.StaticBonusList.Count);
             Assert.AreEqual(60, _session.Character.InventoryService.Expensions[NoscorePocketType.Etc]);

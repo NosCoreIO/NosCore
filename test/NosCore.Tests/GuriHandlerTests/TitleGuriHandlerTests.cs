@@ -68,7 +68,7 @@ namespace NosCore.Tests.GuriHandlerTests
                 Type = GuriPacketType.Title,
                 VisualId = 0
             });
-            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
                 _session.Account.Language), lastpacket.Message);
             Assert.AreEqual(1, _session.Character.Titles.Count);
@@ -84,7 +84,7 @@ namespace NosCore.Tests.GuriHandlerTests
                 Type = GuriPacketType.Title,
                 VisualId = 0
             });
-            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.IsNull(lastpacket);
             Assert.AreEqual(1, _session.Character.Titles.Count);
         }
@@ -97,7 +97,7 @@ namespace NosCore.Tests.GuriHandlerTests
                 Type = GuriPacketType.Title,
                 VisualId = 0
             });
-            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.IsNull(lastpacket);
             Assert.AreEqual(0, _session.Character.Titles.Count);
         }
