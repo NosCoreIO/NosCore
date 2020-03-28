@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
@@ -39,7 +40,7 @@ namespace NosCore.PacketHandlers.Command
             _logger = logger;
         }
 
-        public override void Execute(SizePacket sizePacket, ClientSession session)
+        public override Task Execute(SizePacket sizePacket, ClientSession session)
         {
             IAliveEntity entity;
             switch (sizePacket.VisualType)
@@ -56,11 +57,12 @@ namespace NosCore.PacketHandlers.Command
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
                         sizePacket.VisualType);
-                    return;
+                    return Task.CompletedTask;
             }
 
             entity.Size = sizePacket.Size;
             session.Character.MapInstance.SendPacket(entity.GenerateCharSc());
+            return Task.CompletedTask;
         }
     }
 }

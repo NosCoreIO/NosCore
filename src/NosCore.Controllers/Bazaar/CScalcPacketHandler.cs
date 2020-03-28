@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
@@ -55,11 +56,11 @@ namespace NosCore.PacketHandlers.Bazaar
             _itemInstanceDao = itemInstanceDao;
         }
 
-        public override void Execute(CScalcPacket packet, ClientSession clientSession)
+        public override Task Execute(CScalcPacket packet, ClientSession clientSession)
         {
             if (clientSession.Character!.InExchangeOrTrade)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
@@ -80,7 +81,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == bz.ItemInstance.Id);
                         if (itemInstance == null)
                         {
-                            return;
+                            return Task.CompletedTask;
                         }
                         var item = _itemProvider.Convert(itemInstance);
                         item.Id = Guid.NewGuid();
@@ -102,9 +103,8 @@ namespace NosCore.PacketHandlers.Bazaar
                                 Taxes = taxes,
                                 Total = price + taxes
                             });
-                            clientSession.HandlePackets(new[]
+                            return clientSession.HandlePackets(new[]
                                 {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}});
-                            return;
                         }
 
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.BAZAAR_DELETE_ERROR));
@@ -139,6 +139,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 clientSession.SendPacket(new RCScalcPacket
                     {Type = VisualType.Player, Price = 0, RemainingAmount = 0, Amount = 0, Taxes = 0, Total = 0});
             }
+            return Task.CompletedTask;
         }
     }
 }

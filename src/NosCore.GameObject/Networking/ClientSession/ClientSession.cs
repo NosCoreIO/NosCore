@@ -161,8 +161,8 @@ namespace NosCore.GameObject.Networking.ClientSession
             {
                 return;
             }
-
-            HandlePackets(buff, context);
+            //https://github.com/Azure/DotNetty/issues/265
+            Task.Run(async () => { await HandlePackets(buff, context); });
         }
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
@@ -372,7 +372,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             return Language.Instance.GetMessageFromKey(languageKey, Account.Language);
         }
 
-        public void HandlePackets(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext contex = null)
+        public async Task HandlePackets(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext contex = null)
         {
             foreach (var pack in packetConcatenated)
             {
@@ -464,7 +464,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                                     continue;
                                 }
 
-                                handler.Execute(packet, this);
+                                await handler.Execute(packet, this);
                             }
                         }
                         else
@@ -487,7 +487,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         s.GetType().BaseType.GenericTypeArguments[0] == packet.GetType());
                     if (handler != null)
                     {
-                        handler.Execute(packet, this);
+                        await handler.Execute(packet, this);
                     }
                     else
                     {

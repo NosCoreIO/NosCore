@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
@@ -55,7 +56,7 @@ namespace NosCore.PacketHandlers.Chat
             _packetHttpClient = packetHttpClient;
         }
 
-        public override void Execute(BtkPacket btkPacket, ClientSession session)
+        public override Task Execute(BtkPacket btkPacket, ClientSession session)
         {
             var friendlist = _friendHttpClient.GetListFriends(session.Character.VisualId);
 
@@ -63,7 +64,7 @@ namespace NosCore.PacketHandlers.Chat
             {
                 _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
                     session.Account.Language));
-                return;
+                return Task.CompletedTask;
             }
 
             var message = btkPacket.Message;
@@ -80,7 +81,7 @@ namespace NosCore.PacketHandlers.Chat
             if (receiverSession != null)
             {
                 receiverSession.SendPacket(session.Character.GenerateTalk(message));
-                return;
+                return Task.CompletedTask;
             }
 
             var receiver = _connectedAccountHttpClient.GetCharacter(btkPacket.CharacterId, null);
@@ -91,7 +92,7 @@ namespace NosCore.PacketHandlers.Chat
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, session.Account.Language)
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             _packetHttpClient.BroadcastPacket(new PostedPacket
@@ -104,6 +105,7 @@ namespace NosCore.PacketHandlers.Chat
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
             }, receiver.Item2.ChannelId);
+            return Task.CompletedTask;
         }
     }
 }

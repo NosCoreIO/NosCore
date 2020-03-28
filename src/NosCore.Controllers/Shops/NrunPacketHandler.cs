@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
@@ -42,7 +43,7 @@ namespace NosCore.PacketHandlers.Shops
             _nRunProvider = nRunProvider;
         }
 
-        public override void Execute(NrunPacket nRunPacket, ClientSession clientSession)
+        public override Task Execute(NrunPacket nRunPacket, ClientSession clientSession)
         {
             var forceNull = false;
             IAliveEntity aliveEntity;
@@ -62,16 +63,17 @@ namespace NosCore.PacketHandlers.Shops
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
                         nRunPacket.Type);
-                    return;
+                    return Task.CompletedTask;
             }
 
             if ((aliveEntity == null) && !forceNull)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
-                return;
+                return Task.CompletedTask;
             }
 
             _nRunProvider.NRunLaunch(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity, nRunPacket));
+            return Task.CompletedTask;
         }
     }
 }

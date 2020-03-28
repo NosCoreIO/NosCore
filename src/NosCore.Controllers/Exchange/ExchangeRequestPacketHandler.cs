@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Exchanges;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Exchanges;
@@ -49,7 +50,7 @@ namespace NosCore.PacketHandlers.Exchange
             _blacklistHttpClient = blacklistHttpClient;
         }
 
-        public override void Execute(ExchangeRequestPacket packet, ClientSession clientSession)
+        public override Task Execute(ExchangeRequestPacket packet, ClientSession clientSession)
         {
             var target = Broadcaster.Instance.GetCharacter(s =>
                 (s.VisualId == packet.VisualId) &&
@@ -60,13 +61,13 @@ namespace NosCore.PacketHandlers.Exchange
                 (packet.RequestType == RequestExchangeType.Cancelled)))
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_FIND_CHARACTER));
-                return;
+                return Task.CompletedTask;
             }
 
             if (clientSession.Character.InShop || (target?.InShop ?? false))
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLAYER_IN_SHOP));
-                return;
+                return Task.CompletedTask;
             }
 
             switch (packet.RequestType)
@@ -81,7 +82,7 @@ namespace NosCore.PacketHandlers.Exchange
                                 clientSession.Account.Language),
                             Type = MessageType.White
                         });
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     if (target.ExchangeBlocked)
@@ -90,7 +91,7 @@ namespace NosCore.PacketHandlers.Exchange
                             Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED,
                                 clientSession.Account.Language),
                             SayColorType.Purple));
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     var blacklisteds = _blacklistHttpClient.GetBlackLists(clientSession.Character.VisualId);
@@ -101,7 +102,7 @@ namespace NosCore.PacketHandlers.Exchange
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
                                 clientSession.Account.Language)
                         });
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     if (clientSession.Character.InShop || target.InShop)
@@ -113,7 +114,7 @@ namespace NosCore.PacketHandlers.Exchange
                                     clientSession.Account.Language),
                             Type = MessageType.White
                         });
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     clientSession.SendPacket(new ModalPacket
@@ -132,17 +133,17 @@ namespace NosCore.PacketHandlers.Exchange
                         Question = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
                             clientSession.Account.Language), clientSession.Character.Name)
                     });
-                    return;
+                    return Task.CompletedTask;
 
                 case RequestExchangeType.List:
                     if (!_exchangeProvider.OpenExchange(clientSession.Character.VisualId, target.CharacterId))
                     {
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     clientSession.SendPacket(clientSession.Character.GenerateServerExcListPacket(null, null, null));
                     target.SendPacket(target.GenerateServerExcListPacket(null, null, null));
-                    return;
+                    return Task.CompletedTask;
 
                 case RequestExchangeType.Declined:
                     clientSession.SendPacket(clientSession.Character.GenerateSay(
@@ -151,7 +152,7 @@ namespace NosCore.PacketHandlers.Exchange
                         SayColorType.Yellow));
                     target?.SendPacket(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED),
                         SayColorType.Yellow));
-                    return;
+                    return Task.CompletedTask;
 
                 case RequestExchangeType.Confirmed:
                     var targetId = _exchangeProvider.GetTargetId(clientSession.Character.CharacterId);
@@ -159,7 +160,7 @@ namespace NosCore.PacketHandlers.Exchange
                     if (!targetId.HasValue)
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE));
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     var exchangeTarget = Broadcaster.Instance.GetCharacter(s =>
@@ -168,7 +169,7 @@ namespace NosCore.PacketHandlers.Exchange
                     if (exchangeTarget == null)
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_FIND_CHARACTER));
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     _exchangeProvider.ConfirmExchange(clientSession.Character.VisualId);
@@ -181,7 +182,7 @@ namespace NosCore.PacketHandlers.Exchange
                             Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR,
                                 clientSession.Account.Language), exchangeTarget.Name)
                         });
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     var success = _exchangeProvider.ValidateExchange(clientSession, exchangeTarget);
@@ -239,14 +240,14 @@ namespace NosCore.PacketHandlers.Exchange
                     closeExchange = _exchangeProvider.CloseExchange(clientSession.Character.VisualId, success.Item1);
                     exchangeTarget?.SendPacket(closeExchange);
                     clientSession.SendPacket(closeExchange);
-                    return;
+                    return Task.CompletedTask;
 
                 case RequestExchangeType.Cancelled:
                     var cancelId = _exchangeProvider.GetTargetId(clientSession.Character.CharacterId);
                     if (!cancelId.HasValue)
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.USER_NOT_IN_EXCHANGE));
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     var cancelTarget = Broadcaster.Instance.GetCharacter(s => s.VisualId == cancelId.Value);
@@ -255,7 +256,7 @@ namespace NosCore.PacketHandlers.Exchange
                         _exchangeProvider.CloseExchange(clientSession.Character.VisualId, ExchangeResultType.Failure);
                     cancelTarget?.SendPacket(closeExchange);
                     clientSession.SendPacket(closeExchange);
-                    return;
+                    return Task.CompletedTask;
 
                 default:
                     throw new ArgumentOutOfRangeException();

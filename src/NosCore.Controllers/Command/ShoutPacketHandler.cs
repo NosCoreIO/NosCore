@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
@@ -45,7 +46,7 @@ namespace NosCore.PacketHandlers.Command
             _packetHttpClient = packetHttpClient;
         }
 
-        public override void Execute(ShoutPacket shoutPacket, ClientSession session)
+        public override Task Execute(ShoutPacket shoutPacket, ClientSession session)
         {
             var message =
                 $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, session.Account.Language)}) {shoutPacket.Message}";
@@ -81,6 +82,7 @@ namespace NosCore.PacketHandlers.Command
             };
 
             _packetHttpClient.BroadcastPackets(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
+            return Task.CompletedTask;
         }
     }
 }

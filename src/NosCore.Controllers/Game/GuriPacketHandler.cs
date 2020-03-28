@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
@@ -33,9 +34,10 @@ namespace NosCore.PacketHandlers.Game
             _guriProvider = guriProvider;
         }
 
-        public override void Execute(GuriPacket guriPacket, ClientSession session)
+        public override Task Execute(GuriPacket guriPacket, ClientSession session)
         {
             _guriProvider.GuriLaunch(session, guriPacket);
+            return Task.CompletedTask;
         }
     }
 }

@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 
@@ -24,7 +25,7 @@ namespace NosCore.GameObject
 {
     public interface IPacketHandler
     {
-        void Execute(IPacket packet, ClientSession clientSession);
+        Task Execute(IPacket packet, ClientSession clientSession);
     }
 
     public interface ILoginPacketHandler
@@ -37,16 +38,16 @@ namespace NosCore.GameObject
 
     public interface IPacketHandler<in TPacket> : IPacketHandler where TPacket : IPacket
     {
-        void Execute(TPacket packet, ClientSession clientSession);
+        Task Execute(TPacket packet, ClientSession clientSession);
     }
 
     public abstract class PacketHandler<TPacket> : IPacketHandler<TPacket> where TPacket : IPacket
     {
-        public abstract void Execute(TPacket packet, ClientSession clientSession);
+        public abstract Task Execute(TPacket packet, ClientSession clientSession);
 
-        public void Execute(IPacket packet, ClientSession clientSession)
+        public Task Execute(IPacket packet, ClientSession clientSession)
         {
-            Execute((TPacket) packet, clientSession);
+            return Execute((TPacket) packet, clientSession);
         }
     }
 }

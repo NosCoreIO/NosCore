@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
@@ -55,7 +56,7 @@ namespace NosCore.GameObject.Networking.LoginService
             _channelHttpClient = channelHttpClient;
         }
 
-        public void Login(string? username, string md5String, ClientVersionSubPacket clientVersion,
+        public async Task Login(string? username, string md5String, ClientVersionSubPacket clientVersion,
             ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth)
         {
             try
@@ -86,7 +87,7 @@ namespace NosCore.GameObject.Networking.LoginService
 
                 if(useApiAuth)
                 {
-                    username = _authHttpClient.GetAwaitingConnection(null, passwordToken, clientSession.SessionId);
+                    username = await _authHttpClient.GetAwaitingConnection(null, passwordToken, clientSession.SessionId);
                 }
 
                 var acc = _accountDao.FirstOrDefault(s => s.Name.ToLower() == username.ToLower());

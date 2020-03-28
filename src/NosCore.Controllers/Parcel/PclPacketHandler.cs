@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Parcel;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Parcel;
@@ -50,13 +51,13 @@ namespace NosCore.PacketHandlers.Parcel
             _itemInstanceDao = itemInstanceDao;
         }
 
-        public override void Execute(PclPacket getGiftPacket, ClientSession clientSession)
+        public override Task Execute(PclPacket getGiftPacket, ClientSession clientSession)
         {
             var isCopy = getGiftPacket.Type == 2;
             var mail = _mailHttpClient.GetGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
             if (mail == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if ((getGiftPacket.Type == 4) && (mail.ItemInstance != null))
@@ -94,6 +95,7 @@ namespace NosCore.PacketHandlers.Parcel
                 clientSession.SendPacket(new ParcelPacket {Type = 7, Unknown = 1, Id = (short) getGiftPacket.GiftId});
                 _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
             }
+            return Task.CompletedTask;
         }
     }
 }

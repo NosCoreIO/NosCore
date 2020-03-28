@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Parcel;
 using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.JsonPatch;
@@ -42,7 +43,7 @@ namespace NosCore.PacketHandlers.Parcel
             _characterDao = characterDao;
         }
 
-        public override void Execute(PstClientPacket pstClientPacket, ClientSession clientSession)
+        public override Task Execute(PstClientPacket pstClientPacket, ClientSession clientSession)
         {
             var isCopy = pstClientPacket.Type == 2;
             var mail = _mailHttpClient.GetGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
@@ -51,7 +52,7 @@ namespace NosCore.PacketHandlers.Parcel
                 case 3:
                     if (mail == null)
                     {
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     var patch = new JsonPatchDocument<MailDto>();
@@ -62,7 +63,7 @@ namespace NosCore.PacketHandlers.Parcel
                 case 2:
                     if (mail == null)
                     {
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     _mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
@@ -75,7 +76,7 @@ namespace NosCore.PacketHandlers.Parcel
                 case 1:
                     if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
                     {
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     var dest = _characterDao.FirstOrDefault(s => s.Name == pstClientPacket.ReceiverName);
@@ -99,8 +100,9 @@ namespace NosCore.PacketHandlers.Parcel
 
                     break;
                 default:
-                    return;
+                    return Task.CompletedTask;
             }
+            return Task.CompletedTask;
         }
     }
 }

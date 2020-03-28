@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
@@ -38,7 +39,7 @@ namespace NosCore.PacketHandlers.Movement
             _logger = logger;
         }
 
-        public override void Execute(ClientDirPacket dirpacket, ClientSession session)
+        public override Task Execute(ClientDirPacket dirpacket, ClientSession session)
         {
             IAliveEntity entity;
             switch (dirpacket.VisualType)
@@ -49,10 +50,11 @@ namespace NosCore.PacketHandlers.Movement
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
                         dirpacket.VisualType);
-                    return;
+                    return Task.CompletedTask;
             }
 
             entity.ChangeDir(dirpacket.Direction);
+            return Task.CompletedTask;
         }
     }
 }

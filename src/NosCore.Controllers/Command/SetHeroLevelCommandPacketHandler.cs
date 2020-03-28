@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
@@ -50,12 +51,12 @@ namespace NosCore.PacketHandlers.Command
             _statHttpClient = statHttpClient;
         }
 
-        public override void Execute(SetHeroLevelCommandPacket levelPacket, ClientSession session)
+        public override Task Execute(SetHeroLevelCommandPacket levelPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
                 session.Character.SetHeroLevel(levelPacket.Level);
-                return;
+                return Task.CompletedTask;
             }
 
             var data = new StatData
@@ -92,10 +93,11 @@ namespace NosCore.PacketHandlers.Command
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             _statHttpClient.ChangeStat(data, config);
+            return Task.CompletedTask;
         }
     }
 }

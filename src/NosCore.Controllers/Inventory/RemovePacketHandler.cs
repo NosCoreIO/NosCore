@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -40,12 +41,12 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override void Execute(RemovePacket removePacket, ClientSession clientSession)
+        public override Task Execute(RemovePacket removePacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrShop)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
-                return;
+                return Task.CompletedTask;
             }
 
             var inventory =
@@ -53,7 +54,7 @@ namespace NosCore.PacketHandlers.Inventory
                     NoscorePocketType.Wear);
             if (inventory == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var inv = clientSession.Character.InventoryService.MoveInPocket((short) removePacket.InventorySlot,
@@ -67,7 +68,7 @@ namespace NosCore.PacketHandlers.Inventory
                         clientSession.Account.Language),
                     Type = 0
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             clientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot));
@@ -80,6 +81,7 @@ namespace NosCore.PacketHandlers.Inventory
                 clientSession.Character.MapInstance.SendPacket(
                     clientSession.Character.GeneratePairy(null));
             }
+            return Task.CompletedTask;
         }
     }
 }

@@ -31,6 +31,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
@@ -48,7 +49,7 @@ namespace NosCore.PacketHandlers.Friend
             _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
-        public override void Execute(FinsPacket finsPacket, ClientSession session)
+        public override Task Execute(FinsPacket finsPacket, ClientSession session)
         {
             var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == finsPacket.CharacterId);
             if (targetCharacter != null)
@@ -139,6 +140,7 @@ namespace NosCore.PacketHandlers.Friend
                         throw new ArgumentException();
                 }
             }
+            return Task.CompletedTask;
         }
     }
 }

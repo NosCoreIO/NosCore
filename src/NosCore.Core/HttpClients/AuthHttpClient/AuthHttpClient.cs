@@ -19,6 +19,7 @@
 
 using System;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 
@@ -34,14 +35,16 @@ namespace NosCore.Core.HttpClients.AuthHttpClient
             RequireConnection = true;
         }
 
-        public string? GetAwaitingConnection(string name, string packetPassword, int clientSessionSessionId)
+        public async Task<string?> GetAwaitingConnection(string? name, string packetPassword,
+            int clientSessionSessionId)
         {
             var client = Connect();
             var response = client
                 .GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={name}&token={packetPassword}&sessionId={clientSessionSessionId}")).Result;
             if (response.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<string?>(response.Content.ReadAsStringAsync().Result);
+                var result = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<string>(result);
             }
 
             throw new HttpRequestException(response.Headers.ToString());

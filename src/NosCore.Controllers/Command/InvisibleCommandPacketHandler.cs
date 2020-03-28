@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -27,12 +28,13 @@ namespace NosCore.PacketHandlers.Command
 {
     public class InvisibleCommandPacketHandler : PacketHandler<InvisibleCommandPacket>, IWorldPacketHandler
     {
-        public override void Execute(InvisibleCommandPacket changeClassPacket, ClientSession session)
+        public override Task Execute(InvisibleCommandPacket changeClassPacket, ClientSession session)
         {
             session.Character.Camouflage = !session.Character.Camouflage;
             session.Character.Invisible = !session.Character.Invisible;
             session.Character.MapInstance.SendPacket(session.Character.GenerateInvisible());
             //Session.SendPacket(Session.Character.GenerateEq());
+            return Task.CompletedTask;
         }
     }
 }

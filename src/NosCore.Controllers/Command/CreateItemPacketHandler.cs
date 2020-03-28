@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
@@ -53,7 +54,7 @@ namespace NosCore.PacketHandlers.Command
             _worldConfiguration = worldConfiguration;
         }
 
-        public override void Execute(CreateItemPacket createItemPacket, ClientSession session)
+        public override Task Execute(CreateItemPacket createItemPacket, ClientSession session)
         {
             var vnum = createItemPacket.VNum;
             sbyte rare = 0;
@@ -62,7 +63,7 @@ namespace NosCore.PacketHandlers.Command
             short amount = 1;
             if (vnum == 1046)
             {
-                return; // cannot create gold as item, use $Gold instead
+                return Task.CompletedTask; // cannot create gold as item, use $Gold instead
             }
 
             var iteminfo = _items.Find(item => item.VNum == vnum);
@@ -73,7 +74,7 @@ namespace NosCore.PacketHandlers.Command
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, session.Account.Language),
                     Type = 0
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             if (iteminfo.IsColored || (iteminfo.Effect == ItemEffectType.BoxEffect))
@@ -137,7 +138,7 @@ namespace NosCore.PacketHandlers.Command
                         session.Account.Language),
                     Type = 0
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             session.SendPacket(inv.GeneratePocketChange());
@@ -170,6 +171,7 @@ namespace NosCore.PacketHandlers.Command
             session.SendPacket(session.Character.GenerateSay(
                 $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, session.Account.Language)}: {iteminfo.Name[session.Account.Language]} x {amount}",
                 SayColorType.Green));
+            return Task.CompletedTask;
         }
     }
 }

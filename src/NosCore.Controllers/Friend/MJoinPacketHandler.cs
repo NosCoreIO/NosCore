@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -42,7 +43,7 @@ namespace NosCore.PacketHandlers.Friend
             _minilandProvider = minilandProvider;
         }
 
-        public override void Execute(MJoinPacket mJoinPacket, ClientSession session)
+        public override Task Execute(MJoinPacket mJoinPacket, ClientSession session)
         {
             var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == mJoinPacket.VisualId);
             var friendList = _friendHttpClient.GetListFriends(session.Character.CharacterId);
@@ -62,7 +63,7 @@ namespace NosCore.PacketHandlers.Friend
                             .Contains(target.VisualId))
                     {
                         session.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
-                        return;
+                        return Task.CompletedTask;
                     }
                     session.SendPacket(new InfoPacket
                     {
@@ -71,6 +72,7 @@ namespace NosCore.PacketHandlers.Friend
                     });
                 }
             }
+            return Task.CompletedTask;
         }
     }
 }

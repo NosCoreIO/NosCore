@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -30,7 +31,7 @@ namespace NosCore.PacketHandlers.Chat
 {
     public class ClientSayPacketHandler : PacketHandler<ClientSayPacket>, IWorldPacketHandler
     {
-        public override void Execute(ClientSayPacket clientSayPacket, ClientSession session)
+        public override Task Execute(ClientSayPacket clientSayPacket, ClientSession session)
         {
             //TODO: Add a penalty check when it will be ready
             const SayColorType type = SayColorType.White;
@@ -39,6 +40,7 @@ namespace NosCore.PacketHandlers.Chat
                 Message = clientSayPacket.Message,
                 Type = type
             }), new EveryoneBut(session.Channel.Id)); //TODO  ReceiverType.AllExceptMeAndBlacklisted
+            return Task.CompletedTask;
         }
     }
 }

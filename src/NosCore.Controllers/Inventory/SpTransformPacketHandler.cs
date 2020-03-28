@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Specialists;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -34,12 +35,8 @@ namespace NosCore.PacketHandlers.Inventory
 {
     public class SpTransformPacketHandler : PacketHandler<SpTransformPacket>, IWorldPacketHandler
     {
-        public override void Execute(SpTransformPacket spTransformPacket, ClientSession clientSession)
+        public override Task Execute(SpTransformPacket spTransformPacket, ClientSession clientSession)
         {
-            var specialistInstance =
-                clientSession.Character.InventoryService.LoadBySlotAndType((byte) EquipmentType.Sp,
-                    NoscorePocketType.Wear)?.ItemInstance as SpecialistInstance;
-
             if (spTransformPacket.Type == SlPacketType.ChangePoints)
             {
                 //TODO set points
@@ -48,17 +45,18 @@ namespace NosCore.PacketHandlers.Inventory
             {
                 if (clientSession.Character.IsSitting)
                 {
-                    return;
+                    return Task.CompletedTask;
                 }
 
-                if (specialistInstance == null)
+                if (!(clientSession.Character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp,
+                    NoscorePocketType.Wear)?.ItemInstance is SpecialistInstance specialistInstance))
                 {
                     clientSession.SendPacket(new MsgPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_SP, clientSession.Account.Language)
                     });
 
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 if (clientSession.Character.IsVehicled)
@@ -68,7 +66,7 @@ namespace NosCore.PacketHandlers.Inventory
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE,
                             clientSession.Account.Language)
                     });
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 var currentRunningSeconds = (SystemTime.Now() - clientSession.Character.LastSp).TotalSeconds;
@@ -87,7 +85,7 @@ namespace NosCore.PacketHandlers.Inventory
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS,
                                 clientSession.Account.Language)
                         });
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     if (currentRunningSeconds >= clientSession.Character.SpCooldown)
@@ -102,7 +100,7 @@ namespace NosCore.PacketHandlers.Inventory
                             {
                                 Type = 3,
                                 Delay = 5000,
-                                Packet = new SpTransformPacket {Type = SlPacketType.WearSp}
+                                Packet = new SpTransformPacket { Type = SlPacketType.WearSp }
                             });
                             clientSession.Character.MapInstance.SendPacket(new GuriPacket
                             {
@@ -118,11 +116,12 @@ namespace NosCore.PacketHandlers.Inventory
                         {
                             Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
                                     clientSession.Account.Language),
-                                clientSession.Character.SpCooldown - (int) Math.Round(currentRunningSeconds))
+                                clientSession.Character.SpCooldown - (int)Math.Round(currentRunningSeconds))
                         });
                     }
                 }
             }
+            return Task.CompletedTask;
         }
     }
 }

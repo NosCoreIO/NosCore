@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
@@ -32,7 +33,7 @@ namespace NosCore.PacketHandlers.Movement
 {
     public class WalkPacketHandler : PacketHandler<WalkPacket>, IWorldPacketHandler
     {
-        public override void Execute(WalkPacket walkPacket, ClientSession session)
+        public override Task Execute(WalkPacket walkPacket, ClientSession session)
         {
             var distance = (int) Heuristic.Octile(Math.Abs(session.Character.PositionX - walkPacket.XCoordinate),
                 Math.Abs(session.Character.PositionY - walkPacket.YCoordinate));
@@ -40,14 +41,14 @@ namespace NosCore.PacketHandlers.Movement
             if (((session.Character.Speed < walkPacket.Speed)
                 && (session.Character.LastSpeedChange.AddSeconds(5) <= SystemTime.Now())) || (distance > 60))
             {
-                return;
+                return Task.CompletedTask;
             }
 
             //todo check speed and distance
             if ((walkPacket.XCoordinate + walkPacket.YCoordinate) % 3 % 2 != walkPacket.Unknown)
             {
                 //todo log and disconnect
-                return;
+                return Task.CompletedTask;
             }
 
             if (session.Character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance)
@@ -62,6 +63,7 @@ namespace NosCore.PacketHandlers.Movement
             session.Character.MapInstance?.SendPacket(session.Character.GenerateMove(),
                 new EveryoneBut(session.Channel.Id));
             session.Character.LastMove = SystemTime.Now();
+            return Task.CompletedTask;
         }
     }
 }

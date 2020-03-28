@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
@@ -25,9 +26,9 @@ namespace NosCore.PacketHandlers.Inventory
 {
     public class WearPacketHandler : PacketHandler<WearPacket>, IWorldPacketHandler
     {
-        public override void Execute(WearPacket wearPacket, ClientSession clientSession)
+        public override Task Execute(WearPacket wearPacket, ClientSession clientSession)
         {
-            clientSession.HandlePackets(new[]
+            return clientSession.HandlePackets(new[]
             {
                 new UseItemPacket
                 {

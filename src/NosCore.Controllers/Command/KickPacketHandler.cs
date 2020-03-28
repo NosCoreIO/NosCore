@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
@@ -36,7 +37,7 @@ namespace NosCore.PacketHandlers.Command
             _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
-        public override void Execute(KickPacket kickPacket, ClientSession session)
+        public override Task Execute(KickPacket kickPacket, ClientSession session)
         {
             var receiver = _connectedAccountHttpClient.GetCharacter(null, kickPacket.Name);
 
@@ -47,10 +48,11 @@ namespace NosCore.PacketHandlers.Command
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             _connectedAccountHttpClient.Disconnect(receiver.Item2.ConnectedCharacter.Id);
+            return Task.CompletedTask;
         }
     }
 }

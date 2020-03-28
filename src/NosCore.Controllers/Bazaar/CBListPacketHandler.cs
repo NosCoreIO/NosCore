@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.ServerPackets.Auction;
 using NosCore.Packets.ServerPackets.Inventory;
@@ -43,7 +44,7 @@ namespace NosCore.PacketHandlers.Bazaar
             _items = items;
         }
 
-        public override void Execute(CBListPacket packet, ClientSession clientSession)
+        public override Task Execute(CBListPacket packet, ClientSession clientSession)
         {
             var itemssearch = packet.ItemVNumFilter.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
 
@@ -105,6 +106,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         EInfo = new EInfoPacket()
                     }).ToList()
             });
+            return Task.CompletedTask;
         }
     }
 }

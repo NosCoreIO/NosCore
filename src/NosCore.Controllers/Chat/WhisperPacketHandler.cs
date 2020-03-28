@@ -20,6 +20,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -61,7 +62,7 @@ namespace NosCore.PacketHandlers.Chat
             _packetHttpClient = packetHttpClient;
         }
 
-        public override void Execute(WhisperPacket whisperPacket, ClientSession session)
+        public override Task Execute(WhisperPacket whisperPacket, ClientSession session)
         {
             try
             {
@@ -102,7 +103,7 @@ namespace NosCore.PacketHandlers.Chat
                     session.SendPacket(session.Character!.GenerateSay(
                         Language.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, session.Account.Language),
                         SayColorType.Yellow));
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 var blacklisteds = _blacklistHttpClient.GetBlackLists(session.Character!.VisualId);
@@ -114,7 +115,7 @@ namespace NosCore.PacketHandlers.Chat
                             session.Account.Language),
                         Type = SayColorType.Yellow
                     });
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
@@ -137,6 +138,7 @@ namespace NosCore.PacketHandlers.Chat
             {
                 _logger.Error("Whisper failed.", e);
             }
+            return Task.CompletedTask;
         }
     }
 }

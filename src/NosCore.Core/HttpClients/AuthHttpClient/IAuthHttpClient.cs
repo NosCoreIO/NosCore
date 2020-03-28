@@ -17,10 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
+
 namespace NosCore.Core.HttpClients.AuthHttpClient
 {
     public interface IAuthHttpClient
     {
-        string? GetAwaitingConnection(string? name, string packetPassword, int clientSessionSessionId);
+        Task<string?> GetAwaitingConnection(string? name, string packetPassword, int clientSessionSessionId);
     }
 }
