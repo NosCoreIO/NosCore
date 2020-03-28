@@ -132,6 +132,11 @@ namespace NosCore.Core.Controllers
         [HttpPut]
         public IActionResult UpdateToken([FromBody] Channel data)
         {
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
             var channel = MasterClientListSingleton.Instance.Channels.First(s =>
                 (s.Name == data.ClientName) && (s.Host == data.Host) && (s.Port == data.Port));
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TOKEN_UPDATED), channel.Id.ToString(CultureInfo.CurrentCulture),

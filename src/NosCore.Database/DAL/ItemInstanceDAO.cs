@@ -219,7 +219,7 @@ namespace NosCore.Database
                     {
                         var entity = dto.Item1;
                         var entityfound =
-                            entityfounds.FirstOrDefault(s => (dynamic) dbkey.GetValue(s, null) == (dynamic) dto.Item2);
+                            entityfounds.FirstOrDefault(s => (dynamic?) dbkey?.GetValue(s, null) == (dynamic) dto.Item2);
                         if (entityfound != null)
                         {
                             context.Entry(entityfound).CurrentValues.SetValues(entity);
