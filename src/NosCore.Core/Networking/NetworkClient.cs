@@ -51,12 +51,10 @@ namespace NosCore.Core.Networking
         public int SessionId { get; set; }
         public ConcurrentQueue<IPacket?> LastPackets { get; }
 
-        public long ClientId { get; set; }
-
         public void Disconnect()
         {
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FORCED_DISCONNECTION),
-                ClientId);
+                SessionId);
             Channel?.DisconnectAsync();
         }
 
@@ -96,7 +94,7 @@ namespace NosCore.Core.Networking
                     case SocketError.ConnectionReset:
                         _logger.Information(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED),
-                            ClientId);
+                            SessionId);
                         break;
                     default:
                         _logger.Fatal(exception.StackTrace);

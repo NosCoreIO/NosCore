@@ -24,7 +24,7 @@ namespace NosCore.Core.Networking
 {
     public interface INetworkClient
     {
-        long ClientId { get; set; }
+        int SessionId { get; set; }
 
         void Disconnect();
 

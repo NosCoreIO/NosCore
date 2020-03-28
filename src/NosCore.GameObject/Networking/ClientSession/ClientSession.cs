@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -68,6 +69,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
         private Character? _character;
         private int? _waitForPacketsAmount;
+        private ConcurrentQueue<Tuple<IEnumerable<ushort?>, Task>> _packetHandlingQueue = new ConcurrentQueue<Tuple<IEnumerable<ushort?>, Task>>();
 
         public ClientSession(ServerConfiguration configuration,
             ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
@@ -161,8 +163,11 @@ namespace NosCore.GameObject.Networking.ClientSession
             {
                 return;
             }
+
             //https://github.com/Azure/DotNetty/issues/265
-            Task.Run(async () => { await HandlePackets(buff, context); }).ConfigureAwait(false);
+            var runner = Task.Run<Task>(async () =>
+                await HandlePackets(buff, context)
+            ).Result;
         }
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
@@ -387,7 +392,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         if ((LastKeepAliveIdentity != 0) && (packet.KeepAliveId != LastKeepAliveIdentity + 1))
                         {
                             _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPTED_KEEPALIVE),
-                                ClientId);
+                                SessionId);
                             Disconnect();
                             return;
                         }
