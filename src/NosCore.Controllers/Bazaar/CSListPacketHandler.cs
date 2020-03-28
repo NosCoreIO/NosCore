@@ -86,7 +86,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 }
             }
 
-            clientSession.SendPacket(new RcsListPacket
+            await clientSession.SendPacket(new RcsListPacket
             {
                 PageNumber = packet.Index,
                 Items = list

@@ -159,7 +159,11 @@ namespace NosCore.Core.Controllers
         {
             if (token != "thisisgfmode")
             {
-                var sessionGuid = HexStringToString(token ?? "");
+                if (token == null || token == "NONE_SESSION_TICKET")
+                {
+                    return Ok(null);
+                }
+                var sessionGuid = HexStringToString(token);
                 if (!SessionFactory.Instance.AuthCodes.ContainsKey(sessionGuid))
                 {
                     return Ok(null);

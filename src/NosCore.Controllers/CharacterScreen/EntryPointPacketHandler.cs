@@ -94,7 +94,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 if (alreadyConnnected)
                 {
-                    clientSession.Disconnect();
+                    await clientSession.Disconnect();
                     return;
                 }
 
@@ -123,14 +123,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     else
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD));
-                        clientSession.Disconnect();
+                        await clientSession.Disconnect();
                         return;
                     }
                 }
                 else
                 {
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT));
-                    clientSession.Disconnect();
+                    await clientSession.Disconnect();
                     return;
                 }
             }
@@ -141,7 +141,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 clientSession.Account!.Name);
 
             // load characterlist packet for each character in Character
-            clientSession.SendPacket(new ClistStartPacket {Type = 0});
+            await clientSession.SendPacket(new ClistStartPacket {Type = 0});
             foreach (var character in characters.Select(characterDto => characterDto.Adapt<Character>()))
             {
                 var equipment = new WearableInstance[16];
@@ -173,7 +173,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
 
                 // 1 1 before long string of -1.-1 = act completion
-                clientSession.SendPacket(new ClistPacket
+                await clientSession.SendPacket(new ClistPacket
                 {
                     Slot = character.Slot,
                     Name = character.Name,
@@ -207,7 +207,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 });
             }
 
-            clientSession.SendPacket(new ClistEndPacket());
+            await clientSession.SendPacket(new ClistEndPacket());
         }
     }
 }

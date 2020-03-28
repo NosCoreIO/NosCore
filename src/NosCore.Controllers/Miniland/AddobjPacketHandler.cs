@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Miniland
 
             if (clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
             {
-                clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_THIS_MINILANDOBJECT,
                         clientSession.Account.Language)
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Miniland
 
             if (_minilandProvider.GetMiniland(clientSession.Character.CharacterId).State != MinilandState.Lock)
             {
-                clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_NEED_LOCK,
                         clientSession.Account.Language)
@@ -100,10 +100,10 @@ namespace NosCore.PacketHandlers.Miniland
 
             _minilandProvider.AddMinilandObject(minilandobj, clientSession.Character.CharacterId, minilandobject);
 
-            clientSession.SendPacket(minilandobj.GenerateEffect());
-            clientSession.SendPacket(new MinilandPointPacket
+            await clientSession.SendPacket(minilandobj.GenerateEffect());
+            await clientSession.SendPacket(new MinilandPointPacket
                 {MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100});
-            clientSession.SendPacket(minilandobj.GenerateMapDesignObject());
+            await clientSession.SendPacket(minilandobj.GenerateMapDesignObject());
         }
     }
 }

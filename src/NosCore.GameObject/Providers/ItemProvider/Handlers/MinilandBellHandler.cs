@@ -45,36 +45,36 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
         public bool Condition(Item.Item item) => item.Effect == ItemEffectType.Teleport && item.EffectValue == 2;
 
-        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public async Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
 
             if (requestData.ClientSession.Character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance)
             {
-                requestData.ClientSession.Character.SendPacket(new SayPacket
+                await requestData.ClientSession.Character.SendPacket(new SayPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE,
                         requestData.ClientSession.Character.Account.Language),
                     Type = SayColorType.Yellow
                 });
-                return Task.CompletedTask;
+                return;
             }
 
             if (requestData.ClientSession.Character.IsVehicled)
             {
-                requestData.ClientSession.Character.SendPacket(new SayPacket
+                await requestData.ClientSession.Character.SendPacket(new SayPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE_IN_VEHICLE,
                         requestData.ClientSession.Character.Account.Language),
                     Type = SayColorType.Yellow
                 });
-                return Task.CompletedTask;
+                return;
             }
 
             if (packet.Mode == 0)
             {
-                requestData.ClientSession.SendPacket(new DelayPacket
+                await requestData.ClientSession.SendPacket(new DelayPacket
                 {
                     Type = 3,
                     Delay = 5000,
@@ -82,15 +82,14 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                         itemInstance.Slot,
                         2, 0)
                 });
-                return Task.CompletedTask;
+                return;
             }
 
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            requestData.ClientSession.SendPacket(
+            await requestData.ClientSession.SendPacket(
                 itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot));
             var miniland = _minilandProvider.GetMiniland(requestData.ClientSession.Character.CharacterId);
-            requestData.ClientSession.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
-            return Task.CompletedTask;
+            await requestData.ClientSession.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
         }
     }
 }

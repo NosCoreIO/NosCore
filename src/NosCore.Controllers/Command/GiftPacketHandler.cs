@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Command
 
             if (receiver.Item2 == null)
             {
-                session.SendPacket(new InfoPacket
+                await session.SendPacket(new InfoPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Command
 
             await _mailHttpClient.SendGift(session.Character!, receiver.Item2.ConnectedCharacter.Id, giftPacket.VNum,
                 giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false);
-            session.SendPacket(session.Character!.GenerateSay(Language.Instance.GetMessageFromKey(
+            await session.SendPacket(session.Character!.GenerateSay(Language.Instance.GetMessageFromKey(
                 LanguageKey.GIFT_SENT,
                 session.Account.Language), SayColorType.Yellow));
         }

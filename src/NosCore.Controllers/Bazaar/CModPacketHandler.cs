@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 if (bz.BazaarItem.Amount != bz.ItemInstance.Amount)
                 {
-                    clientSession.SendPacket(new ModalPacket
+                    await clientSession.SendPacket(new ModalPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS,
                             clientSession.Account.Language),
@@ -76,7 +76,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     {
                         await clientSession.HandlePackets(new[]
                             {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}});
-                        clientSession.SendPacket(clientSession.Character.GenerateSay(
+                        await clientSession.SendPacket(clientSession.Character.GenerateSay(
                             string.Format(
                                 Language.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED,
                                     clientSession.Account.Language),
@@ -86,7 +86,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     }
                 }
 
-                clientSession.SendPacket(new ModalPacket
+                await clientSession.SendPacket(new ModalPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR,
                         clientSession.Account.Language),

@@ -19,6 +19,7 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Inventory;
@@ -81,36 +82,36 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         bool IsDisconnecting { get; }
 
-        void GenerateMail(IEnumerable<MailData> data);
+        Task GenerateMail(IEnumerable<MailData> data);
 
-        void SendPacket(IPacket packetDefinition);
+        Task SendPacket(IPacket packetDefinition);
 
-        void SendPackets(IEnumerable<IPacket> packetDefinitions);
+        Task SendPackets(IEnumerable<IPacket> packetDefinitions);
 
-        void LeaveGroup();
+        Task LeaveGroup();
 
         void JoinGroup(Group group);
 
         void Save();
 
-        void SetJobLevel(byte level);
+        Task SetJobLevel(byte level);
 
-        void SetHeroLevel(byte level);
+        Task SetHeroLevel(byte level);
 
-        void SetReputation(long reput);
+        Task SetReputation(long reput);
 
-        void SetGold(long gold);
+        Task SetGold(long gold);
 
-        void AddGold(long gold);
+        Task AddGold(long gold);
 
-        void RemoveGold(long gold);
+        Task RemoveGold(long gold);
 
         void AddBankGold(long bankGold);
 
         void RemoveBankGold(long bankGold);
 
-        void ChangeClass(CharacterClassType classType);
+        Task ChangeClass(CharacterClassType classType);
 
-        void ChangeMap(short mapId, short mapX, short mapY);
+        Task ChangeMap(short mapId, short mapX, short mapY);
     }
 }

@@ -54,21 +54,21 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 || (item.ItemType == ItemType.Specialist);
         }
 
-        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public async Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
-            requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(123));
+            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(123));
 
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
             if (requestData.ClientSession.Character.InExchangeOrShop)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP));
-                return Task.CompletedTask;
+                return;
             }
 
             if (itemInstance.ItemInstance.BoundCharacterId == null && (packet.Mode == 0) && itemInstance.ItemInstance.Item.RequireBinding)
             {
-                requestData.ClientSession.SendPacket(
+                await requestData.ClientSession.SendPacket(
                     new QnaPacket
                     {
                         YesPacket = requestData.ClientSession.Character.GenerateUseItem(
@@ -76,7 +76,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                             itemInstance.Slot, 1, (byte)packet.Parameter),
                         Question = requestData.ClientSession.GetMessageFromKey(LanguageKey.ASK_BIND)
                     });
-                return Task.CompletedTask;
+                return;
             }
 
             if ((itemInstance.ItemInstance.Item.LevelMinimum > (itemInstance.ItemInstance.Item.IsHeroic
@@ -88,11 +88,11 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     (((itemInstance.ItemInstance.Item.Class >> (byte)requestData.ClientSession.Character.Class) & 1) !=
                         1)))
             {
-                requestData.ClientSession.SendPacket(
+                await requestData.ClientSession.SendPacket(
                     requestData.ClientSession.Character.GenerateSay(
                         requestData.ClientSession.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT),
                         SayColorType.Yellow));
-                return Task.CompletedTask;
+                return;
             }
 
             if (requestData.ClientSession.Character.UseSp &&
@@ -105,12 +105,12 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     (itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.Element) &&
                     (itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.SecondaryElement))
                 {
-                    requestData.ClientSession.SendPacket(new MsgPacket
+                    await requestData.ClientSession.SendPacket(new MsgPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
                             requestData.ClientSession.Account.Language)
                     });
-                    return Task.CompletedTask;
+                    return;
                 }
             }
 
@@ -122,41 +122,41 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     (byte)EquipmentType.Sp, NoscorePocketType.Wear);
                 if ((timeSpanSinceLastSpUsage < requestData.ClientSession.Character.SpCooldown) && (sp != null))
                 {
-                    requestData.ClientSession.SendPacket(new MsgPacket
+                    await requestData.ClientSession.SendPacket(new MsgPacket
                     {
                         Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
                                 requestData.ClientSession.Account.Language),
                             requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage))
                     });
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 if (requestData.ClientSession.Character.UseSp)
                 {
-                    requestData.ClientSession.SendPacket(
+                    await requestData.ClientSession.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
                             requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED), SayColorType.Yellow));
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 if (itemInstance.ItemInstance.Rare == -2)
                 {
-                    requestData.ClientSession.SendPacket(new MsgPacket
+                    await requestData.ClientSession.SendPacket(new MsgPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
                             requestData.ClientSession.Account.Language)
                     });
-                    return Task.CompletedTask;
+                    return;
                 }
             }
 
             if (requestData.ClientSession.Character.JobLevel < itemInstance.ItemInstance.Item.LevelJobMinimum)
             {
-                requestData.ClientSession.SendPacket(
+                await requestData.ClientSession.SendPacket(
                     requestData.ClientSession.Character.GenerateSay(
                         requestData.ClientSession.GetMessageFromKey(LanguageKey.LOW_JOB_LVL),
                         SayColorType.Yellow));
-                return Task.CompletedTask;
+                return;
             }
 
             requestData.ClientSession.Character.InventoryService.MoveInPocket(packet.Slot, (NoscorePocketType)packet.Type,
@@ -166,26 +166,26 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.InventoryService
                     .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.Type);
 
-            requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot));
+            await  requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot));
 
-            requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character
+            await requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character
                 .GenerateEq());
-            requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment());
+            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment());
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
             {
-                requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint());
+                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint());
             }
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
-                requestData.ClientSession.Character.MapInstance.SendPacket(
+                await requestData.ClientSession.Character.MapInstance.SendPacket(
                     requestData.ClientSession.Character.GeneratePairy(itemInstance.ItemInstance as WearableInstance));
             }
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Amulet)
             {
-                requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(39));
+                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(39));
             }
 
             itemInstance.ItemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;
@@ -196,7 +196,6 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 itemInstance.ItemInstance.ItemDeleteTime =
                     SystemTime.Now().AddSeconds(itemInstance.ItemInstance.Item.ItemValidTime);
             }
-            return Task.CompletedTask;
         }
     }
 }

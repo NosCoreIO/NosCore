@@ -35,7 +35,7 @@ namespace NosCore.PacketHandlers.Inventory
 {
     public class SpTransformPacketHandler : PacketHandler<SpTransformPacket>, IWorldPacketHandler
     {
-        public override Task Execute(SpTransformPacket spTransformPacket, ClientSession clientSession)
+        public override async Task Execute(SpTransformPacket spTransformPacket, ClientSession clientSession)
         {
             if (spTransformPacket.Type == SlPacketType.ChangePoints)
             {
@@ -45,28 +45,28 @@ namespace NosCore.PacketHandlers.Inventory
             {
                 if (clientSession.Character.IsSitting)
                 {
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 if (!(clientSession.Character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp,
                     NoscorePocketType.Wear)?.ItemInstance is SpecialistInstance specialistInstance))
                 {
-                    clientSession.SendPacket(new MsgPacket
+                    await clientSession.SendPacket(new MsgPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_SP, clientSession.Account.Language)
                     });
 
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 if (clientSession.Character.IsVehicled)
                 {
-                    clientSession.SendPacket(new MsgPacket
+                    await clientSession.SendPacket(new MsgPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE,
                             clientSession.Account.Language)
                     });
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 var currentRunningSeconds = (SystemTime.Now() - clientSession.Character.LastSp).TotalSeconds;
@@ -74,35 +74,35 @@ namespace NosCore.PacketHandlers.Inventory
                 if (clientSession.Character.UseSp)
                 {
                     clientSession.Character.LastSp = SystemTime.Now();
-                    clientSession.Character.RemoveSp();
+                    await clientSession.Character.RemoveSp();
                 }
                 else
                 {
                     if ((clientSession.Character.SpPoint == 0) && (clientSession.Character.SpAdditionPoint == 0))
                     {
-                        clientSession.SendPacket(new MsgPacket
+                        await clientSession.SendPacket(new MsgPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS,
                                 clientSession.Account.Language)
                         });
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     if (currentRunningSeconds >= clientSession.Character.SpCooldown)
                     {
                         if (spTransformPacket.Type == SlPacketType.WearSpAndTransform)
                         {
-                            clientSession.Character.ChangeSp();
+                            await clientSession.Character.ChangeSp();
                         }
                         else
                         {
-                            clientSession.SendPacket(new DelayPacket
+                            await clientSession.SendPacket(new DelayPacket
                             {
                                 Type = 3,
                                 Delay = 5000,
                                 Packet = new SpTransformPacket { Type = SlPacketType.WearSp }
                             });
-                            clientSession.Character.MapInstance.SendPacket(new GuriPacket
+                            await clientSession.Character.MapInstance.SendPacket(new GuriPacket
                             {
                                 Type = GuriPacketType.Unknow,
                                 Value = 1,
@@ -112,7 +112,7 @@ namespace NosCore.PacketHandlers.Inventory
                     }
                     else
                     {
-                        clientSession.SendPacket(new MsgPacket
+                        await clientSession.SendPacket(new MsgPacket
                         {
                             Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
                                     clientSession.Account.Language),
@@ -121,7 +121,6 @@ namespace NosCore.PacketHandlers.Inventory
                     }
                 }
             }
-            return Task.CompletedTask;
         }
     }
 }

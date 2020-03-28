@@ -46,11 +46,11 @@ namespace NosCore.PacketHandlers.Friend
             if (idtorem != null)
             {
                 await _blacklistHttpClient.DeleteFromBlacklist(idtorem.CharacterRelationId);
-                session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient));
+                await session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient));
             }
             else
             {
-                session.SendPacket(new InfoPacket
+                await session.SendPacket(new InfoPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
                         session.Account.Language)

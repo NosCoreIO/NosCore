@@ -61,8 +61,7 @@ namespace NosCore.PacketHandlers.Command
             }
 
             entity.Size = sizePacket.Size;
-            session.Character.MapInstance.SendPacket(entity.GenerateCharSc());
-            return Task.CompletedTask;
+            return session.Character.MapInstance.SendPacket(entity.GenerateCharSc());
         }
     }
 }

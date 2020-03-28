@@ -38,11 +38,11 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                 (item.ItemInstance.Item.Effect == ItemEffectType.SpCharger);
         }
 
-        public Task Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
+        public async Task Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             requestData.ClientSession.Character.AddSpPoints(requestData.Data.Item1.ItemInstance.Item.EffectValue);
 
-            requestData.ClientSession.SendPacket(new MsgPacket
+            await requestData.ClientSession.SendPacket(new MsgPacket
             {
                 Message = string.Format(
                     Language.Instance.GetMessageFromKey(LanguageKey.SP_POINTSADDED,
@@ -50,12 +50,11 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                     requestData.Data.Item1.ItemInstance.Item.EffectValue),
                 Type = 0
             });
-            requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint());
+            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint());
 
             requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
-            requestData.ClientSession.Character.MapInstance.SendPacket(
+            await requestData.ClientSession.Character.MapInstance.SendPacket(
                 requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
-            return Task.CompletedTask;
         }
     }
 }

@@ -80,7 +80,7 @@ namespace NosCore.PacketHandlers.Chat
                 var message = new StringBuilder(messageBuilder.ToString().Length > 60
                     ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
 
-                session.SendPacket(session.Character!.GenerateSpk(new SpeakPacket
+                await session.SendPacket(session.Character!.GenerateSpk(new SpeakPacket
                 {
                     SpeakType = SpeakType.Player,
                     Message = message.ToString()
@@ -100,7 +100,7 @@ namespace NosCore.PacketHandlers.Chat
 
                 if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
                 {
-                    session.SendPacket(session.Character!.GenerateSay(
+                    await session.SendPacket(session.Character!.GenerateSay(
                         Language.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, session.Account.Language),
                         SayColorType.Yellow));
                     return;
@@ -109,7 +109,7 @@ namespace NosCore.PacketHandlers.Chat
                 var blacklisteds = await _blacklistHttpClient.GetBlackLists(session.Character!.VisualId);
                 if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter.Id))
                 {
-                    session.SendPacket(new SayPacket
+                    await session.SendPacket(new SayPacket
                     {
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
                             session.Account.Language),
@@ -130,7 +130,7 @@ namespace NosCore.PacketHandlers.Chat
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.Item2.ChannelId);
 
-                session.SendPacket(session.Character.GenerateSay(
+                await session.SendPacket(session.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
                         session.Account.Language), SayColorType.Purple));
             }

@@ -42,34 +42,27 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 
         public Task Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
-            switch (requestData.Data.Item2.Type)
+            return requestData.Data.Item2.Type switch
             {
-                case 1:
-                    RemoveGoldAndTeleport(requestData.ClientSession, 20, 1000, 7, 11, 90, 94);
-                    break;
-                case 2:
-                    RemoveGoldAndTeleport(requestData.ClientSession, 145, 2000, 11, 15, 108, 112);
-                    break;
-                default:
-                    RemoveGoldAndTeleport(requestData.ClientSession, 1, 0, 77, 82, 113, 119);
-                    break;
-            }
-            return Task.CompletedTask;
+                1 => RemoveGoldAndTeleport(requestData.ClientSession, 20, 1000, 7, 11, 90, 94),
+                2 => RemoveGoldAndTeleport(requestData.ClientSession, 145, 2000, 11, 15, 108, 112),
+                _ => RemoveGoldAndTeleport(requestData.ClientSession, 1, 0, 77, 82, 113, 119),
+            };
         }
 
-        private void RemoveGoldAndTeleport(ClientSession clientSession, short mapId, long GoldToPay, short x1, short x2,
+        private async Task RemoveGoldAndTeleport(ClientSession clientSession, short mapId, long GoldToPay, short x1, short x2,
             short y1, short y2)
         {
             if (clientSession.Character.Gold >= GoldToPay)
             {
-                clientSession.Character.RemoveGold(GoldToPay);
-                clientSession.ChangeMap(
+                await clientSession.Character.RemoveGold(GoldToPay);
+                await clientSession.ChangeMap(
                     mapId, (short) RandomFactory.Instance.RandomNumber(x1, x2),
                     (short) RandomFactory.Instance.RandomNumber(y1, y2));
                 return;
             }
 
-            clientSession.SendPacket(clientSession.Character.GenerateSay(
+            await clientSession.SendPacket(clientSession.Character.GenerateSay(
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, clientSession.Account.Language),
                 SayColorType.Yellow
             ));

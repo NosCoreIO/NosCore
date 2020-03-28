@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             return (item.ItemInstance.Item.ItemType != ItemType.Map) && (item.VNum != 1046);
         }
 
-        public Task Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
+        public async Task Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             var amount = requestData.Data.Item1.Amount;
             var inv = requestData.ClientSession.Character.InventoryService.AddItemToPocket(
@@ -51,18 +51,18 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 
             if (inv != null)
             {
-                requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot));
+                await requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot));
                 requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId,
                     out _);
-                requestData.ClientSession.Character.MapInstance.SendPacket(
+                await requestData.ClientSession.Character.MapInstance.SendPacket(
                     requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
-                    requestData.ClientSession.SendPacket(
+                    await requestData.ClientSession.SendPacket(
                         requestData.ClientSession.Character.GenerateIcon(1, inv.ItemInstance.ItemVNum));
                 }
 
-                requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
+                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
                     $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}: {inv.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]} x {amount}",
                     SayColorType.Green));
                 if (requestData.ClientSession.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
@@ -70,7 +70,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                     var name = string.Format(
                         Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED_LOD,
                             requestData.ClientSession.Account.Language), requestData.ClientSession.Character.Name);
-                    requestData.ClientSession.Character.MapInstance.SendPacket(
+                    await requestData.ClientSession.Character.MapInstance.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
                             $"{name}: {inv.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]} x {requestData.Data.Item1.Amount}",
                             SayColorType.Yellow));
@@ -78,14 +78,13 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             }
             else
             {
-                requestData.ClientSession.SendPacket(new MsgPacket
+                await requestData.ClientSession.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         requestData.ClientSession.Account.Language),
                     Type = 0
                 });
             }
-            return Task.CompletedTask;
         }
     }
 }
