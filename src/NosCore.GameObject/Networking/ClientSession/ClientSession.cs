@@ -69,7 +69,6 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
         private Character? _character;
         private int? _waitForPacketsAmount;
-        private ConcurrentQueue<Tuple<IEnumerable<ushort?>, Task>> _packetHandlingQueue = new ConcurrentQueue<Tuple<IEnumerable<ushort?>, Task>>();
 
         public ClientSession(ServerConfiguration configuration,
             ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,

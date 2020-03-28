@@ -44,7 +44,7 @@ namespace NosCore.Core.I18N
             var cult = new CultureInfo(culture.ToString());
             var resourceMessage = (_manager != null) && (messageKey.ToString() != null)
                 ? _manager.GetResourceSet(cult, true,
-                        cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower())
+                        cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower(CultureInfo.CurrentCulture))
                     ?.GetString(messageKey.ToString()) : string.Empty;
 
             return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString()}>";

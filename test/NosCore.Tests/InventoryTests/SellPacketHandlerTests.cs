@@ -104,8 +104,8 @@ namespace NosCore.Tests.InventoryTests
             _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
             _sellPacketHandler.Execute(new SellPacket {Slot = 0, Amount = 1, Data = (short) NoscorePocketType.Etc},
                 _session);
-            var packet = (SMemoPacket) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
-            Assert.IsTrue(packet.Message ==
+            var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
+            Assert.IsTrue(packet?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, _session.Account.Language));
             Assert.IsTrue(_session.Character.Gold == 0);
             Assert.IsNotNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Etc));

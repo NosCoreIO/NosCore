@@ -289,7 +289,7 @@ namespace NosCore.Core.Encryption
 
             if (temp.Count > 0)
             {
-                output.Add(temp);
+                output?.Add(temp);
             }
         }
     }

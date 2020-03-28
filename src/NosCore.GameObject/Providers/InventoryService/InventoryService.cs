@@ -339,7 +339,7 @@ namespace NosCore.GameObject.Providers.InventoryService
         }
 
         public bool TryMoveItem(NoscorePocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
-            out InventoryItemInstance sourcePocket, out InventoryItemInstance destinationPocket)
+            out InventoryItemInstance? sourcePocket, out InventoryItemInstance? destinationPocket)
         {
             // load source and destination slots
             sourcePocket = LoadBySlotAndType(sourceSlot, sourcetype);

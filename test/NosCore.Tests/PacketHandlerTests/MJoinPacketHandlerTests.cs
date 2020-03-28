@@ -132,7 +132,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 {MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Lock});
            await _mjoinPacketHandler.Execute(mjoinPacket, _session);
 
-            var lastpacket = (InfoPacket) _session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket?) _session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(lastpacket.Message,
                 Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND, _session.Account.Language));
             Assert.IsFalse(_session.Character.MapInstance.Map.MapId == 20001);

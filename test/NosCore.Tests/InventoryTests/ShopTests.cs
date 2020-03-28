@@ -130,8 +130,8 @@ namespace NosCore.Tests.InventoryTests
             };
             await _session.Character.Buy(shop, 0, 99);
 
-            var packet = (SMemoPacket) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
-            Assert.IsTrue(packet.Message ==
+            var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
+            Assert.IsTrue(packet?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
         }
 
@@ -154,8 +154,8 @@ namespace NosCore.Tests.InventoryTests
             };
             await _session.Character.Buy(shop, 0, 99);
 
-            var packet = (SMemoPacket) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
-            Assert.IsTrue(packet.Message ==
+            var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
+            Assert.IsTrue(packet?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, _session.Account.Language));
         }
 
@@ -188,8 +188,8 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             await _session.Character.Buy(shop, 0, 999);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, _session.Account.Language));
         }
 
@@ -356,8 +356,8 @@ namespace NosCore.Tests.InventoryTests
             await _session.Character.Buy(session2.Character.Shop, 0, 999);
             Assert.IsTrue(session2.Character.Gold == 999_999_999);
             Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 999);
-            var packet = (SMemoPacket) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
-            Assert.IsTrue(packet.Message ==
+            var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
+            Assert.IsTrue(packet?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, _session.Account.Language));
         }
     }

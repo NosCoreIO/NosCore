@@ -174,21 +174,21 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
             {
-                _session.Character,
-                targetSession.Character
+                _session.Character!,
+                targetSession.Character!
             };
             _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
 
             var fdelPacket = new FdelPacket
             {
-                CharacterId = targetSession.Character.CharacterId
+                CharacterId = targetSession.Character!.CharacterId
             };
 
             await _fDelPacketHandler.Execute(fdelPacket, _session);
-            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_FRIENDLIST,
-                _session.Account.Language), lastpacket.Message);
+                _session.Account.Language), lastpacket?.Message);
         }
     }
 }
