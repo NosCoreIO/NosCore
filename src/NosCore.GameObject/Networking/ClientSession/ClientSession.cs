@@ -156,7 +156,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        public override async void ChannelRead(IChannelHandlerContext context, object message)
+        public override void ChannelRead(IChannelHandlerContext context, object message)
         {
             if (!(message is IEnumerable<IPacket> buff))
             {
