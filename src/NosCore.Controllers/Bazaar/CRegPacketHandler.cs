@@ -173,7 +173,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             bazar.ItemInstanceId);
                     }
 
-                    await clientSession.SendPacket(((InventoryItemInstance) null).GeneratePocketChange(
+                    await clientSession.SendPacket(((InventoryItemInstance?)null).GeneratePocketChange(
                         cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType) cRegPacket.Inventory,
                         cRegPacket.Slot));
                     clientSession.Character.Gold -= tax;

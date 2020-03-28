@@ -80,8 +80,8 @@ namespace NosCore.Tests.InventoryTests
                 Slot = 0,
                 Amount = 1
             }, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
                 _session.Account.Language)) && (packet.Type == 0));
             Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
@@ -112,8 +112,8 @@ namespace NosCore.Tests.InventoryTests
                 Slot = 0,
                 Amount = 1
             }, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
                 _session.Account.Language)) && (packet.Type == 0));
             Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
@@ -130,8 +130,8 @@ namespace NosCore.Tests.InventoryTests
                 Slot = 0,
                 Amount = 1
             }, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
                 _session.Account.Language)) && (packet.Type == 0));
             Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }

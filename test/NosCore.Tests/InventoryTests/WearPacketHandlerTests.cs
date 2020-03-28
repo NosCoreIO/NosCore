@@ -131,8 +131,8 @@ namespace NosCore.Tests.InventoryTests
                 _session.Character.CharacterId));
             _wearPacketHandler.Execute(new WearPacket {InventorySlot = 0, Type = PocketType.Equipment}, _session);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
-            var packet = (SayPacket) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
+            var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
                 _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
 
             foreach (var validClass in Enum.GetValues(typeof(CharacterClassType)).OfType<CharacterClassType>()
@@ -170,8 +170,8 @@ namespace NosCore.Tests.InventoryTests
                 _session.Character.CharacterId));
             _wearPacketHandler.Execute(new WearPacket {InventorySlot = 0, Type = PocketType.Equipment}, _session);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
-            var packet = (SayPacket) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
+            var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
                 _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
 
             foreach (var validClass in Enum.GetValues(typeof(GenderType)).OfType<GenderType>()
@@ -206,8 +206,8 @@ namespace NosCore.Tests.InventoryTests
                 _session.Character.CharacterId));
             _wearPacketHandler.Execute(new WearPacket {InventorySlot = 0, Type = PocketType.Equipment}, _session);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
-            var packet = (SayPacket) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.LOW_JOB_LVL,
+            var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.LOW_JOB_LVL,
                 _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
         }
 
@@ -253,8 +253,8 @@ namespace NosCore.Tests.InventoryTests
                 _session.Character.CharacterId));
             _wearPacketHandler.Execute(new WearPacket {InventorySlot = 0, Type = PocketType.Equipment}, _session);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
-            var packet = (SayPacket) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
+            var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
                 _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
         }
 
@@ -301,8 +301,8 @@ namespace NosCore.Tests.InventoryTests
                 _session.Character.CharacterId));
             _wearPacketHandler.Execute(new WearPacket {InventorySlot = 0, Type = PocketType.Equipment}, _session);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
-            var packet = (SayPacket) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
+            var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
                 _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
         }
 
@@ -349,8 +349,8 @@ namespace NosCore.Tests.InventoryTests
             _wearPacketHandler.Execute(new WearPacket {InventorySlot = 0, Type = PocketType.Equipment}, _session);
 
             Assert.IsTrue(_session.Character.InventoryService.Any(s => s.Value.Type == NoscorePocketType.Equipment));
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
                 _session.Account.Language));
         }
 
@@ -383,8 +383,8 @@ namespace NosCore.Tests.InventoryTests
             _wearPacketHandler.Execute(new WearPacket {InventorySlot = 1, Type = PocketType.Equipment}, _session);
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));
-            var packet = (SayPacket) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED,
+            var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED,
                 _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
         }
 
@@ -417,8 +417,8 @@ namespace NosCore.Tests.InventoryTests
             _wearPacketHandler.Execute(new WearPacket {InventorySlot = 1, Type = PocketType.Equipment}, _session);
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
                 string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language),
                     30));
         }
@@ -454,8 +454,8 @@ namespace NosCore.Tests.InventoryTests
             _wearPacketHandler.Execute(new WearPacket {InventorySlot = 0, Type = PocketType.Equipment}, _session);
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Equipment)));
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
                 _session.Account.Language));
         }
 
@@ -540,7 +540,7 @@ namespace NosCore.Tests.InventoryTests
                 _session.Character.CharacterId));
             _wearPacketHandler.Execute(new WearPacket {InventorySlot = 0, Type = PocketType.Equipment}, _session);
 
-            var packet = (QnaPacket) _session.LastPackets.FirstOrDefault(s => s is QnaPacket);
+            var packet = (QnaPacket?) _session.LastPackets.FirstOrDefault(s => s is QnaPacket);
             Assert.IsTrue(packet.YesPacket is UseItemPacket yespacket
                 && (yespacket.Slot == 0)
                 && (yespacket.Type == PocketType.Equipment)

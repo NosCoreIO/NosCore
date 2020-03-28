@@ -34,7 +34,7 @@ namespace NosCore.Core.HttpClients
     {
         private readonly Channel _channel;
         private readonly IChannelHttpClient _channelHttpClient;
-        protected readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         protected MasterServerHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
             IChannelHttpClient channelHttpClient)
@@ -46,6 +46,11 @@ namespace NosCore.Core.HttpClients
 
         public virtual string ApiUrl { get; set; } = "";
         public virtual bool RequireConnection { get; set; }
+
+        protected HttpClient CreateClient()
+        {
+            return _httpClientFactory.CreateClient();
+        }
 
         public virtual async Task<HttpClient?> Connect()
         {

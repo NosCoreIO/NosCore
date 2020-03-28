@@ -25,19 +25,19 @@ using NosCore.PacketHandlers.Bazaar;
 
 namespace NosCore.Tests.BazaarTests
 {
-    [TestClass]
-    public class CSListPacketHandlerTest
-    {
-        private Mock<IBazaarHttpClient> _bazaarHttpClient;
-        private CSListPacketHandler _cSListPacketHandler;
-        private ClientSession _session;
+    //[TestClass]
+    //public class CSListPacketHandlerTest
+    //{
+    //    private Mock<IBazaarHttpClient> _bazaarHttpClient;
+    //    private CSListPacketHandler _cSListPacketHandler;
+    //    private ClientSession _session;
 
-        [TestInitialize]
-        public void Setup()
-        {
-            _cSListPacketHandler = new CSListPacketHandler(_bazaarHttpClient.Object);
-        }
+    //    [TestInitialize]
+    //    public void Setup()
+    //    {
+    //        _cSListPacketHandler = new CSListPacketHandler(_bazaarHttpClient.Object);
+    //    }
 
-        //TODO list tests
-    }
+    //    //TODO list tests
+    //}
 }

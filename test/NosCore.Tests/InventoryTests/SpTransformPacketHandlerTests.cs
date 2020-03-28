@@ -62,8 +62,8 @@ namespace NosCore.Tests.InventoryTests
         public void Test_Transform_NoSp()
         {
             _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSp}, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NO_SP, _session.Account.Language));
         }
 
@@ -77,8 +77,8 @@ namespace NosCore.Tests.InventoryTests
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte) EquipmentType.Sp;
             _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSp}, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE, _session.Account.Language));
         }
 
@@ -135,8 +135,8 @@ namespace NosCore.Tests.InventoryTests
             fairy.Type = NoscorePocketType.Wear;
             fairy.Slot = (byte) EquipmentType.Fairy;
             _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSpAndTransform}, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY, _session.Account.Language));
         }
 
@@ -150,8 +150,8 @@ namespace NosCore.Tests.InventoryTests
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte) EquipmentType.Sp;
             _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSpAndTransform}, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.LOW_REP, _session.Account.Language));
         }
 
@@ -168,8 +168,8 @@ namespace NosCore.Tests.InventoryTests
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte) EquipmentType.Sp;
             _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSpAndTransform}, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
                 string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language),
                     30));
         }
@@ -184,8 +184,8 @@ namespace NosCore.Tests.InventoryTests
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte) EquipmentType.Sp;
             _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSpAndTransform}, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, _session.Account.Language));
         }
 
@@ -200,7 +200,7 @@ namespace NosCore.Tests.InventoryTests
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte) EquipmentType.Sp;
             _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSp}, _session);
-            var packet = (DelayPacket) _session.LastPackets.FirstOrDefault(s => s is DelayPacket);
+            var packet = (DelayPacket?) _session.LastPackets.FirstOrDefault(s => s is DelayPacket);
             Assert.IsTrue(packet.Delay == 5000);
         }
     }
