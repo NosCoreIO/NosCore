@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Relations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;

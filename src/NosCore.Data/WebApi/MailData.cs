@@ -18,10 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.Parcel;
-using ChickenAPI.Packets.ServerPackets.Visibility;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Parcel;
+using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Data.Dto;
 
 namespace NosCore.Data.WebApi

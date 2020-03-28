@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
-using ChickenAPI.Packets.ClientPackets.Drops;
+using NosCore.Packets.ClientPackets.Drops;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;

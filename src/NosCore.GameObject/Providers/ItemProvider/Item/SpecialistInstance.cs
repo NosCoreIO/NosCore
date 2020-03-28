@@ -19,7 +19,7 @@
 
 using System;
 using System.Reactive.Subjects;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;

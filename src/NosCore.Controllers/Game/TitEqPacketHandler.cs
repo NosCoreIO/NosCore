@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
-using ChickenAPI.Packets.ServerPackets.Player;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;

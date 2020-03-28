@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ServerPackets.Portals;
+using NosCore.Packets.ServerPackets.Portals;
 using NosCore.Data.StaticEntities;
 
 namespace NosCore.GameObject

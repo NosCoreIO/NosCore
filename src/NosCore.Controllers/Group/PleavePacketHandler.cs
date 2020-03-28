@@ -19,9 +19,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Groups;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Groups;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;

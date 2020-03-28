@@ -19,10 +19,10 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Parcel;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Parcel;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Parcel;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Parcel;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data;

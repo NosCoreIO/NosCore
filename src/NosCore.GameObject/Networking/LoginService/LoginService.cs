@@ -20,9 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Login;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Login;
+using NosCore.Packets.ClientPackets.Login;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Login;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.AuthHttpClient;

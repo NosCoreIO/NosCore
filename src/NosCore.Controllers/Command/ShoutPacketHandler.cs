@@ -18,10 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.Chats;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;

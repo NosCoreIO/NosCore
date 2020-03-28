@@ -19,9 +19,9 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using ChickenAPI.Packets.ClientPackets.Groups;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Groups;
+using NosCore.Packets.ClientPackets.Groups;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Groups;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.I18N;

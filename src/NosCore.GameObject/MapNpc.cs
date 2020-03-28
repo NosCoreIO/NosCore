@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 using Mapster;
 using NosCore.Core;
 using NosCore.Data.Dto;

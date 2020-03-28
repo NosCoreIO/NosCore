@@ -20,9 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.ServerPackets.Chats;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.I18N;

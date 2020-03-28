@@ -47,7 +47,7 @@ namespace NosCore.Data.Dto
 
 	 	public short Slot { get; set; }
 
-	 	public ChickenAPI.Packets.Enumerations.QSetType Type { get; set; }
+	 	public NosCore.Packets.Enumerations.QSetType Type { get; set; }
 
 	 	[Key]
 		public System.Guid Id { get; set; }

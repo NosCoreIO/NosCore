@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Drops;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;

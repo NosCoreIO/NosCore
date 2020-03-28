@@ -18,10 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Auction;
-using ChickenAPI.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Auction;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Core;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;

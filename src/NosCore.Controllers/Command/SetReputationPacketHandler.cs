@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;

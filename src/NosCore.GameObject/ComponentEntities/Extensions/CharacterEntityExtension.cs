@@ -19,15 +19,15 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
-using ChickenAPI.Packets.ServerPackets.Entities;
-using ChickenAPI.Packets.ServerPackets.Exchanges;
-using ChickenAPI.Packets.ServerPackets.Inventory;
-using ChickenAPI.Packets.ServerPackets.Player;
-using ChickenAPI.Packets.ServerPackets.Relations;
-using ChickenAPI.Packets.ServerPackets.UI;
-using ChickenAPI.Packets.ServerPackets.Visibility;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.Exchanges;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Relations;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClient;

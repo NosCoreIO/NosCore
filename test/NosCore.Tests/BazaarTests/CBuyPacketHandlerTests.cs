@@ -19,9 +19,9 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.ServerPackets.Chats;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;

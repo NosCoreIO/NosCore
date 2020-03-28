@@ -18,9 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using ChickenAPI.Packets.ClientPackets.Exchanges;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Exchanges;
+using NosCore.Packets.ClientPackets.Exchanges;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;

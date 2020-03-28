@@ -19,9 +19,9 @@
 
 using System;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Buff;

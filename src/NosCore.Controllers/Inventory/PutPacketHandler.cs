@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data;

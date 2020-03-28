@@ -19,16 +19,16 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.ServerPackets.Auction;
-using ChickenAPI.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.ServerPackets.Auction;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Core;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using static ChickenAPI.Packets.ServerPackets.Auction.RcbListPacket;
+using static NosCore.Packets.ServerPackets.Auction.RcbListPacket;
 
 namespace NosCore.PacketHandlers.Bazaar
 {

@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Parcel;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.ClientPackets.Parcel;
+using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core;
 using NosCore.Core.I18N;

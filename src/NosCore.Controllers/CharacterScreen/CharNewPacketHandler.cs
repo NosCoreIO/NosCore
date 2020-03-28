@@ -19,9 +19,9 @@
 
 using System;
 using System.Text.RegularExpressions;
-using ChickenAPI.Packets.ClientPackets.CharacterSelectionScreen;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;

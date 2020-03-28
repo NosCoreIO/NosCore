@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.Interfaces;
+using NosCore.Packets.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.I18N;

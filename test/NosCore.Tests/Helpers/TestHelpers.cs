@@ -20,10 +20,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ChickenAPI.Packets.ClientPackets.Drops;
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.Interfaces;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
 using DotNetty.Transport.Channels;
 using Mapster;
 using Microsoft.EntityFrameworkCore;

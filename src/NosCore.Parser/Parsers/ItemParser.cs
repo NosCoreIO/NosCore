@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ChickenAPI.Packets.Enumerations;
+using NosCore.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data;

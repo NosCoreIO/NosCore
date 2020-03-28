@@ -30,11 +30,11 @@ using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
-using ChickenAPI.Packets.ClientPackets.Drops;
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.ClientPackets.Npcs;
-using ChickenAPI.Packets.ClientPackets.UI;
-using ChickenAPI.Packets.Interfaces;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Packets.ClientPackets.UI;
+using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using FastExpressionCompiler;
@@ -88,11 +88,11 @@ using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PacketHandlers.Login;
 using NosCore.WorldServer.Controllers;
 using Character = NosCore.GameObject.Character;
-using Deserializer = ChickenAPI.Packets.Deserializer;
+using Deserializer = NosCore.Packets.Deserializer;
 using ILogger = Serilog.ILogger;
 using InventoryItemInstance = NosCore.GameObject.Providers.InventoryService.InventoryItemInstance;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
-using Serializer = ChickenAPI.Packets.Serializer;
+using Serializer = NosCore.Packets.Serializer;
 
 namespace NosCore.WorldServer
 {
@@ -270,7 +270,7 @@ namespace NosCore.WorldServer
         {
             containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces().PropertiesAutowired();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => (p.Namespace != "ChickenAPI.Packets.ServerPackets.Login") && (p.Name != "NoS0575Packet")
+                .Where(p => (p.Namespace != "NosCore.Packets.ServerPackets.Login") && (p.Name != "NoS0575Packet")
                     && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
             listofpacket.AddRange(typeof(HelpPacket).Assembly.GetTypes()
                 .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList());

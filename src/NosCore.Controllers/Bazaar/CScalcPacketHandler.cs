@@ -18,10 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using ChickenAPI.Packets.ClientPackets.Bazaar;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Bazaar;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Bazaar;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;

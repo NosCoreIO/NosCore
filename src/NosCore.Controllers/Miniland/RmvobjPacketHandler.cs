@@ -17,10 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using ChickenAPI.Packets.ClientPackets.Miniland;
-using ChickenAPI.Packets.Enumerations;
-using ChickenAPI.Packets.ServerPackets.Miniland;
-using ChickenAPI.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Miniland;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Miniland;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;

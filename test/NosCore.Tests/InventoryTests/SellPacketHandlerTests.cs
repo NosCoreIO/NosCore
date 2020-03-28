@@ -20,9 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChickenAPI.Packets.ClientPackets.Inventory;
-using ChickenAPI.Packets.ClientPackets.Shops;
-using ChickenAPI.Packets.ServerPackets.Shop;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ClientPackets.Shops;
+using NosCore.Packets.ServerPackets.Shop;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.I18N;
 using NosCore.Data;

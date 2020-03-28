@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using ChickenAPI.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ClientPackets.Inventory;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
