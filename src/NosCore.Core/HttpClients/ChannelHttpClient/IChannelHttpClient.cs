@@ -19,15 +19,16 @@
 
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClient
 {
     public interface IChannelHttpClient
     {
-        void Connect();
-        HttpStatusCode Ping();
-        string GetOrRefreshToken();
-        List<ChannelInfo> GetChannels();
-        ChannelInfo GetChannel(int channelId);
+        Task Connect();
+        Task<HttpStatusCode> Ping();
+        Task<string> GetOrRefreshToken();
+        Task<List<ChannelInfo>> GetChannels();
+        Task<ChannelInfo> GetChannel(int channelId);
     }
 }

@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
@@ -37,7 +38,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                 (item.ItemInstance.Item.Effect == ItemEffectType.SpCharger);
         }
 
-        public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
+        public Task Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             requestData.ClientSession.Character.AddSpPoints(requestData.Data.Item1.ItemInstance.Item.EffectValue);
 
@@ -54,6 +55,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
             requestData.ClientSession.Character.MapInstance.SendPacket(
                 requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
+            return Task.CompletedTask;
         }
     }
 }

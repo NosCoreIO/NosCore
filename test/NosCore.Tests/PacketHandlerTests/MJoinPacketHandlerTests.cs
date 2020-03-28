@@ -17,8 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -71,34 +73,34 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void JoinNonConnected()
+        public async Task JoinNonConnected()
         {
             var mjoinPacket = new MJoinPacket
             {
                 VisualId = 50,
                 Type = VisualType.Player
             };
-            _mjoinPacketHandler.Execute(mjoinPacket, _session);
+            await _mjoinPacketHandler.Execute(mjoinPacket, _session);
 
             Assert.IsFalse(_session.Character.MapInstance.Map.MapId == 20001);
         }
 
         [TestMethod]
-        public void JoinNonFriend()
+        public async Task JoinNonFriend()
         {
             var mjoinPacket = new MJoinPacket
             {
                 VisualId = _targetSession.Character.CharacterId,
                 Type = VisualType.Player
             };
-            _mjoinPacketHandler.Execute(mjoinPacket, _session);
+           await _mjoinPacketHandler.Execute(mjoinPacket, _session);
 
             Assert.IsFalse(_session.Character.MapInstance.Map.MapId == 20001);
         }
 
 
         [TestMethod]
-        public void JoinClosed()
+        public async Task JoinClosed()
         {
             var mjoinPacket = new MJoinPacket
             {
@@ -106,16 +108,17 @@ namespace NosCore.Tests.PacketHandlerTests
                 Type = VisualType.Player
             };
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(
+                    new ServerConfiguration(),
                     new ConnectedAccount
                     {
                         ChannelId = 1, ConnectedCharacter = new Character {Id = _targetSession.Character.CharacterId}
                     }));
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                         {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
-            _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>())).Returns(new List<CharacterRelationStatus>
+            _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new CharacterRelationStatus
                 {
@@ -127,7 +130,7 @@ namespace NosCore.Tests.PacketHandlerTests
             });
             _minilandProvider.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland
                 {MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Lock});
-            _mjoinPacketHandler.Execute(mjoinPacket, _session);
+           await _mjoinPacketHandler.Execute(mjoinPacket, _session);
 
             var lastpacket = (InfoPacket) _session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(lastpacket.Message,
@@ -136,7 +139,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void Join()
+        public async Task Join()
         {
             var mjoinPacket = new MJoinPacket
             {
@@ -145,7 +148,7 @@ namespace NosCore.Tests.PacketHandlerTests
             };
             _minilandProvider.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland
                 {MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Open});
-            _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>())).Returns(new List<CharacterRelationStatus>
+            _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new CharacterRelationStatus
                 {
@@ -155,15 +158,15 @@ namespace NosCore.Tests.PacketHandlerTests
                     RelationType = CharacterRelationType.Friend
                 }
             });
-            _mjoinPacketHandler.Execute(mjoinPacket, _session);
+            await _mjoinPacketHandler.Execute(mjoinPacket, _session);
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     {
                         ChannelId = 1, ConnectedCharacter = new Character {Id = _targetSession.Character.CharacterId}
                     }));
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                         {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
 
@@ -171,7 +174,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void JoinPrivate()
+        public async Task JoinPrivate()
         {
             var mjoinPacket = new MJoinPacket
             {
@@ -179,16 +182,16 @@ namespace NosCore.Tests.PacketHandlerTests
                 Type = VisualType.Player
             };
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
                     }));
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
-            _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>())).Returns(new List<CharacterRelationStatus>
+            _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new CharacterRelationStatus
                 {
@@ -200,13 +203,13 @@ namespace NosCore.Tests.PacketHandlerTests
             });
             _minilandProvider.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
-            _mjoinPacketHandler.Execute(mjoinPacket, _session);
+            await _mjoinPacketHandler.Execute(mjoinPacket, _session);
 
             Assert.IsTrue(_session.Character.MapInstance.Map.MapId == 20001);
         }
 
         [TestMethod]
-        public void JoinPrivateBlocked()
+        public async Task JoinPrivateBlocked()
         {
             var mjoinPacket = new MJoinPacket
             {
@@ -214,16 +217,16 @@ namespace NosCore.Tests.PacketHandlerTests
                 Type = VisualType.Player
             };
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
                     }));
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
-            _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>())).Returns(new List<CharacterRelationStatus>
+            _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new CharacterRelationStatus
                 {
@@ -235,7 +238,7 @@ namespace NosCore.Tests.PacketHandlerTests
             });
             _minilandProvider.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
-            _mjoinPacketHandler.Execute(mjoinPacket, _session);
+            await _mjoinPacketHandler.Execute(mjoinPacket, _session);
 
             var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(lastpacket.Message,

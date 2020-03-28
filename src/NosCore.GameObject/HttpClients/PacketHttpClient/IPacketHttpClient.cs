@@ -18,15 +18,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject.HttpClients.PacketHttpClient
 {
     public interface IPacketHttpClient
     {
-        void BroadcastPacket(PostedPacket packet, int channelId);
-        void BroadcastPacket(PostedPacket packet);
-        void BroadcastPackets(List<PostedPacket> packets);
-        void BroadcastPackets(List<PostedPacket> packets, int channelId);
+        Task BroadcastPacket(PostedPacket packet, int channelId);
+        Task BroadcastPacket(PostedPacket packet);
+        Task BroadcastPacketsAsync(List<PostedPacket> packets);
+        Task BroadcastPackets(List<PostedPacket> packets, int channelId);
     }
 }

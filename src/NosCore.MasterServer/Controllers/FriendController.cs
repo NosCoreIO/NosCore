@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
@@ -57,10 +58,10 @@ namespace NosCore.MasterServer.Controllers
 
 
         [HttpPost]
-        public LanguageKey AddFriend([FromBody] FriendShipRequest friendPacket)
+        public async Task<LanguageKey> AddFriend([FromBody] FriendShipRequest friendPacket)
         {
-            var character = _connectedAccountHttpClient.GetCharacter(friendPacket.CharacterId, null);
-            var targetCharacter = _connectedAccountHttpClient.GetCharacter(friendPacket.FinsPacket.CharacterId, null);
+            var character = await _connectedAccountHttpClient.GetCharacter(friendPacket.CharacterId, null);
+            var targetCharacter = await _connectedAccountHttpClient.GetCharacter(friendPacket.FinsPacket.CharacterId, null);
             var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
                 (s.Value.Item2 == character.Item2?.ConnectedCharacter.Id) &&
                 (s.Value.Item1 == targetCharacter.Item2?.ConnectedCharacter.Id)).ToList();
@@ -141,7 +142,7 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpGet]
-        public List<CharacterRelationStatus> GetFriends(long id)
+        public async Task<List<CharacterRelationStatus>> GetFriends(long id)
         {
             var charList = new List<CharacterRelationStatus>();
             var list = _characterRelationDao
@@ -152,7 +153,7 @@ namespace NosCore.MasterServer.Controllers
                 {
                     CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId)?.Name,
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null).Item1 != null,
+                    IsConnected = (await _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null)).Item1 != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId
                 });

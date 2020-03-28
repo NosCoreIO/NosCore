@@ -21,6 +21,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using Mapster;
 using NosCore.Core;
@@ -150,7 +151,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             return minilandInfo;
         }
 
-        public void SetState(long characterId, MinilandState state)
+        public async Task SetState(long characterId, MinilandState state)
         {
             if (_minilandIds.ContainsKey(characterId))
             {
@@ -162,7 +163,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                 {
                     if (ml.State == MinilandState.Private)
                     {
-                        List<long> friends = _friendHttpClient.GetListFriends(characterId)
+                        List<long> friends = (await _friendHttpClient.GetListFriends(characterId))
                             .Select(s => s.CharacterId)
                             .ToList();
                         // Kick all players in miniland except owner and his friends

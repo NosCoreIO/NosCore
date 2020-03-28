@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -37,11 +38,11 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                 && item.Item1 is MapNpc;
         }
 
-        public void Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
+        public Task Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
             if (requestData.ClientSession.Character.InExchangeOrTrade)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var medalBonus = requestData.ClientSession.Character.StaticBonusList
@@ -57,6 +58,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                 Unknown = medal,
                 Unknown2 = (byte) time
             });
+            return Task.CompletedTask;
         }
     }
 }

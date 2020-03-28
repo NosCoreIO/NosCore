@@ -56,15 +56,15 @@ namespace NosCore.PacketHandlers.Chat
             _packetHttpClient = packetHttpClient;
         }
 
-        public override Task Execute(BtkPacket btkPacket, ClientSession session)
+        public override async Task Execute(BtkPacket btkPacket, ClientSession session)
         {
-            var friendlist = _friendHttpClient.GetListFriends(session.Character.VisualId);
+            var friendlist = await _friendHttpClient.GetListFriends(session.Character.VisualId);
 
-            if (!friendlist.Any(s => s.CharacterId == btkPacket.CharacterId))
+            if (friendlist.All(s => s.CharacterId != btkPacket.CharacterId))
             {
                 _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
                     session.Account.Language));
-                return Task.CompletedTask;
+                return;
             }
 
             var message = btkPacket.Message;
@@ -81,10 +81,10 @@ namespace NosCore.PacketHandlers.Chat
             if (receiverSession != null)
             {
                 receiverSession.SendPacket(session.Character.GenerateTalk(message));
-                return Task.CompletedTask;
+                return;
             }
 
-            var receiver = _connectedAccountHttpClient.GetCharacter(btkPacket.CharacterId, null);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(btkPacket.CharacterId, null);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -92,20 +92,19 @@ namespace NosCore.PacketHandlers.Chat
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, session.Account.Language)
                 });
-                return Task.CompletedTask;
+                return;
             }
 
-            _packetHttpClient.BroadcastPacket(new PostedPacket
+            await _packetHttpClient.BroadcastPacket(new PostedPacket
             {
-                Packet = _packetSerializer.Serialize(new[] {session.Character.GenerateTalk(message)}),
+                Packet = _packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character
-                    {Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name},
+                { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name },
                 SenderCharacter = new Character
-                    {Name = session.Character.Name, Id = session.Character.CharacterId},
+                { Name = session.Character.Name, Id = session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
             }, receiver.Item2.ChannelId);
-            return Task.CompletedTask;
         }
     }
 }

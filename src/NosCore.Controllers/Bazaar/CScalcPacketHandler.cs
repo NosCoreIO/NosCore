@@ -56,14 +56,14 @@ namespace NosCore.PacketHandlers.Bazaar
             _itemInstanceDao = itemInstanceDao;
         }
 
-        public override Task Execute(CScalcPacket packet, ClientSession clientSession)
+        public override async Task Execute(CScalcPacket packet, ClientSession clientSession)
         {
             if (clientSession.Character!.InExchangeOrTrade)
             {
-                return Task.CompletedTask;
+                return;
             }
 
-            var bz = _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
+            var bz =  await _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name))
             {
                 var soldedamount = bz.BazaarItem.Amount - bz.ItemInstance.Amount;
@@ -81,7 +81,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == bz.ItemInstance.Id);
                         if (itemInstance == null)
                         {
-                            return Task.CompletedTask;
+                            return;
                         }
                         var item = _itemProvider.Convert(itemInstance);
                         item.Id = Guid.NewGuid();
@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             clientSession.Character.InventoryService.AddItemToPocket(
                                 InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
                         clientSession.SendPacket(newInv.GeneratePocketChange());
-                        var remove = _bazaarHttpClient.Remove(packet.BazaarId, bz.ItemInstance.Amount,
+                        var remove = await _bazaarHttpClient.Remove(packet.BazaarId, bz.ItemInstance.Amount,
                             clientSession.Character.Name);
                         if (remove)
                         {
@@ -103,8 +103,9 @@ namespace NosCore.PacketHandlers.Bazaar
                                 Taxes = taxes,
                                 Total = price + taxes
                             });
-                            return clientSession.HandlePackets(new[]
+                            await clientSession.HandlePackets(new[]
                                 {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}});
+                            return;
                         }
 
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.BAZAAR_DELETE_ERROR));
@@ -139,7 +140,6 @@ namespace NosCore.PacketHandlers.Bazaar
                 clientSession.SendPacket(new RCScalcPacket
                     {Type = VisualType.Player, Price = 0, RemainingAmount = 0, Amount = 0, Taxes = 0, Total = 0});
             }
-            return Task.CompletedTask;
         }
     }
 }

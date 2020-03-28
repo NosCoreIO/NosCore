@@ -39,14 +39,14 @@ namespace NosCore.PacketHandlers.Friend
             _blacklistHttpClient = blacklistHttpClient;
         }
 
-        public override Task Execute(BlDelPacket bldelPacket, ClientSession session)
+        public override async Task Execute(BlDelPacket bldelPacket, ClientSession session)
         {
-            var list = _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
+            var list = await _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == bldelPacket.CharacterId);
             if (idtorem != null)
             {
-                _blacklistHttpClient.DeleteFromBlacklist(idtorem.CharacterRelationId);
-                session.SendPacket(session.Character.GenerateBlinit(_blacklistHttpClient));
+                await _blacklistHttpClient.DeleteFromBlacklist(idtorem.CharacterRelationId);
+                session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient));
             }
             else
             {
@@ -56,7 +56,6 @@ namespace NosCore.PacketHandlers.Friend
                         session.Account.Language)
                 });
             }
-            return Task.CompletedTask;
         }
     }
 }

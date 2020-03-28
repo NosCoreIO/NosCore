@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.GameObject.Networking.ClientSession;
@@ -42,7 +43,10 @@ namespace NosCore.GameObject.Providers.GuriProvider
             {
                 if (handler.Condition(data))
                 {
-                    handlersRequest.Subscribe(handler.Execute);
+                    handlersRequest.Subscribe(async o => await Observable.FromAsync(async () =>
+                    {
+                        await handler.Execute(o);
+                    }));
                 }
             });
             handlersRequest.OnNext(new RequestData<GuriPacket>(clientSession, data));

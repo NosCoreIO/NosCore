@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Auction;
@@ -60,7 +61,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public void ListShouldReturnEmptyWhenNoItems()
+        public async Task ListShouldReturnEmptyWhenNoItems()
         {
             _bazaarHttpClient.Setup(b =>
                 b.GetBazaarLinks(
@@ -73,14 +74,14 @@ namespace NosCore.Tests.BazaarTests
                     It.IsAny<byte>(),
                     It.IsAny<byte>(),
                     It.IsAny<long?>())
-            ).Returns(new List<BazaarLink>());
-            _cblistPacketHandler.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session);
+            ).ReturnsAsync(new List<BazaarLink>());
+            await _cblistPacketHandler.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session);
             var lastpacket = (RcbListPacket) _session.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket.Items.Count == 0);
         }
 
         [TestMethod]
-        public void ListShouldReturnTheItems()
+        public async Task ListShouldReturnTheItems()
         {
             _bazaarHttpClient.Setup(b =>
                 b.GetBazaarLinks(
@@ -93,7 +94,7 @@ namespace NosCore.Tests.BazaarTests
                     It.IsAny<byte>(),
                     It.IsAny<byte>(),
                     It.IsAny<long?>())
-            ).Returns(new List<BazaarLink>
+            ).ReturnsAsync(new List<BazaarLink>
             {
                 new BazaarLink
                 {
@@ -103,13 +104,13 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 }
             });
-            _cblistPacketHandler.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session);
+            await _cblistPacketHandler.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session);
             var lastpacket = (RcbListPacket) _session.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket.Items.Count == 1);
         }
 
         [TestMethod]
-        public void ListShouldReturnTheItemsNotValid()
+        public async Task ListShouldReturnTheItemsNotValid()
         {
             _bazaarHttpClient.Setup(b =>
                 b.GetBazaarLinks(
@@ -122,7 +123,7 @@ namespace NosCore.Tests.BazaarTests
                     It.IsAny<byte>(),
                     It.IsAny<byte>(),
                     It.IsAny<long?>())
-            ).Returns(new List<BazaarLink>
+            ).ReturnsAsync(new List<BazaarLink>
             {
                 new BazaarLink
                 {
@@ -131,7 +132,7 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 }
             });
-            _cblistPacketHandler.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session);
+            await _cblistPacketHandler.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session);
             var lastpacket = (RcbListPacket) _session.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket.Items.Count == 0);
         }

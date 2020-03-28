@@ -43,10 +43,10 @@ namespace NosCore.PacketHandlers.Friend
             _minilandProvider = minilandProvider;
         }
 
-        public override Task Execute(MJoinPacket mJoinPacket, ClientSession session)
+        public override async Task Execute(MJoinPacket mJoinPacket, ClientSession session)
         {
             var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == mJoinPacket.VisualId);
-            var friendList = _friendHttpClient.GetListFriends(session.Character.CharacterId);
+            var friendList = await _friendHttpClient.GetListFriends(session.Character.CharacterId);
             if (target != null && friendList.Any(s => s.CharacterId == mJoinPacket.VisualId))
             {
                 var miniland = _minilandProvider.GetMiniland(mJoinPacket.VisualId);
@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Friend
                             .Contains(target.VisualId))
                     {
                         session.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
-                        return Task.CompletedTask;
+                        return;
                     }
                     session.SendPacket(new InfoPacket
                     {
@@ -72,7 +72,6 @@ namespace NosCore.PacketHandlers.Friend
                     });
                 }
             }
-            return Task.CompletedTask;
         }
     }
 }

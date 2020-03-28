@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -53,7 +54,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 || (item.ItemType == ItemType.Specialist);
         }
 
-        public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(123));
 
@@ -62,7 +63,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             if (requestData.ClientSession.Character.InExchangeOrShop)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP));
-                return;
+                return Task.CompletedTask;
             }
 
             if (itemInstance.ItemInstance.BoundCharacterId == null && (packet.Mode == 0) && itemInstance.ItemInstance.Item.RequireBinding)
@@ -75,7 +76,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                             itemInstance.Slot, 1, (byte)packet.Parameter),
                         Question = requestData.ClientSession.GetMessageFromKey(LanguageKey.ASK_BIND)
                     });
-                return;
+                return Task.CompletedTask;
             }
 
             if ((itemInstance.ItemInstance.Item.LevelMinimum > (itemInstance.ItemInstance.Item.IsHeroic
@@ -91,7 +92,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     requestData.ClientSession.Character.GenerateSay(
                         requestData.ClientSession.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT),
                         SayColorType.Yellow));
-                return;
+                return Task.CompletedTask;
             }
 
             if (requestData.ClientSession.Character.UseSp &&
@@ -109,7 +110,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
                             requestData.ClientSession.Account.Language)
                     });
-                    return;
+                    return Task.CompletedTask;
                 }
             }
 
@@ -127,7 +128,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                                 requestData.ClientSession.Account.Language),
                             requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage))
                     });
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 if (requestData.ClientSession.Character.UseSp)
@@ -135,7 +136,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     requestData.ClientSession.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
                             requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED), SayColorType.Yellow));
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 if (itemInstance.ItemInstance.Rare == -2)
@@ -145,7 +146,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
                             requestData.ClientSession.Account.Language)
                     });
-                    return;
+                    return Task.CompletedTask;
                 }
             }
 
@@ -155,7 +156,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     requestData.ClientSession.Character.GenerateSay(
                         requestData.ClientSession.GetMessageFromKey(LanguageKey.LOW_JOB_LVL),
                         SayColorType.Yellow));
-                return;
+                return Task.CompletedTask;
             }
 
             requestData.ClientSession.Character.InventoryService.MoveInPocket(packet.Slot, (NoscorePocketType)packet.Type,
@@ -195,6 +196,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 itemInstance.ItemInstance.ItemDeleteTime =
                     SystemTime.Now().AddSeconds(itemInstance.ItemInstance.Item.ItemValidTime);
             }
+            return Task.CompletedTask;
         }
     }
 }

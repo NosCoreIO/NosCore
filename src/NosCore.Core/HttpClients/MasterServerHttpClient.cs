@@ -25,7 +25,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
+using System.Text.Json;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 
 namespace NosCore.Core.HttpClients
@@ -47,7 +47,7 @@ namespace NosCore.Core.HttpClients
         public virtual string ApiUrl { get; set; } = "";
         public virtual bool RequireConnection { get; set; }
 
-        public virtual HttpClient Connect()
+        public virtual async Task<HttpClient?> Connect()
         {
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
@@ -55,16 +55,16 @@ namespace NosCore.Core.HttpClients
             if (RequireConnection)
             {
                 client.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", _channelHttpClient.GetOrRefreshToken());
+                    new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshToken().ConfigureAwait(false));
             }
 
             return client;
         }
 
-        public HttpClient Connect(int channelId)
+        public async Task<HttpClient?> Connect(int channelId)
         {
             using var client = _httpClientFactory.CreateClient();
-            var channel = _channelHttpClient.GetChannel(channelId);
+            var channel = await _channelHttpClient.GetChannel(channelId).ConfigureAwait(false);
             if (channel == null)
             {
                 return null;
@@ -75,66 +75,76 @@ namespace NosCore.Core.HttpClients
             return client;
         }
 
-        protected T Post<T>(object objectToPost)
+        protected async Task<T> Post<T>(object objectToPost)
         {
-            var client = Connect();
-            using var content = new StringContent(JsonConvert.SerializeObject(objectToPost),
+            var client = await Connect().ConfigureAwait(false);
+            using var content = new StringContent(JsonSerializer.Serialize(objectToPost),
                 Encoding.Default, "application/json");
-            var response = client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).Result;
+            var response = await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+                return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync().ConfigureAwait(false),
+                    new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
             }
 
             throw new WebException();
         }
 
 
-        protected T Patch<T>(object id, object objectToPost)
+        protected async Task<T> Patch<T>(object id, object objectToPost)
         {
-            var client = Connect();
-            using var content = new StringContent(JsonConvert.SerializeObject(objectToPost),
+            var client = await Connect().ConfigureAwait(false);
+            using var content = new StringContent(JsonSerializer.Serialize(objectToPost),
                 Encoding.Default, "application/json");
-            var response = client.PatchAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}"), content).Result;
+            var response = await client.PatchAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}"), content).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+                return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
             }
 
             throw new WebException();
         }
 
-        protected Task Post(object objectToPost)
+        protected async Task<HttpResponseMessage> Post(object objectToPost)
         {
-            var client = Connect();
-            using var content = new StringContent(JsonConvert.SerializeObject(objectToPost),
+            var client = await Connect().ConfigureAwait(false);
+            using var content = new StringContent(JsonSerializer.Serialize(objectToPost),
                 Encoding.Default, "application/json");
-            return client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content);
+            return await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
         }
 
         [return: MaybeNull]
-        protected T Get<T>()
+        protected async Task<T> Get<T>()
         {
-            return Get<T>(null);
+            return await Get<T>(null).ConfigureAwait(false);
         }
 
         [return: MaybeNull]
-        protected T Get<T>(object? id)
+        protected async Task<T> Get<T>(object? id)
         {
-            var client = Connect();
-            var response = client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}{(id != null ? $"?id={id}" : "")}")).Result;
+            var client = await Connect().ConfigureAwait(false);
+            var response = await client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}{(id != null ? $"?id={id}" : "")}")).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+                return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
             }
 
             throw new WebException();
         }
 
-        protected Task Delete(object id)
+        protected async Task<HttpResponseMessage> Delete(object id)
         {
-            var client = Connect();
-            return client.DeleteAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}"));
+            var client = await Connect().ConfigureAwait(false);
+            return await client.DeleteAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}")).ConfigureAwait(false);
         }
     }
 }

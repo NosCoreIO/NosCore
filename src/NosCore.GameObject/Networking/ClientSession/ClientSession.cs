@@ -162,7 +162,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 return;
             }
             //https://github.com/Azure/DotNetty/issues/265
-            Task.Run(async () => { await HandlePackets(buff, context); });
+            Task.Run(async () => { await HandlePackets(buff, context); }).ConfigureAwait(false);
         }
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
@@ -177,7 +177,10 @@ namespace NosCore.GameObject.Networking.ClientSession
                         Character.Hp = 1;
                     }
 
-                    Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, false);
+                    Task.Run(async () =>
+                    {
+                        await Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, false);
+                    }).ConfigureAwait(false);
 
                     var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
                     if (targetId.HasValue)

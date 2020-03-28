@@ -42,10 +42,10 @@ namespace NosCore.PacketHandlers.Command
             _mailHttpClient = mailHttpClient;
         }
 
-        public override Task Execute(GiftPacket giftPacket, ClientSession session)
+        public override async Task Execute(GiftPacket giftPacket, ClientSession session)
         {
             var receiver =
-                _connectedAccountHttpClient.GetCharacter(null, giftPacket.CharacterName ?? session.Character!.Name);
+                await _connectedAccountHttpClient.GetCharacter(null, giftPacket.CharacterName ?? session.Character!.Name);
 
             if (receiver.Item2 == null)
             {
@@ -54,15 +54,14 @@ namespace NosCore.PacketHandlers.Command
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
-                return Task.CompletedTask;
+                return;
             }
 
-            _mailHttpClient.SendGift(session.Character!, receiver.Item2.ConnectedCharacter.Id, giftPacket.VNum,
+            await _mailHttpClient.SendGift(session.Character!, receiver.Item2.ConnectedCharacter.Id, giftPacket.VNum,
                 giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false);
             session.SendPacket(session.Character!.GenerateSay(Language.Instance.GetMessageFromKey(
                 LanguageKey.GIFT_SENT,
                 session.Account.Language), SayColorType.Yellow));
-            return Task.CompletedTask;
         }
     }
 }

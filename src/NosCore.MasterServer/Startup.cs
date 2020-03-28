@@ -223,9 +223,9 @@ namespace NosCore.MasterServer
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
-
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
+            TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
 
             var containerBuilder = InitializeContainer(services);

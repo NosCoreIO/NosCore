@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -40,7 +41,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             return (item.ItemInstance.Item.ItemType != ItemType.Map) && (item.VNum != 1046);
         }
 
-        public void Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
+        public Task Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             var amount = requestData.Data.Item1.Amount;
             var inv = requestData.ClientSession.Character.InventoryService.AddItemToPocket(
@@ -84,6 +85,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                     Type = 0
                 });
             }
+            return Task.CompletedTask;
         }
     }
 }

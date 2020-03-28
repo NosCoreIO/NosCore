@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
@@ -60,14 +61,14 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             return message.Trim();
         }
 
-        public void Execute(RequestData<GuriPacket> requestData)
+        public Task Execute(RequestData<GuriPacket> requestData)
         {
             var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)requestData.Data.VisualId,
                 NoscorePocketType.Etc);
             if (inv?.ItemInstance.Item.Effect != ItemEffectType.Speaker)
             {
                 _logger.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEM_NOT_FOUND), NoscorePocketType.Etc, (short)requestData.Data.VisualId));
-                return;
+                return Task.CompletedTask;
             }
 
             string data = requestData.Data.Value;
@@ -84,7 +85,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
                 if (deeplink == null)
                 {
                     _logger.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEM_NOT_FOUND), type, slot));
-                    return;
+                    return Task.CompletedTask;
                 }
                 message = CraftMessage(message, valuesplit.Skip(2).ToArray()).Replace(' ', '|');
                 Broadcaster.Instance.SendPacket(requestData.ClientSession.Character.GenerateSayItem(message, deeplink), new EveryoneBut(requestData.ClientSession.Channel.Id));
@@ -97,6 +98,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
             requestData.ClientSession.Character.SendPacket(inv.GeneratePocketChange(PocketType.Etc, (short)requestData.Data.VisualId));
+            return Task.CompletedTask;
         }
     }
 }

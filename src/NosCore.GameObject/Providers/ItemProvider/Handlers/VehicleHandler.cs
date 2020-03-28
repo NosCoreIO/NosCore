@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -46,14 +47,14 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             return (item.ItemType == ItemType.Special) && (item.Effect == ItemEffectType.Vehicle);
         }
 
-        public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
             if (requestData.ClientSession.Character.InExchangeOrShop)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP));
-                return;
+                return Task.CompletedTask;
             }
 
             if ((packet.Mode == 1) && !requestData.ClientSession.Character.IsVehicled)
@@ -66,7 +67,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                         itemInstance.Slot,
                         2, 0)
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             if ((packet.Mode == 2) && !requestData.ClientSession.Character.IsVehicled)
@@ -88,10 +89,11 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character
                     .GenerateCMode());
                 requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateCond());
-                return;
+                return Task.CompletedTask;
             }
 
             requestData.ClientSession.Character.RemoveVehicle();
+            return Task.CompletedTask;
         }
     }
 }

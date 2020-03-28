@@ -47,25 +47,22 @@ namespace NosCore.PacketHandlers.Friend
             _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
-        public override Task Execute(FdelPacket fdelPacket, ClientSession session)
+        public override async Task Execute(FdelPacket fdelPacket, ClientSession session)
         {
-            var list = _friendHttpClient.GetListFriends(session.Character.VisualId);
+            var list = await _friendHttpClient.GetListFriends(session.Character.VisualId);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == fdelPacket.CharacterId);
             if (idtorem != null)
             {
-                _friendHttpClient.DeleteFriend(idtorem.CharacterRelationId);
+                await _friendHttpClient.DeleteFriend(idtorem.CharacterRelationId);
                 session.SendPacket(new InfoPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)
                 });
                 var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
-                if (targetCharacter != null)
-                {
-                    targetCharacter.SendPacket(targetCharacter.GenerateFinit(_friendHttpClient, _channelHttpClient,
-                        _connectedAccountHttpClient));
-                }
+                targetCharacter?.SendPacket(await targetCharacter.GenerateFinit(_friendHttpClient, _channelHttpClient,
+                    _connectedAccountHttpClient));
 
-                session.Character.SendPacket(session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient,
+                session.Character.SendPacket(await session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient,
                     _connectedAccountHttpClient));
             }
             else
@@ -76,7 +73,6 @@ namespace NosCore.PacketHandlers.Friend
                         session.Account.Language)
                 });
             }
-            return Task.CompletedTask;
         }
     }
 }

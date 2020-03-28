@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject
@@ -25,6 +26,6 @@ namespace NosCore.GameObject
     {
         bool Condition(T condition);
 
-        void Execute(RequestData<T2> requestData);
+        Task Execute(RequestData<T2> requestData);
     }
 }

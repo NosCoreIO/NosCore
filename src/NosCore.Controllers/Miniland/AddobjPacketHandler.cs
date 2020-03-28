@@ -44,13 +44,13 @@ namespace NosCore.PacketHandlers.Miniland
             _minilandProvider = minilandProvider;
         }
 
-        public override Task Execute(AddobjPacket addobjPacket, ClientSession clientSession)
+        public override async Task Execute(AddobjPacket addobjPacket, ClientSession clientSession)
         {
             var minilandobject =
                 clientSession.Character.InventoryService.LoadBySlotAndType(addobjPacket.Slot, NoscorePocketType.Miniland);
             if (minilandobject == null)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             if (clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Miniland
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_THIS_MINILANDOBJECT,
                         clientSession.Account.Language)
                 });
-                return Task.CompletedTask;
+                return;
             }
 
             if (_minilandProvider.GetMiniland(clientSession.Character.CharacterId).State != MinilandState.Lock)
@@ -70,7 +70,7 @@ namespace NosCore.PacketHandlers.Miniland
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_NEED_LOCK,
                         clientSession.Account.Language)
                 });
-                return Task.CompletedTask;
+                return;
             }
 
             var minilandobj = new MapDesignObject
@@ -94,7 +94,7 @@ namespace NosCore.PacketHandlers.Miniland
                             minilandobject.ItemInstance.Item.ItemSubType)).Value;
                 if (min != null)
                 {
-                    clientSession.HandlePackets(new[] {new RmvobjPacket {Slot = min.InventoryItemInstance.Slot}});
+                    await clientSession.HandlePackets(new[] {new RmvobjPacket {Slot = min.InventoryItemInstance.Slot}});
                 }
             }
 
@@ -104,7 +104,6 @@ namespace NosCore.PacketHandlers.Miniland
             clientSession.SendPacket(new MinilandPointPacket
                 {MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100});
             clientSession.SendPacket(minilandobj.GenerateMapDesignObject());
-            return Task.CompletedTask;
         }
     }
 }

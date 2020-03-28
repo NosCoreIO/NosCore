@@ -142,7 +142,7 @@ namespace NosCore.Core.Controllers
 
         // GET api/channel
         [HttpGet]
-        public static List<ChannelInfo> GetChannels(long? id)
+        public List<ChannelInfo> GetChannels(long? id)
         {
             return id != null ? MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList() : MasterClientListSingleton.Instance.Channels;
         }

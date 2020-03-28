@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -59,24 +60,24 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _blInsPacketHandler = new BlInsPackettHandler(TestHelpers.Instance.BlacklistHttpClient.Object);
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                         {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
             TestHelpers.Instance.ConnectedAccountHttpClient.Setup(s => s.GetCharacter(null, _session.Character.Name))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                         {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
         }
 
         [TestMethod]
-        public void Test_Blacklist_When_Disconnected()
+        public async Task Test_Blacklist_When_Disconnected()
         {
             var blinsPacket = new BlInsPacket
             {
                 CharacterId = 2
             };
 
-            _blInsPacketHandler.Execute(blinsPacket, _session);
+            await _blInsPacketHandler.Execute(blinsPacket, _session);
             Assert.IsNull(
                 _characterRelationDao.FirstOrDefault(s =>
                     (_session.Character.CharacterId == s.CharacterId) &&
@@ -84,12 +85,12 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         }
 
         [TestMethod]
-        public void Test_Blacklist_Character()
+        public async Task Test_Blacklist_Character()
         {
             var targetSession = TestHelpers.Instance.GenerateSession();
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacter(targetSession.Character.CharacterId, null))
-                .Returns((new ServerConfiguration(),
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     {
                         ChannelId = 1, ConnectedCharacter = new Character {Id = targetSession.Character.CharacterId}
@@ -110,7 +111,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            _blInsPacketHandler.Execute(blinsPacket, _session);
+           await _blInsPacketHandler.Execute(blinsPacket, _session);
             Assert.IsNotNull(
                 _characterRelationDao.FirstOrDefault(s => (_session.Character.CharacterId == s.CharacterId)
                     && (targetSession.Character.CharacterId == s.RelatedCharacterId) &&

@@ -21,7 +21,8 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Threading.Tasks;
 using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Data.WebApi;
@@ -40,16 +41,16 @@ namespace NosCore.GameObject.HttpClients.StatHttpClient
             _httpClientFactory = httpClientFactory;
         }
 
-        public void ChangeStat(StatData data, ServerConfiguration item1)
+        public async Task ChangeStat(StatData data, ServerConfiguration item1)
         {
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(item1.ToString());
             client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _channelHttpClient.GetOrRefreshToken());
+                new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshToken());
 
-            var content = new StringContent(JsonConvert.SerializeObject(data),
+            var content = new StringContent(JsonSerializer.Serialize(data),
                 Encoding.Default, "application/json");
-            client.PostAsync(ApiUrl, content);
+            await client.PostAsync(ApiUrl, content);
         }
     }
 }

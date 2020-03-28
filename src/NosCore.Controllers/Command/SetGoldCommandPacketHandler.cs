@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Command
             _statHttpClient = statHttpClient;
         }
 
-        public override Task Execute(SetGoldCommandPacket goldPacket, ClientSession session)
+        public override async Task Execute(SetGoldCommandPacket goldPacket, ClientSession session)
         {
             var data = new StatData
             {
@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = goldPacket.Gold
             };
 
-            var receiver = _connectedAccountHttpClient.GetCharacter(null, goldPacket.Name ?? session.Character.Name);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(null, goldPacket.Name ?? session.Character.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -63,13 +63,12 @@ namespace NosCore.PacketHandlers.Command
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
-                return Task.CompletedTask;
+                return;
             }
 
-            _statHttpClient.ChangeStat(data, receiver.Item1);
+            await _statHttpClient.ChangeStat(data, receiver.Item1);
 
             session.SendPacket(session.Character.GenerateGold());
-            return Task.CompletedTask;
         }
     }
 }

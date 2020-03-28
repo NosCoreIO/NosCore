@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -47,7 +48,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 (item.Effect <= ItemEffectType.CraftedSpRecharger);
         }
 
-        public void Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.MaxAdditionalSpPoints)
             {
@@ -67,6 +68,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     Type = MessageType.White
                 });
             }
+            return Task.CompletedTask;
         }
     }
 }

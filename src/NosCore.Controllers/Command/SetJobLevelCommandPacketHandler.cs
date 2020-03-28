@@ -44,12 +44,12 @@ namespace NosCore.PacketHandlers.Command
             _statHttpClient = statHttpClient;
         }
 
-        public override Task Execute(SetJobLevelCommandPacket levelPacket, ClientSession session)
+        public override async Task Execute(SetJobLevelCommandPacket levelPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
                 session.Character.SetJobLevel(levelPacket.Level);
-                return Task.CompletedTask;
+                return;
             }
 
             var data = new StatData
@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var receiver = _connectedAccountHttpClient.GetCharacter(null, levelPacket.Name);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(null, levelPacket.Name);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -68,11 +68,10 @@ namespace NosCore.PacketHandlers.Command
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
-                return Task.CompletedTask;
+                return;
             }
 
-            _statHttpClient.ChangeStat(data, receiver.Item1);
-            return Task.CompletedTask;
+            await _statHttpClient.ChangeStat(data, receiver.Item1);
         }
     }
 }
