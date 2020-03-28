@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
@@ -44,7 +45,7 @@ namespace NosCore.PacketHandlers.Command
             _statHttpClient = statHttpClient;
         }
 
-        public override void Execute(SetGoldCommandPacket goldPacket, ClientSession session)
+        public override Task Execute(SetGoldCommandPacket goldPacket, ClientSession session)
         {
             var data = new StatData
             {
@@ -62,12 +63,13 @@ namespace NosCore.PacketHandlers.Command
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             _statHttpClient.ChangeStat(data, receiver.Item1);
 
             session.SendPacket(session.Character.GenerateGold());
+            return Task.CompletedTask;
         }
     }
 }

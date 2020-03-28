@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
@@ -53,7 +54,7 @@ namespace NosCore.PacketHandlers.Bazaar
             _itemInstanceDao = itemInstanceDao;
         }
 
-        public override void Execute(CBuyPacket packet, ClientSession clientSession)
+        public override async Task Execute(CBuyPacket packet, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
@@ -89,7 +90,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             clientSession.Character.Name);
                         if (remove)
                         {
-                            clientSession.HandlePackets(new[]
+                            await clientSession.HandlePackets(new[]
                                 {new CBListPacket {Index = 0, ItemVNumFilter = new List<short>()}});
                             clientSession.SendPacket(new RCBuyPacket
                             {

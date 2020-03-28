@@ -28,6 +28,7 @@ using NosCore.GameObject.Helper;
 using NosCore.GameObject.HttpClients.WarehouseHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MinilandProvider;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
@@ -42,7 +43,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             _warehouseHttpClient = warehouseHttpClient;
         }
 
-        public override void Execute(UseObjPacket useobjPacket, ClientSession clientSession)
+        public override Task Execute(UseObjPacket useobjPacket, ClientSession clientSession)
         {
             var miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             var minilandObject =
@@ -111,6 +112,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     });
                 }
             }
+            return Task.CompletedTask;
         }
     }
 }

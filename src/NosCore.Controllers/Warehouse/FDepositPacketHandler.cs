@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Warehouse;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
@@ -25,8 +26,9 @@ namespace NosCore.PacketHandlers.Warehouse
 {
     public class FDepositPacketHandler : PacketHandler<FDepositPacket>, IWorldPacketHandler
     {
-        public override void Execute(FDepositPacket fdepositPacket, ClientSession clientSession)
+        public override Task Execute(FDepositPacket fdepositPacket, ClientSession clientSession)
         {
+            return Task.CompletedTask;
         }
     }
 }

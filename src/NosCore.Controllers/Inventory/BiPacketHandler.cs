@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -39,7 +40,7 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override void Execute(BiPacket bIPacket, ClientSession clientSession)
+        public override Task Execute(BiPacket bIPacket, ClientSession clientSession)
         {
             switch (bIPacket.Option)
             {
@@ -89,7 +90,7 @@ namespace NosCore.PacketHandlers.Inventory
                     if (clientSession.Character.InExchangeOrShop)
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     var item = clientSession.Character.InventoryService.DeleteFromTypeAndSlot(
@@ -97,8 +98,9 @@ namespace NosCore.PacketHandlers.Inventory
                     clientSession.SendPacket(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot));
                     break;
                 default:
-                    return;
+                    return Task.CompletedTask;
             }
+            return Task.CompletedTask;
         }
     }
 }

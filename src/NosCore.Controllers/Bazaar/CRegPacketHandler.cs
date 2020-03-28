@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
@@ -55,11 +56,11 @@ namespace NosCore.PacketHandlers.Bazaar
             _inventoryItemInstanceDao = inventoryItemInstanceDao;
         }
 
-        public override void Execute(CRegPacket cRegPacket, ClientSession clientSession)
+        public override Task Execute(CRegPacket cRegPacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var medal = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
@@ -79,12 +80,12 @@ namespace NosCore.PacketHandlers.Bazaar
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
                         clientSession.Account.Language)
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             if ((cRegPacket.Amount <= 0) || clientSession.Character.InExchangeOrShop || cRegPacket.Inventory > (byte)PocketType.Etc)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var it = clientSession.Character.InventoryService.LoadBySlotAndType(cRegPacket.Slot,
@@ -92,7 +93,7 @@ namespace NosCore.PacketHandlers.Bazaar
             if ((it == null) || !it.ItemInstance.Item.IsSoldable || (it.ItemInstance.BoundCharacterId != null) ||
                 (cRegPacket.Amount > it.ItemInstance.Amount))
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if (price > (medal == null ? 100000000 : maxGold))
@@ -102,12 +103,12 @@ namespace NosCore.PacketHandlers.Bazaar
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED,
                         clientSession.Account.Language)
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             if ((medal == null) && (cRegPacket.Durability > 1))
             {
-                return;
+                return Task.CompletedTask;
             }
 
             short duration;
@@ -130,7 +131,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     break;
 
                 default:
-                    return;
+                    return Task.CompletedTask;
             }
 
             var bazar = clientSession.Character.InventoryService.LoadBySlotAndType(cRegPacket.Slot,
@@ -190,6 +191,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     clientSession.SendPacket(new RCRegPacket {Type = VisualType.Player});
                     break;
             }
+            return Task.CompletedTask;
         }
     }
 }

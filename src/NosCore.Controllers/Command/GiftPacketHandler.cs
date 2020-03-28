@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
@@ -41,7 +42,7 @@ namespace NosCore.PacketHandlers.Command
             _mailHttpClient = mailHttpClient;
         }
 
-        public override void Execute(GiftPacket giftPacket, ClientSession session)
+        public override Task Execute(GiftPacket giftPacket, ClientSession session)
         {
             var receiver =
                 _connectedAccountHttpClient.GetCharacter(null, giftPacket.CharacterName ?? session.Character!.Name);
@@ -53,7 +54,7 @@ namespace NosCore.PacketHandlers.Command
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             _mailHttpClient.SendGift(session.Character!, receiver.Item2.ConnectedCharacter.Id, giftPacket.VNum,
@@ -61,6 +62,7 @@ namespace NosCore.PacketHandlers.Command
             session.SendPacket(session.Character!.GenerateSay(Language.Instance.GetMessageFromKey(
                 LanguageKey.GIFT_SENT,
                 session.Account.Language), SayColorType.Yellow));
+            return Task.CompletedTask;
         }
     }
 }

@@ -66,7 +66,7 @@ namespace NosCore.Core.Encryption
                     encryptedData[i + j] = (byte) ~strBytes[i];
                 }
 
-                encryptedData[encryptedData.Length - 1] = 0xFF;
+                encryptedData[^1] = 0xFF;
                 return encryptedData;
             }).ToArray()));
         }

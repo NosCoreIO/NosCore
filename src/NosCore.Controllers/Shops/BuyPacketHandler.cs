@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Configuration;
@@ -41,18 +42,18 @@ namespace NosCore.PacketHandlers.Shops
             _logger = logger;
         }
 
-        public override void Execute(BuyPacket buyPacket, ClientSession clientSession)
+        public override Task Execute(BuyPacket buyPacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
                 //TODO log
-                return;
+                return Task.CompletedTask;
             }
 
             if (buyPacket.Amount > _worldConfiguration.MaxItemAmount)
             {
                 //TODO log
-                return;
+                return Task.CompletedTask;
             }
 
             IAliveEntity aliveEntity;
@@ -68,16 +69,17 @@ namespace NosCore.PacketHandlers.Shops
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
                         buyPacket.VisualType);
-                    return;
+                    return Task.CompletedTask;
             }
 
             if (aliveEntity == null)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
-                return;
+                return Task.CompletedTask;
             }
 
             clientSession.Character.Buy(aliveEntity.Shop, buyPacket.Slot, buyPacket.Amount);
+            return Task.CompletedTask;
         }
     }
 }

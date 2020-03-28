@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Shop;
@@ -41,12 +42,12 @@ namespace NosCore.PacketHandlers.Shops
             _worldConfiguration = worldConfiguration;
         }
 
-        public override void Execute(SellPacket sellPacket, ClientSession clientSession)
+        public override Task Execute(SellPacket sellPacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
                 //TODO log
-                return;
+                return Task.CompletedTask;
             }
 
             if (sellPacket.Amount.HasValue && sellPacket.Slot.HasValue)
@@ -57,7 +58,7 @@ namespace NosCore.PacketHandlers.Shops
                 if ((inv == null) || (sellPacket.Amount.Value > inv.ItemInstance.Amount))
                 {
                     //TODO log
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 if (!inv.ItemInstance.Item.IsSoldable)
@@ -68,7 +69,7 @@ namespace NosCore.PacketHandlers.Shops
                         Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE,
                             clientSession.Account.Language)
                     });
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 var price = inv.ItemInstance.Item.ItemType == ItemType.Sell ? inv.ItemInstance.Item.Price
@@ -82,7 +83,7 @@ namespace NosCore.PacketHandlers.Shops
                             clientSession.Account.Language),
                         Type = 0
                     });
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 clientSession.Character.Gold += price * sellPacket.Amount.Value;
@@ -101,6 +102,7 @@ namespace NosCore.PacketHandlers.Shops
                     inv.ItemInstanceId);
                 clientSession.SendPacket(clientSession.Character.GenerateGold());
             }
+            return Task.CompletedTask;
         }
     }
 }

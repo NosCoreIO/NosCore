@@ -157,12 +157,13 @@ namespace NosCore.Core.Controllers
         [HttpGet]
         public IActionResult GetExpectingConnection(string? id, string? token, long sessionId)
         {
-            if (token == null || !SessionFactory.Instance.AuthCodes.ContainsKey(token))
+            var sessionGuid = HexStringToString(token ?? "");
+            if (!SessionFactory.Instance.AuthCodes.ContainsKey(sessionGuid))
             {
                 return Ok(null);
             }
 
-            var username = SessionFactory.Instance.AuthCodes[token];
+            var username = SessionFactory.Instance.AuthCodes[sessionGuid];
             SessionFactory.Instance.ReadyForAuth.AddOrUpdate(username, sessionId, (key, oldValue) => sessionId);
             return Ok(username);
 

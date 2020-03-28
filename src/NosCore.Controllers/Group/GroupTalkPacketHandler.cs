@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -29,16 +30,17 @@ namespace NosCore.PacketHandlers.Group
 {
     public class GroupTalkPacketHandler : PacketHandler<GroupTalkPacket>, IWorldPacketHandler
     {
-        public override void Execute(GroupTalkPacket groupTalkPacket, ClientSession clientSession)
+        public override Task Execute(GroupTalkPacket groupTalkPacket, ClientSession clientSession)
         {
             if (clientSession.Character.Group.Count == 1)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             clientSession.Character.Group.SendPacket(
                 clientSession.Character.GenerateSpk(new SpeakPacket
                     {Message = groupTalkPacket.Message, SpeakType = SpeakType.Group}));
+            return Task.CompletedTask;
         }
     }
 }

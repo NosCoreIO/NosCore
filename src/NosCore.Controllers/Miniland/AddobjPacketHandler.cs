@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Miniland;
@@ -43,13 +44,13 @@ namespace NosCore.PacketHandlers.Miniland
             _minilandProvider = minilandProvider;
         }
 
-        public override void Execute(AddobjPacket addobjPacket, ClientSession clientSession)
+        public override Task Execute(AddobjPacket addobjPacket, ClientSession clientSession)
         {
             var minilandobject =
                 clientSession.Character.InventoryService.LoadBySlotAndType(addobjPacket.Slot, NoscorePocketType.Miniland);
             if (minilandobject == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if (clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
@@ -59,7 +60,7 @@ namespace NosCore.PacketHandlers.Miniland
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_THIS_MINILANDOBJECT,
                         clientSession.Account.Language)
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             if (_minilandProvider.GetMiniland(clientSession.Character.CharacterId).State != MinilandState.Lock)
@@ -69,7 +70,7 @@ namespace NosCore.PacketHandlers.Miniland
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_NEED_LOCK,
                         clientSession.Account.Language)
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             var minilandobj = new MapDesignObject
@@ -103,6 +104,7 @@ namespace NosCore.PacketHandlers.Miniland
             clientSession.SendPacket(new MinilandPointPacket
                 {MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100});
             clientSession.SendPacket(minilandobj.GenerateMapDesignObject());
+            return Task.CompletedTask;
         }
     }
 }

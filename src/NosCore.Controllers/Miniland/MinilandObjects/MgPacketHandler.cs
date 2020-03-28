@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -53,7 +54,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             _itemProvider = itemProvider;
         }
 
-        public override void Execute(MinigamePacket minigamePacket, ClientSession clientSession)
+        public override Task Execute(MinigamePacket minigamePacket, ClientSession clientSession)
         {
             _clientSession = clientSession;
             _minigamePacket = minigamePacket;
@@ -63,12 +64,12 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     s.Slot == minigamePacket.Id);
             if ((_minilandObject == null) || (_miniland == null))
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if (_minilandObject.InventoryItemInstance.ItemInstance.Item.IsWarehouse)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var game = (byte) (_minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot ==
@@ -115,6 +116,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     UseCoupon();
                     break;
             }
+            return Task.CompletedTask;
         }
 
         private void UseCoupon()

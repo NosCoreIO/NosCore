@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.HttpClients.ChannelHttpClient;
@@ -46,7 +47,7 @@ namespace NosCore.PacketHandlers.Friend
             _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
-        public override void Execute(FdelPacket fdelPacket, ClientSession session)
+        public override Task Execute(FdelPacket fdelPacket, ClientSession session)
         {
             var list = _friendHttpClient.GetListFriends(session.Character.VisualId);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == fdelPacket.CharacterId);
@@ -75,6 +76,7 @@ namespace NosCore.PacketHandlers.Friend
                         session.Account.Language)
                 });
             }
+            return Task.CompletedTask;
         }
     }
 }

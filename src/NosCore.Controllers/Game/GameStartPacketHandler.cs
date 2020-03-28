@@ -36,6 +36,7 @@ using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -66,12 +67,12 @@ namespace NosCore.PacketHandlers.Game
             _mailHttpClient = mailHttpClient;
         }
 
-        public override void Execute(GameStartPacket packet, ClientSession session)
+        public override Task Execute(GameStartPacket packet, ClientSession session)
         {
             if (session.GameStarted || !session.HasSelectedCharacter)
             {
                 // character should have been selected in SelectCharacter
-                return;
+                return Task.CompletedTask;
             }
 
             session.GameStarted = true;
@@ -230,6 +231,7 @@ namespace NosCore.PacketHandlers.Game
             //            {
             //                Session.Character.ConnectAct4();
             //            }
+            return Task.CompletedTask;
         }
     }
 }

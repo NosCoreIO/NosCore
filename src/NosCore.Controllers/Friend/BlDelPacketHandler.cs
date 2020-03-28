@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
@@ -38,7 +39,7 @@ namespace NosCore.PacketHandlers.Friend
             _blacklistHttpClient = blacklistHttpClient;
         }
 
-        public override void Execute(BlDelPacket bldelPacket, ClientSession session)
+        public override Task Execute(BlDelPacket bldelPacket, ClientSession session)
         {
             var list = _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == bldelPacket.CharacterId);
@@ -55,6 +56,7 @@ namespace NosCore.PacketHandlers.Friend
                         session.Account.Language)
                 });
             }
+            return Task.CompletedTask;
         }
     }
 }

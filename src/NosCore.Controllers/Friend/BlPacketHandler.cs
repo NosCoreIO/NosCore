@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
@@ -29,7 +30,7 @@ namespace NosCore.PacketHandlers.Friend
 {
     public class BlPacketHandler : PacketHandler<BlPacket>, IWorldPacketHandler
     {
-        public override void Execute(BlPacket finsPacket, ClientSession session)
+        public override Task Execute(BlPacket finsPacket, ClientSession session)
         {
             var target =
                 Broadcaster.Instance.GetCharacter(s => s.Name == finsPacket.CharacterName);
@@ -41,7 +42,7 @@ namespace NosCore.PacketHandlers.Friend
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
-                return;
+                return Task.CompletedTask;
             }
 
             var blinsPacket = new BlInsPacket
@@ -49,7 +50,7 @@ namespace NosCore.PacketHandlers.Friend
                 CharacterId = target.VisualId
             };
 
-            session.HandlePackets(new[] {blinsPacket});
+            return session.HandlePackets(new[] {blinsPacket});
         }
     }
 }

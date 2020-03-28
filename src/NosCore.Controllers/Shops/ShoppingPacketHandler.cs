@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
@@ -40,12 +41,12 @@ namespace NosCore.PacketHandlers.Shops
             _logger = logger;
         }
 
-        public override void Execute(ShoppingPacket shoppingPacket, ClientSession clientSession)
+        public override Task Execute(ShoppingPacket shoppingPacket, ClientSession clientSession)
         {
             if (clientSession.Character!.InExchangeOrTrade)
             {
                 //TODO log
-                return;
+                return Task.CompletedTask;
             }
 
             var shopRate = new Tuple<double, byte>(0, 0);
@@ -64,17 +65,18 @@ namespace NosCore.PacketHandlers.Shops
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
                         shoppingPacket.VisualType);
-                    return;
+                    return Task.CompletedTask;
             }
 
             if (aliveEntity == null)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
-                return;
+                return Task.CompletedTask;
             }
 
 
             clientSession.SendPacket(aliveEntity.GenerateNInv(shopRate.Item1, shoppingPacket.ShopType, shopRate.Item2));
+            return Task.CompletedTask;
         }
     }
 }

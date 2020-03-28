@@ -19,6 +19,7 @@
 
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Core.Extensions;
 using NosCore.Data.CommandPackets;
@@ -30,7 +31,7 @@ namespace NosCore.PacketHandlers.Command
 {
     public class HelpPacketHandler : PacketHandler<HelpPacket>, IWorldPacketHandler
     {
-        public override void Execute(HelpPacket helpPacket, ClientSession session)
+        public override Task Execute(HelpPacket helpPacket, ClientSession session)
         {
             session.SendPacket(session.Character.GenerateSay("-------------Help command-------------",
                 SayColorType.Purple));
@@ -53,6 +54,7 @@ namespace NosCore.PacketHandlers.Command
                     session.SendPacket(session.Character.GenerateSay(message, SayColorType.Green));
                 }
             }
+            return Task.CompletedTask;
         }
     }
 }

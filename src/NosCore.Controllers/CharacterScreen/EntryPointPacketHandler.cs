@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
@@ -68,7 +69,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _channelHttpClient = channelHttpClient;
         }
 
-        public override void Execute(EntryPointPacket packet, ClientSession clientSession)
+        public override async Task Execute(EntryPointPacket packet, ClientSession clientSession)
         {
             if (clientSession == null)
             {
@@ -101,9 +102,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 if (account != null)
                 {
-                    if (_authHttpClient.GetAwaitingConnection(name, packet.Password, clientSession.SessionId) != null ||
-                        (account.Password.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) &&
-                            _authHttpClient.GetAwaitingConnection(name, "", clientSession.SessionId) == null))
+                    var result =
+                        await _authHttpClient.GetAwaitingConnection(name, packet.Password, clientSession.SessionId);
+                    if (result != null || account.Password?.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) == true)
                     {
                         var accountobject = new AccountDto
                         {

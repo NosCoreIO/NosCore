@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
@@ -65,13 +66,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _titleDao = titleDao;
         }
 
-        public override void Execute(SelectPacket packet, ClientSession clientSession)
+        public override Task Execute(SelectPacket packet, ClientSession clientSession)
         {
             try
             {
                 if ((clientSession?.Account == null) || clientSession.HasSelectedCharacter)
                 {
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 var characterDto =
@@ -80,7 +81,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         && (s.State == CharacterState.Active));
                 if (characterDto == null)
                 {
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 var character = characterDto.Adapt<Character>();
@@ -129,6 +130,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 _logger.Error("Select character failed.", ex);
             }
+            return Task.CompletedTask;
         }
     }
 }

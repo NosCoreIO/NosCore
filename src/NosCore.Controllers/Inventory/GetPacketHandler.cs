@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
 using NosCore.Core;
@@ -41,11 +42,11 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override void Execute(GetPacket getPacket, ClientSession clientSession)
+        public override Task Execute(GetPacket getPacket, ClientSession clientSession)
         {
             if (!clientSession.Character.MapInstance.MapItems.ContainsKey(getPacket.VisualId))
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var mapItem = clientSession.Character.MapInstance.MapItems[getPacket.VisualId];
@@ -59,16 +60,16 @@ namespace NosCore.PacketHandlers.Inventory
                     break;
 
                 case VisualType.Npc:
-                    return;
+                    return Task.CompletedTask;
 
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKNOWN_PICKERTYPE));
-                    return;
+                    return Task.CompletedTask;
             }
 
             if (!canpick)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             //TODO add group drops
@@ -78,11 +79,12 @@ namespace NosCore.PacketHandlers.Inventory
                 clientSession.SendPacket(clientSession.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, clientSession.Account.Language),
                     SayColorType.Yellow));
-                return;
+                return Task.CompletedTask;
             }
 
             mapItem.Requests.OnNext(new RequestData<Tuple<MapItem, GetPacket>>(clientSession,
                 new Tuple<MapItem, GetPacket>(mapItem, getPacket)));
+            return Task.CompletedTask;
         }
     }
 }

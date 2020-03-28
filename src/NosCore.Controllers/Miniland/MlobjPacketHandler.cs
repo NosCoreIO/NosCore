@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Miniland;
@@ -38,7 +39,7 @@ namespace NosCore.PacketHandlers.Miniland
             _minilandProvider = minilandProvider;
         }
 
-        public override void Execute(MLEditPacket mlEditPacket, ClientSession clientSession)
+        public override Task Execute(MLEditPacket mlEditPacket, ClientSession clientSession)
         {
             var miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             switch (mlEditPacket.Type)
@@ -84,11 +85,12 @@ namespace NosCore.PacketHandlers.Miniland
                             break;
 
                         default:
-                            return;
+                            return Task.CompletedTask;
                     }
 
                     break;
             }
+            return Task.CompletedTask;
         }
     }
 }

@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
@@ -40,7 +41,7 @@ namespace NosCore.PacketHandlers.Friend
             _blacklistHttpClient = blacklistHttpClient;
         }
 
-        public override void Execute(BlInsPacket blinsPacket, ClientSession session)
+        public override Task Execute(BlInsPacket blinsPacket, ClientSession session)
         {
             var result = _blacklistHttpClient.AddToBlacklist(new BlacklistRequest
                 {CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket});
@@ -72,6 +73,7 @@ namespace NosCore.PacketHandlers.Friend
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_REQUEST_DISCONNECTED));
                     break;
             }
+            return Task.CompletedTask;
         }
     }
 }

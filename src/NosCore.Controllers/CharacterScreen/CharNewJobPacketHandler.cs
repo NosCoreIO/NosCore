@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using Mapster;
@@ -37,7 +38,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _characterDao = characterDao;
         }
 
-        public override void Execute(CharNewJobPacket packet, ClientSession clientSession)
+        public override Task Execute(CharNewJobPacket packet, ClientSession clientSession)
         {
             //TODO add a flag on Account
             if (_characterDao.FirstOrDefault(s =>
@@ -46,7 +47,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 //Needs at least a level 80 to create a martial artist
                 //TODO log
-                return;
+                return Task.CompletedTask;
             }
 
             if (_characterDao.FirstOrDefault(s =>
@@ -55,11 +56,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 //If already a martial artist, can't create another
                 //TODO log
-                return;
+                return Task.CompletedTask;
             }
             //todo add cooldown for recreate 30days
 
-            clientSession.HandlePackets(new[] {packet.Adapt<CharNewPacket>()});
+            return clientSession.HandlePackets(new[] {packet.Adapt<CharNewPacket>()});
         }
     }
 }

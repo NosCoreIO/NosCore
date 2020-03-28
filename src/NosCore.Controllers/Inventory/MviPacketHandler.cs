@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Core.I18N;
 using NosCore.Data;
@@ -37,13 +38,13 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override void Execute(MviPacket mviPacket, ClientSession clientSession)
+        public override Task Execute(MviPacket mviPacket, ClientSession clientSession)
         {
             // check if the character is allowed to move the item
             if (clientSession.Character.InExchangeOrShop)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
-                return;
+                return Task.CompletedTask;
             }
 
             // actually move the item from source to destination
@@ -53,6 +54,7 @@ namespace NosCore.PacketHandlers.Inventory
             clientSession.SendPacket(
                 newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot));
             clientSession.SendPacket(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
+            return Task.CompletedTask;
         }
     }
 }
