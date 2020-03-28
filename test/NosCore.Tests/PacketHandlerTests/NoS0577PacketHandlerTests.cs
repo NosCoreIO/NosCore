@@ -72,10 +72,10 @@ namespace NosCore.Tests.PacketHandlerTests
                 _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object));
             var authController = new AuthController(_loginConfiguration.MasterCommunication,
                 TestHelpers.Instance.AccountDao, _logger);
-            SessionFactory.Instance.AuthCodes[_session.Account.Name] = "AA11AA11AA11".ToSha512();
-            _authHttpClient.Setup(s => s.IsAwaitingConnection(It.IsAny<string>(), It.IsAny<string>(),
+            SessionFactory.Instance.AuthCodes["AA11AA11AA11"] = _session.Account.Name;
+            _authHttpClient.Setup(s => s.GetAwaitingConnection(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int>())).Returns((string a, string b, int c) =>
-                (bool) ((OkObjectResult) authController.IsExpectingConnection(a, b, c)).Value);
+                (string?) ((OkObjectResult) authController.GetExpectingConnection(a, b, c)).Value);
             SessionFactory.Instance.ReadyForAuth.Clear();
         }
 
@@ -89,12 +89,10 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Account.NewAuthSalt = BCrypt.Net.BCrypt.GenerateSalt();
             _session.Account.NewAuthPassword = "AA11AA11AA11".ToBcrypt(_session.Account.NewAuthSalt);
 
-            SessionFactory.Instance.AuthCodes[_session.Account.Name] = "AA11AA11AA11";
+            SessionFactory.Instance.AuthCodes["AA11AA11AA11"] = _session.Account.Name;
             _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                AuthToken = string.Join("",
-                    SessionFactory.Instance.AuthCodes[_session.Account.Name].Select(c => ((int) c).ToString("X2"))),
-                Username = _session.Account.Name
+                AuthToken = "AA11AA11AA11",
             }, _session);
 
 
@@ -110,12 +108,10 @@ namespace NosCore.Tests.PacketHandlerTests
                 .Returns(new List<ConnectedAccount>());
             _session.Account.NewAuthPassword = "AA11AA11AA11".ToPbkdf2Hash("MY_SUPER_SECRET_HASH");
             _session.Account.NewAuthSalt = "MY_SUPER_SECRET_HASH";
-            SessionFactory.Instance.AuthCodes[_session.Account.Name] = "AA11AA11AA11";
+            SessionFactory.Instance.AuthCodes["AA11AA11AA11"] = _session.Account.Name;
             _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                AuthToken = string.Join("",
-                    SessionFactory.Instance.AuthCodes[_session.Account.Name].Select(c => ((int) c).ToString("X2"))),
-                Username = _session.Account.Name
+                AuthToken = "AA11AA11AA11",
             }, _session);
 
             Assert.IsNotNull((NsTestPacket) _session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
@@ -127,8 +123,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _loginConfiguration.ClientVersion = new ClientVersionSubPacket {Major = 1};
             _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                AuthToken = "AA11AA11AA11".ToSha512(),
-                Username = _session.Account.Name.ToUpperInvariant()
+                AuthToken = "AA11AA11AA11",
             }, _session);
 
             Assert.IsTrue(((FailcPacket) _session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
@@ -136,39 +131,12 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void LoginNoAccount()
-        {
-            _noS0577PacketHandler.Execute(new NoS0577Packet
-            {
-                AuthToken = "AA11AA11AA11".ToSha512(),
-                Username = "noaccount"
-            }, _session);
-
-            Assert.IsTrue(((FailcPacket) _session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
-                LoginFailType.AccountOrPasswordWrong);
-        }
-
-        [TestMethod]
-        public void LoginWrongCaps()
-        {
-            _noS0577PacketHandler.Execute(new NoS0577Packet
-            {
-                AuthToken = "AA11AA11AA11".ToSha512(),
-                Username = _session.Account.Name.ToUpperInvariant()
-            }, _session);
-
-            Assert.IsTrue(((FailcPacket) _session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
-                LoginFailType.WrongCaps);
-        }
-
-        [TestMethod]
         public void LoginWrongToken()
         {
-            SessionFactory.Instance.AuthCodes[_session.Account.Name] = "AA11AA11AA11".ToSha512();
+            SessionFactory.Instance.AuthCodes["AA11AA11AA11"] = _session.Account.Name;
             _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                AuthToken = string.Join("", "adsadasdsa".ToSha512().Select(c => ((int) c).ToString("X2"))),
-                Username = _session.Account.Name
+                AuthToken = "AA11AA21AA11",
             }, _session);
 
             Assert.IsTrue(((FailcPacket) _session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
@@ -181,12 +149,10 @@ namespace NosCore.Tests.PacketHandlerTests
             _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo> {new ChannelInfo()});
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
                 .Returns(new List<ConnectedAccount>());
-            SessionFactory.Instance.AuthCodes[_session.Account.Name] = "AA11AA11AA11".ToSha512();
+            SessionFactory.Instance.AuthCodes["AA11AA11AA11"] = _session.Account.Name;
             _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                AuthToken = string.Join("",
-                    SessionFactory.Instance.AuthCodes[_session.Account.Name].Select(c => ((int) c).ToString("X2"))),
-                Username = _session.Account.Name
+                AuthToken = "AA11AA11AA11",
             }, _session);
 
             Assert.IsNotNull((NsTestPacket) _session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
@@ -199,12 +165,10 @@ namespace NosCore.Tests.PacketHandlerTests
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
                 .Returns(new List<ConnectedAccount>
                     {new ConnectedAccount {Name = _session.Account.Name}});
-            SessionFactory.Instance.AuthCodes[_session.Account.Name] = "AA11AA11AA11".ToSha512();
+            SessionFactory.Instance.AuthCodes["AA11AA11AA11"] = _session.Account.Name;
             _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                AuthToken = string.Join("",
-                    SessionFactory.Instance.AuthCodes[_session.Account.Name].Select(c => ((int) c).ToString("X2"))),
-                Username = _session.Account.Name
+                AuthToken = "AA11AA11AA11",
             }, _session);
             Assert.IsTrue(((FailcPacket) _session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
                 LoginFailType.AlreadyConnected);
@@ -216,12 +180,10 @@ namespace NosCore.Tests.PacketHandlerTests
             _channelHttpClient.Setup(s => s.GetChannels()).Returns(new List<ChannelInfo>());
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
                 .Returns(new List<ConnectedAccount>());
-            SessionFactory.Instance.AuthCodes[_session.Account.Name] = "AA11AA11AA11".ToSha512();
+            SessionFactory.Instance.AuthCodes["AA11AA11AA11"] = _session.Account.Name;
             _noS0577PacketHandler.Execute(new NoS0577Packet
             {
-                AuthToken = string.Join("",
-                    SessionFactory.Instance.AuthCodes[_session.Account.Name].Select(c => ((int) c).ToString("X2"))),
-                Username = _session.Account.Name
+                AuthToken = "AA11AA11AA11",
             }, _session);
             Assert.IsTrue(((FailcPacket) _session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
                 LoginFailType.CantConnect);

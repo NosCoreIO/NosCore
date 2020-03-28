@@ -36,10 +36,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NosCore.Packets" Version="0.18.0" />
     <PackageReference Include="FastMember" Version="1.5.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
     <PackageReference Include="Mapster" Version="5.2.0" />
+    <PackageReference Include="NosCore.Packets" Version="0.18.14" />
   </ItemGroup>
 
   <ItemGroup>

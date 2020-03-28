@@ -101,9 +101,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 if (account != null)
                 {
-                    if (_authHttpClient.IsAwaitingConnection(name, packet.Password, clientSession.SessionId) ||
+                    if (_authHttpClient.GetAwaitingConnection(name, packet.Password, clientSession.SessionId) != null ||
                         (account.Password.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) &&
-                            !_authHttpClient.IsAwaitingConnection(name, "", clientSession.SessionId)))
+                            _authHttpClient.GetAwaitingConnection(name, "", clientSession.SessionId) == null))
                     {
                         var accountobject = new AccountDto
                         {

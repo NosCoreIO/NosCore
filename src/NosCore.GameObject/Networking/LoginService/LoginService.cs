@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Networking.LoginService
             _channelHttpClient = channelHttpClient;
         }
 
-        public void Login(string username, string md5String, ClientVersionSubPacket clientVersion,
+        public void Login(string? username, string md5String, ClientVersionSubPacket clientVersion,
             ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth)
         {
             try
@@ -84,6 +84,11 @@ namespace NosCore.GameObject.Networking.LoginService
                     return;
                 }
 
+                if(useApiAuth)
+                {
+                    username = _authHttpClient.GetAwaitingConnection(null, passwordToken, clientSession.SessionId);
+                }
+
                 var acc = _accountDao.FirstOrDefault(s => s.Name.ToLower() == username.ToLower());
 
                 if ((acc != null) && (acc.Name != username))
@@ -97,9 +102,7 @@ namespace NosCore.GameObject.Networking.LoginService
                 }
 
                 if ((acc == null)
-                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase))
-                    || (useApiAuth &&
-                        !_authHttpClient.IsAwaitingConnection(username, passwordToken, clientSession.SessionId)))
+                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase)))
                 {
                     clientSession.SendPacket(new FailcPacket
                     {
