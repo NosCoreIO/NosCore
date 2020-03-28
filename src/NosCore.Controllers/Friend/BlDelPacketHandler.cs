@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Friend
 
         public override async Task Execute(BlDelPacket bldelPacket, ClientSession session)
         {
-            var list = await _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
+            var list = await _blacklistHttpClient.GetBlackLists(session.Character!.VisualId);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == bldelPacket.CharacterId);
             if (idtorem != null)
             {

@@ -46,9 +46,9 @@ namespace NosCore.PacketHandlers.Command
 
         public override async Task Execute(SetJobLevelCommandPacket levelPacket, ClientSession session)
         {
-            if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
+            if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character!.Name))
             {
-                await session.Character.SetJobLevel(levelPacket.Level);
+                await session.Character!.SetJobLevel(levelPacket.Level);
                 return;
             }
 

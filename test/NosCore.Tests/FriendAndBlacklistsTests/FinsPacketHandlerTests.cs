@@ -51,15 +51,15 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     public class FinsPacketHandlerTests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private Mock<IChannelHttpClient> _channelHttpClient;
-        private IGenericDao<CharacterRelationDto> _characterRelationDao;
-        private Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient;
-        private FinsPacketHandler _finsPacketHandler;
-        private Mock<IFriendHttpClient> _friendHttpClient;
-        private FriendRequestHolder _friendRequestHolder;
+        private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
+        private IGenericDao<CharacterRelationDto>? _characterRelationDao;
+        private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
+        private FinsPacketHandler? _finsPacketHandler;
+        private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
+        private FriendRequestHolder? _friendRequestHolder;
 
-        private ClientSession _session;
-        private ClientSession _targetSession;
+        private ClientSession? _session;
+        private ClientSession? _targetSession;
 
         [TestInitialize]
         public void Setup()
@@ -70,9 +70,6 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();
             _targetSession = TestHelpers.Instance.GenerateSession();
-            _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
-            _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
-            _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
             _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(_logger);
             _friendRequestHolder = new FriendRequestHolder();
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))

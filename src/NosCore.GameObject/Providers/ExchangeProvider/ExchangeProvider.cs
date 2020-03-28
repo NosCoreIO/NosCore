@@ -245,7 +245,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                     var originInventory = user == firstUser ? sessionInventory : targetInventory;
                     var targetId = user == firstUser ? secondUser : firstUser;
                     var sessionId = user == firstUser ? firstUser : secondUser;
-                    InventoryItemInstance newItem = null;
+                    InventoryItemInstance? newItem = null;
 
                     if (item.Value == item.Key.ItemInstance.Amount)
                     {

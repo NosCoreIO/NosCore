@@ -60,7 +60,7 @@ namespace NosCore.Tests.ItemHandlerTests
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
             _session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (GuriPacket)_session.LastPackets.FirstOrDefault(s => s is GuriPacket);
+            var lastpacket = (GuriPacket?)_session.LastPackets.FirstOrDefault(s => s is GuriPacket);
             Assert.IsNotNull(lastpacket);
         }
     }

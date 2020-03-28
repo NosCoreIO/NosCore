@@ -53,7 +53,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         }
 
         public static ServerExcListPacket GenerateServerExcListPacket(this ICharacterEntity aliveEntity, long? gold,
-            long? bankGold, List<ServerExcListSubPacket> subPackets)
+            long? bankGold, List<ServerExcListSubPacket?>? subPackets)
         {
             return new ServerExcListPacket
             {

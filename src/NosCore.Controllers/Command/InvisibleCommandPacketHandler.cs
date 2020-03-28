@@ -30,9 +30,9 @@ namespace NosCore.PacketHandlers.Command
     {
         public override Task Execute(InvisibleCommandPacket changeClassPacket, ClientSession session)
         {
-            session.Character.Camouflage = !session.Character.Camouflage;
+            session.Character!.Camouflage = !session.Character.Camouflage;
             session.Character.Invisible = !session.Character.Invisible;
-            return session.Character.MapInstance.SendPacket(session.Character.GenerateInvisible());
+            return session.Character.MapInstance!.SendPacket(session.Character.GenerateInvisible());
             //Session.SendPacket(Session.Character.GenerateEq());
         }
     }

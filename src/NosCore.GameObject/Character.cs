@@ -68,10 +68,10 @@ namespace NosCore.GameObject
 {
     public class Character : CharacterDto, ICharacterEntity
     {
-        private readonly IGenericDao<AccountDto> _accountDao;
-        private readonly IGenericDao<CharacterDto> _characterDao;
-        private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IGenericDao<AccountDto>? _accountDao;
+        private readonly IGenericDao<CharacterDto>? _characterDao;
+        private readonly IGenericDao<InventoryItemInstanceDto>? _inventoryItemInstanceDao;
+        private readonly IGenericDao<IItemInstanceDto>? _itemInstanceDao;
         private readonly ILogger _logger;
         private readonly IGenericDao<MinilandDto> _minilandDao;
         private readonly IMinilandProvider _minilandProvider;
@@ -116,7 +116,7 @@ namespace NosCore.GameObject
         public DateTime LastSpeedChange { get; set; }
 
         public DateTime LastMove { get; set; }
-        public IItemProvider ItemProvider { get; set; }
+        public IItemProvider? ItemProvider { get; set; }
         public bool InExchangeOrTrade { get; set; }
 
         public bool UseSp { get; set; }
@@ -126,7 +126,7 @@ namespace NosCore.GameObject
         public bool IsVehicled { get; set; }
         public byte? VehicleSpeed { get; set; }
 
-        public IExchangeProvider ExchangeProvider { get; }
+        public IExchangeProvider? ExchangeProvider { get; }
 
         public bool InExchangeOrShop => InExchange || InShop;
 
@@ -149,7 +149,7 @@ namespace NosCore.GameObject
 
         public bool Invisible { get; set; }
 
-        public IInventoryService InventoryService { get; }
+        public IInventoryService? InventoryService { get; }
 
         public Group Group { get; set; }
 

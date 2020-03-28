@@ -127,22 +127,22 @@ namespace NosCore.PacketHandlers.Exchange
                     await target.SendPacket(new DlgPacket
                     {
                         YesPacket = new ExchangeRequestPacket
-                            {RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId},
+                        { RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId },
                         NoPacket = new ExchangeRequestPacket
-                            {RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId},
+                        { RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId },
                         Question = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
                             clientSession.Account.Language), clientSession.Character.Name)
                     });
                     return;
 
                 case RequestExchangeType.List:
-                    if (!_exchangeProvider.OpenExchange(clientSession.Character.VisualId, target.CharacterId))
+                    if (!_exchangeProvider.OpenExchange(clientSession.Character.VisualId, target?.CharacterId ?? 0))
                     {
                         return;
                     }
 
                     await clientSession.SendPacket(clientSession.Character.GenerateServerExcListPacket(null, null, null));
-                    await target.SendPacket(target.GenerateServerExcListPacket(null, null, null));
+                    await (target == null ? Task.CompletedTask : target.SendPacket(target.GenerateServerExcListPacket(null, null, null)));
                     return;
 
                 case RequestExchangeType.Declined:

@@ -49,13 +49,13 @@ namespace NosCore.Tests.PacketHandlerTests
     public class MJoinPacketHandlerTests
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient;
-        private Mock<IFriendHttpClient> _friendHttpClient;
-        private Mock<IMinilandProvider> _minilandProvider;
-        private MJoinPacketHandler _mjoinPacketHandler;
+        private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
+        private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
+        private Mock<IMinilandProvider>? _minilandProvider;
+        private MJoinPacketHandler? _mjoinPacketHandler;
 
-        private ClientSession _session;
-        private ClientSession _targetSession;
+        private ClientSession? _session;
+        private ClientSession? _targetSession;
 
         [TestInitialize]
         public void Setup()
@@ -67,8 +67,6 @@ namespace NosCore.Tests.PacketHandlerTests
             _session = TestHelpers.Instance.GenerateSession();
             _targetSession = TestHelpers.Instance.GenerateSession();
             _minilandProvider = new Mock<IMinilandProvider>();
-            _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
-            _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
             _mjoinPacketHandler = new MJoinPacketHandler(_friendHttpClient.Object, _minilandProvider.Object);
         }
 
@@ -240,7 +238,7 @@ namespace NosCore.Tests.PacketHandlerTests
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
             await _mjoinPacketHandler.Execute(mjoinPacket, _session);
 
-            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(lastpacket.Message,
                 Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND, _session.Account.Language));
             Assert.IsFalse(_session.Character.MapInstance.Map.MapId == 20001);

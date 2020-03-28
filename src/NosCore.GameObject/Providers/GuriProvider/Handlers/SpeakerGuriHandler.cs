@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
                 return;
             }
 
-            string data = requestData.Data.Value;
+            string? data = requestData.Data.Value;
             string[] valuesplit = (data ?? string.Empty).Split(' ');
             string message = $"<{Language.Instance.GetMessageFromKey(LanguageKey.SPEAKER, requestData.ClientSession.Account.Language)}> [{requestData.ClientSession.Character.Name}]:";
             if (requestData.Data.Data == 999)
@@ -80,7 +80,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
                 if (short.TryParse(valuesplit[1], out var slot) &
                     Enum.TryParse(typeof(NoscorePocketType), valuesplit[0], out var type))
                 {
-                    deeplink = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)type);
+                    deeplink = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)type!);
                 }
                 if (deeplink == null)
                 {

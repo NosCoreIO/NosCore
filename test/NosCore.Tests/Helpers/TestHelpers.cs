@@ -218,7 +218,7 @@ namespace NosCore.Tests.Helpers
             var npc = new MapNpcDto();
             _mapNpcDao.InsertOrUpdate(ref npc);
 
-            var instanceAccessService = new MapInstanceProvider(new List<MapDto> {map, mapShop, miniland},
+            var instanceAccessService = new MapInstanceProvider(new List<MapDto> { map, mapShop, miniland },
                 MapItemProvider,
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, _logger);
@@ -244,8 +244,8 @@ namespace NosCore.Tests.Helpers
         {
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
-                .AfterMapping(dest => Task.Run(() => dest.Initialize()));
-            TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
+                .AfterMapping(dest => Task.Run(dest.Initialize));
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig()
                 .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _shopDao, _shopItemDao,
                     new List<NpcMonsterDto>(), _logger));
@@ -261,10 +261,10 @@ namespace NosCore.Tests.Helpers
         {
             _lastId++;
             var acc = new AccountDto
-                {AccountId = _lastId, Name = "AccountTest" + _lastId, Password = "test".ToSha512()};
+            { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = "test".ToSha512() };
             AccountDao.InsertOrUpdate(ref acc);
             var minilandProvider = new Mock<IMinilandProvider>();
-            var session = new ClientSession(WorldConfiguration, MapInstanceProvider, null, _logger,
+            var session = new ClientSession(WorldConfiguration, MapInstanceProvider, new Mock<IExchangeProvider>().Object, _logger,
                 new List<IPacketHandler>
                 {
                     new CharNewPacketHandler(CharacterDao, MinilandDao),
@@ -272,15 +272,16 @@ namespace NosCore.Tests.Helpers
                     new UseItemPacketHandler(),
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
                         ConnectedAccountHttpClient.Object),
-                    new SelectPacketHandler(CharacterDao, _logger, null, MapInstanceProvider,
-                        _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, null, null)
-                }, FriendHttpClient.Object, null, PacketHttpClient.Object, minilandProvider.Object)
+                    new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemProvider>().Object, MapInstanceProvider,
+                        _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<TitleDto>>().Object)
+                }, FriendHttpClient.Object, new Mock<ISerializer>().Object, PacketHttpClient.Object, minilandProvider.Object)
             {
                 SessionId = _lastId
             };
+
             var chara = new GameObject.Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
-                new ExchangeProvider(null, WorldConfiguration, _logger), null, CharacterDao, null, null, AccountDao,
-                _logger, null, null, null, null, null)
+                new ExchangeProvider(new Mock<IItemProvider>().Object, WorldConfiguration, _logger), new Mock<IItemProvider>().Object, CharacterDao, new Mock<IGenericDao<IItemInstanceDto>>().Object, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, AccountDao,
+                _logger, new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, minilandProvider.Object, new Mock<IGenericDao<TitleDto>>().Object)
             {
                 CharacterId = _lastId,
                 Name = "TestExistingCharacter" + _lastId,

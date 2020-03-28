@@ -66,12 +66,12 @@ namespace NosCore.PacketHandlers.Group
             {
                 case GroupRequestType.Requested:
                 case GroupRequestType.Invited:
-                    if (pjoinPacket.CharacterId == clientSession.Character.CharacterId)
+                    if (pjoinPacket.CharacterId == clientSession.Character!.CharacterId)
                     {
                         return;
                     }
 
-                    if (targetSession.Group.IsGroupFull)
+                    if (targetSession?.Group.IsGroupFull ?? true)
                     {
                         await clientSession.SendPacket(new InfoPacket
                         {
@@ -284,12 +284,12 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     GroupAccess.Instance.Groups[currentGroup.GroupId] = currentGroup;
-                    await clientSession.Character.MapInstance?.SendPacket(
+                    await clientSession.Character.MapInstance!.SendPacket(
                         clientSession.Character.Group.GeneratePidx(clientSession.Character));
 
                     break;
                 case GroupRequestType.Declined:
-                    if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                    if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character!.CharacterId))
                     {
                         return;
                     }
@@ -302,7 +302,7 @@ namespace NosCore.PacketHandlers.Group
                     });
                     break;
                 case GroupRequestType.AcceptedShare:
-                    if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                    if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character!.CharacterId))
                     {
                         return;
                     }

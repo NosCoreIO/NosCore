@@ -93,10 +93,10 @@ namespace NosCore.Tests
                 }
             }
 
-            foreach (LogLanguageKey val in Enum.GetValues(typeof(LogLanguageKey)))
+            foreach (var val in Enum.GetValues(typeof(LogLanguageKey)))
             {
-                var value = LogLanguage.Instance.GetMessageFromKey(val, type.ToString());
-                if (value == $"#<{val.ToString()}>")
+                var value = LogLanguage.Instance.GetMessageFromKey((LogLanguageKey)val!, type.ToString());
+                if (value == $"#<{val}>")
                 {
                     unfound.Append("\nvalue ").Append(value).Append(" not defined");
                 }

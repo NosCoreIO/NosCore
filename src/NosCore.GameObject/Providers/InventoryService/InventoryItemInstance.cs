@@ -25,7 +25,7 @@ namespace NosCore.GameObject.Providers.InventoryService
 {
     public class InventoryItemInstance : InventoryItemInstanceDto
     {
-        public new IItemInstance ItemInstance { get; set; }
+        public new IItemInstance? ItemInstance { get; set; }
 
         public static InventoryItemInstance Create(IItemInstance it, long characterId)
         {
@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Providers.InventoryService
         }
 
         public static InventoryItemInstance Create(IItemInstance it, long characterId,
-            InventoryItemInstanceDto inventoryItemInstance)
+            InventoryItemInstanceDto? inventoryItemInstance)
         {
             return new InventoryItemInstance
             {

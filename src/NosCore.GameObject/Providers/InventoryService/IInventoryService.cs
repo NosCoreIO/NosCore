@@ -28,10 +28,10 @@ namespace NosCore.GameObject.Providers.InventoryService
     {
         Dictionary<NoscorePocketType, byte> Expensions { get; set; }
 
-        List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem);
-        List<InventoryItemInstance> AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type);
+        List<InventoryItemInstance>? AddItemToPocket(InventoryItemInstance newItem);
+        List<InventoryItemInstance>? AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type);
 
-        List<InventoryItemInstance>
+        List<InventoryItemInstance>?
             AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type, short? slot);
 
         bool CanAddItem(short itemVnum);

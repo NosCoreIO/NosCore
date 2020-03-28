@@ -58,7 +58,7 @@ namespace NosCore.Tests.ItemHandlerTests
             var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
             _session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (QnaPacket)_session.LastPackets.FirstOrDefault(s => s is QnaPacket);
+            var lastpacket = (QnaPacket?)_session.LastPackets.FirstOrDefault(s => s is QnaPacket);
             Assert.IsNotNull(lastpacket);
             Assert.IsTrue(lastpacket.YesPacket.GetType() == typeof(GuriPacket));
         }
