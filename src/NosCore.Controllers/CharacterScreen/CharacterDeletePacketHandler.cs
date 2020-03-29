@@ -77,14 +77,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         Title = "EntryPoint",
                         Name = account.Name
                     }
-                });
+                }).ConfigureAwait(false);
             }
             else
             {
                 await clientSession.SendPacket(new InfoPacket
                 {
                     Message = clientSession.GetMessageFromKey(LanguageKey.BAD_PASSWORD)
-                });
+                }).ConfigureAwait(false);
             }
         }
     }

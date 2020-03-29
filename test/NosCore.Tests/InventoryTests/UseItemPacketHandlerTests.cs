@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -58,11 +59,11 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public void Test_Binding()
+        public async Task Test_Binding()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
-            _useItemPacketHandler!.Execute(new UseItemPacket {Slot = 0, Type = PocketType.Equipment, Mode = 1},
-                _session);
+            await _useItemPacketHandler!.Execute(new UseItemPacket {Slot = 0, Type = PocketType.Equipment, Mode = 1},
+                _session).ConfigureAwait(false);
 
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance!.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Wear) &&
@@ -70,12 +71,12 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public void Test_Increment_SpAdditionPoints()
+        public async Task Test_Increment_SpAdditionPoints()
         {
             _session!.Character.SpAdditionPoint = 0;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
-            _useItemPacketHandler!.Execute(new UseItemPacket
+            await _useItemPacketHandler!.Execute(new UseItemPacket
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
@@ -83,17 +84,17 @@ namespace NosCore.Tests.InventoryTests
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
-            }, _session);
+            }, _session).ConfigureAwait(false);
             Assert.IsTrue((_session.Character.SpAdditionPoint != 0) && !_session.LastPackets.Any(s => s is MsgPacket));
         }
 
         [TestMethod]
-        public void Test_Overflow_SpAdditionPoints()
+        public async Task Test_Overflow_SpAdditionPoints()
         {
             _session!.Character.SpAdditionPoint = _session.WorldConfiguration.MaxAdditionalSpPoints;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
-            _useItemPacketHandler!.Execute(new UseItemPacket
+            await _useItemPacketHandler!.Execute(new UseItemPacket
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
@@ -101,7 +102,7 @@ namespace NosCore.Tests.InventoryTests
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
-            }, _session);
+            }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((_session.Character.SpAdditionPoint == _session.WorldConfiguration.MaxAdditionalSpPoints) &&
                 (packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
@@ -109,12 +110,12 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public void Test_CloseToLimit_SpAdditionPoints()
+        public async Task Test_CloseToLimit_SpAdditionPoints()
         {
             _session!.Character.SpAdditionPoint = _session.WorldConfiguration.MaxAdditionalSpPoints - 1;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
-            _useItemPacketHandler!.Execute(new UseItemPacket
+            await _useItemPacketHandler!.Execute(new UseItemPacket
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
@@ -122,7 +123,7 @@ namespace NosCore.Tests.InventoryTests
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
-            }, _session);
+            }, _session).ConfigureAwait(false);
             Assert.IsTrue((_session.Character.SpAdditionPoint == _session.WorldConfiguration.MaxAdditionalSpPoints) &&
                 !_session.LastPackets.Any(s => s is MsgPacket));
         }

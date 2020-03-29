@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Inventory
             {
                 await clientSession.SendPacket(clientSession.Character.GenerateSay(
                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, clientSession.Account.Language),
-                    SayColorType.Yellow));
+                    SayColorType.Yellow)).ConfigureAwait(false);
                 return;
             }
 

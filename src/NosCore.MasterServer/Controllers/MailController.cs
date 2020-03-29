@@ -105,7 +105,7 @@ namespace NosCore.MasterServer.Controllers
             {
                 return false;
             }
-            var receiver = await _connectedAccountHttpClient.GetCharacter(characterId, null);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(characterId, null).ConfigureAwait(false);
             Notify(1, receiver, maildata);
             return true;
         }
@@ -203,8 +203,8 @@ namespace NosCore.MasterServer.Controllers
                 mailref.ItemInstanceId = itemInstance.Id;
             }
 
-            var receiver = await _connectedAccountHttpClient.GetCharacter(mailref.ReceiverId, null);
-            var sender = await _connectedAccountHttpClient.GetCharacter(mailref.SenderId, null);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(mailref.ReceiverId, null).ConfigureAwait(false);
+            var sender = await _connectedAccountHttpClient.GetCharacter(mailref.SenderId, null).ConfigureAwait(false);
 
             _mailDao.InsertOrUpdate(ref mailref);
             if (itemInstance == null)

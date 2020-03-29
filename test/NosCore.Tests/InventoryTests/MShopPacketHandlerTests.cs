@@ -92,7 +92,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanNotCreateShopCloseToPortal()
         {
-            await _mShopPacketHandler!.Execute(_shopPacket, _session!);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session!).ConfigureAwait(false);
             var packet = (MsgPacket?) _session?.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL, _session?.Account.Language ?? RegionType.EN));
@@ -105,7 +105,7 @@ namespace NosCore.Tests.InventoryTests
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
             _session.Character.Group = new Group(GroupType.Team);
-            await _mShopPacketHandler!.Execute(_shopPacket, _session);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session).ConfigureAwait(false);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
@@ -118,7 +118,7 @@ namespace NosCore.Tests.InventoryTests
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
             _session.Character.Group = new Group(GroupType.Group);
-            await _mShopPacketHandler!.Execute(_shopPacket, _session);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session).ConfigureAwait(false);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message !=
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
@@ -129,7 +129,7 @@ namespace NosCore.Tests.InventoryTests
         {
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
-            await _mShopPacketHandler!.Execute(_shopPacket, _session);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session).ConfigureAwait(false);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
 
             Assert.IsTrue(packet?.Message ==
@@ -150,7 +150,7 @@ namespace NosCore.Tests.InventoryTests
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0));
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
-            await _mShopPacketHandler!.Execute(_shopPacket, _session);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session).ConfigureAwait(false);
             Assert.IsNull(_session.Character.Shop);
         }
 
@@ -173,7 +173,7 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
-            await _mShopPacketHandler!.Execute(_shopPacket, _session);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session).ConfigureAwait(false);
             Assert.IsNull(_session.Character.Shop);
             var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue(packet?.Message ==
@@ -198,7 +198,7 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
-            await _mShopPacketHandler!.Execute(_shopPacket, _session);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session).ConfigureAwait(false);
             Assert.IsNotNull(_session.Character.Shop);
         }
 
@@ -221,7 +221,7 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
-            await _mShopPacketHandler!.Execute(_shopPacket, _session);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session).ConfigureAwait(false);
             Assert.IsNull(_session.Character.Shop);
         }
 
@@ -235,7 +235,7 @@ namespace NosCore.Tests.InventoryTests
                 Type = CreateShopPacketType.Open,
                 ItemList = new List<MShopItemSubPacket?>(),
                 Name = "TEST SHOP"
-            }, _session);
+            }, _session).ConfigureAwait(false);
             Assert.IsNull(_session.Character.Shop);
             var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue(packet?.Message ==

@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = goldPacket.Gold
             };
 
-            var receiver = await _connectedAccountHttpClient.GetCharacter(null, goldPacket.Name ?? session.Character.Name);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(null, goldPacket.Name ?? session.Character.Name).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -62,13 +62,13 @@ namespace NosCore.PacketHandlers.Command
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
-            await _statHttpClient.ChangeStat(data, receiver.Item1!);
+            await _statHttpClient.ChangeStat(data, receiver.Item1!).ConfigureAwait(false);
 
-            await session.SendPacket(session.Character.GenerateGold());
+            await session.SendPacket(session.Character.GenerateGold()).ConfigureAwait(false);
         }
     }
 }

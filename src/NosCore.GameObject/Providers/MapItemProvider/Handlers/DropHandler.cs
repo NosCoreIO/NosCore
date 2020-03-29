@@ -51,20 +51,20 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 
             if (inv != null)
             {
-                await requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot));
+                await requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot)).ConfigureAwait(false);
                 requestData.ClientSession.Character.MapInstance!.MapItems.TryRemove(requestData.Data.Item1.VisualId,
                     out _);
                 await requestData.ClientSession.Character.MapInstance.SendPacket(
-                    requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
+                    requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId)).ConfigureAwait(false);
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     await requestData.ClientSession.SendPacket(
-                        requestData.ClientSession.Character.GenerateIcon(1, inv.ItemInstance!.ItemVNum));
+                        requestData.ClientSession.Character.GenerateIcon(1, inv.ItemInstance!.ItemVNum)).ConfigureAwait(false);
                 }
 
                 await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
                     $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}: {inv.ItemInstance!.Item!.Name[requestData.ClientSession.Account.Language]} x {amount}",
-                    SayColorType.Green));
+                    SayColorType.Green)).ConfigureAwait(false);
                 if (requestData.ClientSession.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
                 {
                     var name = string.Format(
@@ -73,7 +73,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                     await requestData.ClientSession.Character.MapInstance.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
                             $"{name}: {inv.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]} x {requestData.Data.Item1.Amount}",
-                            SayColorType.Yellow));
+                            SayColorType.Yellow)).ConfigureAwait(false);
                 }
             }
             else
@@ -83,7 +83,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         requestData.ClientSession.Account.Language),
                     Type = 0
-                });
+                }).ConfigureAwait(false);
             }
         }
     }

@@ -54,7 +54,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task OpenWhenInShop()
         {
             _session!.Character.InExchangeOrTrade = true;
-            await _cskillPacketHandler!.Execute(new CSkillPacket(), _session);
+            await _cskillPacketHandler!.Execute(new CSkillPacket(), _session).ConfigureAwait(false);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
@@ -62,7 +62,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task OpenWhenNoMedal()
         {
-            await _cskillPacketHandler!.Execute(new CSkillPacket(), _session!);
+            await _cskillPacketHandler!.Execute(new CSkillPacket(), _session!).ConfigureAwait(false);
             var lastpacket = (InfoPacket?) _session!.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.IsTrue(lastpacket?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL, _session.Account.Language));
@@ -75,7 +75,7 @@ namespace NosCore.Tests.BazaarTests
             {
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
-            await _cskillPacketHandler!.Execute(new CSkillPacket(), _session);
+            await _cskillPacketHandler!.Execute(new CSkillPacket(), _session).ConfigureAwait(false);
             var lastpacket = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, _session.Account.Language));

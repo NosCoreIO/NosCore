@@ -46,11 +46,11 @@ namespace NosCore.GameObject.HttpClients.StatHttpClient
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(item1.ToString());
             client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshToken());
+                new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshToken().ConfigureAwait(false));
 
             var content = new StringContent(JsonSerializer.Serialize(data),
                 Encoding.Default, "application/json");
-            await client.PostAsync(ApiUrl, content);
+            await client.PostAsync(ApiUrl, content).ConfigureAwait(false);
         }
     }
 }

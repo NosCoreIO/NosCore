@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType) itemInstance.Type,
                         itemInstance.Slot,
                         2, 0)
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -85,14 +85,14 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                             : itemInstance.ItemInstance.Item.SecondMorph;
 
                 await requestData.ClientSession.Character.MapInstance!.SendPacket(
-                    requestData.ClientSession.Character.GenerateEff(196));
+                    requestData.ClientSession.Character.GenerateEff(196)).ConfigureAwait(false);
                 await requestData.ClientSession.Character.MapInstance!.SendPacket(requestData.ClientSession.Character
-                    .GenerateCMode());
-                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateCond());
+                    .GenerateCMode()).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateCond()).ConfigureAwait(false);
                 return;
             }
 
-            await requestData.ClientSession.Character.RemoveVehicle();
+            await requestData.ClientSession.Character.RemoveVehicle().ConfigureAwait(false);
         }
     }
 }

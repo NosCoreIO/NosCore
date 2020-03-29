@@ -67,7 +67,7 @@ namespace NosCore.Tests.ParcelTests
             {
                 Type = 5,
                 GiftId = 1
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsNull(packet);
         }
@@ -80,7 +80,7 @@ namespace NosCore.Tests.ParcelTests
             {
                 Type = 5,
                 GiftId = 1
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsTrue(packet?.Type == 7);
         }
@@ -104,7 +104,7 @@ namespace NosCore.Tests.ParcelTests
             {
                 Type = 4,
                 GiftId = 1
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsTrue(packet?.Type == 2);
         }
@@ -129,7 +129,7 @@ namespace NosCore.Tests.ParcelTests
             {
                 Type = 4,
                 GiftId = 1
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsTrue(packet?.Type == 5);
         }

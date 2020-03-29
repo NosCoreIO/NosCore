@@ -60,7 +60,7 @@ namespace NosCore.WorldServer.Controllers
             switch (postedPacket.ReceiverType)
             {
                 case ReceiverType.All:
-                    await Broadcaster.Instance.SendPacket(message);
+                    await Broadcaster.Instance.SendPacket(message).ConfigureAwait(false);
                     break;
                 case ReceiverType.OnlySomeone:
                     ICharacterEntity? receiverSession;
@@ -81,7 +81,7 @@ namespace NosCore.WorldServer.Controllers
                         return Ok(); //TODO: not found
                     }
 
-                    await receiverSession.SendPacket(message);
+                    await receiverSession.SendPacket(message).ConfigureAwait(false);
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKWNOWN_RECEIVERTYPE));

@@ -67,19 +67,19 @@ namespace NosCore.PacketHandlers.Inventory
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         clientSession.Account.Language),
                     Type = 0
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
-            await clientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot));
+            await clientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot)).ConfigureAwait(false);
 
-            await clientSession.Character.MapInstance!.SendPacket(clientSession.Character.GenerateEq());
-            await clientSession.SendPacket(clientSession.Character.GenerateEquipment());
+            await clientSession.Character.MapInstance!.SendPacket(clientSession.Character.GenerateEq()).ConfigureAwait(false);
+            await clientSession.SendPacket(clientSession.Character.GenerateEquipment()).ConfigureAwait(false);
 
             if (inv.ItemInstance!.Item!.EquipmentSlot == EquipmentType.Fairy)
             {
                 await clientSession.Character.MapInstance!.SendPacket(
-                    clientSession.Character.GeneratePairy(null));
+                    clientSession.Character.GeneratePairy(null)).ConfigureAwait(false);
             }
         }
     }

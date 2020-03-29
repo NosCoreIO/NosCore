@@ -78,7 +78,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 VisualId = 50,
                 Type = VisualType.Player
             };
-            await _mjoinPacketHandler!.Execute(mjoinPacket, _session!);
+            await _mjoinPacketHandler!.Execute(mjoinPacket, _session!).ConfigureAwait(false);
 
             Assert.IsFalse(_session!.Character.MapInstance!.Map.MapId == 20001);
         }
@@ -91,7 +91,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 VisualId = _targetSession!.Character.CharacterId,
                 Type = VisualType.Player
             };
-           await _mjoinPacketHandler!.Execute(mjoinPacket, _session!);
+           await _mjoinPacketHandler!.Execute(mjoinPacket, _session!).ConfigureAwait(false);
 
             Assert.IsFalse(_session!.Character.MapInstance!.Map.MapId == 20001);
         }
@@ -128,7 +128,7 @@ namespace NosCore.Tests.PacketHandlerTests
             });
             _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland
                 {MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Lock});
-           await _mjoinPacketHandler!.Execute(mjoinPacket, _session);
+           await _mjoinPacketHandler!.Execute(mjoinPacket, _session).ConfigureAwait(false);
 
             var lastpacket = (InfoPacket?) _session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(lastpacket?.Message,
@@ -156,7 +156,7 @@ namespace NosCore.Tests.PacketHandlerTests
                     RelationType = CharacterRelationType.Friend
                 }
             });
-            await _mjoinPacketHandler!.Execute(mjoinPacket, _session!);
+            await _mjoinPacketHandler!.Execute(mjoinPacket, _session!).ConfigureAwait(false);
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
@@ -201,7 +201,7 @@ namespace NosCore.Tests.PacketHandlerTests
             });
             _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
-            await _mjoinPacketHandler!.Execute(mjoinPacket, _session);
+            await _mjoinPacketHandler!.Execute(mjoinPacket, _session).ConfigureAwait(false);
 
             Assert.IsTrue(_session.Character.MapInstance!.Map.MapId == 20001);
         }
@@ -236,7 +236,7 @@ namespace NosCore.Tests.PacketHandlerTests
             });
             _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
-            await _mjoinPacketHandler!.Execute(mjoinPacket, _session);
+            await _mjoinPacketHandler!.Execute(mjoinPacket, _session).ConfigureAwait(false);
 
             var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(lastpacket!.Message,

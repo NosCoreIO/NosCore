@@ -82,14 +82,14 @@ namespace NosCore.GameObject.Networking.LoginService
                     await clientSession.SendPacket(new FailcPacket
                     {
                         Type = LoginFailType.OldClient
-                    });
-                    await clientSession.Disconnect();
+                    }).ConfigureAwait(false);
+                    await clientSession.Disconnect().ConfigureAwait(false);
                     return;
                 }
 
                 if(useApiAuth)
                 {
-                    username = await _authHttpClient.GetAwaitingConnection(null, passwordToken, clientSession.SessionId);
+                    username = await _authHttpClient.GetAwaitingConnection(null, passwordToken, clientSession.SessionId).ConfigureAwait(false);
                 }
 
                 var acc = _accountDao.FirstOrDefault(s => s.Name.ToLower() == username!.ToLower());
@@ -99,8 +99,8 @@ namespace NosCore.GameObject.Networking.LoginService
                     await clientSession.SendPacket(new FailcPacket
                     {
                         Type = LoginFailType.WrongCaps
-                    });
-                    await clientSession.Disconnect();
+                    }).ConfigureAwait(false);
+                    await clientSession.Disconnect().ConfigureAwait(false);
                     return;
                 }
 
@@ -110,8 +110,8 @@ namespace NosCore.GameObject.Networking.LoginService
                     await clientSession.SendPacket(new FailcPacket
                     {
                         Type = LoginFailType.AccountOrPasswordWrong
-                    });
-                    await clientSession.Disconnect();
+                    }).ConfigureAwait(false);
+                    await clientSession.Disconnect().ConfigureAwait(false);
                     return;
                 }
 
@@ -121,17 +121,17 @@ namespace NosCore.GameObject.Networking.LoginService
                         await clientSession.SendPacket(new FailcPacket
                         {
                             Type = LoginFailType.Banned
-                        });
+                        }).ConfigureAwait(false);
                         break;
                     case AuthorityType.Closed:
                     case AuthorityType.Unconfirmed:
                         await clientSession.SendPacket(new FailcPacket
                         {
                             Type = LoginFailType.CantConnect
-                        });
+                        }).ConfigureAwait(false);
                         break;
                     default:
-                        var servers = (await _channelHttpClient.GetChannels())
+                        var servers = (await _channelHttpClient.GetChannels().ConfigureAwait(false))
                             ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
@@ -139,7 +139,7 @@ namespace NosCore.GameObject.Networking.LoginService
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
                             var channelList = await _connectedAccountHttpClient.GetConnectedAccount(
-                                server);
+                                server).ConfigureAwait(false);
                             connectedAccount.Add(i, channelList);
                             i++;
                             if (channelList.Any(a => a.Name == acc.Name))
@@ -153,8 +153,8 @@ namespace NosCore.GameObject.Networking.LoginService
                             await clientSession.SendPacket(new FailcPacket
                             {
                                 Type = LoginFailType.AlreadyConnected
-                            });
-                            await clientSession.Disconnect();
+                            }).ConfigureAwait(false);
+                            await clientSession.Disconnect().ConfigureAwait(false);
                             return;
                         }
 
@@ -165,8 +165,8 @@ namespace NosCore.GameObject.Networking.LoginService
                             await clientSession.SendPacket(new FailcPacket
                             {
                                 Type = LoginFailType.CantConnect
-                            });
-                            await clientSession.Disconnect();
+                            }).ConfigureAwait(false);
+                            await clientSession.Disconnect().ConfigureAwait(false);
                             return;
                         }
 
@@ -213,19 +213,19 @@ namespace NosCore.GameObject.Networking.LoginService
                             SubPacket = subpacket,
                             SessionId = clientSession.SessionId,
                             Unknown = useApiAuth ? 2 : (int?) null
-                        });
+                        }).ConfigureAwait(false);
                         return;
                 }
 
-                await clientSession.Disconnect();
+                await clientSession.Disconnect().ConfigureAwait(false);
             }
             catch
             {
                 await clientSession.SendPacket(new FailcPacket
                 {
                     Type = LoginFailType.UnhandledError
-                });
-                await clientSession.Disconnect();
+                }).ConfigureAwait(false);
+                await clientSession.Disconnect().ConfigureAwait(false);
             }
         }
     }

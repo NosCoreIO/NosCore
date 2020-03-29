@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -47,42 +48,42 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void CreateMartialArtistWhenNoLevel80_Does_Not_Create_Character()
+        public async Task CreateMartialArtistWhenNoLevel80_Does_Not_Create_Character()
         {
             const string name = "TestCharacter";
-            _charNewJobPacketHandler!.Execute(new CharNewJobPacket
+            await _charNewJobPacketHandler!.Execute(new CharNewJobPacket
             {
                 Name = name
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             Assert.IsNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
         }
 
         [TestMethod]
-        public void CreateMartialArtist_Works()
+        public async Task CreateMartialArtist_Works()
         {
             const string name = "TestCharacter";
             _chara!.Level = 80;
             CharacterDto character = _chara;
             TestHelpers.Instance.CharacterDao.InsertOrUpdate(ref character);
-            _charNewJobPacketHandler!.Execute(new CharNewJobPacket
+            await _charNewJobPacketHandler!.Execute(new CharNewJobPacket
             {
                 Name = name
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             Assert.IsNotNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
         }
 
         [TestMethod]
-        public void CreateMartialArtistWhenAlreadyOne_Does_Not_Create_Character()
+        public async Task CreateMartialArtistWhenAlreadyOne_Does_Not_Create_Character()
         {
             const string name = "TestCharacter";
             _chara!.Class = CharacterClassType.MartialArtist;
             CharacterDto character = _chara;
             _chara.Level = 80;
             TestHelpers.Instance.CharacterDao.InsertOrUpdate(ref character);
-            _charNewJobPacketHandler!.Execute(new CharNewJobPacket
+            await _charNewJobPacketHandler!.Execute(new CharNewJobPacket
             {
                 Name = name
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             Assert.IsNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
         }
     }

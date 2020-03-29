@@ -49,21 +49,21 @@ namespace NosCore.PacketHandlers.Friend
 
         public override async Task Execute(FdelPacket fdelPacket, ClientSession session)
         {
-            var list = await _friendHttpClient.GetListFriends(session.Character.VisualId);
+            var list = await _friendHttpClient.GetListFriends(session.Character.VisualId).ConfigureAwait(false);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == fdelPacket.CharacterId);
             if (idtorem != null)
             {
-                await _friendHttpClient.DeleteFriend(idtorem.CharacterRelationId);
+                await _friendHttpClient.DeleteFriend(idtorem.CharacterRelationId).ConfigureAwait(false);
                 await session.SendPacket(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)
-                });
+                }).ConfigureAwait(false);
                 var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
                 await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacket(await targetCharacter.GenerateFinit(_friendHttpClient, _channelHttpClient,
-                    _connectedAccountHttpClient)));
+                    _connectedAccountHttpClient).ConfigureAwait(false))).ConfigureAwait(false);
 
                 await session.Character.SendPacket(await session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient,
-                    _connectedAccountHttpClient));
+                    _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             }
             else
             {
@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Friend
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_FRIENDLIST,
                         session.Account.Language)
-                });
+                }).ConfigureAwait(false);
             }
         }
     }

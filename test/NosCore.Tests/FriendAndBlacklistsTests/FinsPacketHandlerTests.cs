@@ -102,7 +102,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest
                     {CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket}));
-            await _finsPacketHandler!.Execute(finsPacket, _session);
+            await _finsPacketHandler!.Execute(finsPacket, _session).ConfigureAwait(false);
             Assert.IsTrue(_characterRelationDao!.LoadAll().Count() == 2);
         }
 
@@ -119,7 +119,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>())).Returns(
                 friend.AddFriend(new FriendShipRequest
                     {CharacterId = _session!.Character.CharacterId, FinsPacket = finsPacket}));
-            await _finsPacketHandler!.Execute(finsPacket, _session);
+            await _finsPacketHandler!.Execute(finsPacket, _session).ConfigureAwait(false);
 
             Assert.IsFalse(_characterRelationDao!.LoadAll().Any());
         }
@@ -138,7 +138,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 .Returns(friend.AddFriend(new FriendShipRequest
                     {CharacterId = _session!.Character.CharacterId, FinsPacket = finsPacket}));
 
-            await _finsPacketHandler!.Execute(finsPacket, _session);
+            await _finsPacketHandler!.Execute(finsPacket, _session).ConfigureAwait(false);
             Assert.IsFalse(_characterRelationDao!.LoadAll().Any());
         }
     }

@@ -68,7 +68,7 @@ namespace NosCore.Tests.GuriHandlerTests
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
-            });
+            }).ConfigureAwait(false);
             var lastpacket = (InfoPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
                 Session.Account.Language), lastpacket?.Message);
@@ -84,7 +84,7 @@ namespace NosCore.Tests.GuriHandlerTests
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
-            });
+            }).ConfigureAwait(false);
             var lastpacket = (InfoPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.IsNull(lastpacket);
             Assert.AreEqual(1, Session.Character.Titles.Count);
@@ -97,7 +97,7 @@ namespace NosCore.Tests.GuriHandlerTests
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
-            });
+            }).ConfigureAwait(false);
             var lastpacket = (InfoPacket?)Session!.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.IsNull(lastpacket);
             Assert.AreEqual(0, Session.Character.Titles.Count);

@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Chat
                 {
                     SpeakType = SpeakType.Player,
                     Message = message.ToString()
-                }));
+                })).ConfigureAwait(false);
 
                 var speakPacket = session.Character.GenerateSpk(new SpeakPacket
                 {
@@ -96,17 +96,17 @@ namespace NosCore.PacketHandlers.Chat
                 var receiverSession =
                     Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
 
-                var receiver = await _connectedAccountHttpClient.GetCharacter(null, receiverName);
+                var receiver = await _connectedAccountHttpClient.GetCharacter(null, receiverName).ConfigureAwait(false);
 
                 if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
                 {
                     await session.SendPacket(session.Character.GenerateSay(
                         GameLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, session.Account.Language),
-                        SayColorType.Yellow));
+                        SayColorType.Yellow)).ConfigureAwait(false);
                     return;
                 }
 
-                var blacklisteds = await _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
+                var blacklisteds = await _blacklistHttpClient.GetBlackLists(session.Character.VisualId).ConfigureAwait(false);
                 if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter?.Id))
                 {
                     await session.SendPacket(new SayPacket
@@ -114,7 +114,7 @@ namespace NosCore.PacketHandlers.Chat
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
                             session.Account.Language),
                         Type = SayColorType.Yellow
-                    });
+                    }).ConfigureAwait(false);
                     return;
                 }
 
@@ -128,11 +128,11 @@ namespace NosCore.PacketHandlers.Chat
                     SenderCharacter = new Character {Name = session.Character.Name},
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
-                }, receiver.Item2.ChannelId);
+                }, receiver.Item2.ChannelId).ConfigureAwait(false);
 
                 await session.SendPacket(session.Character.GenerateSay(
                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
-                        session.Account.Language), SayColorType.Purple));
+                        session.Account.Language), SayColorType.Purple)).ConfigureAwait(false);
             }
             catch (Exception e)
             {

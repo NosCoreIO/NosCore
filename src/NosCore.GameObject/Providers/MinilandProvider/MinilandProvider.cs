@@ -163,7 +163,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                 {
                     if (ml.State == MinilandState.Private)
                     {
-                        List<long> friends = (await _friendHttpClient.GetListFriends(characterId))
+                        List<long> friends = (await _friendHttpClient.GetListFriends(characterId).ConfigureAwait(false))
                             .Select(s => s.CharacterId)
                             .ToList();
                         // Kick all players in miniland except owner and his friends

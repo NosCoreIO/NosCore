@@ -36,7 +36,7 @@ namespace NosCore.Tests.GuriHandlerTests
             await Handler!.Execute(
                 new RequestData<GuriPacket>(
                     Session!,
-                    guriPacket));
+                    guriPacket)).ConfigureAwait(false);
         }
     }
 }

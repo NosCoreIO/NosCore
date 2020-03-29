@@ -74,7 +74,7 @@ namespace NosCore.Tests.GuriHandlerTests
                 VisualId = 0,
                 Data = 999,
                 Value = "2 0 {test}"
-            });
+            }).ConfigureAwait(false);
             var sayitempacket = (SayItemPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNotNull(sayitempacket);
             var saypacket = (SayPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
@@ -93,7 +93,7 @@ namespace NosCore.Tests.GuriHandlerTests
                 VisualId = 0,
                 Data = 999,
                 Value = "2 1 {test}"
-            });
+            }).ConfigureAwait(false);
             var sayitempacket = (SayItemPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
             var saypacket = (SayPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
@@ -111,7 +111,7 @@ namespace NosCore.Tests.GuriHandlerTests
                 Type = GuriPacketType.TextInput,
                 Argument = 3,
                 VisualId = 0,
-            });
+            }).ConfigureAwait(false);
             var sayitempacket = (SayItemPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
             var saypacket = (SayPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
@@ -126,7 +126,7 @@ namespace NosCore.Tests.GuriHandlerTests
                 Type = GuriPacketType.TextInput,
                 Argument = 3,
                 VisualId = 0
-            });
+            }).ConfigureAwait(false);
             var sayitempacket = (SayItemPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
             var saypacket = (SayPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
