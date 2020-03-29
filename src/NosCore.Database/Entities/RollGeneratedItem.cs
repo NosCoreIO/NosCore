@@ -29,7 +29,7 @@ namespace NosCore.Database.Entities
 
         public short OriginalItemDesign { get; set; }
 
-        public virtual Item OriginalItem { get; set; }
+        public virtual Item OriginalItem { get; set; } = new Item();
 
         public short OriginalItemVNum { get; set; }
 
@@ -47,7 +47,7 @@ namespace NosCore.Database.Entities
 
         public short MaximumOriginalItemRare { get; set; }
 
-        public virtual Item ItemGenerated { get; set; }
+        public virtual Item ItemGenerated { get; set; } = new Item();
 
         public bool IsSuperReward { get; set; }
     }

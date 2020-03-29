@@ -26,7 +26,7 @@ namespace NosCore.Database.Entities
 {
     public class PenaltyLog : IEntity
     {
-        public virtual Account Account { get; set; }
+        public virtual Account Account { get; set; } = new Account();
 
         public long AccountId { get; set; }
 

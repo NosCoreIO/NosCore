@@ -33,7 +33,7 @@ namespace NosCore.Database.Entities
 
         public short Hit { get; set; }
 
-        public virtual Skill Skill { get; set; }
+        public virtual Skill Skill { get; set; } = new Skill();
 
         public short SkillVNum { get; set; }
     }

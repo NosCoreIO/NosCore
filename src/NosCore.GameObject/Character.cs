@@ -81,12 +81,14 @@ namespace NosCore.GameObject
         private readonly IGenericDao<TitleDto> _titleDao;
         private byte _speed;
 
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider,
             IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao,
             IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<AccountDto> accountDao,
             ILogger logger, IGenericDao<StaticBonusDto> staticBonusDao,
             IGenericDao<QuicklistEntryDto> quicklistEntriesDao, IGenericDao<MinilandDto> minilandDao,
             IMinilandProvider minilandProvider, IGenericDao<TitleDto> titleDao)
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             InventoryService = inventory;
             ExchangeProvider = exchangeProvider;
@@ -617,8 +619,8 @@ namespace NosCore.GameObject
                 return;
             }
 
-            var price = item.Price ?? item.ItemInstance.Item!.Price * amount;
-            var reputprice = item.Price == null ? item.ItemInstance.Item!.ReputPrice * amount : 0;
+            var price = item.Price ?? item.ItemInstance!.Item!.Price * amount;
+            var reputprice = item.Price == null ? item.ItemInstance!.Item!.ReputPrice * amount : 0;
             var percent = GenerateShopRates().Item1;
 
             if (amount > item.Amount)
@@ -652,7 +654,7 @@ namespace NosCore.GameObject
             if (shop.Session == null)
             {
                 inv = InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                    ItemProvider.Create(item.ItemInstance.ItemVNum, amount), Session.Character.CharacterId));
+                    ItemProvider.Create(item.ItemInstance!.ItemVNum, amount), Session.Character.CharacterId));
             }
             else
             {
@@ -666,7 +668,7 @@ namespace NosCore.GameObject
                     return;
                 }
 
-                if (amount == item.ItemInstance.Amount)
+                if (amount == item.ItemInstance?.Amount)
                 {
                     inv = InventoryService.AddItemToPocket(InventoryItemInstance.Create(item.ItemInstance,
                         Session.Character.CharacterId));
@@ -674,7 +676,7 @@ namespace NosCore.GameObject
                 else
                 {
                     inv = InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                        ItemProvider.Create(item.ItemInstance.ItemVNum, amount), Session.Character.CharacterId));
+                        ItemProvider.Create(item.ItemInstance?.ItemVNum ?? 0, amount), Session.Character.CharacterId));
                 }
             }
 
@@ -722,9 +724,9 @@ namespace NosCore.GameObject
         private async Task<NInvPacket?> BuyFrom(ShopItem item, short amount, short slotChar)
         {
             var type = item.Type;
-            var itemInstance = amount == item.ItemInstance.Amount
+            var itemInstance = amount == item.ItemInstance?.Amount
                 ? InventoryService.DeleteById(item.ItemInstance.Id)
-                : InventoryService.RemoveItemAmountFromInventory(amount, item.ItemInstance.Id);
+                : InventoryService.RemoveItemAmountFromInventory(amount, item.ItemInstance!.Id);
             var slot = item.Slot;
             item.Amount = (short)((item.Amount ?? 0) - amount);
             if ((item?.Amount ?? 0) == 0)

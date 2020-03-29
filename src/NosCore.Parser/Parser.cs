@@ -131,7 +131,7 @@ namespace NosCore.Parser
                             var type = assemblyDb.First(tgo =>
                                 string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                             var typepk = type.FindKey();
-                            registerDatabaseObject?.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
+                            registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType).Invoke(null,
                                 new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                         });
 

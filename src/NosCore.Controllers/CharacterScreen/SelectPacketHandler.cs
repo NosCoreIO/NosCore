@@ -92,7 +92,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.PositionY = character.MapY;
                 character.Direction = 2;
                 character.Account = clientSession.Account;
-                character.Group.JoinGroup(character);
+                character.Group!.JoinGroup(character);
 
                 var inventories = _inventoryItemInstanceDao
                     .Where(s => s.CharacterId == character.CharacterId)

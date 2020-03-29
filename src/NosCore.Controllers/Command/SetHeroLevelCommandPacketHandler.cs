@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.Command
                 var accounts = await
                     _connectedAccountHttpClient.GetConnectedAccount(channel);
 
-                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Name == levelPacket.Name);
 
                 if (target != null)
                 {

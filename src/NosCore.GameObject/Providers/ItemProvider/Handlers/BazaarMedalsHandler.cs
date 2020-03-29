@@ -37,13 +37,6 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
     public class BazaarMedalsHandler : IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>
     {
-        private readonly ILogger _logger;
-
-        public BazaarMedalsHandler(ILogger logger)
-        {
-            _logger = logger;
-        }
-
         public bool Condition(Item.Item item)
         {
             return (item.Effect == ItemEffectType.SilverNosMerchantUpgrade)

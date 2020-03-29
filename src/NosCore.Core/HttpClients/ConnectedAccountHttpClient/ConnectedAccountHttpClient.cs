@@ -55,7 +55,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
             {
                 var accounts = await GetConnectedAccount(channel).ConfigureAwait(false);
                 var target = accounts.FirstOrDefault(s =>
-                    (s.ConnectedCharacter.Name == characterName) || (s.ConnectedCharacter.Id == characterId));
+                    (s.ConnectedCharacter?.Name == characterName) || (s.ConnectedCharacter?.Id == characterId));
 
                 if (target != null)
                 {

@@ -53,20 +53,20 @@ namespace NosCore.MasterServer.Controllers
         {
             var character = await _connectedAccountHttpClient.GetCharacter(blacklistRequest.CharacterId, null);
             var targetCharacter = await
-                _connectedAccountHttpClient.GetCharacter(blacklistRequest.BlInsPacket.CharacterId, null);
+                _connectedAccountHttpClient.GetCharacter(blacklistRequest.BlInsPacket?.CharacterId, null);
             if ((character.Item2 != null) && (targetCharacter.Item2 != null))
             {
                 var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId)
                     .ToList();
                 if (relations.Any(s =>
-                    (s.RelatedCharacterId == blacklistRequest.BlInsPacket.CharacterId) &&
+                    (s.RelatedCharacterId == blacklistRequest.BlInsPacket?.CharacterId) &&
                     (s.RelationType != CharacterRelationType.Blocked)))
                 {
                     return LanguageKey.CANT_BLOCK_FRIEND;
                 }
 
                 if (relations.Any(s =>
-                    (s.RelatedCharacterId == blacklistRequest.BlInsPacket.CharacterId) &&
+                    (s.RelatedCharacterId == blacklistRequest.BlInsPacket?.CharacterId) &&
                     (s.RelationType == CharacterRelationType.Blocked)))
                 {
                     return LanguageKey.ALREADY_BLACKLISTED;
@@ -74,8 +74,8 @@ namespace NosCore.MasterServer.Controllers
 
                 var data = new CharacterRelationDto
                 {
-                    CharacterId = character.Item2.ConnectedCharacter.Id,
-                    RelatedCharacterId = targetCharacter.Item2.ConnectedCharacter.Id,
+                    CharacterId = character.Item2.ConnectedCharacter!.Id,
+                    RelatedCharacterId = targetCharacter.Item2.ConnectedCharacter!.Id,
                     RelationType = CharacterRelationType.Blocked
                 };
 

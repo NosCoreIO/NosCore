@@ -26,7 +26,7 @@ namespace NosCore.Database.Entities
 {
     public class FamilyLog : IEntity
     {
-        public virtual Family Family { get; set; }
+        public virtual Family Family { get; set; } = new Family();
 
         public long FamilyId { get; set; }
 

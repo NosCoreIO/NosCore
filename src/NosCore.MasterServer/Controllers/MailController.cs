@@ -264,7 +264,7 @@ namespace NosCore.MasterServer.Controllers
                     break;
                 case 1:
                     _incommingMailHttpClient.DeleteIncommingMail(receiver.Item2.ChannelId,
-                        receiver.Item2.ConnectedCharacter.Id, (short) mailData.MailId, type);
+                        receiver.Item2.ConnectedCharacter!.Id, (short) mailData.MailId, type);
                     break;
             }
         }

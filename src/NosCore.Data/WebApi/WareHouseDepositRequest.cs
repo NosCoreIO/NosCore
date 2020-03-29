@@ -26,7 +26,7 @@ namespace NosCore.Data.WebApi
     {
         public long OwnerId { get; set; }
         public WarehouseType WarehouseType { get; set; }
-        public ItemInstanceDto ItemInstance { get; set; }
+        public ItemInstanceDto? ItemInstance { get; set; }
         public short Slot { get; set; }
     }
 }

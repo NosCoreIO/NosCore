@@ -23,7 +23,7 @@ namespace NosCore.GameObject.Networking.Group
 {
     public class GroupAccess //TODO move to a service
     {
-        private static GroupAccess _instance;
+        private static GroupAccess? _instance;
 
         private long _lastGroupId = 1;
 

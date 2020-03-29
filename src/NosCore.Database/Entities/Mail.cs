@@ -54,7 +54,7 @@ namespace NosCore.Database.Entities
         public bool IsSenderCopy { get; set; }
 
         [CanBeNull]
-        public virtual ItemInstance ItemInstance { get; set; }
+        public virtual ItemInstance ItemInstance { get; set; } = new ItemInstance();
 
         public Guid? ItemInstanceId { get; set; }
 
@@ -65,11 +65,11 @@ namespace NosCore.Database.Entities
         [MaxLength(255)]
         public string Message { get; set; } = "";
 
-        public virtual Character Receiver { get; set; }
+        public virtual Character Receiver { get; set; } = new Character();
 
         public long ReceiverId { get; set; }
 
-        public virtual Character Sender { get; set; }
+        public virtual Character Sender { get; set; } = new Character();
 
         public long? SenderId { get; set; }
 

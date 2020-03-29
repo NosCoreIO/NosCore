@@ -41,6 +41,7 @@ namespace NosCore.Database.Entities
             RecipeItem = new HashSet<RecipeItem>();
             ShopItem = new HashSet<ShopItem>();
             BCards = new HashSet<BCard>();
+            ItemInstances = new HashSet<ItemInstance>();
         }
 
         public byte BasicUpgrade { get; set; }

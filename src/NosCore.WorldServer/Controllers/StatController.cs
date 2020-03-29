@@ -54,7 +54,7 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest();
             }
 
-            var session = Broadcaster.Instance.GetCharacter(s => s.Name == data.Character.Name);
+            var session = Broadcaster.Instance.GetCharacter(s => s.Name == data.Character?.Name);
 
             if (session == null)
             {

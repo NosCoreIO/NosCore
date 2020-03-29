@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _mailHttpClient.SendGift(session.Character!, receiver.Item2.ConnectedCharacter.Id, giftPacket.VNum,
+            await _mailHttpClient.SendGift(session.Character!, receiver.Item2.ConnectedCharacter!.Id, giftPacket.VNum,
                 giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false);
             await session.SendPacket(session.Character.GenerateSay(Language.Instance.GetMessageFromKey(
                 LanguageKey.GIFT_SENT,
