@@ -24,10 +24,10 @@ namespace NosCore.Database.Entities
     public class CharacterActPart : SynchronizableBaseEntity
     {
         public long CharacterId { get; set; }
-        public virtual Character Character { get; set; }
+        public virtual Character Character { get; set; } = new Character();
 
         public byte ActPartId { get; set; }
-        public virtual ActPart ActPart { get; set; }
+        public virtual ActPart ActPart { get; set; } = new ActPart();
 
         public byte CurrentTs;
     }

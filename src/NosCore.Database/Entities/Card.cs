@@ -30,6 +30,7 @@ namespace NosCore.Database.Entities
         public Card()
         {
             BCards = new HashSet<BCard>();
+            StaticBuff = new HashSet<StaticBuff>();
         }
 
         [Key]

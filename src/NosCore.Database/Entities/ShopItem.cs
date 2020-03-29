@@ -29,13 +29,13 @@ namespace NosCore.Database.Entities
     {
         public byte Color { get; set; }
 
-        public virtual Item Item { get; set; }
+        public virtual Item Item { get; set; } = new Item();
 
         public short ItemVNum { get; set; }
 
         public short Rare { get; set; }
 
-        public virtual Shop Shop { get; set; }
+        public virtual Shop Shop { get; set; } = new Shop();
 
         public int ShopId { get; set; }
 

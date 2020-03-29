@@ -42,14 +42,12 @@ namespace NosCore.Tests.ItemHandlerTests
     public class BazaarMedalsHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider? _itemProvider;
-        private Mock<ILogger>? _logger;
 
         [TestInitialize]
         public void Setup()
         {
-            _logger = new Mock<ILogger>();
             Session = TestHelpers.Instance.GenerateSession();
-            Handler = new BazaarMedalsHandler(_logger.Object);
+            Handler = new BazaarMedalsHandler();
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, Effect = ItemEffectType.GoldNosMerchantUpgrade, EffectValue = 1},

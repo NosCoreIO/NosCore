@@ -128,7 +128,7 @@ namespace NosCore.Database.DAL
             {
                 if (predicate == null)
                 {
-                    return default;
+                    return default!;
                 }
 
                 TEntity ent;
@@ -143,7 +143,7 @@ namespace NosCore.Database.DAL
             catch (Exception e)
             {
                 _logger.Error(e.Message, e);
-                return default;
+                return default!;
             }
         }
 

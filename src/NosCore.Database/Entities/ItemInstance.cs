@@ -43,7 +43,7 @@ namespace NosCore.Database.Entities
         public virtual ICollection<WarehouseItem> WarehouseItems { get; }
 
         [ForeignKey(nameof(BoundCharacterId))]
-        public virtual Character BoundCharacter { get; set; }
+        public virtual Character BoundCharacter { get; set; } = new Character();
 
         public long? BoundCharacterId { get; set; }
 
@@ -53,7 +53,7 @@ namespace NosCore.Database.Entities
 
         public int DurabilityPoint { get; set; }
 
-        public virtual Item Item { get; set; }
+        public virtual Item Item { get; set; } = new Item();
 
         public DateTime? ItemDeleteTime { get; set; }
 

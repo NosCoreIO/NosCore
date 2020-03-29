@@ -48,7 +48,7 @@ namespace NosCore.Database.Entities
 
         public bool IsSitting { get; set; }
 
-        public virtual Map Map { get; set; }
+        public virtual Map Map { get; set; } = new Map();
 
         public short MapId { get; set; }
 
@@ -60,7 +60,7 @@ namespace NosCore.Database.Entities
 
         public short MapY { get; set; }
 
-        public virtual NpcMonster NpcMonster { get; set; }
+        public virtual NpcMonster NpcMonster { get; set; } = new NpcMonster();
 
         public short VNum { get; set; }
 

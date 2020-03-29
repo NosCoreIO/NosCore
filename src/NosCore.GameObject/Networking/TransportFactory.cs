@@ -21,7 +21,7 @@ namespace NosCore.GameObject.Networking
 {
     public class TransportFactory //TODO move to a service
     {
-        private static TransportFactory _instance;
+        private static TransportFactory? _instance;
         private long _lastTransportId = 100000;
 
         private TransportFactory()

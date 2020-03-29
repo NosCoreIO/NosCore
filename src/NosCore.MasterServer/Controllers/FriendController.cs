@@ -61,10 +61,10 @@ namespace NosCore.MasterServer.Controllers
         public async Task<LanguageKey> AddFriend([FromBody] FriendShipRequest friendPacket)
         {
             var character = await _connectedAccountHttpClient.GetCharacter(friendPacket.CharacterId, null);
-            var targetCharacter = await _connectedAccountHttpClient.GetCharacter(friendPacket.FinsPacket.CharacterId, null);
+            var targetCharacter = await _connectedAccountHttpClient.GetCharacter(friendPacket.FinsPacket?.CharacterId, null);
             var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
-                (s.Value.Item2 == character.Item2?.ConnectedCharacter.Id) &&
-                (s.Value.Item1 == targetCharacter.Item2?.ConnectedCharacter.Id)).ToList();
+                (s.Value.Item2 == character.Item2?.ConnectedCharacter?.Id) &&
+                (s.Value.Item1 == targetCharacter.Item2?.ConnectedCharacter?.Id)).ToList();
             if ((character.Item2 != null) && (targetCharacter.Item2 != null))
             {
                 if (character.Item2.ChannelId != targetCharacter.Item2.ChannelId)
@@ -80,20 +80,20 @@ namespace NosCore.MasterServer.Controllers
 
                 if (relations.Any(s =>
                     (s.RelationType == CharacterRelationType.Blocked) &&
-                    (s.RelatedCharacterId == friendPacket.FinsPacket.CharacterId)))
+                    (s.RelatedCharacterId == friendPacket.FinsPacket!.CharacterId)))
                 {
                     return LanguageKey.BLACKLIST_BLOCKED;
                 }
 
                 if (relations.Any(s =>
                     (s.RelationType == CharacterRelationType.Friend) &&
-                    (s.RelatedCharacterId == friendPacket.FinsPacket.CharacterId)))
+                    (s.RelatedCharacterId == friendPacket.FinsPacket!.CharacterId)))
                 {
                     return LanguageKey.ALREADY_FRIEND;
                 }
 
-                if (character.Item2.ConnectedCharacter.FriendRequestBlocked ||
-                    targetCharacter.Item2.ConnectedCharacter.FriendRequestBlocked)
+                if (character.Item2.ConnectedCharacter!.FriendRequestBlocked ||
+                    targetCharacter.Item2.ConnectedCharacter!.FriendRequestBlocked)
                 {
                     return LanguageKey.FRIEND_REQUEST_BLOCKED;
                 }
@@ -106,7 +106,7 @@ namespace NosCore.MasterServer.Controllers
                     return LanguageKey.FRIEND_REQUEST_SENT;
                 }
 
-                switch (friendPacket.FinsPacket.Type)
+                switch (friendPacket.FinsPacket!.Type)
                 {
                     case FinsPacketType.Accepted:
                         var data = new CharacterRelationDto

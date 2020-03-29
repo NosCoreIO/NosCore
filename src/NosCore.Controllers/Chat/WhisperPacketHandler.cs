@@ -107,7 +107,7 @@ namespace NosCore.PacketHandlers.Chat
                 }
 
                 var blacklisteds = await _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
-                if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter.Id))
+                if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter?.Id))
                 {
                     await session.SendPacket(new SayPacket
                     {

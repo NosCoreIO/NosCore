@@ -493,7 +493,9 @@ namespace NosCore.GameObject.Helper
             };
         }
 
+#pragma warning disable IDE0060 // Remove unused parameter
         internal int DarkResistance(CharacterClassType @class, byte level)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return 0;
         }

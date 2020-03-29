@@ -27,11 +27,11 @@ namespace NosCore.Database.Entities
         [Key]
         public short MapTypeMapId { get; set; }
 
-        public virtual Map Map { get; set; }
+        public virtual Map Map { get; set; } = new Map();
 
         public short MapId { get; set; }
 
-        public virtual MapType MapType { get; set; }
+        public virtual MapType MapType { get; set; } = new MapType();
 
         public short MapTypeId { get; set; }
     }

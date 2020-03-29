@@ -102,7 +102,7 @@ namespace NosCore.GameObject
             {
                 try
                 {
-                    if (!MapInstance.IsSleeping)
+                    if (!MapInstance!.IsSleeping)
                     {
                         MonsterLife();
                     }

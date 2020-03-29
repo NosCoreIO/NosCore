@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _connectedAccountHttpClient.Disconnect(receiver.Item2.ConnectedCharacter.Id);
+            await _connectedAccountHttpClient.Disconnect(receiver.Item2.ConnectedCharacter!.Id);
         }
     }
 }

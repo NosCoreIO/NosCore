@@ -55,7 +55,7 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest();
             }
 
-            var message = _deserializer.Deserialize(postedPacket.Packet);
+            var message = _deserializer.Deserialize(postedPacket.Packet!);
 
             switch (postedPacket.ReceiverType)
             {
@@ -65,7 +65,7 @@ namespace NosCore.WorldServer.Controllers
                 case ReceiverType.OnlySomeone:
                     ICharacterEntity? receiverSession;
 
-                    if (postedPacket.ReceiverCharacter.Name != null)
+                    if (postedPacket.ReceiverCharacter!.Name != null)
                     {
                         receiverSession = Broadcaster.Instance.GetCharacter(s =>
                             s.Name == postedPacket.ReceiverCharacter.Name);

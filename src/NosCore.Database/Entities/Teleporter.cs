@@ -29,11 +29,11 @@ namespace NosCore.Database.Entities
 
         public TeleporterType Type { get; set; }
 
-        public virtual Map Map { get; set; }
+        public virtual Map Map { get; set; } = new Map();
 
         public short MapId { get; set; }
 
-        public virtual MapNpc MapNpc { get; set; }
+        public virtual MapNpc MapNpc { get; set; } = new MapNpc();
 
         public int MapNpcId { get; set; }
 
