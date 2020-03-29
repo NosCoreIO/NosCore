@@ -43,7 +43,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class BlPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private BlPacketHandler _blPacketHandler;
         private IGenericDao<CharacterRelationDto> _characterRelationDao;
         private ClientSession _session;
@@ -51,7 +51,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         [TestInitialize]
         public void Setup()
         {
-            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, long>(_logger);
+            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, long>(Logger);
             Broadcaster.Reset();
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();

@@ -50,7 +50,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class FinsPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
         private IGenericDao<CharacterRelationDto>? _characterRelationDao;
         private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
@@ -65,12 +65,12 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         public void Setup()
         {
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
-                .ConstructUsing(src => new MapNpc(null, null, null, null, _logger));
+                .ConstructUsing(src => new MapNpc(null, null, null, null, Logger));
             Broadcaster.Reset();
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();
             _targetSession = TestHelpers.Instance.GenerateSession();
-            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(_logger);
+            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(Logger);
             _friendRequestHolder = new FriendRequestHolder();
             _connectedAccountHttpClient.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
@@ -97,7 +97,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 Type = FinsPacketType.Accepted
             };
 
-            using var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
+            using var friend = new FriendController(Logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
                 _friendRequestHolder, _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest
@@ -114,7 +114,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = _targetSession.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
-            using var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
+            using var friend = new FriendController(Logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
                 _friendRequestHolder, _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>())).Returns(
                 friend.AddFriend(new FriendShipRequest
@@ -132,7 +132,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = _targetSession.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
-            using var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
+            using var friend = new FriendController(Logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
                 _friendRequestHolder, _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest

@@ -48,7 +48,7 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class MJoinPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
         private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
         private Mock<IMinilandProvider>? _minilandProvider;
@@ -61,7 +61,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public void Setup()
         {
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
-                .ConstructUsing(src => new MapNpc(null, null, null, null, _logger));
+                .ConstructUsing(src => new MapNpc(null, null, null, null, Logger));
             Broadcaster.Reset();
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();

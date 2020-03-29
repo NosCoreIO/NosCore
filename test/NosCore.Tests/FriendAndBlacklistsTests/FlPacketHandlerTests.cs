@@ -44,7 +44,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class FlPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private IGenericDao<CharacterRelationDto> _characterRelationDao;
         private FlPacketHandler _flPacketHandler;
         private ClientSession _session;
@@ -52,7 +52,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         [TestInitialize]
         public void Setup()
         {
-            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(_logger);
+            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(Logger);
             TestHelpers.Reset();
             Broadcaster.Reset();
             _session = TestHelpers.Instance.GenerateSession();
@@ -82,7 +82,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
-            using var friend = new FriendController(_logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
+            using var friend = new FriendController(Logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
                 friendRequestHolder, TestHelpers.Instance.ConnectedAccountHttpClient.Object);
             TestHelpers.Instance.FriendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest

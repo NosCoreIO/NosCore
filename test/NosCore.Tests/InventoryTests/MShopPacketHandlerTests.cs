@@ -96,7 +96,7 @@ namespace NosCore.Tests.InventoryTests
             var packet = (MsgPacket?) _session?.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL, _session?.Account.Language ?? RegionType.EN));
-            Assert.IsNull(_session?.Character?.Shop);
+            Assert.IsNull(_session?.Character.Shop);
         }
 
         [TestMethod]

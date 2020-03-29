@@ -42,11 +42,11 @@ namespace NosCore.Tests.ParcelTests
     [TestClass]
     public class PclPacketHandlerTests
     {
-        private Mock<IMailHttpClient> _mailHttpClient;
-        private PclPacketHandler _pclPacketHandler;
-        private IItemProvider _item;
-        private ClientSession _session;
-        private Mock<IGenericDao<IItemInstanceDto>> _itemInstanceDao;
+        private Mock<IMailHttpClient>? _mailHttpClient;
+        private PclPacketHandler? _pclPacketHandler;
+        private IItemProvider? _item;
+        private ClientSession? _session;
+        private Mock<IGenericDao<IItemInstanceDto>>? _itemInstanceDao;
 
         [TestInitialize]
         public void Setup()
@@ -62,13 +62,13 @@ namespace NosCore.Tests.ParcelTests
         [TestMethod]
         public async Task Test_GiftNotFound()
         {
-            _mailHttpClient.Setup(s => s.GetGift(1, _session.Character.CharacterId, false)).ReturnsAsync((MailData)null);
-            await _pclPacketHandler.Execute(new PclPacket
+            _mailHttpClient!.Setup(s => s.GetGift(1, _session!.Character.CharacterId, false)).ReturnsAsync((MailData?)null);
+            await _pclPacketHandler!.Execute(new PclPacket
             {
                 Type = 5,
                 GiftId = 1
-            }, _session);
-            var packet = (ParcelPacket?)_session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
+            }, _session!);
+            var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsNull(packet);
         }
 
@@ -82,7 +82,7 @@ namespace NosCore.Tests.ParcelTests
                 GiftId = 1
             }, _session);
             var packet = (ParcelPacket?)_session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
-            Assert.IsTrue(packet.Type == 7);
+            Assert.IsTrue(packet?.Type == 7);
         }
 
         [TestMethod]
@@ -131,7 +131,7 @@ namespace NosCore.Tests.ParcelTests
                 GiftId = 1
             }, _session);
             var packet = (ParcelPacket?)_session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
-            Assert.IsTrue(packet.Type == 5);
+            Assert.IsTrue(packet?.Type == 5);
         }
     }
 }

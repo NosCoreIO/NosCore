@@ -44,8 +44,8 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestInitialize]
         public void Setup()
         {
-            _session = TestHelpers.Instance.GenerateSession();
-            _handler = new SpeakerHandler();
+            Session = TestHelpers.Instance.GenerateSession();
+            Handler = new SpeakerHandler();
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, ItemType = ItemType.Magical, Effect = ItemEffectType.Speaker, EffectValue = 0},
@@ -57,10 +57,10 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestMethod]
         public void Test_SpeakerItemHandler()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (GuriPacket?)_session.LastPackets.FirstOrDefault(s => s is GuriPacket);
+            var lastpacket = (GuriPacket?)Session.LastPackets.FirstOrDefault(s => s is GuriPacket);
             Assert.IsNotNull(lastpacket);
         }
     }

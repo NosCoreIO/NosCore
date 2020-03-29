@@ -47,7 +47,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class BDelPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private BlacklistController? _blackListController;
         private Mock<IBlacklistHttpClient>? _blackListHttpClient;
         private BlDelPacketHandler? _blDelPacketHandler;
@@ -59,7 +59,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         [TestInitialize]
         public void Setup()
         {
-            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, long>(_logger);
+            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, long>(Logger);
             Broadcaster.Reset();
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();

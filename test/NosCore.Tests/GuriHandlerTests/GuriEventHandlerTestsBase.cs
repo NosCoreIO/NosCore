@@ -26,15 +26,15 @@ namespace NosCore.Tests.GuriHandlerTests
 {
     public abstract class GuriEventHandlerTestsBase
     {
-        protected IEventHandler<GuriPacket, GuriPacket> _handler;
-        protected ClientSession _session;
-        protected readonly UseItemPacket _useItem = new UseItemPacket();
+        protected IEventHandler<GuriPacket, GuriPacket> Handler;
+        protected ClientSession Session;
+        protected readonly UseItemPacket UseItem = new UseItemPacket();
 
         protected void ExecuteGuriEventHandler(GuriPacket guriPacket)
         {
-            _handler.Execute(
+            Handler.Execute(
                 new RequestData<GuriPacket>(
-                    _session,
+                    Session,
                     guriPacket));
         }
     }

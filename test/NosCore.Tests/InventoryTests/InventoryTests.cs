@@ -39,7 +39,7 @@ namespace NosCore.Tests.InventoryTests
     [TestClass]
     public class InventoryTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private ItemProvider _itemProvider;
 
         private IInventoryService Inventory { get; set; }
@@ -59,7 +59,7 @@ namespace NosCore.Tests.InventoryTests
             _itemProvider = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             Inventory = new InventoryService(items, new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999},
-                _logger);
+                Logger);
         }
 
         [TestMethod]

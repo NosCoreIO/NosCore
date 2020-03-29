@@ -43,10 +43,10 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class BlInsPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
 
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao =
-            new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(_logger);
+            new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(Logger);
 
         private BlInsPackettHandler _blInsPacketHandler;
         private ClientSession _session;

@@ -52,10 +52,10 @@ namespace NosCore.Tests.InventoryTests
     [TestClass]
     public class ShopTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private IFriendHttpClient _friendHttpClient;
-        private MapInstanceProvider _instanceProvider;
-        private ClientSession _session;
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private IFriendHttpClient? _friendHttpClient;
+        private MapInstanceProvider? _instanceProvider;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
@@ -72,7 +72,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanNotShopNonExistingSlot()
         {
-            _session.Character.Gold = 9999999999;
+            _session!.Character.Gold = 9999999999;
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
@@ -93,7 +93,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCantShopMoreThanQuantityNonExistingSlot()
         {
-            _session.Character.Gold = 9999999999;
+            _session!.Character.Gold = 9999999999;
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
@@ -114,7 +114,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCantShopWithoutMoney()
         {
-            _session.Character.Gold = 500000;
+            _session!.Character.Gold = 500000;
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
@@ -138,7 +138,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCantShopWithoutReput()
         {
-            _session.Character.Reput = 500000;
+            _session!.Character.Reput = 500000;
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000}
@@ -162,7 +162,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCantShopWithoutPlace()
         {
-            _session.Character.Gold = 500000;
+            _session!.Character.Gold = 500000;
 
             var items = new List<ItemDto>
             {
@@ -177,7 +177,7 @@ namespace NosCore.Tests.InventoryTests
             {
                 ShopItems = list
             };
-            _session.Character.InventoryService.AddItemToPocket(
+            _session!.Character.InventoryService!.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(
@@ -196,7 +196,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanShop()
         {
-            _session.Character.Gold = 500000;
+            _session!.Character.Gold = 500000;
 
             var items = new List<ItemDto>
             {
@@ -211,7 +211,7 @@ namespace NosCore.Tests.InventoryTests
             {
                 ShopItems = list
             };
-            _session.Character.InventoryService.AddItemToPocket(
+            _session!.Character.InventoryService!.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(
@@ -229,7 +229,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanShopReput()
         {
-            _session.Character.Reput = 500000;
+            _session!.Character.Reput = 500000;
 
             var items = new List<ItemDto>
             {
@@ -244,7 +244,7 @@ namespace NosCore.Tests.InventoryTests
             {
                 ShopItems = list
             };
-            _session.Character.InventoryService.AddItemToPocket(
+            _session.Character.InventoryService!.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(
@@ -262,15 +262,15 @@ namespace NosCore.Tests.InventoryTests
         private ClientSession PrepareSessionShop()
         {
             var conf = new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999};
-            var session2 = new ClientSession(conf, _logger, new List<IPacketHandler>(), _friendHttpClient, null, null);
+            var session2 = new ClientSession(conf, Logger, new List<IPacketHandler>(), _friendHttpClient, null, null);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
             session2.InitializeAccount(account);
             session2.SessionId = 1;
 
-            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, _logger), null, null,
-                null, null, null, null, _logger, null, null, null, null, null)
+            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), null, null,
+                null, null, null, null, Logger, null, null, null, null, null)
             {
                 CharacterId = 1,
                 Name = "chara2",
