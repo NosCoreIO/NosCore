@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Shops
 
         public override Task Execute(ShoppingPacket shoppingPacket, ClientSession clientSession)
         {
-            if (clientSession.Character!.InExchangeOrTrade)
+            if (clientSession.Character.InExchangeOrTrade)
             {
                 //TODO log
                 return Task.CompletedTask;

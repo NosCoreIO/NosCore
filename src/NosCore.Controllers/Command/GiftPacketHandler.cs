@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Command
         public override async Task Execute(GiftPacket giftPacket, ClientSession session)
         {
             var receiver =
-                await _connectedAccountHttpClient.GetCharacter(null, giftPacket.CharacterName ?? session.Character!.Name);
+                await _connectedAccountHttpClient.GetCharacter(null, giftPacket.CharacterName ?? session.Character.Name);
 
             if (receiver.Item2 == null)
             {
@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Command
 
             await _mailHttpClient.SendGift(session.Character!, receiver.Item2.ConnectedCharacter.Id, giftPacket.VNum,
                 giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false);
-            await session.SendPacket(session.Character!.GenerateSay(Language.Instance.GetMessageFromKey(
+            await session.SendPacket(session.Character.GenerateSay(Language.Instance.GetMessageFromKey(
                 LanguageKey.GIFT_SENT,
                 session.Account.Language), SayColorType.Yellow));
         }

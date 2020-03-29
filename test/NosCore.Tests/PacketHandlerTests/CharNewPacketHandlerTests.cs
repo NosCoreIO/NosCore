@@ -60,7 +60,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public void CreateCharacterWhenInGame_Does_Not_Create_Character()
         {
             _session!.SetCharacter(_chara);
-            _session.Character!.MapInstance =
+            _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     _logger, new List<IMapInstanceEventHandler>());

@@ -49,10 +49,10 @@ namespace NosCore.PacketHandlers.Command
                     entity = session.Character!;
                     break;
                 case VisualType.Monster:
-                    entity = session.Character!.MapInstance!.Monsters.Find(s => s.VisualId == sizePacket.VisualId)!;
+                    entity = session.Character.MapInstance!.Monsters.Find(s => s.VisualId == sizePacket.VisualId)!;
                     break;
                 case VisualType.Npc:
-                    entity = session.Character!.MapInstance!.Npcs.Find(s => s.VisualId == sizePacket.VisualId)!;
+                    entity = session.Character.MapInstance!.Npcs.Find(s => s.VisualId == sizePacket.VisualId)!;
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Command
             }
 
             entity.Size = sizePacket.Size;
-            return session.Character!.MapInstance!.SendPacket(entity.GenerateCharSc());
+            return session.Character.MapInstance!.SendPacket(entity.GenerateCharSc());
         }
     }
 }

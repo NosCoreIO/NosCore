@@ -65,7 +65,7 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Swordman)]
         public void UserCantChangeClassLowLevel(CharacterClassType characterClass)
         {
-            _session.Character!.Level = 15;
+            _session.Character.Level = 15;
             _nRunHandler.Execute(new NrunPacket
             {
                 VisualType = VisualType.Npc,
@@ -124,7 +124,7 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Adventurer)]
         public void UserCantChangeToBadClass(CharacterClassType characterClass)
         {
-            _session.Character!.Level = 15;
+            _session.Character.Level = 15;
             _session.Character.JobLevel = 20;
             _nRunHandler.Execute(new NrunPacket
             {
@@ -145,7 +145,7 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Swordman)]
         public void UserCanChangeClass(CharacterClassType characterClass)
         {
-            _session.Character!.Level = 15;
+            _session.Character.Level = 15;
             _session.Character.JobLevel = 20;
             _nRunHandler.Execute(new NrunPacket
             {

@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Friend
         public override async Task Execute(MJoinPacket mJoinPacket, ClientSession session)
         {
             var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == mJoinPacket.VisualId);
-            var friendList = await _friendHttpClient.GetListFriends(session.Character!.CharacterId);
+            var friendList = await _friendHttpClient.GetListFriends(session.Character.CharacterId);
             if (target != null && friendList.Any(s => s.CharacterId == mJoinPacket.VisualId))
             {
                 var miniland = _minilandProvider.GetMiniland(mJoinPacket.VisualId);

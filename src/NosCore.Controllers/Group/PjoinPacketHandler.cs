@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Group
             {
                 case GroupRequestType.Requested:
                 case GroupRequestType.Invited:
-                    if (pjoinPacket.CharacterId == clientSession.Character!.CharacterId)
+                    if (pjoinPacket.CharacterId == clientSession.Character.CharacterId)
                     {
                         return;
                     }
@@ -289,7 +289,7 @@ namespace NosCore.PacketHandlers.Group
 
                     break;
                 case GroupRequestType.Declined:
-                    if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character!.CharacterId))
+                    if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
                         return;
                     }
@@ -302,7 +302,7 @@ namespace NosCore.PacketHandlers.Group
                     });
                     break;
                 case GroupRequestType.AcceptedShare:
-                    if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character!.CharacterId))
+                    if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
                         return;
                     }

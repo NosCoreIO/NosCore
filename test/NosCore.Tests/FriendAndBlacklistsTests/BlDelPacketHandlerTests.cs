@@ -92,7 +92,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 {
                     RelatedCharacterId = 2,
                     CharacterRelationId = targetGuid,
-                    CharacterId = _session.Character!.CharacterId,
+                    CharacterId = _session.Character.CharacterId,
                     RelationType = CharacterRelationType.Blocked
                 }
             });

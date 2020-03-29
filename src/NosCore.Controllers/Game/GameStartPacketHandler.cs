@@ -92,7 +92,7 @@ namespace NosCore.PacketHandlers.Game
                     SayColorType.Yellow));
             }
 
-            session.Character!.LoadSpeed();
+            session.Character.LoadSpeed();
             //            Session.Character.LoadSkills();
             await session.SendPacket(session.Character.GenerateTit());
             await session.SendPacket(session.Character.GenerateSpPoint());

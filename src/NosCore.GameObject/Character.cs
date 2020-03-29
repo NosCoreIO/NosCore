@@ -681,7 +681,7 @@ namespace NosCore.GameObject
             if (inv?.Count > 0)
             {
                 inv.ForEach(it => it.CharacterId = CharacterId);
-                var packet = await (shop.Session == null ? Task.FromResult((NInvPacket?)null) : shop.Session.Character!.BuyFrom(item, amount, slotChar));
+                var packet = await (shop.Session == null ? Task.FromResult((NInvPacket?)null) : shop.Session.Character.BuyFrom(item, amount, slotChar));
                 if (packet != null)
                 {
                     await SendPacket(packet);

@@ -53,9 +53,9 @@ namespace NosCore.PacketHandlers.Command
 
         public override async Task Execute(SetHeroLevelCommandPacket levelPacket, ClientSession session)
         {
-            if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character!.Name))
+            if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
-                await session.Character!.SetHeroLevel(levelPacket.Level);
+                await session.Character.SetHeroLevel(levelPacket.Level);
                 return;
             }
 
