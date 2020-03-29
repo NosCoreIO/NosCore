@@ -23,7 +23,6 @@ using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
-using MapsterMapper;
 using NosCore.Core;
 using NosCore.Data;
 using NosCore.Data.Dto;

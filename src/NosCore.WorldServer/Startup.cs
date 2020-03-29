@@ -21,7 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
@@ -44,7 +43,6 @@ using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -472,7 +470,7 @@ namespace NosCore.WorldServer
             RegisterGo(container);
 
             container.Resolve<IMapInstanceProvider>().Initialize();
-            Task.Run(() => container.Resolve<WorldServer>().Run());
+            Task.Run(() => container.Resolve<WorldServer>().RunAsync());
             return new AutofacServiceProvider(container);
         }
 

@@ -76,7 +76,7 @@ namespace NosCore.Tests.NRunTests
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
-                _session.Account.Language)) && (packet?.Type == MessageType.White));
+                _session.Account.Language)) && (packet.Type == MessageType.White));
         }
 
         [DataTestMethod]
@@ -96,7 +96,7 @@ namespace NosCore.Tests.NRunTests
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
-                _session.Account.Language)) && (packet?.Type == MessageType.White));
+                _session.Account.Language)) && (packet.Type == MessageType.White));
         }
 
         [DataTestMethod]
@@ -116,7 +116,7 @@ namespace NosCore.Tests.NRunTests
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
-                _session.Account.Language)) && (packet?.Type == MessageType.White));
+                _session.Account.Language)) && (packet.Type == MessageType.White));
         }
 
         [DataTestMethod]
@@ -180,7 +180,7 @@ namespace NosCore.Tests.NRunTests
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
-                _session.Account.Language)) && (packet?.Type == MessageType.White));
+                _session.Account.Language)) && (packet.Type == MessageType.White));
         }
     }
 }

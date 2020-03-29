@@ -24,7 +24,6 @@ using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
-using MapsterMapper;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
@@ -146,7 +145,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 }).ConfigureAwait(false);
             foreach (var character in characters.Select(characterDto => characterDto.Adapt<Character>()))
             {
-                var equipment = new WearableInstance[16];
+                var equipment = new WearableInstance?[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = _iteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
 
 
@@ -204,7 +203,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     QuestPart = 1,
                     Pets = petlist,
                     Design = equipment[(byte)EquipmentType.Hat]?.Item?.IsColored ?? false
-                        ? equipment[(byte)EquipmentType.Hat].Design : 0,
+                        ? equipment[(byte)EquipmentType.Hat]?.Design ?? 0 : 0,
                     Unknown3 = 0
                 }).ConfigureAwait(false);
             }

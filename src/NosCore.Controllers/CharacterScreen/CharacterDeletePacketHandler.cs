@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public override async Task ExecuteAsync(CharacterDeletePacket packet, ClientSession clientSession)
         {
-            if (clientSession.HasCurrentMapInstance)
+            if (clientSession.HasSelectedCharacter)
             {
                 return;
             }

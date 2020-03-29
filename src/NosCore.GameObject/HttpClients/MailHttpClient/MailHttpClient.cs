@@ -22,7 +22,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
-using JetBrains.Annotations;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
@@ -114,7 +113,7 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
                 WeaponSkin = isNosmall ? null : characterEntity.Equipment.WeaponSkin,
                 WingSkin = isNosmall ? null : characterEntity.Equipment.WingSkin,
                 SenderMorphId = isNosmall ? (short?) null : characterEntity.Morph == 0 ? (short) -1
-                    : (short) (characterEntity.Morph > short.MaxValue ? 0 : characterEntity.Morph)
+                    : characterEntity.Morph
             };
             return new MailRequest {Mail = mail, VNum = vnum, Amount = amount, Rare = rare, Upgrade = upgrade};
         }

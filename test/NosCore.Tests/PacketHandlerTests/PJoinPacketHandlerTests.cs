@@ -25,7 +25,6 @@ using NosCore.Packets.ServerPackets.Groups;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
@@ -205,7 +204,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             }
 
-           Assert.IsTrue(_characters[0].GroupRequestCharacterIds.Count == 2);
+            Assert.IsTrue(_characters[0].GroupRequestCharacterIds.Count == 2);
         }
     }
 }

@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -48,7 +47,6 @@ using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
-using Polly;
 using Serilog;
 
 namespace NosCore.GameObject.Networking.ClientSession
@@ -142,8 +140,6 @@ namespace NosCore.GameObject.Networking.ClientSession
             private set => _character = value;
         }
 
-        public bool HasCurrentMapInstance => Character?.MapInstance != null;
-
         public void InitializeAccount(AccountDto accountDto)
         {
             Account = accountDto;
@@ -161,7 +157,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
 
             Character.Session = this;
-            _minilandProvider?.Initialize(character);
+            _minilandProvider.Initialize(character);
         }
 
         public override async void ChannelRead(IChannelHandlerContext context, object message)

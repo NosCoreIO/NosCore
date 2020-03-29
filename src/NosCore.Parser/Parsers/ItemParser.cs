@@ -197,7 +197,7 @@ namespace NosCore.Parser.Parsers
                     ThirdData = (short)(int.Parse(chunk["BUFF"][0][6 + 5 * i]) / 4)
                 };
                 list.Add(comb);
-            };
+            }
 
             return list;
         }
@@ -436,11 +436,11 @@ namespace NosCore.Parser.Parsers
 
         private short ImportWaitDelay(Dictionary<string, string[][]> chunk)
         {
-            return (short)(ImportItemType(chunk) switch
+            return ImportItemType(chunk) switch
             {
                 ItemType.Special => 5000,
                 _ => 0
-            });
+            };
         }
         private short ImportElementRate(Dictionary<string, string[][]> chunk)
         {

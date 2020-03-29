@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using NosCore.Core;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
@@ -34,7 +33,6 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Tests.Helpers;
-using Serilog;
 
 namespace NosCore.Tests.ItemHandlerTests
 {

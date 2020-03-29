@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     MinilandPoints = miniland.MinilandPoint,
                     LawDurability = minilandObject.DurabilityPoint < 1000,
                     IsFull = full,
-                    MinigamePoints = new MloInfoPacketSubPacket[6]
+                    MinigamePoints = new MloInfoPacketSubPacket[]
                     {
                         new MloInfoPacketSubPacket
                             {MinimumPoints = 0, MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0]},
@@ -114,7 +114,6 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                             invItem.Slot)).ToList()
                 }).ConfigureAwait(false);
             }
-            return;
         }
     }
 }

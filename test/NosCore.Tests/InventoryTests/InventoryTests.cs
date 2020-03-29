@@ -24,7 +24,6 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Configuration;
-using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
@@ -104,7 +103,7 @@ namespace NosCore.Tests.InventoryTests
             Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 990), 0),
                 NoscorePocketType.Main, 2);
             var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 27), 0));
-            Assert.IsTrue(items.All(item => item.ItemInstance!.Amount == 999) && (items?.Count == 3));
+            Assert.IsTrue(items.All(item => item.ItemInstance!.Amount == 999) && (items.Count == 3));
         }
 
         [TestMethod]

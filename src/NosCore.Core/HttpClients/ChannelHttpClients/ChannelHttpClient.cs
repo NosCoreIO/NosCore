@@ -74,7 +74,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                 ).ExecuteAsync(() => client.PostAsync(new Uri($"{client.BaseAddress}api/channel"), content));
 
             var result =
-                JsonSerializer.Deserialize<ConnectionInfo>(await message.Result.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
+                JsonSerializer.Deserialize<ConnectionInfo>(await (await message.ConfigureAwait(false)).Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
@@ -104,7 +104,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                 "application/json");
 
             var postResponse = await client
-                .PatchAsync(new Uri($"{client.BaseAddress}api/channel?id=" + MasterClientListSingleton.Instance.ChannelId ?? ""), content).ConfigureAwait(false);
+                .PatchAsync(new Uri($"{client.BaseAddress}api/channel?id=" + MasterClientListSingleton.Instance.ChannelId), content).ConfigureAwait(false);
             if (postResponse.IsSuccessStatusCode)
             {
                 return JsonSerializer.Deserialize<HttpStatusCode>(await postResponse.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions

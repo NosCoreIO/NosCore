@@ -181,9 +181,6 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                     miniland!.Kick(o => o.VisualId != characterId);
                     break;
             }
-
-            return;
-
         }
 
         public Miniland GetMinilandFromMapInstanceId(Guid mapInstanceId)

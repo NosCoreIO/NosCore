@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public override Task ExecuteAsync(CharNewPacket packet, ClientSession clientSession)
         {
-            if (clientSession.HasCurrentMapInstance)
+            if (clientSession.HasSelectedCharacter)
             {
                 return Task.CompletedTask;
             }

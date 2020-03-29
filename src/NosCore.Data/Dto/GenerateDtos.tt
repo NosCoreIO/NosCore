@@ -3,12 +3,8 @@
 <#@ Assembly Name="System.Core" #>
 <#@ assembly name="EnvDte" #>
 <#@ assembly name="EnvDTE80" #>
-<#@ import namespace="EnvDTE80" #>
-<#@ import namespace="System" #>
 <#@ import namespace="System.IO" #>
-<#@ import namespace="System.Diagnostics" #>
 <#@ import namespace="System.Linq" #>
-<#@ import namespace="System.Collections" #>
 <#@ import namespace="System.Collections.Generic" #> 
 <#@ import namespace="Microsoft.VisualStudio.TextTemplating" #>
 

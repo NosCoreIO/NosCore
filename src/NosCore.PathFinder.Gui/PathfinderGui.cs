@@ -18,11 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using NosCore.Packets.ClientPackets.Inventory;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -30,20 +28,15 @@ using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
-using NosCore.GameObject;
-using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Providers.ItemProvider;
 using OpenTK.Graphics;
 using Serilog;
-using InventoryItemInstance = NosCore.GameObject.Providers.InventoryService.InventoryItemInstance;
-using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 
 namespace NosCore.PathFinder.Gui
 {

@@ -196,10 +196,6 @@ namespace NosCore.MasterServer.Controllers
                     : 1;
                 itemInstance = _itemProvider.Create((short)mail.VNum, mail.Amount ?? 1, mail.Rare ?? 0,
                     mail.Upgrade ?? 0);
-                if (itemInstance == null)
-                {
-                    return false;
-                }
 
                 _itemInstanceDao.InsertOrUpdate(ref itemInstance);
                 mailref.ItemInstanceId = itemInstance.Id;

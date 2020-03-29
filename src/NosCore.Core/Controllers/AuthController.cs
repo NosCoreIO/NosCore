@@ -71,7 +71,7 @@ namespace NosCore.Core.Controllers
             switch (_apiConfiguration.HashingType)
             {
                 case HashingType.BCrypt:
-                    if (account?.NewAuthPassword != Encoding.Default
+                    if (account.NewAuthPassword != Encoding.Default
                             .GetString(Convert.FromBase64String(account!.NewAuthPassword!))
                             .ToBcrypt(account.NewAuthSalt!
                         ))
@@ -89,7 +89,6 @@ namespace NosCore.Core.Controllers
                     }
 
                     break;
-                case HashingType.Sha512:
                 default:
                     if (account.Password!.ToLower(CultureInfo.CurrentCulture) != (session.Password?.ToSha512() ?? ""))
                     {
