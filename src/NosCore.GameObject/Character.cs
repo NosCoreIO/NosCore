@@ -450,8 +450,8 @@ namespace NosCore.GameObject
             Mp = MaxMp;
             await SendPacket(GenerateTit()).ConfigureAwait(false);
             await SendPacket(GenerateStat()).ConfigureAwait(false);
-            await MapInstance!.SendPacket(GenerateEq()).ConfigureAwait(false);
-            await MapInstance!.SendPacket(this.GenerateEff(8)).ConfigureAwait(false);
+            await MapInstance.SendPacket(GenerateEq()).ConfigureAwait(false);
+            await MapInstance.SendPacket(this.GenerateEff(8)).ConfigureAwait(false);
             //TODO: Faction
             await SendPacket(this.GenerateCond()).ConfigureAwait(false);
             await SendPacket(GenerateLev()).ConfigureAwait(false);
@@ -475,10 +475,10 @@ namespace NosCore.GameObject
                 }
             };
 
-            await MapInstance!.SendPacket(this.GenerateIn(Prefix ?? ""), new EveryoneBut(Session!.Channel!.Id)).ConfigureAwait(false);
-            await MapInstance!.SendPacket(Group!.GeneratePidx(this)).ConfigureAwait(false);
-            await MapInstance!.SendPacket(this.GenerateEff(6)).ConfigureAwait(false);
-            await MapInstance!.SendPacket(this.GenerateEff(198)).ConfigureAwait(false);
+            await MapInstance.SendPacket(this.GenerateIn(Prefix ?? ""), new EveryoneBut(Session!.Channel!.Id)).ConfigureAwait(false);
+            await MapInstance.SendPacket(Group!.GeneratePidx(this)).ConfigureAwait(false);
+            await MapInstance.SendPacket(this.GenerateEff(6)).ConfigureAwait(false);
+            await MapInstance.SendPacket(this.GenerateEff(198)).ConfigureAwait(false);
         }
 
         public Task AddGold(long gold)
@@ -563,13 +563,13 @@ namespace NosCore.GameObject
         {
             Shop = null;
 
-            await MapInstance!.SendPacket(this.GenerateShop()).ConfigureAwait(false);
-            await MapInstance!.SendPacket(this.GeneratePFlag()).ConfigureAwait(false);
+            await MapInstance.SendPacket(this.GenerateShop()).ConfigureAwait(false);
+            await MapInstance.SendPacket(this.GeneratePFlag()).ConfigureAwait(false);
 
             IsSitting = false;
             LoadSpeed();
             await SendPacket(this.GenerateCond()).ConfigureAwait(false);
-            await MapInstance!.SendPacket(this.GenerateRest()).ConfigureAwait(false);
+            await MapInstance.SendPacket(this.GenerateRest()).ConfigureAwait(false);
         }
 
         public RsfiPacket GenerateRsfi()
@@ -1231,7 +1231,7 @@ namespace NosCore.GameObject
             return new AtPacket
             {
                 CharacterId = CharacterId,
-                MapId = MapInstance!.Map.MapId,
+                MapId = MapInstance.Map.MapId,
                 PositionX = PositionX,
                 PositionY = PositionY,
                 Direction = Direction,
@@ -1389,8 +1389,8 @@ namespace NosCore.GameObject
                 string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.STAY_TIME, Account.Language), SpCooldown),
                 SayColorType.Purple)).ConfigureAwait(false);
             await SendPacket(new SdPacket { Cooldown = SpCooldown }).ConfigureAwait(false);
-            await MapInstance!.SendPacket(this.GenerateCMode()).ConfigureAwait(false);
-            await MapInstance!.SendPacket(new GuriPacket
+            await MapInstance.SendPacket(this.GenerateCMode()).ConfigureAwait(false);
+            await MapInstance.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
@@ -1445,10 +1445,10 @@ namespace NosCore.GameObject
             Morph = sp.Item.Morph;
             MorphUpgrade = sp.Upgrade;
             MorphDesign = sp.Design;
-            await MapInstance!.SendPacket(this.GenerateCMode()).ConfigureAwait(false);
+            await MapInstance.SendPacket(this.GenerateCMode()).ConfigureAwait(false);
             await SendPacket(GenerateLev()).ConfigureAwait(false);
-            await MapInstance!.SendPacket(this.GenerateEff(196)).ConfigureAwait(false);
-            await MapInstance!.SendPacket(new GuriPacket
+            await MapInstance.SendPacket(this.GenerateEff(196)).ConfigureAwait(false);
+            await MapInstance.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
@@ -1485,7 +1485,7 @@ namespace NosCore.GameObject
             IsVehicled = false;
             VehicleSpeed = 0;
             await SendPacket(this.GenerateCond()).ConfigureAwait(false);
-            await MapInstance!.SendPacket(this.GenerateCMode()).ConfigureAwait(false);
+            await MapInstance.SendPacket(this.GenerateCMode()).ConfigureAwait(false);
         }
 
         public MlobjlstPacket GenerateMlobjlst()
@@ -1494,7 +1494,7 @@ namespace NosCore.GameObject
             foreach (var item in InventoryService.Where(s => s.Value.Type == NoscorePocketType.Miniland)
                 .OrderBy(s => s.Value.Slot).Select(s => s.Value))
             {
-                var used = Session.Character.MapInstance!.MapDesignObjects.ContainsKey(item.Id);
+                var used = Session.Character.MapInstance.MapDesignObjects.ContainsKey(item.Id);
                 var mp = used ? Session.Character.MapInstance.MapDesignObjects[item.Id] : null;
 
                 mlobj.Add(new MlobjlstSubPacket

@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Inventory
             {
                 if ((putPacket.Amount > 0) && (putPacket.Amount <= _worldConfiguration.MaxItemAmount))
                 {
-                    if (clientSession.Character.MapInstance!.MapItems.Count < 200)
+                    if (clientSession.Character.MapInstance.MapItems.Count < 200)
                     {
                         var droppedItem =
                             clientSession.Character.MapInstance.PutItem(putPacket.Amount, invitem.ItemInstance,

@@ -200,7 +200,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
 
                     await Character.LeaveGroup().ConfigureAwait(false);
-                    Character.MapInstance?.SendPacket(Character.GenerateOut());
+                    await Character.MapInstance.SendPacket(Character.GenerateOut()).ConfigureAwait(false);
                     Character.Save();
 
                     _minilandProvider.DeleteMiniland(Character.CharacterId);
@@ -278,9 +278,9 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 Character.MapInstanceId = mapInstanceId;
-                Character.MapInstance = _mapInstanceProvider.GetMapInstance(mapInstanceId);
+                Character.MapInstance = _mapInstanceProvider.GetMapInstance(mapInstanceId)!;
 
-                if (Character.MapInstance!.MapInstanceType == MapInstanceType.BaseMapInstance)
+                if (Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
                     Character.MapId = Character.MapInstance.Map.MapId;
                     if ((mapX != null) && (mapY != null))
@@ -333,7 +333,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 var mapSessions = Broadcaster.Instance.GetCharacters(s =>
-                    (s != Character) && (s.MapInstance!.MapInstanceId == Character.MapInstanceId));
+                    (s != Character) && (s.MapInstance.MapInstanceId == Character.MapInstanceId));
 
                 Parallel.ForEach(mapSessions, s =>
                 {
@@ -376,7 +376,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         private async Task LeaveMap()
         {
             await SendPacket(new MapOutPacket()).ConfigureAwait(false);
-            await Character.MapInstance!.SendPacket(Character.GenerateOut(),
+            await Character.MapInstance.SendPacket(Character.GenerateOut(),
                 new EveryoneBut(Channel!.Id)).ConfigureAwait(false);
         }
 

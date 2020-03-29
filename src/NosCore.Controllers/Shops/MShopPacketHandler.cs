@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Shops
                 return;
             }
 
-            var portal = clientSession.Character.MapInstance!.Portals.Find(port =>
+            var portal = clientSession.Character.MapInstance.Portals.Find(port =>
                 Heuristic.Octile(Math.Abs(clientSession.Character.PositionX - port.SourceX),
                     Math.Abs(clientSession.Character.PositionY - port.SourceY)) <= 6);
             if (portal != null)

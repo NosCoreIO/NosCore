@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
-            if (session.Character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance)
+            if (session.Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
             {
                 session.Character.MapX = walkPacket.XCoordinate;
                 session.Character.MapY = walkPacket.YCoordinate;
@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Movement
             session.Character.PositionX = walkPacket.XCoordinate;
             session.Character.PositionY = walkPacket.YCoordinate;
 
-            await session.Character.MapInstance!.SendPacket(session.Character.GenerateMove(),
+            await session.Character.MapInstance.SendPacket(session.Character.GenerateMove(),
                 new EveryoneBut(session.Channel!.Id)).ConfigureAwait(false);
             session.Character.LastMove = SystemTime.Now();
         }

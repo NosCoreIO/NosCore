@@ -66,7 +66,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _session.Character.MapInstance!.MapItems.TryAdd(100001,
+            _session.Character.MapInstance.MapItems.TryAdd(100001,
                 TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1012, 1), 1,
                     1));
 
@@ -85,7 +85,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
 
-            _session.Character.MapInstance!.MapItems.TryAdd(100001,
+            _session.Character.MapInstance.MapItems.TryAdd(100001,
                 TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1012, 1), 1,
                     1));
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
@@ -103,7 +103,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _session.Character.MapInstance!.MapItems.TryAdd(100001,
+            _session.Character.MapInstance.MapItems.TryAdd(100001,
                 TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1, 1), 1, 1));
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
@@ -124,7 +124,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _session.Character.MapInstance!.MapItems.TryAdd(100001,
+            _session.Character.MapInstance.MapItems.TryAdd(100001,
                 TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1, 1, 6), 1,
                     1));
 
@@ -148,7 +148,7 @@ namespace NosCore.Tests.PacketHandlerTests
             mapItem.VisualId = 1012;
             mapItem.OwnerId = 2;
             mapItem.DroppedAt = SystemTime.Now();
-            _session.Character.MapInstance!.MapItems.TryAdd(100001, mapItem);
+            _session.Character.MapInstance.MapItems.TryAdd(100001, mapItem);
 
             await _getPacketHandler!.Execute(new GetPacket
             {
@@ -174,7 +174,7 @@ namespace NosCore.Tests.PacketHandlerTests
             mapItem.VisualId = 1012;
             mapItem.OwnerId = 2;
             mapItem.DroppedAt = SystemTime.Now().AddSeconds(-30);
-            _session.Character.MapInstance!.MapItems.TryAdd(100001, mapItem);
+            _session.Character.MapInstance.MapItems.TryAdd(100001, mapItem);
 
             await _getPacketHandler!.Execute(new GetPacket
             {
@@ -191,7 +191,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
 
-            _session.Character.MapInstance!.MapItems.TryAdd(100001,
+            _session.Character.MapInstance.MapItems.TryAdd(100001,
                 TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1012, 1), 1,
                     1));
             await _getPacketHandler!.Execute(new GetPacket

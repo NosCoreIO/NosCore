@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Shops
                     break;
                 case VisualType.Npc:
                     requestableEntity =
-                        clientSession.Character.MapInstance!.Npcs.Find(s => s.VisualId == requestNpcPacket.TargetId);
+                        clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == requestNpcPacket.TargetId);
                     break;
 
                 default:

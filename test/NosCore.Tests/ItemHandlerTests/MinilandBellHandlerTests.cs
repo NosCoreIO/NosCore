@@ -66,7 +66,7 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestMethod]
         public async Task Test_Miniland_On_Instance()
         {
-            Session!.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetMapInstance(TestHelpers.Instance.MinilandId);
+            Session!.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetMapInstance(TestHelpers.Instance.MinilandId)!;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
@@ -105,7 +105,7 @@ namespace NosCore.Tests.ItemHandlerTests
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
-            Assert.AreEqual(MapInstanceType.NormalInstance, Session!.Character.MapInstance!.MapInstanceType);
+            Assert.AreEqual(MapInstanceType.NormalInstance, Session!.Character.MapInstance.MapInstanceType);
             Assert.AreEqual(0, Session.Character.InventoryService.Count);
         }
     }

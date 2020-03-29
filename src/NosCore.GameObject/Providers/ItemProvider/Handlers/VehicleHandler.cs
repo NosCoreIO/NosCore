@@ -84,9 +84,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                             ? itemInstance.ItemInstance.Item.Morph
                             : itemInstance.ItemInstance.Item.SecondMorph;
 
-                await requestData.ClientSession.Character.MapInstance!.SendPacket(
+                await requestData.ClientSession.Character.MapInstance.SendPacket(
                     requestData.ClientSession.Character.GenerateEff(196)).ConfigureAwait(false);
-                await requestData.ClientSession.Character.MapInstance!.SendPacket(requestData.ClientSession.Character
+                await requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character
                     .GenerateCMode()).ConfigureAwait(false);
                 await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateCond()).ConfigureAwait(false);
                 return;

@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             }).ConfigureAwait(false);
             await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint()).ConfigureAwait(false);
 
-            requestData.ClientSession.Character.MapInstance!.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
+            requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
             await requestData.ClientSession.Character.MapInstance.SendPacket(
                 requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId)).ConfigureAwait(false);
         }
