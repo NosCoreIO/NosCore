@@ -147,7 +147,9 @@ namespace NosCore.Core.Controllers
 
         // GET api/channel
         [HttpGet]
+#pragma warning disable CA1822 // Mark members as static
         public List<ChannelInfo> GetChannels(long? id)
+#pragma warning restore CA1822 // Mark members as static
         {
             return id != null ? MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList() : MasterClientListSingleton.Instance.Channels;
         }

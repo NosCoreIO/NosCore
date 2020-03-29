@@ -48,6 +48,7 @@ using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
+using Polly;
 using Serilog;
 
 namespace NosCore.GameObject.Networking.ClientSession
@@ -158,56 +159,55 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        public override void ChannelRead(IChannelHandlerContext context, object message)
+        public override async void ChannelRead(IChannelHandlerContext context, object message)
         {
             if (!(message is IEnumerable<IPacket> buff))
             {
                 return;
             }
 
-            //https://github.com/Azure/DotNetty/issues/265
-            var runner = Task.Run<Task>(async () =>
-                await HandlePackets(buff, context)
-            ).Result;
+            await HandlePackets(buff, context);
         }
 
         public override async void ChannelUnregistered(IChannelHandlerContext context)
         {
             try
             {
-                if (!(_character?.IsDisconnecting ?? false))
+                if (_character?.IsDisconnecting ?? true)
                 {
-                    if (_character != null)
+                    return;
+                }
+
+                if (_character != null)
+                {
+                    Character.IsDisconnecting = true;
+                    if (Character.Hp < 1)
                     {
-                        Character.IsDisconnecting = true;
-                        if (Character.Hp < 1)
-                        {
-                            Character.Hp = 1;
-                        }
-
-                        await Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, false);
-
-                        var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
-                        if (targetId.HasValue)
-                        {
-                            var closeExchange =
-                                _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
-                            if (Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
-                            {
-                                await target.SendPacket(closeExchange);
-                            }
-                        }
-
-                        await Character.LeaveGroup();
-                        Character.MapInstance?.SendPacket(Character.GenerateOut());
-                        Character.Save();
-
-                        _minilandProvider.DeleteMiniland(Character.CharacterId);
+                        Character.Hp = 1;
                     }
 
-                    Broadcaster.Instance.UnregisterSession(this);
-                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED));
+                    await Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, false);
+
+                    var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
+                    if (targetId.HasValue)
+                    {
+                        var closeExchange =
+                            _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
+                        if (Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
+                        {
+                            await target.SendPacket(closeExchange);
+                        }
+                    }
+
+                    await Character.LeaveGroup();
+                    Character.MapInstance?.SendPacket(Character.GenerateOut());
+                    Character.Save();
+
+                    _minilandProvider.DeleteMiniland(Character.CharacterId);
                 }
+
+                Broadcaster.Instance.UnregisterSession(this);
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED));
             }
             catch
             {
@@ -387,7 +387,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public async Task HandlePackets(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext? contex = null)
         {
-            foreach (var pack in packetConcatenated)
+            await Task.WhenAll(packetConcatenated.Select(async pack =>
             {
                 var packet = pack;
                 if (_isWorldClient)
@@ -408,7 +408,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED),
                                 SessionId);
                             _waitForPacketsAmount = 2;
-                            continue;
+                            return;
                         }
 
                         LastKeepAliveIdentity = (ushort)packet.KeepAliveId!;
@@ -426,7 +426,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         if (WaitForPacketList.Count != _waitForPacketsAmount)
                         {
                             LastKeepAliveIdentity = packet.KeepAliveId ?? 0;
-                            continue;
+                            return;
                         }
 
                         packet = new EntryPointPacket
@@ -465,16 +465,17 @@ namespace NosCore.GameObject.Networking.ClientSession
                                 if (!HasSelectedCharacter && !attr.AnonymousAccess)
                                 {
                                     _logger.Warning(
-                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
+                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey
+                                            .PACKET_USED_WITHOUT_CHARACTER),
                                         packet.Header);
-                                    continue;
+                                    return;
                                 }
 
                                 //check for the correct authority
                                 if (IsAuthenticated && attr is CommandPacketHeaderAttribute commandHeader &&
                                     ((byte)commandHeader.Authority > (byte)Account.Authority))
                                 {
-                                    continue;
+                                    return;
                                 }
 
                                 await handler.Execute(packet, this);
@@ -508,7 +509,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                             packetHeader);
                     }
                 }
-            }
+            }));
         }
     }
 }

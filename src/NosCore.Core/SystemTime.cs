@@ -23,7 +23,9 @@ namespace NosCore.Core
 {
     public static class SystemTime
     {
+#pragma warning disable CA2211 // Non-constant fields should not be visible
         public static Func<DateTime> Now = () => DateTime.UtcNow;
+#pragma warning restore CA2211 // Non-constant fields should not be visible
 
         public static void Freeze()
         {

@@ -559,17 +559,21 @@ namespace NosCore.GameObject.Helper
             return _criticalDistRate![(byte) @class][level];
         }
 
-        internal int Element(CharacterClassType @class, byte level)
+#pragma warning disable IDE0060 // Remove unused parameter
+        internal int Element(CharacterClassType _, byte __)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return 0;
         }
-
-        internal int ElementRate(CharacterClassType @class, byte level)
+#pragma warning disable IDE0060 // Remove unused parameter
+        internal int ElementRate(CharacterClassType _, byte __)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return 0;
         }
-
-        internal int FireResistance(CharacterClassType @class, byte level)
+#pragma warning disable IDE0060 // Remove unused parameter
+        internal int FireResistance(CharacterClassType _, byte __)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return 0;
         }
@@ -588,13 +592,15 @@ namespace NosCore.GameObject.Helper
         {
             return _hitRate![(byte) @class][level];
         }
-
-        internal int LightResistance(CharacterClassType @class, byte level)
+#pragma warning disable IDE0060 // Remove unused parameter
+        internal int LightResistance(CharacterClassType _, byte __)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return 0;
         }
-
-        internal int WaterResistance(CharacterClassType @class, byte level)
+#pragma warning disable IDE0060 // Remove unused parameter
+        internal int WaterResistance(CharacterClassType _, byte __)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return 0;
         }

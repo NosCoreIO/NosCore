@@ -60,10 +60,10 @@ namespace NosCore.Core.I18N
             titleLogger.Information(separator);
             foreach (var s in AsciiTitle)
             {
-                titleLogger.Information(string.Format("{0," + (Console.WindowWidth / 2 + s.Length / 2) + "}", s));
+                titleLogger.Information(string.Format(CultureInfo.CurrentCulture, "{0," + (Console.WindowWidth / 2 + s.Length / 2) + "}", s));
             }
 
-            titleLogger.Information(string.Format("{0," + offset + "}", text));
+            titleLogger.Information(string.Format(CultureInfo.CurrentCulture, "{0," + offset + "}", text));
             titleLogger.Information(separator);
         }
     }

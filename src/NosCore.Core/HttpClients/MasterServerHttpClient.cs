@@ -44,7 +44,9 @@ namespace NosCore.Core.HttpClients
             _channelHttpClient = channelHttpClient;
         }
 
+#pragma warning disable CA1056 // Uri properties should not be strings
         public virtual string ApiUrl { get; set; } = "";
+#pragma warning restore CA1056 // Uri properties should not be strings
         public virtual bool RequireConnection { get; set; }
 
         protected HttpClient CreateClient()

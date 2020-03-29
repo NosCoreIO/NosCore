@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Inventory
 
             var mapItem = clientSession.Character.MapInstance.MapItems[getPacket.VisualId];
 
-            var canpick = false;
+            bool canpick;
             switch (getPacket.PickerType)
             {
                 case VisualType.Player:
