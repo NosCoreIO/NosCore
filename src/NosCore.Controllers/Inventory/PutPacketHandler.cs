@@ -45,11 +45,11 @@ namespace NosCore.PacketHandlers.Inventory
             var invitem =
                 clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
                     (NoscorePocketType) putPacket.PocketType);
-            if ((invitem?.ItemInstance.Item.IsDroppable ?? false) && !clientSession.Character.InExchangeOrShop)
+            if ((invitem?.ItemInstance?.Item?.IsDroppable ?? false) && !clientSession.Character.InExchangeOrShop)
             {
                 if ((putPacket.Amount > 0) && (putPacket.Amount <= _worldConfiguration.MaxItemAmount))
                 {
-                    if (clientSession.Character.MapInstance.MapItems.Count < 200)
+                    if (clientSession.Character.MapInstance!.MapItems.Count < 200)
                     {
                         var droppedItem =
                             clientSession.Character.MapInstance.PutItem(putPacket.Amount, invitem.ItemInstance,

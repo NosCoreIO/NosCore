@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Group
         {
             var group = clientSession.Character.Group;
 
-            if (group.Count == 1)
+            if (group!.Count == 1)
             {
                 return;
             }
@@ -76,23 +76,23 @@ namespace NosCore.PacketHandlers.Group
                 foreach (var member in group.Values.Where(s => s.Item2 is ICharacterEntity))
                 {
                     var character = member.Item2 as ICharacterEntity;
-                    await character.SendPacket(character.Group.GeneratePinit());
-                    await character.SendPacket(new MsgPacket
+                    await (character == null ? Task.CompletedTask : character.SendPacket(character.Group!.GeneratePinit()));
+                    await (character == null ? Task.CompletedTask : character.SendPacket(new MsgPacket
                     {
                         Message = string.Format(
                             Language.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP,
                                 clientSession.Account.Language),
                             clientSession.Character.Name)
-                    });
+                    }));
                 }
 
-                await clientSession.SendPacket(clientSession.Character.Group.GeneratePinit());
+                await clientSession.SendPacket(clientSession.Character.Group!.GeneratePinit());
                 await clientSession.SendPacket(new MsgPacket
                 {
                     Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT,
                         clientSession.Account.Language)
                 });
-                await clientSession.Character.MapInstance.SendPacket(
+                await clientSession.Character.MapInstance!.SendPacket(
                     clientSession.Character.Group.GeneratePidx(clientSession.Character));
             }
             else

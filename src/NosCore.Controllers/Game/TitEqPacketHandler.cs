@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Game
                         });
                         break;
                 }
-                session.Character.MapInstance.SendPacket(session.Character.GenerateTitInfo());
+                session.Character.MapInstance!.SendPacket(session.Character.GenerateTitInfo());
                 session.Character.SendPacket(session.Character.GenerateTitle());
             }
             return Task.CompletedTask;

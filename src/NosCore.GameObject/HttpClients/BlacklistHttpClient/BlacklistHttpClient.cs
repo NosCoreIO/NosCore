@@ -41,7 +41,7 @@ namespace NosCore.GameObject.HttpClients.BlacklistHttpClient
 
         public Task<List<CharacterRelationStatus>> GetBlackLists(long characterVisualId)
         {
-            return Get<List<CharacterRelationStatus>>(characterVisualId);
+            return Get<List<CharacterRelationStatus>>(characterVisualId)!;
         }
 
         public Task<LanguageKey> AddToBlacklist(BlacklistRequest blacklistRequest)

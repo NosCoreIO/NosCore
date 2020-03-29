@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Miniland
                 return;
             }
 
-            if (clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
+            if (clientSession.Character.MapInstance!.MapDesignObjects.ContainsKey(minilandobject.Id))
             {
                 await clientSession.SendPacket(new MsgPacket
                 {

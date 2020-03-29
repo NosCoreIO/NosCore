@@ -259,7 +259,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         Mp = (int)(visualEntity.Mp / (float)visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
-                    GroupId = visualEntity.Group.GroupId,
+                    GroupId = visualEntity.Group!.GroupId,
                     Fairy = 0,
                     FairyElement = 0,
                     Unknown = 0,

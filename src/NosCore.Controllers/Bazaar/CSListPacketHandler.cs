@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Bazaar
 
             foreach (var bz in bzlist)
             {
-                var soldedAmount = bz.BazaarItem.Amount - bz.ItemInstance.Amount;
+                var soldedAmount = bz.BazaarItem!.Amount - bz.ItemInstance!.Amount;
                 int amount = bz.BazaarItem.Amount;
                 var isNosbazar = bz.BazaarItem.MedalUsed;
                 var price = bz.BazaarItem.Price;

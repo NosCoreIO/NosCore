@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
         {
             var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)(requestData.Data.VisualId ?? 0),
                 NoscorePocketType.Etc);
-            if (inv?.ItemInstance?.Item.Effect != ItemEffectType.Speaker)
+            if (inv?.ItemInstance?.Item?.Effect != ItemEffectType.Speaker)
             {
                 _logger.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEM_NOT_FOUND), NoscorePocketType.Etc, (short)(requestData.Data.VisualId ?? 0)));
                 return;

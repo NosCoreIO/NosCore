@@ -278,7 +278,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 Character.MapInstanceId = mapInstanceId;
                 Character.MapInstance = _mapInstanceProvider.GetMapInstance(mapInstanceId);
 
-                if (Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
+                if (Character.MapInstance!.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
                     Character.MapId = Character.MapInstance.Map.MapId;
                     if ((mapX != null) && (mapY != null))
@@ -319,7 +319,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     await SendPackets(minilandPortals.Select(s => s.GenerateGp()));
                 }
 
-                await SendPacket(Character.Group.GeneratePinit());
+                await SendPacket(Character.Group!.GeneratePinit());
                 if (!Character.Group.IsEmpty)
                 {
                     await SendPackets(Character.Group.GeneratePst());
@@ -353,7 +353,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     {
                         await Character.MapInstance.SendPacket(Character.GenerateIn(Character.Authority == AuthorityType.Moderator
                                 ? $"[{Character.Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" : string.Empty),
-                            new EveryoneBut(Character.Channel.Id));
+                            new EveryoneBut(Character.Channel!.Id));
                     }
 
                     Character.MapInstance.Sessions.Add(Channel);

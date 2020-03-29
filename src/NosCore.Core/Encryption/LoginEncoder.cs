@@ -59,7 +59,7 @@ namespace NosCore.Core.Encryption
                 output.Add(Unpooled.WrappedBuffer(message.SelectMany(packet =>
                 {
                     var packetString = _serializer.Serialize(packet);
-                    var tmp = _loginServerConfiguration.UserLanguage.GetEncoding().GetBytes($"{packetString} ");
+                    var tmp = _loginServerConfiguration.UserLanguage.GetEncoding()!.GetBytes($"{packetString} ");
                     for (var i = 0; i < packetString.Length; i++)
                     {
                         tmp[i] = Convert.ToByte(tmp[i] + 15);

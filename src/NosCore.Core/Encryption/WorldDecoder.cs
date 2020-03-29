@@ -106,7 +106,7 @@ namespace NosCore.Core.Encryption
                 }
             }
 
-            return _region.GetEncoding().GetString(receiveData.ToArray());
+            return _region.GetEncoding()!.GetString(receiveData.ToArray());
         }
 
         private static string DecryptCustomParameter(byte[] str, out byte[] endOfPacket)

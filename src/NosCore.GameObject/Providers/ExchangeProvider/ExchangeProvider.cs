@@ -108,7 +108,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                     dictionary);
             }
 
-            if (exchangeInfo.ExchangeItems.Keys.Any(s => !s.ItemInstance!.Item.IsTradable))
+            if (exchangeInfo.ExchangeItems.Keys.Any(s => !s.ItemInstance!.Item!.IsTradable))
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {

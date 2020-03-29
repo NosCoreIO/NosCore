@@ -66,12 +66,12 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
 
         public Task<IEnumerable<MailData>> GetGifts(long characterId)
         {
-            return Get<IEnumerable<MailData>>($"-1&characterId={characterId}");
+            return Get<IEnumerable<MailData>>($"-1&characterId={characterId}")!;
         }
 
-        public async Task<MailData> GetGift(long id, long characterId, bool isCopy)
+        public async Task<MailData?> GetGift(long id, long characterId, bool isCopy)
         {
-            return (await Get<IEnumerable<MailData>>($"{id}&characterId={characterId}&senderCopy={isCopy}")).FirstOrDefault();
+            return (await Get<IEnumerable<MailData>>($"{id}&characterId={characterId}&senderCopy={isCopy}")!).FirstOrDefault();
         }
 
         public Task DeleteGift(long giftId, long visualId, bool isCopy)

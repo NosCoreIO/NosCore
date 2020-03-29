@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Bazaar
             var bz =  await _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name))
             {
-                var soldedamount = bz.BazaarItem.Amount - bz.ItemInstance.Amount;
+                var soldedamount = bz.BazaarItem!.Amount - bz.ItemInstance!.Amount;
                 var taxes = bz.BazaarItem.MedalUsed ? (short) 0 : (short) (bz.BazaarItem.Price * 0.10 * soldedamount);
                 var price = bz.BazaarItem.Price * soldedamount - taxes;
                 if (clientSession.Character.InventoryService.CanAddItem(bz.ItemInstance.ItemVNum))
@@ -89,7 +89,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         var newInv =
                             clientSession.Character.InventoryService.AddItemToPocket(
                                 InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
-                        await clientSession.SendPacket(newInv.GeneratePocketChange());
+                        await clientSession.SendPacket(newInv!.GeneratePocketChange());
                         var remove = await _bazaarHttpClient.Remove(packet.BazaarId, bz.ItemInstance.Amount,
                             clientSession.Character.Name);
                         if (remove)

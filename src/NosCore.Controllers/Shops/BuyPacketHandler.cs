@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Shops
                 return Task.CompletedTask;
             }
 
-            return clientSession.Character.Buy(aliveEntity.Shop, buyPacket.Slot, buyPacket.Amount);
+            return clientSession.Character.Buy(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount);
         }
     }
 }

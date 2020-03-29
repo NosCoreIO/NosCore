@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 return;
             }
 
-            if (itemInstance.ItemInstance.BoundCharacterId == null && (packet.Mode == 0) && itemInstance.ItemInstance.Item.RequireBinding)
+            if (itemInstance.ItemInstance!.BoundCharacterId == null && (packet.Mode == 0) && itemInstance.ItemInstance.Item!.RequireBinding)
             {
                 await requestData.ClientSession.SendPacket(
                     new QnaPacket
@@ -79,7 +79,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 return;
             }
 
-            if ((itemInstance.ItemInstance.Item.LevelMinimum > (itemInstance.ItemInstance.Item.IsHeroic
+            if ((itemInstance.ItemInstance.Item!.LevelMinimum > (itemInstance.ItemInstance.Item.IsHeroic
                     ? requestData.ClientSession.Character.HeroLevel : requestData.ClientSession.Character.Level))
                 || ((itemInstance.ItemInstance.Item.Sex != 0) &&
                     (((itemInstance.ItemInstance.Item.Sex >> (byte)requestData.ClientSession.Character.Gender) & 1) !=
@@ -101,7 +101,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 var sp = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(
                     (byte)EquipmentType.Sp, NoscorePocketType.Wear);
 
-                if ((sp != null) && (sp.ItemInstance.Item.Element != 0) &&
+                if ((sp != null) && (sp.ItemInstance!.Item!.Element != 0) &&
                     (itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.Element) &&
                     (itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.SecondaryElement))
                 {
@@ -168,7 +168,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
             await  requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot));
 
-            await requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character
+            await requestData.ClientSession.Character.MapInstance!.SendPacket(requestData.ClientSession.Character
                 .GenerateEq());
             await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment());
 
@@ -179,7 +179,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
-                await requestData.ClientSession.Character.MapInstance.SendPacket(
+                await requestData.ClientSession.Character.MapInstance!.SendPacket(
                     requestData.ClientSession.Character.GeneratePairy(itemInstance.ItemInstance as WearableInstance));
             }
 

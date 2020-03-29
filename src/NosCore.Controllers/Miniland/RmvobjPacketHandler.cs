@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Miniland
                 return Task.CompletedTask;
             }
 
-            if (!clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
+            if (!clientSession.Character.MapInstance!.MapDesignObjects.ContainsKey(minilandobject.Id))
             {
                 return Task.CompletedTask;
             }
@@ -68,7 +68,7 @@ namespace NosCore.PacketHandlers.Miniland
             clientSession.Character.MapInstance.MapDesignObjects.TryRemove(minilandobject.Id, out _);
             clientSession.SendPacket(minilandObject.GenerateEffect(true));
             clientSession.SendPacket(new MinilandPointPacket
-                {MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100});
+                {MinilandPoint = minilandobject.ItemInstance!.Item!.MinilandObjectPoint, Unknown = 100});
             clientSession.SendPacket(minilandObject.GenerateMapDesignObject(true));
             return Task.CompletedTask;
         }

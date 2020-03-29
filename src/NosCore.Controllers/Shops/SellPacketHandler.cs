@@ -55,13 +55,13 @@ namespace NosCore.PacketHandlers.Shops
                 var type = (NoscorePocketType) sellPacket.Data;
 
                 var inv = clientSession.Character.InventoryService.LoadBySlotAndType(sellPacket.Slot.Value, type);
-                if ((inv == null) || (sellPacket.Amount.Value > inv.ItemInstance.Amount))
+                if ((inv == null) || (sellPacket.Amount.Value > inv.ItemInstance!.Amount))
                 {
                     //TODO log
                     return Task.CompletedTask;
                 }
 
-                if (!inv.ItemInstance.Item.IsSoldable)
+                if (!inv.ItemInstance.Item!.IsSoldable)
                 {
                     clientSession.SendPacket(new SMemoPacket
                     {

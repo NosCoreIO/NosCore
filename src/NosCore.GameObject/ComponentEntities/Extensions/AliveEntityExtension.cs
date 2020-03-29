@@ -239,9 +239,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualType = aliveEntity.VisualType,
                 VisualId = aliveEntity.VisualId,
                 FairyMoveType = fairy == null ? 0 : 4,
-                Element = fairy?.Item.Element ?? 0,
-                ElementRate = fairy?.ElementRate + fairy?.Item.ElementRate ?? 0,
-                Morph = fairy?.Item.Morph ?? 0 + (isBuffed ? 5 : 0)
+                Element = fairy?.Item?.Element ?? 0,
+                ElementRate = fairy?.ElementRate + fairy?.Item?.ElementRate ?? 0,
+                Morph = fairy?.Item?.Morph ?? 0 + (isBuffed ? 5 : 0)
             };
         }
 
@@ -353,9 +353,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     {
                         Type = 0,
                         Slot = item.Slot,
-                        Price = (int)(item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
+                        Price = (int)(item.Price ?? (item.ItemInstance.Item!.ReputPrice > 0
                             ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
-                        RareAmount = item.ItemInstance.Item.Type == (byte)NoscorePocketType.Equipment
+                        RareAmount = item.ItemInstance.Item!.Type == (byte)NoscorePocketType.Equipment
                             ? item.ItemInstance.Rare
                             : item.Amount,
                         UpgradeDesign = item.ItemInstance.Item.Type == (byte)NoscorePocketType.Equipment

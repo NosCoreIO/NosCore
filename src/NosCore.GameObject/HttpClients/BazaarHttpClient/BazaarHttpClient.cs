@@ -69,7 +69,7 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
 
         public async Task<BazaarLink?> GetBazaarLink(long bazaarId)
         {
-            return (await Get<List<BazaarLink?>>(bazaarId)).FirstOrDefault();
+            return (await Get<List<BazaarLink?>>(bazaarId)!).FirstOrDefault();
         }
 
         public async Task<bool> Remove(long bazaarId, int count, string requestCharacterName)

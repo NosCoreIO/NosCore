@@ -67,9 +67,9 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
                     });
                 foreach (var warehouselink in warehouselinks)
                 {
-                    var warehouseItem = warehouselink.Warehouse.Adapt<WarehouseItem>();
-                    var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == warehouselink.ItemInstance.Id);
-                    warehouseItem.ItemInstance = _itemProvider.Convert(itemInstance);
+                    var warehouseItem = warehouselink.Warehouse!.Adapt<WarehouseItem>();
+                    var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == warehouselink.ItemInstance!.Id);
+                    warehouseItem.ItemInstance = _itemProvider.Convert(itemInstance!);
                     warehouseItems.Add(warehouseItem);
                 }
             }

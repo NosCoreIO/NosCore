@@ -137,16 +137,16 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             }
         }
 
-        private async Task ShowMinilandManagment()
+        private Task ShowMinilandManagment()
         {
-            await _clientSession!.SendPacket(new MloMgPacket
+            return _clientSession!.SendPacket(new MloMgPacket
             {
                 MinigameVNum = _minigamePacket!.MinigameVNum,
                 MinilandPoint = _miniland!.MinilandPoint,
                 Unknown1 = 0,
                 Unknown2 = 0,
                 DurabilityPoint = _minilandObject!.InventoryItemInstance!.ItemInstance!.DurabilityPoint,
-                MinilandObjectPoint = _minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint
+                MinilandObjectPoint = _minilandObject.InventoryItemInstance.ItemInstance.Item!.MinilandObjectPoint
             });
         }
 
@@ -206,7 +206,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     if (inv != null && inv.Count != 0)
                     {
                         await _clientSession.SendPacket(_clientSession.Character.GenerateSay(
-                            $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, _clientSession.Account.Language)}: {item.Item.Name[_clientSession.Account.Language]} x {amount}",
+                            $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, _clientSession.Account.Language)}: {item.Item!.Name[_clientSession.Account.Language]} x {amount}",
                             SayColorType.Green));
                     }
 

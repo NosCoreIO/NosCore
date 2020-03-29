@@ -55,7 +55,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 var session = TestHelpers.Instance.GenerateSession();
                 session.RegisterChannel(null);
                 _characters.Add(i, session.Character!);
-                session.Character.Group.JoinGroup(session.Character);
+                session.Character.Group!.JoinGroup(session.Character);
             }
 
             _pLeavePacketHandler = new PleavePacketHandler();
@@ -69,7 +69,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             await _pLeavePacketHandler!.Execute(new PleavePacket(), _characters[0].Session);
 
-            Assert.IsTrue((_characters[0].Group != null) && (_characters[0].Group.Count == 1));
+            Assert.IsTrue((_characters[0].Group != null) && (_characters[0].Group!.Count == 1));
         }
 
         [TestMethod]
@@ -89,13 +89,13 @@ namespace NosCore.Tests.PacketHandlerTests
                 await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session);
             }
 
-            Assert.IsTrue(_characters[0].Group.IsGroupFull
-                && _characters[1].Group.IsGroupFull
-                && _characters[2].Group.IsGroupFull);
+            Assert.IsTrue(_characters[0].Group!.IsGroupFull
+                && _characters[1].Group!.IsGroupFull
+                && _characters[2].Group!.IsGroupFull);
 
             await _pLeavePacketHandler!.Execute(new PleavePacket(), _characters[1].Session);
 
-            Assert.IsTrue(_characters[1].Group.Count == 1);
+            Assert.IsTrue(_characters[1].Group!.Count == 1);
         }
 
         [TestMethod]
@@ -115,14 +115,14 @@ namespace NosCore.Tests.PacketHandlerTests
                 await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session);
             }
 
-            Assert.IsTrue(_characters[0].Group.IsGroupFull
-                && _characters[1].Group.IsGroupFull
-                && _characters[2].Group.IsGroupFull && _characters[0].Group
+            Assert.IsTrue(_characters[0].Group!.IsGroupFull
+                && _characters[1].Group!.IsGroupFull
+                && _characters[2].Group!.IsGroupFull && _characters[0].Group!
                     .IsGroupLeader(_characters[0].CharacterId));
 
             await _pLeavePacketHandler!.Execute(new PleavePacket(), _characters[0].Session);
 
-            Assert.IsTrue(_characters[1].Group
+            Assert.IsTrue(_characters[1].Group!
                 .IsGroupLeader(_characters[1].CharacterId));
         }
 
@@ -143,14 +143,14 @@ namespace NosCore.Tests.PacketHandlerTests
                 await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session);
             }
 
-            Assert.IsTrue(_characters[0].Group.IsGroupFull
-                && _characters[1].Group.IsGroupFull
-                && _characters[2].Group.IsGroupFull && _characters[0].Group
+            Assert.IsTrue(_characters[0].Group!.IsGroupFull
+                && _characters[1].Group!.IsGroupFull
+                && _characters[2].Group!.IsGroupFull && _characters[0].Group!
                     .IsGroupLeader(_characters[0].CharacterId));
 
             await _pLeavePacketHandler!.Execute(new PleavePacket(), _characters[1].Session);
 
-            Assert.IsTrue(_characters[0].Group
+            Assert.IsTrue(_characters[0].Group!
                 .IsGroupLeader(_characters[0].CharacterId));
         }
 
@@ -168,8 +168,8 @@ namespace NosCore.Tests.PacketHandlerTests
 
             await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session);
             await _pLeavePacketHandler!.Execute(new PleavePacket(), _characters[0].Session);
-            Assert.IsTrue((_characters[0].Group.Count == 1)
-                && (_characters[1].Group.Count == 1));
+            Assert.IsTrue((_characters[0].Group!.Count == 1)
+                && (_characters[1].Group!.Count == 1));
         }
 
         [TestMethod]
@@ -185,15 +185,15 @@ namespace NosCore.Tests.PacketHandlerTests
             };
 
             await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session);
-            Assert.IsTrue((_characters[0].Group.Count > 1)
-                && (_characters[1].Group.Count > 1)
-                && (_characters[0].Group.GroupId
-                    == _characters[1].Group.GroupId));
+            Assert.IsTrue((_characters[0].Group!.Count > 1)
+                && (_characters[1].Group!.Count > 1)
+                && (_characters[0].Group!.GroupId
+                    == _characters[1].Group!.GroupId));
 
             await _pLeavePacketHandler!.Execute(new PleavePacket(), _characters[0].Session);
 
-            Assert.IsTrue((_characters[0].Group.Count == 1)
-                && (_characters[1].Group.Count == 1));
+            Assert.IsTrue((_characters[0].Group!.Count == 1)
+                && (_characters[1].Group!.Count == 1));
         }
     }
 }

@@ -81,7 +81,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    if ((targetSession.Group!.Count > 1) && (clientSession.Character.Group.Count > 1))
+                    if ((targetSession.Group!.Count > 1) && (clientSession.Character.Group!.Count > 1))
                     {
                         await clientSession.SendPacket(new InfoPacket
                         {
@@ -130,7 +130,7 @@ namespace NosCore.PacketHandlers.Group
                     clientSession.Character.GroupRequestCharacterIds.TryAdd(pjoinPacket.CharacterId, pjoinPacket.CharacterId);
                     clientSession.Character.LastGroupRequest = SystemTime.Now();
 
-                    if (((clientSession.Character.Group.Count == 1) ||
+                    if (((clientSession.Character.Group!.Count == 1) ||
                             (clientSession.Character.Group.Type == GroupType.Group))
                         && ((targetSession.Group.Count == 1) || (targetSession?.Group.Type == GroupType.Group)))
                     {
@@ -159,7 +159,7 @@ namespace NosCore.PacketHandlers.Group
                     break;
                 case GroupRequestType.Sharing:
 
-                    if (clientSession.Character.Group.Count == 1)
+                    if (clientSession.Character.Group!.Count == 1)
                     {
                         return;
                     }
@@ -210,12 +210,12 @@ namespace NosCore.PacketHandlers.Group
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
 
-                    if ((clientSession.Character.Group.Count > 1) && (targetSession?.Group?.Count > 1))
+                    if ((clientSession.Character.Group!.Count > 1) && (targetSession?.Group?.Count > 1))
                     {
                         return;
                     }
 
-                    if (clientSession.Character.Group.IsGroupFull || targetSession.Group.IsGroupFull)
+                    if (clientSession.Character.Group.IsGroupFull || (targetSession?.Group?.IsGroupFull ?? true))
                     {
                         await clientSession.SendPacket(new InfoPacket
                         {
@@ -307,7 +307,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    if (clientSession.Character.Group.Count == 1)
+                    if (clientSession.Character.Group!.Count == 1)
                     {
                         return;
                     }

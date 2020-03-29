@@ -140,7 +140,7 @@ namespace NosCore.GameObject
         public RegionType AccountLanguage => Account.Language;
 
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
-        public Subject<RequestData> Requests { get; set; }
+        public Subject<RequestData>? Requests { get; set; }
 
         public short Race => (byte)Class;
         public Shop? Shop { get; set; }
@@ -151,7 +151,7 @@ namespace NosCore.GameObject
 
         public IInventoryService InventoryService { get; }
 
-        public Group Group { get; set; }
+        public Group? Group { get; set; }
 
         /// <summary>
         /// Date of last group request sent
@@ -164,12 +164,12 @@ namespace NosCore.GameObject
 
         public IChannel? Channel => Session.Channel;
 
-        public Task SendPacket(IPacket packetDefinition)
+        public Task SendPacket(IPacket? packetDefinition)
         {
             return Session.SendPacket(packetDefinition);
         }
 
-        public Task SendPackets(IEnumerable<IPacket> packetDefinitions)
+        public Task SendPackets(IEnumerable<IPacket?> packetDefinitions)
         {
             return Session.SendPackets(packetDefinitions);
         }
@@ -295,7 +295,7 @@ namespace NosCore.GameObject
 
         public async Task LeaveGroup()
         {
-            Group.LeaveGroup(this);
+            Group!.LeaveGroup(this);
             foreach (var member in Group.Keys.Where(s => (s.Item2 != CharacterId) || (s.Item1 != VisualType.Player)))
             {
                 var groupMember = Broadcaster.Instance.GetCharacter(s =>
@@ -315,7 +315,7 @@ namespace NosCore.GameObject
                         });
                     }
 
-                    await groupMember.SendPacket(groupMember.Group.GeneratePinit());
+                    await groupMember.SendPacket(groupMember.Group!.GeneratePinit());
                 }
             }
 
@@ -474,7 +474,7 @@ namespace NosCore.GameObject
             };
 
             await MapInstance!.SendPacket(this.GenerateIn(Prefix ?? ""), new EveryoneBut(Session!.Channel!.Id));
-            await MapInstance!.SendPacket(Group.GeneratePidx(this));
+            await MapInstance!.SendPacket(Group!.GeneratePidx(this));
             await MapInstance!.SendPacket(this.GenerateEff(6));
             await MapInstance!.SendPacket(this.GenerateEff(198));
         }
@@ -617,8 +617,8 @@ namespace NosCore.GameObject
                 return;
             }
 
-            var price = item.Price ?? item.ItemInstance.Item.Price * amount;
-            var reputprice = item.Price == null ? item.ItemInstance.Item.ReputPrice * amount : 0;
+            var price = item.Price ?? item.ItemInstance.Item!.Price * amount;
+            var reputprice = item.Price == null ? item.ItemInstance.Item!.ReputPrice * amount : 0;
             var percent = GenerateShopRates().Item1;
 
             if (amount > item.Amount)
@@ -738,7 +738,7 @@ namespace NosCore.GameObject
                 Type = SMemoType.Success,
                 Message = string.Format(
                     Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_FROM, Account.Language), Name,
-                    item!.ItemInstance.Item.Name[Account.Language], amount)
+                    item!.ItemInstance.Item!.Name[Account.Language], amount)
             });
             var sellAmount = (item?.Price ?? 0) * amount;
             Gold += sellAmount;
@@ -789,12 +789,12 @@ namespace NosCore.GameObject
                 s.SendPacket(this.GenerateEff(198));
             });
 
-            foreach (var member in Group.Keys)
+            foreach (var member in Group!.Keys)
             {
                 var groupMember = Broadcaster.Instance.GetCharacter(s =>
                     (s.VisualId == member.Item2) && (member.Item1 == VisualType.Player));
 
-                groupMember?.SendPacket(groupMember.Group.GeneratePinit());
+                groupMember?.SendPacket(groupMember.Group!.GeneratePinit());
             }
 
             await SendPacket(Group.GeneratePinit());
@@ -962,7 +962,7 @@ namespace NosCore.GameObject
                     switch (inv.Type)
                     {
                         case NoscorePocketType.Equipment:
-                            if (inv.ItemInstance!.Item.EquipmentSlot == EquipmentType.Sp)
+                            if (inv.ItemInstance!.Item!.EquipmentSlot == EquipmentType.Sp)
                             {
                                 if (inv.ItemInstance is SpecialistInstance specialistInstance)
                                 {
@@ -1245,7 +1245,7 @@ namespace NosCore.GameObject
             return new TitPacket
             {
                 ClassType = Session.GetMessageFromKey((LanguageKey)Enum.Parse(typeof(LanguageKey),
-                    Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString().ToUpperInvariant())),
+                    Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString()!.ToUpperInvariant())),
                 Name = Name
             };
         }
@@ -1327,7 +1327,7 @@ namespace NosCore.GameObject
                     EquipmentType = eqType,
                     VNum = eq.ItemInstance!.ItemVNum,
                     Rare = eq.ItemInstance.Rare,
-                    Upgrade = (eq?.ItemInstance.Item.IsColored == true ? eq.ItemInstance?.Design
+                    Upgrade = (eq?.ItemInstance!.Item!.IsColored ? eq.ItemInstance?.Design
                         : eq?.ItemInstance.Upgrade) ?? 0,
                     Unknown = 0
                 };
@@ -1415,7 +1415,7 @@ namespace NosCore.GameObject
                 return;
             }
 
-            if (GetReputIco() < sp.Item.ReputationMinimum)
+            if (GetReputIco() < sp.Item!.ReputationMinimum)
             {
                 await SendPacket(new MsgPacket
                 {
@@ -1427,7 +1427,7 @@ namespace NosCore.GameObject
 
             if (InventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance is
                     WearableInstance fairy
-                && (sp.Item.Element != 0) && (fairy.Item.Element != sp.Item.Element)
+                && (sp.Item.Element != 0) && (fairy.Item!.Element != sp.Item.Element)
                 && (fairy.Item.Element != sp.Item.SecondaryElement))
             {
                 await SendPacket(new MsgPacket
@@ -1466,7 +1466,7 @@ namespace NosCore.GameObject
                     InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear);
                 if (sp != null)
                 {
-                    Morph = sp.ItemInstance!.Item.Morph;
+                    Morph = sp.ItemInstance!.Item!.Morph;
                     MorphDesign = sp.ItemInstance.Design;
                     MorphUpgrade = sp.ItemInstance.Upgrade;
                 }
@@ -1503,7 +1503,7 @@ namespace NosCore.GameObject
                     {
                         MapX = used ? mp!.MapX : (short)0,
                         MapY = used ? mp!.MapY : (short)0,
-                        Width = item.ItemInstance!.Item.Width != 0 ? item.ItemInstance.Item.Width : (byte)1,
+                        Width = item.ItemInstance!.Item!.Width != 0 ? item.ItemInstance.Item.Width : (byte)1,
                         Height = item.ItemInstance.Item.Height != 0 ? item.ItemInstance.Item.Height : (byte)1,
                         DurabilityPoint = used ? item.ItemInstance.DurabilityPoint : 0,
                         Unknown = 100,

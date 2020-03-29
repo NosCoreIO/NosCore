@@ -227,7 +227,7 @@ namespace NosCore.Tests.InventoryTests
         {
             var fashion = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(924), 0)).First();
             var item = Inventory.MoveInPocket(fashion.Slot, fashion.Type, NoscorePocketType.Costume);
-            Assert.IsTrue(item.Type == NoscorePocketType.Costume);
+            Assert.IsTrue(item?.Type == NoscorePocketType.Costume);
         }
 
         [TestMethod]
@@ -253,7 +253,7 @@ namespace NosCore.Tests.InventoryTests
             var specialist = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(912), 0))
                 .First();
             var item = Inventory.MoveInPocket(specialist.Slot, specialist.Type, NoscorePocketType.Specialist);
-            Assert.IsTrue(item.Type == NoscorePocketType.Specialist);
+            Assert.IsTrue(item?.Type == NoscorePocketType.Specialist);
         }
 
         [TestMethod]
@@ -261,7 +261,7 @@ namespace NosCore.Tests.InventoryTests
         {
             var weapon = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1), 0)).First();
             var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, NoscorePocketType.Wear);
-            Assert.IsTrue(item.Type == NoscorePocketType.Wear);
+            Assert.IsTrue(item?.Type == NoscorePocketType.Wear);
         }
 
         [TestMethod]
@@ -270,7 +270,7 @@ namespace NosCore.Tests.InventoryTests
             var weapon = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1), 0)).First();
             var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, NoscorePocketType.Wear,
                 (short) EquipmentType.MainWeapon, true);
-            Assert.IsTrue((item.Type == NoscorePocketType.Wear) &&
+            Assert.IsTrue((item?.Type == NoscorePocketType.Wear) &&
                 (Inventory.LoadBySlotAndType(0, NoscorePocketType.Equipment) == null));
         }
 
@@ -284,8 +284,8 @@ namespace NosCore.Tests.InventoryTests
             var item2 = Inventory.MoveInPocket(weapon2.Slot, weapon2.Type, NoscorePocketType.Wear,
                 (short) EquipmentType.MainWeapon, true);
 
-            Assert.IsTrue((item.Type == NoscorePocketType.Equipment) && (item.Slot == 1) &&
-                (item2.Type == NoscorePocketType.Wear) &&
+            Assert.IsTrue((item?.Type == NoscorePocketType.Equipment) && (item.Slot == 1) &&
+                (item2?.Type == NoscorePocketType.Wear) &&
                 (item2.Slot == (short) EquipmentType.MainWeapon));
         }
     }

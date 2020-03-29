@@ -48,7 +48,7 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
 
         public async Task<List<CharacterRelationStatus>> GetListFriends(long visualEntityVisualId)
         {
-            return (await Get<List<CharacterRelationStatus>>(visualEntityVisualId))
+            return (await Get<List<CharacterRelationStatus>>(visualEntityVisualId)!)
                 .Where(w => w.RelationType != CharacterRelationType.Blocked)
                 .ToList();
         }

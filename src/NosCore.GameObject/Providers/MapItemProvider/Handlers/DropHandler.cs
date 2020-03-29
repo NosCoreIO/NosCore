@@ -38,32 +38,32 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
     {
         public bool Condition(MapItem item)
         {
-            return (item.ItemInstance.Item.ItemType != ItemType.Map) && (item.VNum != 1046);
+            return (item.ItemInstance!.Item!.ItemType != ItemType.Map) && (item.VNum != 1046);
         }
 
         public async Task Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             var amount = requestData.Data.Item1.Amount;
             var inv = requestData.ClientSession.Character.InventoryService.AddItemToPocket(
-                    InventoryItemInstance.Create(requestData.Data.Item1.ItemInstance,
+                    InventoryItemInstance.Create(requestData.Data.Item1.ItemInstance!,
                         requestData.ClientSession.Character.CharacterId))
                 .FirstOrDefault();
 
             if (inv != null)
             {
                 await requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot));
-                requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId,
+                requestData.ClientSession.Character.MapInstance!.MapItems.TryRemove(requestData.Data.Item1.VisualId,
                     out _);
                 await requestData.ClientSession.Character.MapInstance.SendPacket(
                     requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     await requestData.ClientSession.SendPacket(
-                        requestData.ClientSession.Character.GenerateIcon(1, inv.ItemInstance.ItemVNum));
+                        requestData.ClientSession.Character.GenerateIcon(1, inv.ItemInstance!.ItemVNum));
                 }
 
                 await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
-                    $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}: {inv.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]} x {amount}",
+                    $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}: {inv.ItemInstance!.Item!.Name[requestData.ClientSession.Account.Language]} x {amount}",
                     SayColorType.Green));
                 if (requestData.ClientSession.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
                 {
