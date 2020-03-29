@@ -24,7 +24,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Inventory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core;
-using NosCore.Core.I18N;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;

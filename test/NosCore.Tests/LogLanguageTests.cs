@@ -200,7 +200,7 @@ namespace NosCore.Tests
                 var paramCount = Regex.Matches(value, @"{[0-9A-Za-z]}").Count();
                 var expectedCount = !_dict.ContainsKey($"LanguageKey.{val}") ? 0
                     : _dict[$"LanguageKey.{val}"];
-                if ((value != $"#<{val.ToString()}>") && (expectedCount != paramCount))
+                if ((value != $"#<{val}>") && (expectedCount != paramCount))
                 {
                     unfound.Append(val)
                         .Append(

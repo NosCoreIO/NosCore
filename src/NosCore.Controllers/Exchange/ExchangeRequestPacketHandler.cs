@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Exchange
                     }
 
                     var blacklisteds = await _blacklistHttpClient.GetBlackListsAsync(clientSession.Character.VisualId).ConfigureAwait(false);
-                    if (blacklisteds.Any(s => s.CharacterId == target?.VisualId))
+                    if (blacklisteds.Any(s => s.CharacterId == target.VisualId))
                     {
                         await clientSession.SendPacketAsync(new InfoPacket
                         {
@@ -238,7 +238,7 @@ namespace NosCore.PacketHandlers.Exchange
                     }
 
                     closeExchange = _exchangeProvider.CloseExchange(clientSession.Character.VisualId, success.Item1)!;
-                    exchangeTarget?.SendPacketAsync(closeExchange);
+                    await exchangeTarget.SendPacketAsync(closeExchange).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(closeExchange).ConfigureAwait(false);
                     return;
 

@@ -81,14 +81,12 @@ namespace NosCore.GameObject
         private readonly IGenericDao<TitleDto> _titleDao;
         private byte _speed;
 
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider,
             IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao,
             IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<AccountDto> accountDao,
             ILogger logger, IGenericDao<StaticBonusDto> staticBonusDao,
             IGenericDao<QuicklistEntryDto> quicklistEntriesDao, IGenericDao<MinilandDto> minilandDao,
             IMinilandProvider minilandProvider, IGenericDao<TitleDto> titleDao)
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             InventoryService = inventory;
             ExchangeProvider = exchangeProvider;
@@ -113,7 +111,7 @@ namespace NosCore.GameObject
 
         public DateTime LastPortal { get; set; }
 
-        public ClientSession Session { get; set; }
+        public ClientSession Session { get; set; } = null!;
 
         public DateTime LastSpeedChange { get; set; }
 
@@ -164,7 +162,7 @@ namespace NosCore.GameObject
 
         public int DignityIcon => GetDignityIco();
 
-        public IChannel? Channel => Session?.Channel;
+        public IChannel? Channel => Session.Channel;
 
         public Task SendPacketAsync(IPacket? packetDefinition)
         {
@@ -807,7 +805,7 @@ namespace NosCore.GameObject
 
         public async Task SetLevelAsync(byte level)
         {
-            (this as INamedEntity).SetLevel(level);
+            this.SetLevel(level);
             await GenerateLevelupPacketsAsync().ConfigureAwait(false);
             await SendPacketAsync(new MsgPacket
             {
@@ -1334,8 +1332,8 @@ namespace NosCore.GameObject
                     EquipmentType = eqType,
                     VNum = eq.ItemInstance!.ItemVNum,
                     Rare = eq.ItemInstance.Rare,
-                    Upgrade = (eq?.ItemInstance!.Item!.IsColored ? eq.ItemInstance?.Design
-                        : eq?.ItemInstance.Upgrade) ?? 0,
+                    Upgrade = (eq.ItemInstance!.Item!.IsColored ? eq.ItemInstance?.Design
+                        : eq.ItemInstance.Upgrade) ?? 0,
                     Unknown = 0
                 };
             }

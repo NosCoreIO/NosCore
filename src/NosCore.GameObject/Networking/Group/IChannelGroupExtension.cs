@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Networking.Group
             {
                 Parallel.ForEach(packets, packet => channelGroup.LastPackets.Enqueue(packet));
                 Parallel.For(0, channelGroup.LastPackets.Count - channelGroup.MaxPacketsBuffer, (_, __) => channelGroup.LastPackets.TryDequeue(out var ___));
-                if (channelGroup?.Sessions == null)
+                if (channelGroup.Sessions == null)
                 {
                     return;
                 }

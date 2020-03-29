@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Inventory;
-using JetBrains.Annotations;
 using NosCore.Data;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;

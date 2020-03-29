@@ -25,7 +25,6 @@ using NosCore.Packets.ServerPackets.Auction;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Core;
 using NosCore.Data.StaticEntities;
-using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;

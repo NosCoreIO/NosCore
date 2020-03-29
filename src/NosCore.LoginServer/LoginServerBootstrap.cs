@@ -184,7 +184,7 @@ namespace NosCore.LoginServer
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
 
 
-                    Task.Run(() => container.Resolve<LoginServer>().Run());
+                    Task.Run(() => container.Resolve<LoginServer>().RunAsync());
                 })
                 .Build();
         }

@@ -82,7 +82,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _friendController = new FriendController(Logger, _characterRelationDao, _characterDao.Object,
                 new FriendRequestHolder(), _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>()))
-                .Returns(async (long id) => await _friendController.GetFriends(id).ConfigureAwait(false));
+                .Returns((long id) => _friendController.GetFriends(id));
             _friendHttpClient.Setup(s => s.DeleteFriendAsync(It.IsAny<Guid>()))
                 .Callback((Guid id) => _friendController.Delete(id));
         }

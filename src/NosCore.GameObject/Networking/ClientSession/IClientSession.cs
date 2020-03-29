@@ -24,7 +24,6 @@ namespace NosCore.GameObject.Networking.ClientSession
 {
     public interface IClientSession : INetworkClient
     {
-        bool HasCurrentMapInstance { get; }
         AccountDto Account { get; set; }
         bool HasSelectedCharacter { get; }
         Character Character { get; }

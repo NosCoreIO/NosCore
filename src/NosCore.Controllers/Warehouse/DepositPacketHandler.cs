@@ -24,7 +24,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.WarehouseHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MinilandProvider;
 
 namespace NosCore.PacketHandlers.Warehouse
 {

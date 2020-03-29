@@ -240,8 +240,7 @@ namespace NosCore.GameObject.Helper
                 }
             };
 
-        public int[][] MinilandMaxPoint = new int[6][]
-        {
+        public int[][] MinilandMaxPoint = {
             new[] { 999, 4999, 7999, 11999, 15999, 1000000 },
             new[] { 999, 4999, 9999, 13999, 17999, 1000000 },
             new[] { 999, 3999, 7999, 14999, 24999, 1000000 },

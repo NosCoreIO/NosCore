@@ -54,7 +54,7 @@ namespace NosCore.Core
 
         protected virtual void Dispose(bool disposing)
         {
-            _random?.Dispose();
+            _random.Dispose();
         }
     }
 }

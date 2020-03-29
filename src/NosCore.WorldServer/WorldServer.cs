@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
@@ -50,7 +51,7 @@ namespace NosCore.WorldServer
             _channelHttpClient = channelHttpClient;
         }
 
-        public void Run()
+        public async Task RunAsync()
         {
             if (_worldConfiguration == null)
             {
@@ -59,7 +60,7 @@ namespace NosCore.WorldServer
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             _events.ForEach(e => { Observable.Interval(e.Delay).Subscribe(_ => e.Execution()); });
-            _channelHttpClient.ConnectAsync();
+            await _channelHttpClient.ConnectAsync();
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
                 var eventSaveAll = new SaveAll();
@@ -81,7 +82,7 @@ namespace NosCore.WorldServer
                 }
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                     _worldConfiguration.Port);
-                _networkManager.RunServerAsync().Wait();
+                await _networkManager.RunServerAsync().ConfigureAwait(false);
             }
             catch
             {

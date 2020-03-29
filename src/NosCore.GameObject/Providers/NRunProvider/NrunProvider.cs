@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Providers.NRunProvider
             {
                 if (handler.Condition(data))
                 {
-                    handlersRequest.Subscribe(async o => await Observable.FromAsync(async () =>
+                    handlersRequest.Subscribe(o => Observable.FromAsync(async () =>
                     {
                         await handler.ExecuteAsync(o).ConfigureAwait(false);
                     }));

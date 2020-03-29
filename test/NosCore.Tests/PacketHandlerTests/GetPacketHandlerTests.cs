@@ -115,7 +115,7 @@ namespace NosCore.Tests.PacketHandlerTests
             }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                _session.Account.Language)) && (packet?.Type == 0));
+                _session.Account.Language)) && (packet.Type == 0));
             Assert.IsTrue(_session.Character.InventoryService.Count == 2);
         }
 

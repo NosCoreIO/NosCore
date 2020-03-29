@@ -134,7 +134,7 @@ namespace NosCore.Tests.InventoryTests
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
-                _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
+                _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
 
             foreach (var validClass in Enum.GetValues(typeof(CharacterClassType)).OfType<CharacterClassType>()
                 .Where(s => s != classToTest).ToList())
@@ -173,7 +173,7 @@ namespace NosCore.Tests.InventoryTests
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
-                _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
+                _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
 
             foreach (var validClass in Enum.GetValues(typeof(GenderType)).OfType<GenderType>()
                 .Where(s => s != genderToTest).ToList())
@@ -209,7 +209,7 @@ namespace NosCore.Tests.InventoryTests
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOW_JOB_LVL,
-                _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
+                _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
         }
 
         [TestMethod]
@@ -256,7 +256,7 @@ namespace NosCore.Tests.InventoryTests
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
-                _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
+                _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
         }
 
         [TestMethod]
@@ -304,7 +304,7 @@ namespace NosCore.Tests.InventoryTests
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
-                _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
+                _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
         }
 
         [TestMethod]
@@ -386,7 +386,7 @@ namespace NosCore.Tests.InventoryTests
                 (s.Value.ItemInstance!.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED,
-                _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
+                _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
         }
 
         [TestMethod]

@@ -181,7 +181,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         public MapItem? PutItem(short amount, IItemInstance inv, ClientSession session)
         {
             var random2 = Guid.NewGuid();
-            MapItem? droppedItem = null;
+            MapItem? droppedItem;
             var possibilities = new List<MapCell>();
 
             for (short x = -1; x < 2; x++)

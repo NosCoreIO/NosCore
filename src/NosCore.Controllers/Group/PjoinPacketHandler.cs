@@ -132,7 +132,7 @@ namespace NosCore.PacketHandlers.Group
 
                     if (((clientSession.Character.Group!.Count == 1) ||
                             (clientSession.Character.Group.Type == GroupType.Group))
-                        && ((targetSession.Group.Count == 1) || (targetSession?.Group.Type == GroupType.Group)))
+                        && ((targetSession.Group.Count == 1) || (targetSession.Group.Type == GroupType.Group)))
                     {
                         await clientSession.SendPacketAsync(new InfoPacket
                         {
@@ -210,12 +210,12 @@ namespace NosCore.PacketHandlers.Group
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
 
-                    if ((clientSession.Character.Group!.Count > 1) && (targetSession?.Group?.Count > 1))
+                    if ((clientSession.Character.Group!.Count > 1) && (targetSession.Group?.Count > 1))
                     {
                         return;
                     }
 
-                    if (clientSession.Character.Group.IsGroupFull || (targetSession?.Group?.IsGroupFull ?? true))
+                    if (clientSession.Character.Group.IsGroupFull || (targetSession.Group?.IsGroupFull ?? true))
                     {
                         await clientSession.SendPacketAsync(new InfoPacket
                         {

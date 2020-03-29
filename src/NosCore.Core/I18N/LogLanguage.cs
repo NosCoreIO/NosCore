@@ -52,7 +52,7 @@ namespace NosCore.Core.I18N
         public string GetMessageFromKey(LogLanguageKey messageKey, string? culture)
         {
             var cult = culture != null ? new CultureInfo(culture) : _resourceCulture;
-            var resourceMessage = (_manager != null) && (messageKey.ToString() != null)
+            var resourceMessage = (_manager != null)
                 ? _manager.GetResourceSet(cult, true,
                         cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower(cult))
                     ?.GetString(messageKey.ToString()) : string.Empty;
@@ -67,7 +67,7 @@ namespace NosCore.Core.I18N
 
         public ResourceSet? GetRessourceSet(string? culture)
         {
-            return _manager?.GetResourceSet(culture != null ? new CultureInfo(culture) : _resourceCulture, true, true);
+            return _manager.GetResourceSet(culture != null ? new CultureInfo(culture) : _resourceCulture, true, true);
         }
     }
 }

@@ -26,7 +26,6 @@ using NosCore.Packets.ServerPackets.Parcel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
-using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
@@ -35,7 +34,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.PacketHandlers.Parcel;
 using NosCore.Tests.Helpers;
-using Serilog;
 
 namespace NosCore.Tests.ParcelTests
 {

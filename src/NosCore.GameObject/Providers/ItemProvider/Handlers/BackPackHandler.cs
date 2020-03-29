@@ -32,7 +32,6 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
-using Serilog;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
