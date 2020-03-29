@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Parcel
             if ((getGiftPacket.Type == 4) && (mail.ItemInstance != null))
             {
                 var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == mail.ItemInstance.Id);
-                var item = _itemProvider.Convert(itemInstance);
+                var item = _itemProvider.Convert(itemInstance!);
                 item.Id = Guid.NewGuid();
                 var newInv = clientSession.Character.InventoryService
                     .AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId))
@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.Parcel
                         string.Format(
                             Language.Instance.GetMessageFromKey(LanguageKey.ITEM_RECEIVED,
                                 clientSession.Account.Language),
-                            newInv.ItemInstance.Item.Name, newInv.ItemInstance.Amount), SayColorType.Green));
+                            newInv.ItemInstance!.Item!.Name, newInv.ItemInstance.Amount), SayColorType.Green));
                     await clientSession.SendPacket(
                         new ParcelPacket {Type = 2, Unknown = 1, Id = (short) getGiftPacket.GiftId});
                     await _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);

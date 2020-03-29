@@ -75,7 +75,7 @@ namespace NosCore.Core.HttpClients
                 return null;
             }
 
-            client.BaseAddress = new Uri(channel.WebApi.ToString());
+            client.BaseAddress = new Uri(channel.WebApi!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
             return client;
         }
@@ -127,7 +127,7 @@ namespace NosCore.Core.HttpClients
         [return: MaybeNull]
         protected async Task<T> Get<T>()
         {
-            return await Get<T>(null).ConfigureAwait(false);
+            return await Get<T>(null)!.ConfigureAwait(false);
         }
 
         [return: MaybeNull]

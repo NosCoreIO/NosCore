@@ -32,7 +32,7 @@ namespace NosCore.PacketHandlers.Group
     {
         public override Task Execute(GroupTalkPacket groupTalkPacket, ClientSession clientSession)
         {
-            if (clientSession.Character.Group.Count == 1)
+            if (clientSession.Character.Group!.Count == 1)
             {
                 return Task.CompletedTask;
             }

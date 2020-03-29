@@ -31,7 +31,7 @@ namespace NosCore.Data.CommandPackets
         public byte Level { get; set; }
 
         [PacketIndex(1)]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public override string Help()
         {

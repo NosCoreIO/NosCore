@@ -270,7 +270,7 @@ namespace NosCore.Tests.ItemHandlerTests
             await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (EffectPacket?)Session.LastPackets.FirstOrDefault(s => s is EffectPacket);
             Assert.IsNotNull(lastpacket);
-            Assert.AreEqual(SystemTime.Now().AddSeconds(itemInstance.ItemInstance!.Item.ItemValidTime), itemInstance.ItemInstance.ItemDeleteTime);
+            Assert.AreEqual(SystemTime.Now().AddSeconds(itemInstance.ItemInstance!.Item!.ItemValidTime), itemInstance.ItemInstance.ItemDeleteTime);
         }
     }
 }

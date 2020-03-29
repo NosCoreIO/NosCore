@@ -72,8 +72,8 @@ namespace NosCore.Core.Controllers
             {
                 case HashingType.BCrypt:
                     if (account?.NewAuthPassword != Encoding.Default
-                            .GetString(Convert.FromBase64String(account!.NewAuthPassword))
-                            .ToBcrypt(account.NewAuthSalt
+                            .GetString(Convert.FromBase64String(account!.NewAuthPassword!))
+                            .ToBcrypt(account.NewAuthSalt!
                         ))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
@@ -82,8 +82,8 @@ namespace NosCore.Core.Controllers
                     break;
                 case HashingType.Pbkdf2:
                     if (account.NewAuthPassword != Encoding.Default
-                        .GetString(Convert.FromBase64String(account.NewAuthPassword))
-                        .ToPbkdf2Hash(account.NewAuthSalt))
+                        .GetString(Convert.FromBase64String(account.NewAuthPassword!))
+                        .ToPbkdf2Hash(account.NewAuthSalt!))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
                     }
@@ -91,7 +91,7 @@ namespace NosCore.Core.Controllers
                     break;
                 case HashingType.Sha512:
                 default:
-                    if (account.Password.ToLower(CultureInfo.CurrentCulture) != (session.Password?.ToSha512() ?? ""))
+                    if (account.Password!.ToLower(CultureInfo.CurrentCulture) != (session.Password?.ToSha512() ?? ""))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
                     }

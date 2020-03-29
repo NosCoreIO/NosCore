@@ -82,8 +82,8 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstanceId = _guid,
                     Price = 50
                 });
-            Assert.AreEqual(_bazaarItemsHolder!.BazaarItems[0].BazaarItem.ItemInstanceId, _guid);
-            Assert.AreEqual(_bazaarItemsHolder.BazaarItems[0].BazaarItem.Amount, 99);
+            Assert.AreEqual(_bazaarItemsHolder?.BazaarItems[0].BazaarItem?.ItemInstanceId, _guid);
+            Assert.AreEqual(_bazaarItemsHolder?.BazaarItems[0].BazaarItem?.Amount, 99);
             Assert.AreEqual(LanguageKey.OBJECT_IN_BAZAAR, add);
         }
 
@@ -109,8 +109,8 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstanceId = _guid,
                     Price = 50
                 });
-            Assert.AreNotEqual(_bazaarItemsHolder!.BazaarItems[0].BazaarItem.ItemInstanceId, _guid);
-            Assert.AreEqual(_bazaarItemsHolder.BazaarItems[0].BazaarItem.Amount, 50);
+            Assert.AreNotEqual(_bazaarItemsHolder!.BazaarItems[0].BazaarItem?.ItemInstanceId, _guid);
+            Assert.AreEqual(_bazaarItemsHolder.BazaarItems[0].BazaarItem?.Amount, 50);
             Assert.AreEqual(LanguageKey.OBJECT_IN_BAZAAR, add);
         }
 
@@ -317,8 +317,8 @@ namespace NosCore.Tests.BazaarTests
                 });
             Assert.AreEqual(true, _bazaarController.DeleteBazaar(0, 99, "test2"));
             Assert.AreEqual(1, _bazaarItemsHolder!.BazaarItems.Values.Count);
-            Assert.AreEqual(0, _bazaarItemsHolder.BazaarItems[0].ItemInstance.Amount);
-            Assert.AreEqual(99, _bazaarItemsHolder.BazaarItems[0].BazaarItem.Amount);
+            Assert.AreEqual(0, _bazaarItemsHolder.BazaarItems[0].ItemInstance?.Amount);
+            Assert.AreEqual(99, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Amount);
         }
 
         [TestMethod]
@@ -357,7 +357,7 @@ namespace NosCore.Tests.BazaarTests
         public void ModifyBazaarNotRegistered()
         {
             var patch = new JsonPatchDocument<BazaarLink>();
-            patch.Replace(link => link.BazaarItem.Price, 50);
+            patch.Replace(link => link.BazaarItem!.Price, 50);
             Assert.IsNull(_bazaarController!.ModifyBazaar(0, patch));
         }
 
@@ -384,9 +384,9 @@ namespace NosCore.Tests.BazaarTests
                     Price = 80
                 });
             var patch = new JsonPatchDocument<BazaarLink>();
-            patch.Replace(link => link.BazaarItem.Price, 50);
+            patch.Replace(link => link.BazaarItem!.Price, 50);
             Assert.IsNotNull(_bazaarController.ModifyBazaar(0, patch));
-            Assert.AreEqual(50, _bazaarItemsHolder!.BazaarItems[0].BazaarItem.Price);
+            Assert.AreEqual(50, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.Price);
         }
 
         [TestMethod]
@@ -411,11 +411,11 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstanceId = _guid,
                     Price = 50
                 });
-            _bazaarItemsHolder!.BazaarItems[0].ItemInstance.Amount--;
+            _bazaarItemsHolder!.BazaarItems[0].ItemInstance!.Amount--;
             var patch = new JsonPatchDocument<BazaarLink>();
-            patch.Replace(link => link.BazaarItem.Price, 10);
+            patch.Replace(link => link.BazaarItem!.Price, 10);
             Assert.IsNull(_bazaarController.ModifyBazaar(0, patch));
-            Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem.Price);
+            Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Price);
         }
     }
 }

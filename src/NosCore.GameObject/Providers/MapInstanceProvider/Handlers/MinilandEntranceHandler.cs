@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider.Handlers
         public void Execute(RequestData<MapInstance> requestData)
         {
             var miniland = _minilandProvider.GetMinilandFromMapInstanceId(requestData.Data.MapInstanceId);
-            if (miniland.CharacterEntity.VisualId != requestData.ClientSession.Character.CharacterId)
+            if (miniland.CharacterEntity!.VisualId != requestData.ClientSession.Character.CharacterId)
             {
                 requestData.ClientSession.SendPacket(new MsgPacket
                 {

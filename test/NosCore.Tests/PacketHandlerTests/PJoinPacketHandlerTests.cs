@@ -61,7 +61,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 var session = TestHelpers.Instance.GenerateSession();
                 session.RegisterChannel(null);
                 _characters.Add(i, session.Character);
-                session.Character.Group.JoinGroup(session.Character);
+                session.Character.Group!.JoinGroup(session.Character);
             }
 
             var mock = new Mock<IBlacklistHttpClient>();
@@ -81,10 +81,10 @@ namespace NosCore.Tests.PacketHandlerTests
             };
 
             await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session);
-            Assert.IsTrue((_characters[0].Group.Count > 1)
-                && (_characters[1].Group.Count > 1)
-                && (_characters[0].Group.GroupId
-                    == _characters[1].Group.GroupId));
+            Assert.IsTrue((_characters[0].Group!.Count > 1)
+                && (_characters[1].Group!.Count > 1)
+                && (_characters[0].Group!.GroupId
+                    == _characters[1].Group!.GroupId));
         }
 
         [TestMethod]
@@ -106,9 +106,9 @@ namespace NosCore.Tests.PacketHandlerTests
                 await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session);
             }
 
-            Assert.IsTrue(_characters[0].Group.IsGroupFull
-                && _characters[1].Group.IsGroupFull
-                && _characters[2].Group.IsGroupFull);
+            Assert.IsTrue(_characters[0].Group!.IsGroupFull
+                && _characters[1].Group!.IsGroupFull
+                && _characters[2].Group!.IsGroupFull);
 
             _characters[3].GroupRequestCharacterIds
                 .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
@@ -120,7 +120,7 @@ namespace NosCore.Tests.PacketHandlerTests
             };
 
             await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session);
-            Assert.IsTrue(_characters[3].Group.Count == 1);
+            Assert.IsTrue(_characters[3].Group!.Count == 1);
         }
 
         [TestMethod]
@@ -133,8 +133,8 @@ namespace NosCore.Tests.PacketHandlerTests
             };
 
             await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session);
-            Assert.IsTrue((_characters[0].Group.Count == 1)
-                && (_characters[1].Group.Count == 1));
+            Assert.IsTrue((_characters[0].Group!.Count == 1)
+                && (_characters[1].Group!.Count == 1));
         }
 
         [TestMethod]
@@ -147,8 +147,8 @@ namespace NosCore.Tests.PacketHandlerTests
             };
 
             await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session);
-            Assert.IsTrue((_characters[0].Group.Count == 1)
-                && (_characters[1].Group.Count == 1));
+            Assert.IsTrue((_characters[0].Group!.Count == 1)
+                && (_characters[1].Group!.Count == 1));
         }
 
         [TestMethod]

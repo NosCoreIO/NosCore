@@ -90,7 +90,7 @@ namespace NosCore.GameObject.Networking.LoginService
                     username = await _authHttpClient.GetAwaitingConnection(null, passwordToken, clientSession.SessionId);
                 }
 
-                var acc = _accountDao.FirstOrDefault(s => s.Name.ToLower() == username.ToLower());
+                var acc = _accountDao.FirstOrDefault(s => s.Name.ToLower() == username!.ToLower());
 
                 if ((acc != null) && (acc.Name != username))
                 {
@@ -158,7 +158,7 @@ namespace NosCore.GameObject.Networking.LoginService
 
                         acc.Language = _loginConfiguration.UserLanguage;
                         _accountDao.InsertOrUpdate(ref acc);
-                        if (servers.Count <= 0)
+                        if (servers == null || servers.Count <= 0)
                         {
                             await clientSession.SendPacket(new FailcPacket
                             {

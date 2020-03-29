@@ -110,7 +110,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         {
                             AccountId = account.AccountId,
                             Name = account.Name,
-                            Password = account.Password.ToLower(),
+                            Password = account.Password!.ToLower(),
                             Authority = account.Authority,
                             Language = account.Language
                         };
@@ -201,7 +201,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     QuestCompletion = 1,
                     QuestPart = 1,
                     Pets = petlist,
-                    Design = equipment[(byte) EquipmentType.Hat]?.Item.IsColored ?? false
+                    Design = equipment[(byte) EquipmentType.Hat]?.Item?.IsColored ?? false
                         ? equipment[(byte) EquipmentType.Hat].Design : 0,
                     Unknown3 = 0
                 });

@@ -64,7 +64,7 @@ namespace NosCore.PacketHandlers.Shops
                 return Task.CompletedTask;
             }
 
-            requestableEntity.Requests.OnNext(new RequestData(clientSession));
+            requestableEntity.Requests!.OnNext(new RequestData(clientSession));
             return Task.CompletedTask;
         }
     }

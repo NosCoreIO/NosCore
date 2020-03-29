@@ -48,7 +48,7 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
             var channel = await _channelHttpClient.GetChannel(channelId);
             if (channel != null)
             {
-                SendPacketToChannel(packet, channel.WebApi.ToString());
+                SendPacketToChannel(packet, channel.WebApi!.ToString());
             }
         }
 
@@ -57,7 +57,7 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
             foreach (var channel in (await _channelHttpClient.GetChannels())
                 ?.Where(c => c.Type == ServerType.WorldServer) ?? new List<ChannelInfo>())
             {
-                SendPacketToChannel(packet, channel.WebApi.ToString());
+                SendPacketToChannel(packet, channel.WebApi!.ToString());
             }
         }
 

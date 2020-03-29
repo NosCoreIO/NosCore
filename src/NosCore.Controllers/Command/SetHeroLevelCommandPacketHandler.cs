@@ -96,7 +96,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStat(data, config);
+            await _statHttpClient.ChangeStat(data, config!);
         }
     }
 }

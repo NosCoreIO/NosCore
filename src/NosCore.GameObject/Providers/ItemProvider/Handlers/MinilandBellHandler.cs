@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
 
-            if (requestData.ClientSession.Character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance)
+            if (requestData.ClientSession.Character.MapInstance!.MapInstanceType != MapInstanceType.BaseMapInstance)
             {
                 await requestData.ClientSession.Character.SendPacket(new SayPacket
                 {

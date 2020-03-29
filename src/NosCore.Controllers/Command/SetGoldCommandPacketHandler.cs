@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStat(data, receiver.Item1);
+            await _statHttpClient.ChangeStat(data, receiver.Item1!);
 
             await session.SendPacket(session.Character.GenerateGold());
         }

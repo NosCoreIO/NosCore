@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Movement
             {
                 IAliveEntity entity;
 
-                switch (u.VisualType)
+                switch (u!.VisualType)
                 {
                     case VisualType.Player:
                         entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == u.VisualId)!;

@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider
         public short PositionY { get; set; }
         public MapInstance? MapInstance { get; set; }
 
-        public Subject<RequestData<Tuple<MapItem, GetPacket>>> Requests { get; set; }
+        public Subject<RequestData<Tuple<MapItem, GetPacket>>>? Requests { get; set; }
 
         public DropPacket GenerateDrop()
         {

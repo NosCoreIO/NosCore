@@ -50,29 +50,29 @@ namespace NosCore.PacketHandlers.Bazaar
 
             var bzlist = await _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
                 packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null);
-            var bzlistsearched = bzlist.Where(s => itemssearch!.Contains(s.ItemInstance.ItemVNum)).ToList();
+            var bzlistsearched = bzlist.Where(s => itemssearch!.Contains(s.ItemInstance!.ItemVNum)).ToList();
 
             //price up price down quantity up quantity down
             var definitivelist = itemssearch.Any() ? bzlistsearched : bzlist;
             definitivelist = packet.OrderFilter switch
             {
                 0 => definitivelist
-                    .OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
-                    .ThenBy(s => s.BazaarItem.Price)
+                    .OrderBy(s => _items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
+                    .ThenBy(s => s.BazaarItem!.Price)
                     .ToList(),
                 1 => definitivelist
-                    .OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
-                    .ThenByDescending(s => s.BazaarItem.Price)
+                    .OrderBy(s => _items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
+                    .ThenByDescending(s => s.BazaarItem!.Price)
                     .ToList(),
                 2 => definitivelist
-                    .OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
-                    .ThenBy(s => s.BazaarItem.Amount)
+                    .OrderBy(s => _items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
+                    .ThenBy(s => s.BazaarItem!.Amount)
                     .ToList(),
                 3 => definitivelist
-                    .OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
-                    .ThenByDescending(s => s.BazaarItem.Amount)
+                    .OrderBy(s => _items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
+                    .ThenByDescending(s => s.BazaarItem!.Amount)
                     .ToList(),
-                _ => definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance.ItemVNum).Name[clientSession.Account.Language])
+                _ => definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
                     .ToList()
             };
 
@@ -80,14 +80,14 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 PageIndex = packet.Index,
                 Items = definitivelist
-                    .Where(s => ((s.BazaarItem.DateStart.AddHours(s.BazaarItem.Duration) - SystemTime.Now())
-                        .TotalMinutes > 0) && (s.ItemInstance.Amount > 0))
+                    .Where(s => ((s.BazaarItem!.DateStart.AddHours(s.BazaarItem.Duration) - SystemTime.Now())
+                        .TotalMinutes > 0) && (s.ItemInstance!.Amount > 0))
                     .Select(bzlink => new RcbListElementPacket
                     {
-                        AuctionId = bzlink.BazaarItem.BazaarItemId,
+                        AuctionId = bzlink.BazaarItem!.BazaarItemId,
                         OwnerId = bzlink.BazaarItem.SellerId,
                         OwnerName = bzlink.SellerName,
-                        ItemId = bzlink.ItemInstance.ItemVNum,
+                        ItemId = bzlink.ItemInstance!.ItemVNum,
                         Amount = bzlink.ItemInstance.Amount,
                         IsPackage = bzlink.BazaarItem.IsPackage,
                         Price = bzlink.BazaarItem.Price,

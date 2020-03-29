@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Movement;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -62,34 +63,34 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void UserCanUsePortal()
+        public async Task UserCanUsePortal()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _preqPacketHandler!.Execute(new PreqPacket(), _session);
+            await _preqPacketHandler!.Execute(new PreqPacket(), _session);
             Assert.IsTrue((_session.Character.PositionY == 5) && (_session.Character.PositionX == 5) &&
                 (_session.Character.MapInstance!.Map.MapId == 1));
         }
 
         [TestMethod]
-        public void UserCanTUsePortalIfTooFar()
+        public async Task UserCanTUsePortalIfTooFar()
         {
             _session!.Character.PositionX = 8;
             _session.Character.PositionY = 8;
-            _preqPacketHandler!.Execute(new PreqPacket(), _session);
+            await _preqPacketHandler!.Execute(new PreqPacket(), _session);
             Assert.IsTrue((_session.Character.PositionY == 8) && (_session.Character.PositionX == 8) &&
                 (_session.Character.MapInstance!.Map.MapId == 0));
         }
 
         [TestMethod]
-        public void UserFromInstanceGoesBackToOriginePlace()
+        public async Task UserFromInstanceGoesBackToOriginePlace()
         {
             _session!.Character.MapX = 5;
             _session.Character.MapY = 5;
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _session.Character.MapInstance!.MapInstanceType = MapInstanceType.NormalInstance;
-            _preqPacketHandler!.Execute(new PreqPacket(), _session);
+            await _preqPacketHandler!.Execute(new PreqPacket(), _session);
             Assert.IsTrue((_session.Character.PositionY == 5) && (_session.Character.PositionX == 5) &&
                 (_session.Character.MapInstance.Map.MapId == 1));
         }

@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Miniland
             switch (mlEditPacket.Type)
             {
                 case 1:
-                    await clientSession.SendPacket(new MlintroPacket {Intro = mlEditPacket.MinilandInfo.Replace(' ', '^')});
+                    await clientSession.SendPacket(new MlintroPacket {Intro = mlEditPacket.MinilandInfo!.Replace(' ', '^')});
                     miniland.MinilandMessage = mlEditPacket.MinilandInfo;
                     await clientSession.SendPacket(new InfoPacket
                     {

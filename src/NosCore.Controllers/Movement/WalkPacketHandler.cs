@@ -60,8 +60,8 @@ namespace NosCore.PacketHandlers.Movement
             session.Character.PositionX = walkPacket.XCoordinate;
             session.Character.PositionY = walkPacket.YCoordinate;
 
-            await session.Character.MapInstance?.SendPacket(session.Character.GenerateMove(),
-                new EveryoneBut(session.Channel.Id));
+            await session.Character.MapInstance!.SendPacket(session.Character.GenerateMove(),
+                new EveryoneBut(session.Channel!.Id));
             session.Character.LastMove = SystemTime.Now();
         }
     }

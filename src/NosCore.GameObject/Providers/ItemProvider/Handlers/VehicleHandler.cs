@@ -73,7 +73,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             if ((packet.Mode == 2) && !requestData.ClientSession.Character.IsVehicled)
             {
                 requestData.ClientSession.Character.IsVehicled = true;
-                requestData.ClientSession.Character.VehicleSpeed = itemInstance.ItemInstance.Item.Speed;
+                requestData.ClientSession.Character.VehicleSpeed = itemInstance.ItemInstance!.Item!.Speed;
                 requestData.ClientSession.Character.MorphUpgrade = 0;
                 requestData.ClientSession.Character.MorphDesign = 0;
                 requestData.ClientSession.Character.Morph =
@@ -84,9 +84,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                             ? itemInstance.ItemInstance.Item.Morph
                             : itemInstance.ItemInstance.Item.SecondMorph;
 
-                await requestData.ClientSession.Character.MapInstance.SendPacket(
+                await requestData.ClientSession.Character.MapInstance!.SendPacket(
                     requestData.ClientSession.Character.GenerateEff(196));
-                await requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character
+                await requestData.ClientSession.Character.MapInstance!.SendPacket(requestData.ClientSession.Character
                     .GenerateCMode());
                 await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateCond());
                 return;

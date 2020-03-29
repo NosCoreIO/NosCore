@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
         {
             var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)(requestData.Data.VisualId ?? 0),
                 NoscorePocketType.Main);
-            if (inv?.ItemInstance?.Item.ItemType != ItemType.Title ||
+            if (inv?.ItemInstance?.Item?.ItemType != ItemType.Title ||
                 requestData.ClientSession.Character.Titles.Any(s => s.TitleType == inv.ItemInstance?.ItemVNum))
             {
                 return;

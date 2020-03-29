@@ -59,15 +59,15 @@ namespace NosCore.PacketHandlers.Exchange
                 (s.VisualId == _exchangeProvider.GetTargetId(clientSession.Character.VisualId)) &&
                 (s.MapInstanceId == clientSession.Character.MapInstanceId)) as Character;
 
-            if ((packet.SubPackets.Count > 0) && (target != null))
+            if ((packet.SubPackets!.Count > 0) && (target != null))
             {
                 byte i = 0;
                 foreach (var value in packet.SubPackets)
                 {
-                    var item = clientSession.Character.InventoryService.LoadBySlotAndType(value.Slot,
+                    var item = clientSession.Character.InventoryService.LoadBySlotAndType(value!.Slot,
                         (NoscorePocketType) value.PocketType);
 
-                    if ((item == null) || (item.ItemInstance.Amount < value.Amount))
+                    if ((item == null) || (item.ItemInstance!.Amount < value.Amount))
                     {
                         var closeExchange =
                             _exchangeProvider.CloseExchange(clientSession.Character.VisualId,
@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return Task.CompletedTask;
                     }
 
-                    if (!item.ItemInstance.Item.IsTradable)
+                    if (!item.ItemInstance.Item!.IsTradable)
                     {
                         clientSession.SendPacket(_exchangeProvider.CloseExchange(clientSession.Character.CharacterId,
                             ExchangeResultType.Failure));

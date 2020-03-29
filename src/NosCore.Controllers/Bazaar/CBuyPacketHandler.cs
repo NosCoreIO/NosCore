@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Bazaar
 
             var bz = await _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
             if ((bz != null) && (bz.SellerName != clientSession.Character.Name) &&
-                (packet.Price == bz.BazaarItem.Price) && (bz.ItemInstance.Amount >= packet.Amount))
+                (packet.Price == bz.BazaarItem?.Price) && (bz.ItemInstance?.Amount >= packet.Amount))
             {
                 if (bz.BazaarItem.IsPackage && (bz.BazaarItem.Amount != packet.Amount))
                 {

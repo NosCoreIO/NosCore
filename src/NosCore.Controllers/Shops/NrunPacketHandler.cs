@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Shops
                     aliveEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == nRunPacket.VisualId);
                     break;
                 case VisualType.Npc:
-                    aliveEntity = clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == nRunPacket.VisualId);
+                    aliveEntity = clientSession.Character.MapInstance!.Npcs.Find(s => s.VisualId == nRunPacket.VisualId);
                     break;
                 case null:
                     aliveEntity = null;
@@ -72,7 +72,7 @@ namespace NosCore.PacketHandlers.Shops
                 return Task.CompletedTask;
             }
 
-            _nRunProvider.NRunLaunch(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity, nRunPacket));
+            _nRunProvider.NRunLaunch(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity!, nRunPacket));
             return Task.CompletedTask;
         }
     }

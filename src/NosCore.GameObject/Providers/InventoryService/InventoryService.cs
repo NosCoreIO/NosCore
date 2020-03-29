@@ -152,7 +152,7 @@ namespace NosCore.GameObject.Providers.InventoryService
 
             // create new item
             var freeSlot = newItem.Type == NoscorePocketType.Wear
-                ? LoadBySlotAndType((short)newItem.ItemInstance!.Item.EquipmentSlot, NoscorePocketType.Wear) == null
+                ? LoadBySlotAndType((short)newItem.ItemInstance!.Item!.EquipmentSlot, NoscorePocketType.Wear) == null
                     ? (short?)newItem.ItemInstance.Item.EquipmentSlot
                     : null
                 : GetFreeSlot(newItem.Type);
@@ -316,7 +316,7 @@ namespace NosCore.GameObject.Providers.InventoryService
             if (targetType == NoscorePocketType.Wear)
             {
                 nextFreeSlot =
-                    LoadBySlotAndType((short)sourceInstance.ItemInstance.Item.EquipmentSlot, targetType) == null
+                    LoadBySlotAndType((short)sourceInstance.ItemInstance.Item!.EquipmentSlot, targetType) == null
                         ? (short)sourceInstance.ItemInstance.Item.EquipmentSlot
                         : (short)-1;
             }
@@ -385,7 +385,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                         break;
                     default:
                         if ((destinationPocket.ItemInstance?.ItemVNum == sourcePocket.ItemInstance.ItemVNum)
-                            && ((sourcePocket.ItemInstance.Item.Type == NoscorePocketType.Main) ||
+                            && ((sourcePocket.ItemInstance.Item!.Type == NoscorePocketType.Main) ||
                                 (sourcePocket.ItemInstance.Item.Type == NoscorePocketType.Etc)))
                         {
                             if (destinationPocket.ItemInstance.Amount + amount > _configuration.MaxItemAmount)

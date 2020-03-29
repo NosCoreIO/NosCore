@@ -153,7 +153,7 @@ namespace NosCore.Database.DAL
             {
                 using (var context = DataAccessHelper.Instance.CreateContext())
                 {
-                    var entity = dto.Adapt<TEntity>();
+                    var entity = dto!.Adapt<TEntity>();
                     var dbset = context.Set<TEntity>();
 
                     var value = _primaryKey?.GetValue(dto, null);
@@ -196,7 +196,7 @@ namespace NosCore.Database.DAL
 
                     foreach (var dto in dtos)
                     {
-                        list.Add(new Tuple<TEntity, TPk>(dto.Adapt<TEntity>(), (TPk)_primaryKey!.GetValue(dto, null)!));
+                        list.Add(new Tuple<TEntity, TPk>(dto!.Adapt<TEntity>(), (TPk)_primaryKey!.GetValue(dto, null)!));
                     }
 
                     var ids = list.Select(s => s.Item2).ToArray();

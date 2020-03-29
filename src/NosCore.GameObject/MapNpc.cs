@@ -61,7 +61,7 @@ namespace NosCore.GameObject
 
         public void Initialize()
         {
-            NpcMonster = _npcMonsters.Find(s => s.NpcMonsterVNum == VNum);
+            NpcMonster = _npcMonsters!.Find(s => s.NpcMonsterVNum == VNum);
             Mp = NpcMonster?.MaxMp ?? 0;
             Hp = NpcMonster?.MaxHp ?? 0;
             Speed = NpcMonster?.Speed ?? 0;
@@ -69,15 +69,15 @@ namespace NosCore.GameObject
             PositionY = MapY;
             IsAlive = true;
             Requests.Subscribe(ShowDialog);
-            var shopObj = _shops.FirstOrDefault(s => s.MapNpcId == MapNpcId);
+            var shopObj = _shops!.FirstOrDefault(s => s.MapNpcId == MapNpcId);
             if (shopObj != null)
             {
-                var shopItemsDto = _shopItems.Where(s => s.ShopId == shopObj.ShopId);
+                var shopItemsDto = _shopItems!.Where(s => s.ShopId == shopObj.ShopId);
                 var shopItemsList = new ConcurrentDictionary<int, ShopItem>();
                 Parallel.ForEach(shopItemsDto, shopItemGrouping =>
                 {
                     var shopItem = shopItemGrouping.Adapt<ShopItem>();
-                    shopItem.ItemInstance = _itemProvider.Create(shopItemGrouping.ItemVNum, -1);
+                    shopItem.ItemInstance = _itemProvider!.Create(shopItemGrouping.ItemVNum, -1);
                     shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
                 });
                 Shop = shopObj.Adapt<Shop>();
@@ -117,7 +117,7 @@ namespace NosCore.GameObject
         public byte HeroLevel { get; set; }
         public new Shop? Shop { get; private set; }
 
-        public Subject<RequestData> Requests { get; set; }
+        public Subject<RequestData>? Requests { get; set; }
 
         private void ShowDialog(RequestData requestData)
         {

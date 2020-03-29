@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.Exchange
             {
                 case RequestExchangeType.Requested:
                     if (_exchangeProvider.CheckExchange(clientSession.Character.CharacterId) ||
-                        _exchangeProvider.CheckExchange(target.VisualId))
+                        _exchangeProvider.CheckExchange(target?.VisualId ?? 0))
                     {
                         await clientSession.SendPacket(new MsgPacket
                         {
@@ -85,7 +85,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    if (target.ExchangeBlocked)
+                    if (target?.ExchangeBlocked ?? true)
                     {
                         await clientSession.SendPacket(clientSession.Character.GenerateSay(
                             Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED,
@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Exchange
                     }
 
                     var blacklisteds = await _blacklistHttpClient.GetBlackLists(clientSession.Character.VisualId);
-                    if (blacklisteds.Any(s => s.CharacterId == target.VisualId))
+                    if (blacklisteds.Any(s => s.CharacterId == target?.VisualId))
                     {
                         await clientSession.SendPacket(new InfoPacket
                         {

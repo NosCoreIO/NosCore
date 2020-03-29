@@ -26,7 +26,7 @@ namespace NosCore.Core.I18N
 {
     public sealed class Language
     {
-        private static Language _instance;
+        private static Language? _instance;
         private readonly ResourceManager _manager;
 
         private Language()

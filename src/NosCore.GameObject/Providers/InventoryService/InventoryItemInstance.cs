@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                 ItemInstance = it,
                 ItemInstanceId = it.Id,
                 Slot = inventoryItemInstance?.Slot ?? 0,
-                Type = inventoryItemInstance?.Type ?? it.Item.Type
+                Type = inventoryItemInstance?.Type ?? it.Item!.Type
             };
         }
     }

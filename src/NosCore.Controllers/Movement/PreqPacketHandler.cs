@@ -47,19 +47,19 @@ namespace NosCore.PacketHandlers.Movement
             _minilandProvider = minilandProvider;
         }
 
-        public override Task Execute(PreqPacket _, ClientSession session)
+        public override async Task Execute(PreqPacket _, ClientSession session)
         {
             if (((SystemTime.Now() - session.Character.LastPortal).TotalSeconds < 4) ||
                 (session.Character.LastPortal > session.Character.LastMove))
             {
-                session.SendPacket(session.Character.GenerateSay(
+                await session.SendPacket(session.Character.GenerateSay(
                     Language.Instance.GetMessageFromKey(LanguageKey.PORTAL_DELAY, session.Account.Language),
                     SayColorType.Yellow));
-                return Task.CompletedTask;
+                return;
             }
 
             var portals = new List<Portal>();
-            portals.AddRange(session.Character.MapInstance.Portals);
+            portals.AddRange(session.Character.MapInstance!.Portals);
             portals.AddRange(_minilandProvider
                 .GetMinilandPortals(session.Character.CharacterId)
                 .Where(s => s.SourceMapInstanceId == session.Character.MapInstanceId));
@@ -68,29 +68,28 @@ namespace NosCore.PacketHandlers.Movement
                     Math.Abs(session.Character.PositionY - port.SourceY)) <= 2);
             if (portal == null)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             if (portal.DestinationMapInstanceId == default)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             session.Character.LastPortal = SystemTime.Now();
 
-            if ((_mapInstanceProvider.GetMapInstance(portal.SourceMapInstanceId).MapInstanceType
+            if ((_mapInstanceProvider.GetMapInstance(portal.SourceMapInstanceId)!.MapInstanceType
                     != MapInstanceType.BaseMapInstance)
-                && (_mapInstanceProvider.GetMapInstance(portal.DestinationMapInstanceId).MapInstanceType
+                && (_mapInstanceProvider.GetMapInstance(portal.DestinationMapInstanceId)!.MapInstanceType
                     == MapInstanceType.BaseMapInstance))
             {
-                session.ChangeMap(session.Character.MapId, session.Character.MapX, session.Character.MapY);
+                await session.ChangeMap(session.Character.MapId, session.Character.MapX, session.Character.MapY);
             }
             else
             {
-                session.ChangeMapInstance(portal.DestinationMapInstanceId, portal.DestinationX,
+                await session.ChangeMapInstance(portal.DestinationMapInstanceId, portal.DestinationX,
                     portal.DestinationY);
             }
-            return Task.CompletedTask;
         }
     }
 }

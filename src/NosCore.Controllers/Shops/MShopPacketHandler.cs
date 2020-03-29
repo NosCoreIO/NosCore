@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Shops
                 return;
             }
 
-            var portal = clientSession.Character.MapInstance.Portals.Find(port =>
+            var portal = clientSession.Character.MapInstance!.Portals.Find(port =>
                 Heuristic.Octile(Math.Abs(clientSession.Character.PositionX - port.SourceX),
                     Math.Abs(clientSession.Character.PositionY - port.SourceY)) <= 6);
             if (portal != null)
@@ -87,10 +87,10 @@ namespace NosCore.PacketHandlers.Shops
                 case CreateShopPacketType.Open:
                     clientSession.Character.Shop = new Shop();
                     sbyte shopSlot = -1;
-                    foreach (var item in mShopPacket.ItemList)
+                    foreach (var item in mShopPacket.ItemList!)
                     {
                         shopSlot++;
-                        if (item.Amount == 0)
+                        if (item!.Amount == 0)
                         {
                             continue;
                         }
@@ -103,13 +103,13 @@ namespace NosCore.PacketHandlers.Shops
                             continue;
                         }
 
-                        if (inv.ItemInstance.Amount < item.Amount)
+                        if (inv.ItemInstance!.Amount < item.Amount)
                         {
                             //todo log
                             return;
                         }
 
-                        if (!inv.ItemInstance.Item.IsTradable || (inv.ItemInstance.BoundCharacterId != null))
+                        if (!inv.ItemInstance.Item!.IsTradable || (inv.ItemInstance.BoundCharacterId != null))
                         {
                             await clientSession.SendPacket(new ShopEndPacket {Type = ShopEndPacketType.PersonalShop});
                             await clientSession.SendPacket(clientSession.Character.GenerateSay(
@@ -161,7 +161,7 @@ namespace NosCore.PacketHandlers.Shops
                         data.ClientSession.SendPacket(
                             clientSession.Character.GenerateNpcReq(clientSession.Character.Shop.ShopId)));
                     await clientSession.Character.MapInstance.SendPacket(clientSession.Character.GeneratePFlag(),
-                        new EveryoneBut(clientSession.Channel.Id));
+                        new EveryoneBut(clientSession.Channel!.Id));
                     clientSession.Character.IsSitting = true;
                     clientSession.Character.LoadSpeed();
                     await clientSession.SendPacket(clientSession.Character.GenerateCond());
