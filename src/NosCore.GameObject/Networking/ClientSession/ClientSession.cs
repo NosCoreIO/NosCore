@@ -166,7 +166,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 return;
             }
 
-            await HandlePackets(buff, context);
+            await HandlePackets(buff, context).ConfigureAwait(false);
         }
 
         public override async void ChannelUnregistered(IChannelHandlerContext context)
@@ -186,7 +186,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         Character.Hp = 1;
                     }
 
-                    await Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, false);
+                    await Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, false).ConfigureAwait(false);
 
                     var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
                     if (targetId.HasValue)
@@ -195,12 +195,12 @@ namespace NosCore.GameObject.Networking.ClientSession
                             _exchangeProvider.CloseExchange(Character.VisualId, ExchangeResultType.Failure);
                         if (Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
                         {
-                            await target.SendPacket(closeExchange);
+                            await target.SendPacket(closeExchange).ConfigureAwait(false);
                         }
                     }
 
-                    await Character.LeaveGroup();
-                    Character.MapInstance?.SendPacket(Character.GenerateOut());
+                    await Character.LeaveGroup().ConfigureAwait(false);
+                    await Character.MapInstance.SendPacket(Character.GenerateOut()).ConfigureAwait(false);
                     Character.Save();
 
                     _minilandProvider.DeleteMiniland(Character.CharacterId);
@@ -241,12 +241,12 @@ namespace NosCore.GameObject.Networking.ClientSession
                 return;
             }
 
-            await ChangeMapInstance(Character.MapInstanceId, mapX, mapY);
+            await ChangeMapInstance(Character.MapInstanceId, mapX, mapY).ConfigureAwait(false);
         }
 
         public async Task ChangeMapInstance(Guid mapInstanceId)
         {
-            await ChangeMapInstance(mapInstanceId, null, null);
+            await ChangeMapInstance(mapInstanceId, null, null).ConfigureAwait(false);
         }
 
         public async Task ChangeMapInstance(Guid mapInstanceId, int? mapX, int? mapY)
@@ -266,7 +266,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 Character.MapInstance.LastUnregister = SystemTime.Now();
-                await LeaveMap();
+                await LeaveMap().ConfigureAwait(false);
                 if (Character.MapInstance.Sessions.Count == 0)
                 {
                     Character.MapInstance.IsSleeping = true;
@@ -278,9 +278,9 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 Character.MapInstanceId = mapInstanceId;
-                Character.MapInstance = _mapInstanceProvider.GetMapInstance(mapInstanceId);
+                Character.MapInstance = _mapInstanceProvider.GetMapInstance(mapInstanceId)!;
 
-                if (Character.MapInstance!.MapInstanceType == MapInstanceType.BaseMapInstance)
+                if (Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
                     Character.MapId = Character.MapInstance.Map.MapId;
                     if ((mapX != null) && (mapY != null))
@@ -296,20 +296,20 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.PositionY = (short)mapY;
                 }
 
-                await SendPacket(Character.GenerateCInfo());
-                await SendPacket(Character.GenerateCMode());
-                await SendPacket(Character.GenerateEq());
-                await SendPacket(Character.GenerateEquipment());
-                await SendPacket(Character.GenerateLev());
-                await SendPacket(Character.GenerateStat());
-                await SendPacket(Character.GenerateAt());
-                await SendPacket(Character.GenerateCond());
-                await SendPacket(Character.MapInstance.GenerateCMap());
+                await SendPacket(Character.GenerateCInfo()).ConfigureAwait(false);
+                await SendPacket(Character.GenerateCMode()).ConfigureAwait(false);
+                await SendPacket(Character.GenerateEq()).ConfigureAwait(false);
+                await SendPacket(Character.GenerateEquipment()).ConfigureAwait(false);
+                await SendPacket(Character.GenerateLev()).ConfigureAwait(false);
+                await SendPacket(Character.GenerateStat()).ConfigureAwait(false);
+                await SendPacket(Character.GenerateAt()).ConfigureAwait(false);
+                await SendPacket(Character.GenerateCond()).ConfigureAwait(false);
+                await SendPacket(Character.MapInstance.GenerateCMap()).ConfigureAwait(false);
                 await SendPacket(Character.GeneratePairy(
                     Character.InventoryService!.LoadBySlotAndType((byte)EquipmentType.Fairy,
-                        NoscorePocketType.Wear)?.ItemInstance as WearableInstance));
-                await SendPackets(Character.MapInstance.GetMapItems());
-                await SendPackets(Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
+                        NoscorePocketType.Wear)?.ItemInstance as WearableInstance)).ConfigureAwait(false);
+                await SendPackets(Character.MapInstance.GetMapItems()).ConfigureAwait(false);
+                await SendPackets(Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect())).ConfigureAwait(false);
 
                 var minilandPortals = _minilandProvider
                     .GetMinilandPortals(Character.CharacterId)
@@ -318,22 +318,22 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 if (minilandPortals.Count > 0)
                 {
-                    await SendPackets(minilandPortals.Select(s => s.GenerateGp()));
+                    await SendPackets(minilandPortals.Select(s => s.GenerateGp())).ConfigureAwait(false);
                 }
 
-                await SendPacket(Character.Group!.GeneratePinit());
+                await SendPacket(Character.Group!.GeneratePinit()).ConfigureAwait(false);
                 if (!Character.Group.IsEmpty)
                 {
-                    await SendPackets(Character.Group.GeneratePst());
+                    await SendPackets(Character.Group.GeneratePst()).ConfigureAwait(false);
                 }
 
                 if ((Character.Group.Type == GroupType.Group) && (Character.Group.Count > 1))
                 {
-                    await Character.MapInstance.SendPacket(Character.Group.GeneratePidx(Character));
+                    await Character.MapInstance.SendPacket(Character.Group.GeneratePidx(Character)).ConfigureAwait(false);
                 }
 
                 var mapSessions = Broadcaster.Instance.GetCharacters(s =>
-                    (s != Character) && (s.MapInstance!.MapInstanceId == Character.MapInstanceId));
+                    (s != Character) && (s.MapInstance.MapInstanceId == Character.MapInstanceId));
 
                 Parallel.ForEach(mapSessions, s =>
                 {
@@ -347,7 +347,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
                 });
 
-                await Character.MapInstance.SendPacket(Character.GenerateTitInfo());
+                await Character.MapInstance.SendPacket(Character.GenerateTitInfo()).ConfigureAwait(false);
                 Character.MapInstance.IsSleeping = false;
                 if (Channel?.Id != null)
                 {
@@ -355,7 +355,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     {
                         await Character.MapInstance.SendPacket(Character.GenerateIn(Character.Authority == AuthorityType.Moderator
                                 ? $"[{Character.Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" : string.Empty),
-                            new EveryoneBut(Character.Channel!.Id));
+                            new EveryoneBut(Character.Channel!.Id)).ConfigureAwait(false);
                     }
 
                     Character.MapInstance.Sessions.Add(Channel);
@@ -375,9 +375,9 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         private async Task LeaveMap()
         {
-            await SendPacket(new MapOutPacket());
-            await Character.MapInstance!.SendPacket(Character.GenerateOut(),
-                new EveryoneBut(Channel!.Id));
+            await SendPacket(new MapOutPacket()).ConfigureAwait(false);
+            await Character.MapInstance.SendPacket(Character.GenerateOut(),
+                new EveryoneBut(Channel!.Id)).ConfigureAwait(false);
         }
 
         public string GetMessageFromKey(LanguageKey languageKey)
@@ -398,7 +398,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         {
                             _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPTED_KEEPALIVE),
                                 SessionId);
-                            await Disconnect();
+                            await Disconnect().ConfigureAwait(false);
                             return;
                         }
 
@@ -415,7 +415,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                         if (packet.KeepAliveId == null)
                         {
-                            await Disconnect();
+                            await Disconnect().ConfigureAwait(false);
                         }
                     }
 
@@ -451,7 +451,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         {
                             _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET),
                                 packet);
-                            await Disconnect();
+                            await Disconnect().ConfigureAwait(false);
                             return;
                         }
 
@@ -477,7 +477,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                                     return;
                                 }
 
-                                await handler.Execute(packet, this);
+                                await handler.Execute(packet, this).ConfigureAwait(false);
                             }
                         }
                         else
@@ -492,7 +492,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     var packetHeader = packet.Header;
                     if (string.IsNullOrWhiteSpace(packetHeader))
                     {
-                        await Disconnect();
+                        await Disconnect().ConfigureAwait(false);
                         return;
                     }
 
@@ -500,7 +500,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         s.GetType().BaseType?.GenericTypeArguments[0] == packet.GetType());
                     if (handler != null)
                     {
-                        await handler.Execute(packet, this);
+                        await handler.Execute(packet, this).ConfigureAwait(false);
                     }
                     else
                     {
@@ -508,7 +508,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                             packetHeader);
                     }
                 }
-            }));
+            })).ConfigureAwait(false);
         }
     }
 }

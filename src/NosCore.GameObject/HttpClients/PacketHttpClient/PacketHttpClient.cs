@@ -45,7 +45,7 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
 
         public async Task BroadcastPacket(PostedPacket packet, int channelId)
         {
-            var channel = await _channelHttpClient.GetChannel(channelId);
+            var channel = await _channelHttpClient.GetChannel(channelId).ConfigureAwait(false);
             if (channel != null)
             {
                 SendPacketToChannel(packet, channel.WebApi!.ToString());
@@ -54,7 +54,7 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
 
         public async Task BroadcastPacket(PostedPacket packet)
         {
-            foreach (var channel in (await _channelHttpClient.GetChannels())
+            foreach (var channel in (await _channelHttpClient.GetChannels().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer) ?? new List<ChannelInfo>())
             {
                 SendPacketToChannel(packet, channel.WebApi!.ToString());
@@ -76,11 +76,11 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(channel);
             client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshToken());
+                new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshToken().ConfigureAwait(false));
             var content = new StringContent(JsonSerializer.Serialize(postedPacket),
                 Encoding.Default, "application/json");
 
-            await client.PostAsync("api/packet", content);
+            await client.PostAsync("api/packet", content).ConfigureAwait(false);
         }
     }
 }

@@ -41,12 +41,12 @@ namespace NosCore.PacketHandlers.Friend
 
         public override async Task Execute(BlDelPacket bldelPacket, ClientSession session)
         {
-            var list = await _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
+            var list = await _blacklistHttpClient.GetBlackLists(session.Character.VisualId).ConfigureAwait(false);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == bldelPacket.CharacterId);
             if (idtorem != null)
             {
-                await _blacklistHttpClient.DeleteFromBlacklist(idtorem.CharacterRelationId);
-                await session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient));
+                await _blacklistHttpClient.DeleteFromBlacklist(idtorem.CharacterRelationId).ConfigureAwait(false);
+                await session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             }
             else
             {
@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Friend
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
                         session.Account.Language)
-                });
+                }).ConfigureAwait(false);
             }
         }
     }

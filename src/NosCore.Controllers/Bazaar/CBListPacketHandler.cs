@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Bazaar
             var itemssearch = packet.ItemVNumFilter.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
 
             var bzlist = await _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
-                packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null);
+                packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null).ConfigureAwait(false);
             var bzlistsearched = bzlist.Where(s => itemssearch!.Contains(s.ItemInstance!.ItemVNum)).ToList();
 
             //price up price down quantity up quantity down
@@ -100,7 +100,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         Upgrade = bzlink.ItemInstance.Upgrade,
                         EInfo = new EInfoPacket()
                     }).ToList() as List<RcbListElementPacket?>
-            });
+            }).ConfigureAwait(false);
         }
     }
 }

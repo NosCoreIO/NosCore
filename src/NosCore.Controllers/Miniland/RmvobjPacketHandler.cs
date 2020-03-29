@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Miniland
                 return Task.CompletedTask;
             }
 
-            if (!clientSession.Character.MapInstance!.MapDesignObjects.ContainsKey(minilandobject.Id))
+            if (!clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
             {
                 return Task.CompletedTask;
             }

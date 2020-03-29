@@ -49,7 +49,7 @@ namespace NosCore.Database.Entities
             FamilyCharacter = new HashSet<FamilyCharacter>();
         }
 
-        public virtual Account Account { get; set; } = new Account();
+        public virtual Account Account { get; set; } = null!;
 
         public long AccountId { get; set; }
 
@@ -135,7 +135,7 @@ namespace NosCore.Database.Entities
 
         public virtual ICollection<Mail> Mail1 { get; set; }
 
-        public virtual Map Map { get; set; } = new Map();
+        public virtual Map Map { get; set; } = null!;
 
         public short MapId { get; set; }
 

@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Chat
 
         public override async Task Execute(BtkPacket btkPacket, ClientSession session)
         {
-            var friendlist = await _friendHttpClient.GetListFriends(session.Character.VisualId);
+            var friendlist = await _friendHttpClient.GetListFriends(session.Character.VisualId).ConfigureAwait(false);
 
             if (friendlist.All(s => s.CharacterId != btkPacket.CharacterId))
             {
@@ -80,18 +80,18 @@ namespace NosCore.PacketHandlers.Chat
 
             if (receiverSession != null)
             {
-                await receiverSession.SendPacket(session.Character.GenerateTalk(message));
+                await receiverSession.SendPacket(session.Character.GenerateTalk(message)).ConfigureAwait(false);
                 return;
             }
 
-            var receiver = await _connectedAccountHttpClient.GetCharacter(btkPacket.CharacterId, null);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(btkPacket.CharacterId, null).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
                 await session.SendPacket(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, session.Account.Language)
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -99,12 +99,12 @@ namespace NosCore.PacketHandlers.Chat
             {
                 Packet = _packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character
-                { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name ?? "" },
+                    { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name ?? "" },
                 SenderCharacter = new Character
-                { Name = session.Character.Name, Id = session.Character.CharacterId },
+                    { Name = session.Character.Name, Id = session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
-            }, receiver.Item2.ChannelId);
+            }, receiver.Item2.ChannelId).ConfigureAwait(false);
         }
     }
 }

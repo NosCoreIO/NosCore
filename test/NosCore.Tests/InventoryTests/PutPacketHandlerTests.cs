@@ -66,7 +66,7 @@ namespace NosCore.Tests.InventoryTests
                 PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 500
-            }, _session);
+            }, _session).ConfigureAwait(false);
             Assert.IsTrue((_session.Character.InventoryService.Count == 1) &&
                 (_session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance?.Amount == 499));
         }
@@ -80,7 +80,7 @@ namespace NosCore.Tests.InventoryTests
                 PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 1
-            }, _session);
+            }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
                 _session.Account.Language)) && (packet?.Type == 0));
@@ -97,7 +97,7 @@ namespace NosCore.Tests.InventoryTests
                 PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 1
-            }, _session);
+            }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Count == 0);
         }
 
@@ -112,7 +112,7 @@ namespace NosCore.Tests.InventoryTests
                 PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 1
-            }, _session);
+            }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
                 _session.Account.Language)) && (packet?.Type == 0));
@@ -130,7 +130,7 @@ namespace NosCore.Tests.InventoryTests
                 PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 1
-            }, _session);
+            }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
                 _session.Account.Language)) && (packet?.Type == 0));

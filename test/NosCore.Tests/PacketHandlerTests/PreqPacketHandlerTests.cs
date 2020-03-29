@@ -67,9 +67,9 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            await _preqPacketHandler!.Execute(new PreqPacket(), _session);
+            await _preqPacketHandler!.Execute(new PreqPacket(), _session).ConfigureAwait(false);
             Assert.IsTrue((_session.Character.PositionY == 5) && (_session.Character.PositionX == 5) &&
-                (_session.Character.MapInstance!.Map.MapId == 1));
+                (_session.Character.MapInstance.Map.MapId == 1));
         }
 
         [TestMethod]
@@ -77,9 +77,9 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _session!.Character.PositionX = 8;
             _session.Character.PositionY = 8;
-            await _preqPacketHandler!.Execute(new PreqPacket(), _session);
+            await _preqPacketHandler!.Execute(new PreqPacket(), _session).ConfigureAwait(false);
             Assert.IsTrue((_session.Character.PositionY == 8) && (_session.Character.PositionX == 8) &&
-                (_session.Character.MapInstance!.Map.MapId == 0));
+                (_session.Character.MapInstance.Map.MapId == 0));
         }
 
         [TestMethod]
@@ -89,8 +89,8 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.MapY = 5;
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _session.Character.MapInstance!.MapInstanceType = MapInstanceType.NormalInstance;
-            await _preqPacketHandler!.Execute(new PreqPacket(), _session);
+            _session.Character.MapInstance.MapInstanceType = MapInstanceType.NormalInstance;
+            await _preqPacketHandler!.Execute(new PreqPacket(), _session).ConfigureAwait(false);
             Assert.IsTrue((_session.Character.PositionY == 5) && (_session.Character.PositionX == 5) &&
                 (_session.Character.MapInstance.Map.MapId == 1));
         }

@@ -102,7 +102,7 @@ namespace NosCore.GameObject
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
         public short PositionY { get; set; }
-        public MapInstance? MapInstance { get; set; }
+        public MapInstance MapInstance { get; set; } = null!;
         public DateTime LastMove { get; set; }
         public bool IsAlive { get; set; }
 
@@ -136,7 +136,7 @@ namespace NosCore.GameObject
             {
                 try
                 {
-                    if (!MapInstance!.IsSleeping)
+                    if (!MapInstance.IsSleeping)
                     {
                         MonsterLife();
                     }

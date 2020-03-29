@@ -31,16 +31,16 @@ namespace NosCore.Database.Entities
         [Key]
         public short DropId { get; set; }
 
-        public virtual Item Item { get; set; } = new Item();
+        public virtual Item Item { get; set; } = null!;
 
         public short VNum { get; set; }
 
-        public virtual MapType MapType { get; set; } = new MapType();
+        public virtual MapType MapType { get; set; } = null!;
 
         public short? MapTypeId { get; set; }
 
         public short? MonsterVNum { get; set; }
 
-        public virtual NpcMonster NpcMonster { get; set; } = new NpcMonster();
+        public virtual NpcMonster NpcMonster { get; set; } = null!;
     }
 }

@@ -53,9 +53,9 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
 
         public async Task<List<WarehouseItem>> GetWarehouseItems(long characterId, WarehouseType warehouse)
         {
-            var client = await Connect();
+            var client = await Connect().ConfigureAwait(false);
             var response = await client
-                .GetAsync($"{ApiUrl}?id=null&ownerId={characterId}&warehouseType={warehouse}&slot=null");
+                .GetAsync($"{ApiUrl}?id=null&ownerId={characterId}&warehouseType={warehouse}&slot=null").ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {

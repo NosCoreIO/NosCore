@@ -35,7 +35,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         Guid MapInstanceId { get; }
 
-        MapInstance? MapInstance { get; }
+        MapInstance MapInstance { get; }
 
         short PositionX { get; set; }
 

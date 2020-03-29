@@ -26,13 +26,13 @@ namespace NosCore.Database.Entities
     public class WarehouseItem : SynchronizableBaseEntity
     {
         [Required]
-        public virtual Warehouse Warehouse { get; set; } = new Warehouse();
+        public virtual Warehouse Warehouse { get; set; } = null!;
 
         [Required]
         public Guid WarehouseId { get; set; }
 
         [Required]
-        public virtual ItemInstance ItemInstance { get; set; } = new ItemInstance();
+        public virtual ItemInstance ItemInstance { get; set; } = null!;
 
         [Required]
         public Guid ItemInstanceId { get; set; }

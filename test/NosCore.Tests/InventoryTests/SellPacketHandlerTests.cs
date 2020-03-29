@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.ServerPackets.Shop;
@@ -60,7 +61,7 @@ namespace NosCore.Tests.InventoryTests
 
 
         [TestMethod]
-        public void UserCanNotSellInExchange()
+        public async Task UserCanNotSellInExchange()
         {
             _session!.Character.InExchangeOrTrade = true;
             var items = new List<ItemDto>
@@ -78,14 +79,14 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1);
-            _sellPacketHandler!.Execute(new SellPacket {Slot = 0, Amount = 1, Data = (short) NoscorePocketType.Etc},
-                _session);
+            await _sellPacketHandler!.Execute(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
+                _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.Gold == 0);
             Assert.IsNotNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Etc));
         }
 
         [TestMethod]
-        public void UserCanNotSellNotSoldable()
+        public async Task UserCanNotSellNotSoldable()
         {
             var items = new List<ItemDto>
             {
@@ -102,9 +103,9 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1);
-            _sellPacketHandler!.Execute(new SellPacket {Slot = 0, Amount = 1, Data = (short) NoscorePocketType.Etc},
-                _session);
-            var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
+            await _sellPacketHandler!.Execute(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
+                _session).ConfigureAwait(false);
+            var packet = (SMemoPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, _session.Account.Language));
             Assert.IsTrue(_session.Character.Gold == 0);
@@ -112,7 +113,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public void UserCanSell()
+        public async Task UserCanSell()
         {
             var items = new List<ItemDto>
             {
@@ -129,8 +130,8 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1);
-            _sellPacketHandler!.Execute(new SellPacket {Slot = 0, Amount = 1, Data = (short) NoscorePocketType.Etc},
-                _session);
+            await _sellPacketHandler!.Execute(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
+                _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.Gold > 0);
             Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Etc));
         }

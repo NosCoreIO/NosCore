@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Shops
                     aliveEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == buyPacket.VisualId);
                     break;
                 case VisualType.Npc:
-                    aliveEntity = clientSession.Character.MapInstance!.Npcs.Find(s => s.VisualId == buyPacket.VisualId);
+                    aliveEntity = clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == buyPacket.VisualId);
                     break;
 
                 default:

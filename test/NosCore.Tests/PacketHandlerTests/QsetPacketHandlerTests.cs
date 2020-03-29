@@ -52,7 +52,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 OriginQuickListSlot = 2,
                 FirstData = 3,
                 SecondData = 4
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             var lastpacket = (QsetClientPacket?) _session!.LastPackets.FirstOrDefault(s => s is QsetClientPacket);
             Assert.AreEqual(QSetType.Set, lastpacket?.Data?.Type);
             Assert.AreEqual(1, lastpacket?.OriginQuickList ?? 0);
@@ -73,7 +73,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 OriginQuickListSlot = 2,
                 FirstData = 3,
                 SecondData = 4
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             var lastpacket = (QsetClientPacket?) _session!.LastPackets.FirstOrDefault(s => s is QsetClientPacket);
             Assert.AreEqual(QSetType.Reset, lastpacket?.Data?.Type ?? 0);
             Assert.AreEqual(1, lastpacket?.OriginQuickList ?? 0);
@@ -94,7 +94,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 OriginQuickListSlot = 2,
                 FirstData = 3,
                 SecondData = 4
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
 
             await _qsetPacketHandler.Execute(new QsetPacket
             {
@@ -103,7 +103,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 OriginQuickListSlot = 3,
                 FirstData = 4,
                 SecondData = 5
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
 
             _session!.LastPackets.Clear();
             await _qsetPacketHandler.Execute(new QsetPacket
@@ -113,7 +113,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 OriginQuickListSlot = 3,
                 FirstData = 1,
                 SecondData = 2
-            }, _session);
+            }, _session).ConfigureAwait(false);
             var firstpacket = (QsetClientPacket?) _session.LastPackets.FirstOrDefault(s => s is QsetClientPacket);
             var lastpacket = (QsetClientPacket?) _session.LastPackets.Skip(1).FirstOrDefault(s => s is QsetClientPacket);
             Assert.AreEqual(QSetType.Set, lastpacket?.Data?.Type);
@@ -136,13 +136,13 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task Test_Move_ToEmpty()
         {
            await _qsetPacketHandler!.Execute(new QsetPacket
-            {
-                Type = QSetType.Set,
-                OriginQuickList = 1,
-                OriginQuickListSlot = 2,
-                FirstData = 3,
-                SecondData = 4
-            }, _session!);
+           {
+               Type = QSetType.Set,
+               OriginQuickList = 1,
+               OriginQuickListSlot = 2,
+               FirstData = 3,
+               SecondData = 4
+           }, _session!).ConfigureAwait(false);
             _session!.LastPackets.Clear();
             await _qsetPacketHandler.Execute(new QsetPacket
             {
@@ -151,7 +151,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 OriginQuickListSlot = 3,
                 FirstData = 1,
                 SecondData = 2
-            }, _session);
+            }, _session).ConfigureAwait(false);
 
             Assert.AreEqual(1, _session.Character.QuicklistEntries.Count);
 

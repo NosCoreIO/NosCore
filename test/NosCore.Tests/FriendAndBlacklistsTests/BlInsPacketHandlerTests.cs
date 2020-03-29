@@ -77,7 +77,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = 2
             };
 
-            await _blInsPacketHandler!.Execute(blinsPacket, _session!);
+            await _blInsPacketHandler!.Execute(blinsPacket, _session!).ConfigureAwait(false);
             Assert.IsNull(
                 _characterRelationDao.FirstOrDefault(s =>
                     (_session!.Character.CharacterId == s.CharacterId) &&
@@ -111,7 +111,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-           await _blInsPacketHandler!.Execute(blinsPacket, _session);
+           await _blInsPacketHandler!.Execute(blinsPacket, _session).ConfigureAwait(false);
             Assert.IsNotNull(
                 _characterRelationDao.FirstOrDefault(s => (_session.Character.CharacterId == s.CharacterId)
                     && (targetSession.Character.CharacterId == s.RelatedCharacterId) &&

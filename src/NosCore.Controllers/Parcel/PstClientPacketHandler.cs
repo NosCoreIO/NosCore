@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Parcel
         public override async Task Execute(PstClientPacket pstClientPacket, ClientSession clientSession)
         {
             var isCopy = pstClientPacket.Type == 2;
-            var mail = await _mailHttpClient.GetGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
+            var mail = await _mailHttpClient.GetGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
             switch (pstClientPacket.ActionType)
             {
                 case 3:
@@ -57,8 +57,8 @@ namespace NosCore.PacketHandlers.Parcel
 
                     var patch = new JsonPatchDocument<MailDto>();
                     patch.Replace(link => link.IsOpened, true);
-                    await _mailHttpClient.ViewGift(mail.MailDto.MailId, patch);
-                    await clientSession.SendPacket(mail.GeneratePostMessage(pstClientPacket.Type));
+                    await _mailHttpClient.ViewGift(mail.MailDto.MailId, patch).ConfigureAwait(false);
+                    await clientSession.SendPacket(mail.GeneratePostMessage(pstClientPacket.Type)).ConfigureAwait(false);
                     break;
                 case 2:
                     if (mail == null)
@@ -66,12 +66,12 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    await _mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
+                    await _mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
                     await clientSession.SendPacket(
                         clientSession.Character.GenerateSay(
                             GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED,
                                 clientSession.Account.Language),
-                            SayColorType.Purple));
+                            SayColorType.Purple)).ConfigureAwait(false);
                     break;
                 case 1:
                     if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
@@ -83,11 +83,11 @@ namespace NosCore.PacketHandlers.Parcel
                     if (dest != null)
                     {
                         await _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
-                            pstClientPacket.Text);
+                            pstClientPacket.Text).ConfigureAwait(false);
                         await clientSession.SendPacket(clientSession.Character.GenerateSay(
                             GameLanguage.Instance.GetMessageFromKey(
                                 LanguageKey.MAILED,
-                                clientSession.Account.Language), SayColorType.Yellow));
+                                clientSession.Account.Language), SayColorType.Yellow)).ConfigureAwait(false);
                     }
                     else
                     {
@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Parcel
                             clientSession.Character.GenerateSay(
                                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_FOUND,
                                     clientSession.Account.Language),
-                                SayColorType.Yellow));
+                                SayColorType.Yellow)).ConfigureAwait(false);
                     }
 
                     break;

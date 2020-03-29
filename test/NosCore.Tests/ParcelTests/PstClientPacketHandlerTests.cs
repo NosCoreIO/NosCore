@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NosCore.Tests.ParcelTests
@@ -29,134 +30,134 @@ namespace NosCore.Tests.ParcelTests
         {
         }
 
-        [TestMethod]
-        public void Test_SendMessage()
-        {
-            // TODO add test on gift
-            //Assert.Fail();
-            //if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
-            //{
-            //    return;
-            //}
+        //[TestMethod]
+        //public async Task Test_SendMessage()
+        //{
+        //    // TODO add test on gift
+        //    //Assert.Fail();
+        //    //if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
+        //    //{
+        //    //    return;
+        //    //}
 
-            //var dest = _characterDao.FirstOrDefault(s => s.Name == pstClientPacket.ReceiverName);
-            //if (dest != null)
-            //{
-            //    _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
-            //        pstClientPacket.Text);
-            //    clientSession.SendPacket(clientSession.Character.GenerateSay(
-            //        Language.Instance.GetMessageFromKey(
-            //            LanguageKey.MAILED,
-            //            clientSession.Account.Language), SayColorType.Yellow));
-            //}
-            //else
-            //{
-            //    clientSession.SendPacket(
-            //        clientSession.Character.GenerateSay(
-            //            Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_FOUND,
-            //                clientSession.Account.Language),
-            //            SayColorType.Yellow));
-            //}
-        }
+        //    //var dest = _characterDao.FirstOrDefault(s => s.Name == pstClientPacket.ReceiverName);
+        //    //if (dest != null)
+        //    //{
+        //    //    _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
+        //    //        pstClientPacket.Text);
+        //    //    clientSession.SendPacket(clientSession.Character.GenerateSay(
+        //    //        Language.Instance.GetMessageFromKey(
+        //    //            LanguageKey.MAILED,
+        //    //            clientSession.Account.Language), SayColorType.Yellow));
+        //    //}
+        //    //else
+        //    //{
+        //    //    clientSession.SendPacket(
+        //    //        clientSession.Character.GenerateSay(
+        //    //            Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_FOUND,
+        //    //                clientSession.Account.Language),
+        //    //            SayColorType.Yellow));
+        //    //}
+        //}
 
-        [TestMethod]
-        public void Test_SendMessageWhenNoDestination()
-        {
-            // TODO add test on gift
-            //Assert.Fail();
-            //if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
-            //{
-            //    return;
-            //}
+        //[TestMethod]
+        //public async Task Test_SendMessageWhenNoDestination()
+        //{
+        //    // TODO add test on gift
+        //    //Assert.Fail();
+        //    //if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
+        //    //{
+        //    //    return;
+        //    //}
 
-            //var dest = _characterDao.FirstOrDefault(s => s.Name == pstClientPacket.ReceiverName);
-            //if (dest != null)
-            //{
-            //    _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
-            //        pstClientPacket.Text);
-            //    clientSession.SendPacket(clientSession.Character.GenerateSay(
-            //        Language.Instance.GetMessageFromKey(
-            //            LanguageKey.MAILED,
-            //            clientSession.Account.Language), SayColorType.Yellow));
-            //}
-            //else
-            //{
-            //    clientSession.SendPacket(
-            //        clientSession.Character.GenerateSay(
-            //            Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_FOUND,
-            //                clientSession.Account.Language),
-            //            SayColorType.Yellow));
-            //}
-        }
+        //    //var dest = _characterDao.FirstOrDefault(s => s.Name == pstClientPacket.ReceiverName);
+        //    //if (dest != null)
+        //    //{
+        //    //    _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
+        //    //        pstClientPacket.Text);
+        //    //    clientSession.SendPacket(clientSession.Character.GenerateSay(
+        //    //        Language.Instance.GetMessageFromKey(
+        //    //            LanguageKey.MAILED,
+        //    //            clientSession.Account.Language), SayColorType.Yellow));
+        //    //}
+        //    //else
+        //    //{
+        //    //    clientSession.SendPacket(
+        //    //        clientSession.Character.GenerateSay(
+        //    //            Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_FOUND,
+        //    //                clientSession.Account.Language),
+        //    //            SayColorType.Yellow));
+        //    //}
+        //}
 
-        [TestMethod]
-        public void Test_SendMessageWithNoTitle()
-        {
-            // TODO add test on gift
-            //Assert.Fail();
-            //if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
-            //{
-            //    return;
-            //}
-        }
+        //[TestMethod]
+        //public async Task Test_SendMessageWithNoTitle()
+        //{
+        //    // TODO add test on gift
+        //    //Assert.Fail();
+        //    //if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
+        //    //{
+        //    //    return;
+        //    //}
+        //}
 
-        [TestMethod]
-        public void Test_SendMessageWithNoText()
-        {
-            // TODO add test on gift
-            //Assert.Fail();
-            //if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
-            //{
-            //    return;
-            //}
-        }
+        //[TestMethod]
+        //public async Task Test_SendMessageWithNoText()
+        //{
+        //    // TODO add test on gift
+        //    //Assert.Fail();
+        //    //if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
+        //    //{
+        //    //    return;
+        //    //}
+        //}
 
-        [TestMethod]
-        public void Test_ViewMessage()
-        {
-            // TODO add test on gift
-            //Assert.Fail();
-            //if (mail == null)
-            //{
-            //    return;
-            //}
+        //[TestMethod]
+        //public async Task Test_ViewMessage()
+        //{
+        //    // TODO add test on gift
+        //    //Assert.Fail();
+        //    //if (mail == null)
+        //    //{
+        //    //    return;
+        //    //}
 
-            //var patch = new JsonPatchDocument<MailDto>();
-            //patch.Replace(link => link.IsOpened, true);
-            //_mailHttpClient.ViewGift(mail.MailDto.MailId, patch);
-            //clientSession.SendPacket(mail.GeneratePostMessage(pstClientPacket.Type));
-        }
+        //    //var patch = new JsonPatchDocument<MailDto>();
+        //    //patch.Replace(link => link.IsOpened, true);
+        //    //_mailHttpClient.ViewGift(mail.MailDto.MailId, patch);
+        //    //clientSession.SendPacket(mail.GeneratePostMessage(pstClientPacket.Type));
+        //}
 
-        [TestMethod]
-        public void Test_ViewMessageNotFound()
-        {
-            // TODO add test on gift
-            //Assert.Fail();
-        }
+        //[TestMethod]
+        //public async Task Test_ViewMessageNotFound()
+        //{
+        //    // TODO add test on gift
+        //    //Assert.Fail();
+        //}
 
-        [TestMethod]
-        public void Test_DeleteMailNotFound()
-        {
-            // TODO add test on gift
-            //Assert.Fail();
-        }
+        //[TestMethod]
+        //public async Task Test_DeleteMailNotFound()
+        //{
+        //    // TODO add test on gift
+        //    //Assert.Fail();
+        //}
 
-        [TestMethod]
-        public void Test_DeleteMail()
-        {
-            // TODO add test on gift
-            //Assert.Fail();
-            //if (mail == null)
-            //{
-            //    return;
-            //}
+        //[TestMethod]
+        //public async Task Test_DeleteMail()
+        //{
+        //    // TODO add test on gift
+        //    //Assert.Fail();
+        //    //if (mail == null)
+        //    //{
+        //    //    return;
+        //    //}
 
-            //_mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
-            //clientSession.SendPacket(
-            //    clientSession.Character.GenerateSay(
-            //        Language.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED,
-            //            clientSession.Account.Language),
-            //        SayColorType.Purple));
-        }
+        //    //_mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
+        //    //clientSession.SendPacket(
+        //    //    clientSession.Character.GenerateSay(
+        //    //        Language.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED,
+        //    //            clientSession.Account.Language),
+        //    //        SayColorType.Purple));
+        //}
     }
 }

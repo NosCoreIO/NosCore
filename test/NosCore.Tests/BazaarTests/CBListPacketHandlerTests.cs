@@ -75,7 +75,7 @@ namespace NosCore.Tests.BazaarTests
                     It.IsAny<byte>(),
                     It.IsAny<long?>())
             ).ReturnsAsync(new List<BazaarLink>());
-            await _cblistPacketHandler!.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!);
+            await _cblistPacketHandler!.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!).ConfigureAwait(false);
             var lastpacket = (RcbListPacket?) _session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket?.Items?.Count == 0);
         }
@@ -104,7 +104,7 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 }
             });
-            await _cblistPacketHandler!.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!);
+            await _cblistPacketHandler!.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!).ConfigureAwait(false);
             var lastpacket = (RcbListPacket?) _session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket?.Items?.Count == 1);
         }
@@ -132,7 +132,7 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 }
             });
-            await _cblistPacketHandler!.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!);
+            await _cblistPacketHandler!.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!).ConfigureAwait(false);
             var lastpacket = (RcbListPacket?) _session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket?.Items?.Count == 0);
         }

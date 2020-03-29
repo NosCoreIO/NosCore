@@ -79,7 +79,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
                         clientSession.Account.Language)
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -102,7 +102,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED,
                         clientSession.Account.Language)
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -153,7 +153,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 IsPackage = cRegPacket.IsPackage != 0,
                 Duration = duration,
                 Amount = cRegPacket.Amount
-            });
+            }).ConfigureAwait(false);
 
             switch (result)
             {
@@ -162,7 +162,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.LIMIT_EXCEEDED,
                             clientSession.Account.Language)
-                    });
+                    }).ConfigureAwait(false);
                     break;
 
                 case LanguageKey.OBJECT_IN_BAZAAR:
@@ -179,20 +179,20 @@ namespace NosCore.PacketHandlers.Bazaar
 
                     await clientSession.SendPacket(((InventoryItemInstance?)null).GeneratePocketChange(
                         cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType) cRegPacket.Inventory,
-                        cRegPacket.Slot));
+                        cRegPacket.Slot)).ConfigureAwait(false);
                     clientSession.Character.Gold -= tax;
-                    await clientSession.SendPacket(clientSession.Character.GenerateGold());
+                    await clientSession.SendPacket(clientSession.Character.GenerateGold()).ConfigureAwait(false);
 
                     await clientSession.SendPacket(clientSession.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(
                         LanguageKey.OBJECT_IN_BAZAAR,
-                        clientSession.Account.Language), SayColorType.Yellow));
+                        clientSession.Account.Language), SayColorType.Yellow)).ConfigureAwait(false);
                     await clientSession.SendPacket(new MsgPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR,
                             clientSession.Account.Language)
-                    });
+                    }).ConfigureAwait(false);
 
-                    await clientSession.SendPacket(new RCRegPacket {Type = VisualType.Player});
+                    await clientSession.SendPacket(new RCRegPacket {Type = VisualType.Player}).ConfigureAwait(false);
                     break;
             }
         }

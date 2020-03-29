@@ -86,7 +86,7 @@ namespace NosCore.Tests.InventoryTests
         [DataRow(EquipmentType.CostumeHat)]
         [DataRow(EquipmentType.WeaponSkin)]
         [DataRow(EquipmentType.WingSkin)]
-        public void Test_Wear_Put_Item_CorrectSlot(EquipmentType type)
+        public async Task Test_Wear_Put_Item_CorrectSlot(EquipmentType type)
         {
             var items = new List<ItemDto>
             {
@@ -102,7 +102,7 @@ namespace NosCore.Tests.InventoryTests
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
-            _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s =>
                 (s.Value.Slot == (short)type) && (s.Value.Type == NoscorePocketType.Wear)));
         }
@@ -113,7 +113,7 @@ namespace NosCore.Tests.InventoryTests
         [DataRow(CharacterClassType.Magician)]
         [DataRow(CharacterClassType.MartialArtist)]
         [DataRow(CharacterClassType.Swordman)]
-        public void Test_Wear_Put_Item_BadClass(CharacterClassType classToTest)
+        public async Task Test_Wear_Put_Item_BadClass(CharacterClassType classToTest)
         {
             _session!.Character.Class = classToTest;
             var items = new List<ItemDto>
@@ -130,7 +130,7 @@ namespace NosCore.Tests.InventoryTests
 
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
-            _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
@@ -141,7 +141,7 @@ namespace NosCore.Tests.InventoryTests
             {
                 _session.Character.Class = validClass;
                 var item = _session.Character.InventoryService.First();
-                _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+                await _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
                 Assert.IsTrue(item.Value.Type == NoscorePocketType.Wear);
                 item.Value.Type = NoscorePocketType.Equipment;
                 item.Value.Slot = 0;
@@ -152,7 +152,7 @@ namespace NosCore.Tests.InventoryTests
         [DataTestMethod]
         [DataRow(GenderType.Female)]
         [DataRow(GenderType.Male)]
-        public void Test_Wear_Put_Item_BadGender(GenderType genderToTest)
+        public async Task Test_Wear_Put_Item_BadGender(GenderType genderToTest)
         {
             _session!.Character.Gender = genderToTest;
             var items = new List<ItemDto>
@@ -169,7 +169,7 @@ namespace NosCore.Tests.InventoryTests
 
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
-            _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
@@ -180,7 +180,7 @@ namespace NosCore.Tests.InventoryTests
             {
                 _session.Character.Gender = validClass;
                 var item = _session.Character.InventoryService.First();
-                _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+                await _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
                 Assert.IsTrue(item.Value.Type == NoscorePocketType.Wear);
                 item.Value.Type = NoscorePocketType.Equipment;
                 item.Value.Slot = 0;
@@ -188,7 +188,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public void Test_Wear_BadJobLevel()
+        public async Task Test_Wear_BadJobLevelAsync()
         {
             _session!.Character.JobLevel = 1;
             var items = new List<ItemDto>
@@ -205,7 +205,7 @@ namespace NosCore.Tests.InventoryTests
                     {new WearEventHandler(Logger)});
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
-            _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOW_JOB_LVL,
@@ -213,7 +213,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public void Test_Wear_GoodJobLevel()
+        public async Task Test_Wear_GoodJobLevel()
         {
             _session!.Character.JobLevel = 3;
             var items = new List<ItemDto>
@@ -230,12 +230,12 @@ namespace NosCore.Tests.InventoryTests
                     {new WearEventHandler(Logger)});
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
-            _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Wear));
         }
 
         [TestMethod]
-        public void Test_Wear_BadLevel()
+        public async Task Test_Wear_BadLevel()
         {
             _session!.Character.Level = 1;
             var items = new List<ItemDto>
@@ -252,7 +252,7 @@ namespace NosCore.Tests.InventoryTests
                     {new WearEventHandler(Logger)});
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
-            _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
@@ -260,7 +260,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public void Test_Wear_GoodLevel()
+        public async Task Test_Wear_GoodLevel()
         {
             _session!.Character.Level = 3;
             var items = new List<ItemDto>
@@ -277,12 +277,12 @@ namespace NosCore.Tests.InventoryTests
                     {new WearEventHandler(Logger)});
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
-            _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Wear));
         }
 
         [TestMethod]
-        public void Test_Wear_BadHeroLevel()
+        public async Task Test_Wear_BadHeroLevel()
         {
             _session!.Character.HeroLevel = 1;
             var items = new List<ItemDto>
@@ -300,7 +300,7 @@ namespace NosCore.Tests.InventoryTests
                     {new WearEventHandler(Logger)});
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
-            _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
@@ -326,7 +326,7 @@ namespace NosCore.Tests.InventoryTests
                     {new WearEventHandler(Logger)});
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
-            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Wear));
         }
 
@@ -347,7 +347,7 @@ namespace NosCore.Tests.InventoryTests
                     {new WearEventHandler(Logger)});
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1, -2),
                 _session.Character.CharacterId));
-            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
 
             Assert.IsTrue(_session.Character.InventoryService.Any(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
@@ -356,7 +356,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public void Test_Wear_SpInUse()
+        public async Task Test_Wear_SpInUse()
         {
             _session!.Character.HeroLevel = 1;
             var items = new List<ItemDto>
@@ -379,9 +379,9 @@ namespace NosCore.Tests.InventoryTests
                 _session.Character.CharacterId));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1),
                 _session.Character.CharacterId));
-            _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             _session.Character.UseSp = true;
-            _wearPacketHandler.Execute(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler.Execute(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance!.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
@@ -413,9 +413,9 @@ namespace NosCore.Tests.InventoryTests
                 _session.Character.CharacterId));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1),
                 _session.Character.CharacterId));
-            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             _session.Character.SpCooldown = 30;
-            await _wearPacketHandler.Execute(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler.Execute(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance!.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
@@ -426,7 +426,7 @@ namespace NosCore.Tests.InventoryTests
 
 
         [TestMethod]
-        public void Test_Wear_WearFairy_SpUseBadElement()
+        public async Task Test_Wear_WearFairy_SpUseBadElement()
         {
             var items = new List<ItemDto>
             {
@@ -450,9 +450,9 @@ namespace NosCore.Tests.InventoryTests
                 _session.Character.CharacterId));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1),
                 _session.Character.CharacterId));
-            _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             _session.Character.UseSp = true;
-            _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance!.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Equipment)));
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
@@ -485,9 +485,9 @@ namespace NosCore.Tests.InventoryTests
                 _session.Character.CharacterId));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1),
                 _session.Character.CharacterId));
-            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             _session.Character.UseSp = true;
-            await _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(
                 _session.Character.InventoryService.Any(s =>
                     (s.Value.ItemInstance!.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Wear)));
@@ -518,9 +518,9 @@ namespace NosCore.Tests.InventoryTests
                 _session.Character.CharacterId));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1),
                 _session.Character.CharacterId));
-            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             _session.Character.UseSp = true;
-            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(
                 _session.Character.InventoryService.Any(s =>
                     (s.Value.ItemInstance?.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Wear)));
@@ -539,7 +539,7 @@ namespace NosCore.Tests.InventoryTests
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
-            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
+            await _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
 
             var packet = (QnaPacket?)_session.LastPackets.FirstOrDefault(s => s is QnaPacket);
             Assert.IsTrue(packet?.YesPacket is UseItemPacket yespacket

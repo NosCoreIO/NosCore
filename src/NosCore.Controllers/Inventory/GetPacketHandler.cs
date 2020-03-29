@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.Inventory
 
         public override async Task Execute(GetPacket getPacket, ClientSession clientSession)
         {
-            if (!clientSession.Character.MapInstance!.MapItems.ContainsKey(getPacket.VisualId))
+            if (!clientSession.Character.MapInstance.MapItems.ContainsKey(getPacket.VisualId))
             {
                 return;
             }
@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Inventory
             {
                 await clientSession.SendPacket(clientSession.Character.GenerateSay(
                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, clientSession.Account.Language),
-                    SayColorType.Yellow));
+                    SayColorType.Yellow)).ConfigureAwait(false);
                 return;
             }
 

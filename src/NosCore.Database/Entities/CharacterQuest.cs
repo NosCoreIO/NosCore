@@ -23,11 +23,11 @@ namespace NosCore.Database.Entities
 {
     public class CharacterQuest : SynchronizableBaseEntity
     {
-        public virtual Character Character { get; set; } = new Character();
+        public virtual Character Character { get; set; } = null!;
 
         public long CharacterId { get; set; }
 
-        public virtual Quest Quest { get; set; } = new Quest();
+        public virtual Quest Quest { get; set; } = null!;
 
         public short QuestId { get; set; }
 

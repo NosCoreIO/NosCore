@@ -93,7 +93,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                         CharacterId = targetSession.Character.VisualId
                     }
                 }));
-            await _blPacketHandler!.Execute(blPacket, _session);
+            await _blPacketHandler!.Execute(blPacket, _session).ConfigureAwait(false);
             Assert.IsTrue(_characterRelationDao!.FirstOrDefault(s =>
                 (s.CharacterId == _session.Character.CharacterId) &&
                 (s.RelatedCharacterId == targetSession.Character.CharacterId)

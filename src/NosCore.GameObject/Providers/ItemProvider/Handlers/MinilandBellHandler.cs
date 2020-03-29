@@ -50,14 +50,14 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
 
-            if (requestData.ClientSession.Character.MapInstance!.MapInstanceType != MapInstanceType.BaseMapInstance)
+            if (requestData.ClientSession.Character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance)
             {
                 await requestData.ClientSession.Character.SendPacket(new SayPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_USE,
                         requestData.ClientSession.Character.Account.Language),
                     Type = SayColorType.Yellow
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_USE_IN_VEHICLE,
                         requestData.ClientSession.Character.Account.Language),
                     Type = SayColorType.Yellow
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -81,15 +81,15 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType) itemInstance.Type,
                         itemInstance.Slot,
                         2, 0)
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
             await requestData.ClientSession.SendPacket(
-                itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot));
+                itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
             var miniland = _minilandProvider.GetMiniland(requestData.ClientSession.Character.CharacterId);
-            await requestData.ClientSession.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
+            await requestData.ClientSession.ChangeMapInstance(miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
         }
     }
 }

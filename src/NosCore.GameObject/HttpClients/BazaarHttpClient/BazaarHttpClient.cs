@@ -47,10 +47,10 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
             byte packetSubTypeFilter,
             byte packetLevelFilter, byte packetRareFilter, byte packetUpgradeFilter, long? sellerFilter)
         {
-            var client = await Connect();
+            var client = await Connect().ConfigureAwait(false);
             var response = await client
                 .GetAsync(
-                    $"{ApiUrl}?id={i}&Index={packetIndex}&PageSize={pagesize}&TypeFilter={packetTypeFilter}&SubTypeFilter={packetSubTypeFilter}&LevelFilter={packetLevelFilter}&RareFilter={packetRareFilter}&UpgradeFilter={packetUpgradeFilter}&SellerFilter={sellerFilter}");
+                    $"{ApiUrl}?id={i}&Index={packetIndex}&PageSize={pagesize}&TypeFilter={packetTypeFilter}&SubTypeFilter={packetSubTypeFilter}&LevelFilter={packetLevelFilter}&RareFilter={packetRareFilter}&UpgradeFilter={packetUpgradeFilter}&SellerFilter={sellerFilter}").ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
                 return JsonSerializer.Deserialize<List<BazaarLink>>(response.Content.ReadAsStringAsync().Result, new JsonSerializerOptions
@@ -69,17 +69,17 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
 
         public async Task<BazaarLink?> GetBazaarLink(long bazaarId)
         {
-            return (await Get<List<BazaarLink?>>(bazaarId)!).FirstOrDefault();
+            return (await Get<List<BazaarLink?>>(bazaarId)!.ConfigureAwait(false)).FirstOrDefault();
         }
 
         public async Task<bool> Remove(long bazaarId, int count, string requestCharacterName)
         {
-            var client = await Connect();
+            var client = await Connect().ConfigureAwait(false);
             var response = await client
-                .DeleteAsync($"{ApiUrl}?id={bazaarId}&Count={count}&requestCharacterName={requestCharacterName}");
+                .DeleteAsync($"{ApiUrl}?id={bazaarId}&Count={count}&requestCharacterName={requestCharacterName}").ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                return JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions
+                return JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
