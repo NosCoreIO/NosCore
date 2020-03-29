@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Exchange
                     {
                         await clientSession.SendPacket(new MsgPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE,
                                 clientSession.Account.Language),
                             Type = MessageType.White
                         });
@@ -88,7 +88,7 @@ namespace NosCore.PacketHandlers.Exchange
                     if (target?.ExchangeBlocked ?? true)
                     {
                         await clientSession.SendPacket(clientSession.Character.GenerateSay(
-                            Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED,
+                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED,
                                 clientSession.Account.Language),
                             SayColorType.Purple));
                         return;
@@ -99,7 +99,7 @@ namespace NosCore.PacketHandlers.Exchange
                     {
                         await clientSession.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
                                 clientSession.Account.Language)
                         });
                         return;
@@ -110,7 +110,7 @@ namespace NosCore.PacketHandlers.Exchange
                         await clientSession.SendPacket(new MsgPacket
                         {
                             Message =
-                                Language.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED,
+                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED,
                                     clientSession.Account.Language),
                             Type = MessageType.White
                         });
@@ -119,7 +119,7 @@ namespace NosCore.PacketHandlers.Exchange
 
                     await clientSession.SendPacket(new ModalPacket
                     {
-                        Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE,
+                        Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE,
                             clientSession.Account.Language), target.Name),
                         Type = 0
                     });
@@ -130,7 +130,7 @@ namespace NosCore.PacketHandlers.Exchange
                         { RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId },
                         NoPacket = new ExchangeRequestPacket
                         { RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId },
-                        Question = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
+                        Question = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
                             clientSession.Account.Language), clientSession.Character.Name)
                     });
                     return;
@@ -147,7 +147,7 @@ namespace NosCore.PacketHandlers.Exchange
 
                 case RequestExchangeType.Declined:
                     await clientSession.SendPacket(clientSession.Character.GenerateSay(
-                        Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED,
+                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED,
                             clientSession.Account.Language),
                         SayColorType.Yellow));
                     await (target == null ? Task.CompletedTask : target.SendPacket(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED),
@@ -179,7 +179,7 @@ namespace NosCore.PacketHandlers.Exchange
                     {
                         await clientSession.SendPacket(new InfoPacket
                         {
-                            Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR,
+                            Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR,
                                 clientSession.Account.Language), exchangeTarget.Name)
                         });
                         return;

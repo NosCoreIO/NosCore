@@ -19,7 +19,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Chat
 
             if (friendlist.All(s => s.CharacterId != btkPacket.CharacterId))
             {
-                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
+                _logger.Error(GameLanguage.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
                     session.Account.Language));
                 return;
             }
@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Chat
             {
                 await session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, session.Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, session.Account.Language)
                 });
                 return;
             }

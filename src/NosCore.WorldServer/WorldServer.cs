@@ -23,7 +23,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using NosCore.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Event;

@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.Inventory
                 (mapItem.OwnerId != clientSession.Character.CharacterId))
             {
                 await clientSession.SendPacket(clientSession.Character.GenerateSay(
-                    Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, clientSession.Account.Language),
+                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, clientSession.Account.Language),
                     SayColorType.Yellow));
                 return;
             }

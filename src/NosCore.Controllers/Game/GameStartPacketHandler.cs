@@ -35,8 +35,8 @@ using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -116,7 +116,7 @@ namespace NosCore.PacketHandlers.Game
             var medal = session.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
             if (medal != null)
             {
-                await session.SendPacket(session.Character.GenerateSay(Language.Instance.GetMessageFromKey(LanguageKey.LOGIN_MEDAL, session.Account.Language), SayColorType.Green));
+                await session.SendPacket(session.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOGIN_MEDAL, session.Account.Language), SayColorType.Green));
             }
 
             //            if (Session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.PetBasket))
@@ -215,11 +215,11 @@ namespace NosCore.PacketHandlers.Game
             int mailcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId == null && !mail.IsOpened);
             if (giftcount > 0)
             {
-                await session.SendPacket(session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.GIFTED, session.Account.Language), giftcount), SayColorType.Purple));
+                await session.SendPacket(session.Character.GenerateSay(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.GIFTED, session.Account.Language), giftcount), SayColorType.Purple));
             }
             if (mailcount > 0)
             {
-                await session.SendPacket(session.Character.GenerateSay(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.NEW_MAIL, session.Account.Language), mailcount), SayColorType.Yellow));
+                await session.SendPacket(session.Character.GenerateSay(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.NEW_MAIL, session.Account.Language), mailcount), SayColorType.Yellow));
             }
             //            Session.Character.DeleteTimeout();
 

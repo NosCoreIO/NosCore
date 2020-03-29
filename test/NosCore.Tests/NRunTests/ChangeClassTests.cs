@@ -75,7 +75,7 @@ namespace NosCore.Tests.NRunTests
             }, _session);
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
+            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
                 _session.Account.Language)) && (packet?.Type == MessageType.White));
         }
 
@@ -95,7 +95,7 @@ namespace NosCore.Tests.NRunTests
             }, _session);
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
+            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
                 _session.Account.Language)) && (packet?.Type == MessageType.White));
         }
 
@@ -115,7 +115,7 @@ namespace NosCore.Tests.NRunTests
             }, _session);
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
+            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
                 _session.Account.Language)) && (packet?.Type == MessageType.White));
         }
 
@@ -179,7 +179,7 @@ namespace NosCore.Tests.NRunTests
             }, _session);
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
+            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
                 _session.Account.Language)) && (packet?.Type == MessageType.White));
         }
     }

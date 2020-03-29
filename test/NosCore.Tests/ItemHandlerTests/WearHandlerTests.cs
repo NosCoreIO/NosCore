@@ -171,7 +171,7 @@ namespace NosCore.Tests.ItemHandlerTests
             Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
             await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (MsgPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
                     Session.Account.Language), lastpacket?.Message);
         }
 
@@ -188,7 +188,7 @@ namespace NosCore.Tests.ItemHandlerTests
             Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
             await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (MsgPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
+            Assert.AreEqual(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
                     Session.Account.Language),
                 Session.Character.SpCooldown), lastpacket?.Message);
         }
@@ -205,7 +205,7 @@ namespace NosCore.Tests.ItemHandlerTests
             await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (SayPacket?)Session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.AreEqual(
-                Language.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED, Session.Account.Language), 
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED, Session.Account.Language), 
                 lastpacket?.Message);
         }
 
@@ -219,7 +219,7 @@ namespace NosCore.Tests.ItemHandlerTests
             itemInstance.ItemInstance!.Rare = -2;
             await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (MsgPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
                     Session.Account.Language), lastpacket?.Message);
         }
 
@@ -232,7 +232,7 @@ namespace NosCore.Tests.ItemHandlerTests
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (SayPacket?)Session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.LOW_JOB_LVL,
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOW_JOB_LVL,
                     Session.Account.Language), lastpacket?.Message);
         }
 

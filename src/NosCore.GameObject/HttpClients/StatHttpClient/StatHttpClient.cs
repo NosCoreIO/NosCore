@@ -24,7 +24,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using NosCore.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject.HttpClients.StatHttpClient

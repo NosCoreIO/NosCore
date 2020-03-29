@@ -63,12 +63,12 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                 }
 
                 await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
-                    $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}: {inv.ItemInstance!.Item!.Name[requestData.ClientSession.Account.Language]} x {amount}",
+                    $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}: {inv.ItemInstance!.Item!.Name[requestData.ClientSession.Account.Language]} x {amount}",
                     SayColorType.Green));
                 if (requestData.ClientSession.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
                 {
                     var name = string.Format(
-                        Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED_LOD,
+                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED_LOD,
                             requestData.ClientSession.Account.Language), requestData.ClientSession.Character.Name);
                     await requestData.ClientSession.Character.MapInstance.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
@@ -80,7 +80,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             {
                 await requestData.ClientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         requestData.ClientSession.Account.Language),
                     Type = 0
                 });

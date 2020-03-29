@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Command
         public override Task Execute(ShoutPacket shoutPacket, ClientSession session)
         {
             var message =
-                $"({Language.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, session.Account.Language)}) {shoutPacket.Message}";
+                $"({GameLanguage.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, session.Account.Language)}) {shoutPacket.Message}";
             var sayPacket = new SayPacket
             {
                 VisualType = VisualType.Player,

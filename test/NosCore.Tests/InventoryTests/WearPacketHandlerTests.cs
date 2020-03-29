@@ -133,7 +133,7 @@ namespace NosCore.Tests.InventoryTests
             _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
+            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
                 _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
 
             foreach (var validClass in Enum.GetValues(typeof(CharacterClassType)).OfType<CharacterClassType>()
@@ -172,7 +172,7 @@ namespace NosCore.Tests.InventoryTests
             _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
+            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
                 _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
 
             foreach (var validClass in Enum.GetValues(typeof(GenderType)).OfType<GenderType>()
@@ -208,7 +208,7 @@ namespace NosCore.Tests.InventoryTests
             _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.LOW_JOB_LVL,
+            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOW_JOB_LVL,
                 _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
         }
 
@@ -255,7 +255,7 @@ namespace NosCore.Tests.InventoryTests
             _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
+            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
                 _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
         }
 
@@ -303,7 +303,7 @@ namespace NosCore.Tests.InventoryTests
             _wearPacketHandler!.Execute(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
+            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT,
                 _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
         }
 
@@ -351,7 +351,7 @@ namespace NosCore.Tests.InventoryTests
 
             Assert.IsTrue(_session.Character.InventoryService.Any(s => s.Value.Type == NoscorePocketType.Equipment));
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
+            Assert.IsTrue(packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
                 _session.Account.Language));
         }
 
@@ -385,7 +385,7 @@ namespace NosCore.Tests.InventoryTests
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance!.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));
             var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED,
+            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED,
                 _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
         }
 
@@ -420,7 +420,7 @@ namespace NosCore.Tests.InventoryTests
                 (s.Value.ItemInstance!.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
-                string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language),
+                string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language),
                     30));
         }
 
@@ -456,7 +456,7 @@ namespace NosCore.Tests.InventoryTests
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance!.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Equipment)));
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
+            Assert.IsTrue(packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
                 _session.Account.Language));
         }
 

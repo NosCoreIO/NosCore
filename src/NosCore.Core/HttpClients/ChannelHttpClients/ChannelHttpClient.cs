@@ -26,9 +26,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
-using System.Text.Json;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -38,7 +38,7 @@ using NosCore.Data.Enumerations.I18N;
 using Polly;
 using Serilog;
 
-namespace NosCore.Core.HttpClients.ChannelHttpClient
+namespace NosCore.Core.HttpClients.ChannelHttpClients
 {
     public class ChannelHttpClient : IChannelHttpClient
     {

@@ -70,7 +70,7 @@ namespace NosCore.Tests.GuriHandlerTests
                 VisualId = 0
             });
             var lastpacket = (InfoPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
                 Session.Account.Language), lastpacket?.Message);
             Assert.AreEqual(1, Session.Character.Titles.Count);
         }

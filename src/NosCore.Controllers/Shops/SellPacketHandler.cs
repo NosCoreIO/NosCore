@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Shops
                     clientSession.SendPacket(new SMemoPacket
                     {
                         Type = SMemoType.Error,
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE,
                             clientSession.Account.Language)
                     });
                     return Task.CompletedTask;
@@ -79,7 +79,7 @@ namespace NosCore.PacketHandlers.Shops
                 {
                     clientSession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
                             clientSession.Account.Language),
                         Type = 0
                     });
@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.Shops
                 {
                     Type = SMemoType.Success,
                     Message = string.Format(
-                        Language.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE,
+                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE,
                             clientSession.Account.Language),
                         inv.ItemInstance.Item.Name[clientSession.Account.Language],
                         sellPacket.Amount.Value

@@ -104,7 +104,7 @@ namespace NosCore.PacketHandlers.Bazaar
                                 Unknown3 = 0
                             });
                             await clientSession.SendPacket(clientSession.Character.GenerateSay(
-                                $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, clientSession.Account.Language)}: {item.Item!.Name[clientSession.Account.Language]} x {packet.Amount}"
+                                $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, clientSession.Account.Language)}: {item.Item!.Name[clientSession.Account.Language]} x {packet.Amount}"
                                 , SayColorType.Yellow
                             ));
 
@@ -116,12 +116,12 @@ namespace NosCore.PacketHandlers.Bazaar
                     else
                     {
                         await clientSession.SendPacket(clientSession.Character.GenerateSay(
-                            Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
+                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
                                 clientSession.Account.Language), SayColorType.Yellow
                         ));
                         await clientSession.SendPacket(new ModalPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
                                 clientSession.Account.Language),
                             Type = 1
                         });
@@ -132,7 +132,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     await clientSession.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                             clientSession.Account.Language)
                     });
                     return;
@@ -141,7 +141,7 @@ namespace NosCore.PacketHandlers.Bazaar
 
             await clientSession.SendPacket(new ModalPacket
             {
-                Message = Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR,
+                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR,
                     clientSession.Account.Language),
                 Type = 1
             });

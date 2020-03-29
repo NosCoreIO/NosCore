@@ -130,7 +130,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 _minilandObject!.InventoryItemInstance!.ItemInstance!.DurabilityPoint += point;
                 await _clientSession.SendPacket(new InfoPacket
                 {
-                    Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.REFILL_MINIGAME,
+                    Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.REFILL_MINIGAME,
                         _clientSession.Account.Language), point)
                 });
                 await ShowMinilandManagment();
@@ -206,7 +206,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     if (inv != null && inv.Count != 0)
                     {
                         await _clientSession.SendPacket(_clientSession.Character.GenerateSay(
-                            $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, _clientSession.Account.Language)}: {item.Item!.Name[_clientSession.Account.Language]} x {amount}",
+                            $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, _clientSession.Account.Language)}: {item.Item!.Name[_clientSession.Account.Language]} x {amount}",
                             SayColorType.Green));
                     }
 
@@ -272,7 +272,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     (int)(_minigamePacket.Point / 100);
                 await _clientSession.SendPacket(new InfoPacket
                 {
-                    Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.REFILL_MINIGAME,
+                    Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.REFILL_MINIGAME,
                         _clientSession.Account.Language), (int)(_minigamePacket.Point / 100))
                 });
                 await ShowMinilandManagment();
@@ -376,7 +376,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             {
                 await _clientSession!.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_DURABILITY_POINT,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_DURABILITY_POINT,
                         _clientSession.Account.Language)
                 });
                 return;
@@ -394,7 +394,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                         Point = 1,
                         Unknown = 1
                     },
-                    Question = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MINILAND_POINT,
+                    Question = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MINILAND_POINT,
                         _clientSession.Account.Language)
                 });
                 return;

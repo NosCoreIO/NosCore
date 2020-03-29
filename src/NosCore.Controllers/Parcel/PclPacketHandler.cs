@@ -72,7 +72,7 @@ namespace NosCore.PacketHandlers.Parcel
                 {
                     await clientSession.SendPacket(clientSession.Character.GenerateSay(
                         string.Format(
-                            Language.Instance.GetMessageFromKey(LanguageKey.ITEM_RECEIVED,
+                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_RECEIVED,
                                 clientSession.Account.Language),
                             newInv.ItemInstance!.Item!.Name, newInv.ItemInstance.Amount), SayColorType.Green));
                     await clientSession.SendPacket(
@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Parcel
                     await clientSession.SendPacket(new ParcelPacket {Type = 5, Unknown = 1, Id = 0});
                     await clientSession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                             clientSession.Account.Language),
                         Type = 0
                     });

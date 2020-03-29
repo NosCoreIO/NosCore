@@ -28,7 +28,7 @@ using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -160,7 +160,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
 
             await _blDelPacketHandler!.Execute(blDelPacket, _session);
             var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
                 _session.Account.Language), lastpacket!.Message);
         }
     }

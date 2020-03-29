@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Group
 
             if ((targetSession == null) && (pjoinPacket.RequestType != GroupRequestType.Sharing))
             {
-                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.UNABLE_TO_REQUEST_GROUP,
+                _logger.Error(GameLanguage.Instance.GetMessageFromKey(LanguageKey.UNABLE_TO_REQUEST_GROUP,
                     clientSession.Account.Language));
                 return;
             }
@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.Group
                     {
                         await clientSession.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
                                 clientSession.Account.Language)
                         });
                         return;
@@ -85,7 +85,7 @@ namespace NosCore.PacketHandlers.Group
                     {
                         await clientSession.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_IN_GROUP,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_IN_GROUP,
                                 clientSession.Account.Language)
                         });
                         return;
@@ -96,7 +96,7 @@ namespace NosCore.PacketHandlers.Group
                     {
                         await clientSession.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
                                 clientSession.Account.Language)
                         });
                         return;
@@ -106,7 +106,7 @@ namespace NosCore.PacketHandlers.Group
                     {
                         await clientSession.SendPacket(new MsgPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_BLOCKED,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_BLOCKED,
                                 clientSession.Account.Language)
                         });
                         return;
@@ -120,7 +120,7 @@ namespace NosCore.PacketHandlers.Group
                             await clientSession.SendPacket(new InfoPacket
                             {
                                 Message = string.Format(
-                                    Language.Instance.GetMessageFromKey(LanguageKey.DELAY_GROUP_REQUEST,
+                                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.DELAY_GROUP_REQUEST,
                                         clientSession.Account.Language), diffTimeSpan.Seconds)
                             });
                             return;
@@ -141,7 +141,7 @@ namespace NosCore.PacketHandlers.Group
                         await targetSession.SendPacket(new DlgPacket
                         {
                             Question = string.Format(
-                                Language.Instance.GetMessageFromKey(LanguageKey.INVITED_YOU_GROUP,
+                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVITED_YOU_GROUP,
                                     targetSession.AccountLanguage), clientSession.Character.Name),
                             YesPacket = new PjoinPacket
                             {
@@ -166,7 +166,7 @@ namespace NosCore.PacketHandlers.Group
 
                     await clientSession.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_SHARE_INFO,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_SHARE_INFO,
                             clientSession.Account.Language)
                     });
 
@@ -186,7 +186,7 @@ namespace NosCore.PacketHandlers.Group
                             session.GroupRequestCharacterIds.TryAdd(s.Item2.VisualId, s.Item2.VisualId);
                             session.SendPacket(new DlgPacket
                             {
-                                Question = Language.Instance.GetMessageFromKey(LanguageKey.INVITED_GROUP_SHARE,
+                                Question = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVITED_GROUP_SHARE,
                                     clientSession.Account.Language),
                                 YesPacket = new PjoinPacket
                                 {
@@ -219,13 +219,13 @@ namespace NosCore.PacketHandlers.Group
                     {
                         await clientSession.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
                                 clientSession.Account.Language)
                         });
 
                         await targetSession!.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
                                 targetSession.AccountLanguage)
                         });
                         return;
@@ -236,7 +236,7 @@ namespace NosCore.PacketHandlers.Group
                         targetSession.JoinGroup(clientSession.Character.Group);
                         await targetSession.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP,
                                 targetSession.AccountLanguage)
                         });
                     }
@@ -253,13 +253,13 @@ namespace NosCore.PacketHandlers.Group
                         targetSession.JoinGroup(clientSession.Character.Group);
                         await clientSession.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP,
                                 clientSession.Account.Language)
                         });
 
                         await targetSession.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_ADMIN,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_ADMIN,
                                 targetSession.AccountLanguage)
                         });
 
@@ -297,7 +297,7 @@ namespace NosCore.PacketHandlers.Group
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
                     await targetSession.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_REFUSED,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_REFUSED,
                             targetSession.AccountLanguage)
                     });
                     break;
@@ -315,7 +315,7 @@ namespace NosCore.PacketHandlers.Group
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
                     await clientSession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.ACCEPTED_SHARE,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ACCEPTED_SHARE,
                             clientSession.Account.Language),
                         Type = MessageType.White
                     });
@@ -331,7 +331,7 @@ namespace NosCore.PacketHandlers.Group
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
                     await targetSession.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.SHARED_REFUSED,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHARED_REFUSED,
                             targetSession.AccountLanguage)
                     });
                     break;

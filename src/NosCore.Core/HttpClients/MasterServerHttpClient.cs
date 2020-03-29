@@ -26,7 +26,7 @@ using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using System.Text.Json;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 
 namespace NosCore.Core.HttpClients
 {

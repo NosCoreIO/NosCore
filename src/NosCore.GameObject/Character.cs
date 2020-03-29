@@ -251,7 +251,7 @@ namespace NosCore.GameObject
             await SendPacket(new MsgPacket
             {
                 Type = MessageType.White,
-                Message = Language.Instance.GetMessageFromKey(LanguageKey.HERO_LEVEL_CHANGED, Session.Account.Language)
+                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.HERO_LEVEL_CHANGED, Session.Account.Language)
             });
         }
 
@@ -274,7 +274,7 @@ namespace NosCore.GameObject
             await SendPacket(new MsgPacket
             {
                 Type = MessageType.White,
-                Message = Language.Instance.GetMessageFromKey(LanguageKey.JOB_LEVEL_CHANGED, Session.Account.Language)
+                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.JOB_LEVEL_CHANGED, Session.Account.Language)
             });
         }
 
@@ -311,7 +311,7 @@ namespace NosCore.GameObject
                         await groupMember.SendPacket(Group.GeneratePidx(groupMember));
                         await groupMember.SendPacket(new MsgPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
                                 groupMember.AccountLanguage),
                             Type = MessageType.White
                         });
@@ -429,7 +429,7 @@ namespace NosCore.GameObject
             if (Class == classType)
             {
                 _logger.Error(
-                    Language.Instance.GetMessageFromKey(LanguageKey.CANT_CHANGE_SAME_CLASS, Account.Language));
+                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_CHANGE_SAME_CLASS, Account.Language));
                 return;
             }
 
@@ -458,7 +458,7 @@ namespace NosCore.GameObject
             await SendPacket(this.GenerateCMode());
             await SendPacket(new MsgPacket
             {
-                Message = Language.Instance.GetMessageFromKey(LanguageKey.CLASS_CHANGED, Account.Language),
+                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CLASS_CHANGED, Account.Language),
                 Type = MessageType.White
             });
 
@@ -508,7 +508,7 @@ namespace NosCore.GameObject
             Gold = gold;
             await SendPacket(this.GenerateGold());
             await SendPacket(this.GenerateSay(
-                 Language.Instance.GetMessageFromKey(LanguageKey.UPDATE_GOLD, Session.Account.Language),
+                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.UPDATE_GOLD, Session.Account.Language),
                  SayColorType.Purple));
         }
 
@@ -517,7 +517,7 @@ namespace NosCore.GameObject
             Reput = reput;
             await SendPacket(GenerateFd());
             await SendPacket(this.GenerateSay(
-                Language.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language),
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language),
                 SayColorType.Purple));
         }
         public async Task GenerateMail(IEnumerable<MailData> mails)
@@ -634,7 +634,7 @@ namespace NosCore.GameObject
                 await SendPacket(new SMemoPacket
                 {
                     Type = SMemoType.FatalError,
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, Account.Language)
                 });
                 return;
             }
@@ -644,7 +644,7 @@ namespace NosCore.GameObject
                 await SendPacket(new SMemoPacket
                 {
                     Type = SMemoType.FatalError,
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, Account.Language)
                 });
                 return;
             }
@@ -663,7 +663,7 @@ namespace NosCore.GameObject
                     await SendPacket(new SMemoPacket
                     {
                         Type = SMemoType.FatalError,
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, Account.Language)
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, Account.Language)
                     });
                     return;
                 }
@@ -694,7 +694,7 @@ namespace NosCore.GameObject
                 await SendPacket(new SMemoPacket
                 {
                     Type = SMemoType.Success,
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_VALID, Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_VALID, Account.Language)
                 });
                 if (reputprice == 0)
                 {
@@ -706,7 +706,7 @@ namespace NosCore.GameObject
                     Reput -= reputprice;
                     await SendPacket(GenerateFd());
                     await SendPacket(this.GenerateSay(
-                        Language.Instance.GetMessageFromKey(LanguageKey.REPUT_DECREASED, Account.Language),
+                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.REPUT_DECREASED, Account.Language),
                         SayColorType.Purple));
                 }
             }
@@ -714,7 +714,7 @@ namespace NosCore.GameObject
             {
                 await SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         Session.Account.Language),
                     Type = 0
                 });
@@ -739,7 +739,7 @@ namespace NosCore.GameObject
             {
                 Type = SMemoType.Success,
                 Message = string.Format(
-                    Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_FROM, Account.Language), Name,
+                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_FROM, Account.Language), Name,
                     item!.ItemInstance.Item!.Name[Account.Language], amount)
             });
             var sellAmount = (item?.Price ?? 0) * amount;
@@ -783,7 +783,7 @@ namespace NosCore.GameObject
                 if (s.VisualId != VisualId)
                 {
                     s.SendPacket(this.GenerateIn(Authority == AuthorityType.Moderator
-                        ? Language.Instance.GetMessageFromKey(LanguageKey.SUPPORT, Account.Language) : string.Empty));
+                        ? GameLanguage.Instance.GetMessageFromKey(LanguageKey.SUPPORT, Account.Language) : string.Empty));
                     //TODO: Generate GIDX
                 }
 
@@ -809,7 +809,7 @@ namespace NosCore.GameObject
             await SendPacket(new MsgPacket
             {
                 Type = MessageType.White,
-                Message = Language.Instance.GetMessageFromKey(LanguageKey.LEVEL_CHANGED, Session.Account.Language)
+                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.LEVEL_CHANGED, Session.Account.Language)
             });
         }
 
@@ -1386,7 +1386,7 @@ namespace NosCore.GameObject
             await SendPacket(GenerateLev());
             SpCooldown = 30;
             await SendPacket(this.GenerateSay(
-                string.Format(Language.Instance.GetMessageFromKey(LanguageKey.STAY_TIME, Account.Language), SpCooldown),
+                string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.STAY_TIME, Account.Language), SpCooldown),
                 SayColorType.Purple));
             await SendPacket(new SdPacket { Cooldown = SpCooldown });
             await MapInstance!.SendPacket(this.GenerateCMode());
@@ -1402,7 +1402,7 @@ namespace NosCore.GameObject
             {
                 SendPacket(this.GenerateSay(
                    string.Format(
-                       Language.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_DISAPPEAR, Account.Language),
+                       GameLanguage.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_DISAPPEAR, Account.Language),
                        SpCooldown), SayColorType.Purple));
                 SendPacket(new SdPacket { Cooldown = 0 });
             });
@@ -1421,7 +1421,7 @@ namespace NosCore.GameObject
             {
                 await SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.LOW_REP,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOW_REP,
                         Session.Account.Language)
                 });
                 return;
@@ -1434,7 +1434,7 @@ namespace NosCore.GameObject
             {
                 await SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
                         Session.Account.Language)
                 });
                 return;

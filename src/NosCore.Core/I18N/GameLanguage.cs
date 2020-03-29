@@ -24,12 +24,12 @@ using NosCore.Data.Enumerations.I18N;
 
 namespace NosCore.Core.I18N
 {
-    public sealed class Language
+    public sealed class GameLanguage
     {
-        private static Language? _instance;
+        private static GameLanguage? _instance;
         private readonly ResourceManager _manager;
 
-        private Language()
+        private GameLanguage()
         {
             var assem = typeof(LanguageKey).Assembly;
             _manager = new ResourceManager(
@@ -37,7 +37,7 @@ namespace NosCore.Core.I18N
                 assem);
         }
 
-        public static Language Instance => _instance ??= new Language();
+        public static GameLanguage Instance => _instance ??= new GameLanguage();
 
         public string GetMessageFromKey(LanguageKey messageKey, RegionType culture)
         {

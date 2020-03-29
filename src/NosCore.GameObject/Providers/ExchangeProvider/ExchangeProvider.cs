@@ -73,7 +73,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             {
                 dictionary.Add(targetSession.VisualId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL,
                         targetSession.AccountLanguage)
                 });
             }
@@ -82,7 +82,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             {
                 dictionary.Add(targetSession.VisualId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, session.Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, session.Account.Language)
                 });
                 return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Failure,
                     dictionary);
@@ -92,7 +92,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             {
                 dictionary.Add(targetSession.VisualId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
                 });
                 return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Failure,
                     dictionary);
@@ -102,7 +102,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
                 });
                 return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Failure,
                     dictionary);
@@ -112,7 +112,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_TRADABLE,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_TRADABLE,
                         session.Account.Language)
                 });
                 return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Failure,
@@ -128,11 +128,11 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, session.Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, session.Account.Language)
                 });
                 dictionary.Add(targetSession.VisualId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL,
                         targetSession.AccountLanguage)
                 });
                 return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Failure,

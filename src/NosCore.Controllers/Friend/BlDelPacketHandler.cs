@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Friend
             {
                 await session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
                         session.Account.Language)
                 });
             }

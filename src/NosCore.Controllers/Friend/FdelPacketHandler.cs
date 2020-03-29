@@ -19,8 +19,8 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Friend
                 await _friendHttpClient.DeleteFriend(idtorem.CharacterRelationId);
                 await session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)
                 });
                 var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
                 await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacket(await targetCharacter.GenerateFinit(_friendHttpClient, _channelHttpClient,
@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Friend
             {
                 await session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_FRIENDLIST,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_FRIENDLIST,
                         session.Account.Language)
                 });
             }

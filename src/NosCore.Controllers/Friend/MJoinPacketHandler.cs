@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Friend
                     }
                     await session.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND,
                                 session.Account.Language)
                     });
                 }

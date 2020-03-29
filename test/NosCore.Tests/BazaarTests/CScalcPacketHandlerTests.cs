@@ -166,7 +166,7 @@ namespace NosCore.Tests.BazaarTests
                 VNum = 1012
             }, _session);
             var lastpacket = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
                 _session.Account.Language), lastpacket?.Message);
         }
 

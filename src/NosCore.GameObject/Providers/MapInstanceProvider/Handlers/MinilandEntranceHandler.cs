@@ -63,7 +63,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider.Handlers
             requestData.ClientSession.SendPacket(
                 requestData.ClientSession.Character.GenerateSay(
                     string.Format(
-                        Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_VISITOR,
+                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_VISITOR,
                             requestData.ClientSession.Account.Language), miniland.VisitCount, miniland.DailyVisitCount),
                     SayColorType.Yellow)
             );

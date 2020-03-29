@@ -25,11 +25,11 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
 using NosCore.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
 
-namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
+namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 {
     public class ConnectedAccountHttpClient : MasterServerHttpClient, IConnectedAccountHttpClient
     {

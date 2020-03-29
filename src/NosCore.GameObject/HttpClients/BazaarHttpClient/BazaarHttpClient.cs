@@ -29,7 +29,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using System.Text.Json;
 using System.Threading.Tasks;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 
 namespace NosCore.GameObject.HttpClients.BazaarHttpClient
 {

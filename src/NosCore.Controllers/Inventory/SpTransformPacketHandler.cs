@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Inventory
                 {
                     await clientSession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_SP, clientSession.Account.Language)
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SP, clientSession.Account.Language)
                     });
 
                     return;
@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Inventory
                 {
                     await clientSession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE,
                             clientSession.Account.Language)
                     });
                     return;
@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         await clientSession.SendPacket(new MsgPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS,
                                 clientSession.Account.Language)
                         });
                         return;
@@ -114,7 +114,7 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         await clientSession.SendPacket(new MsgPacket
                         {
-                            Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
+                            Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
                                     clientSession.Account.Language),
                                 clientSession.Character.SpCooldown - (int)Math.Round(currentRunningSeconds))
                         });

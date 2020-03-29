@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Miniland
             {
                 await clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_THIS_MINILANDOBJECT,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_THIS_MINILANDOBJECT,
                         clientSession.Account.Language)
                 });
                 return;
@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Miniland
             {
                 await clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_NEED_LOCK,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_NEED_LOCK,
                         clientSession.Account.Language)
                 });
                 return;

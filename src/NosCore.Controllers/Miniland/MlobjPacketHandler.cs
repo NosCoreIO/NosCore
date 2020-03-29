@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Miniland
                     miniland.MinilandMessage = mlEditPacket.MinilandInfo;
                     await clientSession.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_INFO_CHANGED,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_INFO_CHANGED,
                             clientSession.Account.Language)
                     });
                     break;
@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Miniland
                         case MinilandState.Private:
                             await clientSession.SendPacket(new MsgPacket
                             {
-                                Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PRIVATE,
+                                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_PRIVATE,
                                     clientSession.Account.Language)
                             });
                             await _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Private);
@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Miniland
                         case MinilandState.Lock:
                             await clientSession.SendPacket(new MsgPacket
                             {
-                                Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_LOCK,
+                                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_LOCK,
                                     clientSession.Account.Language)
                             });
                             await _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Lock);
@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Miniland
                         case MinilandState.Open:
                             await clientSession.SendPacket(new MsgPacket
                             {
-                                Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_PUBLIC,
+                                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_PUBLIC,
                                     clientSession.Account.Language)
                             });
                             await _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Open);

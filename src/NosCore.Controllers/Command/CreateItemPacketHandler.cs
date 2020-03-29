@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Command
             {
                 session.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, session.Account.Language),
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, session.Account.Language),
                     Type = 0
                 });
                 return Task.CompletedTask;
@@ -134,7 +134,7 @@ namespace NosCore.PacketHandlers.Command
             {
                 session.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         session.Account.Language),
                     Type = 0
                 });
@@ -169,7 +169,7 @@ namespace NosCore.PacketHandlers.Command
             }
 
             session.SendPacket(session.Character.GenerateSay(
-                $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, session.Account.Language)}: {iteminfo.Name[session.Account.Language]} x {amount}",
+                $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, session.Account.Language)}: {iteminfo.Name[session.Account.Language]} x {amount}",
                 SayColorType.Green));
             return Task.CompletedTask;
         }
