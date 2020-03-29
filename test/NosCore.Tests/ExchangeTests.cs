@@ -40,11 +40,11 @@ namespace NosCore.Tests
     public class ExchangeTests
     {
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
-        private ExchangeProvider _exchangeProvider;
+        private ExchangeProvider? _exchangeProvider;
 
-        private ItemProvider _itemProvider;
+        private ItemProvider? _itemProvider;
 
-        private WorldConfiguration _worldConfiguration;
+        private WorldConfiguration? _worldConfiguration;
 
         [TestInitialize]
         public void Setup()
@@ -71,7 +71,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Set_Gold()
         {
-            _exchangeProvider.OpenExchange(1, 2);
+            _exchangeProvider!.OpenExchange(1, 2);
             _exchangeProvider.SetGold(1, 1000, 1000);
             _exchangeProvider.SetGold(2, 2000, 2000);
 
@@ -85,7 +85,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Confirm_Exchange()
         {
-            _exchangeProvider.OpenExchange(1, 2);
+            _exchangeProvider!.OpenExchange(1, 2);
             _exchangeProvider.ConfirmExchange(1);
             _exchangeProvider.ConfirmExchange(2);
 
@@ -98,7 +98,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Add_Items()
         {
-            _exchangeProvider.OpenExchange(1, 2);
+            _exchangeProvider!.OpenExchange(1, 2);
 
             var item = new InventoryItemInstance
             {
@@ -114,13 +114,13 @@ namespace NosCore.Tests
             var data1 = _exchangeProvider.GetData(1);
 
             Assert.IsTrue(data1.ExchangeItems.Any(s =>
-                (s.Key.ItemInstance.ItemVNum == 1012) && (s.Key.ItemInstance.Amount == 1)));
+                (s.Key.ItemInstance?.ItemVNum == 1012) && (s.Key.ItemInstance.Amount == 1)));
         }
 
         [TestMethod]
         public void Test_Check_Exchange()
         {
-            var wrongExchange = _exchangeProvider.CheckExchange(1);
+            var wrongExchange = _exchangeProvider!.CheckExchange(1);
             _exchangeProvider.OpenExchange(1, 2);
             var goodExchange = _exchangeProvider.CheckExchange(1);
 
@@ -130,7 +130,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Close_Exchange()
         {
-            var wrongClose = _exchangeProvider.CloseExchange(1, ExchangeResultType.Failure);
+            var wrongClose = _exchangeProvider!.CloseExchange(1, ExchangeResultType.Failure);
 
             Assert.IsNull(wrongClose);
 
@@ -142,14 +142,14 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Open_Exchange()
         {
-            var exchange = _exchangeProvider.OpenExchange(1, 2);
+            var exchange = _exchangeProvider!.OpenExchange(1, 2);
             Assert.IsTrue(exchange);
         }
 
         [TestMethod]
         public void Test_Open_Second_Exchange()
         {
-            var exchange = _exchangeProvider.OpenExchange(1, 2);
+            var exchange = _exchangeProvider!.OpenExchange(1, 2);
             Assert.IsTrue(exchange);
 
             var wrongExchange = _exchangeProvider.OpenExchange(1, 3);
@@ -161,16 +161,16 @@ namespace NosCore.Tests
         {
             IInventoryService inventory1 =
                 new InventoryService(new List<ItemDto> {new Item {VNum = 1012, Type = NoscorePocketType.Main}},
-                    _worldConfiguration, Logger);
+                    _worldConfiguration!, Logger);
             IInventoryService inventory2 =
                 new InventoryService(new List<ItemDto> {new Item {VNum = 1013, Type = NoscorePocketType.Main}},
-                    _worldConfiguration, Logger);
-            var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 1), 0))
+                    _worldConfiguration!, Logger);
+            var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 1), 0))
                 .First();
             var item2 = inventory2.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1013, 1), 0))
                 .First();
 
-            _exchangeProvider.OpenExchange(1, 2);
+            _exchangeProvider!.OpenExchange(1, 2);
             _exchangeProvider.AddItems(1, item1, 1);
             _exchangeProvider.AddItems(2, item2, 1);
             var itemList = _exchangeProvider.ProcessExchange(1, 2, inventory1, inventory2);

@@ -161,7 +161,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _fDelPacketHandler.Execute(fdelPacket, _session);
+            await _fDelPacketHandler!.Execute(fdelPacket, _session);
 
             Assert.IsTrue(!_characterRelationDao.LoadAll().Any());
         }

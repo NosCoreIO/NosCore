@@ -29,6 +29,7 @@ using DotNetty.Transport.Channels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;
+using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Data;
@@ -38,12 +39,16 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.Packets.Interfaces;
 using NosCore.Tests.Helpers;
 using Serilog;
 
@@ -222,7 +227,7 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             await _session.Character.Buy(shop, 0, 998);
-            Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.ItemInstance.Amount == 999));
+            Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.ItemInstance?.Amount == 999));
             Assert.IsTrue(_session.Character.Gold == 499002);
         }
 
@@ -255,22 +260,22 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             await _session.Character.Buy(shop, 0, 998);
-            Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.ItemInstance.Amount == 999));
+            Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.ItemInstance?.Amount == 999));
             Assert.IsTrue(_session.Character.Reput == 499002);
         }
 
         private ClientSession PrepareSessionShop()
         {
             var conf = new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999};
-            var session2 = new ClientSession(conf, Logger, new List<IPacketHandler>(), _friendHttpClient, null, null);
+            var session2 = new ClientSession(conf, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
             session2.InitializeAccount(account);
             session2.SessionId = 1;
 
-            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), null, null,
-                null, null, null, null, Logger, null, null, null, null, null)
+            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object,
+                new Mock<IGenericDao<CharacterDto>>().Object, new Mock<IGenericDao<IItemInstanceDto>>().Object, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, new Mock<IGenericDao<AccountDto>>().Object, Logger, new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object)
             {
                 CharacterId = 1,
                 Name = "chara2",
@@ -279,12 +284,12 @@ namespace NosCore.Tests.InventoryTests
                 MapId = 1,
                 State = CharacterState.Active
             });
-            var mapinstance = _instanceProvider.GetBaseMapById(0);
+            var mapinstance = _instanceProvider!.GetBaseMapById(0);
             session2.Character.Account = account;
             session2.Character.MapInstance = _instanceProvider.GetBaseMapById(0);
             session2.Character.MapInstance = mapinstance;
 
-            _session.Character.Gold = 500000;
+            _session!.Character.Gold = 500000;
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
@@ -294,7 +299,7 @@ namespace NosCore.Tests.InventoryTests
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             var it = itemBuilder.Create(1, 999);
-            session2.Character.InventoryService.AddItemToPocket(
+            session2.Character.InventoryService!.AddItemToPocket(
                 InventoryItemInstance.Create(it, session2.Character.CharacterId), NoscorePocketType.Etc, 0);
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = it, Type = 0, Price = 1, Amount = 999});
             list.TryAdd(1, new ShopItem {Slot = 1, ItemInstance = it, Type = 0, Price = 1, Amount = 500});
@@ -303,7 +308,7 @@ namespace NosCore.Tests.InventoryTests
                 Session = session2,
                 ShopItems = list
             };
-            _session.Character.InventoryService.AddItemToPocket(
+            _session.Character.InventoryService!.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(
@@ -316,36 +321,36 @@ namespace NosCore.Tests.InventoryTests
         public async Task UserCanShopFromSession()
         {
             var session2 = PrepareSessionShop();
-            await _session.Character.Buy(session2.Character.Shop!, 0, 999);
+            await _session!.Character.Buy(session2.Character.Shop!, 0, 999);
             Assert.IsTrue(session2.Character.Gold == 999);
-            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 0);
+            Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 0);
         }
 
         [TestMethod]
         public async Task UserCanShopFromSessionPartial()
         {
             var session2 = PrepareSessionShop();
-            await _session.Character.Buy(session2.Character.Shop!, 0, 998);
+            await _session!.Character.Buy(session2.Character.Shop!, 0, 998);
             Assert.IsTrue(session2.Character.Gold == 998);
-            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 1);
+            Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 1);
         }
 
         [TestMethod]
         public async Task UserCanNotShopMoreThanShop()
         {
             var session2 = PrepareSessionShop();
-            await _session.Character.Buy(session2.Character.Shop!, 1, 501);
+            await _session!.Character.Buy(session2.Character.Shop!, 1, 501);
             Assert.IsTrue(session2.Character.Gold == 0);
-            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 999);
+            Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 999);
         }
 
         [TestMethod]
         public async Task UserCanShopFull()
         {
             var session2 = PrepareSessionShop();
-            await _session.Character.Buy(session2.Character.Shop!, 1, 500);
+            await _session!.Character.Buy(session2.Character.Shop!, 1, 500);
             Assert.IsTrue(session2.Character.Gold == 500);
-            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 499);
+            Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 499);
         }
 
         [TestMethod]
@@ -353,9 +358,9 @@ namespace NosCore.Tests.InventoryTests
         {
             var session2 = PrepareSessionShop();
             session2.Character.Gold = 999_999_999;
-            await _session.Character.Buy(session2.Character.Shop!, 0, 999);
+            await _session!.Character.Buy(session2.Character.Shop!, 0, 999);
             Assert.IsTrue(session2.Character.Gold == 999_999_999);
-            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 999);
+            Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 999);
             var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, _session.Account.Language));

@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -36,8 +37,8 @@ namespace NosCore.Tests.BazaarTests
     [TestClass]
     public class CSkillPacketHandlerTest
     {
-        private CSkillPacketHandler _cskillPacketHandler;
-        private ClientSession _session;
+        private CSkillPacketHandler? _cskillPacketHandler;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
@@ -50,33 +51,33 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public void OpenWhenInShop()
+        public async Task OpenWhenInShop()
         {
-            _session.Character.InExchangeOrTrade = true;
-            _cskillPacketHandler.Execute(new CSkillPacket(), _session);
+            _session!.Character.InExchangeOrTrade = true;
+            await _cskillPacketHandler!.Execute(new CSkillPacket(), _session);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
 
         [TestMethod]
-        public void OpenWhenNoMedal()
+        public async Task OpenWhenNoMedal()
         {
-            _cskillPacketHandler.Execute(new CSkillPacket(), _session);
-            var lastpacket = (InfoPacket?) _session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.IsTrue(lastpacket.Message ==
+            await _cskillPacketHandler!.Execute(new CSkillPacket(), _session!);
+            var lastpacket = (InfoPacket?) _session!.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            Assert.IsTrue(lastpacket?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL, _session.Account.Language));
         }
 
         [TestMethod]
-        public void Open()
+        public async Task Open()
         {
-            _session.Character.StaticBonusList.Add(new StaticBonusDto
+            _session!.Character.StaticBonusList.Add(new StaticBonusDto
             {
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
-            _cskillPacketHandler.Execute(new CSkillPacket(), _session);
+            await _cskillPacketHandler!.Execute(new CSkillPacket(), _session);
             var lastpacket = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(lastpacket.Message ==
+            Assert.IsTrue(lastpacket?.Message ==
                 Language.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, _session.Account.Language));
         }
     }

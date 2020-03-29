@@ -67,7 +67,7 @@ namespace NosCore.Tests
                 State = CharacterState.Active
             };
 
-            _group.JoinGroup(entity);
+            _group!.JoinGroup(entity);
 
             Assert.IsFalse(_group.Count == 2);
         }
@@ -84,7 +84,7 @@ namespace NosCore.Tests
                 State = CharacterState.Active
             };
 
-            _group.JoinGroup(entity);
+            _group!.JoinGroup(entity);
 
             Assert.IsFalse(_group.Count == 2);
 
@@ -98,7 +98,7 @@ namespace NosCore.Tests
         {
             var entity = new Pet();
 
-            _group.JoinGroup(entity);
+            _group!.JoinGroup(entity);
 
             Assert.IsTrue(_group.IsEmpty);
         }
@@ -106,7 +106,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Leader_Change()
         {
-            for (var i = 0; i < (long) _group.Type; i++)
+            for (var i = 0; i < (long) _group!.Type; i++)
             {
                 var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, new Mock<IGenericDao<CharacterDto>>().Object, new Mock<IGenericDao<IItemInstanceDto>>().Object, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, new Mock<IGenericDao<AccountDto>>().Object, Logger, new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object)
                 {

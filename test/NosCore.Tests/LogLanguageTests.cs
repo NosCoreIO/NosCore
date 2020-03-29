@@ -84,9 +84,9 @@ namespace NosCore.Tests
         public void CheckEveryLanguageValueSet(RegionType type)
         {
             var unfound = new StringBuilder();
-            foreach (LanguageKey val in Enum.GetValues(typeof(LanguageKey)))
+            foreach (var val in Enum.GetValues(typeof(LanguageKey)))
             {
-                var value = Language.Instance.GetMessageFromKey(val, type);
+                var value = Language.Instance.GetMessageFromKey((LanguageKey)val!, type);
                 if (value == $"#<{val.ToString()}>")
                 {
                     unfound.Append("\nvalue ").Append(value).Append(" not defined");
@@ -151,11 +151,11 @@ namespace NosCore.Tests
                 }
             }
 
-            foreach (LogLanguageKey val in Enum.GetValues(typeof(LogLanguageKey)))
+            foreach (var val in Enum.GetValues(typeof(LogLanguageKey)))
             {
-                var type = val.GetType();
+                var type = val!.GetType();
                 var typeInfo = type.GetTypeInfo();
-                var memberInfo = typeInfo.GetMember(val.ToString());
+                var memberInfo = typeInfo.GetMember(((LanguageKey)val).ToString());
                 var attributes = memberInfo[0].GetCustomAttributes<UsedImplicitlyAttribute>();
                 var attribute = attributes.FirstOrDefault();
 
@@ -184,9 +184,9 @@ namespace NosCore.Tests
         public void CheckParametersLanguages(RegionType type)
         {
             var unfound = new StringBuilder();
-            foreach (LanguageKey val in Enum.GetValues(typeof(LanguageKey)))
+            foreach (var val in Enum.GetValues(typeof(LanguageKey)))
             {
-                var value = Language.Instance.GetMessageFromKey(val, type);
+                var value = Language.Instance.GetMessageFromKey((LanguageKey)val!, type);
                 var paramCount = Regex.Matches(value, @"{[0-9A-Za-z]}").Count();
                 var expectedCount = !_dict.ContainsKey($"LanguageKey.{val}") ? 0
                     : _dict[$"LanguageKey.{val}"];
@@ -220,7 +220,7 @@ namespace NosCore.Tests
             var values = Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s => s.ToString()).ToList();
             var logvalues = Enum.GetValues(typeof(LogLanguageKey)).OfType<LogLanguageKey>().Select(s => s.ToString())
                 .ToList();
-            foreach (DictionaryEntry? entry in LogLanguage.Instance.GetRessourceSet(type.ToString()))
+            foreach (DictionaryEntry? entry in LogLanguage.Instance.GetRessourceSet(type.ToString())!)
             {
                 var resourceKey = entry?.Key.ToString() ?? "";
                 if (!values.Contains(resourceKey) && !logvalues.Contains(resourceKey))

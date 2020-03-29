@@ -72,7 +72,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 OriginQuickListSlot = 2,
                 FirstData = 3,
                 SecondData = 4
-            }, _session);
+            }, _session!);
             var lastpacket = (QsetClientPacket?) _session!.LastPackets.FirstOrDefault(s => s is QsetClientPacket);
             Assert.AreEqual(QSetType.Reset, lastpacket?.Data?.Type);
             Assert.AreEqual(1, lastpacket?.OriginQuickList);

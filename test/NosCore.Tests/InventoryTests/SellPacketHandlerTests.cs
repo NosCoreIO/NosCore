@@ -43,9 +43,9 @@ namespace NosCore.Tests.InventoryTests
     [TestClass]
     public class SellPacketHandlerTests
     {
-        private MapInstanceProvider _instanceProvider;
-        private SellPacketHandler _sellPacketHandler;
-        private ClientSession _session;
+        private MapInstanceProvider? _instanceProvider;
+        private SellPacketHandler? _sellPacketHandler;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
@@ -62,7 +62,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void UserCanNotSellInExchange()
         {
-            _session.Character.InExchangeOrTrade = true;
+            _session!.Character.InExchangeOrTrade = true;
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true}
@@ -70,15 +70,15 @@ namespace NosCore.Tests.InventoryTests
             var itemBuilder = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 2), 0),
                 NoscorePocketType.Etc, 1);
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 2);
 
-            _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
-            _sellPacketHandler.Execute(new SellPacket {Slot = 0, Amount = 1, Data = (short) NoscorePocketType.Etc},
+            _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1);
+            _sellPacketHandler!.Execute(new SellPacket {Slot = 0, Amount = 1, Data = (short) NoscorePocketType.Etc},
                 _session);
             Assert.IsTrue(_session.Character.Gold == 0);
             Assert.IsNotNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Etc));
@@ -94,15 +94,15 @@ namespace NosCore.Tests.InventoryTests
             var itemBuilder = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
+            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 2), 0),
                 NoscorePocketType.Etc, 1);
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 2);
 
-            _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
-            _sellPacketHandler.Execute(new SellPacket {Slot = 0, Amount = 1, Data = (short) NoscorePocketType.Etc},
+            _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1);
+            _sellPacketHandler!.Execute(new SellPacket {Slot = 0, Amount = 1, Data = (short) NoscorePocketType.Etc},
                 _session);
             var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet?.Message ==
@@ -121,15 +121,15 @@ namespace NosCore.Tests.InventoryTests
             var itemBuilder = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
+            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 2), 0),
                 NoscorePocketType.Etc, 1);
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 2);
 
-            _session.Character.MapInstance = _instanceProvider.GetBaseMapById(1);
-            _sellPacketHandler.Execute(new SellPacket {Slot = 0, Amount = 1, Data = (short) NoscorePocketType.Etc},
+            _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1);
+            _sellPacketHandler!.Execute(new SellPacket {Slot = 0, Amount = 1, Data = (short) NoscorePocketType.Etc},
                 _session);
             Assert.IsTrue(_session.Character.Gold > 0);
             Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Etc));

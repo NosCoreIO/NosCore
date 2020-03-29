@@ -27,8 +27,6 @@ namespace NosCore.GameObject.Networking.Group
 {
     public static class IBroadcastableExtension
     {
-        private const short maxPacketsBuffer = 250;
-
         public static Task SendPacket(this IBroadcastable channelGroup, IPacket packet)
         {
             return channelGroup.SendPackets(new[] { packet });
@@ -43,11 +41,11 @@ namespace NosCore.GameObject.Networking.Group
         public static async Task SendPackets(this IBroadcastable channelGroup, IEnumerable<IPacket> packets,
             IChannelMatcher? matcher)
         {
-            var packetDefinitions = (packets as IPacket[] ?? packets.ToArray()).Where(c => c != null);
+            var packetDefinitions = (packets as IPacket[] ?? packets).Where(c => c != null).ToArray();
             if (packetDefinitions.Any())
             {
                 Parallel.ForEach(packets, packet => channelGroup.LastPackets.Enqueue(packet));
-                Parallel.For(0, channelGroup.LastPackets.Count - maxPacketsBuffer, (_, __) => channelGroup.LastPackets.TryDequeue(out var ___));
+                Parallel.For(0, channelGroup.LastPackets.Count - channelGroup.MaxPacketsBuffer, (_, __) => channelGroup.LastPackets.TryDequeue(out var ___));
                 if (channelGroup?.Sessions == null)
                 {
                     return;

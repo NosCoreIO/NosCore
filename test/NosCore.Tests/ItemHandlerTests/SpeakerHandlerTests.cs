@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -39,7 +40,7 @@ namespace NosCore.Tests.ItemHandlerTests
     [TestClass]
     public class SpeakerHandlerTests : UseItemEventHandlerTestsBase
     {
-        private ItemProvider _itemProvider;
+        private ItemProvider? _itemProvider;
 
         [TestInitialize]
         public void Setup()
@@ -55,11 +56,11 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public void Test_SpeakerItemHandler()
+        public async Task Test_SpeakerItemHandler()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
-            Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (GuriPacket?)Session.LastPackets.FirstOrDefault(s => s is GuriPacket);
             Assert.IsNotNull(lastpacket);
         }

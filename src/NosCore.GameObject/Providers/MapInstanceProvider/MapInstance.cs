@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
     public class MapInstance : IBroadcastable, IDisposable
     {
-        private const short maxPacketsBuffer = 250;
+        public short MaxPacketsBuffer { get; } = 250;
         private readonly ILogger _logger;
 
         private readonly List<IMapInstanceEventHandler> _mapInstanceEventHandler;
@@ -144,7 +144,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public int XpRate { get; set; }
 
-        private IDisposable Life { get; set; }
+        private IDisposable? Life { get; set; }
         public Dictionary<MapInstanceEventType, Subject<RequestData<MapInstance>>> Requests { get; set; }
 
         public IChannelGroup Sessions { get; set; }
@@ -178,7 +178,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 .ForEach(s => s.ChangeMap(s.MapId, s.MapX, s.MapY));
         }
 
-        public MapItem PutItem(short amount, IItemInstance inv, ClientSession session)
+        public MapItem? PutItem(short amount, IItemInstance inv, ClientSession session)
         {
             var random2 = Guid.NewGuid();
             MapItem? droppedItem = null;
@@ -226,7 +226,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             inv.Amount -= amount;
             if (inv.Amount == 0)
             {
-                session.Character.InventoryService.DeleteById(inv.Id);
+                session.Character.InventoryService!.DeleteById(inv.Id);
             }
 
             return droppedItem;

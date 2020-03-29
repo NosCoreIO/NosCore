@@ -81,12 +81,12 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
             {
-                _session.Character!,
+                _session!.Character!,
                 new CharacterDto {CharacterId = 2, Name = "test"}
             };
-            _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+            _characterDao!.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
-            _characterRelationDao.InsertOrUpdate(new[]
+            _characterRelationDao!.InsertOrUpdate(new[]
             {
                 new CharacterRelationDto
                 {
@@ -101,25 +101,25 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = 2
             };
 
-            await _blDelPacketHandler.Execute(blDelPacket, _session);
+            await _blDelPacketHandler!.Execute(blDelPacket, _session);
 
-            Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 0);
+            Assert.IsTrue(!_characterRelationDao.LoadAll().Any());
         }
 
         [TestMethod]
         public async Task Test_Delete_Friend()
         {
             var targetSession = TestHelpers.Instance.GenerateSession();
-            var guid = Guid.NewGuid();
+            Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
             {
-                _session.Character!,
+                _session!.Character!,
                 targetSession.Character!
             };
-            _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+            _characterDao!.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
-            _characterRelationDao.InsertOrUpdate(new[]
+            _characterRelationDao!.InsertOrUpdate(new[]
             {
                 new CharacterRelationDto
                 {
@@ -134,9 +134,9 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _blDelPacketHandler.Execute(blDelPacket, _session);
+            await _blDelPacketHandler!.Execute(blDelPacket, _session);
 
-            Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 0);
+            Assert.IsTrue(!_characterRelationDao.LoadAll().Any());
         }
 
         [TestMethod]
@@ -147,10 +147,10 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
             {
-                _session.Character!,
+                _session!.Character!,
                 targetSession.Character!
             };
-            _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+            _characterDao!.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
 
             var blDelPacket = new BlDelPacket
@@ -158,10 +158,10 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _blDelPacketHandler.Execute(blDelPacket, _session);
+            await _blDelPacketHandler!.Execute(blDelPacket, _session);
             var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
-                _session.Account.Language), lastpacket.Message);
+                _session.Account.Language), lastpacket!.Message);
         }
     }
 }

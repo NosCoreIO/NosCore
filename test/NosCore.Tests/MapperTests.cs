@@ -20,6 +20,7 @@
 using System.Collections.Generic;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data;
@@ -29,6 +30,10 @@ using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
 using NosCore.GameObject.Mapping;
+using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.MinilandProvider;
 using Serilog;
 using BoxInstance = NosCore.GameObject.Providers.ItemProvider.Item.BoxInstance;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
@@ -55,8 +60,8 @@ namespace NosCore.Tests
         public void Setup()
         {
             TypeAdapterConfig<CharacterDto, GameObject.Character>.NewConfig().ConstructUsing(src =>
-                new GameObject.Character(null, null, null, _characterDao, _itemInstanceDao, null, _accountDao, Logger,
-                    null, null, null, null, null));
+                new GameObject.Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, _characterDao, _itemInstanceDao, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, _accountDao, Logger,
+                    new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object));
             TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig()
                 .ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), Logger));
             new Mapper();
