@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            var message = btkPacket.Message;
+            var message = btkPacket.Message ?? "";
             if (message.Length > 60)
             {
                 message = message.Substring(0, 60);
@@ -99,7 +99,7 @@ namespace NosCore.PacketHandlers.Chat
             {
                 Packet = _packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character
-                { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name },
+                { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name ?? "" },
                 SenderCharacter = new Character
                 { Name = session.Character.Name, Id = session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,

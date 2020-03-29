@@ -37,21 +37,21 @@ namespace NosCore.GameObject.Providers.InventoryService
         bool CanAddItem(short itemVnum);
         int CountItem(int itemVNum);
         int CountItemInAnPocket(NoscorePocketType inv);
-        InventoryItemInstance DeleteById(Guid id);
-        InventoryItemInstance DeleteFromTypeAndSlot(NoscorePocketType type, short slot);
+        InventoryItemInstance? DeleteById(Guid id);
+        InventoryItemInstance? DeleteFromTypeAndSlot(NoscorePocketType type, short slot);
         InventoryItemInstance? LoadByItemInstanceId(Guid id);
         InventoryItemInstance? LoadBySlotAndType(short slot, NoscorePocketType type);
 
-        InventoryItemInstance MoveInPocket(short sourceSlot, NoscorePocketType sourceType,
+        InventoryItemInstance? MoveInPocket(short sourceSlot, NoscorePocketType sourceType,
             NoscorePocketType targetType);
 
-        InventoryItemInstance MoveInPocket(short sourceSlot, NoscorePocketType sourceType, NoscorePocketType targetType,
+        InventoryItemInstance? MoveInPocket(short sourceSlot, NoscorePocketType sourceType, NoscorePocketType targetType,
             short? targetSlot, bool swap);
 
         bool TryMoveItem(NoscorePocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
-            out InventoryItemInstance sourcePocket, out InventoryItemInstance destinationPocket);
+            out InventoryItemInstance? sourcePocket, out InventoryItemInstance? destinationPocket);
 
         bool EnoughPlace(List<IItemInstance> itemInstances, NoscorePocketType type);
-        InventoryItemInstance RemoveItemAmountFromInventory(short amount, Guid id);
+        InventoryItemInstance? RemoveItemAmountFromInventory(short amount, Guid id);
     }
 }

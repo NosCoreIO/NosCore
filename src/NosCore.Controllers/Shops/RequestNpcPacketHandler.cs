@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Shops
 
         public override Task Execute(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
         {
-            IRequestableEntity requestableEntity;
+            IRequestableEntity? requestableEntity;
             switch (requestNpcPacket.Type)
             {
                 case VisualType.Player:
@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Shops
                     break;
                 case VisualType.Npc:
                     requestableEntity =
-                        clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == requestNpcPacket.TargetId);
+                        clientSession.Character.MapInstance!.Npcs.Find(s => s.VisualId == requestNpcPacket.TargetId);
                     break;
 
                 default:

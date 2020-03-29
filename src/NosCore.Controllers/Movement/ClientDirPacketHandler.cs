@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Movement
             switch (dirpacket.VisualType)
             {
                 case VisualType.Player:
-                    entity = session.Character;
+                    entity = session.Character!;
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),

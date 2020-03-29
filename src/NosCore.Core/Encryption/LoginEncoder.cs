@@ -69,7 +69,9 @@ namespace NosCore.Core.Encryption
                     return tmp.Length == 0 ? new byte[] {0xFF} : tmp;
                 }).ToArray()));
             }
+#pragma warning disable CA1031 // Do not catch general exception types
             catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
             {
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ENCODE_ERROR), ex);
             }
