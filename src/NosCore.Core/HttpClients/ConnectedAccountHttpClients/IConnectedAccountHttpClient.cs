@@ -17,12 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Configuration;
+using NosCore.Data.WebApi;
 
-namespace NosCore.Core.HttpClients.AuthHttpClient
+namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 {
-    public interface IAuthHttpClient
+    public interface IConnectedAccountHttpClient
     {
-        Task<string?> GetAwaitingConnection(string? name, string packetPassword, int clientSessionSessionId);
+        Task<List<ConnectedAccount>> GetConnectedAccount(ChannelInfo channel);
+        Task Disconnect(long connectedCharacterId);
+
+        Task<Tuple<ServerConfiguration?, ConnectedAccount?>> GetCharacter(long? characterId, string? characterName);
     }
 }

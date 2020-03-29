@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             {
                 await requestData.ClientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
                         requestData.ClientSession.Account.Language),
                     Type = MessageType.White
                 });
@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             {
                 await requestData.ClientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
                         requestData.ClientSession.Account.Language),
                     Type = MessageType.White
                 });
@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             {
                 await requestData.ClientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
                         requestData.ClientSession.Account.Language),
                     Type = MessageType.White
                 });

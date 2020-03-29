@@ -63,7 +63,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             }
 
             await clientSession.SendPacket(clientSession.Character.GenerateSay(
-                Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, clientSession.Account.Language),
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, clientSession.Account.Language),
                 SayColorType.Yellow
             ));
         }

@@ -65,7 +65,7 @@ namespace NosCore.Tests.InventoryTests
             await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session!);
             var packet = (MsgPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.NO_SP, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SP, _session.Account.Language));
         }
 
         [TestMethod]
@@ -80,7 +80,7 @@ namespace NosCore.Tests.InventoryTests
             await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE, _session.Account.Language));
         }
 
 
@@ -138,7 +138,7 @@ namespace NosCore.Tests.InventoryTests
             await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY, _session.Account.Language));
         }
 
         [TestMethod]
@@ -153,7 +153,7 @@ namespace NosCore.Tests.InventoryTests
             await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.LOW_REP, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOW_REP, _session.Account.Language));
         }
 
 
@@ -171,7 +171,7 @@ namespace NosCore.Tests.InventoryTests
             await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
-                string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language),
+                string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language),
                     30));
         }
 
@@ -187,7 +187,7 @@ namespace NosCore.Tests.InventoryTests
             await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, _session.Account.Language));
         }
 
         [TestMethod]

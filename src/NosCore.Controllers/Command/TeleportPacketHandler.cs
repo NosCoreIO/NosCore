@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Command
             {
                 if (targetSession == null)
                 {
-                    _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
+                    _logger.Error(GameLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
                         session.Account.Language));
                     return Task.CompletedTask;
                 }
@@ -64,7 +64,7 @@ namespace NosCore.PacketHandlers.Command
             if (mapInstance == null)
             {
                 _logger.Error(
-                    Language.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, session.Account.Language));
+                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, session.Account.Language));
                 return Task.CompletedTask;
             }
 

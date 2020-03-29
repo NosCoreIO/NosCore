@@ -23,7 +23,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 

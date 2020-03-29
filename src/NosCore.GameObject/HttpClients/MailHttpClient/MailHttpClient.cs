@@ -26,7 +26,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;

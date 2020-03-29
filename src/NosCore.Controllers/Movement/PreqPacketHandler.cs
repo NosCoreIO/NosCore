@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Movement
                 (session.Character.LastPortal > session.Character.LastMove))
             {
                 await session.SendPacket(session.Character.GenerateSay(
-                    Language.Instance.GetMessageFromKey(LanguageKey.PORTAL_DELAY, session.Account.Language),
+                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.PORTAL_DELAY, session.Account.Language),
                     SayColorType.Yellow));
                 return;
             }

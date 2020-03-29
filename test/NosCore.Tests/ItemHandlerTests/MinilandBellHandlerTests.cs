@@ -71,7 +71,7 @@ namespace NosCore.Tests.ItemHandlerTests
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (SayPacket?)Session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE, Session.Character.Account.Language), lastpacket?.Message);
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_USE, Session.Character.Account.Language), lastpacket?.Message);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
@@ -83,7 +83,7 @@ namespace NosCore.Tests.ItemHandlerTests
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (SayPacket?)Session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE_IN_VEHICLE, Session.Character.Account.Language), lastpacket?.Message);
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_USE_IN_VEHICLE, Session.Character.Account.Language), lastpacket?.Message);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 

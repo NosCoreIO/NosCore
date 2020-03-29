@@ -30,8 +30,8 @@ using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using System.Threading.Tasks;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 
 namespace NosCore.PacketHandlers.Friend
 {
@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Friend
                     case LanguageKey.FRIENDLIST_FULL:
                         await session.Character.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIENDLIST_FULL,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIENDLIST_FULL,
                                 session.Character.AccountLanguage)
                         });
                         break;
@@ -70,7 +70,7 @@ namespace NosCore.PacketHandlers.Friend
                     case LanguageKey.BLACKLIST_BLOCKED:
                         await session.Character.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
                                 session.Character.AccountLanguage)
                         });
                         break;
@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Friend
                     case LanguageKey.ALREADY_FRIEND:
                         await session.Character.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_FRIEND,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_FRIEND,
                                 session.Character.AccountLanguage)
                         });
                         break;
@@ -86,7 +86,7 @@ namespace NosCore.PacketHandlers.Friend
                     case LanguageKey.FRIEND_REQUEST_BLOCKED:
                         await session.Character.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_BLOCKED,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_BLOCKED,
                                 session.Character.AccountLanguage)
                         });
                         break;
@@ -94,13 +94,13 @@ namespace NosCore.PacketHandlers.Friend
                     case LanguageKey.FRIEND_REQUEST_SENT:
                         await session.Character.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_SENT,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_REQUEST_SENT,
                                 session.Character.AccountLanguage)
                         });
                         await targetCharacter.SendPacket(new DlgPacket
                         {
                             Question = string.Format(
-                                Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD,
+                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADD,
                                     session.Character.AccountLanguage),
                                 session.Character.Name),
                             YesPacket = new FinsPacket
@@ -113,12 +113,12 @@ namespace NosCore.PacketHandlers.Friend
                     case LanguageKey.FRIEND_ADDED:
                         await session.Character.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED,
                                 session.Character.AccountLanguage)
                         });
                         await targetCharacter.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_ADDED,
                                 session.Character.AccountLanguage)
                         });
 
@@ -131,7 +131,7 @@ namespace NosCore.PacketHandlers.Friend
                     case LanguageKey.FRIEND_REJECTED:
                         await targetCharacter.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_REJECTED,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_REJECTED,
                                 session.Character.AccountLanguage)
                         });
                         break;

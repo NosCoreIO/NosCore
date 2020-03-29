@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             await requestData.ClientSession.SendPacket(new MsgPacket
             {
                 Message = string.Format(
-                    Language.Instance.GetMessageFromKey(LanguageKey.SP_POINTSADDED,
+                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_POINTSADDED,
                         requestData.ClientSession.Account.Language),
                     requestData.Data.Item1.ItemInstance.Item.EffectValue),
                 Type = 0

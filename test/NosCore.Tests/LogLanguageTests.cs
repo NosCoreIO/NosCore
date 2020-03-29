@@ -48,7 +48,7 @@ namespace NosCore.Tests
             {
                 var content = File.ReadAllText(file);
                 var regex = new Regex(
-                    @"string\.Format\([\s\n]*[Log]*Language.Instance.GetMessageFromKey\((?<key>[\s\n]*LanguageKey\.[\s\n]*[0-9A-Za-z_]*)[\s\n]*,[\s\n]*[\.0-9A-Za-z_]*\)(?<parameter>[\s\n]*,[\s\n]*[\.!?0-9A-Za-z_\[\]]*)*[\s\n]*\)",
+                    @"string\.Format\([\s\n]*[(Log)|(Game)]*Language.Instance.GetMessageFromKey\((?<key>[\s\n]*LanguageKey\.[\s\n]*[0-9A-Za-z_]*)[\s\n]*,[\s\n]*[\.0-9A-Za-z_]*\)(?<parameter>[\s\n]*,[\s\n]*[\.!?0-9A-Za-z_\[\]]*)*[\s\n]*\)",
                     RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
                 var matches = regex.Matches(content);
                 foreach (Match? match in matches)
@@ -86,7 +86,7 @@ namespace NosCore.Tests
             var unfound = new StringBuilder();
             foreach (var val in (LanguageKey[])Enum.GetValues(typeof(LanguageKey)))
             {
-                var value = Language.Instance.GetMessageFromKey(val, type);
+                var value = GameLanguage.Instance.GetMessageFromKey(val, type);
                 if (value == $"#<{val.ToString()}>")
                 {
                     unfound.Append("\nvalue ").Append(value).Append(" not defined");
@@ -194,7 +194,7 @@ namespace NosCore.Tests
             var unfound = new StringBuilder();
             foreach (var val in Enum.GetValues(typeof(LanguageKey)))
             {
-                var value = Language.Instance.GetMessageFromKey((LanguageKey)val!, type);
+                var value = GameLanguage.Instance.GetMessageFromKey((LanguageKey)val!, type);
                 var paramCount = Regex.Matches(value, @"{[0-9A-Za-z]}").Count();
                 var expectedCount = !_dict.ContainsKey($"LanguageKey.{val}") ? 0
                     : _dict[$"LanguageKey.{val}"];

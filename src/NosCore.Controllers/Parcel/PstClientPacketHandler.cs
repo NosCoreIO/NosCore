@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Parcel
                     await _mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
                     await clientSession.SendPacket(
                         clientSession.Character.GenerateSay(
-                            Language.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED,
+                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED,
                                 clientSession.Account.Language),
                             SayColorType.Purple));
                     break;
@@ -85,7 +85,7 @@ namespace NosCore.PacketHandlers.Parcel
                         await _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
                             pstClientPacket.Text);
                         await clientSession.SendPacket(clientSession.Character.GenerateSay(
-                            Language.Instance.GetMessageFromKey(
+                            GameLanguage.Instance.GetMessageFromKey(
                                 LanguageKey.MAILED,
                                 clientSession.Account.Language), SayColorType.Yellow));
                     }
@@ -93,7 +93,7 @@ namespace NosCore.PacketHandlers.Parcel
                     {
                         await clientSession.SendPacket(
                             clientSession.Character.GenerateSay(
-                                Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_FOUND,
+                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_FOUND,
                                     clientSession.Account.Language),
                                 SayColorType.Yellow));
                     }

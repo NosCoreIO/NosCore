@@ -19,12 +19,11 @@
 
 using System;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Mapster;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 
-namespace NosCore.Core.HttpClients.AuthHttpClient
+namespace NosCore.Core.HttpClients.AuthHttpClients
 {
     public class AuthHttpClient : MasterServerHttpClient, IAuthHttpClient
     {

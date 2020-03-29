@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Inventory
                         {
                             await clientSession.SendPacket(new MsgPacket
                             {
-                                Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
+                                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
                                     clientSession.Account.Language),
                                 Type = 0
                             });
@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         await clientSession.SendPacket(new MsgPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.DROP_MAP_FULL,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.DROP_MAP_FULL,
                                 clientSession.Account.Language),
                             Type = 0
                         });
@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Inventory
                 {
                     await clientSession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_DROP_AMOUNT,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_DROP_AMOUNT,
                             clientSession.Account.Language),
                         Type = 0
                     });
@@ -94,7 +94,7 @@ namespace NosCore.PacketHandlers.Inventory
             {
                 await clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
                         clientSession.Account.Language),
                     Type = 0
                 });

@@ -73,7 +73,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 
             string? data = requestData.Data.Value;
             string[] valuesplit = (data ?? string.Empty).Split(' ');
-            string message = $"<{Language.Instance.GetMessageFromKey(LanguageKey.SPEAKER, requestData.ClientSession.Account.Language)}> [{requestData.ClientSession.Character.Name}]:";
+            string message = $"<{GameLanguage.Instance.GetMessageFromKey(LanguageKey.SPEAKER, requestData.ClientSession.Account.Language)}> [{requestData.ClientSession.Character.Name}]:";
             if (requestData.Data.Data == 999)
             {
                 InventoryItemInstance? deeplink = null;

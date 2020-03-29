@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Shops
             {
                 await clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL,
                         clientSession.Account.Language),
                     Type = 0
                 });
@@ -64,7 +64,7 @@ namespace NosCore.PacketHandlers.Shops
             {
                 await clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID,
                         clientSession.Account.Language),
                     Type = MessageType.White
                 });
@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.Shops
             {
                 await clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED,
                         clientSession.Account.Language),
                     Type = MessageType.White
                 });
@@ -113,7 +113,7 @@ namespace NosCore.PacketHandlers.Shops
                         {
                             await clientSession.SendPacket(new ShopEndPacket {Type = ShopEndPacketType.PersonalShop});
                             await clientSession.SendPacket(clientSession.Character.GenerateSay(
-                                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS,
+                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS,
                                     clientSession.Account.Language),
                                 SayColorType.Yellow));
                             clientSession.Character.Shop = null;
@@ -135,7 +135,7 @@ namespace NosCore.PacketHandlers.Shops
                     {
                         await clientSession.SendPacket(new ShopEndPacket {Type = ShopEndPacketType.PersonalShop});
                         await clientSession.SendPacket(clientSession.Character.GenerateSay(
-                            Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, clientSession.Account.Language),
+                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, clientSession.Account.Language),
                             SayColorType.Yellow));
                         clientSession.Character.Shop = null;
                         return;
@@ -146,14 +146,14 @@ namespace NosCore.PacketHandlers.Shops
                     clientSession.Character.Shop.ShopId = 501;
                     clientSession.Character.Shop.Size = 60;
                     clientSession.Character.Shop.Name = string.IsNullOrWhiteSpace(mShopPacket.Name) ?
-                        Language.Instance.GetMessageFromKey(LanguageKey.SHOP_PRIVATE_SHOP,
+                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_PRIVATE_SHOP,
                             clientSession.Account.Language) :
                         mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
 
                     await clientSession.Character.MapInstance.SendPacket(clientSession.Character.GenerateShop());
                     await clientSession.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.SHOP_OPEN,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_OPEN,
                             clientSession.Account.Language)
                     });
 

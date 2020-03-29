@@ -107,7 +107,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 {
                     await requestData.ClientSession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
                             requestData.ClientSession.Account.Language)
                     });
                     return;
@@ -124,7 +124,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 {
                     await requestData.ClientSession.SendPacket(new MsgPacket
                     {
-                        Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
+                        Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
                                 requestData.ClientSession.Account.Language),
                             requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage))
                     });
@@ -143,7 +143,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 {
                     await requestData.ClientSession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
                             requestData.ClientSession.Account.Language)
                     });
                     return;

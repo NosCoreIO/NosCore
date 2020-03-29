@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Group
 
                     await targetsession.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER,
                             clientSession.Account.Language)
                     });
                 }
@@ -80,7 +80,7 @@ namespace NosCore.PacketHandlers.Group
                     await (character == null ? Task.CompletedTask : character.SendPacket(new MsgPacket
                     {
                         Message = string.Format(
-                            Language.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP,
+                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP,
                                 clientSession.Account.Language),
                             clientSession.Character.Name)
                     }));
@@ -89,7 +89,7 @@ namespace NosCore.PacketHandlers.Group
                 await clientSession.SendPacket(clientSession.Character.Group!.GeneratePinit());
                 await clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT,
                         clientSession.Account.Language)
                 });
                 await clientSession.Character.MapInstance!.SendPacket(
@@ -113,7 +113,7 @@ namespace NosCore.PacketHandlers.Group
 
                     await targetsession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
                             targetsession.AccountLanguage),
                         Type = MessageType.White
                     });

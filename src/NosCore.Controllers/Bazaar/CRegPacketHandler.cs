@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 await clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
                         clientSession.Account.Language)
                 });
                 return;
@@ -100,7 +100,7 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 await clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED,
                         clientSession.Account.Language)
                 });
                 return;
@@ -160,7 +160,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 case LanguageKey.LIMIT_EXCEEDED:
                     await clientSession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.LIMIT_EXCEEDED,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.LIMIT_EXCEEDED,
                             clientSession.Account.Language)
                     });
                     break;
@@ -183,12 +183,12 @@ namespace NosCore.PacketHandlers.Bazaar
                     clientSession.Character.Gold -= tax;
                     await clientSession.SendPacket(clientSession.Character.GenerateGold());
 
-                    await clientSession.SendPacket(clientSession.Character.GenerateSay(Language.Instance.GetMessageFromKey(
+                    await clientSession.SendPacket(clientSession.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(
                         LanguageKey.OBJECT_IN_BAZAAR,
                         clientSession.Account.Language), SayColorType.Yellow));
                     await clientSession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR,
                             clientSession.Account.Language)
                     });
 

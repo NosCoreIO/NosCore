@@ -140,7 +140,7 @@ namespace NosCore.Tests.BazaarTests
             }, _session!);
             var lastpacket = (ModalPacket?) _session!.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS, _session.Account.Language));
         }
 
         [TestMethod]
@@ -155,7 +155,7 @@ namespace NosCore.Tests.BazaarTests
             }, _session!);
             var lastpacket = (ModalPacket?) _session!.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
 
         [TestMethod]
@@ -184,7 +184,7 @@ namespace NosCore.Tests.BazaarTests
             var lastpacket = (SayPacket?) _session!.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue(lastpacket?.Message ==
                 string.Format(
-                    Language.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED, _session.Account.Language),
+                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED, _session.Account.Language),
                     70
                 ));
         }

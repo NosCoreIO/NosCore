@@ -137,7 +137,7 @@ namespace NosCore.Tests.InventoryTests
 
             var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
         }
 
         [TestMethod]
@@ -161,7 +161,7 @@ namespace NosCore.Tests.InventoryTests
 
             var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, _session.Account.Language));
         }
 
         [TestMethod]
@@ -195,7 +195,7 @@ namespace NosCore.Tests.InventoryTests
             await _session.Character.Buy(shop, 0, 999);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, _session.Account.Language));
         }
 
         [TestMethod]
@@ -363,7 +363,7 @@ namespace NosCore.Tests.InventoryTests
             Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 999);
             var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, _session.Account.Language));
         }
     }
 }

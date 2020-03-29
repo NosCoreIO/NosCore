@@ -65,7 +65,7 @@ namespace NosCore.Tests.BazaarTests
             await _cskillPacketHandler!.Execute(new CSkillPacket(), _session!);
             var lastpacket = (InfoPacket?) _session!.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.IsTrue(lastpacket?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL, _session.Account.Language));
         }
 
         [TestMethod]
@@ -78,7 +78,7 @@ namespace NosCore.Tests.BazaarTests
             await _cskillPacketHandler!.Execute(new CSkillPacket(), _session);
             var lastpacket = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, _session.Account.Language));
         }
     }
 }

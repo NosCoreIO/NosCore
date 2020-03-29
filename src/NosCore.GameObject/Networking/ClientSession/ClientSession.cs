@@ -338,7 +338,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 Parallel.ForEach(mapSessions, s =>
                 {
                     SendPacket(s.GenerateIn(s.Authority == AuthorityType.Moderator
-                        ? $"[{Language.Instance.GetMessageFromKey(LanguageKey.SUPPORT, s.AccountLanguage)}]"
+                        ? $"[{GameLanguage.Instance.GetMessageFromKey(LanguageKey.SUPPORT, s.AccountLanguage)}]"
                         : string.Empty));
                     if (s.Shop != null)
                     {
@@ -382,7 +382,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public string GetMessageFromKey(LanguageKey languageKey)
         {
-            return Language.Instance.GetMessageFromKey(languageKey, Account.Language);
+            return GameLanguage.Instance.GetMessageFromKey(languageKey, Account.Language);
         }
 
         public async Task HandlePackets(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext? contex = null)

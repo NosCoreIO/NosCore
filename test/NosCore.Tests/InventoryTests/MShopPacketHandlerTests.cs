@@ -95,7 +95,7 @@ namespace NosCore.Tests.InventoryTests
             await _mShopPacketHandler!.Execute(_shopPacket, _session!);
             var packet = (MsgPacket?) _session?.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL, _session?.Account.Language ?? RegionType.EN));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL, _session?.Account.Language ?? RegionType.EN));
             Assert.IsNull(_session?.Character.Shop);
         }
 
@@ -108,7 +108,7 @@ namespace NosCore.Tests.InventoryTests
             await _mShopPacketHandler!.Execute(_shopPacket, _session);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
             Assert.IsNull(_session.Character.Shop);
         }
 
@@ -121,7 +121,7 @@ namespace NosCore.Tests.InventoryTests
             await _mShopPacketHandler!.Execute(_shopPacket, _session);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message !=
-                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
         }
 
         [TestMethod]
@@ -133,7 +133,7 @@ namespace NosCore.Tests.InventoryTests
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
 
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED, _session.Account.Language));
             Assert.IsNull(_session.Character.Shop);
         }
 
@@ -177,7 +177,7 @@ namespace NosCore.Tests.InventoryTests
             Assert.IsNull(_session.Character.Shop);
             var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS, _session.Account.Language));
         }
 
         [TestMethod]
@@ -239,7 +239,7 @@ namespace NosCore.Tests.InventoryTests
             Assert.IsNull(_session.Character.Shop);
             var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue(packet?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, _session.Account.Language));
         }
     }
 }

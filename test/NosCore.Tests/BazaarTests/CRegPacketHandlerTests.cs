@@ -120,7 +120,7 @@ namespace NosCore.Tests.BazaarTests
 
             var lastpacket = (MsgPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
         }
 
         [TestMethod]
@@ -179,7 +179,7 @@ namespace NosCore.Tests.BazaarTests
             }, _session);
             var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED, _session.Account.Language));
         }
 
         [TestMethod]
@@ -207,7 +207,7 @@ namespace NosCore.Tests.BazaarTests
             var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(0, _session.Character.InventoryService.Count);
             Assert.IsTrue(lastpacket?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
         }
 
         [TestMethod]
@@ -230,7 +230,7 @@ namespace NosCore.Tests.BazaarTests
             }, _session);
             var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED, _session.Account.Language));
         }
 
         [TestMethod]
@@ -299,7 +299,7 @@ namespace NosCore.Tests.BazaarTests
             var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(999, _session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance!.Amount);
             Assert.IsTrue(lastpacket?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.LIMIT_EXCEEDED, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.LIMIT_EXCEEDED, _session.Account.Language));
         }
 
         [TestMethod]
@@ -323,7 +323,7 @@ namespace NosCore.Tests.BazaarTests
             var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(0, _session.Character.InventoryService.Count);
             Assert.IsTrue(lastpacket?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
         }
 
         [TestMethod]
@@ -368,7 +368,7 @@ namespace NosCore.Tests.BazaarTests
             var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(50, _session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance!.Amount);
             Assert.IsTrue(lastpacket?.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
         }
     }
 }

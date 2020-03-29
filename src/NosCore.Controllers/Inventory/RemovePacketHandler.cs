@@ -64,7 +64,7 @@ namespace NosCore.PacketHandlers.Inventory
             {
                 await clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         clientSession.Account.Language),
                     Type = 0
                 });

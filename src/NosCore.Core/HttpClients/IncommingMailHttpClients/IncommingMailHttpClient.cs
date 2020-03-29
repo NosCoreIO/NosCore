@@ -22,10 +22,10 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.WebApi;
 
-namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
+namespace NosCore.Core.HttpClients.IncommingMailHttpClients
 {
     public class IncommingMailHttpClient : MasterServerHttpClient, IIncommingMailHttpClient
     {

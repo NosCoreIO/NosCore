@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     await clientSession.SendPacket(new ModalPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS,
                             clientSession.Account.Language),
                         Type = 1
                     });
@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}});
                         await clientSession.SendPacket(clientSession.Character.GenerateSay(
                             string.Format(
-                                Language.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED,
+                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED,
                                     clientSession.Account.Language),
                                 bz.BazaarItem.Price
                             ), SayColorType.Yellow));
@@ -88,7 +88,7 @@ namespace NosCore.PacketHandlers.Bazaar
 
                 await clientSession.SendPacket(new ModalPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR,
                         clientSession.Account.Language),
                     Type = 1
                 });
