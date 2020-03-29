@@ -26,6 +26,15 @@ namespace NosCore.Database.Entities
 {
     public class Skill : IStaticEntity
     {
+        public Skill()
+        {
+            CharacterSkill = new HashSet<CharacterSkill>();
+            Combo = new HashSet<Combo>();
+            ShopSkill = new HashSet<ShopSkill>();
+            NpcMonsterSkill = new HashSet<NpcMonsterSkill>();
+            BCards = new HashSet<BCard>();
+        }
+
         public short AttackAnimation { get; set; }
 
         public short CastAnimation { get; set; }
@@ -36,11 +45,11 @@ namespace NosCore.Database.Entities
 
         public short CastTime { get; set; }
 
-        public virtual ICollection<CharacterSkill> CharacterSkill { get; set; } = new HashSet<CharacterSkill>();
+        public virtual ICollection<CharacterSkill> CharacterSkill { get; set; }
 
         public byte Class { get; set; }
 
-        public virtual ICollection<Combo> Combo { get; set; } = new HashSet<Combo>();
+        public virtual ICollection<Combo> Combo { get; set; }
 
         public short Cooldown { get; set; }
 
@@ -75,13 +84,13 @@ namespace NosCore.Database.Entities
         [I18NString(typeof(I18NSkill))]
         public string Name { get; set; } = "";
 
-        public virtual ICollection<NpcMonsterSkill> NpcMonsterSkill { get; set; } = new HashSet<NpcMonsterSkill>();
+        public virtual ICollection<NpcMonsterSkill> NpcMonsterSkill { get; set; }
 
         public int Price { get; set; }
 
         public byte Range { get; set; }
 
-        public virtual ICollection<ShopSkill> ShopSkill { get; set; } = new HashSet<ShopSkill>();
+        public virtual ICollection<ShopSkill> ShopSkill { get; set; }
 
         public byte SkillType { get; set; }
 
@@ -99,6 +108,6 @@ namespace NosCore.Database.Entities
 
         public short UpgradeType { get; set; }
 
-        public virtual ICollection<BCard> BCards { get; set; } = new HashSet<BCard>();
+        public virtual ICollection<BCard> BCards { get; set; }
     }
 }

@@ -45,11 +45,11 @@ namespace NosCore.Database.Entities
 
         public short PotionDelay { get; set; }
 
-        public virtual RespawnMapType RespawnMapType { get; set; } = new RespawnMapType();
+        public virtual RespawnMapType RespawnMapType { get; set; } = null!;
 
         public long? RespawnMapTypeId { get; set; }
 
-        public virtual RespawnMapType ReturnMapType { get; set; } = new RespawnMapType();
+        public virtual RespawnMapType ReturnMapType { get; set; } = null!;
 
         public long? ReturnMapTypeId { get; set; }
     }

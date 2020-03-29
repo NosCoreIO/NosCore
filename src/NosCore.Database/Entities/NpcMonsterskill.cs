@@ -24,7 +24,7 @@ namespace NosCore.Database.Entities
 {
     public class NpcMonsterSkill : IStaticEntity
     {
-        public virtual NpcMonster NpcMonster { get; set; } = new NpcMonster();
+        public virtual NpcMonster NpcMonster { get; set; } = null!;
 
         [Key]
         public long NpcMonsterSkillId { get; set; }
@@ -33,7 +33,7 @@ namespace NosCore.Database.Entities
 
         public short Rate { get; set; }
 
-        public virtual Skill Skill { get; set; } = new Skill();
+        public virtual Skill Skill { get; set; } = null!;
 
         public short SkillVNum { get; set; }
     }

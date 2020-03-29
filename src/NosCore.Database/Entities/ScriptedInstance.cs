@@ -25,7 +25,7 @@ namespace NosCore.Database.Entities
 {
     public class ScriptedInstance : IEntity
     {
-        public virtual Map Map { get; set; } = new Map();
+        public virtual Map Map { get; set; } = null!;
 
         public short MapId { get; set; }
 

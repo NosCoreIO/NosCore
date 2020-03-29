@@ -32,11 +32,11 @@ namespace NosCore.Database.Entities
 
         public byte Amount { get; set; }
 
-        public virtual Item Item { get; set; } = new Item();
+        public virtual Item Item { get; set; } = null!;
 
         public short ItemVNum { get; set; }
 
-        public virtual MapNpc MapNpc { get; set; } = new MapNpc();
+        public virtual MapNpc MapNpc { get; set; } = null!;
 
         public int MapNpcId { get; set; }
 
