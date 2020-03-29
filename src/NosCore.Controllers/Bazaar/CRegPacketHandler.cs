@@ -88,9 +88,9 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            var it = clientSession.Character.InventoryService.LoadBySlotAndType(cRegPacket.Slot,
+            var it = clientSession.Character.InventoryService!.LoadBySlotAndType(cRegPacket.Slot,
                 cRegPacket.Inventory == 4 ? 0 : (NoscorePocketType) cRegPacket.Inventory);
-            if ((it == null) || !it.ItemInstance.Item.IsSoldable || (it.ItemInstance.BoundCharacterId != null) ||
+            if ((it?.ItemInstance == null) || !it.ItemInstance.Item.IsSoldable || (it.ItemInstance.BoundCharacterId != null) ||
                 (cRegPacket.Amount > it.ItemInstance.Amount))
             {
                 return;
@@ -136,6 +136,10 @@ namespace NosCore.PacketHandlers.Bazaar
 
             var bazar = clientSession.Character.InventoryService.LoadBySlotAndType(cRegPacket.Slot,
                 cRegPacket.Inventory == 4 ? NoscorePocketType.Equipment : (NoscorePocketType) cRegPacket.Inventory);
+            if (bazar?.ItemInstance == null)
+            {
+                return;
+            }
             IItemInstanceDto bazaaritem = bazar.ItemInstance;
             _itemInstanceDao.InsertOrUpdate(ref bazaaritem);
 

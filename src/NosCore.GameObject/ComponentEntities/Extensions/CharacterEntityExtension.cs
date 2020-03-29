@@ -188,11 +188,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         }
                     }),
                     ReceiverType = ReceiverType.OnlySomeone,
-                    SenderCharacter = new Data.WebApi.Character { Id = visualEntity.VisualId, Name = visualEntity.Name },
+                    SenderCharacter = new Data.WebApi.Character { Id = visualEntity.VisualId, Name = visualEntity.Name! },
                     ReceiverCharacter = new Data.WebApi.Character
                     {
                         Id = friend.CharacterId,
-                        Name = friend.CharacterName
+                        Name = friend.CharacterName!
                     }
                 })));
         }

@@ -67,7 +67,9 @@ namespace NosCore.Core.Encryption
                         {
                             receiveData.Add(unchecked((byte)(str[count] ^ 0xFF)));
                         }
+#pragma warning disable CA1031 // Do not catch general exception types
                         catch
+#pragma warning restore CA1031 // Do not catch general exception types
                         {
                             receiveData.Add(255);
                         }
@@ -277,12 +279,19 @@ namespace NosCore.Core.Encryption
 
                        return packet;
                    }
+#pragma warning disable CA1031 // Do not catch general exception types
                    catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
                    {
                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING),
                            ex.Data["Packet"]);
+                       ushort? keepalive = null;
+                       if (ushort.TryParse(ex.Data["Packet"]?.ToString()?.Split(" ")[0], out var kpalive))
+                       {
+                           keepalive = kpalive;
+                       }
                        return new UnresolvedPacket
-                       { KeepAliveId = ushort.Parse(ex.Data["Packet"].ToString().Split(" ")[0]), Header = "0" };
+                       { KeepAliveId = keepalive, Header = "0" };
                    }
                }));
             }

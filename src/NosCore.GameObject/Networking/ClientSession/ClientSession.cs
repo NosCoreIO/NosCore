@@ -93,15 +93,15 @@ namespace NosCore.GameObject.Networking.ClientSession
             {
                 WorldConfiguration = worldConfiguration;
                 _mapInstanceProvider = mapInstanceProvider!;
-                _exchangeProvider = exchangeProvider;
-                _minilandProvider = minilandProvider;
+                _exchangeProvider = exchangeProvider!;
+                _minilandProvider = minilandProvider!;
                 _isWorldClient = true;
                 foreach (var handler in _packetsHandlers)
                 {
-                    var type = handler.GetType().BaseType.GenericTypeArguments[0];
-                    if (!_attributeDic.ContainsKey(type))
+                    var type = handler.GetType().BaseType?.GenericTypeArguments[0]!;
+                    if (!_attributeDic.ContainsKey(type ?? throw new InvalidOperationException()))
                     {
-                        _attributeDic.Add(type, type.GetCustomAttribute<PacketHeaderAttribute>(true));
+                        _attributeDic.Add(type, type.GetCustomAttribute<PacketHeaderAttribute>(true)!);
                     }
                 }
             }
@@ -147,7 +147,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public void SetCharacter(Character? character)
         {
-            Character = character;
+            _character = character;
             HasSelectedCharacter = character != null;
             if (character != null)
             {
@@ -258,7 +258,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             {
                 Character.IsChangingMapInstance = true;
 
-                if (Channel.Id != null)
+                if (Channel?.Id != null)
                 {
                     Character.MapInstance.Sessions.Remove(Channel);
                 }
@@ -304,7 +304,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 await SendPacket(Character.GenerateCond());
                 await SendPacket(Character.MapInstance.GenerateCMap());
                 await SendPacket(Character.GeneratePairy(
-                    Character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy,
+                    Character.InventoryService!.LoadBySlotAndType((byte)EquipmentType.Fairy,
                         NoscorePocketType.Wear)?.ItemInstance as WearableInstance));
                 await SendPackets(Character.MapInstance.GetMapItems());
                 await SendPackets(Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
@@ -331,7 +331,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 var mapSessions = Broadcaster.Instance.GetCharacters(s =>
-                    (s != Character) && (s.MapInstance.MapInstanceId == Character.MapInstanceId));
+                    (s != Character) && (s.MapInstance!.MapInstanceId == Character.MapInstanceId));
 
                 Parallel.ForEach(mapSessions, s =>
                 {
@@ -347,7 +347,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 await Character.MapInstance.SendPacket(Character.GenerateTitInfo());
                 Character.MapInstance.IsSleeping = false;
-                if (Channel.Id != null)
+                if (Channel?.Id != null)
                 {
                     if (!Character.Invisible)
                     {
@@ -374,8 +374,8 @@ namespace NosCore.GameObject.Networking.ClientSession
         private async Task LeaveMap()
         {
             await SendPacket(new MapOutPacket());
-            await Character.MapInstance.SendPacket(Character.GenerateOut(),
-                new EveryoneBut(Channel.Id));
+            await Character.MapInstance!.SendPacket(Character.GenerateOut(),
+                new EveryoneBut(Channel!.Id));
         }
 
         public string GetMessageFromKey(LanguageKey languageKey)
@@ -383,7 +383,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             return Language.Instance.GetMessageFromKey(languageKey, Account.Language);
         }
 
-        public async Task HandlePackets(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext contex = null)
+        public async Task HandlePackets(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext? contex = null)
         {
             foreach (var pack in packetConcatenated)
             {
@@ -409,7 +409,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                             continue;
                         }
 
-                        LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
+                        LastKeepAliveIdentity = (ushort)packet.KeepAliveId!;
 
                         if (packet.KeepAliveId == null)
                         {
@@ -423,7 +423,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                         if (WaitForPacketList.Count != _waitForPacketsAmount)
                         {
-                            LastKeepAliveIdentity = (ushort)packet.KeepAliveId;
+                            LastKeepAliveIdentity = packet.KeepAliveId ?? 0;
                             continue;
                         }
 
@@ -432,10 +432,10 @@ namespace NosCore.GameObject.Networking.ClientSession
                             Header = "EntryPoint",
                             Title = "EntryPoint",
                             KeepAliveId = packet.KeepAliveId,
-                            Packet1Id = WaitForPacketList[0].KeepAliveId.ToString(),
-                            Name = WaitForPacketList[0].Header,
-                            Packet2Id = packet.KeepAliveId.ToString(),
-                            Password = packet.Header
+                            Packet1Id = WaitForPacketList[0].KeepAliveId!.ToString()!,
+                            Name = WaitForPacketList[0].Header!,
+                            Packet2Id = packet.KeepAliveId!.ToString()!,
+                            Password = packet.Header!
                         };
 
                         _waitForPacketsAmount = null;
@@ -454,7 +454,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         }
 
                         var handler = _packetsHandlers.FirstOrDefault(s =>
-                            s.GetType().BaseType.GenericTypeArguments[0] == packet.GetType());
+                            s.GetType().BaseType?.GenericTypeArguments[0] == packet.GetType());
                         if (handler != null)
                         {
                             if (packet.IsValid)
@@ -495,7 +495,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
 
                     var handler = _packetsHandlers.FirstOrDefault(s =>
-                        s.GetType().BaseType.GenericTypeArguments[0] == packet.GetType());
+                        s.GetType().BaseType?.GenericTypeArguments[0] == packet.GetType());
                     if (handler != null)
                     {
                         await handler.Execute(packet, this);

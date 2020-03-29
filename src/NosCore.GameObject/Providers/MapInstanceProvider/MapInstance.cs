@@ -80,9 +80,9 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             _logger = logger;
             Requests = new Dictionary<MapInstanceEventType, Subject<RequestData<MapInstance>>>();
             _mapInstanceEventHandler = mapInstanceEventHandler;
-            foreach (MapInstanceEventType eventTypes in Enum.GetValues(typeof(MapInstanceEventType)))
+            foreach (var eventTypes in Enum.GetValues(typeof(MapInstanceEventType)))
             {
-                Requests[eventTypes] = new Subject<RequestData<MapInstance>>();
+                Requests[(MapInstanceEventType)eventTypes!] = new Subject<RequestData<MapInstance>>();
             }
         }
 

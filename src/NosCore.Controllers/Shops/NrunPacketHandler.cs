@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Shops
         public override Task Execute(NrunPacket nRunPacket, ClientSession clientSession)
         {
             var forceNull = false;
-            IAliveEntity aliveEntity;
+            IAliveEntity? aliveEntity;
             switch (nRunPacket.VisualType)
             {
                 case VisualType.Player:

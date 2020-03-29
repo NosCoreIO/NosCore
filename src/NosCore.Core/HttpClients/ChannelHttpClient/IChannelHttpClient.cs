@@ -27,7 +27,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
     {
         Task Connect();
         Task<HttpStatusCode> Ping();
-        Task<string> GetOrRefreshToken();
+        Task<string?> GetOrRefreshToken();
         Task<List<ChannelInfo>> GetChannels();
         Task<ChannelInfo> GetChannel(int channelId);
     }

@@ -68,10 +68,10 @@ namespace NosCore.GameObject
 {
     public class Character : CharacterDto, ICharacterEntity
     {
-        private readonly IGenericDao<AccountDto>? _accountDao;
-        private readonly IGenericDao<CharacterDto>? _characterDao;
-        private readonly IGenericDao<InventoryItemInstanceDto>? _inventoryItemInstanceDao;
-        private readonly IGenericDao<IItemInstanceDto>? _itemInstanceDao;
+        private readonly IGenericDao<AccountDto> _accountDao;
+        private readonly IGenericDao<CharacterDto> _characterDao;
+        private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
         private readonly ILogger _logger;
         private readonly IGenericDao<MinilandDto> _minilandDao;
         private readonly IMinilandProvider _minilandProvider;
@@ -130,7 +130,7 @@ namespace NosCore.GameObject
 
         public bool InExchangeOrShop => InExchange || InShop;
 
-        public bool InExchange => ExchangeProvider.CheckExchange(VisualId);
+        public bool InExchange => ExchangeProvider!.CheckExchange(VisualId);
 
         public bool InShop { get; set; }
         public List<QuicklistEntryDto> QuicklistEntries { get; set; }
@@ -149,7 +149,7 @@ namespace NosCore.GameObject
 
         public bool Invisible { get; set; }
 
-        public IInventoryService? InventoryService { get; }
+        public IInventoryService InventoryService { get; }
 
         public Group Group { get; set; }
 
@@ -162,7 +162,7 @@ namespace NosCore.GameObject
 
         public int DignityIcon => GetDignityIco();
 
-        public IChannel Channel => Session?.Channel;
+        public IChannel? Channel => Session.Channel;
 
         public Task SendPacket(IPacket packetDefinition)
         {
@@ -369,26 +369,26 @@ namespace NosCore.GameObject
 
         public InEquipmentSubPacket Equipment => new InEquipmentSubPacket
         {
-            Armor = InventoryService.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear)?.ItemInstance
+            Armor = InventoryService.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear)?.ItemInstance?
                 .ItemVNum,
             CostumeHat = InventoryService.LoadBySlotAndType((short)EquipmentType.CostumeHat, NoscorePocketType.Wear)
-                ?.ItemInstance.ItemVNum,
+                ?.ItemInstance?.ItemVNum,
             CostumeSuit = InventoryService.LoadBySlotAndType((short)EquipmentType.CostumeSuit, NoscorePocketType.Wear)
-                ?.ItemInstance.ItemVNum,
-            Fairy = InventoryService.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance
+                ?.ItemInstance?.ItemVNum,
+            Fairy = InventoryService.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance?
                 .ItemVNum,
-            Hat = InventoryService.LoadBySlotAndType((short)EquipmentType.Hat, NoscorePocketType.Wear)?.ItemInstance.ItemVNum,
+            Hat = InventoryService.LoadBySlotAndType((short)EquipmentType.Hat, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
             MainWeapon = InventoryService.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear)
-                ?.ItemInstance.ItemVNum,
-            Mask = InventoryService.LoadBySlotAndType((short)EquipmentType.Mask, NoscorePocketType.Wear)?.ItemInstance
+                ?.ItemInstance?.ItemVNum,
+            Mask = InventoryService.LoadBySlotAndType((short)EquipmentType.Mask, NoscorePocketType.Wear)?.ItemInstance?
                 .ItemVNum,
             SecondaryWeapon = InventoryService
-                .LoadBySlotAndType((short)EquipmentType.SecondaryWeapon, NoscorePocketType.Wear)?.ItemInstance
+                .LoadBySlotAndType((short)EquipmentType.SecondaryWeapon, NoscorePocketType.Wear)?.ItemInstance?
                 .ItemVNum,
             WeaponSkin = InventoryService.LoadBySlotAndType((short)EquipmentType.WeaponSkin, NoscorePocketType.Wear)
-                ?.ItemInstance.ItemVNum,
+                ?.ItemInstance?.ItemVNum,
             WingSkin = InventoryService.LoadBySlotAndType((short)EquipmentType.WingSkin, NoscorePocketType.Wear)
-                ?.ItemInstance.ItemVNum
+                ?.ItemInstance?.ItemVNum
         };
 
         public UpgradeRareSubPacket WeaponUpgradeRareSubPacket
@@ -399,8 +399,8 @@ namespace NosCore.GameObject
                     InventoryService.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear);
                 return new UpgradeRareSubPacket
                 {
-                    Upgrade = weapon?.ItemInstance.Upgrade ?? 0,
-                    Rare = (sbyte)(weapon?.ItemInstance.Rare ?? 0)
+                    Upgrade = weapon?.ItemInstance?.Upgrade ?? 0,
+                    Rare = (sbyte)(weapon?.ItemInstance?.Rare ?? 0)
                 };
             }
         }
@@ -412,14 +412,14 @@ namespace NosCore.GameObject
                 var armor = InventoryService.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear);
                 return new UpgradeRareSubPacket
                 {
-                    Upgrade = armor?.ItemInstance.Upgrade ?? 0,
-                    Rare = (sbyte)(armor?.ItemInstance.Rare ?? 0)
+                    Upgrade = armor?.ItemInstance?.Upgrade ?? 0,
+                    Rare = (sbyte)(armor?.ItemInstance?.Rare ?? 0)
                 };
             }
         }
 
-        public List<StaticBonusDto> StaticBonusList { get; set; }
-        public List<TitleDto> Titles { get; set; }
+        public List<StaticBonusDto> StaticBonusList { get; set; } = new List<StaticBonusDto>();
+        public List<TitleDto> Titles { get; set; } = new List<TitleDto>();
         public bool IsDisconnecting { get; internal set; }
 
         public async Task ChangeClass(CharacterClassType classType)
@@ -729,7 +729,7 @@ namespace NosCore.GameObject
             item.Amount -= amount;
             if ((item?.Amount ?? 0) == 0)
             {
-                Shop.ShopItems.TryRemove(slot, out _);
+                Shop!.ShopItems.TryRemove(slot, out _);
             }
 
             await SendPacket(itemInstance.GeneratePocketChange((PocketType)type, slotChar));
