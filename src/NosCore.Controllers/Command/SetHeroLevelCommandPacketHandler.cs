@@ -23,8 +23,8 @@ using System.Threading.Tasks;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Command
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
-                session.Character.SetHeroLevel(levelPacket.Level);
+                await session.Character.SetHeroLevel(levelPacket.Level);
                 return;
             }
 
@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.Command
                 var accounts = await
                     _connectedAccountHttpClient.GetConnectedAccount(channel);
 
-                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter.Name == levelPacket.Name);
+                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Name == levelPacket.Name);
 
                 if (target != null)
                 {
@@ -88,15 +88,15 @@ namespace NosCore.PacketHandlers.Command
 
             if (receiver == null) //TODO: Handle 404 in WebApi
             {
-                session.SendPacket(new InfoPacket
+                await session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
                 return;
             }
 
-            await _statHttpClient.ChangeStat(data, config);
+            await _statHttpClient.ChangeStat(data, config!);
         }
     }
 }

@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
@@ -28,6 +29,7 @@ using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.I18N;
 using NosCore.Data;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -48,7 +50,7 @@ namespace NosCore.Tests.InventoryTests
         private readonly MShopPacket _shopPacket = new MShopPacket
         {
             Type = CreateShopPacketType.Open,
-            ItemList = new List<MShopItemSubPacket>
+            ItemList = new List<MShopItemSubPacket?>
             {
                 new MShopItemSubPacket {Type = PocketType.Etc, Slot = 0, Amount = 1, Price = 10000},
                 new MShopItemSubPacket {Type = PocketType.Etc, Slot = 1, Amount = 2, Price = 20000},
@@ -57,9 +59,9 @@ namespace NosCore.Tests.InventoryTests
             Name = "TEST SHOP"
         };
 
-        private MShopPacketHandler _mShopPacketHandler;
+        private MShopPacketHandler? _mShopPacketHandler;
 
-        private ClientSession _session;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
@@ -68,7 +70,7 @@ namespace NosCore.Tests.InventoryTests
             Broadcaster.Reset();
 
             _session = TestHelpers.Instance.GenerateSession();
-            _session.Character.MapInstance.Portals = new List<Portal>
+            _session.Character.MapInstance!.Portals = new List<Portal>
             {
                 new Portal
                 {
@@ -88,56 +90,56 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public void UserCanNotCreateShopCloseToPortal()
+        public async Task UserCanNotCreateShopCloseToPortal()
         {
-            _mShopPacketHandler.Execute(_shopPacket, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL, _session.Account.Language));
-            Assert.IsNull(_session.Character.Shop);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session!);
+            var packet = (MsgPacket?) _session?.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL, _session?.Account.Language ?? RegionType.EN));
+            Assert.IsNull(_session?.Character.Shop);
         }
 
         [TestMethod]
-        public void UserCanNotCreateShopInTeam()
+        public async Task UserCanNotCreateShopInTeam()
         {
-            _session.Character.PositionX = 7;
+            _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
             _session.Character.Group = new Group(GroupType.Team);
-            _mShopPacketHandler.Execute(_shopPacket, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
+            await _mShopPacketHandler!.Execute(_shopPacket, _session);
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
             Assert.IsNull(_session.Character.Shop);
         }
 
         [TestMethod]
-        public void UserCanCreateShopInGroup()
+        public async Task UserCanCreateShopInGroup()
         {
-            _session.Character.PositionX = 7;
+            _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
             _session.Character.Group = new Group(GroupType.Group);
-            _mShopPacketHandler.Execute(_shopPacket, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message !=
-                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
+            await _mShopPacketHandler!.Execute(_shopPacket, _session);
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message !=
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
         }
 
         [TestMethod]
-        public void UserCanNotCreateShopInNotShopAllowedMaps()
+        public async Task UserCanNotCreateShopInNotShopAllowedMaps()
         {
-            _session.Character.PositionX = 7;
+            _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
-            _mShopPacketHandler.Execute(_shopPacket, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session);
+            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
 
-            Assert.IsTrue(packet.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED, _session.Account.Language));
+            Assert.IsTrue(packet?.Message ==
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED, _session.Account.Language));
             Assert.IsNull(_session.Character.Shop);
         }
 
 
         [TestMethod]
-        public void UserCanNotCreateShopWithMissingItem()
+        public async Task UserCanNotCreateShopWithMissingItem()
         {
             var items = new List<ItemDto>
             {
@@ -146,15 +148,15 @@ namespace NosCore.Tests.InventoryTests
             var itemBuilder = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0));
+            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0));
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
-            _mShopPacketHandler.Execute(_shopPacket, _session);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session);
             Assert.IsNull(_session.Character.Shop);
         }
 
 
         [TestMethod]
-        public void UserCanNotCreateShopWithMissingAmountItem()
+        public async Task UserCanNotCreateShopWithMissingAmountItem()
         {
             var items = new List<ItemDto>
             {
@@ -163,7 +165,7 @@ namespace NosCore.Tests.InventoryTests
             var itemBuilder = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
+            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 1);
@@ -171,15 +173,15 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
-            _mShopPacketHandler.Execute(_shopPacket, _session);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session);
             Assert.IsNull(_session.Character.Shop);
-            var packet = (SayPacket) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue(packet.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS, _session.Account.Language));
+            var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.IsTrue(packet?.Message ==
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS, _session.Account.Language));
         }
 
         [TestMethod]
-        public void UserCanCreateShop()
+        public async Task UserCanCreateShop()
         {
             var items = new List<ItemDto>
             {
@@ -188,7 +190,7 @@ namespace NosCore.Tests.InventoryTests
             var itemBuilder = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
+            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 2), 0),
                 NoscorePocketType.Etc, 1);
@@ -196,13 +198,14 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
-            _mShopPacketHandler.Execute(_shopPacket, _session);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session);
             Assert.IsNotNull(_session.Character.Shop);
         }
 
-        public void UserCanNotCreateShopInExchange()
+        [TestMethod]
+        public async Task UserCanNotCreateShopInExchange()
         {
-            _session.Character.InExchangeOrTrade = true;
+            _session!.Character.InExchangeOrTrade = true;
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true}
@@ -210,7 +213,7 @@ namespace NosCore.Tests.InventoryTests
             var itemBuilder = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 2), 0),
                 NoscorePocketType.Etc, 1);
@@ -218,25 +221,25 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
-            _mShopPacketHandler.Execute(_shopPacket, _session);
+            await _mShopPacketHandler!.Execute(_shopPacket, _session);
             Assert.IsNull(_session.Character.Shop);
         }
 
         [TestMethod]
-        public void UserCanNotCreateEmptyShop()
+        public async Task UserCanNotCreateEmptyShop()
         {
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
+            _session!.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
 
-            _mShopPacketHandler.Execute(new MShopPacket
+            await _mShopPacketHandler!.Execute(new MShopPacket
             {
                 Type = CreateShopPacketType.Open,
-                ItemList = new List<MShopItemSubPacket>(),
+                ItemList = new List<MShopItemSubPacket?>(),
                 Name = "TEST SHOP"
             }, _session);
             Assert.IsNull(_session.Character.Shop);
-            var packet = (SayPacket) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue(packet.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, _session.Account.Language));
+            var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.IsTrue(packet?.Message ==
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, _session.Account.Language));
         }
     }
 }

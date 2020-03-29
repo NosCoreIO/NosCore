@@ -48,8 +48,9 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.DataAttributes;
@@ -94,7 +95,7 @@ namespace NosCore.MasterServer
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                     var typepk = type.FindKey();
-                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk.PropertyType)
+                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType)
                         .Invoke(null, new object?[] { containerBuilder });
                 });
 

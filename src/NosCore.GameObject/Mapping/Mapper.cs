@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Mapping
         {
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
             TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
-            TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             /*GO to Dto*/
             TypeAdapterConfig<ItemInstance?, WearableInstanceDto?>.NewConfig()
                 .MapWith(src => null);

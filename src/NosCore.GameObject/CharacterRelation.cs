@@ -23,6 +23,6 @@ namespace NosCore.GameObject
 {
     public class CharacterRelation : CharacterRelationDto
     {
-        public string CharacterName { get; set; }
+        public string? CharacterName { get; set; }
     }
 }

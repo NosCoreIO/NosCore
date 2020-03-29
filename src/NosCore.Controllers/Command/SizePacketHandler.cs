@@ -46,13 +46,13 @@ namespace NosCore.PacketHandlers.Command
             switch (sizePacket.VisualType)
             {
                 case VisualType.Player:
-                    entity = session.Character;
+                    entity = session.Character!;
                     break;
                 case VisualType.Monster:
-                    entity = session.Character.MapInstance.Monsters.Find(s => s.VisualId == sizePacket.VisualId);
+                    entity = session.Character.MapInstance!.Monsters.Find(s => s.VisualId == sizePacket.VisualId)!;
                     break;
                 case VisualType.Npc:
-                    entity = session.Character.MapInstance.Npcs.Find(s => s.VisualId == sizePacket.VisualId);
+                    entity = session.Character.MapInstance!.Npcs.Find(s => s.VisualId == sizePacket.VisualId)!;
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
@@ -61,8 +61,7 @@ namespace NosCore.PacketHandlers.Command
             }
 
             entity.Size = sizePacket.Size;
-            session.Character.MapInstance.SendPacket(entity.GenerateCharSc());
-            return Task.CompletedTask;
+            return session.Character.MapInstance!.SendPacket(entity.GenerateCharSc());
         }
     }
 }

@@ -27,9 +27,9 @@ using Mapster;
 using MapsterMapper;
 using NosCore.Core;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.AuthHttpClient;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.HttpClients.AuthHttpClients;
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
@@ -94,7 +94,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 if (alreadyConnnected)
                 {
-                    clientSession.Disconnect();
+                    await clientSession.Disconnect();
                     return;
                 }
 
@@ -110,7 +110,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         {
                             AccountId = account.AccountId,
                             Name = account.Name,
-                            Password = account.Password.ToLower(),
+                            Password = account.Password!.ToLower(),
                             Authority = account.Authority,
                             Language = account.Language
                         };
@@ -123,14 +123,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     else
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD));
-                        clientSession.Disconnect();
+                        await clientSession.Disconnect();
                         return;
                     }
                 }
                 else
                 {
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT));
-                    clientSession.Disconnect();
+                    await clientSession.Disconnect();
                     return;
                 }
             }
@@ -141,7 +141,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 clientSession.Account!.Name);
 
             // load characterlist packet for each character in Character
-            clientSession.SendPacket(new ClistStartPacket {Type = 0});
+            await clientSession.SendPacket(new ClistStartPacket {Type = 0});
             foreach (var character in characters.Select(characterDto => characterDto.Adapt<Character>()))
             {
                 var equipment = new WearableInstance[16];
@@ -173,7 +173,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
 
                 // 1 1 before long string of -1.-1 = act completion
-                clientSession.SendPacket(new ClistPacket
+                await clientSession.SendPacket(new ClistPacket
                 {
                     Slot = character.Slot,
                     Name = character.Name,
@@ -201,13 +201,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     QuestCompletion = 1,
                     QuestPart = 1,
                     Pets = petlist,
-                    Design = equipment[(byte) EquipmentType.Hat]?.Item.IsColored ?? false
+                    Design = equipment[(byte) EquipmentType.Hat]?.Item?.IsColored ?? false
                         ? equipment[(byte) EquipmentType.Hat].Design : 0,
                     Unknown3 = 0
                 });
             }
 
-            clientSession.SendPacket(new ClistEndPacket());
+            await clientSession.SendPacket(new ClistEndPacket());
         }
     }
 }

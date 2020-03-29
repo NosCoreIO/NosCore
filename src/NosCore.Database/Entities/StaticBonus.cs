@@ -26,7 +26,7 @@ namespace NosCore.Database.Entities
 {
     public class StaticBonus : IEntity
     {
-        public virtual Character Character { get; set; }
+        public virtual Character Character { get; set; } = new Character();
 
         public long CharacterId { get; set; }
 

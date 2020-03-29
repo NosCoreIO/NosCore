@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -43,7 +44,7 @@ namespace NosCore.Tests.GuriHandlerTests
     [TestClass]
     public class TitleGuriHandlerTests : GuriEventHandlerTestsBase
     {
-        private IItemProvider _itemProvider;
+        private IItemProvider? _itemProvider;
 
         [TestInitialize]
         public void Setup()
@@ -55,51 +56,51 @@ namespace NosCore.Tests.GuriHandlerTests
             _itemProvider = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session = TestHelpers.Instance.GenerateSession();
-            _handler = new TitleGuriHandler();
+            Session = TestHelpers.Instance.GenerateSession();
+            Handler = new TitleGuriHandler();
         }
 
         [TestMethod]
-        public void Test_TitleGuriHandler()
+        public async Task Test_TitleGuriHandler()
         {
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
-            ExecuteGuriEventHandler(new GuriPacket
+            Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            await ExecuteGuriEventHandler(new GuriPacket
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
             });
-            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
-                _session.Account.Language), lastpacket.Message);
-            Assert.AreEqual(1, _session.Character.Titles.Count);
+            var lastpacket = (InfoPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
+                Session.Account.Language), lastpacket?.Message);
+            Assert.AreEqual(1, Session.Character.Titles.Count);
         }
 
         [TestMethod]
-        public void Test_TitleGuriHandlerWhenDuplicate()
+        public async Task Test_TitleGuriHandlerWhenDuplicate()
         {
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
-            _session.Character.Titles = new List<TitleDto> { new TitleDto { TitleType = 1 } };
-            ExecuteGuriEventHandler(new GuriPacket
+            Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            Session.Character.Titles = new List<TitleDto> { new TitleDto { TitleType = 1 } };
+            await ExecuteGuriEventHandler(new GuriPacket
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
             });
-            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.IsNull(lastpacket);
-            Assert.AreEqual(1, _session.Character.Titles.Count);
+            Assert.AreEqual(1, Session.Character.Titles.Count);
         }
 
         [TestMethod]
-        public void Test_TitleGuriHandlerWhenNoTitleItem()
+        public async Task Test_TitleGuriHandlerWhenNoTitleItem()
         {
-            ExecuteGuriEventHandler(new GuriPacket
+            await ExecuteGuriEventHandler(new GuriPacket
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
             });
-            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket?)Session!.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.IsNull(lastpacket);
-            Assert.AreEqual(0, _session.Character.Titles.Count);
+            Assert.AreEqual(0, Session.Character.Titles.Count);
         }
     }
 }

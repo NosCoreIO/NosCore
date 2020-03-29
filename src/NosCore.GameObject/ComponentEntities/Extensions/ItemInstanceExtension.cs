@@ -57,7 +57,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static IvnPacket GeneratePocketChange([CanBeNull] this InventoryItemInstance itemInstance,
+        public static IvnPacket GeneratePocketChange(this InventoryItemInstance? itemInstance,
             PocketType type,
             short slot)
         {
@@ -66,19 +66,19 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return new IvnPacket
                 {
                     Type = type,
-                    IvnSubPackets = new List<IvnSubPacket> {((IItemInstance?) null).GenerateIvnSubPacket(type, slot)}
+                    IvnSubPackets = new List<IvnSubPacket?> {((IItemInstance?) null).GenerateIvnSubPacket(type, slot)}
                 };
             }
 
             return new IvnPacket
             {
                 Type = type,
-                IvnSubPackets = new List<IvnSubPacket>
+                IvnSubPackets = new List<IvnSubPacket?>
                 {
                     new IvnSubPacket
                     {
                         Slot = slot,
-                        VNum = itemInstance.ItemInstance.ItemVNum,
+                        VNum = itemInstance.ItemInstance!.ItemVNum,
                         RareAmount =
                             itemInstance.Type != NoscorePocketType.Equipment ? itemInstance.ItemInstance.Amount
                                 : itemInstance.ItemInstance.Rare,
@@ -98,7 +98,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 {
                     Type = type,
                     IvnSubPackets = itemInstance.Select(item => item.ItemInstance.GenerateIvnSubPacket(type, item.Slot))
-                        .ToList()
+                        .ToList() as List<IvnSubPacket?>
                 };
             }
 

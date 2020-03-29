@@ -92,7 +92,7 @@ namespace NosCore.MasterServer.Controllers
         public bool AddWarehouseItem([FromBody] WareHouseDepositRequest depositRequest)
         {
             var item = depositRequest.ItemInstance as IItemInstanceDto;
-            item.Id = Guid.NewGuid();
+            item!.Id = Guid.NewGuid();
             _itemInstanceDao.InsertOrUpdate(ref item);
             var warehouse = new WarehouseDto
             {

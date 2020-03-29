@@ -26,9 +26,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
-using System.Text.Json;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -38,7 +38,7 @@ using NosCore.Data.Enumerations.I18N;
 using Polly;
 using Serilog;
 
-namespace NosCore.Core.HttpClients.ChannelHttpClient
+namespace NosCore.Core.HttpClients.ChannelHttpClients
 {
     public class ChannelHttpClient : IChannelHttpClient
     {
@@ -58,7 +58,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
         public async Task Connect()
         {
             using var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
+            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
 
             using var content = new StringContent(JsonSerializer.Serialize(_channel),
                 Encoding.Default, "application/json");
@@ -68,9 +68,9 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
                 .OrResult<HttpResponseMessage>(mess => !mess.IsSuccessStatusCode)
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     (_, __, timeSpan) =>
-                        _logger.Error(string.Format(
+                        _logger.Error(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
-                            timeSpan.TotalSeconds))
+                            timeSpan.TotalSeconds)
                 ).ExecuteAsync(() => client.PostAsync(new Uri($"{client.BaseAddress}api/channel"), content));
 
             var result =
@@ -81,7 +81,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
             _token = result.Token;
             _lastUpdateToken = SystemTime.Now();
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.REGISTRED_ON_MASTER));
-            MasterClientListSingleton.Instance.ChannelId = result.ChannelInfo.ChannelId;
+            MasterClientListSingleton.Instance.ChannelId = result.ChannelInfo!.ChannelId;
 
             await Policy
                 .HandleResult<HttpStatusCode>(ping => ping == HttpStatusCode.OK)
@@ -98,7 +98,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
         public async Task<HttpStatusCode> Ping()
         {
             using var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
+            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetOrRefreshToken().ConfigureAwait(false));
             using var content = new StringContent(JsonSerializer.Serialize(SystemTime.Now()), Encoding.Default,
                 "application/json");
@@ -116,7 +116,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
             throw new HttpRequestException(postResponse.Headers.ToString());
         }
 
-        public async Task<string> GetOrRefreshToken()
+        public async Task<string?> GetOrRefreshToken()
         {
             if (_lastUpdateToken.AddMinutes(25) < SystemTime.Now())
             {
@@ -194,7 +194,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
             if (!MasterClientListSingleton.Instance.Channels.Any())
             {
                 using var client = _httpClientFactory.CreateClient();
-                client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
+                client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
                 client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", await GetOrRefreshToken().ConfigureAwait(false));
 

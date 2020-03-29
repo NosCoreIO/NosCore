@@ -42,11 +42,11 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider.Handlers
         public void Execute(RequestData<MapInstance> requestData)
         {
             var miniland = _minilandProvider.GetMinilandFromMapInstanceId(requestData.Data.MapInstanceId);
-            if (miniland.CharacterEntity.VisualId != requestData.ClientSession.Character.CharacterId)
+            if (miniland.CharacterEntity!.VisualId != requestData.ClientSession.Character.CharacterId)
             {
                 requestData.ClientSession.SendPacket(new MsgPacket
                 {
-                    Message = miniland.MinilandMessage.Replace(' ', '^')
+                    Message = miniland.MinilandMessage!.Replace(' ', '^')
                 });
 
                 miniland.DailyVisitCount++;
@@ -63,7 +63,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider.Handlers
             requestData.ClientSession.SendPacket(
                 requestData.ClientSession.Character.GenerateSay(
                     string.Format(
-                        Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_VISITOR,
+                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_VISITOR,
                             requestData.ClientSession.Account.Language), miniland.VisitCount, miniland.DailyVisitCount),
                     SayColorType.Yellow)
             );

@@ -72,7 +72,7 @@ namespace NosCore.GameObject.Providers.ItemProvider
                 item = k.Adapt<ItemInstance>();
             }
 
-            item.Item = _items.Find(s => s.VNum == k.ItemVNum).Adapt<Item.Item>();
+            item.Item = _items.Find(s => s.VNum == k.ItemVNum)?.Adapt<Item.Item>();
             LoadHandlers(item);
             return item;
         }
@@ -111,7 +111,7 @@ namespace NosCore.GameObject.Providers.ItemProvider
 
             _handlers.ForEach(handler =>
             {
-                if (handler.Condition(itemInstance.Item))
+                if (handler.Condition(itemInstance.Item!))
                 {
                     handlersRequest.Subscribe(async o => await Observable.FromAsync(async () =>
                       {
@@ -125,7 +125,7 @@ namespace NosCore.GameObject.Providers.ItemProvider
         public IItemInstance Generate(short itemToCreateVNum, short amount, sbyte rare, byte upgrade,
             byte design)
         {
-            var itemToCreate = _items.Find(s => s.VNum == itemToCreateVNum).Adapt<Item.Item>();
+            var itemToCreate = _items.Find(s => s.VNum == itemToCreateVNum)!.Adapt<Item.Item>();
             switch (itemToCreate.Type)
             {
                 case NoscorePocketType.Miniland:

@@ -25,11 +25,11 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
 using NosCore.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
 
-namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
+namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 {
     public class ConnectedAccountHttpClient : MasterServerHttpClient, IConnectedAccountHttpClient
     {
@@ -49,13 +49,13 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
             await Delete(connectedCharacterId).ConfigureAwait(false);
         }
 
-        public async Task<Tuple<ServerConfiguration?, ConnectedAccount?>> GetCharacter(long? characterId, string characterName)
+        public async Task<Tuple<ServerConfiguration?, ConnectedAccount?>> GetCharacter(long? characterId, string? characterName)
         {
             foreach (var channel in (await _channelHttpClient.GetChannels().ConfigureAwait(false)).Where(c => c.Type == ServerType.WorldServer))
             {
                 var accounts = await GetConnectedAccount(channel).ConfigureAwait(false);
                 var target = accounts.FirstOrDefault(s =>
-                    (s.ConnectedCharacter.Name == characterName) || (s.ConnectedCharacter.Id == characterId));
+                    (s.ConnectedCharacter?.Name == characterName) || (s.ConnectedCharacter?.Id == characterId));
 
                 if (target != null)
                 {
@@ -68,8 +68,13 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
 
         public async Task<List<ConnectedAccount>> GetConnectedAccount(ChannelInfo channel)
         {
-            using var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(channel.WebApi.ToString());
+            if (channel == null)
+            {
+                throw new ArgumentNullException(nameof(channel));
+            }
+
+            using var client = CreateClient();
+            client.BaseAddress = new Uri(channel.WebApi?.ToString() ?? "");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
 
             var response = await client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}")).ConfigureAwait(false);

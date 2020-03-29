@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
@@ -43,10 +44,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class AliveEntityExtension
     {
-        public static void ChangeDir(this IAliveEntity aliveEntity, byte direction)
+        public static Task ChangeDir(this IAliveEntity aliveEntity, byte direction)
         {
             aliveEntity.Direction = direction;
-            aliveEntity.MapInstance.SendPacket(
+            return aliveEntity.MapInstance!.SendPacket(
                 aliveEntity.GenerateChangeDir());
         }
 
@@ -116,11 +117,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static void Move(this INonPlayableEntity nonPlayableEntity)
+        public static Task Move(this INonPlayableEntity nonPlayableEntity)
         {
             if (!nonPlayableEntity.IsAlive)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if (nonPlayableEntity.IsMoving && (nonPlayableEntity.Speed > 0))
@@ -131,7 +132,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 {
                     var mapX = nonPlayableEntity.MapX;
                     var mapY = nonPlayableEntity.MapY;
-                    if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
+                    if (nonPlayableEntity.MapInstance!.Map.GetFreePosition(ref mapX, ref mapY,
                         (byte)RandomFactory.Instance.RandomNumber(0, 3),
                         (byte)RandomFactory.Instance.RandomNumber(0, 3)))
                     {
@@ -147,17 +148,18 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                                 });
 
                         nonPlayableEntity.LastMove = SystemTime.Now().AddMilliseconds(value);
-                        nonPlayableEntity.MapInstance.SendPacket(
+                        return nonPlayableEntity.MapInstance.SendPacket(
                             nonPlayableEntity.GenerateMove(mapX, mapY));
                     }
                 }
             }
+            return Task.CompletedTask;
         }
 
-        public static void Rest(this IAliveEntity aliveEntity)
+        public static Task Rest(this IAliveEntity aliveEntity)
         {
             aliveEntity.IsSitting = !aliveEntity.IsSitting;
-            aliveEntity.MapInstance.SendPacket(
+            return aliveEntity.MapInstance!.SendPacket(
                 aliveEntity.GenerateRest());
         }
 
@@ -195,7 +197,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Message = message,
                 IconInfo = isNormalItem ? new IconInfoPacket
                 {
-                    IconId = item.ItemInstance.ItemVNum
+                    IconId = item.ItemInstance!.ItemVNum
                 } : null,
                 EquipmentInfo = isNormalItem ? null : new EInfoPacket(),
                 SlInfo = item.Type != NoscorePocketType.Specialist ? null : new SlInfoPacket()
@@ -237,9 +239,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 VisualType = aliveEntity.VisualType,
                 VisualId = aliveEntity.VisualId,
                 FairyMoveType = fairy == null ? 0 : 4,
-                Element = fairy?.Item.Element ?? 0,
-                ElementRate = fairy?.ElementRate + fairy?.Item.ElementRate ?? 0,
-                Morph = fairy?.Item.Morph ?? 0 + (isBuffed ? 5 : 0)
+                Element = fairy?.Item?.Element ?? 0,
+                ElementRate = fairy?.ElementRate + fairy?.Item?.ElementRate ?? 0,
+                Morph = fairy?.Item?.Morph ?? 0 + (isBuffed ? 5 : 0)
             };
         }
 
@@ -337,7 +339,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             byte shopKind)
         {
             var shopItemList = new List<NInvItemSubPacket?>();
-            var list = aliveEntity.Shop.ShopItems.Values.Where(s => s.Type == typeshop).ToList();
+            var list = aliveEntity.Shop!.ShopItems.Values.Where(s => s.Type == typeshop).ToList();
             for (var i = 0; i < aliveEntity.Shop.Size; i++)
             {
                 var item = list.Find(s => s.Slot == i);
@@ -351,9 +353,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     {
                         Type = 0,
                         Slot = item.Slot,
-                        Price = (int)(item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
+                        Price = (int)(item.Price ?? (item.ItemInstance!.Item!.ReputPrice > 0
                             ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
-                        RareAmount = item.ItemInstance.Item.Type == (byte)NoscorePocketType.Equipment
+                        RareAmount = item.ItemInstance!.Item!.Type == (byte)NoscorePocketType.Equipment
                             ? item.ItemInstance.Rare
                             : item.Amount,
                         UpgradeDesign = item.ItemInstance.Item.Type == (byte)NoscorePocketType.Equipment

@@ -41,10 +41,10 @@ namespace NosCore.Tests.BazaarTests
     [TestClass]
     public class CModPacketHandlerTest
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private Mock<IBazaarHttpClient> _bazaarHttpClient;
-        private CModPacketHandler _cmodPacketHandler;
-        private ClientSession _session;
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private Mock<IBazaarHttpClient>? _bazaarHttpClient;
+        private CModPacketHandler? _cmodPacketHandler;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
@@ -53,7 +53,7 @@ namespace NosCore.Tests.BazaarTests
             Broadcaster.Reset();
             _session = TestHelpers.Instance.GenerateSession();
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
-            _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, _logger);
+            _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, Logger);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).ReturnsAsync(
                 new BazaarLink
@@ -78,7 +78,7 @@ namespace NosCore.Tests.BazaarTests
                     BazaarItem = new BazaarItemDto {Price = 60, Amount = 1},
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(1)).ReturnsAsync((BazaarLink) null);
+            _bazaarHttpClient.Setup(b => b.GetBazaarLink(1)).ReturnsAsync((BazaarLink?) null);
             _bazaarHttpClient.Setup(b => b.Modify(It.IsAny<long>(), It.IsAny<JsonPatchDocument<BazaarLink>>())).ReturnsAsync(new BazaarLink
                 {
                     SellerName = _session.Character.Name,
@@ -90,8 +90,8 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task ModifyWhenInExchange()
         {
-            _session.Character.InExchangeOrTrade = true;
-            await _cmodPacketHandler.Execute(new CModPacket
+            _session!.Character.InExchangeOrTrade = true;
+            await _cmodPacketHandler!.Execute(new CModPacket
             {
                 BazaarId = 1,
                 NewPrice = 50,
@@ -104,87 +104,87 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task ModifyWhenNoItem()
         {
-            await _cmodPacketHandler.Execute(new CModPacket
+            await _cmodPacketHandler!.Execute(new CModPacket
             {
                 BazaarId = 1,
                 NewPrice = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session);
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            }, _session!);
+            Assert.IsNull(_session!.LastPackets.FirstOrDefault());
         }
 
 
         [TestMethod]
         public async Task ModifyWhenOtherSeller()
         {
-            await _cmodPacketHandler.Execute(new CModPacket
+            await _cmodPacketHandler!.Execute(new CModPacket
             {
                 BazaarId = 0,
                 NewPrice = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session);
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            }, _session!);
+            Assert.IsNull(_session!.LastPackets.FirstOrDefault());
         }
 
         [TestMethod]
         public async Task ModifyWhenSold()
         {
-           await _cmodPacketHandler.Execute(new CModPacket
+           await _cmodPacketHandler!.Execute(new CModPacket
             {
                 BazaarId = 3,
                 NewPrice = 60,
                 Amount = 1,
                 VNum = 1012
-            }, _session);
-            var lastpacket = (ModalPacket) _session.LastPackets.FirstOrDefault(s => s is ModalPacket);
-            Assert.IsTrue(lastpacket.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS, _session.Account.Language));
+            }, _session!);
+            var lastpacket = (ModalPacket?) _session!.LastPackets.FirstOrDefault(s => s is ModalPacket);
+            Assert.IsTrue(lastpacket?.Message ==
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS, _session.Account.Language));
         }
 
         [TestMethod]
         public async Task ModifyWhenWrongAmount()
         {
-            await _cmodPacketHandler.Execute(new CModPacket
+            await _cmodPacketHandler!.Execute(new CModPacket
             {
                 BazaarId = 2,
                 NewPrice = 70,
                 Amount = 2,
                 VNum = 1012
-            }, _session);
-            var lastpacket = (ModalPacket) _session.LastPackets.FirstOrDefault(s => s is ModalPacket);
-            Assert.IsTrue(lastpacket.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
+            }, _session!);
+            var lastpacket = (ModalPacket?) _session!.LastPackets.FirstOrDefault(s => s is ModalPacket);
+            Assert.IsTrue(lastpacket?.Message ==
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
 
         [TestMethod]
         public async Task ModifyWhenPriceSamePrice()
         {
-           await _cmodPacketHandler.Execute(new CModPacket
+           await _cmodPacketHandler!.Execute(new CModPacket
             {
                 BazaarId = 2,
                 NewPrice = 60,
                 Amount = 1,
                 VNum = 1012
-            }, _session);
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            }, _session!);
+            Assert.IsNull(_session!.LastPackets.FirstOrDefault());
         }
 
         [TestMethod]
         public async Task Modify()
         {
-            await _cmodPacketHandler.Execute(new CModPacket
+            await _cmodPacketHandler!.Execute(new CModPacket
             {
                 BazaarId = 2,
                 NewPrice = 70,
                 Amount = 1,
                 VNum = 1012
-            }, _session);
-            var lastpacket = (SayPacket) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue(lastpacket.Message ==
+            }, _session!);
+            var lastpacket = (SayPacket?) _session!.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.IsTrue(lastpacket?.Message ==
                 string.Format(
-                    Language.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED, _session.Account.Language),
+                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED, _session.Account.Language),
                     70
                 ));
         }

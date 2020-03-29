@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Command
             {
                 session.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, session.Account.Language),
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, session.Account.Language),
                     Type = 0
                 });
                 return Task.CompletedTask;
@@ -81,11 +81,11 @@ namespace NosCore.PacketHandlers.Command
             {
                 if (createItemPacket.DesignOrAmount.HasValue)
                 {
-                    design = (byte) createItemPacket.DesignOrAmount.Value;
+                    design = (byte)createItemPacket.DesignOrAmount.Value;
                 }
 
                 rare = createItemPacket.Upgrade.HasValue && (iteminfo.Effect == ItemEffectType.BoxEffect)
-                    ? (sbyte) createItemPacket.Upgrade.Value : rare;
+                    ? (sbyte)createItemPacket.Upgrade.Value : rare;
             }
             else if (iteminfo.Type == NoscorePocketType.Equipment)
             {
@@ -111,11 +111,11 @@ namespace NosCore.PacketHandlers.Command
                 {
                     if (iteminfo.EquipmentSlot == EquipmentType.Sp)
                     {
-                        upgrade = (byte) createItemPacket.DesignOrAmount.Value;
+                        upgrade = (byte)createItemPacket.DesignOrAmount.Value;
                     }
                     else
                     {
-                        rare = (sbyte) createItemPacket.DesignOrAmount.Value;
+                        rare = (sbyte)createItemPacket.DesignOrAmount.Value;
                     }
                 }
             }
@@ -130,11 +130,11 @@ namespace NosCore.PacketHandlers.Command
                 vnum,
                 amount, rare, upgrade, design), session.Character.CharacterId));
 
-            if (inv.Count <= 0)
+            if (inv == null || inv.Count <= 0)
             {
                 session.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         session.Account.Language),
                     Type = 0
                 });
@@ -145,9 +145,9 @@ namespace NosCore.PacketHandlers.Command
             var firstItem = inv[0];
 
             if (session.Character.InventoryService.LoadBySlotAndType(firstItem.Slot,
-                    firstItem.Type).ItemInstance is WearableInstance wearable)
+                    firstItem.Type)!.ItemInstance is WearableInstance wearable)
             {
-                switch (wearable.Item.EquipmentSlot)
+                switch (wearable.Item!.EquipmentSlot)
                 {
                     case EquipmentType.Armor:
                     case EquipmentType.MainWeapon:
@@ -169,7 +169,7 @@ namespace NosCore.PacketHandlers.Command
             }
 
             session.SendPacket(session.Character.GenerateSay(
-                $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, session.Account.Language)}: {iteminfo.Name[session.Account.Language]} x {amount}",
+                $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, session.Account.Language)}: {iteminfo.Name[session.Account.Language]} x {amount}",
                 SayColorType.Green));
             return Task.CompletedTask;
         }

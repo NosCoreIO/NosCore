@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -43,8 +44,8 @@ namespace NosCore.Tests.GuriHandlerTests
     [TestClass]
     public class SpeakerGuriHandlerTests : GuriEventHandlerTestsBase
     {
-        private IItemProvider _itemProvider;
-        private Mock<ILogger> _logger;
+        private IItemProvider? _itemProvider;
+        private Mock<ILogger>? _logger;
 
         [TestInitialize]
         public void Setup()
@@ -56,17 +57,17 @@ namespace NosCore.Tests.GuriHandlerTests
             _itemProvider = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session = TestHelpers.Instance.GenerateSession();
+            Session = TestHelpers.Instance.GenerateSession();
             _logger = new Mock<ILogger>();
-            _handler = new SpeakerGuriHandler(_logger.Object);
+            Handler = new SpeakerGuriHandler(_logger.Object);
             Broadcaster.Instance.LastPackets.Clear();
         }
 
         [TestMethod]
-        public void Test_SpeakerWithItem()
+        public async Task Test_SpeakerWithItemAsync()
         {
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
-            ExecuteGuriEventHandler(new GuriPacket
+            Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            await ExecuteGuriEventHandler(new GuriPacket
             {
                 Type = GuriPacketType.TextInput,
                 Argument = 3,
@@ -82,10 +83,10 @@ namespace NosCore.Tests.GuriHandlerTests
 
 
         [TestMethod]
-        public void Test_SpeakerWithItemDoesNotExist()
+        public async Task Test_SpeakerWithItemDoesNotExist()
         {
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
-            ExecuteGuriEventHandler(new GuriPacket
+            Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            await ExecuteGuriEventHandler(new GuriPacket
             {
                 Type = GuriPacketType.TextInput,
                 Argument = 3,
@@ -101,11 +102,11 @@ namespace NosCore.Tests.GuriHandlerTests
 
 
         [TestMethod]
-        public void Test_SpeakerWithoutItem()
+        public async Task Test_SpeakerWithoutItem()
         {
-            _session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
-            ExecuteGuriEventHandler(new GuriPacket
+            Session!.Character.InventoryService!.AddItemToPocket(
+                InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            await ExecuteGuriEventHandler(new GuriPacket
             {
                 Type = GuriPacketType.TextInput,
                 Argument = 3,
@@ -118,9 +119,9 @@ namespace NosCore.Tests.GuriHandlerTests
         }
 
         [TestMethod]
-        public void Test_SpeakerWithNoSpeaker()
+        public async Task Test_SpeakerWithNoSpeaker()
         {
-            ExecuteGuriEventHandler(new GuriPacket
+            await ExecuteGuriEventHandler(new GuriPacket
             {
                 Type = GuriPacketType.TextInput,
                 Argument = 3,

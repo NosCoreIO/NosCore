@@ -48,21 +48,21 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
         {
         }
 
-        public bool IsBound => BoundCharacterId.HasValue && (Item.ItemType != ItemType.Armor)
-            && (Item.ItemType != ItemType.Weapon);
+        public bool IsBound => BoundCharacterId.HasValue && (Item?.ItemType != ItemType.Armor)
+            && (Item?.ItemType != ItemType.Weapon);
 
-        public new Item Item { get; set; }
+        public new Item? Item { get; set; }
 
         public object Clone()
         {
             return (WearableInstance) MemberwiseClone();
         }
 
-        public Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>> Requests { get; set; }
+        public Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>>? Requests { get; set; }
 
         public void SetRarityPoint()
         {
-            switch (Item.EquipmentSlot)
+            switch (Item!.EquipmentSlot)
             {
                 case EquipmentType.MainWeapon:
                 case EquipmentType.SecondaryWeapon:

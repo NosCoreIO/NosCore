@@ -43,13 +43,13 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class BlInsPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
 
         private readonly IGenericDao<CharacterRelationDto> _characterRelationDao =
-            new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(_logger);
+            new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(Logger);
 
-        private BlInsPackettHandler _blInsPacketHandler;
-        private ClientSession _session;
+        private BlInsPackettHandler? _blInsPacketHandler;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
@@ -77,10 +77,10 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = 2
             };
 
-            await _blInsPacketHandler.Execute(blinsPacket, _session);
+            await _blInsPacketHandler!.Execute(blinsPacket, _session!);
             Assert.IsNull(
                 _characterRelationDao.FirstOrDefault(s =>
-                    (_session.Character.CharacterId == s.CharacterId) &&
+                    (_session!.Character.CharacterId == s.CharacterId) &&
                     (s.RelationType == CharacterRelationType.Blocked)));
         }
 
@@ -100,7 +100,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklist(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.AddBlacklist(new BlacklistRequest
                 {
-                    CharacterId = _session.Character.CharacterId,
+                    CharacterId = _session!.Character.CharacterId,
                     BlInsPacket = new BlInsPacket
                     {
                         CharacterId = targetSession.Character.VisualId
@@ -111,7 +111,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-           await _blInsPacketHandler.Execute(blinsPacket, _session);
+           await _blInsPacketHandler!.Execute(blinsPacket, _session);
             Assert.IsNotNull(
                 _characterRelationDao.FirstOrDefault(s => (_session.Character.CharacterId == s.CharacterId)
                     && (targetSession.Character.CharacterId == s.RelatedCharacterId) &&

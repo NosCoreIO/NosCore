@@ -57,13 +57,13 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     itemInstance.ItemInstanceId);
                 requestData.ClientSession.SendPacket(
                     itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot));
-                requestData.ClientSession.Character.AddAdditionalSpPoints(itemInstance.ItemInstance.Item.EffectValue);
+                requestData.ClientSession.Character.AddAdditionalSpPoints(itemInstance.ItemInstance!.Item!.EffectValue);
             }
             else
             {
                 requestData.ClientSession.Character.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
                         requestData.ClientSession.Character.Account.Language),
                     Type = MessageType.White
                 });

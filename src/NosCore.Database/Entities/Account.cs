@@ -47,7 +47,7 @@ namespace NosCore.Database.Entities
 
         [Required]
         [MaxLength(255)]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         [MaxLength(255)]
         public string? Password { get; set; }

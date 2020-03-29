@@ -41,13 +41,13 @@ namespace NosCore.PacketHandlers.Bazaar
 
         public override async Task Execute(CSListPacket packet, ClientSession clientSession)
         {
-            var list = new List<RcsListPacket.RcsListElementPacket>();
+            var list = new List<RcsListPacket.RcsListElementPacket?>();
             var bzlist = await _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, 0, 0, 0, 0, 0,
                 clientSession.Character.CharacterId);
 
             foreach (var bz in bzlist)
             {
-                var soldedAmount = bz.BazaarItem.Amount - bz.ItemInstance.Amount;
+                var soldedAmount = bz.BazaarItem!.Amount - bz.ItemInstance!.Amount;
                 int amount = bz.BazaarItem.Amount;
                 var isNosbazar = bz.BazaarItem.MedalUsed;
                 var price = bz.BazaarItem.Price;
@@ -86,7 +86,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 }
             }
 
-            clientSession.SendPacket(new RcsListPacket
+            await clientSession.SendPacket(new RcsListPacket
             {
                 PageNumber = packet.Index,
                 Items = list

@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 var time = (int)(medalBonus.DateEnd == null ? 720 : ((TimeSpan)(medalBonus.DateEnd - SystemTime.Now())).TotalHours);
                 clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR,
                         clientSession.Account.Language),
                     Type = MessageType.Whisper
                 });
@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 clientSession.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL,
                         clientSession.Account.Language)
                 });
             }

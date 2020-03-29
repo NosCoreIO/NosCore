@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Miniland
         public override Task Execute(RmvobjPacket rmvobjPacket, ClientSession clientSession)
         {
             var minilandobject =
-                clientSession.Character!.InventoryService.LoadBySlotAndType(rmvobjPacket.Slot, NoscorePocketType.Miniland);
+                clientSession.Character.InventoryService.LoadBySlotAndType(rmvobjPacket.Slot, NoscorePocketType.Miniland);
             if (minilandobject == null)
             {
                 return Task.CompletedTask;
@@ -53,13 +53,13 @@ namespace NosCore.PacketHandlers.Miniland
             {
                 clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_NEED_LOCK,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_NEED_LOCK,
                         clientSession.Account.Language)
                 });
                 return Task.CompletedTask;
             }
 
-            if (!clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
+            if (!clientSession.Character.MapInstance!.MapDesignObjects.ContainsKey(minilandobject.Id))
             {
                 return Task.CompletedTask;
             }
@@ -68,7 +68,7 @@ namespace NosCore.PacketHandlers.Miniland
             clientSession.Character.MapInstance.MapDesignObjects.TryRemove(minilandobject.Id, out _);
             clientSession.SendPacket(minilandObject.GenerateEffect(true));
             clientSession.SendPacket(new MinilandPointPacket
-                {MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100});
+                {MinilandPoint = minilandobject.ItemInstance!.Item!.MinilandObjectPoint, Unknown = 100});
             clientSession.SendPacket(minilandObject.GenerateMapDesignObject(true));
             return Task.CompletedTask;
         }

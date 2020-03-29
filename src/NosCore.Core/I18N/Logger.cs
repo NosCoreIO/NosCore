@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Globalization;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using Serilog;
@@ -54,15 +55,15 @@ namespace NosCore.Core.I18N
             var titleLogger = new LoggerConfiguration()
                 .WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}")
                 .CreateLogger();
-            var offset = Console.WindowWidth / 2 + text.Length / 2;
+            var offset = Console.WindowWidth / 2 + text?.Length / 2;
             var separator = new string('=', Console.WindowHeight > 0 ? Console.WindowWidth - 1 : 20);
             titleLogger.Information(separator);
             foreach (var s in AsciiTitle)
             {
-                titleLogger.Information(string.Format("{0," + (Console.WindowWidth / 2 + s.Length / 2) + "}", s));
+                titleLogger.Information(string.Format(CultureInfo.CurrentCulture, "{0," + (Console.WindowWidth / 2 + s.Length / 2) + "}", s));
             }
 
-            titleLogger.Information(string.Format("{0," + offset + "}", text));
+            titleLogger.Information(string.Format(CultureInfo.CurrentCulture, "{0," + offset + "}", text));
             titleLogger.Information(separator);
         }
     }

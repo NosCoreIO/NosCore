@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Parcel
                     var patch = new JsonPatchDocument<MailDto>();
                     patch.Replace(link => link.IsOpened, true);
                     await _mailHttpClient.ViewGift(mail.MailDto.MailId, patch);
-                    clientSession.SendPacket(mail.GeneratePostMessage(pstClientPacket.Type));
+                    await clientSession.SendPacket(mail.GeneratePostMessage(pstClientPacket.Type));
                     break;
                 case 2:
                     if (mail == null)
@@ -67,9 +67,9 @@ namespace NosCore.PacketHandlers.Parcel
                     }
 
                     await _mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
-                    clientSession.SendPacket(
+                    await clientSession.SendPacket(
                         clientSession.Character.GenerateSay(
-                            Language.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED,
+                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED,
                                 clientSession.Account.Language),
                             SayColorType.Purple));
                     break;
@@ -84,16 +84,16 @@ namespace NosCore.PacketHandlers.Parcel
                     {
                         await _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
                             pstClientPacket.Text);
-                        clientSession.SendPacket(clientSession.Character.GenerateSay(
-                            Language.Instance.GetMessageFromKey(
+                        await clientSession.SendPacket(clientSession.Character.GenerateSay(
+                            GameLanguage.Instance.GetMessageFromKey(
                                 LanguageKey.MAILED,
                                 clientSession.Account.Language), SayColorType.Yellow));
                     }
                     else
                     {
-                        clientSession.SendPacket(
+                        await clientSession.SendPacket(
                             clientSession.Character.GenerateSay(
-                                Language.Instance.GetMessageFromKey(LanguageKey.USER_NOT_FOUND,
+                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_FOUND,
                                     clientSession.Account.Language),
                                 SayColorType.Yellow));
                     }

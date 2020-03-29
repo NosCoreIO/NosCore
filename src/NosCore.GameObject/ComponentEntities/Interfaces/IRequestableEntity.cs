@@ -24,11 +24,11 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface IRequestableEntity<T>
     {
-        Subject<RequestData<T>> Requests { get; set; }
+        Subject<RequestData<T>>? Requests { get; set; }
     }
 
     public interface IRequestableEntity
     {
-        Subject<RequestData> Requests { get; set; }
+        Subject<RequestData>? Requests { get; set; }
     }
 }

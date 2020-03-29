@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -40,13 +41,13 @@ namespace NosCore.Tests.ItemHandlerTests
     [TestClass]
     public class SpRechargerEventHandlerTests : UseItemEventHandlerTestsBase
     {
-        private ItemProvider _itemProvider;
+        private ItemProvider? _itemProvider;
 
         [TestInitialize]
         public void Setup()
         {
-            _session = TestHelpers.Instance.GenerateSession();
-            _handler = new SpRechargerEventHandler(new WorldConfiguration {MaxAdditionalSpPoints = 1});
+            Session = TestHelpers.Instance.GenerateSession();
+            Handler = new SpRechargerEventHandler(new WorldConfiguration {MaxAdditionalSpPoints = 1});
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, ItemType = ItemType.Special, EffectValue = 1},
@@ -55,28 +56,27 @@ namespace NosCore.Tests.ItemHandlerTests
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
         }
         [TestMethod]
-        public void Test_SpRecharger_When_Max()
+        public async Task Test_SpRecharger_When_Max()
         {
-            _session.Character.SpAdditionPoint = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL, _session.Character.Account.Language), lastpacket.Message);
-            Assert.AreEqual(1, _session.Character.SpAdditionPoint);
-            Assert.AreEqual(1, _session.Character.InventoryService.Count);
+            Session!.Character.SpAdditionPoint = 1;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (MsgPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL, Session.Character.Account.Language), lastpacket?.Message);
+            Assert.AreEqual(1, Session.Character.SpAdditionPoint);
+            Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
         [TestMethod]
-        public void Test_SpRecharger()
+        public async Task Test_SpRecharger()
         {
-            _session.Character.SpAdditionPoint = 0;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(1, _session.Character.SpAdditionPoint);
-            Assert.AreEqual(0, _session.Character.InventoryService.Count);
+            Session!.Character.SpAdditionPoint = 0;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            Assert.AreEqual(1, Session.Character.SpAdditionPoint);
+            Assert.AreEqual(0, Session.Character.InventoryService.Count);
         }
     }
 }

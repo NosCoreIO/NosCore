@@ -56,14 +56,14 @@ namespace NosCore.PacketHandlers.Shops
                 return Task.CompletedTask;
             }
 
-            IAliveEntity aliveEntity;
+            IAliveEntity? aliveEntity;
             switch (buyPacket.VisualType)
             {
                 case VisualType.Player:
                     aliveEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == buyPacket.VisualId);
                     break;
                 case VisualType.Npc:
-                    aliveEntity = clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == buyPacket.VisualId);
+                    aliveEntity = clientSession.Character.MapInstance!.Npcs.Find(s => s.VisualId == buyPacket.VisualId);
                     break;
 
                 default:
@@ -78,8 +78,7 @@ namespace NosCore.PacketHandlers.Shops
                 return Task.CompletedTask;
             }
 
-            clientSession.Character.Buy(aliveEntity.Shop, buyPacket.Slot, buyPacket.Amount);
-            return Task.CompletedTask;
+            return clientSession.Character.Buy(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount);
         }
     }
 }

@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
@@ -42,10 +43,11 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 
             if (requestData.Data.VisualId.GetValueOrDefault() == requestData.ClientSession.Character.CharacterId)
             {
-                requestData.ClientSession.Character.MapInstance.SendPacket(
-                    requestData.ClientSession.Character.GenerateEff((int) requestData.Data.Data +
+                return requestData.ClientSession.Character.MapInstance!.SendPacket(
+                    requestData.ClientSession.Character.GenerateEff(Convert.ToInt32(requestData.Data.Data) +
                         4099)); //TODO , ReceiverType.AllNoEmoBlocked
             }
+
             return Task.CompletedTask;
         }
     }

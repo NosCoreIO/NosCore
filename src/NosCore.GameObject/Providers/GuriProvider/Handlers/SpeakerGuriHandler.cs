@@ -61,44 +61,43 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             return message.Trim();
         }
 
-        public Task Execute(RequestData<GuriPacket> requestData)
+        public async Task Execute(RequestData<GuriPacket> requestData)
         {
-            var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)requestData.Data.VisualId,
+            var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)(requestData.Data.VisualId ?? 0),
                 NoscorePocketType.Etc);
-            if (inv?.ItemInstance.Item.Effect != ItemEffectType.Speaker)
+            if (inv?.ItemInstance?.Item?.Effect != ItemEffectType.Speaker)
             {
-                _logger.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEM_NOT_FOUND), NoscorePocketType.Etc, (short)requestData.Data.VisualId));
-                return Task.CompletedTask;
+                _logger.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEM_NOT_FOUND), NoscorePocketType.Etc, (short)(requestData.Data.VisualId ?? 0)));
+                return;
             }
 
-            string data = requestData.Data.Value;
+            string? data = requestData.Data.Value;
             string[] valuesplit = (data ?? string.Empty).Split(' ');
-            string message = $"<{Language.Instance.GetMessageFromKey(LanguageKey.SPEAKER, requestData.ClientSession.Account.Language)}> [{requestData.ClientSession.Character.Name}]:";
+            string message = $"<{GameLanguage.Instance.GetMessageFromKey(LanguageKey.SPEAKER, requestData.ClientSession.Account.Language)}> [{requestData.ClientSession.Character.Name}]:";
             if (requestData.Data.Data == 999)
             {
                 InventoryItemInstance? deeplink = null;
                 if (short.TryParse(valuesplit[1], out var slot) &
                     Enum.TryParse(typeof(NoscorePocketType), valuesplit[0], out var type))
                 {
-                    deeplink = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)type);
+                    deeplink = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)type!);
                 }
                 if (deeplink == null)
                 {
                     _logger.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEM_NOT_FOUND), type, slot));
-                    return Task.CompletedTask;
+                    return;
                 }
                 message = CraftMessage(message, valuesplit.Skip(2).ToArray()).Replace(' ', '|');
-                Broadcaster.Instance.SendPacket(requestData.ClientSession.Character.GenerateSayItem(message, deeplink), new EveryoneBut(requestData.ClientSession.Channel.Id));
+                await Broadcaster.Instance.SendPacket(requestData.ClientSession.Character.GenerateSayItem(message, deeplink), new EveryoneBut(requestData.ClientSession.Channel!.Id));
             }
             else
             {
                 message = CraftMessage(message, valuesplit);
-                Broadcaster.Instance.SendPacket(requestData.ClientSession.Character.GenerateSay(message, (SayColorType)13), new EveryoneBut(requestData.ClientSession.Channel.Id));
+                await Broadcaster.Instance.SendPacket(requestData.ClientSession.Character.GenerateSay(message, (SayColorType)13), new EveryoneBut(requestData.ClientSession.Channel!.Id));
             }
 
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
-            requestData.ClientSession.Character.SendPacket(inv.GeneratePocketChange(PocketType.Etc, (short)requestData.Data.VisualId));
-            return Task.CompletedTask;
+            await requestData.ClientSession.Character.SendPacket(inv.GeneratePocketChange(PocketType.Etc, (short)(requestData.Data.VisualId ?? 0)));
         }
     }
 }

@@ -26,7 +26,7 @@ namespace NosCore.Data.CommandPackets
     public class KickPacket : CommandPacket
     {
         [PacketIndex(0)]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public override string Help()
         {

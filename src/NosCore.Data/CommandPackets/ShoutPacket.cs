@@ -26,7 +26,7 @@ namespace NosCore.Data.CommandPackets
     public class ShoutPacket : CommandPacket
     {
         [PacketIndex(0)]
-        public string Message { get; set; }
+        public string? Message { get; set; }
 
         public override string Help()
         {

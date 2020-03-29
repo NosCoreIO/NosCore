@@ -26,7 +26,7 @@ namespace NosCore.Data.CommandPackets
     public class GiftPacket : CommandPacket
     {
         [PacketIndex(0)]
-        public string CharacterName { get; set; }
+        public string? CharacterName { get; set; }
 
         [PacketIndex(1)]
         public short VNum { get; set; }

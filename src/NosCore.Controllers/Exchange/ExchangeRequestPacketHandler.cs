@@ -74,32 +74,32 @@ namespace NosCore.PacketHandlers.Exchange
             {
                 case RequestExchangeType.Requested:
                     if (_exchangeProvider.CheckExchange(clientSession.Character.CharacterId) ||
-                        _exchangeProvider.CheckExchange(target.VisualId))
+                        _exchangeProvider.CheckExchange(target?.VisualId ?? 0))
                     {
-                        clientSession.SendPacket(new MsgPacket
+                        await clientSession.SendPacket(new MsgPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE,
                                 clientSession.Account.Language),
                             Type = MessageType.White
                         });
                         return;
                     }
 
-                    if (target.ExchangeBlocked)
+                    if (target?.ExchangeBlocked ?? true)
                     {
-                        clientSession.SendPacket(clientSession.Character.GenerateSay(
-                            Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED,
+                        await clientSession.SendPacket(clientSession.Character.GenerateSay(
+                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED,
                                 clientSession.Account.Language),
                             SayColorType.Purple));
                         return;
                     }
 
                     var blacklisteds = await _blacklistHttpClient.GetBlackLists(clientSession.Character.VisualId);
-                    if (blacklisteds.Any(s => s.CharacterId == target.VisualId))
+                    if (blacklisteds.Any(s => s.CharacterId == target?.VisualId))
                     {
-                        clientSession.SendPacket(new InfoPacket
+                        await clientSession.SendPacket(new InfoPacket
                         {
-                            Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
                                 clientSession.Account.Language)
                         });
                         return;
@@ -107,51 +107,51 @@ namespace NosCore.PacketHandlers.Exchange
 
                     if (clientSession.Character.InShop || target.InShop)
                     {
-                        clientSession.SendPacket(new MsgPacket
+                        await clientSession.SendPacket(new MsgPacket
                         {
                             Message =
-                                Language.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED,
+                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED,
                                     clientSession.Account.Language),
                             Type = MessageType.White
                         });
                         return;
                     }
 
-                    clientSession.SendPacket(new ModalPacket
+                    await clientSession.SendPacket(new ModalPacket
                     {
-                        Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE,
+                        Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE,
                             clientSession.Account.Language), target.Name),
                         Type = 0
                     });
 
-                    target.SendPacket(new DlgPacket
+                    await target.SendPacket(new DlgPacket
                     {
                         YesPacket = new ExchangeRequestPacket
-                            {RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId},
+                        { RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId },
                         NoPacket = new ExchangeRequestPacket
-                            {RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId},
-                        Question = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
+                        { RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId },
+                        Question = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
                             clientSession.Account.Language), clientSession.Character.Name)
                     });
                     return;
 
                 case RequestExchangeType.List:
-                    if (!_exchangeProvider.OpenExchange(clientSession.Character.VisualId, target.CharacterId))
+                    if (!_exchangeProvider.OpenExchange(clientSession.Character.VisualId, target?.CharacterId ?? 0))
                     {
                         return;
                     }
 
-                    clientSession.SendPacket(clientSession.Character.GenerateServerExcListPacket(null, null, null));
-                    target.SendPacket(target.GenerateServerExcListPacket(null, null, null));
+                    await clientSession.SendPacket(clientSession.Character.GenerateServerExcListPacket(null, null, null));
+                    await (target == null ? Task.CompletedTask : target.SendPacket(target.GenerateServerExcListPacket(null, null, null)));
                     return;
 
                 case RequestExchangeType.Declined:
-                    clientSession.SendPacket(clientSession.Character.GenerateSay(
-                        Language.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED,
+                    await clientSession.SendPacket(clientSession.Character.GenerateSay(
+                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED,
                             clientSession.Account.Language),
                         SayColorType.Yellow));
-                    target?.SendPacket(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED),
-                        SayColorType.Yellow));
+                    await (target == null ? Task.CompletedTask : target.SendPacket(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED),
+                        SayColorType.Yellow)));
                     return;
 
                 case RequestExchangeType.Confirmed:
@@ -177,9 +177,9 @@ namespace NosCore.PacketHandlers.Exchange
                     if (!_exchangeProvider.IsExchangeConfirmed(clientSession.Character.VisualId) ||
                         !_exchangeProvider.IsExchangeConfirmed(exchangeTarget.VisualId))
                     {
-                        clientSession.SendPacket(new InfoPacket
+                        await clientSession.SendPacket(new InfoPacket
                         {
-                            Message = string.Format(Language.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR,
+                            Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR,
                                 clientSession.Account.Language), exchangeTarget.Name)
                         });
                         return;
@@ -189,15 +189,15 @@ namespace NosCore.PacketHandlers.Exchange
 
                     if (success.Item1 == ExchangeResultType.Success)
                     {
-                        foreach (var infoPacket in success.Item2)
+                        foreach (var infoPacket in success.Item2!)
                         {
                             if (infoPacket.Key == clientSession.Character.CharacterId)
                             {
-                                clientSession.SendPacket(infoPacket.Value);
+                                await clientSession.SendPacket(infoPacket.Value);
                             }
                             else if (infoPacket.Key == exchangeTarget.VisualId)
                             {
-                                exchangeTarget.SendPacket(infoPacket.Value);
+                                await exchangeTarget.SendPacket(infoPacket.Value);
                             }
                             else
                             {
@@ -214,32 +214,32 @@ namespace NosCore.PacketHandlers.Exchange
                         {
                             if (item.Key == clientSession.Character.CharacterId)
                             {
-                                clientSession.SendPacket(item.Value);
+                                await clientSession.SendPacket(item.Value);
                             }
                             else
                             {
-                                exchangeTarget.SendPacket(item.Value);
+                                await exchangeTarget.SendPacket(item.Value);
                             }
                         }
 
                         var getSessionData = _exchangeProvider.GetData(clientSession.Character.CharacterId);
-                        clientSession.Character.RemoveGold(getSessionData.Gold);
+                        await clientSession.Character.RemoveGold(getSessionData.Gold);
                         clientSession.Character.RemoveBankGold(getSessionData.BankGold * 1000);
 
-                        exchangeTarget.AddGold(getSessionData.Gold);
+                        await exchangeTarget.AddGold(getSessionData.Gold);
                         exchangeTarget.AddBankGold(getSessionData.BankGold * 1000);
 
                         var getTargetData = _exchangeProvider.GetData(exchangeTarget.VisualId);
-                        exchangeTarget.RemoveGold(getTargetData.Gold);
+                        await exchangeTarget.RemoveGold(getTargetData.Gold);
                         exchangeTarget.RemoveBankGold(getTargetData.BankGold * 1000);
 
-                        clientSession.Character.AddGold(getTargetData.Gold);
+                        await clientSession.Character.AddGold(getTargetData.Gold);
                         clientSession.Character.AddBankGold(getTargetData.BankGold * 1000);
                     }
 
-                    closeExchange = _exchangeProvider.CloseExchange(clientSession.Character.VisualId, success.Item1);
+                    closeExchange = _exchangeProvider.CloseExchange(clientSession.Character.VisualId, success.Item1)!;
                     exchangeTarget?.SendPacket(closeExchange);
-                    clientSession.SendPacket(closeExchange);
+                    await clientSession.SendPacket(closeExchange);
                     return;
 
                 case RequestExchangeType.Cancelled:
@@ -253,9 +253,9 @@ namespace NosCore.PacketHandlers.Exchange
                     var cancelTarget = Broadcaster.Instance.GetCharacter(s => s.VisualId == cancelId.Value);
 
                     closeExchange =
-                        _exchangeProvider.CloseExchange(clientSession.Character.VisualId, ExchangeResultType.Failure);
+                        _exchangeProvider.CloseExchange(clientSession.Character.VisualId, ExchangeResultType.Failure)!;
                     cancelTarget?.SendPacket(closeExchange);
-                    clientSession.SendPacket(closeExchange);
+                    await clientSession.SendPacket(closeExchange);
                     return;
 
                 default:

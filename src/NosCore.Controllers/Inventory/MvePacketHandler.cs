@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Inventory
             clientSession.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType,
                 mvePacket.DestinationSlot));
             clientSession.SendPacket(
-                ((InventoryItemInstance) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+                ((InventoryItemInstance?) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
             return Task.CompletedTask;
         }
     }

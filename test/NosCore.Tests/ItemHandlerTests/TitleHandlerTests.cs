@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -37,13 +38,13 @@ namespace NosCore.Tests.ItemHandlerTests
     [TestClass]
     public class TitleHandlerTests : UseItemEventHandlerTestsBase
     {
-        private ItemProvider _itemProvider;
+        private ItemProvider? _itemProvider;
 
         [TestInitialize]
         public void Setup()
         {
-            _session = TestHelpers.Instance.GenerateSession();
-            _handler = new TitleHandler();
+            Session = TestHelpers.Instance.GenerateSession();
+            Handler = new TitleHandler();
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, ItemType = ItemType.Title, EffectValue = 0},
@@ -53,14 +54,14 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public void Test_TitleItemHandler()
+        public async Task Test_TitleItemHandler()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (QnaPacket)_session.LastPackets.FirstOrDefault(s => s is QnaPacket);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (QnaPacket?)Session.LastPackets.FirstOrDefault(s => s is QnaPacket);
             Assert.IsNotNull(lastpacket);
-            Assert.IsTrue(lastpacket.YesPacket.GetType() == typeof(GuriPacket));
+            Assert.IsTrue(lastpacket!.YesPacket!.GetType() == typeof(GuriPacket));
         }
     }
 }

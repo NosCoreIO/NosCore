@@ -17,19 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
-using NosCore.Configuration;
-using NosCore.Data.WebApi;
 
-namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
+namespace NosCore.Core.HttpClients.ChannelHttpClients
 {
-    public interface IConnectedAccountHttpClient
+    public interface IChannelHttpClient
     {
-        Task<List<ConnectedAccount>> GetConnectedAccount(ChannelInfo channel);
-        Task Disconnect(long connectedCharacterId);
-
-        Task<Tuple<ServerConfiguration?, ConnectedAccount?>> GetCharacter(long? characterId, string? characterName);
+        Task Connect();
+        Task<HttpStatusCode> Ping();
+        Task<string?> GetOrRefreshToken();
+        Task<List<ChannelInfo>> GetChannels();
+        Task<ChannelInfo> GetChannel(int channelId);
     }
 }

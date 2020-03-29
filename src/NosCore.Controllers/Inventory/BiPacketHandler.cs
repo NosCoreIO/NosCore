@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Inventory
                                 Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined
                             },
-                            Question = Language.Instance.GetMessageFromKey(LanguageKey.ASK_TO_DELETE,
+                            Question = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ASK_TO_DELETE,
                                 clientSession.Account.Language)
                         });
                     break;
@@ -81,7 +81,7 @@ namespace NosCore.PacketHandlers.Inventory
                                 Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined
                             },
-                            Question = Language.Instance.GetMessageFromKey(LanguageKey.SURE_TO_DELETE,
+                            Question = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SURE_TO_DELETE,
                                 clientSession.Account.Language)
                         });
                     break;

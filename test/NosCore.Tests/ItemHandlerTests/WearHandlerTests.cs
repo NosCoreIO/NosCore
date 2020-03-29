@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -48,16 +49,16 @@ namespace NosCore.Tests.ItemHandlerTests
     [TestClass]
     public class WearEventHandlerTests : UseItemEventHandlerTestsBase
     {
-        private ItemProvider _itemProvider;
-        private Mock<ILogger> _logger;
+        private ItemProvider? _itemProvider;
+        private Mock<ILogger>? _logger;
 
         [TestInitialize]
         public void Setup()
         {
             _logger = new Mock<ILogger>();
             TestHelpers.Instance.WorldConfiguration.BackpackSize = 40;
-            _session = TestHelpers.Instance.GenerateSession();
-            _handler = new WearEventHandler(_logger.Object);
+            Session = TestHelpers.Instance.GenerateSession();
+            Handler = new WearEventHandler(_logger.Object);
             var items = new List<ItemDto>
             {
                 new Item
@@ -120,156 +121,156 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public void Test_Can_Not_Use_WearEvent_In_Shop()
+        public async Task Test_Can_Not_Use_WearEvent_In_Shop()
         {
-            _session.Character.InShop = true;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            _logger.Verify(s => s.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP)), Times.Exactly(1));
+            Session!.Character.InShop = true;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            _logger!.Verify(s => s.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP)), Times.Exactly(1));
         }
 
         [TestMethod]
-        public void Test_BoundCharacter_Question()
+        public async Task Test_BoundCharacter_Question()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (QnaPacket)_session.LastPackets.FirstOrDefault(s => s is QnaPacket);
-            Assert.AreEqual(_session.GetMessageFromKey(LanguageKey.ASK_BIND), lastpacket.Question);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (QnaPacket?)Session.LastPackets.FirstOrDefault(s => s is QnaPacket);
+            Assert.AreEqual(Session.GetMessageFromKey(LanguageKey.ASK_BIND), lastpacket?.Question);
         }
 
         [TestMethod]
-        public void Test_BoundCharacter()
+        public async Task Test_BoundCharacter()
         {
-            _useItem.Mode = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            Assert.AreEqual(_session.Character.CharacterId, itemInstance.ItemInstance.BoundCharacterId);
+            UseItem.Mode = 1;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            Assert.AreEqual(Session.Character.CharacterId, itemInstance.ItemInstance?.BoundCharacterId);
         }
 
         [TestMethod]
-        public void Test_BadEquipment()
+        public async Task Test_BadEquipment()
         {
-            _useItem.Mode = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(5), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.AreEqual(_session.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT), lastpacket.Message);
+            UseItem.Mode = 1;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(5), Session!.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (SayPacket?)Session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.AreEqual(Session.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT), lastpacket?.Message);
         }
 
         [TestMethod]
-        public void Test_BadFairy()
+        public async Task Test_BadFairy()
         {
-            _useItem.Mode = 1;
-            _session.Character.UseSp = true;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(2), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            var sp = InventoryItemInstance.Create(_itemProvider.Create(4), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
-                    _session.Account.Language), lastpacket.Message);
+            UseItem.Mode = 1;
+            Session!.Character.UseSp = true;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            var sp = InventoryItemInstance.Create(_itemProvider.Create(4), Session.Character.CharacterId);
+            Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (MsgPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
+                    Session.Account.Language), lastpacket?.Message);
         }
 
         [TestMethod]
-        public void Test_SpLoading()
+        public async Task Test_SpLoading()
         { 
-            _useItem.Mode = 1;
+            UseItem.Mode = 1;
             SystemTime.Freeze();
-            _session.Character.LastSp = SystemTime.Now();
-            _session.Character.SpCooldown = 300;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(4), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            var sp = InventoryItemInstance.Create(_itemProvider.Create(4), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
-                    _session.Account.Language),
-                _session.Character.SpCooldown), lastpacket.Message);
+            Session!.Character.LastSp = SystemTime.Now();
+            Session.Character.SpCooldown = 300;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            var sp = InventoryItemInstance.Create(_itemProvider.Create(4), Session.Character.CharacterId);
+            Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (MsgPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.AreEqual(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
+                    Session.Account.Language),
+                Session.Character.SpCooldown), lastpacket?.Message);
         }
 
         [TestMethod]
-        public void Test_UseSp()
+        public async Task Test_UseSp()
         {
-            _useItem.Mode = 1;
-            _session.Character.UseSp = true;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(4), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            var sp = InventoryItemInstance.Create(_itemProvider.Create(4), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            UseItem.Mode = 1;
+            Session!.Character.UseSp = true;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            var sp = InventoryItemInstance.Create(_itemProvider.Create(4), Session.Character.CharacterId);
+            Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (SayPacket?)Session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.AreEqual(
-                Language.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED, _session.Account.Language), 
-                lastpacket.Message);
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED, Session.Account.Language), 
+                lastpacket?.Message);
         }
 
         [TestMethod]
-        public void Test_UseDestroyedSp()
+        public async Task Test_UseDestroyedSp()
         {
-            _useItem.Mode = 1;
+            UseItem.Mode = 1;
             SystemTime.Freeze();
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(4), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            itemInstance.ItemInstance.Rare = -2;
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (MsgPacket)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
-                    _session.Account.Language), lastpacket.Message);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session!.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            itemInstance.ItemInstance!.Rare = -2;
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (MsgPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
+                    Session.Account.Language), lastpacket?.Message);
         }
 
         [TestMethod]
-        public void Test_Use_BadJobLevel()
+        public async Task Test_Use_BadJobLevel()
         {
-            _useItem.Mode = 1;
+            UseItem.Mode = 1;
             SystemTime.Freeze();
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(6), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (SayPacket)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.LOW_JOB_LVL,
-                    _session.Account.Language), lastpacket.Message);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(6), Session!.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (SayPacket?)Session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOW_JOB_LVL,
+                    Session.Account.Language), lastpacket?.Message);
         }
 
         [TestMethod]
-        public void Test_Use_SP()
+        public async Task Test_Use_SP()
         {
-            _useItem.Mode = 1;
+            UseItem.Mode = 1;
             SystemTime.Freeze();
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(4), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (SpPacket)_session.LastPackets.FirstOrDefault(s => s is SpPacket);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session!.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (SpPacket?)Session.LastPackets.FirstOrDefault(s => s is SpPacket);
             Assert.IsNotNull(lastpacket);
         }
 
         [TestMethod]
-        public void Test_Use_Fairy()
+        public async Task Test_Use_Fairy()
         {
-            _useItem.Mode = 1;
+            UseItem.Mode = 1;
             SystemTime.Freeze();
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(2), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (PairyPacket)_session.Character.MapInstance.LastPackets.FirstOrDefault(s => s is PairyPacket);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session!.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (PairyPacket)Session.Character.MapInstance!.LastPackets.FirstOrDefault(s => s is PairyPacket);
             Assert.IsNotNull(lastpacket);
         }
 
         [TestMethod]
-        public void Test_Use_Amulet()
+        public async Task Test_Use_Amulet()
         {
-            _useItem.Mode = 1;
+            UseItem.Mode = 1;
             SystemTime.Freeze();
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(7), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (EffectPacket)_session.LastPackets.FirstOrDefault(s => s is EffectPacket);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(7), Session!.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var lastpacket = (EffectPacket?)Session.LastPackets.FirstOrDefault(s => s is EffectPacket);
             Assert.IsNotNull(lastpacket);
-            Assert.AreEqual(SystemTime.Now().AddSeconds(itemInstance.ItemInstance.Item.ItemValidTime), itemInstance.ItemInstance.ItemDeleteTime);
+            Assert.AreEqual(SystemTime.Now().AddSeconds(itemInstance.ItemInstance!.Item!.ItemValidTime), itemInstance.ItemInstance.ItemDeleteTime);
         }
     }
 }

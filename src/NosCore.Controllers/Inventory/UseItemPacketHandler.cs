@@ -34,12 +34,8 @@ namespace NosCore.PacketHandlers.Inventory
             var inv =
                 clientSession.Character.InventoryService.LoadBySlotAndType(useItemPacket.Slot,
                     (NoscorePocketType) useItemPacket.Type);
-            if (inv?.ItemInstance.Requests == null)
-            {
-                return Task.CompletedTask;
-            }
 
-            inv.ItemInstance.Requests.OnNext(new RequestData<Tuple<InventoryItemInstance, UseItemPacket>>(clientSession,
+            inv?.ItemInstance?.Requests?.OnNext(new RequestData<Tuple<InventoryItemInstance, UseItemPacket>>(clientSession,
                 new Tuple<InventoryItemInstance, UseItemPacket>(inv, useItemPacket))); 
             return Task.CompletedTask;
         }

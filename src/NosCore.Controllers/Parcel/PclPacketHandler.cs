@@ -63,28 +63,28 @@ namespace NosCore.PacketHandlers.Parcel
             if ((getGiftPacket.Type == 4) && (mail.ItemInstance != null))
             {
                 var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == mail.ItemInstance.Id);
-                var item = _itemProvider.Convert(itemInstance);
+                var item = _itemProvider.Convert(itemInstance!);
                 item.Id = Guid.NewGuid();
                 var newInv = clientSession.Character.InventoryService
                     .AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId))
                     .FirstOrDefault();
                 if (newInv != null)
                 {
-                    clientSession.SendPacket(clientSession.Character.GenerateSay(
+                    await clientSession.SendPacket(clientSession.Character.GenerateSay(
                         string.Format(
-                            Language.Instance.GetMessageFromKey(LanguageKey.ITEM_RECEIVED,
+                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_RECEIVED,
                                 clientSession.Account.Language),
-                            newInv.ItemInstance.Item.Name, newInv.ItemInstance.Amount), SayColorType.Green));
-                    clientSession.SendPacket(
+                            newInv.ItemInstance!.Item!.Name, newInv.ItemInstance.Amount), SayColorType.Green));
+                    await clientSession.SendPacket(
                         new ParcelPacket {Type = 2, Unknown = 1, Id = (short) getGiftPacket.GiftId});
                     await _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
                 }
                 else
                 {
-                    clientSession.SendPacket(new ParcelPacket {Type = 5, Unknown = 1, Id = 0});
-                    clientSession.SendPacket(new MsgPacket
+                    await clientSession.SendPacket(new ParcelPacket {Type = 5, Unknown = 1, Id = 0});
+                    await clientSession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                             clientSession.Account.Language),
                         Type = 0
                     });
@@ -92,7 +92,7 @@ namespace NosCore.PacketHandlers.Parcel
             }
             else if (getGiftPacket.Type == 5)
             {
-                clientSession.SendPacket(new ParcelPacket {Type = 7, Unknown = 1, Id = (short) getGiftPacket.GiftId});
+                await clientSession.SendPacket(new ParcelPacket {Type = 7, Unknown = 1, Id = (short) getGiftPacket.GiftId});
                 await _mailHttpClient.DeleteGift(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy);
             }
         }

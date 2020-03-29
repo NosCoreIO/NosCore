@@ -47,7 +47,7 @@ namespace NosCore.Tests.BazaarTests
     [TestClass]
     public class CScalcPacketHandlerTest
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CScalcPacketHandler? _cScalcPacketHandler;
         private Mock<IGenericDao<IItemInstanceDto>>? _itemInstanceDao;
@@ -64,12 +64,12 @@ namespace NosCore.Tests.BazaarTests
             _itemProvider = new Mock<IItemProvider>();
             _itemInstanceDao = new Mock<IGenericDao<IItemInstanceDto>>();
             _cScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration,
-                _bazaarHttpClient.Object, _itemProvider.Object, _logger, _itemInstanceDao.Object);
+                _bazaarHttpClient.Object, _itemProvider.Object, Logger, _itemInstanceDao.Object);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).ReturnsAsync(
                 new BazaarLink
                 {
-                    SellerName = _session.Character!.Name,
+                    SellerName = _session.Character.Name,
                     BazaarItem = new BazaarItemDto {Price = 50, Amount = 1},
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 0}
                 });
@@ -89,7 +89,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task RetrieveWhenInExchangeOrTrade()
         {
-            _session!.Character!.InExchangeOrTrade = true;
+            _session!.Character.InExchangeOrTrade = true;
             await _cScalcPacketHandler!.Execute(new CScalcPacket
             {
                 BazaarId = 1,
@@ -117,7 +117,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task RetrieveWhenNotYourItem()
         {
-           await _cScalcPacketHandler.Execute(new CScalcPacket
+           await _cScalcPacketHandler!.Execute(new CScalcPacket
             {
                 BazaarId = 2,
                 Price = 50,
@@ -133,7 +133,7 @@ namespace NosCore.Tests.BazaarTests
         {
             var guid1 = Guid.NewGuid();
             var guid2 = Guid.NewGuid();
-            _session.Character!.InventoryService.AddItemToPocket(new InventoryItemInstance
+            _session!.Character.InventoryService!.AddItemToPocket(new InventoryItemInstance
             {
                 Id = guid2, ItemInstanceId = guid2, Slot = 0, Type = NoscorePocketType.Main,
                 ItemInstance = new ItemInstance {ItemVNum = 1012, Amount = 999, Id = guid2}
@@ -157,7 +157,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task RetrieveWhenMaxGold()
         {
-            _session.Character!.Gold = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount;
+            _session!.Character.Gold = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount;
             await _cScalcPacketHandler!.Execute(new CScalcPacket
             {
                 BazaarId = 0,
@@ -166,7 +166,7 @@ namespace NosCore.Tests.BazaarTests
                 VNum = 1012
             }, _session);
             var lastpacket = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
                 _session.Account.Language), lastpacket?.Message);
         }
 
@@ -174,7 +174,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task Retrieve()
         {
-            _itemInstanceDao.Setup(s=>s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto,bool>>>()))
+            _itemInstanceDao!.Setup(s=>s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto,bool>>>()))
                 .Returns(new ItemInstanceDto { ItemVNum = 1012, Amount = 0 });
             await _cScalcPacketHandler!.Execute(new CScalcPacket
             {

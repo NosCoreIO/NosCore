@@ -73,8 +73,8 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                     Type = PortalType.Miniland,
                     SourceMapId = 1,
                     DestinationMapId = 20001,
-                    DestinationMapInstanceId = miniland.MapInstanceId,
-                    SourceMapInstanceId = nosville.MapInstanceId
+                    DestinationMapInstanceId = miniland!.MapInstanceId,
+                    SourceMapInstanceId = nosville!.MapInstanceId
                 },
                 new Portal
                 {
@@ -86,7 +86,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                     SourceMapId = 145,
                     DestinationMapId = 20001,
                     DestinationMapInstanceId = miniland.MapInstanceId,
-                    SourceMapInstanceId = oldNosville.MapInstanceId
+                    SourceMapInstanceId = oldNosville!.MapInstanceId
                 }
             };
         }
@@ -106,7 +106,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             if (_minilandIds.ContainsKey(characterId))
             {
                 var miniland = _mapInstanceProvider.GetMapInstance(_minilandIds[characterId].MapInstanceId);
-                foreach (var obj in miniland.MapDesignObjects.Values)
+                foreach (var obj in miniland!.MapDesignObjects.Values)
                 {
                     var dto = (MinilandObjectDto) obj;
                     _minilandObjectsDao.InsertOrUpdate(ref dto);
@@ -139,7 +139,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
 
             var listobjects = character.InventoryService.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();
             var idlist = listobjects.Select(s => s.Id).ToArray();
-            var minilandObjectsDto = _minilandObjectsDao.Where(s => idlist.Contains((Guid) s.InventoryItemInstanceId))
+            var minilandObjectsDto = _minilandObjectsDao.Where(s => idlist.Contains((Guid) s.InventoryItemInstanceId!))
                 .ToList();
             foreach (var mlobjdto in minilandObjectsDto)
             {
@@ -167,10 +167,10 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                             .Select(s => s.CharacterId)
                             .ToList();
                         // Kick all players in miniland except owner and his friends
-                        miniland.Kick(o => o.VisualId != characterId && !friends.Contains(o.VisualId));
+                        miniland!.Kick(o => o.VisualId != characterId && !friends.Contains(o.VisualId));
                     } else
                     {
-                        miniland.Kick(o => o.VisualId != characterId);
+                        miniland!.Kick(o => o.VisualId != characterId);
                     }
                 }
 
@@ -190,16 +190,16 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             var miniland = _mapInstanceProvider.GetMapInstance(_minilandIds[characterId].MapInstanceId);
 
             mapObject.Effect =
-                (short) (minilandobject.ItemInstance.Item?.EffectValue ?? minilandobject.ItemInstance.Design);
-            mapObject.Width = minilandobject.ItemInstance.Item.Width;
-            mapObject.Height = minilandobject.ItemInstance.Item.Height;
-            mapObject.DurabilityPoint = (short) minilandobject.ItemInstance.DurabilityPoint;
-            mapObject.IsWarehouse = minilandobject.ItemInstance.Item.IsWarehouse;
-            mapObject.InventoryItemInstanceId = minilandobject.Id;
+                (short) (minilandobject?.ItemInstance?.Item?.EffectValue ?? minilandobject?.ItemInstance?.Design ?? 0);
+            mapObject.Width = minilandobject?.ItemInstance?.Item?.Width ?? 0;
+            mapObject.Height = minilandobject?.ItemInstance?.Item?.Height ?? 0;
+            mapObject.DurabilityPoint = (short)(minilandobject?.ItemInstance?.DurabilityPoint ?? 0);
+            mapObject.IsWarehouse = minilandobject?.ItemInstance?.Item?.IsWarehouse ?? false;
+            mapObject.InventoryItemInstanceId = minilandobject?.Id;
             mapObject.InventoryItemInstance = minilandobject;
-            mapObject.Slot = minilandobject.Slot;
+            mapObject.Slot = minilandobject?.Slot ?? 0;
 
-            if (minilandobject.ItemInstance.Item.ItemType == ItemType.House)
+            if (minilandobject?.ItemInstance?.Item?.ItemType == ItemType.House)
             {
                 switch (minilandobject.ItemInstance.Item.ItemSubType)
                 {
@@ -220,7 +220,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                 }
             }
 
-            miniland.MapDesignObjects.TryAdd(minilandobject.Id, mapObject);
+            miniland!.MapDesignObjects.TryAdd(minilandobject!.Id, mapObject);
         }
     }
 }

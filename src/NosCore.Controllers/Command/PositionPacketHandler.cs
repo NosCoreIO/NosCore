@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Command
         public override Task Execute(PositionPacket _, ClientSession session)
         {
             session.SendPacket(session.Character.GenerateSay(
-                $"Map:{session.Character.MapInstance.Map.MapId} - X:{session.Character.PositionX} - Y:{session.Character.PositionY} - " +
+                $"Map:{session.Character.MapInstance!.Map.MapId} - X:{session.Character.PositionX} - Y:{session.Character.PositionY} - " +
                 $"Dir:{session.Character.Direction} - Cell:{session.Character.MapInstance.Map[session.Character.PositionX, session.Character.PositionY]}",
                 SayColorType.Green));
             return Task.CompletedTask;

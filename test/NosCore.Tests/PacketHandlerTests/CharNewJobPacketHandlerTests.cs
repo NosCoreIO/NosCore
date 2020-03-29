@@ -31,10 +31,10 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class CharNewJobPacketHandlerTests
     {
-        private Character _chara;
+        private Character? _chara;
 
-        private CharNewJobPacketHandler _charNewJobPacketHandler;
-        private ClientSession _session;
+        private CharNewJobPacketHandler? _charNewJobPacketHandler;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
@@ -50,10 +50,10 @@ namespace NosCore.Tests.PacketHandlerTests
         public void CreateMartialArtistWhenNoLevel80_Does_Not_Create_Character()
         {
             const string name = "TestCharacter";
-            _charNewJobPacketHandler.Execute(new CharNewJobPacket
+            _charNewJobPacketHandler!.Execute(new CharNewJobPacket
             {
                 Name = name
-            }, _session);
+            }, _session!);
             Assert.IsNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
         }
 
@@ -61,13 +61,13 @@ namespace NosCore.Tests.PacketHandlerTests
         public void CreateMartialArtist_Works()
         {
             const string name = "TestCharacter";
-            _chara.Level = 80;
+            _chara!.Level = 80;
             CharacterDto character = _chara;
             TestHelpers.Instance.CharacterDao.InsertOrUpdate(ref character);
-            _charNewJobPacketHandler.Execute(new CharNewJobPacket
+            _charNewJobPacketHandler!.Execute(new CharNewJobPacket
             {
                 Name = name
-            }, _session);
+            }, _session!);
             Assert.IsNotNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
         }
 
@@ -75,14 +75,14 @@ namespace NosCore.Tests.PacketHandlerTests
         public void CreateMartialArtistWhenAlreadyOne_Does_Not_Create_Character()
         {
             const string name = "TestCharacter";
-            _chara.Class = CharacterClassType.MartialArtist;
+            _chara!.Class = CharacterClassType.MartialArtist;
             CharacterDto character = _chara;
             _chara.Level = 80;
             TestHelpers.Instance.CharacterDao.InsertOrUpdate(ref character);
-            _charNewJobPacketHandler.Execute(new CharNewJobPacket
+            _charNewJobPacketHandler!.Execute(new CharNewJobPacket
             {
                 Name = name
-            }, _session);
+            }, _session!);
             Assert.IsNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
         }
     }

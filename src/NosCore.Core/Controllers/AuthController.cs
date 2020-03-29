@@ -28,7 +28,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Dto;
@@ -73,8 +72,8 @@ namespace NosCore.Core.Controllers
             {
                 case HashingType.BCrypt:
                     if (account?.NewAuthPassword != Encoding.Default
-                            .GetString(Convert.FromBase64String(account!.NewAuthPassword))
-                            .ToBcrypt(account.NewAuthSalt
+                            .GetString(Convert.FromBase64String(account!.NewAuthPassword!))
+                            .ToBcrypt(account.NewAuthSalt!
                         ))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
@@ -83,8 +82,8 @@ namespace NosCore.Core.Controllers
                     break;
                 case HashingType.Pbkdf2:
                     if (account.NewAuthPassword != Encoding.Default
-                        .GetString(Convert.FromBase64String(account.NewAuthPassword))
-                        .ToPbkdf2Hash(account.NewAuthSalt))
+                        .GetString(Convert.FromBase64String(account.NewAuthPassword!))
+                        .ToPbkdf2Hash(account.NewAuthSalt!))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
                     }
@@ -92,7 +91,7 @@ namespace NosCore.Core.Controllers
                     break;
                 case HashingType.Sha512:
                 default:
-                    if (account.Password.ToLower(CultureInfo.CurrentCulture) != (session.Password?.ToSha512() ?? ""))
+                    if (account.Password!.ToLower(CultureInfo.CurrentCulture) != (session.Password?.ToSha512() ?? ""))
                     {
                         return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
                     }
@@ -159,7 +158,11 @@ namespace NosCore.Core.Controllers
         {
             if (token != "thisisgfmode")
             {
-                var sessionGuid = HexStringToString(token ?? "");
+                if (token == null || token == "NONE_SESSION_TICKET")
+                {
+                    return Ok(null);
+                }
+                var sessionGuid = HexStringToString(token);
                 if (!SessionFactory.Instance.AuthCodes.ContainsKey(sessionGuid))
                 {
                     return Ok(null);

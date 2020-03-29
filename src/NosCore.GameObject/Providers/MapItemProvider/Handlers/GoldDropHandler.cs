@@ -37,7 +37,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             return item.VNum == 1046;
         }
 
-        public Task Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
+        public async Task Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             // handle gold drop
             var maxGold = requestData.ClientSession.WorldConfiguration.MaxGoldAmount;
@@ -45,32 +45,31 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             {
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
-                    requestData.ClientSession.SendPacket(
+                    await requestData.ClientSession.SendPacket(
                         requestData.ClientSession.Character.GenerateIcon(1, requestData.Data.Item1.VNum));
                 }
 
                 requestData.ClientSession.Character.Gold += requestData.Data.Item1.Amount;
-                requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
-                    $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}" +
-                    $": {requestData.Data.Item1.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]} x {requestData.Data.Item1.Amount}",
+                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
+                    $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}" +
+                    $": {requestData.Data.Item1.ItemInstance!.Item!.Name[requestData.ClientSession.Account.Language]} x {requestData.Data.Item1.Amount}",
                     SayColorType.Green));
             }
             else
             {
                 requestData.ClientSession.Character.Gold = maxGold;
-                requestData.ClientSession.SendPacket(new MsgPacket
+                await requestData.ClientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
                         requestData.ClientSession.Account.Language),
                     Type = 0
                 });
             }
 
-            requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateGold());
-            requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
-            requestData.ClientSession.Character.MapInstance.SendPacket(
+            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateGold());
+            requestData.ClientSession.Character.MapInstance!.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
+            await requestData.ClientSession.Character.MapInstance.SendPacket(
                 requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
-            return Task.CompletedTask;
         }
     }
 }

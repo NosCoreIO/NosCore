@@ -31,9 +31,9 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.AuthHttpClient;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.HttpClients.AuthHttpClients;
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
@@ -50,13 +50,16 @@ namespace NosCore.Tests.PacketHandlerTests
     public class NoS0577PacketHandlerTests
     {
         private readonly string _tokenGuid = Guid.NewGuid().ToString();
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private Mock<IAuthHttpClient> _authHttpClient;
-        private Mock<IChannelHttpClient> _channelHttpClient;
-        private Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient;
-        private LoginConfiguration _loginConfiguration;
-        private NoS0577PacketHandler _noS0577PacketHandler;
-        private ClientSession _session;
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly Mock<IAuthHttpClient> _authHttpClient = new Mock<IAuthHttpClient>();
+        private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
+        private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
+        private readonly LoginConfiguration _loginConfiguration = new LoginConfiguration
+        {
+            MasterCommunication = new WebApiConfiguration()
+        };
+        private NoS0577PacketHandler? _noS0577PacketHandler;
+        private ClientSession? _session;
 
         private string GuidToToken(string token)
         {
@@ -68,18 +71,11 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();
-            _loginConfiguration = new LoginConfiguration
-            {
-                MasterCommunication = new WebApiConfiguration()
-            };
-            _authHttpClient = new Mock<IAuthHttpClient>();
-            _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
-            _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
             _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration,
                 TestHelpers.Instance.AccountDao,
                 _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object));
-            var authController = new AuthController(_loginConfiguration.MasterCommunication,
-                TestHelpers.Instance.AccountDao, _logger);
+            var authController = new AuthController(_loginConfiguration.MasterCommunication!,
+                TestHelpers.Instance.AccountDao, Logger);
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             _authHttpClient.Setup(s => s.GetAwaitingConnection(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
@@ -90,64 +86,64 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginBCrypt()
         {
-            _loginConfiguration.MasterCommunication.HashingType = HashingType.BCrypt;
+            _loginConfiguration.MasterCommunication!.HashingType = HashingType.BCrypt;
             _channelHttpClient.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
-            _session.Account.NewAuthSalt = BCrypt.Net.BCrypt.GenerateSalt();
+            _session!.Account.NewAuthSalt = BCrypt.Net.BCrypt.GenerateSalt();
             _session.Account.NewAuthPassword = _tokenGuid.ToBcrypt(_session.Account.NewAuthSalt);
 
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            await _noS0577PacketHandler.Execute(new NoS0577Packet
+            await _noS0577PacketHandler!.Execute(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session);
 
 
-            Assert.IsNotNull((NsTestPacket)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
+            Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }
 
         [TestMethod]
         public async Task LoginPbkdf2()
         {
-            _loginConfiguration.MasterCommunication.HashingType = HashingType.Pbkdf2;
+            _loginConfiguration.MasterCommunication!.HashingType = HashingType.Pbkdf2;
             _channelHttpClient.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
-            _session.Account.NewAuthPassword = _tokenGuid.ToPbkdf2Hash("MY_SUPER_SECRET_HASH");
+            _session!.Account.NewAuthPassword = _tokenGuid.ToPbkdf2Hash("MY_SUPER_SECRET_HASH");
             _session.Account.NewAuthSalt = "MY_SUPER_SECRET_HASH";
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            await _noS0577PacketHandler.Execute(new NoS0577Packet
+            await _noS0577PacketHandler!.Execute(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session);
 
-            Assert.IsNotNull((NsTestPacket)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
+            Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }
 
         [TestMethod]
         public async Task LoginOldClient()
         {
             _loginConfiguration.ClientVersion = new ClientVersionSubPacket { Major = 1 };
-            await _noS0577PacketHandler.Execute(new NoS0577Packet
+            await _noS0577PacketHandler!.Execute(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
-            }, _session);
+            }, _session!);
 
-            Assert.IsTrue(((FailcPacket)_session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
+            Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.OldClient);
         }
 
         [TestMethod]
         public async Task LoginWrongToken()
         {
-            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            await _noS0577PacketHandler.Execute(new NoS0577Packet
+            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
+            await _noS0577PacketHandler!.Execute(new NoS0577Packet
             {
                 AuthToken = GuidToToken(Guid.NewGuid().ToString()),
             }, _session);
 
-            Assert.IsTrue(((FailcPacket)_session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
+            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AccountOrPasswordWrong);
         }
 
@@ -157,13 +153,13 @@ namespace NosCore.Tests.PacketHandlerTests
             _channelHttpClient.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
-            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            await _noS0577PacketHandler.Execute(new NoS0577Packet
+            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
+            await _noS0577PacketHandler!.Execute(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session);
 
-            Assert.IsNotNull((NsTestPacket)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
+            Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }
 
         [TestMethod]
@@ -172,13 +168,13 @@ namespace NosCore.Tests.PacketHandlerTests
             _channelHttpClient.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>
-                    {new ConnectedAccount {Name = _session.Account.Name}});
+                    {new ConnectedAccount {Name = _session!.Account.Name}});
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            await _noS0577PacketHandler.Execute(new NoS0577Packet
+            await _noS0577PacketHandler!.Execute(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session);
-            Assert.IsTrue(((FailcPacket)_session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
+            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AlreadyConnected);
         }
 
@@ -188,12 +184,12 @@ namespace NosCore.Tests.PacketHandlerTests
             _channelHttpClient.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo>());
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
-            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            await _noS0577PacketHandler.Execute(new NoS0577Packet
+            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
+            await _noS0577PacketHandler!.Execute(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session);
-            Assert.IsTrue(((FailcPacket)_session.LastPackets.FirstOrDefault(s => s is FailcPacket)).Type ==
+            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.CantConnect);
         }
 

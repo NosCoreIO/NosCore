@@ -53,7 +53,7 @@ namespace NosCore.WorldServer.Controllers
             if (data.ItemInstance != null)
             {
                 session.SendPacket(session.GenerateSay(
-                    string.Format(Language.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage),
+                    string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage),
                         data.ItemInstance.Amount), SayColorType.Green));
             }
 

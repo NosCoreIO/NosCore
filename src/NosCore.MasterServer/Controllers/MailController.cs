@@ -26,7 +26,8 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Account;
@@ -71,16 +72,18 @@ namespace NosCore.MasterServer.Controllers
         public List<MailData> GetMails(long id, long characterId, bool senderCopy)
         {
             var mails = _parcelHolder[characterId][false].Values.Concat(_parcelHolder[characterId][true].Values);
-            if (id != -1)
+            if (id == -1)
             {
-                if (_parcelHolder[characterId][senderCopy].ContainsKey(id))
-                {
-                    mails = new[] {_parcelHolder[characterId][senderCopy][id]};
-                }
-                else
-                {
-                    return new List<MailData>();
-                }
+                return mails.ToList();
+            }
+
+            if (_parcelHolder[characterId][senderCopy].ContainsKey(id))
+            {
+                mails = new[] {_parcelHolder[characterId][senderCopy][id]};
+            }
+            else
+            {
+                return new List<MailData>();
             }
 
             return mails.ToList();
@@ -247,7 +250,7 @@ namespace NosCore.MasterServer.Controllers
             };
         }
 
-        private void Notify(byte notifyType, Tuple<ServerConfiguration, ConnectedAccount?> receiver, MailData mailData)
+        private void Notify(byte notifyType, Tuple<ServerConfiguration?, ConnectedAccount?> receiver, MailData mailData)
         {
             var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver.Item2?.Name)
                 ? mailData.ItemInstance != null ? (byte) 0 : (byte) 1 : (byte) 2;
@@ -264,7 +267,7 @@ namespace NosCore.MasterServer.Controllers
                     break;
                 case 1:
                     _incommingMailHttpClient.DeleteIncommingMail(receiver.Item2.ChannelId,
-                        receiver.Item2.ConnectedCharacter.Id, (short) mailData.MailId, type);
+                        receiver.Item2.ConnectedCharacter!.Id, (short) mailData.MailId, type);
                     break;
             }
         }

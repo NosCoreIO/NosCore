@@ -49,7 +49,7 @@ namespace NosCore.Core.Encryption
             output.Add(Unpooled.WrappedBuffer(message.SelectMany(packet =>
             {
                 var region = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()].RegionType.GetEncoding();
-                var strBytes = region.GetBytes(_serializer.Serialize(packet)).AsSpan();
+                var strBytes = region!.GetBytes(_serializer.Serialize(packet)).AsSpan();
                 var bytesLength = strBytes.Length;
 
                 var encryptedData = new byte[bytesLength + (int) Math.Ceiling((decimal) bytesLength / 0x7E) + 1];
