@@ -63,7 +63,7 @@ namespace NosCore.GameObject
         public Group? Group { get; set; }
         public long LevelXp { get; set; }
 
-        public MapInstance? MapInstance { get; set; }
+        public MapInstance MapInstance { get; set; } = null!;
 
         public short Race => NpcMonster.Race;
 

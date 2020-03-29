@@ -33,9 +33,9 @@ namespace NosCore.Database.Entities
 
         public bool IsDisabled { get; set; }
 
-        public virtual Map Map { get; set; } = new Map();
+        public virtual Map Map { get; set; } = null!;
 
-        public virtual Map Map1 { get; set; } = new Map();
+        public virtual Map Map1 { get; set; } = null!;
 
         [Key]
         public int PortalId { get; set; }

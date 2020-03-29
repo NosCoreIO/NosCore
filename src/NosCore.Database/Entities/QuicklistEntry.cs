@@ -24,7 +24,7 @@ namespace NosCore.Database.Entities
 {
     public class QuicklistEntry : SynchronizableBaseEntity
     {
-        public virtual Character Character { get; set; } = new Character();
+        public virtual Character Character { get; set; } = null!;
 
         public long CharacterId { get; set; }
 
