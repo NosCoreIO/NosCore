@@ -39,7 +39,7 @@ namespace NosCore.Tests
     [TestClass]
     public class ExchangeTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private ExchangeProvider _exchangeProvider;
 
         private ItemProvider _itemProvider;
@@ -65,7 +65,7 @@ namespace NosCore.Tests
 
             _itemProvider = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
-            _exchangeProvider = new ExchangeProvider(_itemProvider, _worldConfiguration, _logger);
+            _exchangeProvider = new ExchangeProvider(_itemProvider, _worldConfiguration, Logger);
         }
 
         [TestMethod]
@@ -161,10 +161,10 @@ namespace NosCore.Tests
         {
             IInventoryService inventory1 =
                 new InventoryService(new List<ItemDto> {new Item {VNum = 1012, Type = NoscorePocketType.Main}},
-                    _worldConfiguration, _logger);
+                    _worldConfiguration, Logger);
             IInventoryService inventory2 =
                 new InventoryService(new List<ItemDto> {new Item {VNum = 1013, Type = NoscorePocketType.Main}},
-                    _worldConfiguration, _logger);
+                    _worldConfiguration, Logger);
             var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 1), 0))
                 .First();
             var item2 = inventory2.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1013, 1), 0))

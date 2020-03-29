@@ -30,8 +30,8 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class CharacterDeletePacketHandlerTests
     {
-        private CharacterDeletePacketHandler _characterDeletePacketHandler;
-        private ClientSession _session;
+        private CharacterDeletePacketHandler? _characterDeletePacketHandler;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
@@ -45,8 +45,8 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void DeleteCharacter_Invalid_Password()
         {
-            _session.Character.MapInstance = null;
-            _characterDeletePacketHandler.Execute(new CharacterDeletePacket
+            _session!.Character.MapInstance = null;
+            _characterDeletePacketHandler!.Execute(new CharacterDeletePacket
             {
                 Slot = 1,
                 Password = "testpassword"

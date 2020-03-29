@@ -42,30 +42,30 @@ namespace NosCore.Tests
     [TestClass]
     public class MapperTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Account, AccountDto, long>(_logger);
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Account, AccountDto, long>(Logger);
         private readonly MapsterMapper.Mapper _mapper = new MapsterMapper.Mapper();
 
         private readonly IGenericDao<CharacterDto> _characterDao =
-            new GenericDao<Character, CharacterDto, long>(_logger);
+            new GenericDao<Character, CharacterDto, long>(Logger);
 
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(_logger);
+        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(Logger);
 
         [TestInitialize]
         public void Setup()
         {
             TypeAdapterConfig<CharacterDto, GameObject.Character>.NewConfig().ConstructUsing(src =>
-                new GameObject.Character(null, null, null, _characterDao, _itemInstanceDao, null, _accountDao, _logger,
+                new GameObject.Character(null, null, null, _characterDao, _itemInstanceDao, null, _accountDao, Logger,
                     null, null, null, null, null));
             TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig()
-                .ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), _logger));
+                .ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), Logger));
             new Mapper();
         }
 
         [TestMethod]
         public void GoToDtoMappingWorks()
         {
-            var monsterGo = new MapMonster(new List<NpcMonsterDto>(), _logger);
+            var monsterGo = new MapMonster(new List<NpcMonsterDto>(), Logger);
             var monsterDto = _mapper.Map<MapMonsterDto>(monsterGo);
             Assert.IsNotNull(monsterDto);
         }
@@ -81,7 +81,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void GoToEntityMappingWorks()
         {
-            var monsterGo = new MapMonster(new List<NpcMonsterDto>(), _logger);
+            var monsterGo = new MapMonster(new List<NpcMonsterDto>(), Logger);
             var monsterEntity = _mapper.Map<Database.Entities.MapMonster>(monsterGo);
             Assert.IsNotNull(monsterEntity);
         }

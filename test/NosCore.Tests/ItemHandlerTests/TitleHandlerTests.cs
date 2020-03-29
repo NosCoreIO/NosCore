@@ -42,8 +42,8 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestInitialize]
         public void Setup()
         {
-            _session = TestHelpers.Instance.GenerateSession();
-            _handler = new TitleHandler();
+            Session = TestHelpers.Instance.GenerateSession();
+            Handler = new TitleHandler();
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, ItemType = ItemType.Title, EffectValue = 0},
@@ -55,10 +55,10 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestMethod]
         public void Test_TitleItemHandler()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (QnaPacket?)_session.LastPackets.FirstOrDefault(s => s is QnaPacket);
+            var lastpacket = (QnaPacket?)Session.LastPackets.FirstOrDefault(s => s is QnaPacket);
             Assert.IsNotNull(lastpacket);
             Assert.IsTrue(lastpacket.YesPacket.GetType() == typeof(GuriPacket));
         }

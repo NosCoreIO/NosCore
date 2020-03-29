@@ -47,7 +47,7 @@ namespace NosCore.Tests.BazaarTests
     [TestClass]
     public class CScalcPacketHandlerTest
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CScalcPacketHandler? _cScalcPacketHandler;
         private Mock<IGenericDao<IItemInstanceDto>>? _itemInstanceDao;
@@ -64,7 +64,7 @@ namespace NosCore.Tests.BazaarTests
             _itemProvider = new Mock<IItemProvider>();
             _itemInstanceDao = new Mock<IGenericDao<IItemInstanceDto>>();
             _cScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration,
-                _bazaarHttpClient.Object, _itemProvider.Object, _logger, _itemInstanceDao.Object);
+                _bazaarHttpClient.Object, _itemProvider.Object, Logger, _itemInstanceDao.Object);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).ReturnsAsync(
                 new BazaarLink

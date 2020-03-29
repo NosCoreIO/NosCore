@@ -43,18 +43,18 @@ namespace NosCore.Tests.NRunTests
     [TestClass]
     public class ChangeClassTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
 
-        private IItemProvider _item;
-        private NrunPacketHandler _nRunHandler;
-        private ClientSession _session;
+        private IItemProvider? _item;
+        private NrunPacketHandler? _nRunHandler;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
         {
             _session = TestHelpers.Instance.GenerateSession();
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _nRunHandler = new NrunPacketHandler(_logger, new NrunProvider(
+            _nRunHandler = new NrunPacketHandler(Logger, new NrunProvider(
                 new List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
                     {new ChangeClassEventHandler()}));
         }
@@ -65,8 +65,8 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Swordman)]
         public void UserCantChangeClassLowLevel(CharacterClassType characterClass)
         {
-            _session.Character.Level = 15;
-            _nRunHandler.Execute(new NrunPacket
+            _session!.Character.Level = 15;
+            _nRunHandler!.Execute(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -76,7 +76,7 @@ namespace NosCore.Tests.NRunTests
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
-                _session.Account.Language)) && (packet.Type == MessageType.White));
+                _session.Account.Language)) && (packet?.Type == MessageType.White));
         }
 
         [DataTestMethod]
@@ -85,8 +85,8 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Swordman)]
         public void UserCantChangeClassLowJobLevel(CharacterClassType characterClass)
         {
-            _session.Character.JobLevel = 20;
-            _nRunHandler.Execute(new NrunPacket
+            _session!.Character.JobLevel = 20;
+            _nRunHandler!.Execute(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -96,7 +96,7 @@ namespace NosCore.Tests.NRunTests
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
-                _session.Account.Language)) && (packet.Type == MessageType.White));
+                _session.Account.Language)) && (packet?.Type == MessageType.White));
         }
 
         [DataTestMethod]
@@ -105,8 +105,8 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Swordman)]
         public void UserCantChangeBadClass(CharacterClassType characterClass)
         {
-            _session.Character.Class = characterClass;
-            _nRunHandler.Execute(new NrunPacket
+            _session!.Character.Class = characterClass;
+            _nRunHandler!.Execute(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -116,7 +116,7 @@ namespace NosCore.Tests.NRunTests
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
-                _session.Account.Language)) && (packet.Type == MessageType.White));
+                _session.Account.Language)) && (packet?.Type == MessageType.White));
         }
 
         [DataTestMethod]
@@ -124,9 +124,9 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Adventurer)]
         public void UserCantChangeToBadClass(CharacterClassType characterClass)
         {
-            _session.Character.Level = 15;
+            _session!.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _nRunHandler.Execute(new NrunPacket
+            _nRunHandler!.Execute(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -145,9 +145,9 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Swordman)]
         public void UserCanChangeClass(CharacterClassType characterClass)
         {
-            _session.Character.Level = 15;
+            _session!.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _nRunHandler.Execute(new NrunPacket
+            _nRunHandler!.Execute(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -165,12 +165,12 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Swordman)]
         public void UserCanNotChangeClassWhenEquipment(CharacterClassType characterClass)
         {
-            _session.Character.Level = 15;
+            _session!.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
-            _nRunHandler.Execute(new NrunPacket
+            _nRunHandler!.Execute(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -180,7 +180,7 @@ namespace NosCore.Tests.NRunTests
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
-                _session.Account.Language)) && (packet.Type == MessageType.White));
+                _session.Account.Language)) && (packet?.Type == MessageType.White));
         }
     }
 }

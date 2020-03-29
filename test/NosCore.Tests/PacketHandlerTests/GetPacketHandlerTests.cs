@@ -38,10 +38,10 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class GetPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private GetPacketHandler _getPacketHandler;
-        private IItemProvider _item;
-        private ClientSession _session;
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private GetPacketHandler? _getPacketHandler;
+        private IItemProvider? _item;
+        private ClientSession? _session;
 
         [TestCleanup]
         public void Cleanup()
@@ -56,57 +56,57 @@ namespace NosCore.Tests.PacketHandlerTests
             TestHelpers.Reset();
             _item = TestHelpers.Instance.GenerateItemProvider();
             _session = TestHelpers.Instance.GenerateSession();
-            _getPacketHandler = new GetPacketHandler(_logger);
+            _getPacketHandler = new GetPacketHandler(Logger);
         }
 
 
         [TestMethod]
         public void Test_Get()
         {
-            _session.Character.PositionX = 0;
+            _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _session.Character.MapInstance!.MapItems.TryAdd(100001,
-                TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1012, 1), 1,
+                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item.Create(1012, 1), 1,
                     1));
 
-            _getPacketHandler.Execute(new GetPacket
+            _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session);
-            Assert.IsTrue(_session.Character.InventoryService.Count > 0);
+            Assert.IsTrue(_session.Character.InventoryService!.Count > 0);
         }
 
         [TestMethod]
         public void Test_GetInStack()
         {
-            _session.Character.PositionX = 0;
+            _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
 
             _session.Character.MapInstance!.MapItems.TryAdd(100001,
-                TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1012, 1), 1,
+                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item.Create(1012, 1), 1,
                     1));
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
-            _getPacketHandler.Execute(new GetPacket
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
+            _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session);
-            Assert.IsTrue(_session.Character.InventoryService.First().Value.ItemInstance.Amount == 2);
+            Assert.IsTrue(_session.Character.InventoryService.First().Value.ItemInstance!.Amount == 2);
         }
 
         [TestMethod]
         public void Test_GetFullInventory()
         {
-            _session.Character.PositionX = 0;
+            _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _session.Character.MapInstance.MapItems.TryAdd(100001,
-                TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1, 1), 1, 1));
+            _session.Character.MapInstance!.MapItems.TryAdd(100001,
+                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item.Create(1, 1), 1, 1));
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
-            _getPacketHandler.Execute(new GetPacket
+            _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
@@ -114,42 +114,42 @@ namespace NosCore.Tests.PacketHandlerTests
             }, _session);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                _session.Account.Language)) && (packet.Type == 0));
+                _session.Account.Language)) && (packet?.Type == 0));
             Assert.IsTrue(_session.Character.InventoryService.Count == 2);
         }
 
         [TestMethod]
         public void Test_Get_KeepRarity()
         {
-            _session.Character.PositionX = 0;
+            _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _session.Character.MapInstance!.MapItems.TryAdd(100001,
-                TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1, 1, 6), 1,
+                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1, 1, 6), 1,
                     1));
 
-            _getPacketHandler.Execute(new GetPacket
+            _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session);
-            Assert.IsTrue(_session.Character.InventoryService.First().Value.ItemInstance.Rare == 6);
+            Assert.IsTrue(_session.Character.InventoryService.First().Value.ItemInstance!.Rare == 6);
         }
 
         [TestMethod]
         public void Test_Get_NotYourObject()
         {
-            _session.Character.PositionX = 0;
+            _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             var mapItem =
-                TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance!, _item.Create(1012, 1), 1,
+                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance!, _item!.Create(1012, 1), 1,
                     1);
             mapItem.VisualId = 1012;
             mapItem.OwnerId = 2;
             mapItem.DroppedAt = SystemTime.Now();
             _session.Character.MapInstance!.MapItems.TryAdd(100001, mapItem);
 
-            _getPacketHandler.Execute(new GetPacket
+            _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
@@ -158,48 +158,48 @@ namespace NosCore.Tests.PacketHandlerTests
             var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM,
                 _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
-            Assert.IsTrue(_session.Character.InventoryService.Count == 0);
+            Assert.IsTrue(_session.Character.InventoryService!.Count == 0);
         }
 
         [TestMethod]
         public void Test_Get_NotYourObjectAfterDelay()
         {
-            _session.Character.PositionX = 0;
+            _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
 
             var mapItem =
-                TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance!, _item.Create(1012, 1), 1,
+                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance!, _item!.Create(1012, 1), 1,
                     1);
             mapItem.VisualId = 1012;
             mapItem.OwnerId = 2;
             mapItem.DroppedAt = SystemTime.Now().AddSeconds(-30);
             _session.Character.MapInstance!.MapItems.TryAdd(100001, mapItem);
 
-            _getPacketHandler.Execute(new GetPacket
+            _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session);
-            Assert.IsTrue(_session.Character.InventoryService.Count > 0);
+            Assert.IsTrue(_session.Character.InventoryService!.Count > 0);
         }
 
         [TestMethod]
         public void Test_GetAway()
         {
-            _session.Character.PositionX = 7;
+            _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
 
-            _session.Character.MapInstance.MapItems.TryAdd(100001,
-                TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1012, 1), 1,
+            _session.Character.MapInstance!.MapItems.TryAdd(100001,
+                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1012, 1), 1,
                     1));
-            _getPacketHandler.Execute(new GetPacket
+            _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session);
-            Assert.IsTrue(_session.Character.InventoryService.Count == 0);
+            Assert.IsTrue(_session.Character.InventoryService!.Count == 0);
         }
     }
 }

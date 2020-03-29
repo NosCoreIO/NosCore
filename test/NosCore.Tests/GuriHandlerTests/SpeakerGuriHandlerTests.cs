@@ -56,16 +56,16 @@ namespace NosCore.Tests.GuriHandlerTests
             _itemProvider = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session = TestHelpers.Instance.GenerateSession();
+            Session = TestHelpers.Instance.GenerateSession();
             _logger = new Mock<ILogger>();
-            _handler = new SpeakerGuriHandler(_logger.Object);
+            Handler = new SpeakerGuriHandler(_logger.Object);
             Broadcaster.Instance.LastPackets.Clear();
         }
 
         [TestMethod]
         public void Test_SpeakerWithItem()
         {
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
+            Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
             ExecuteGuriEventHandler(new GuriPacket
             {
                 Type = GuriPacketType.TextInput,
@@ -84,7 +84,7 @@ namespace NosCore.Tests.GuriHandlerTests
         [TestMethod]
         public void Test_SpeakerWithItemDoesNotExist()
         {
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
+            Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
             ExecuteGuriEventHandler(new GuriPacket
             {
                 Type = GuriPacketType.TextInput,
@@ -103,7 +103,7 @@ namespace NosCore.Tests.GuriHandlerTests
         [TestMethod]
         public void Test_SpeakerWithoutItem()
         {
-            _session.Character.InventoryService.AddItemToPocket(
+            Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
             ExecuteGuriEventHandler(new GuriPacket
             {

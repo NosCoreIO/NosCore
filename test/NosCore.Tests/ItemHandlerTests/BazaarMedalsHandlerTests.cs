@@ -47,8 +47,8 @@ namespace NosCore.Tests.ItemHandlerTests
         public void Setup()
         {
             _logger = new Mock<ILogger>();
-            _session = TestHelpers.Instance.GenerateSession();
-            _handler = new BazaarMedalsHandler(_logger.Object);
+            Session = TestHelpers.Instance.GenerateSession();
+            Handler = new BazaarMedalsHandler(_logger.Object);
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, Effect = ItemEffectType.GoldNosMerchantUpgrade, EffectValue = 1},
@@ -60,41 +60,41 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestMethod]
         public void Test_AddMedal_AlreadyOneDifferent()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(2), _session.Character.CharacterId);
-            _session.Character.StaticBonusList.Add(new StaticBonusDto
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(2), Session.Character.CharacterId);
+            Session.Character.StaticBonusList.Add(new StaticBonusDto
             {
-                CharacterId = _session.Character.CharacterId,
+                CharacterId = Session.Character.CharacterId,
                 DateEnd = SystemTime.Now().AddDays(1),
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            Assert.AreEqual(1, _session.Character.InventoryService.Count);
+            Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
         [TestMethod]
         public void Test_AddMedal_AlreadyOne()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.StaticBonusList.Add(new StaticBonusDto
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
+            Session.Character.StaticBonusList.Add(new StaticBonusDto
             {
-                CharacterId = _session.Character.CharacterId,
+                CharacterId = Session.Character.CharacterId,
                 DateEnd = SystemTime.Now().AddDays(1),
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            Assert.AreEqual(1, _session.Character.InventoryService.Count);
+            Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
         [TestMethod]
         public void Test_AddMedal()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            Assert.AreEqual(0, _session.Character.InventoryService.Count);
-            Assert.AreEqual(1, _session.Character.StaticBonusList.Count);
+            Assert.AreEqual(0, Session.Character.InventoryService.Count);
+            Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
         }
     }
 }

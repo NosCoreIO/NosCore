@@ -39,9 +39,9 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class PJoinPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private readonly Dictionary<int, Character> _characters = new Dictionary<int, Character>();
-        private PjoinPacketHandler _pJoinPacketHandler;
+        private PjoinPacketHandler? _pJoinPacketHandler;
 
         [TestCleanup]
         public void Cleanup()
@@ -64,7 +64,7 @@ namespace NosCore.Tests.PacketHandlerTests
             }
 
             var mock = new Mock<IBlacklistHttpClient>();
-            _pJoinPacketHandler = new PjoinPacketHandler(_logger, mock.Object);
+            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object);
         }
 
         [TestMethod]

@@ -33,9 +33,9 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class PreqPacketHandlerTests
     {
-        private Mock<IMinilandProvider> _minilandProvider;
-        private PreqPacketHandler _preqPacketHandler;
-        private ClientSession _session;
+        private Mock<IMinilandProvider>? _minilandProvider;
+        private PreqPacketHandler? _preqPacketHandler;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
@@ -64,32 +64,32 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void UserCanUsePortal()
         {
-            _session.Character.PositionX = 0;
+            _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _preqPacketHandler.Execute(new PreqPacket(), _session);
+            _preqPacketHandler!.Execute(new PreqPacket(), _session);
             Assert.IsTrue((_session.Character.PositionY == 5) && (_session.Character.PositionX == 5) &&
-                (_session.Character.MapInstance.Map.MapId == 1));
+                (_session.Character.MapInstance!.Map.MapId == 1));
         }
 
         [TestMethod]
         public void UserCanTUsePortalIfTooFar()
         {
-            _session.Character.PositionX = 8;
+            _session!.Character.PositionX = 8;
             _session.Character.PositionY = 8;
-            _preqPacketHandler.Execute(new PreqPacket(), _session);
+            _preqPacketHandler!.Execute(new PreqPacket(), _session);
             Assert.IsTrue((_session.Character.PositionY == 8) && (_session.Character.PositionX == 8) &&
-                (_session.Character.MapInstance.Map.MapId == 0));
+                (_session.Character.MapInstance!.Map.MapId == 0));
         }
 
         [TestMethod]
         public void UserFromInstanceGoesBackToOriginePlace()
         {
-            _session.Character.MapX = 5;
+            _session!.Character.MapX = 5;
             _session.Character.MapY = 5;
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            _session.Character.MapInstance.MapInstanceType = MapInstanceType.NormalInstance;
-            _preqPacketHandler.Execute(new PreqPacket(), _session);
+            _session.Character.MapInstance!.MapInstanceType = MapInstanceType.NormalInstance;
+            _preqPacketHandler!.Execute(new PreqPacket(), _session);
             Assert.IsTrue((_session.Character.PositionY == 5) && (_session.Character.PositionX == 5) &&
                 (_session.Character.MapInstance.Map.MapId == 1));
         }

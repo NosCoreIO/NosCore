@@ -42,7 +42,7 @@ namespace NosCore.Tests
     [TestClass]
     public class GroupTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private Group? _group;
 
         [TestInitialize]
@@ -58,7 +58,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Add_Player()
         {
-            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, new Mock<IGenericDao<CharacterDto>>().Object, new Mock<IGenericDao<IItemInstanceDto>>().Object, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, new Mock<IGenericDao<AccountDto>>().Object, _logger, new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object)
+            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, new Mock<IGenericDao<CharacterDto>>().Object, new Mock<IGenericDao<IItemInstanceDto>>().Object, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, new Mock<IGenericDao<AccountDto>>().Object, Logger, new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -75,7 +75,7 @@ namespace NosCore.Tests
         [TestMethod]
         public void Test_Remove_Player()
         {
-            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, new Mock<IGenericDao<CharacterDto>>().Object, new Mock<IGenericDao<IItemInstanceDto>>().Object, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, new Mock<IGenericDao<AccountDto>>().Object, _logger, new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object)
+            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, new Mock<IGenericDao<CharacterDto>>().Object, new Mock<IGenericDao<IItemInstanceDto>>().Object, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, new Mock<IGenericDao<AccountDto>>().Object, Logger, new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -108,7 +108,7 @@ namespace NosCore.Tests
         {
             for (var i = 0; i < (long) _group.Type; i++)
             {
-                var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, new Mock<IGenericDao<CharacterDto>>().Object, new Mock<IGenericDao<IItemInstanceDto>>().Object, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, new Mock<IGenericDao<AccountDto>>().Object, _logger, new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object)
+                var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, new Mock<IGenericDao<CharacterDto>>().Object, new Mock<IGenericDao<IItemInstanceDto>>().Object, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, new Mock<IGenericDao<AccountDto>>().Object, Logger, new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object)
                 {
                     CharacterId = i + 1,
                     Name = $"TestExistingCharacter{i}",

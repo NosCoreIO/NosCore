@@ -79,7 +79,7 @@ namespace NosCore.Tests.Helpers
 {
     public class TestHelpers
     {
-        private static Lazy<TestHelpers> lazy =
+        private static Lazy<TestHelpers> _lazy =
             new Lazy<TestHelpers>(() => new TestHelpers());
 
         private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
@@ -120,12 +120,12 @@ namespace NosCore.Tests.Helpers
             MapInstanceProvider = GenerateMapInstanceProvider();
         }
 
-        public static TestHelpers Instance => lazy.Value;
+        public static TestHelpers Instance => _lazy.Value;
 
         public IGenericDao<AccountDto> AccountDao { get; }
         public IGenericDao<CharacterDto> CharacterDao { get; }
         public IGenericDao<MinilandDto> MinilandDao { get; }
-        public MapItemProvider MapItemProvider { get; set; }
+        public MapItemProvider? MapItemProvider { get; set; }
         public Guid MinilandId { get; set; } = Guid.NewGuid();
 
         public WorldConfiguration WorldConfiguration { get; } = new WorldConfiguration
@@ -307,7 +307,7 @@ namespace NosCore.Tests.Helpers
 
         public static void Reset()
         {
-            lazy = new Lazy<TestHelpers>(() => new TestHelpers());
+            _lazy = new Lazy<TestHelpers>(() => new TestHelpers());
         }
     }
 }

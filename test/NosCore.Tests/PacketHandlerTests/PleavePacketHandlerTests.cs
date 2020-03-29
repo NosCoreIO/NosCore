@@ -39,7 +39,7 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class PleavePacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private readonly Dictionary<int, Character> _characters = new Dictionary<int, Character>();
         private PjoinPacketHandler? _pJoinPacketHandler;
         private PleavePacketHandler? _pLeavePacketHandler;
@@ -60,7 +60,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _pLeavePacketHandler = new PleavePacketHandler();
 
             var mock = new Mock<IBlacklistHttpClient>();
-            _pJoinPacketHandler = new PjoinPacketHandler(_logger, mock.Object);
+            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object);
         }
 
         [TestMethod]

@@ -40,7 +40,7 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class CharNewPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private Character? _chara;
         private CharNewPacketHandler? _charNewPacketHandler;
         private ClientSession? _session;
@@ -63,7 +63,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    _logger, new List<IMapInstanceEventHandler>());
+                    Logger, new List<IMapInstanceEventHandler>());
             const string name = "TestCharacter";
             _charNewPacketHandler!.Execute(new CharNewPacket
             {

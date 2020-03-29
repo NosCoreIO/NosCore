@@ -28,17 +28,17 @@ namespace NosCore.Tests.ItemHandlerTests
 {
     public abstract class UseItemEventHandlerTestsBase
     {
-        protected IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>> _handler;
-        protected ClientSession _session;
-        protected readonly UseItemPacket _useItem = new UseItemPacket();
+        protected IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>> Handler;
+        protected ClientSession Session;
+        protected readonly UseItemPacket UseItem = new UseItemPacket();
 
         protected void ExecuteInventoryItemInstanceEventHandler(InventoryItemInstance item)
         {
-            _handler.Execute(
+            Handler.Execute(
                 new RequestData<Tuple<InventoryItemInstance, UseItemPacket>>(
-                    _session,
+                    Session,
                     new Tuple<InventoryItemInstance, UseItemPacket>(
-                        item, _useItem
+                        item, UseItem
                     )));
         }
     }

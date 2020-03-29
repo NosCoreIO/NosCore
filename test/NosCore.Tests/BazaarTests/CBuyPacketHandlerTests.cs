@@ -46,7 +46,7 @@ namespace NosCore.Tests.BazaarTests
     [TestClass]
     public class CBuyPacketHandlerTest
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private Mock<IBazaarHttpClient> _bazaarHttpClient;
         private CBuyPacketHandler _cbuyPacketHandler;
         private Mock<IGenericDao<IItemInstanceDto>> _itemInstanceDao;
@@ -62,7 +62,7 @@ namespace NosCore.Tests.BazaarTests
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
             _itemInstanceDao = new Mock<IGenericDao<IItemInstanceDto>>();
             _itemProvider = new Mock<IItemProvider>();
-            _cbuyPacketHandler = new CBuyPacketHandler(_bazaarHttpClient.Object, _itemProvider.Object, _logger,
+            _cbuyPacketHandler = new CBuyPacketHandler(_bazaarHttpClient.Object, _itemProvider.Object, Logger,
                 _itemInstanceDao.Object);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).ReturnsAsync(

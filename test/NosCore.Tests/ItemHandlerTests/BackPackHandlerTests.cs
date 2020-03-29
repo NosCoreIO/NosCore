@@ -48,8 +48,8 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestInitialize]
         public void Setup()
         {
-            _session = TestHelpers.Instance.GenerateSession();
-            _handler = new BackPackHandler(new WorldConfiguration { MaxAdditionalSpPoints = 1 });
+            Session = TestHelpers.Instance.GenerateSession();
+            Handler = new BackPackHandler(new WorldConfiguration { MaxAdditionalSpPoints = 1 });
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, ItemType = ItemType.Special, Effect = ItemEffectType.InventoryTicketUpgrade, EffectValue = 0},
@@ -61,65 +61,65 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestMethod]
         public void Test_Can_Not_Stack()
         {
-            _session.Character.StaticBonusList.Add(new StaticBonusDto
+            Session.Character.StaticBonusList.Add(new StaticBonusDto
             {
-                CharacterId = _session.Character.CharacterId,
+                CharacterId = Session.Character.CharacterId,
                 DateEnd = null,
                 StaticBonusType = StaticBonusType.BackPack
             });
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(2), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(2), Session.Character.CharacterId);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
 
-            Assert.AreEqual(1, _session.Character.StaticBonusList.Count);
-            Assert.AreEqual(1, _session.Character.InventoryService.Count);
+            Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
+            Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
         [TestMethod]
         public void Test_BackPack()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(2), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(2), Session.Character.CharacterId);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (ExtsPacket?)_session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
+            var lastpacket = (ExtsPacket?)Session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
             Assert.IsNotNull(lastpacket);
-            Assert.AreEqual(1, _session.Character.StaticBonusList.Count);
-            Assert.AreEqual(12, _session.Character.InventoryService.Expensions[NoscorePocketType.Etc]);
-            Assert.AreEqual(12, _session.Character.InventoryService.Expensions[NoscorePocketType.Equipment]);
-            Assert.AreEqual(12, _session.Character.InventoryService.Expensions[NoscorePocketType.Main]);
-            Assert.AreEqual(0, _session.Character.InventoryService.Count);
+            Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
+            Assert.AreEqual(12, Session.Character.InventoryService.Expensions[NoscorePocketType.Etc]);
+            Assert.AreEqual(12, Session.Character.InventoryService.Expensions[NoscorePocketType.Equipment]);
+            Assert.AreEqual(12, Session.Character.InventoryService.Expensions[NoscorePocketType.Main]);
+            Assert.AreEqual(0, Session.Character.InventoryService.Count);
         }
 
         [TestMethod]
         public void Test_Can_Not_StackTicket()
         {
-            _session.Character.StaticBonusList.Add(new StaticBonusDto
+            Session.Character.StaticBonusList.Add(new StaticBonusDto
             {
-                CharacterId = _session.Character.CharacterId,
+                CharacterId = Session.Character.CharacterId,
                 DateEnd = null,
                 StaticBonusType = StaticBonusType.InventoryTicketUpgrade
             });
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
 
-            Assert.AreEqual(1, _session.Character.StaticBonusList.Count);
-            Assert.AreEqual(1, _session.Character.InventoryService.Count);
+            Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
+            Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
         [TestMethod]
         public void Test_BackPackTicket()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), _session.Character.CharacterId);
-            _session.Character.InventoryService.AddItemToPocket(itemInstance);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            var lastpacket = (ExtsPacket?)_session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
+            var lastpacket = (ExtsPacket?)Session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
             Assert.IsNotNull(lastpacket);
-            Assert.AreEqual(1, _session.Character.StaticBonusList.Count);
-            Assert.AreEqual(60, _session.Character.InventoryService.Expensions[NoscorePocketType.Etc]);
-            Assert.AreEqual(60, _session.Character.InventoryService.Expensions[NoscorePocketType.Equipment]);
-            Assert.AreEqual(60, _session.Character.InventoryService.Expensions[NoscorePocketType.Main]);
-            Assert.AreEqual(0, _session.Character.InventoryService.Count);
+            Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
+            Assert.AreEqual(60, Session.Character.InventoryService.Expensions[NoscorePocketType.Etc]);
+            Assert.AreEqual(60, Session.Character.InventoryService.Expensions[NoscorePocketType.Equipment]);
+            Assert.AreEqual(60, Session.Character.InventoryService.Expensions[NoscorePocketType.Main]);
+            Assert.AreEqual(0, Session.Character.InventoryService.Count);
         }
     }
 }

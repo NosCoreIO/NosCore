@@ -41,7 +41,7 @@ namespace NosCore.Tests.BazaarTests
     [TestClass]
     public class CModPacketHandlerTest
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private Mock<IBazaarHttpClient> _bazaarHttpClient;
         private CModPacketHandler _cmodPacketHandler;
         private ClientSession _session;
@@ -53,7 +53,7 @@ namespace NosCore.Tests.BazaarTests
             Broadcaster.Reset();
             _session = TestHelpers.Instance.GenerateSession();
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
-            _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, _logger);
+            _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, Logger);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).ReturnsAsync(
                 new BazaarLink
