@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.Inventory
 
         public override Task Execute(GetPacket getPacket, ClientSession clientSession)
         {
-            if (!clientSession.Character.MapInstance.MapItems.ContainsKey(getPacket.VisualId))
+            if (!clientSession.Character.MapInstance!.MapItems.ContainsKey(getPacket.VisualId))
             {
                 return Task.CompletedTask;
             }

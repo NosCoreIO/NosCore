@@ -79,12 +79,12 @@ namespace NosCore.PacketHandlers.Bazaar
                         await clientSession.SendPacket(clientSession.Character.GenerateGold());
 
                         var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == bz.ItemInstance.Id);
-                        var item = _itemProvider.Convert(itemInstance);
+                        var item = _itemProvider.Convert(itemInstance!);
                         item.Id = Guid.NewGuid();
                         var newInv =
                             clientSession.Character.InventoryService.AddItemToPocket(
                                 InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
-                        await clientSession.SendPacket(newInv.GeneratePocketChange());
+                        await clientSession.SendPacket(newInv!.GeneratePocketChange());
 
                         var remove = await _bazaarHttpClient.Remove(packet.BazaarId, packet.Amount,
                             clientSession.Character.Name);
@@ -104,7 +104,7 @@ namespace NosCore.PacketHandlers.Bazaar
                                 Unknown3 = 0
                             });
                             await clientSession.SendPacket(clientSession.Character.GenerateSay(
-                                $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, clientSession.Account.Language)}: {item.Item.Name[clientSession.Account.Language]} x {packet.Amount}"
+                                $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, clientSession.Account.Language)}: {item.Item!.Name[clientSession.Account.Language]} x {packet.Amount}"
                                 , SayColorType.Yellow
                             ));
 

@@ -116,7 +116,7 @@ namespace NosCore.GameObject
         public DateTime LastSpeedChange { get; set; }
 
         public DateTime LastMove { get; set; }
-        public IItemProvider? ItemProvider { get; set; }
+        public IItemProvider ItemProvider { get; set; }
         public bool InExchangeOrTrade { get; set; }
 
         public bool UseSp { get; set; }
@@ -126,7 +126,7 @@ namespace NosCore.GameObject
         public bool IsVehicled { get; set; }
         public byte? VehicleSpeed { get; set; }
 
-        public IExchangeProvider? ExchangeProvider { get; }
+        public IExchangeProvider ExchangeProvider { get; }
 
         public bool InExchangeOrShop => InExchange || InShop;
 
@@ -347,7 +347,7 @@ namespace NosCore.GameObject
                 _inventoryItemInstanceDao.Delete(itemsToDelete);
                 _itemInstanceDao.Delete(itemsToDelete.Select(s => s.ItemInstanceId).ToArray());
 
-                _itemInstanceDao.InsertOrUpdate(InventoryService.Values.Select(s => s.ItemInstance).ToArray());
+                _itemInstanceDao.InsertOrUpdate(InventoryService.Values.Select(s => s.ItemInstance!).ToArray());
                 _inventoryItemInstanceDao.InsertOrUpdate(InventoryService.Values.ToArray());
 
                 var staticBonusToDelete = _staticBonusDao
@@ -448,8 +448,8 @@ namespace NosCore.GameObject
             Mp = MaxMp;
             await SendPacket(GenerateTit());
             await SendPacket(GenerateStat());
-            await MapInstance.SendPacket(GenerateEq());
-            await MapInstance.SendPacket(this.GenerateEff(8));
+            await MapInstance!.SendPacket(GenerateEq());
+            await MapInstance!.SendPacket(this.GenerateEff(8));
             //TODO: Faction
             await SendPacket(this.GenerateCond());
             await SendPacket(GenerateLev());
@@ -473,10 +473,10 @@ namespace NosCore.GameObject
                 }
             };
 
-            await MapInstance.SendPacket(this.GenerateIn(Prefix), new EveryoneBut(Session.Channel.Id));
-            await MapInstance.SendPacket(Group.GeneratePidx(this));
-            await MapInstance.SendPacket(this.GenerateEff(6));
-            await MapInstance.SendPacket(this.GenerateEff(198));
+            await MapInstance!.SendPacket(this.GenerateIn(Prefix ?? ""), new EveryoneBut(Session!.Channel!.Id));
+            await MapInstance!.SendPacket(Group.GeneratePidx(this));
+            await MapInstance!.SendPacket(this.GenerateEff(6));
+            await MapInstance!.SendPacket(this.GenerateEff(198));
         }
 
         public Task AddGold(long gold)
@@ -561,13 +561,13 @@ namespace NosCore.GameObject
         {
             Shop = null;
 
-            await MapInstance.SendPacket(this.GenerateShop());
-            await MapInstance.SendPacket(this.GeneratePFlag());
+            await MapInstance!.SendPacket(this.GenerateShop());
+            await MapInstance!.SendPacket(this.GeneratePFlag());
 
             IsSitting = false;
             LoadSpeed();
             await SendPacket(this.GenerateCond());
-            await MapInstance.SendPacket(this.GenerateRest());
+            await MapInstance!.SendPacket(this.GenerateRest());
         }
 
         public RsfiPacket GenerateRsfi()
@@ -648,7 +648,7 @@ namespace NosCore.GameObject
             }
 
             short slotChar = item.Slot;
-            List<InventoryItemInstance> inv;
+            List<InventoryItemInstance>? inv;
             if (shop.Session == null)
             {
                 inv = InventoryService.AddItemToPocket(InventoryItemInstance.Create(
@@ -726,7 +726,7 @@ namespace NosCore.GameObject
                 ? InventoryService.DeleteById(item.ItemInstance.Id)
                 : InventoryService.RemoveItemAmountFromInventory(amount, item.ItemInstance.Id);
             var slot = item.Slot;
-            item.Amount -= amount;
+            item.Amount = (short)((item.Amount ?? 0) - amount);
             if ((item?.Amount ?? 0) == 0)
             {
                 Shop!.ShopItems.TryRemove(slot, out _);
@@ -738,12 +738,12 @@ namespace NosCore.GameObject
                 Type = SMemoType.Success,
                 Message = string.Format(
                     Language.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_FROM, Account.Language), Name,
-                    item.ItemInstance.Item.Name[Account.Language], amount)
+                    item!.ItemInstance.Item.Name[Account.Language], amount)
             });
             var sellAmount = (item?.Price ?? 0) * amount;
             Gold += sellAmount;
             await SendPacket(this.GenerateGold());
-            Shop.Sell += sellAmount;
+            Shop!.Sell += sellAmount;
 
             await SendPacket(new SellListPacket
             {
@@ -834,7 +834,7 @@ namespace NosCore.GameObject
             var pktQs = new QSlotPacket[2];
             for (var i = 0; i < pktQs.Length; i++)
             {
-                var subpacket = new List<QsetClientSubPacket>();
+                var subpacket = new List<QsetClientSubPacket?>();
                 for (var j = 0; j < 30; j++)
                 {
                     var qi = QuicklistEntries.FirstOrDefault(n =>
@@ -948,12 +948,12 @@ namespace NosCore.GameObject
             "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
         public IEnumerable<IPacket> GenerateInv()
         {
-            var inv0 = new InvPacket { Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv1 = new InvPacket { Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv2 = new InvPacket { Type = PocketType.Etc, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv3 = new InvPacket { Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv0 = new InvPacket { Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket?>() };
+            var inv1 = new InvPacket { Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket?>() };
+            var inv2 = new InvPacket { Type = PocketType.Etc, IvnSubPackets = new List<IvnSubPacket?>() };
+            var inv3 = new InvPacket { Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket?>() };
+            var inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket?>() };
+            var inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket?>() };
 
             if (InventoryService != null)
             {
@@ -962,7 +962,7 @@ namespace NosCore.GameObject
                     switch (inv.Type)
                     {
                         case NoscorePocketType.Equipment:
-                            if (inv.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
+                            if (inv.ItemInstance!.Item.EquipmentSlot == EquipmentType.Sp)
                             {
                                 if (inv.ItemInstance is SpecialistInstance specialistInstance)
                                 {
@@ -996,21 +996,21 @@ namespace NosCore.GameObject
                         case NoscorePocketType.Main:
                             inv1.IvnSubPackets.Add(new IvnSubPacket
                             {
-                                Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                                Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
                             });
                             break;
 
                         case NoscorePocketType.Etc:
                             inv2.IvnSubPackets.Add(new IvnSubPacket
                             {
-                                Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                                Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
                             });
                             break;
 
                         case NoscorePocketType.Miniland:
                             inv3.IvnSubPackets.Add(new IvnSubPacket
                             {
-                                Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                                Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
                             });
                             break;
 
@@ -1206,14 +1206,14 @@ namespace NosCore.GameObject
 
         public void LoadSpeed()
         {
-            Speed = CharacterHelper.Instance.SpeedData[(byte)Class];
+            Speed = CharacterHelper.Instance.SpeedData![(byte)Class];
         }
 
         public double MpLoad()
         {
             const int mp = 0;
             const double multiplicator = 1.0;
-            return (int)((CharacterHelper.Instance.MpData[(byte)Class][Level] + mp) * multiplicator);
+            return (int)((CharacterHelper.Instance.MpData![(byte)Class][Level] + mp) * multiplicator);
         }
 
         public double HpLoad()
@@ -1221,7 +1221,7 @@ namespace NosCore.GameObject
             const double multiplicator = 1.0;
             const int hp = 0;
 
-            return (int)((CharacterHelper.Instance.HpData[(byte)Class][Level] + hp) * multiplicator);
+            return (int)((CharacterHelper.Instance.HpData![(byte)Class][Level] + hp) * multiplicator);
         }
 
         public AtPacket GenerateAt()
@@ -1229,7 +1229,7 @@ namespace NosCore.GameObject
             return new AtPacket
             {
                 CharacterId = CharacterId,
-                MapId = MapInstance.Map.MapId,
+                MapId = MapInstance!.Map.MapId,
                 PositionX = PositionX,
                 PositionY = PositionY,
                 Direction = Direction,
@@ -1312,9 +1312,9 @@ namespace NosCore.GameObject
             SendPacket(GenerateSpPoint());
         }
 
-        public EquipPacket GenerateEquipment()
+        public EquipPacket? GenerateEquipment()
         {
-            EquipmentSubPacket GenerateEquipmentSubPacket(EquipmentType eqType)
+            EquipmentSubPacket? GenerateEquipmentSubPacket(EquipmentType eqType)
             {
                 var eq = InventoryService.LoadBySlotAndType((short)eqType, NoscorePocketType.Wear);
                 if (eq == null)
@@ -1325,7 +1325,7 @@ namespace NosCore.GameObject
                 return new EquipmentSubPacket
                 {
                     EquipmentType = eqType,
-                    VNum = eq.ItemInstance.ItemVNum,
+                    VNum = eq.ItemInstance!.ItemVNum,
                     Rare = eq.ItemInstance.Rare,
                     Upgrade = (eq?.ItemInstance.Item.IsColored == true ? eq.ItemInstance?.Design
                         : eq?.ItemInstance.Upgrade) ?? 0,
@@ -1387,8 +1387,8 @@ namespace NosCore.GameObject
                 string.Format(Language.Instance.GetMessageFromKey(LanguageKey.STAY_TIME, Account.Language), SpCooldown),
                 SayColorType.Purple));
             await SendPacket(new SdPacket { Cooldown = SpCooldown });
-            await MapInstance.SendPacket(this.GenerateCMode());
-            await MapInstance.SendPacket(new GuriPacket
+            await MapInstance!.SendPacket(this.GenerateCMode());
+            await MapInstance!.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
@@ -1443,10 +1443,10 @@ namespace NosCore.GameObject
             Morph = sp.Item.Morph;
             MorphUpgrade = sp.Upgrade;
             MorphDesign = sp.Design;
-            await MapInstance.SendPacket(this.GenerateCMode());
+            await MapInstance!.SendPacket(this.GenerateCMode());
             await SendPacket(GenerateLev());
-            await MapInstance.SendPacket(this.GenerateEff(196));
-            await MapInstance.SendPacket(new GuriPacket
+            await MapInstance!.SendPacket(this.GenerateEff(196));
+            await MapInstance!.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
@@ -1466,7 +1466,7 @@ namespace NosCore.GameObject
                     InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear);
                 if (sp != null)
                 {
-                    Morph = sp.ItemInstance.Item.Morph;
+                    Morph = sp.ItemInstance!.Item.Morph;
                     MorphDesign = sp.ItemInstance.Design;
                     MorphUpgrade = sp.ItemInstance.Upgrade;
                 }
@@ -1483,16 +1483,16 @@ namespace NosCore.GameObject
             IsVehicled = false;
             VehicleSpeed = 0;
             await SendPacket(this.GenerateCond());
-            await MapInstance.SendPacket(this.GenerateCMode());
+            await MapInstance!.SendPacket(this.GenerateCMode());
         }
 
         public MlobjlstPacket GenerateMlobjlst()
         {
-            var mlobj = new List<MlobjlstSubPacket>();
+            var mlobj = new List<MlobjlstSubPacket?>();
             foreach (var item in InventoryService.Where(s => s.Value.Type == NoscorePocketType.Miniland)
                 .OrderBy(s => s.Value.Slot).Select(s => s.Value))
             {
-                var used = Session.Character.MapInstance.MapDesignObjects.ContainsKey(item.Id);
+                var used = Session.Character.MapInstance!.MapDesignObjects.ContainsKey(item.Id);
                 var mp = used ? Session.Character.MapInstance.MapDesignObjects[item.Id] : null;
 
                 mlobj.Add(new MlobjlstSubPacket
@@ -1501,9 +1501,9 @@ namespace NosCore.GameObject
                     Slot = item.Slot,
                     MlObjSubPacket = new MlobjSubPacket
                     {
-                        MapX = used ? mp.MapX : (short)0,
-                        MapY = used ? mp.MapY : (short)0,
-                        Width = item.ItemInstance.Item.Width != 0 ? item.ItemInstance.Item.Width : (byte)1,
+                        MapX = used ? mp!.MapX : (short)0,
+                        MapY = used ? mp!.MapY : (short)0,
+                        Width = item.ItemInstance!.Item.Width != 0 ? item.ItemInstance.Item.Width : (byte)1,
                         Height = item.ItemInstance.Item.Height != 0 ? item.ItemInstance.Item.Height : (byte)1,
                         DurabilityPoint = used ? item.ItemInstance.DurabilityPoint : 0,
                         Unknown = 100,

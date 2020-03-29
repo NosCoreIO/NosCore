@@ -47,7 +47,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static Task ChangeDir(this IAliveEntity aliveEntity, byte direction)
         {
             aliveEntity.Direction = direction;
-            return aliveEntity.MapInstance.SendPacket(
+            return aliveEntity.MapInstance!.SendPacket(
                 aliveEntity.GenerateChangeDir());
         }
 
@@ -132,7 +132,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 {
                     var mapX = nonPlayableEntity.MapX;
                     var mapY = nonPlayableEntity.MapY;
-                    if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
+                    if (nonPlayableEntity.MapInstance!.Map.GetFreePosition(ref mapX, ref mapY,
                         (byte)RandomFactory.Instance.RandomNumber(0, 3),
                         (byte)RandomFactory.Instance.RandomNumber(0, 3)))
                     {
@@ -159,7 +159,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static Task Rest(this IAliveEntity aliveEntity)
         {
             aliveEntity.IsSitting = !aliveEntity.IsSitting;
-            return aliveEntity.MapInstance.SendPacket(
+            return aliveEntity.MapInstance!.SendPacket(
                 aliveEntity.GenerateRest());
         }
 
@@ -197,7 +197,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Message = message,
                 IconInfo = isNormalItem ? new IconInfoPacket
                 {
-                    IconId = item.ItemInstance.ItemVNum
+                    IconId = item.ItemInstance!.ItemVNum
                 } : null,
                 EquipmentInfo = isNormalItem ? null : new EInfoPacket(),
                 SlInfo = item.Type != NoscorePocketType.Specialist ? null : new SlInfoPacket()
@@ -339,7 +339,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             byte shopKind)
         {
             var shopItemList = new List<NInvItemSubPacket?>();
-            var list = aliveEntity.Shop.ShopItems.Values.Where(s => s.Type == typeshop).ToList();
+            var list = aliveEntity.Shop!.ShopItems.Values.Where(s => s.Type == typeshop).ToList();
             for (var i = 0; i < aliveEntity.Shop.Size; i++)
             {
                 var item = list.Find(s => s.Slot == i);

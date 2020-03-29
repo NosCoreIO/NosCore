@@ -86,15 +86,15 @@ namespace NosCore.PacketHandlers.Miniland
             };
 
 
-            if (minilandobject.ItemInstance.Item.ItemType == ItemType.House)
+            if (minilandobject.ItemInstance?.Item?.ItemType == ItemType.House)
             {
                 var min = clientSession.Character.MapInstance.MapDesignObjects
-                    .FirstOrDefault(s => (s.Value.InventoryItemInstance.ItemInstance.Item.ItemType == ItemType.House) &&
+                    .FirstOrDefault(s => (s.Value.InventoryItemInstance?.ItemInstance?.Item?.ItemType == ItemType.House) &&
                         (s.Value.InventoryItemInstance.ItemInstance.Item.ItemSubType ==
                             minilandobject.ItemInstance.Item.ItemSubType)).Value;
                 if (min != null)
                 {
-                    await clientSession.HandlePackets(new[] {new RmvobjPacket {Slot = min.InventoryItemInstance.Slot}});
+                    await clientSession.HandlePackets(new[] {new RmvobjPacket {Slot = min.InventoryItemInstance?.Slot ?? 0}});
                 }
             }
 
@@ -102,7 +102,7 @@ namespace NosCore.PacketHandlers.Miniland
 
             await clientSession.SendPacket(minilandobj.GenerateEffect());
             await clientSession.SendPacket(new MinilandPointPacket
-                {MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100});
+                {MinilandPoint = minilandobject.ItemInstance?.Item?.MinilandObjectPoint ?? 0, Unknown = 100});
             await clientSession.SendPacket(minilandobj.GenerateMapDesignObject());
         }
     }

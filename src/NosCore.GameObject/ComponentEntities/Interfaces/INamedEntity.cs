@@ -21,7 +21,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface INamedEntity : IAliveEntity
     {
-        Group Group { get; set; }
+        Group? Group { get; set; }
 
         string? Name { get; }
 

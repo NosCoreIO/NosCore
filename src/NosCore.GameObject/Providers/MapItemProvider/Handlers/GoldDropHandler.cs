@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                 requestData.ClientSession.Character.Gold += requestData.Data.Item1.Amount;
                 await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
                     $"{Language.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}" +
-                    $": {requestData.Data.Item1.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]} x {requestData.Data.Item1.Amount}",
+                    $": {requestData.Data.Item1.ItemInstance!.Item!.Name[requestData.ClientSession.Account.Language]} x {requestData.Data.Item1.Amount}",
                     SayColorType.Green));
             }
             else

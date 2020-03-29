@@ -114,7 +114,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 (s.Value?.Map.MapId == mapId) && (s.Value.MapInstanceType == MapInstanceType.BaseMapInstance)).Key;
         }
 
-        public MapInstance GetMapInstance(Guid id)
+        public MapInstance? GetMapInstance(Guid id)
         {
             return MapInstances.ContainsKey(id) ? MapInstances[id] : null;
         }

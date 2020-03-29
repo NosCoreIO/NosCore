@@ -247,7 +247,7 @@ namespace NosCore.MasterServer.Controllers
             };
         }
 
-        private void Notify(byte notifyType, Tuple<ServerConfiguration, ConnectedAccount?> receiver, MailData mailData)
+        private void Notify(byte notifyType, Tuple<ServerConfiguration?, ConnectedAccount?> receiver, MailData mailData)
         {
             var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver.Item2?.Name)
                 ? mailData.ItemInstance != null ? (byte) 0 : (byte) 1 : (byte) 2;

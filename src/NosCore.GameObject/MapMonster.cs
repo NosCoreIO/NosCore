@@ -42,7 +42,7 @@ namespace NosCore.GameObject
             _logger = logger;
         }
 
-        public IDisposable Life { get; private set; }
+        public IDisposable? Life { get; private set; }
 
         public void Initialize()
         {

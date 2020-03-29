@@ -119,7 +119,7 @@ namespace NosCore.PacketHandlers.Group
                     });
 
                     await targetsession.LeaveGroup();
-                    await targetsession.SendPacket(targetsession.Group.GeneratePinit());
+                    await targetsession.SendPacket(targetsession.Group!.GeneratePinit());
                     await Broadcaster.Instance.SendPacket(targetsession.Group.GeneratePidx(targetsession));
                 }
 

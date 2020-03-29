@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Exchange
                 return Task.CompletedTask;
             }
 
-            var subPacketList = new List<ServerExcListSubPacket>();
+            var subPacketList = new List<ServerExcListSubPacket?>();
 
             var target = Broadcaster.Instance.GetCharacter(s =>
                 (s.VisualId == _exchangeProvider.GetTargetId(clientSession.Character.VisualId)) &&

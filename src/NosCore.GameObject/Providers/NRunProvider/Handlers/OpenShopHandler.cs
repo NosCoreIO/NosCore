@@ -40,9 +40,9 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             {
                 new ShoppingPacket
                 {
-                    VisualType = (VisualType) requestData.Data.Item2.VisualType,
-                    VisualId = (long) requestData.Data.Item2.VisualId,
-                    ShopType = (short) requestData.Data.Item2.Type,
+                    VisualType = requestData.Data.Item2.VisualType ?? 0,
+                    VisualId = requestData.Data.Item2.VisualId ?? 0,
+                    ShopType = requestData.Data.Item2.Type ?? 0,
                     Unknown = 0
                 }
             });

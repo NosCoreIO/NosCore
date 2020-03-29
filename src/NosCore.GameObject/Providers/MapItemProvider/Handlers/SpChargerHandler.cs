@@ -34,13 +34,13 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
     {
         public bool Condition(MapItem item)
         {
-            return (item.ItemInstance.Item.ItemType == ItemType.Map) &&
+            return (item.ItemInstance!.Item!.ItemType == ItemType.Map) &&
                 (item.ItemInstance.Item.Effect == ItemEffectType.SpCharger);
         }
 
         public async Task Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
-            requestData.ClientSession.Character.AddSpPoints(requestData.Data.Item1.ItemInstance.Item.EffectValue);
+            requestData.ClientSession.Character.AddSpPoints(requestData.Data.Item1.ItemInstance!.Item!.EffectValue);
 
             await requestData.ClientSession.SendPacket(new MsgPacket
             {
@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             });
             await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint());
 
-            requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
+            requestData.ClientSession.Character.MapInstance!.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
             await requestData.ClientSession.Character.MapInstance.SendPacket(
                 requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
         }

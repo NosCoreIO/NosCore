@@ -31,8 +31,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new PidxPacket
             {
                 GroupId = group.Count == 1 ? -1 : group.GroupId,
-                SubPackets = group.Count == 1 ? new List<PidxSubPacket> {entity.GenerateSubPidx(true)}
-                    : group.Values.Select(s => s.Item2.GenerateSubPidx()).ToList()
+                SubPackets = group.Count == 1 ? new List<PidxSubPacket?> {entity.GenerateSubPidx(true)}
+                    : group.Values.Select(s => s.Item2.GenerateSubPidx()).ToList() as List<PidxSubPacket?>
             };
         }
     }

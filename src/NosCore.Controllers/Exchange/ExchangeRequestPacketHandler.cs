@@ -189,7 +189,7 @@ namespace NosCore.PacketHandlers.Exchange
 
                     if (success.Item1 == ExchangeResultType.Success)
                     {
-                        foreach (var infoPacket in success.Item2)
+                        foreach (var infoPacket in success.Item2!)
                         {
                             if (infoPacket.Key == clientSession.Character.CharacterId)
                             {
@@ -237,7 +237,7 @@ namespace NosCore.PacketHandlers.Exchange
                         clientSession.Character.AddBankGold(getTargetData.BankGold * 1000);
                     }
 
-                    closeExchange = _exchangeProvider.CloseExchange(clientSession.Character.VisualId, success.Item1);
+                    closeExchange = _exchangeProvider.CloseExchange(clientSession.Character.VisualId, success.Item1)!;
                     exchangeTarget?.SendPacket(closeExchange);
                     await clientSession.SendPacket(closeExchange);
                     return;
@@ -253,7 +253,7 @@ namespace NosCore.PacketHandlers.Exchange
                     var cancelTarget = Broadcaster.Instance.GetCharacter(s => s.VisualId == cancelId.Value);
 
                     closeExchange =
-                        _exchangeProvider.CloseExchange(clientSession.Character.VisualId, ExchangeResultType.Failure);
+                        _exchangeProvider.CloseExchange(clientSession.Character.VisualId, ExchangeResultType.Failure)!;
                     cancelTarget?.SendPacket(closeExchange);
                     await clientSession.SendPacket(closeExchange);
                     return;
