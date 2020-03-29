@@ -40,12 +40,12 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override Task Execute(BiPacket bIPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(BiPacket bIPacket, ClientSession clientSession)
         {
             switch (bIPacket.Option)
             {
                 case null:
-                    clientSession.SendPacket(
+                    clientSession.SendPacketAsync(
                         new DlgPacket
                         {
                             YesPacket = new BiPacket
@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Inventory
                     break;
 
                 case RequestDeletionType.Requested:
-                    clientSession.SendPacket(
+                    clientSession.SendPacketAsync(
                         new DlgPacket
                         {
                             YesPacket = new BiPacket
@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Inventory
 
                     var item = clientSession.Character.InventoryService.DeleteFromTypeAndSlot(
                         (NoscorePocketType) bIPacket.PocketType, bIPacket.Slot);
-                    clientSession.SendPacket(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot));
+                    clientSession.SendPacketAsync(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot));
                     break;
                 default:
                     return Task.CompletedTask;

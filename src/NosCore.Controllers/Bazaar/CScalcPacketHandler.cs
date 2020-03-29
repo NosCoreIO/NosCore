@@ -56,14 +56,14 @@ namespace NosCore.PacketHandlers.Bazaar
             _itemInstanceDao = itemInstanceDao;
         }
 
-        public override async Task Execute(CScalcPacket packet, ClientSession clientSession)
+        public override async Task ExecuteAsync(CScalcPacket packet, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
                 return;
             }
 
-            var bz =  await _bazaarHttpClient.GetBazaarLink(packet.BazaarId).ConfigureAwait(false);
+            var bz =  await _bazaarHttpClient.GetBazaarLinkAsync(packet.BazaarId).ConfigureAwait(false);
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name))
             {
                 var soldedamount = bz.BazaarItem!.Amount - bz.ItemInstance!.Amount;
@@ -74,8 +74,8 @@ namespace NosCore.PacketHandlers.Bazaar
                     if (clientSession.Character.Gold + price <= _worldConfiguration.MaxGoldAmount)
                     {
                         clientSession.Character.Gold += price;
-                        await clientSession.SendPacket(clientSession.Character.GenerateGold()).ConfigureAwait(false);
-                        await clientSession.SendPacket(clientSession.Character.GenerateSay(string.Format(
+                        await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
+                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(string.Format(
                             GameLanguage.Instance.GetMessageFromKey(LanguageKey.REMOVE_FROM_BAZAAR,
                                 clientSession.Account.Language), price), SayColorType.Yellow)).ConfigureAwait(false);
                         var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == bz.ItemInstance.Id);
@@ -89,12 +89,12 @@ namespace NosCore.PacketHandlers.Bazaar
                         var newInv =
                             clientSession.Character.InventoryService.AddItemToPocket(
                                 InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
-                        await clientSession.SendPacket(newInv!.GeneratePocketChange()).ConfigureAwait(false);
-                        var remove = await _bazaarHttpClient.Remove(packet.BazaarId, bz.ItemInstance.Amount,
+                        await clientSession.SendPacketAsync(newInv!.GeneratePocketChange()).ConfigureAwait(false);
+                        var remove = await _bazaarHttpClient.RemoveAsync(packet.BazaarId, bz.ItemInstance.Amount,
                             clientSession.Character.Name).ConfigureAwait(false);
                         if (remove)
                         {
-                            await clientSession.SendPacket(new RCScalcPacket
+                            await clientSession.SendPacketAsync(new RCScalcPacket
                             {
                                 Type = VisualType.Player,
                                 Price = bz.BazaarItem.Price,
@@ -103,7 +103,7 @@ namespace NosCore.PacketHandlers.Bazaar
                                 Taxes = taxes,
                                 Total = price + taxes
                             }).ConfigureAwait(false);
-                            await clientSession.HandlePackets(new[]
+                            await clientSession.HandlePacketsAsync(new[]
                                 {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}}).ConfigureAwait(false);
                             return;
                         }
@@ -112,7 +112,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     }
                     else
                     {
-                        await clientSession.SendPacket(new MsgPacket
+                        await clientSession.SendPacketAsync(new MsgPacket
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
                                 clientSession.Account.Language),
@@ -122,14 +122,14 @@ namespace NosCore.PacketHandlers.Bazaar
                 }
                 else
                 {
-                    await clientSession.SendPacket(new InfoPacket
+                    await clientSession.SendPacketAsync(new InfoPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                             clientSession.Account.Language)
                     }).ConfigureAwait(false);
                 }
 
-                await clientSession.SendPacket(new RCScalcPacket
+                await clientSession.SendPacketAsync(new RCScalcPacket
                 {
                     Type = VisualType.Player, Price = bz.BazaarItem.Price, RemainingAmount = 0,
                     Amount = bz.BazaarItem.Amount, Taxes = 0, Total = 0
@@ -137,7 +137,7 @@ namespace NosCore.PacketHandlers.Bazaar
             }
             else
             {
-                await clientSession.SendPacket(new RCScalcPacket
+                await clientSession.SendPacketAsync(new RCScalcPacket
                     {Type = VisualType.Player, Price = 0, RemainingAmount = 0, Amount = 0, Taxes = 0, Total = 0}).ConfigureAwait(false);
             }
         }

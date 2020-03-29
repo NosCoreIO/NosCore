@@ -79,7 +79,7 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1);
-            await _sellPacketHandler!.Execute(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
+            await _sellPacketHandler!.ExecuteAsync(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
                 _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.Gold == 0);
             Assert.IsNotNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Etc));
@@ -103,7 +103,7 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1);
-            await _sellPacketHandler!.Execute(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
+            await _sellPacketHandler!.ExecuteAsync(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
                 _session).ConfigureAwait(false);
             var packet = (SMemoPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet?.Message ==
@@ -130,7 +130,7 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1);
-            await _sellPacketHandler!.Execute(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
+            await _sellPacketHandler!.ExecuteAsync(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
                 _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.Gold > 0);
             Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Etc));

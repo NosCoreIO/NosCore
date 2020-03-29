@@ -31,14 +31,14 @@ namespace NosCore.PacketHandlers.Friend
 {
     public class FlPacketHandler : PacketHandler<FlPacket>, IWorldPacketHandler
     {
-        public override Task Execute(FlPacket flPacket, ClientSession session)
+        public override Task ExecuteAsync(FlPacket flPacket, ClientSession session)
         {
             var target =
                 Broadcaster.Instance.GetCharacter(s => s.Name == flPacket.CharacterName);
 
             if (target == null)
             {
-                session.SendPacket(new InfoPacket
+                session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Friend
                 Type = FinsPacketType.Accepted
             };
 
-            return session.HandlePackets(new[] {fins});
+            return session.HandlePacketsAsync(new[] {fins});
         }
     }
 }

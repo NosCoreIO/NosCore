@@ -103,18 +103,20 @@ namespace NosCore.GameObject.Providers.MinilandProvider
 
         public void DeleteMiniland(long characterId)
         {
-            if (_minilandIds.ContainsKey(characterId))
+            if (!_minilandIds.ContainsKey(characterId))
             {
-                var miniland = _mapInstanceProvider.GetMapInstance(_minilandIds[characterId].MapInstanceId);
-                foreach (var obj in miniland!.MapDesignObjects.Values)
-                {
-                    var dto = (MinilandObjectDto) obj;
-                    _minilandObjectsDao.InsertOrUpdate(ref dto);
-                }
-
-                _mapInstanceProvider.RemoveMap(_minilandIds[characterId].MapInstanceId);
-                _minilandIds.TryRemove(characterId, out _);
+                return;
             }
+
+            var miniland = _mapInstanceProvider.GetMapInstance(_minilandIds[characterId].MapInstanceId);
+            foreach (var obj in miniland!.MapDesignObjects.Values)
+            {
+                var dto = (MinilandObjectDto) obj;
+                _minilandObjectsDao.InsertOrUpdate(ref dto);
+            }
+
+            _mapInstanceProvider.RemoveMap(_minilandIds[characterId].MapInstanceId);
+            _minilandIds.TryRemove(characterId, out _);
         }
 
         public Miniland Initialize(Character character)
@@ -151,33 +153,37 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             return minilandInfo;
         }
 
-        public async Task SetState(long characterId, MinilandState state)
+        public async Task SetStateAsync(long characterId, MinilandState state)
         {
-            if (_minilandIds.ContainsKey(characterId))
+            if (!_minilandIds.ContainsKey(characterId))
             {
-                var ml = _minilandIds[characterId];
-                var miniland = _mapInstanceProvider.GetMapInstance(ml.MapInstanceId);
-                ml.State = state;
-
-                if (ml.State != MinilandState.Open)
-                {
-                    if (ml.State == MinilandState.Private)
-                    {
-                        List<long> friends = (await _friendHttpClient.GetListFriends(characterId).ConfigureAwait(false))
-                            .Select(s => s.CharacterId)
-                            .ToList();
-                        // Kick all players in miniland except owner and his friends
-                        miniland!.Kick(o => o.VisualId != characterId && !friends.Contains(o.VisualId));
-                    } else
-                    {
-                        miniland!.Kick(o => o.VisualId != characterId);
-                    }
-                }
-
-                return;
+                throw new ArgumentException();
             }
 
-            throw new ArgumentException();
+            var ml = _minilandIds[characterId];
+            var miniland = _mapInstanceProvider.GetMapInstance(ml.MapInstanceId);
+            ml.State = state;
+
+            switch (ml.State)
+            {
+                case MinilandState.Open:
+                    return;
+                case MinilandState.Private:
+                {
+                    List<long> friends = (await _friendHttpClient.GetListFriendsAsync(characterId).ConfigureAwait(false))
+                        .Select(s => s.CharacterId)
+                        .ToList();
+                    // Kick all players in miniland except owner and his friends
+                    miniland!.Kick(o => o.VisualId != characterId && !friends.Contains(o.VisualId));
+                    break;
+                }
+                default:
+                    miniland!.Kick(o => o.VisualId != characterId);
+                    break;
+            }
+
+            return;
+
         }
 
         public Miniland GetMinilandFromMapInstanceId(Guid mapInstanceId)

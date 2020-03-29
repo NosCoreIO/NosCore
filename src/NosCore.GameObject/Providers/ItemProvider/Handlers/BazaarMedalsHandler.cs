@@ -43,32 +43,33 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 || (item.Effect == ItemEffectType.GoldNosMerchantUpgrade);
         }
 
-        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
-            if (!requestData.ClientSession.Character.StaticBonusList.Any(s =>
+            if (requestData.ClientSession.Character.StaticBonusList.Any(s =>
                 (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
                 (s.StaticBonusType == StaticBonusType.BazaarMedalSilver)))
             {
-                var itemInstance = requestData.Data.Item1;
-                requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto
-                {
-                    CharacterId = requestData.ClientSession.Character.CharacterId,
-                    DateEnd = SystemTime.Now().AddDays(itemInstance.ItemInstance!.Item!.EffectValue),
-                    StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.SilverNosMerchantUpgrade
-                        ? StaticBonusType.BazaarMedalSilver : StaticBonusType.BazaarMedalGold
-                });
-                requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(string.Format(
-                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.EFFECT_ACTIVATED,
-                            requestData.ClientSession.Account.Language),
-                        itemInstance.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]),
-                    SayColorType.Green));
-                requestData.ClientSession.SendPacket(
-                    itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot));
-
-                requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
-                    itemInstance.ItemInstanceId);
+                return;
             }
-            return Task.CompletedTask;
+
+            var itemInstance = requestData.Data.Item1;
+            requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto
+            {
+                CharacterId = requestData.ClientSession.Character.CharacterId,
+                DateEnd = SystemTime.Now().AddDays(itemInstance.ItemInstance!.Item!.EffectValue),
+                StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.SilverNosMerchantUpgrade
+                    ? StaticBonusType.BazaarMedalSilver : StaticBonusType.BazaarMedalGold
+            });
+            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSay(string.Format(
+                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.EFFECT_ACTIVATED,
+                        requestData.ClientSession.Account.Language),
+                    itemInstance.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]),
+                SayColorType.Green)).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacketAsync(
+                itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
+
+            requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
+                itemInstance.ItemInstanceId);
         }
     }
 }

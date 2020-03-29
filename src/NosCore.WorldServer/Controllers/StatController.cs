@@ -67,13 +67,13 @@ namespace NosCore.WorldServer.Controllers
                     session.SetLevel((byte) data.Data);
                     break;
                 case UpdateStatActionType.UpdateJobLevel:
-                    session.SetJobLevel((byte) data.Data);
+                    session.SetJobLevelAsync((byte) data.Data);
                     break;
                 case UpdateStatActionType.UpdateHeroLevel:
-                    session.SetHeroLevel((byte) data.Data);
+                    session.SetHeroLevelAsync((byte) data.Data);
                     break;
                 case UpdateStatActionType.UpdateReputation:
-                    session.SetReputation(data.Data);
+                    session.SetReputationAsync(data.Data);
                     break;
                 case UpdateStatActionType.UpdateGold:
                     if (session.Gold + data.Data > _worldConfiguration.MaxGoldAmount)
@@ -81,10 +81,10 @@ namespace NosCore.WorldServer.Controllers
                         return BadRequest(); // MaxGold
                     }
 
-                    session.SetGold(data.Data);
+                    session.SetGoldAsync(data.Data);
                     break;
                 case UpdateStatActionType.UpdateClass:
-                    session.ChangeClass((CharacterClassType) data.Data);
+                    session.ChangeClassAsync((CharacterClassType) data.Data);
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKWNOWN_RECEIVERTYPE));

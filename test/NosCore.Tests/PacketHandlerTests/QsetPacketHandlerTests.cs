@@ -45,7 +45,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task Test_Add_Quicklist()
         {
-            await _qsetPacketHandler!.Execute(new QsetPacket
+            await _qsetPacketHandler!.ExecuteAsync(new QsetPacket
             {
                 Type = QSetType.Set,
                 OriginQuickList = 1,
@@ -66,7 +66,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task Test_Delete_FromQuicklist()
         {
-            await _qsetPacketHandler!.Execute(new QsetPacket
+            await _qsetPacketHandler!.ExecuteAsync(new QsetPacket
             {
                 Type = QSetType.Remove,
                 OriginQuickList = 1,
@@ -87,7 +87,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task Test_Move_Quicklist()
         {
-            await _qsetPacketHandler!.Execute(new QsetPacket
+            await _qsetPacketHandler!.ExecuteAsync(new QsetPacket
             {
                 Type = QSetType.Set,
                 OriginQuickList = 1,
@@ -96,7 +96,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 SecondData = 4
             }, _session!).ConfigureAwait(false);
 
-            await _qsetPacketHandler.Execute(new QsetPacket
+            await _qsetPacketHandler.ExecuteAsync(new QsetPacket
             {
                 Type = QSetType.Set,
                 OriginQuickList = 1,
@@ -106,7 +106,7 @@ namespace NosCore.Tests.PacketHandlerTests
             }, _session!).ConfigureAwait(false);
 
             _session!.LastPackets.Clear();
-            await _qsetPacketHandler.Execute(new QsetPacket
+            await _qsetPacketHandler.ExecuteAsync(new QsetPacket
             {
                 Type = QSetType.Move,
                 OriginQuickList = 1,
@@ -135,7 +135,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task Test_Move_ToEmpty()
         {
-           await _qsetPacketHandler!.Execute(new QsetPacket
+           await _qsetPacketHandler!.ExecuteAsync(new QsetPacket
            {
                Type = QSetType.Set,
                OriginQuickList = 1,
@@ -144,7 +144,7 @@ namespace NosCore.Tests.PacketHandlerTests
                SecondData = 4
            }, _session!).ConfigureAwait(false);
             _session!.LastPackets.Clear();
-            await _qsetPacketHandler.Execute(new QsetPacket
+            await _qsetPacketHandler.ExecuteAsync(new QsetPacket
             {
                 Type = QSetType.Move,
                 OriginQuickList = 1,

@@ -118,44 +118,46 @@ namespace NosCore.WorldServer
         where TDb : class
         {
             containerBuilder.RegisterType<GenericDao<TDb, TDto, TPk>>().As<IGenericDao<TDto>>().SingleInstance();
-            if (isStatic)
+            if (!isStatic)
             {
-                var staticMetaDataAttribute = typeof(TDto).GetCustomAttribute<StaticMetaDataAttribute>();
-                containerBuilder.Register(c =>
-                    {
-                        var dic = c.Resolve<IDictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>>();
-                        var items = c.Resolve<IGenericDao<TDto>>().LoadAll().ToList();
-                        var props = StaticDtoExtension.GetI18NProperties(typeof(TDto));
-                        if (props.Count > 0)
-                        {
-                            var regions = Enum.GetValues(typeof(RegionType));
-                            var accessors = TypeAccessor.Create(typeof(TDto));
-                            Parallel.ForEach(items, s => ((IStaticDto)s!).InjectI18N(props, dic, regions, accessors));
-                        }
-
-                        if ((items.Count != 0) || (staticMetaDataAttribute == null) ||
-                            (staticMetaDataAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))
-                        {
-                            if ((staticMetaDataAttribute != null) &&
-                                (staticMetaDataAttribute.LoadedMessage != LogLanguageKey.UNKNOWN))
-                            {
-                                c.Resolve<ILogger>().Information(
-                                    LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.LoadedMessage),
-                                    items.Count);
-                            }
-                        }
-                        else
-                        {
-                            c.Resolve<ILogger>()
-                                .Error(LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.EmptyMessage));
-                        }
-
-                        return items;
-                    })
-                    .As<List<TDto>>()
-                    .SingleInstance()
-                    .AutoActivate();
+                return;
             }
+
+            var staticMetaDataAttribute = typeof(TDto).GetCustomAttribute<StaticMetaDataAttribute>();
+            containerBuilder.Register(c =>
+                {
+                    var dic = c.Resolve<IDictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>>();
+                    var items = c.Resolve<IGenericDao<TDto>>().LoadAll().ToList();
+                    var props = StaticDtoExtension.GetI18NProperties(typeof(TDto));
+                    if (props.Count > 0)
+                    {
+                        var regions = Enum.GetValues(typeof(RegionType));
+                        var accessors = TypeAccessor.Create(typeof(TDto));
+                        Parallel.ForEach(items, s => ((IStaticDto)s!).InjectI18N(props, dic, regions, accessors));
+                    }
+
+                    if ((items.Count != 0) || (staticMetaDataAttribute == null) ||
+                        (staticMetaDataAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))
+                    {
+                        if ((staticMetaDataAttribute != null) &&
+                            (staticMetaDataAttribute.LoadedMessage != LogLanguageKey.UNKNOWN))
+                        {
+                            c.Resolve<ILogger>().Information(
+                                LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.LoadedMessage),
+                                items.Count);
+                        }
+                    }
+                    else
+                    {
+                        c.Resolve<ILogger>()
+                            .Error(LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.EmptyMessage));
+                    }
+
+                    return items;
+                })
+                .As<List<TDto>>()
+                .SingleInstance()
+                .AutoActivate();
         }
 
         private static void RegisterGo(IContainer container)

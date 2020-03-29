@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override async Task Execute(RemovePacket removePacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(RemovePacket removePacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrShop)
             {
@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Inventory
 
             if (inv == null)
             {
-                await clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         clientSession.Account.Language),
@@ -71,14 +71,14 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            await clientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot)).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot)).ConfigureAwait(false);
 
-            await clientSession.Character.MapInstance.SendPacket(clientSession.Character.GenerateEq()).ConfigureAwait(false);
-            await clientSession.SendPacket(clientSession.Character.GenerateEquipment()).ConfigureAwait(false);
+            await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateEq()).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(clientSession.Character.GenerateEquipment()).ConfigureAwait(false);
 
             if (inv.ItemInstance!.Item!.EquipmentSlot == EquipmentType.Fairy)
             {
-                await clientSession.Character.MapInstance.SendPacket(
+                await clientSession.Character.MapInstance.SendPacketAsync(
                     clientSession.Character.GeneratePairy(null)).ConfigureAwait(false);
             }
         }

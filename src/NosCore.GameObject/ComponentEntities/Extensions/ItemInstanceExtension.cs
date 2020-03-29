@@ -91,18 +91,19 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 
         public static IvnPacket? GeneratePocketChange(this List<InventoryItemInstance> itemInstance)
         {
-            if (itemInstance.Count > 0)
+            if (itemInstance.Count <= 0)
             {
-                var type = (PocketType) itemInstance[0].Type;
-                return new IvnPacket
-                {
-                    Type = type,
-                    IvnSubPackets = itemInstance.Select(item => item.ItemInstance.GenerateIvnSubPacket(type, item.Slot))
-                        .ToList() as List<IvnSubPacket?>
-                };
+                return null;
             }
 
-            return null;
+            var type = (PocketType) itemInstance[0].Type;
+            return new IvnPacket
+            {
+                Type = type,
+                IvnSubPackets = itemInstance.Select(item => item.ItemInstance.GenerateIvnSubPacket(type, item.Slot))
+                    .ToList() as List<IvnSubPacket?>
+            };
+
         }
     }
 }

@@ -33,7 +33,7 @@ namespace NosCore.PacketHandlers.Movement
 {
     public class WalkPacketHandler : PacketHandler<WalkPacket>, IWorldPacketHandler
     {
-        public override async Task Execute(WalkPacket walkPacket, ClientSession session)
+        public override async Task ExecuteAsync(WalkPacket walkPacket, ClientSession session)
         {
             var distance = (int) Heuristic.Octile(Math.Abs(session.Character.PositionX - walkPacket.XCoordinate),
                 Math.Abs(session.Character.PositionY - walkPacket.YCoordinate));
@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Movement
             session.Character.PositionX = walkPacket.XCoordinate;
             session.Character.PositionY = walkPacket.YCoordinate;
 
-            await session.Character.MapInstance.SendPacket(session.Character.GenerateMove(),
+            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateMove(),
                 new EveryoneBut(session.Channel!.Id)).ConfigureAwait(false);
             session.Character.LastMove = SystemTime.Now();
         }

@@ -66,7 +66,7 @@ namespace NosCore.Tests.PacketHandlerTests
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     Logger, new List<IMapInstanceEventHandler>());
             const string name = "TestCharacter";
-            await _charNewPacketHandler!.Execute(new CharNewPacket
+            await _charNewPacketHandler!.ExecuteAsync(new CharNewPacket
             {
                 Name = name
             }, _session).ConfigureAwait(false);
@@ -77,7 +77,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task CreateCharacter()
         {
             const string name = "TestCharacter";
-            await _charNewPacketHandler!.Execute(new CharNewPacket
+            await _charNewPacketHandler!.ExecuteAsync(new CharNewPacket
             {
                 Name = name
             }, _session!).ConfigureAwait(false);
@@ -89,7 +89,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task InvalidName_Does_Not_Create_Character()
         {
             const string name = "Test Character";
-            await _charNewPacketHandler!.Execute(new CharNewPacket
+            await _charNewPacketHandler!.ExecuteAsync(new CharNewPacket
             {
                 Name = name
             }, _session!).ConfigureAwait(false);
@@ -100,7 +100,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task ExistingName_Does_Not_Create_Character()
         {
             const string name = "TestExistingCharacter";
-            await _charNewPacketHandler!.Execute(new CharNewPacket
+            await _charNewPacketHandler!.ExecuteAsync(new CharNewPacket
             {
                 Name = name
             }, _session!).ConfigureAwait(false);
@@ -111,7 +111,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task NotEmptySlot_Does_Not_Create_Character()
         {
             const string name = "TestCharacter";
-            await _charNewPacketHandler!.Execute(new CharNewPacket
+            await _charNewPacketHandler!.ExecuteAsync(new CharNewPacket
             {
                 Name = name,
                 Slot = 1

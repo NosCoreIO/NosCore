@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider
                 {
                     handlersRequest.Subscribe(async o => await Observable.FromAsync(async () =>
                     {
-                        await handler.Execute(o).ConfigureAwait(false);
+                        await handler.ExecuteAsync(o).ConfigureAwait(false);
                     }));
                 }
             });

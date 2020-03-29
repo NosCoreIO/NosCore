@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Game
             _guriProvider = guriProvider;
         }
 
-        public override Task Execute(GuriPacket guriPacket, ClientSession session)
+        public override Task ExecuteAsync(GuriPacket guriPacket, ClientSession session)
         {
             _guriProvider.GuriLaunch(session, guriPacket);
             return Task.CompletedTask;

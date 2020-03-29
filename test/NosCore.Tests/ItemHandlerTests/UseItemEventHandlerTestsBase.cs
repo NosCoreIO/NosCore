@@ -33,14 +33,14 @@ namespace NosCore.Tests.ItemHandlerTests
         protected ClientSession? Session;
         protected readonly UseItemPacket UseItem = new UseItemPacket();
 
-        protected async Task ExecuteInventoryItemInstanceEventHandler(InventoryItemInstance item)
+        protected Task ExecuteInventoryItemInstanceEventHandlerAsync(InventoryItemInstance item)
         {
-            await Handler!.Execute(
+            return Handler!.ExecuteAsync(
                 new RequestData<Tuple<InventoryItemInstance, UseItemPacket>>(
                     Session!,
                     new Tuple<InventoryItemInstance, UseItemPacket>(
                         item, UseItem
-                    ))).ConfigureAwait(false);
+                    )));
         }
     }
 }

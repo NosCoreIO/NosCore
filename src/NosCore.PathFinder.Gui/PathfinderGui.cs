@@ -96,20 +96,22 @@ namespace NosCore.PathFinder.Gui
 
                     var map = _mapDao.FirstOrDefault(m => m.MapId == askMapId)?.Adapt<GameObject.Map.Map>();
 
-                    if ((map?.XLength > 0) && (map.YLength > 0))
+                    if ((!(map?.XLength > 0)) || (map.YLength <= 0))
                     {
-                        if (_guiWindow?.Exists ?? false)
-                        {
-                            _guiWindow.Exit();
-                        }
-
-                        new Thread(() =>
-                        {
-                            _guiWindow = new GuiWindow(map, 4, map.XLength, map.YLength, GraphicsMode.Default,
-                                $"NosCore Pathfinder GUI - Map {map.MapId}");
-                            _guiWindow.Run(30);
-                        }).Start();
+                        continue;
                     }
+
+                    if (_guiWindow?.Exists ?? false)
+                    {
+                        _guiWindow.Exit();
+                    }
+
+                    new Thread(() =>
+                    {
+                        _guiWindow = new GuiWindow(map, 4, map.XLength, map.YLength, GraphicsMode.Default,
+                            $"NosCore Pathfinder GUI - Map {map.MapId}");
+                        _guiWindow.Run(30);
+                    }).Start();
                 }
             }
             catch

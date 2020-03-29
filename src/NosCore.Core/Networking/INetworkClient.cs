@@ -27,10 +27,10 @@ namespace NosCore.Core.Networking
     {
         int SessionId { get; set; }
 
-        Task Disconnect();
+        Task DisconnectAsync();
 
-        Task SendPacket(IPacket packet);
+        Task SendPacketAsync(IPacket packet);
 
-        Task SendPackets(IEnumerable<IPacket> packets);
+        Task SendPacketsAsync(IEnumerable<IPacket> packets);
     }
 }

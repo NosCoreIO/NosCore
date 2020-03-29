@@ -135,21 +135,23 @@ namespace NosCore.Parser.Parsers
             foreach (var item in items)
             {
                 HardcodeItem(item);
-                if (item.ItemType == ItemType.Specialist)
+                if (item.ItemType != ItemType.Specialist)
                 {
-                    var elementdic = new Dictionary<ElementType, int> {
-                        { ElementType.Neutral, 0 },
-                        { ElementType.Fire, item.FireResistance },
-                        { ElementType.Water, item.WaterResistance },
-                        { ElementType.Light, item.LightResistance },
-                        { ElementType.Dark, item.DarkResistance }
-                    }.OrderByDescending(s => s.Value).ToList();
+                    continue;
+                }
 
-                    item.Element = elementdic.First().Key;
-                    if (elementdic.First().Value != 0 && elementdic.First().Value == elementdic.ElementAt(1).Value)
-                    {
-                        item.SecondaryElement = elementdic.ElementAt(1).Key;
-                    }
+                var elementdic = new Dictionary<ElementType, int> {
+                    { ElementType.Neutral, 0 },
+                    { ElementType.Fire, item.FireResistance },
+                    { ElementType.Water, item.WaterResistance },
+                    { ElementType.Light, item.LightResistance },
+                    { ElementType.Dark, item.DarkResistance }
+                }.OrderByDescending(s => s.Value).ToList();
+
+                item.Element = elementdic.First().Key;
+                if (elementdic.First().Value != 0 && elementdic.First().Value == elementdic.ElementAt(1).Value)
+                {
+                    item.SecondaryElement = elementdic.ElementAt(1).Key;
                 }
             }
             SetVehicles(items, new Dictionary<byte, List<(short, short)>>
@@ -546,12 +548,14 @@ namespace NosCore.Parser.Parsers
                 foreach (var vehiclematch in vehicle.Value)
                 {
                     var item = items.FirstOrDefault(s => s.VNum == vehiclematch.Item1);
-                    if (item != null)
+                    if (item == null)
                     {
-                        item.Speed = vehicle.Key;
-                        item.WaitDelay = 3000;
-                        item.Morph = vehiclematch.Item2;
+                        continue;
                     }
+
+                    item.Speed = vehicle.Key;
+                    item.WaitDelay = 3000;
+                    item.Morph = vehiclematch.Item2;
                 }
             }
 

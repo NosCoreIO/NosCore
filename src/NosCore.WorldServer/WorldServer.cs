@@ -59,7 +59,7 @@ namespace NosCore.WorldServer
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             _events.ForEach(e => { Observable.Interval(e.Delay).Subscribe(_ => e.Execution()); });
-            _channelHttpClient.Connect();
+            _channelHttpClient.ConnectAsync();
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
                 var eventSaveAll = new SaveAll();

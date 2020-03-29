@@ -26,13 +26,13 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
 {
     public interface IWarehouseHttpClient
     {
-        Task<List<WarehouseItem>> GetWarehouseItems(long characterId, WarehouseType warehouse);
+        Task<List<WarehouseItem>> GetWarehouseItemsAsync(long characterId, WarehouseType warehouse);
 
-        Task<bool> DepositItem(long characterCharacterId, WarehouseType warehouse, IItemInstance itemInstance, short slot);
+        Task<bool> DepositItemAsync(long characterCharacterId, WarehouseType warehouse, IItemInstance itemInstance, short slot);
 
-        Task DeleteWarehouseItem(long characterId, WarehouseType warehouse, short slot);
+        Task DeleteWarehouseItemAsync(long characterId, WarehouseType warehouse, short slot);
 
-        Task<List<WarehouseItem>> MoveWarehouseItem(long characterId, WarehouseType warehouse, short slot,
+        Task<List<WarehouseItem>> MoveWarehouseItemAsync(long characterId, WarehouseType warehouse, short slot,
             short destinationSlot);
     }
 }

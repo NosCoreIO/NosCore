@@ -61,7 +61,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             return message.Trim();
         }
 
-        public async Task Execute(RequestData<GuriPacket> requestData)
+        public async Task ExecuteAsync(RequestData<GuriPacket> requestData)
         {
             var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)(requestData.Data.VisualId ?? 0),
                 NoscorePocketType.Etc);
@@ -88,16 +88,16 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
                     return;
                 }
                 message = CraftMessage(message, valuesplit.Skip(2).ToArray()).Replace(' ', '|');
-                await Broadcaster.Instance.SendPacket(requestData.ClientSession.Character.GenerateSayItem(message, deeplink), new EveryoneBut(requestData.ClientSession.Channel!.Id)).ConfigureAwait(false);
+                await Broadcaster.Instance.SendPacketAsync(requestData.ClientSession.Character.GenerateSayItem(message, deeplink), new EveryoneBut(requestData.ClientSession.Channel!.Id)).ConfigureAwait(false);
             }
             else
             {
                 message = CraftMessage(message, valuesplit);
-                await Broadcaster.Instance.SendPacket(requestData.ClientSession.Character.GenerateSay(message, (SayColorType)13), new EveryoneBut(requestData.ClientSession.Channel!.Id)).ConfigureAwait(false);
+                await Broadcaster.Instance.SendPacketAsync(requestData.ClientSession.Character.GenerateSay(message, (SayColorType)13), new EveryoneBut(requestData.ClientSession.Channel!.Id)).ConfigureAwait(false);
             }
 
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
-            await requestData.ClientSession.Character.SendPacket(inv.GeneratePocketChange(PocketType.Etc, (short)(requestData.Data.VisualId ?? 0))).ConfigureAwait(false);
+            await requestData.ClientSession.Character.SendPacketAsync(inv.GeneratePocketChange(PocketType.Etc, (short)(requestData.Data.VisualId ?? 0))).ConfigureAwait(false);
         }
     }
 }

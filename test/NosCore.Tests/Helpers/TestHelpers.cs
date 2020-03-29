@@ -101,9 +101,9 @@ namespace NosCore.Tests.Helpers
 
         private TestHelpers()
         {
-            BlacklistHttpClient.Setup(s => s.GetBlackLists(It.IsAny<long>()))
+            BlacklistHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
-            FriendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>()))
+            FriendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
             AccountDao = new GenericDao<Account, AccountDto, long>(_logger);
             _portalDao = new GenericDao<Portal, PortalDto, int>(_logger);

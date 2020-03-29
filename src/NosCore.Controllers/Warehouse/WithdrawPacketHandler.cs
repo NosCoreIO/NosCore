@@ -26,7 +26,7 @@ namespace NosCore.PacketHandlers.Warehouse
 {
     public class WithdrawPacketHandler : PacketHandler<WithdrawPacket>, IWorldPacketHandler
     {
-        public override Task Execute(WithdrawPacket withdrawPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(WithdrawPacket withdrawPacket, ClientSession clientSession)
         {
             return Task.CompletedTask;
         }

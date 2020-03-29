@@ -80,7 +80,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 CharacterId = _characters[1].CharacterId
             };
 
-            await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
+            await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             Assert.IsTrue((_characters[0].Group!.Count > 1)
                 && (_characters[1].Group!.Count > 1)
                 && (_characters[0].Group!.GroupId
@@ -103,7 +103,7 @@ namespace NosCore.Tests.PacketHandlerTests
                     CharacterId = _characters[i].CharacterId
                 };
 
-                await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
+                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             }
 
             Assert.IsTrue(_characters[0].Group!.IsGroupFull
@@ -119,7 +119,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 CharacterId = _characters[3].CharacterId
             };
 
-            await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
+            await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             Assert.IsTrue(_characters[3].Group!.Count == 1);
         }
 
@@ -132,7 +132,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 CharacterId = _characters[1].CharacterId
             };
 
-            await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
+            await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             Assert.IsTrue((_characters[0].Group!.Count == 1)
                 && (_characters[1].Group!.Count == 1));
         }
@@ -146,7 +146,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 CharacterId = _characters[1].CharacterId
             };
 
-            await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
+            await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             Assert.IsTrue((_characters[0].Group!.Count == 1)
                 && (_characters[1].Group!.Count == 1));
         }
@@ -162,7 +162,7 @@ namespace NosCore.Tests.PacketHandlerTests
                     CharacterId = _characters[i].CharacterId
                 };
 
-                await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
+                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             }
             Assert.IsNotNull(_characters[0].LastGroupRequest);
         }
@@ -180,7 +180,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 };
 
                 SystemTime.Freeze(SystemTime.Now().AddSeconds(1));
-                await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
+                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             }
 
             Assert.IsTrue(_characters[0].GroupRequestCharacterIds.Count == 1);
@@ -202,7 +202,7 @@ namespace NosCore.Tests.PacketHandlerTests
                     SystemTime.Freeze(SystemTime.Now().AddSeconds(6));
                 }
 
-                await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
+                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             }
 
            Assert.IsTrue(_characters[0].GroupRequestCharacterIds.Count == 2);

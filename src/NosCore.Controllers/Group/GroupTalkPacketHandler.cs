@@ -30,14 +30,14 @@ namespace NosCore.PacketHandlers.Group
 {
     public class GroupTalkPacketHandler : PacketHandler<GroupTalkPacket>, IWorldPacketHandler
     {
-        public override Task Execute(GroupTalkPacket groupTalkPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(GroupTalkPacket groupTalkPacket, ClientSession clientSession)
         {
             if (clientSession.Character.Group!.Count == 1)
             {
                 return Task.CompletedTask;
             }
 
-            return clientSession.Character.Group.SendPacket(
+            return clientSession.Character.Group.SendPacketAsync(
                 clientSession.Character.GenerateSpk(new SpeakPacket
                     {Message = groupTalkPacket.Message, SpeakType = SpeakType.Group}));
         }

@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _characterDao = characterDao;
         }
 
-        public override Task Execute(CharNewJobPacket packet, ClientSession clientSession)
+        public override Task ExecuteAsync(CharNewJobPacket packet, ClientSession clientSession)
         {
             //TODO add a flag on Account
             if (_characterDao.FirstOrDefault(s =>
@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             //todo add cooldown for recreate 30days
 
-            return clientSession.HandlePackets(new[] {packet.Adapt<CharNewPacket>()});
+            return clientSession.HandlePacketsAsync(new[] {packet.Adapt<CharNewPacket>()});
         }
     }
 }

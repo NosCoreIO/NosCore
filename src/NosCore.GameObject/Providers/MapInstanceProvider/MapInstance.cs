@@ -175,7 +175,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         {
             Broadcaster.Instance.GetCharacters(filter)
                 .Where(s => !s.IsDisconnecting && s.MapInstanceId == MapInstanceId).ToList()
-                .ForEach(s => s.ChangeMap(s.MapId, s.MapX, s.MapY));
+                .ForEach(s => s.ChangeMapAsync(s.MapId, s.MapX, s.MapY));
         }
 
         public MapItem? PutItem(short amount, IItemInstance inv, ClientSession session)
@@ -322,14 +322,13 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (!disposing || (Life == null))
             {
-                if (Life != null)
-                {
-                    Life.Dispose();
-                    Life = null;
-                }
+                return;
             }
+
+            Life.Dispose();
+            Life = null;
         }
     }
 }

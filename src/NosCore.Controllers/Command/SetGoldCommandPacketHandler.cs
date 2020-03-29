@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Command
             _statHttpClient = statHttpClient;
         }
 
-        public override async Task Execute(SetGoldCommandPacket goldPacket, ClientSession session)
+        public override async Task ExecuteAsync(SetGoldCommandPacket goldPacket, ClientSession session)
         {
             var data = new StatData
             {
@@ -54,11 +54,11 @@ namespace NosCore.PacketHandlers.Command
                 Data = goldPacket.Gold
             };
 
-            var receiver = await _connectedAccountHttpClient.GetCharacter(null, goldPacket.Name ?? session.Character.Name).ConfigureAwait(false);
+            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, goldPacket.Name ?? session.Character.Name).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
-                await session.SendPacket(new InfoPacket
+                await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
@@ -66,9 +66,9 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStat(data, receiver.Item1!).ConfigureAwait(false);
+            await _statHttpClient.ChangeStatAsync(data, receiver.Item1!).ConfigureAwait(false);
 
-            await session.SendPacket(session.Character.GenerateGold()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateGold()).ConfigureAwait(false);
         }
     }
 }

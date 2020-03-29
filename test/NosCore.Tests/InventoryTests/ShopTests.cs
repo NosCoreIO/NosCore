@@ -91,7 +91,7 @@ namespace NosCore.Tests.InventoryTests
             {
                 ShopItems = list
             };
-            await _session.Character.Buy(shop, 1, 99).ConfigureAwait(false);
+            await _session.Character.BuyAsync(shop, 1, 99).ConfigureAwait(false);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
@@ -112,7 +112,7 @@ namespace NosCore.Tests.InventoryTests
             {
                 ShopItems = list
             };
-            await _session.Character.Buy(shop, 0, 99).ConfigureAwait(false);
+            await _session.Character.BuyAsync(shop, 0, 99).ConfigureAwait(false);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
@@ -133,7 +133,7 @@ namespace NosCore.Tests.InventoryTests
             {
                 ShopItems = list
             };
-            await _session.Character.Buy(shop, 0, 99).ConfigureAwait(false);
+            await _session.Character.BuyAsync(shop, 0, 99).ConfigureAwait(false);
 
             var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet?.Message ==
@@ -157,7 +157,7 @@ namespace NosCore.Tests.InventoryTests
             {
                 ShopItems = list
             };
-            await _session.Character.Buy(shop, 0, 99).ConfigureAwait(false);
+            await _session.Character.BuyAsync(shop, 0, 99).ConfigureAwait(false);
 
             var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet?.Message ==
@@ -192,7 +192,7 @@ namespace NosCore.Tests.InventoryTests
                 InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
                 NoscorePocketType.Etc, 2);
 
-            await _session.Character.Buy(shop, 0, 999).ConfigureAwait(false);
+            await _session.Character.BuyAsync(shop, 0, 999).ConfigureAwait(false);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, _session.Account.Language));
@@ -226,7 +226,7 @@ namespace NosCore.Tests.InventoryTests
                 InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId),
                 NoscorePocketType.Etc, 2);
 
-            await _session.Character.Buy(shop, 0, 998).ConfigureAwait(false);
+            await _session.Character.BuyAsync(shop, 0, 998).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.ItemInstance?.Amount == 999));
             Assert.IsTrue(_session.Character.Gold == 499002);
         }
@@ -259,7 +259,7 @@ namespace NosCore.Tests.InventoryTests
                 InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId),
                 NoscorePocketType.Etc, 2);
 
-            await _session.Character.Buy(shop, 0, 998).ConfigureAwait(false);
+            await _session.Character.BuyAsync(shop, 0, 998).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.ItemInstance?.Amount == 999));
             Assert.IsTrue(_session.Character.Reput == 499002);
         }
@@ -321,7 +321,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task UserCanShopFromSession()
         {
             var session2 = PrepareSessionShop();
-            await _session!.Character.Buy(session2.Character.Shop!, 0, 999).ConfigureAwait(false);
+            await _session!.Character.BuyAsync(session2.Character.Shop!, 0, 999).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 999);
             Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 0);
         }
@@ -330,7 +330,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task UserCanShopFromSessionPartial()
         {
             var session2 = PrepareSessionShop();
-            await _session!.Character.Buy(session2.Character.Shop!, 0, 998).ConfigureAwait(false);
+            await _session!.Character.BuyAsync(session2.Character.Shop!, 0, 998).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 998);
             Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 1);
         }
@@ -339,7 +339,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task UserCanNotShopMoreThanShop()
         {
             var session2 = PrepareSessionShop();
-            await _session!.Character.Buy(session2.Character.Shop!, 1, 501).ConfigureAwait(false);
+            await _session!.Character.BuyAsync(session2.Character.Shop!, 1, 501).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 0);
             Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 999);
         }
@@ -348,7 +348,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task UserCanShopFull()
         {
             var session2 = PrepareSessionShop();
-            await _session!.Character.Buy(session2.Character.Shop!, 1, 500).ConfigureAwait(false);
+            await _session!.Character.BuyAsync(session2.Character.Shop!, 1, 500).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 500);
             Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 499);
         }
@@ -358,7 +358,7 @@ namespace NosCore.Tests.InventoryTests
         {
             var session2 = PrepareSessionShop();
             session2.Character.Gold = 999_999_999;
-            await _session!.Character.Buy(session2.Character.Shop!, 0, 999).ConfigureAwait(false);
+            await _session!.Character.BuyAsync(session2.Character.Shop!, 0, 999).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 999_999_999);
             Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 999);
             var packet = (SMemoPacket?) _session.LastPackets.FirstOrDefault(s => s is SMemoPacket);

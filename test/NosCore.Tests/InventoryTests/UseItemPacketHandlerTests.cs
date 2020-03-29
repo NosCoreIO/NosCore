@@ -62,7 +62,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task Test_Binding()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
-            await _useItemPacketHandler!.Execute(new UseItemPacket {Slot = 0, Type = PocketType.Equipment, Mode = 1},
+            await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket {Slot = 0, Type = PocketType.Equipment, Mode = 1},
                 _session).ConfigureAwait(false);
 
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
@@ -76,7 +76,7 @@ namespace NosCore.Tests.InventoryTests
             _session!.Character.SpAdditionPoint = 0;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
-            await _useItemPacketHandler!.Execute(new UseItemPacket
+            await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
@@ -94,7 +94,7 @@ namespace NosCore.Tests.InventoryTests
             _session!.Character.SpAdditionPoint = _session.WorldConfiguration.MaxAdditionalSpPoints;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
-            await _useItemPacketHandler!.Execute(new UseItemPacket
+            await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
@@ -115,7 +115,7 @@ namespace NosCore.Tests.InventoryTests
             _session!.Character.SpAdditionPoint = _session.WorldConfiguration.MaxAdditionalSpPoints - 1;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
-            await _useItemPacketHandler!.Execute(new UseItemPacket
+            await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,

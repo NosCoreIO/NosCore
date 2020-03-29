@@ -123,16 +123,18 @@ namespace NosCore.Tests
                 var matches = regex.Matches(content);
                 foreach (Match? match in matches)
                 {
-                    if (match?.Success == true)
+                    if (match?.Success != true)
                     {
-                        if (dict.ContainsKey(match.Value))
-                        {
-                            dict[match.Value]++;
-                        }
-                        else
-                        {
-                            dict.Add(match.Value, 1);
-                        }
+                        continue;
+                    }
+
+                    if (dict.ContainsKey(match.Value))
+                    {
+                        dict[match.Value]++;
+                    }
+                    else
+                    {
+                        dict.Add(match.Value, 1);
                     }
                 }
             }

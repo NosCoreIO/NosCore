@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Command
             _mapInstanceProvider = mapInstanceProvider;
         }
 
-        public override Task Execute(TeleportPacket teleportPacket, ClientSession session)
+        public override Task ExecuteAsync(TeleportPacket teleportPacket, ClientSession session)
         {
             var targetSession =
                 Broadcaster.Instance.GetCharacter(s =>
@@ -48,28 +48,29 @@ namespace NosCore.PacketHandlers.Command
 
             if (!short.TryParse(teleportPacket.TeleportArgument, out var mapId))
             {
-                if (targetSession == null)
+                if (targetSession != null)
                 {
-                    _logger.Error(GameLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
-                        session.Account.Language));
-                    return Task.CompletedTask;
+                    return session.ChangeMapInstanceAsync(targetSession.MapInstanceId, targetSession.MapX,
+                        targetSession.MapY);
                 }
 
-                session.ChangeMapInstance(targetSession.MapInstanceId, targetSession.MapX, targetSession.MapY);
+                _logger.Error(GameLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
+                    session.Account.Language));
                 return Task.CompletedTask;
+
             }
 
             var mapInstance = _mapInstanceProvider.GetBaseMapById(mapId);
 
-            if (mapInstance == null)
+            if (mapInstance != null)
             {
-                _logger.Error(
-                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, session.Account.Language));
-                return Task.CompletedTask;
+                return session.ChangeMapAsync(mapId, teleportPacket.MapX, teleportPacket.MapY);
             }
 
-            session.ChangeMap(mapId, teleportPacket.MapX, teleportPacket.MapY);
+            _logger.Error(
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, session.Account.Language));
             return Task.CompletedTask;
+
         }
     }
 }

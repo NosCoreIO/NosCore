@@ -39,10 +39,10 @@ namespace NosCore.PacketHandlers.Bazaar
             _bazaarHttpClient = bazaarHttpClient;
         }
 
-        public override async Task Execute(CSListPacket packet, ClientSession clientSession)
+        public override async Task ExecuteAsync(CSListPacket packet, ClientSession clientSession)
         {
             var list = new List<RcsListPacket.RcsListElementPacket?>();
-            var bzlist = await _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, 0, 0, 0, 0, 0,
+            var bzlist = await _bazaarHttpClient.GetBazaarLinksAsync(-1, packet.Index, 50, 0, 0, 0, 0, 0,
                 clientSession.Character.CharacterId).ConfigureAwait(false);
 
             foreach (var bz in bzlist)
@@ -86,7 +86,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 }
             }
 
-            await clientSession.SendPacket(new RcsListPacket
+            await clientSession.SendPacketAsync(new RcsListPacket
             {
                 PageNumber = packet.Index,
                 Items = list

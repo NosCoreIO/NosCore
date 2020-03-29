@@ -70,7 +70,11 @@ namespace NosCore.GameObject
             IsAlive = true;
             Requests.Subscribe(ShowDialog);
             var shopObj = _shops!.FirstOrDefault(s => s.MapNpcId == MapNpcId);
-            if (shopObj != null)
+            if (shopObj == null)
+            {
+                return;
+            }
+
             {
                 var shopItemsDto = _shopItems!.Where(s => s.ShopId == shopObj.ShopId);
                 var shopItemsList = new ConcurrentDictionary<int, ShopItem>();
@@ -121,7 +125,7 @@ namespace NosCore.GameObject
 
         private void ShowDialog(RequestData requestData)
         {
-            requestData.ClientSession.SendPacket(this.GenerateNpcReq(Dialog));
+            requestData.ClientSession.SendPacketAsync(this.GenerateNpcReq(Dialog));
         }
 
         internal void StopLife()
@@ -150,7 +154,7 @@ namespace NosCore.GameObject
 
         private void MonsterLife()
         {
-            this.Move();
+            this.MoveAsync();
         }
     }
 }

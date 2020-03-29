@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.Miniland
             _minilandProvider = minilandProvider;
         }
 
-        public override async Task Execute(AddobjPacket addobjPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(AddobjPacket addobjPacket, ClientSession clientSession)
         {
             var minilandobject =
                 clientSession.Character.InventoryService.LoadBySlotAndType(addobjPacket.Slot, NoscorePocketType.Miniland);
@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Miniland
 
             if (clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
             {
-                await clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_THIS_MINILANDOBJECT,
                         clientSession.Account.Language)
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Miniland
 
             if (_minilandProvider.GetMiniland(clientSession.Character.CharacterId).State != MinilandState.Lock)
             {
-                await clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_NEED_LOCK,
                         clientSession.Account.Language)
@@ -94,16 +94,16 @@ namespace NosCore.PacketHandlers.Miniland
                             minilandobject.ItemInstance.Item.ItemSubType)).Value;
                 if (min != null)
                 {
-                    await clientSession.HandlePackets(new[] {new RmvobjPacket {Slot = min.InventoryItemInstance?.Slot ?? 0}}).ConfigureAwait(false);
+                    await clientSession.HandlePacketsAsync(new[] {new RmvobjPacket {Slot = min.InventoryItemInstance?.Slot ?? 0}}).ConfigureAwait(false);
                 }
             }
 
             _minilandProvider.AddMinilandObject(minilandobj, clientSession.Character.CharacterId, minilandobject);
 
-            await clientSession.SendPacket(minilandobj.GenerateEffect()).ConfigureAwait(false);
-            await clientSession.SendPacket(new MinilandPointPacket
+            await clientSession.SendPacketAsync(minilandobj.GenerateEffect()).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(new MinilandPointPacket
                 {MinilandPoint = minilandobject.ItemInstance?.Item?.MinilandObjectPoint ?? 0, Unknown = 100}).ConfigureAwait(false);
-            await clientSession.SendPacket(minilandobj.GenerateMapDesignObject()).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(minilandobj.GenerateMapDesignObject()).ConfigureAwait(false);
         }
     }
 }

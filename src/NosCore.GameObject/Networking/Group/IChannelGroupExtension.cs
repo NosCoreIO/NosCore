@@ -27,18 +27,18 @@ namespace NosCore.GameObject.Networking.Group
 {
     public static class IBroadcastableExtension
     {
-        public static Task SendPacket(this IBroadcastable channelGroup, IPacket packet)
+        public static Task SendPacketAsync(this IBroadcastable channelGroup, IPacket packet)
         {
-            return channelGroup.SendPackets(new[] { packet });
+            return channelGroup.SendPacketsAsync(new[] { packet });
         }
 
-        public static Task SendPacket(this IBroadcastable channelGroup, IPacket packet, IChannelMatcher matcher)
+        public static Task SendPacketAsync(this IBroadcastable channelGroup, IPacket packet, IChannelMatcher matcher)
         {
-           return channelGroup.SendPackets(new[] { packet }, matcher);
+           return channelGroup.SendPacketsAsync(new[] { packet }, matcher);
         }
 
 
-        public static async Task SendPackets(this IBroadcastable channelGroup, IEnumerable<IPacket> packets,
+        public static async Task SendPacketsAsync(this IBroadcastable channelGroup, IEnumerable<IPacket> packets,
             IChannelMatcher? matcher)
         {
             var packetDefinitions = (packets as IPacket[] ?? packets).Where(c => c != null).ToArray();
@@ -64,9 +64,9 @@ namespace NosCore.GameObject.Networking.Group
         }
 
 
-        public static Task SendPackets(this IBroadcastable channelGroup, IEnumerable<IPacket> packets)
+        public static Task SendPacketsAsync(this IBroadcastable channelGroup, IEnumerable<IPacket> packets)
         {
-            return channelGroup.SendPackets(packets, null);
+            return channelGroup.SendPacketsAsync(packets, null);
         }
     }
 }

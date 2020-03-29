@@ -26,7 +26,7 @@ namespace NosCore.PacketHandlers.Warehouse
 {
     public class FStashEndPackettHandler : PacketHandler<FStashEndPacket>, IWorldPacketHandler
     {
-        public override Task Execute(FStashEndPacket packet, ClientSession clientSession)
+        public override Task ExecuteAsync(FStashEndPacket packet, ClientSession clientSession)
         {
             return Task.CompletedTask;
         }

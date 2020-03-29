@@ -39,19 +39,19 @@ namespace NosCore.GameObject.HttpClients.BlacklistHttpClient
             RequireConnection = true;
         }
 
-        public Task<List<CharacterRelationStatus>> GetBlackLists(long characterVisualId)
+        public Task<List<CharacterRelationStatus>> GetBlackListsAsync(long characterVisualId)
         {
-            return Get<List<CharacterRelationStatus>>(characterVisualId)!;
+            return GetAsync<List<CharacterRelationStatus>>(characterVisualId)!;
         }
 
-        public Task<LanguageKey> AddToBlacklist(BlacklistRequest blacklistRequest)
+        public Task<LanguageKey> AddToBlacklistAsync(BlacklistRequest blacklistRequest)
         {
-            return Post<LanguageKey>(blacklistRequest);
+            return PostAsync<LanguageKey>(blacklistRequest);
         }
 
-        public Task DeleteFromBlacklist(Guid characterRelationId)
+        public Task DeleteFromBlacklistAsync(Guid characterRelationId)
         {
-            return Delete(characterRelationId);
+            return DeleteAsync(characterRelationId);
         }
     }
 }

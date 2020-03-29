@@ -26,12 +26,12 @@ namespace NosCore.PacketHandlers.Game
 {
     public class PulsePacketHandler : PacketHandler<PulsePacket>, IWorldPacketHandler
     {
-        public override Task Execute(PulsePacket pulsePacket, ClientSession session)
+        public override Task ExecuteAsync(PulsePacket pulsePacket, ClientSession session)
         {
             session.LastPulse += 60;
             if (pulsePacket.Tick != session.LastPulse)
             {
-                session.Disconnect();
+                session.DisconnectAsync();
             }
             return Task.CompletedTask;
         }

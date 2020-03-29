@@ -62,8 +62,8 @@ namespace NosCore.Tests.ParcelTests
         [TestMethod]
         public async Task Test_GiftNotFound()
         {
-            _mailHttpClient!.Setup(s => s.GetGift(1, _session!.Character.CharacterId, false)).ReturnsAsync((MailData?)null);
-            await _pclPacketHandler!.Execute(new PclPacket
+            _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync((MailData?)null);
+            await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 5,
                 GiftId = 1
@@ -75,8 +75,8 @@ namespace NosCore.Tests.ParcelTests
         [TestMethod]
         public async Task Test_DeleteGift()
         {
-            _mailHttpClient!.Setup(s => s.GetGift(1, _session!.Character.CharacterId, false)).ReturnsAsync(new MailData());
-            await _pclPacketHandler!.Execute(new PclPacket
+            _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync(new MailData());
+            await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 5,
                 GiftId = 1
@@ -99,8 +99,8 @@ namespace NosCore.Tests.ParcelTests
             };
             _itemInstanceDao!.Setup(o => o.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
                 .Returns(item);
-            _mailHttpClient!.Setup(s => s.GetGift(1, _session!.Character.CharacterId, false)).ReturnsAsync(mail);
-            await _pclPacketHandler!.Execute(new PclPacket
+            _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync(mail);
+            await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 4,
                 GiftId = 1
@@ -124,8 +124,8 @@ namespace NosCore.Tests.ParcelTests
             };
             _itemInstanceDao!.Setup(o => o.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
                 .Returns(item);
-            _mailHttpClient!.Setup(s => s.GetGift(1, _session!.Character.CharacterId, false)).ReturnsAsync(mail);
-            await _pclPacketHandler!.Execute(new PclPacket
+            _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync(mail);
+            await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 4,
                 GiftId = 1

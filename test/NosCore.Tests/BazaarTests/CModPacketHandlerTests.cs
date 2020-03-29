@@ -55,7 +55,7 @@ namespace NosCore.Tests.BazaarTests
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
             _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, Logger);
 
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).ReturnsAsync(
+            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(0)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = "test",
@@ -63,7 +63,7 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 });
 
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(3)).ReturnsAsync(
+            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(3)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = _session.Character.Name,
@@ -71,15 +71,15 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 0}
                 });
 
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(2)).ReturnsAsync(
+            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(2)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = _session.Character.Name,
                     BazaarItem = new BazaarItemDto {Price = 60, Amount = 1},
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(1)).ReturnsAsync((BazaarLink?) null);
-            _bazaarHttpClient.Setup(b => b.Modify(It.IsAny<long>(), It.IsAny<JsonPatchDocument<BazaarLink>>())).ReturnsAsync(new BazaarLink
+            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(1)).ReturnsAsync((BazaarLink?) null);
+            _bazaarHttpClient.Setup(b => b.ModifyAsync(It.IsAny<long>(), It.IsAny<JsonPatchDocument<BazaarLink>>())).ReturnsAsync(new BazaarLink
                 {
                     SellerName = _session.Character.Name,
                     BazaarItem = new BazaarItemDto {Price = 70, Amount = 1},
@@ -91,7 +91,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task ModifyWhenInExchange()
         {
             _session!.Character.InExchangeOrTrade = true;
-            await _cmodPacketHandler!.Execute(new CModPacket
+            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
             {
                 BazaarId = 1,
                 NewPrice = 50,
@@ -104,7 +104,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task ModifyWhenNoItem()
         {
-            await _cmodPacketHandler!.Execute(new CModPacket
+            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
             {
                 BazaarId = 1,
                 NewPrice = 50,
@@ -118,7 +118,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task ModifyWhenOtherSeller()
         {
-            await _cmodPacketHandler!.Execute(new CModPacket
+            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
             {
                 BazaarId = 0,
                 NewPrice = 50,
@@ -131,7 +131,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task ModifyWhenSold()
         {
-           await _cmodPacketHandler!.Execute(new CModPacket
+           await _cmodPacketHandler!.ExecuteAsync(new CModPacket
            {
                BazaarId = 3,
                NewPrice = 60,
@@ -146,7 +146,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task ModifyWhenWrongAmount()
         {
-            await _cmodPacketHandler!.Execute(new CModPacket
+            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
             {
                 BazaarId = 2,
                 NewPrice = 70,
@@ -161,7 +161,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task ModifyWhenPriceSamePrice()
         {
-           await _cmodPacketHandler!.Execute(new CModPacket
+           await _cmodPacketHandler!.ExecuteAsync(new CModPacket
            {
                BazaarId = 2,
                NewPrice = 60,
@@ -174,7 +174,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task Modify()
         {
-            await _cmodPacketHandler!.Execute(new CModPacket
+            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
             {
                 BazaarId = 2,
                 NewPrice = 70,

@@ -26,7 +26,7 @@ namespace NosCore.PacketHandlers.NoAction
 {
     public class SnapPacketHandler : PacketHandler<SnapPacket>, IWorldPacketHandler
     {
-        public override Task Execute(SnapPacket packet, ClientSession clientSession)
+        public override Task ExecuteAsync(SnapPacket packet, ClientSession clientSession)
         {
             return Task.CompletedTask;
         }

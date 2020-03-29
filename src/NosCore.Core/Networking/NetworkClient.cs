@@ -51,30 +51,31 @@ namespace NosCore.Core.Networking
         public int SessionId { get; set; }
         public ConcurrentQueue<IPacket?> LastPackets { get; }
 
-        public Task Disconnect()
+        public Task DisconnectAsync()
         {
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FORCED_DISCONNECTION),
                 SessionId);
             return Channel == null ? Task.CompletedTask : Channel.DisconnectAsync();
         }
 
-        public Task SendPacket(IPacket? packet)
+        public Task SendPacketAsync(IPacket? packet)
         {
-            return SendPackets(new[] {packet});
+            return SendPacketsAsync(new[] {packet});
         }
 
-        public Task SendPackets(IEnumerable<IPacket?> packets)
+        public Task SendPacketsAsync(IEnumerable<IPacket?> packets)
         {
             var packetlist = packets.ToList();
             var packetDefinitions = (packets as IPacket?[] ?? packetlist.ToArray()).Where(c => c != null);
-            if (packetDefinitions.Any())
+            if (!packetDefinitions.Any())
             {
-                Parallel.ForEach(packetlist, packet => LastPackets.Enqueue(packet));
-                Parallel.For(0, LastPackets.Count - MaxPacketsBuffer, (_, __) => LastPackets.TryDequeue(out var ___));
-                return Channel == null ? Task.CompletedTask : Channel.WriteAndFlushAsync(packetDefinitions);
+                return Task.CompletedTask;
             }
 
-            return Task.CompletedTask;
+            Parallel.ForEach(packetlist, packet => LastPackets.Enqueue(packet));
+            Parallel.For(0, LastPackets.Count - MaxPacketsBuffer, (_, __) => LastPackets.TryDequeue(out var ___));
+            return Channel == null ? Task.CompletedTask : Channel.WriteAndFlushAsync(packetDefinitions);
+
         }
 
         public void RegisterChannel(IChannel? channel)

@@ -43,10 +43,10 @@ namespace NosCore.PacketHandlers.Parcel
             _characterDao = characterDao;
         }
 
-        public override async Task Execute(PstClientPacket pstClientPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(PstClientPacket pstClientPacket, ClientSession clientSession)
         {
             var isCopy = pstClientPacket.Type == 2;
-            var mail = await _mailHttpClient.GetGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+            var mail = await _mailHttpClient.GetGiftAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
             switch (pstClientPacket.ActionType)
             {
                 case 3:
@@ -57,8 +57,8 @@ namespace NosCore.PacketHandlers.Parcel
 
                     var patch = new JsonPatchDocument<MailDto>();
                     patch.Replace(link => link.IsOpened, true);
-                    await _mailHttpClient.ViewGift(mail.MailDto.MailId, patch).ConfigureAwait(false);
-                    await clientSession.SendPacket(mail.GeneratePostMessage(pstClientPacket.Type)).ConfigureAwait(false);
+                    await _mailHttpClient.ViewGiftAsync(mail.MailDto.MailId, patch).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(mail.GeneratePostMessage(pstClientPacket.Type)).ConfigureAwait(false);
                     break;
                 case 2:
                     if (mail == null)
@@ -66,8 +66,8 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    await _mailHttpClient.DeleteGift(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
-                    await clientSession.SendPacket(
+                    await _mailHttpClient.DeleteGiftAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(
                         clientSession.Character.GenerateSay(
                             GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED,
                                 clientSession.Account.Language),
@@ -82,16 +82,16 @@ namespace NosCore.PacketHandlers.Parcel
                     var dest = _characterDao.FirstOrDefault(s => s.Name == pstClientPacket.ReceiverName);
                     if (dest != null)
                     {
-                        await _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
+                        await _mailHttpClient.SendMessageAsync(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
                             pstClientPacket.Text).ConfigureAwait(false);
-                        await clientSession.SendPacket(clientSession.Character.GenerateSay(
+                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
                             GameLanguage.Instance.GetMessageFromKey(
                                 LanguageKey.MAILED,
                                 clientSession.Account.Language), SayColorType.Yellow)).ConfigureAwait(false);
                     }
                     else
                     {
-                        await clientSession.SendPacket(
+                        await clientSession.SendPacketAsync(
                             clientSession.Character.GenerateSay(
                                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_FOUND,
                                     clientSession.Account.Language),

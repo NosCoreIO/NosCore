@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Chat
             _packetHttpClient = packetHttpClient;
         }
 
-        public override async Task Execute(WhisperPacket whisperPacket, ClientSession session)
+        public override async Task ExecuteAsync(WhisperPacket whisperPacket, ClientSession session)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace NosCore.PacketHandlers.Chat
                 var message = new StringBuilder(messageBuilder.ToString().Length > 60
                     ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
 
-                await session.SendPacket(session.Character.GenerateSpk(new SpeakPacket
+                await session.SendPacketAsync(session.Character.GenerateSpk(new SpeakPacket
                 {
                     SpeakType = SpeakType.Player,
                     Message = message.ToString()
@@ -96,20 +96,20 @@ namespace NosCore.PacketHandlers.Chat
                 var receiverSession =
                     Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
 
-                var receiver = await _connectedAccountHttpClient.GetCharacter(null, receiverName).ConfigureAwait(false);
+                var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, receiverName).ConfigureAwait(false);
 
                 if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
                 {
-                    await session.SendPacket(session.Character.GenerateSay(
+                    await session.SendPacketAsync(session.Character.GenerateSay(
                         GameLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, session.Account.Language),
                         SayColorType.Yellow)).ConfigureAwait(false);
                     return;
                 }
 
-                var blacklisteds = await _blacklistHttpClient.GetBlackLists(session.Character.VisualId).ConfigureAwait(false);
+                var blacklisteds = await _blacklistHttpClient.GetBlackListsAsync(session.Character.VisualId).ConfigureAwait(false);
                 if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter?.Id))
                 {
-                    await session.SendPacket(new SayPacket
+                    await session.SendPacketAsync(new SayPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
                             session.Account.Language),
@@ -121,7 +121,7 @@ namespace NosCore.PacketHandlers.Chat
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
                     $"{speakPacket.Message} <{GameLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Item2.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
-                await _packetHttpClient.BroadcastPacket(new PostedPacket
+                await _packetHttpClient.BroadcastPacketAsync(new PostedPacket
                 {
                     Packet = _packetSerializer.Serialize(new[] {speakPacket}),
                     ReceiverCharacter = new Character {Name = receiverName},
@@ -130,7 +130,7 @@ namespace NosCore.PacketHandlers.Chat
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.Item2.ChannelId).ConfigureAwait(false);
 
-                await session.SendPacket(session.Character.GenerateSay(
+                await session.SendPacketAsync(session.Character.GenerateSay(
                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
                         session.Account.Language), SayColorType.Purple)).ConfigureAwait(false);
             }

@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Bazaar
 {
     public class CSkillPacketHandler : PacketHandler<CSkillPacket>, IWorldPacketHandler
     {
-        public override Task Execute(CSkillPacket packet, ClientSession clientSession)
+        public override Task ExecuteAsync(CSkillPacket packet, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
@@ -49,13 +49,13 @@ namespace NosCore.PacketHandlers.Bazaar
                 var medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte) MedalType.Gold
                     : (byte) MedalType.Silver;
                 var time = (int)(medalBonus.DateEnd == null ? 720 : ((TimeSpan)(medalBonus.DateEnd - SystemTime.Now())).TotalHours);
-                clientSession.SendPacket(new MsgPacket
+                clientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR,
                         clientSession.Account.Language),
                     Type = MessageType.Whisper
                 });
-                clientSession.SendPacket(new WopenPacket
+                clientSession.SendPacketAsync(new WopenPacket
                 {
                     Type = WindowType.NosBazaar,
                     Unknown = medal,
@@ -64,7 +64,7 @@ namespace NosCore.PacketHandlers.Bazaar
             }
             else
             {
-                clientSession.SendPacket(new InfoPacket
+                clientSession.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL,
                         clientSession.Account.Language)

@@ -41,21 +41,21 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
             RequireConnection = true;
         }
 
-        public Task<LanguageKey> AddFriend(FriendShipRequest friendShipRequest)
+        public Task<LanguageKey> AddFriendAsync(FriendShipRequest friendShipRequest)
         {
-            return Post<LanguageKey>(friendShipRequest);
+            return PostAsync<LanguageKey>(friendShipRequest);
         }
 
-        public async Task<List<CharacterRelationStatus>> GetListFriends(long visualEntityVisualId)
+        public async Task<List<CharacterRelationStatus>> GetListFriendsAsync(long visualEntityVisualId)
         {
-            return (await Get<List<CharacterRelationStatus>>(visualEntityVisualId)!.ConfigureAwait(false))
+            return (await GetAsync<List<CharacterRelationStatus>>(visualEntityVisualId)!.ConfigureAwait(false))
                 .Where(w => w.RelationType != CharacterRelationType.Blocked)
                 .ToList();
         }
 
-        public Task DeleteFriend(Guid characterRelationId)
+        public Task DeleteFriendAsync(Guid characterRelationId)
         {
-            return Delete(characterRelationId);
+            return DeleteAsync(characterRelationId);
         }
     }
 }

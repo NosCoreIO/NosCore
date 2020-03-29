@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             _itemProvider = itemProvider;
         }
 
-        public override async Task Execute(MinigamePacket minigamePacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(MinigamePacket minigamePacket, ClientSession clientSession)
         {
             _clientSession = clientSession;
             _minigamePacket = minigamePacket;
@@ -81,44 +81,44 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             switch (minigamePacket.Type)
             {
                 case 1:
-                    await Play(game).ConfigureAwait(false);
+                    await PlayAsync(game).ConfigureAwait(false);
                     break;
 
                 case 2:
-                    await BroadcastEffect().ConfigureAwait(false);
+                    await BroadcastEffectAsync().ConfigureAwait(false);
                     break;
 
                 case 3:
-                    await ShowBoxLevels(game).ConfigureAwait(false);
+                    await ShowBoxLevelsAsync(game).ConfigureAwait(false);
                     break;
 
                 case 4:
-                    await SelectGift().ConfigureAwait(false);
+                    await SelectGiftAsync().ConfigureAwait(false);
                     break;
 
                 case 5:
-                    await ShowMinilandManagment().ConfigureAwait(false);
+                    await ShowMinilandManagmentAsync().ConfigureAwait(false);
                     break;
 
                 case 6:
-                    await Refill().ConfigureAwait(false);
+                    await RefillAsync().ConfigureAwait(false);
                     break;
 
                 case 7:
-                    await ShowGifts().ConfigureAwait(false);
+                    await ShowGiftsAsync().ConfigureAwait(false);
                     break;
 
                 case 8:
-                    await OpenGiftBatch().ConfigureAwait(false);
+                    await OpenGiftBatchAsync().ConfigureAwait(false);
                     break;
 
                 case 9:
-                    await UseCoupon().ConfigureAwait(false);
+                    await UseCouponAsync().ConfigureAwait(false);
                     break;
             }
         }
 
-        private async Task UseCoupon()
+        private async Task UseCouponAsync()
         {
             var item = _clientSession!.Character.InventoryService.Select(s => s.Value)
                 .Where(s => (s.ItemInstance?.ItemVNum == 1269) || (s.ItemInstance?.ItemVNum == 1271)).OrderBy(s => s.Slot)
@@ -128,18 +128,18 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 var point = item.ItemInstance!.ItemVNum == 1269 ? 300 : 500;
                 _clientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, item.ItemInstance.Id);
                 _minilandObject!.InventoryItemInstance!.ItemInstance!.DurabilityPoint += point;
-                await _clientSession.SendPacket(new InfoPacket
+                await _clientSession.SendPacketAsync(new InfoPacket
                 {
                     Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.REFILL_MINIGAME,
                         _clientSession.Account.Language), point)
                 }).ConfigureAwait(false);
-                await ShowMinilandManagment().ConfigureAwait(false);
+                await ShowMinilandManagmentAsync().ConfigureAwait(false);
             }
         }
 
-        private Task ShowMinilandManagment()
+        private Task ShowMinilandManagmentAsync()
         {
-            return _clientSession!.SendPacket(new MloMgPacket
+            return _clientSession!.SendPacketAsync(new MloMgPacket
             {
                 MinigameVNum = _minigamePacket!.MinigameVNum,
                 MinilandPoint = _miniland!.MinilandPoint,
@@ -150,7 +150,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             });
         }
 
-        private async Task OpenGiftBatch()
+        private async Task OpenGiftBatchAsync()
         {
             var amount = 0;
             switch (_minigamePacket!.Point)
@@ -181,16 +181,14 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             {
                 var gift = MinilandHelper.Instance.GetMinilandGift(_minigamePacket.MinigameVNum,
                     _minigamePacket.Point ?? 0);
-                if (gift != null)
+
+                if (gifts.Any(o => o.VNum == gift.VNum))
                 {
-                    if (gifts.Any(o => o.VNum == gift.VNum))
-                    {
-                        gifts.First(o => o.Amount == gift.Amount).Amount += gift.Amount;
-                    }
-                    else
-                    {
-                        gifts.Add(gift);
-                    }
+                    gifts.First(o => o.Amount == gift.Amount).Amount += gift.Amount;
+                }
+                else
+                {
+                    gifts.Add(gift);
                 }
             }
 
@@ -205,7 +203,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                         InventoryItemInstance.Create(item, _clientSession.Character.CharacterId));
                     if (inv != null && inv.Count != 0)
                     {
-                        await _clientSession.SendPacket(_clientSession.Character.GenerateSay(
+                        await _clientSession.SendPacketAsync(_clientSession.Character.GenerateSay(
                             $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, _clientSession.Account.Language)}: {item.Item!.Name[_clientSession.Account.Language]} x {amount}",
                             SayColorType.Green)).ConfigureAwait(false);
                     }
@@ -219,12 +217,12 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 }
             }
 
-            await ShowGifts(list.ToArray()).ConfigureAwait(false);
+            await ShowGiftsAsync(list.ToArray()).ConfigureAwait(false);
         }
 
-        private async Task ShowGifts()
+        private Task ShowGiftsAsync()
         {
-            await ShowGifts(new[]
+            return ShowGiftsAsync(new[]
             {
                 new MloPmgSubPacket {BoxVNum = 0, BoxAmount = 0},
                 new MloPmgSubPacket {BoxVNum = 0, BoxAmount = 0},
@@ -235,12 +233,12 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 new MloPmgSubPacket {BoxVNum = 0, BoxAmount = 0},
                 new MloPmgSubPacket {BoxVNum = 0, BoxAmount = 0},
                 new MloPmgSubPacket {BoxVNum = 0, BoxAmount = 0}
-            }).ConfigureAwait(false);
+            });
         }
 
-        private async Task ShowGifts(MloPmgSubPacket[] array)
+        private Task ShowGiftsAsync(MloPmgSubPacket[] array)
         {
-            await _clientSession!.SendPacket(new MloPmgPacket
+            return _clientSession!.SendPacketAsync(new MloPmgPacket
             {
                 MinigameVNum = _minigamePacket!.MinigameVNum,
                 MinilandPoint = _miniland!.MinilandPoint,
@@ -254,10 +252,10 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     new MloPmgSubPacket {BoxVNum = 395, BoxAmount = _minilandObject.Level4BoxAmount},
                     new MloPmgSubPacket {BoxVNum = 396, BoxAmount = _minilandObject.Level5BoxAmount}
                 }.Concat(array).ToArray()
-            }).ConfigureAwait(false);
+            });
         }
 
-        private async Task Refill()
+        private async Task RefillAsync()
         {
             if (_minigamePacket?.Point == null)
             {
@@ -267,19 +265,19 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             if (_clientSession?.Character.Gold > _minigamePacket.Point)
             {
                 _clientSession.Character.Gold -= (int)_minigamePacket.Point;
-                await _clientSession.SendPacket(_clientSession.Character.GenerateGold()).ConfigureAwait(false);
+                await _clientSession.SendPacketAsync(_clientSession.Character.GenerateGold()).ConfigureAwait(false);
                 _minilandObject!.InventoryItemInstance!.ItemInstance!.DurabilityPoint +=
                     (int)(_minigamePacket.Point / 100);
-                await _clientSession.SendPacket(new InfoPacket
+                await _clientSession.SendPacketAsync(new InfoPacket
                 {
                     Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.REFILL_MINIGAME,
                         _clientSession.Account.Language), (int)(_minigamePacket.Point / 100))
                 }).ConfigureAwait(false);
-                await ShowMinilandManagment().ConfigureAwait(false);
+                await ShowMinilandManagmentAsync().ConfigureAwait(false);
             }
         }
 
-        private async Task SelectGift()
+        private async Task SelectGiftAsync()
         {
             if (_miniland!.MinilandPoint < 100)
             {
@@ -287,12 +285,8 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             }
 
             var obj = MinilandHelper.Instance.GetMinilandGift(_minigamePacket!.MinigameVNum, _minigamePacket.Point ?? 0);
-            if (obj == null)
-            {
-                return;
-            }
 
-            await _clientSession!.SendPacket(new MloRwPacket { Amount = obj.Amount, VNum = obj.VNum }).ConfigureAwait(false);
+            await _clientSession!.SendPacketAsync(new MloRwPacket { Amount = obj.Amount, VNum = obj.VNum }).ConfigureAwait(false);
             // _clientSession.SendPacket(new MlptPacket {_miniland.MinilandPoint, 100});
             var inv = _clientSession.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
                 _itemProvider.Create(obj.VNum,
@@ -331,10 +325,10 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             }
         }
 
-        private async Task ShowBoxLevels(byte game)
+        private async Task ShowBoxLevelsAsync(byte game)
         {
             _miniland!.CurrentMinigame = 0;
-            await _clientSession!.Character.MapInstance.SendPacket(new GuriPacket
+            await _clientSession!.Character.MapInstance.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
@@ -353,16 +347,16 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 }
             }
 
-            await _clientSession.SendPacket(level != -1
+            await _clientSession.SendPacketAsync(level != -1
                 ? new MloLvPacket { Level = level }
                 : (IPacket)new MinigamePacket
                     { Type = 3, Id = game, MinigameVNum = _minigamePacket!.MinigameVNum, Unknown = 0, Point = 0 }).ConfigureAwait(false);
         }
 
-        private Task BroadcastEffect()
+        private Task BroadcastEffectAsync()
         {
             _miniland!.CurrentMinigame = 0;
-            return _clientSession!.Character.MapInstance.SendPacket(new GuriPacket
+            return _clientSession!.Character.MapInstance.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
@@ -370,11 +364,11 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             });
         }
 
-        private async Task Play(byte game)
+        private async Task PlayAsync(byte game)
         {
             if (_minilandObject!.InventoryItemInstance!.ItemInstance!.DurabilityPoint <= 0)
             {
-                await _clientSession!.SendPacket(new MsgPacket
+                await _clientSession!.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_DURABILITY_POINT,
                         _clientSession.Account.Language)
@@ -384,7 +378,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
             if (_miniland == null || _miniland.MinilandPoint <= 0)
             {
-                await _clientSession!.SendPacket(new QnaPacket
+                await _clientSession!.SendPacketAsync(new QnaPacket
                 {
                     YesPacket = new MinigamePacket
                     {
@@ -400,7 +394,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 return;
             }
 
-            await _clientSession!.Character.MapInstance.SendPacket(new GuriPacket
+            await _clientSession!.Character.MapInstance.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Unknow,
                 Value = 1,
@@ -408,7 +402,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             }).ConfigureAwait(false);
             _miniland.CurrentMinigame = (short)(game == 0 ? 5102 : game == 1 ? 5103 : game == 2 ? 5105 : game == 3
                 ? 5104 : game == 4 ? 5113 : 5112);
-            await _clientSession.SendPacket(new MloStPacket { Game = game }).ConfigureAwait(false);
+            await _clientSession.SendPacketAsync(new MloStPacket { Game = game }).ConfigureAwait(false);
         }
     }
 }

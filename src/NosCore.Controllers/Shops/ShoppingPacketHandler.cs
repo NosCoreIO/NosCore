@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Shops
             _logger = logger;
         }
 
-        public override Task Execute(ShoppingPacket shoppingPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(ShoppingPacket shoppingPacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.Shops
             }
 
 
-            clientSession.SendPacket(aliveEntity.GenerateNInv(shopRate.Item1, shoppingPacket.ShopType, shopRate.Item2));
+            clientSession.SendPacketAsync(aliveEntity.GenerateNInv(shopRate.Item1, shoppingPacket.ShopType, shopRate.Item2));
             return Task.CompletedTask;
         }
     }

@@ -53,12 +53,14 @@ namespace NosCore.Data.StaticEntities
                 var dic = new I18NString();
                 foreach (var region in regions)
                 {
-                    if (langDictionary[prop.Value.Item2].ContainsKey(key))
+                    if (!langDictionary[prop.Value.Item2].ContainsKey(key))
                     {
-                        if (langDictionary[prop.Value.Item2][key].ContainsKey((RegionType)region!))
-                        {
-                            dic[(RegionType)region] = langDictionary[prop.Value.Item2][key][(RegionType)region].Text;
-                        }
+                        continue;
+                    }
+
+                    if (langDictionary[prop.Value.Item2][key].ContainsKey((RegionType)region!))
+                    {
+                        dic[(RegionType)region] = langDictionary[prop.Value.Item2][key][(RegionType)region].Text;
                     }
                 }
 

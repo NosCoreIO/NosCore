@@ -39,7 +39,7 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override Task Execute(MvePacket mvePacket, ClientSession clientSession)
+        public override Task ExecuteAsync(MvePacket mvePacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrShop)
             {
@@ -50,9 +50,9 @@ namespace NosCore.PacketHandlers.Inventory
             var inv = clientSession.Character.InventoryService.MoveInPocket(mvePacket.Slot,
                 (NoscorePocketType) mvePacket.InventoryType,
                 (NoscorePocketType) mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
-            clientSession.SendPacket(inv.GeneratePocketChange(mvePacket.DestinationInventoryType,
+            clientSession.SendPacketAsync(inv.GeneratePocketChange(mvePacket.DestinationInventoryType,
                 mvePacket.DestinationSlot));
-            clientSession.SendPacket(
+            clientSession.SendPacketAsync(
                 ((InventoryItemInstance?) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
             return Task.CompletedTask;
         }

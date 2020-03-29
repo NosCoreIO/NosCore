@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Game
             _mailHttpClient = mailHttpClient;
         }
 
-        public override async Task Execute(GameStartPacket packet, ClientSession session)
+        public override async Task ExecuteAsync(GameStartPacket packet, ClientSession session)
         {
             if (session.GameStarted || !session.HasSelectedCharacter)
             {
@@ -79,44 +79,44 @@ namespace NosCore.PacketHandlers.Game
 
             if (_worldConfiguration.SceneOnCreate && packet.KeepAliveId == null)
             {
-                await session.SendPacket(new ScenePacket {SceneId = 40}).ConfigureAwait(false);
+                await session.SendPacketAsync(new ScenePacket {SceneId = 40}).ConfigureAwait(false);
             }
 
             if (_worldConfiguration.WorldInformation)
             {
-                await session.SendPacket(session.Character.GenerateSay("-------------------[NosCore]---------------",
+                await session.SendPacketAsync(session.Character.GenerateSay("-------------------[NosCore]---------------",
                     SayColorType.Yellow)).ConfigureAwait(false);
-                await session.SendPacket(session.Character.GenerateSay("Github : https://github.com/NosCoreIO/NosCore/",
+                await session.SendPacketAsync(session.Character.GenerateSay("Github : https://github.com/NosCoreIO/NosCore/",
                     SayColorType.Purple)).ConfigureAwait(false);
-                await session.SendPacket(session.Character.GenerateSay("-----------------------------------------------",
+                await session.SendPacketAsync(session.Character.GenerateSay("-----------------------------------------------",
                     SayColorType.Yellow)).ConfigureAwait(false);
             }
 
             session.Character.LoadSpeed();
             //            Session.Character.LoadSkills();
-            await session.SendPacket(session.Character.GenerateTit()).ConfigureAwait(false);
-            await session.SendPacket(session.Character.GenerateSpPoint()).ConfigureAwait(false);
-            await session.SendPacket(session.Character.GenerateRsfi()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateTit()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateSpPoint()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateRsfi()).ConfigureAwait(false);
             if (session.Character.Hp <= 0)
             {
                 //                ServerManager.Instance.ReviveFirstPosition(Session.Character.CharacterId);
             }
             else
             {
-                await session.ChangeMap().ConfigureAwait(false);
+                await session.ChangeMapAsync().ConfigureAwait(false);
             }
 
             //            Session.SendPacket(Session.Character.GenerateSki());
             //            Session.SendPacket($"fd {Session.Character.Reput} 0 {(int)Session.Character.Dignity} {Math.Abs(Session.Character.GetDignityIco())}");
-            await session.SendPacket(session.Character.GenerateFd()).ConfigureAwait(false);
-            await session.SendPacket(session.Character.GenerateStat()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateFd()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateStat()).ConfigureAwait(false);
             //            Session.SendPacket("rage 0 250000");
             //            Session.SendPacket("rank_cool 0 0 18000");
             //            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>(8, InventoryType.Wear);
             var medal = session.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
             if (medal != null)
             {
-                await session.SendPacket(session.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOGIN_MEDAL, session.Account.Language), SayColorType.Green)).ConfigureAwait(false);
+                await session.SendPacketAsync(session.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOGIN_MEDAL, session.Account.Language), SayColorType.Green)).ConfigureAwait(false);
             }
 
             //            if (Session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.PetBasket))
@@ -138,9 +138,9 @@ namespace NosCore.PacketHandlers.Game
             //                Session.SendPacket($"bn {i} {Language.Instance.GetMessageFromKey($"BN{i}")}");
             //            }
             session.Character.LoadExpensions();
-            await session.SendPacket(session.Character.GenerateExts(_worldConfiguration)).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateExts(_worldConfiguration)).ConfigureAwait(false);
             //            Session.SendPacket(Session.Character.GenerateMlinfo());
-            await session.SendPacket(new PclearPacket()).ConfigureAwait(false);
+            await session.SendPacketAsync(new PclearPacket()).ConfigureAwait(false);
 
             //            Session.SendPacket(Session.Character.GeneratePinit());
             //            Session.SendPackets(Session.Character.GeneratePst());
@@ -156,9 +156,9 @@ namespace NosCore.PacketHandlers.Game
             //            Session.SendPackets(Session.Character.GenerateScN());
             //            Session.Character.GenerateStartupInventory();
 
-            await session.SendPacket(session.Character.GenerateGold()).ConfigureAwait(false);
-            await session.SendPacket(session.Character.GenerateCond()).ConfigureAwait(false);
-            await session.SendPackets(session.Character.GenerateQuicklist()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateGold()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateCond()).ConfigureAwait(false);
+            await session.SendPacketsAsync(session.Character.GenerateQuicklist()).ConfigureAwait(false);
 
             //            string clinit = ServerManager.Instance.TopComplimented.Aggregate("clinit",
             //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Compliment}|{character.Name}");
@@ -169,11 +169,11 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            await session.Character.SendFinfo(_friendHttpClient, _packetHttpClient, _packetSerializer, true).ConfigureAwait(false);
+            await session.Character.SendFinfoAsync(_friendHttpClient, _packetHttpClient, _packetSerializer, true).ConfigureAwait(false);
 
-            await session.SendPacket(await session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient,
+            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
                 _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
-            await session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+            await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(_blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);
@@ -207,19 +207,19 @@ namespace NosCore.PacketHandlers.Game
             //            }
 
             //            // finfo - friends info
-            var mails = await _mailHttpClient.GetGifts(session.Character.CharacterId).ConfigureAwait(false);
-            await session.Character.GenerateMail(mails).ConfigureAwait(false);
+            var mails = await _mailHttpClient.GetGiftsAsync(session.Character.CharacterId).ConfigureAwait(false);
+            await session.Character.GenerateMailAsync(mails).ConfigureAwait(false);
 
-            await session.SendPacket(session.Character.GenerateTitle()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateTitle()).ConfigureAwait(false);
             int giftcount = mails.Select(s=>s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId != null && !mail.IsOpened);
             int mailcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId == null && !mail.IsOpened);
             if (giftcount > 0)
             {
-                await session.SendPacket(session.Character.GenerateSay(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.GIFTED, session.Account.Language), giftcount), SayColorType.Purple)).ConfigureAwait(false);
+                await session.SendPacketAsync(session.Character.GenerateSay(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.GIFTED, session.Account.Language), giftcount), SayColorType.Purple)).ConfigureAwait(false);
             }
             if (mailcount > 0)
             {
-                await session.SendPacket(session.Character.GenerateSay(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.NEW_MAIL, session.Account.Language), mailcount), SayColorType.Yellow)).ConfigureAwait(false);
+                await session.SendPacketAsync(session.Character.GenerateSay(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.NEW_MAIL, session.Account.Language), mailcount), SayColorType.Yellow)).ConfigureAwait(false);
             }
             //            Session.Character.DeleteTimeout();
 
