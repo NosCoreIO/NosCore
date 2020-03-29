@@ -40,7 +40,7 @@ namespace NosCore.Tests.ItemHandlerTests
                     Session!,
                     new Tuple<InventoryItemInstance, UseItemPacket>(
                         item, UseItem
-                    )));
+                    ))).ConfigureAwait(false);
         }
     }
 }

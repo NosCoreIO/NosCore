@@ -82,7 +82,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _friendController = new FriendController(Logger, _characterRelationDao, _characterDao.Object,
                 new FriendRequestHolder(), _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>()))
-                .Returns(async (long id) => await _friendController.GetFriends(id));
+                .Returns(async (long id) => await _friendController.GetFriends(id).ConfigureAwait(false));
             _friendHttpClient.Setup(s => s.DeleteFriend(It.IsAny<Guid>()))
                 .Callback((Guid id) => _friendController.Delete(id));
         }
@@ -121,7 +121,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = 2
             };
 
-            await _fDelPacketHandler!.Execute(fdelPacket, _session);
+            await _fDelPacketHandler!.Execute(fdelPacket, _session).ConfigureAwait(false);
 
             Assert.IsTrue(!(_characterRelationDao!.LoadAll()).Any());
         }
@@ -161,7 +161,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _fDelPacketHandler!.Execute(fdelPacket, _session);
+            await _fDelPacketHandler!.Execute(fdelPacket, _session).ConfigureAwait(false);
 
             Assert.IsTrue(!_characterRelationDao.LoadAll().Any());
         }
@@ -185,7 +185,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _fDelPacketHandler!.Execute(fdelPacket, _session);
+            await _fDelPacketHandler!.Execute(fdelPacket, _session).ConfigureAwait(false);
             var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_FRIENDLIST,
                 _session.Account.Language), lastpacket?.Message);

@@ -46,14 +46,14 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     await requestData.ClientSession.SendPacket(
-                        requestData.ClientSession.Character.GenerateIcon(1, requestData.Data.Item1.VNum));
+                        requestData.ClientSession.Character.GenerateIcon(1, requestData.Data.Item1.VNum)).ConfigureAwait(false);
                 }
 
                 requestData.ClientSession.Character.Gold += requestData.Data.Item1.Amount;
                 await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(
                     $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}" +
                     $": {requestData.Data.Item1.ItemInstance!.Item!.Name[requestData.ClientSession.Account.Language]} x {requestData.Data.Item1.Amount}",
-                    SayColorType.Green));
+                    SayColorType.Green)).ConfigureAwait(false);
             }
             else
             {
@@ -63,13 +63,13 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
                         requestData.ClientSession.Account.Language),
                     Type = 0
-                });
+                }).ConfigureAwait(false);
             }
 
-            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateGold());
+            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateGold()).ConfigureAwait(false);
             requestData.ClientSession.Character.MapInstance!.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
             await requestData.ClientSession.Character.MapInstance.SendPacket(
-                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
+                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId)).ConfigureAwait(false);
         }
     }
 }

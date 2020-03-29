@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
                         requestData.ClientSession.Account.Language),
                     Type = MessageType.White
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
                         requestData.ClientSession.Account.Language),
                     Type = MessageType.White
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -71,11 +71,11 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
                         requestData.ClientSession.Account.Language),
                     Type = MessageType.White
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
-            await requestData.ClientSession.Character.ChangeClass((CharacterClassType)(requestData.Data.Item2.Type ?? 0));
+            await requestData.ClientSession.Character.ChangeClass((CharacterClassType)(requestData.Data.Item2.Type ?? 0)).ConfigureAwait(false);
         }
     }
 }

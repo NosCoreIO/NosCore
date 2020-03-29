@@ -51,7 +51,7 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 Slot = 1,
                 Password = "testpassword"
-            }, _session);
+            }, _session).ConfigureAwait(false);
             Assert.IsNotNull(
                 TestHelpers.Instance.CharacterDao
                     .FirstOrDefault(s =>
@@ -65,7 +65,7 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 Slot = 1,
                 Password = "test"
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             Assert.IsNotNull(
                 TestHelpers.Instance.CharacterDao
                     .FirstOrDefault(s =>
@@ -80,7 +80,7 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 Slot = 1,
                 Password = "test"
-            }, _session);
+            }, _session).ConfigureAwait(false);
             Assert.IsNull(
                 TestHelpers.Instance.CharacterDao
                     .FirstOrDefault(s =>

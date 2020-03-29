@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Shops
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL,
                         clientSession.Account.Language),
                     Type = 0
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Shops
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID,
                         clientSession.Account.Language),
                     Type = MessageType.White
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Shops
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED,
                         clientSession.Account.Language),
                     Type = MessageType.White
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -111,11 +111,11 @@ namespace NosCore.PacketHandlers.Shops
 
                         if (!inv.ItemInstance.Item!.IsTradable || (inv.ItemInstance.BoundCharacterId != null))
                         {
-                            await clientSession.SendPacket(new ShopEndPacket {Type = ShopEndPacketType.PersonalShop});
+                            await clientSession.SendPacket(new ShopEndPacket {Type = ShopEndPacketType.PersonalShop}).ConfigureAwait(false);
                             await clientSession.SendPacket(clientSession.Character.GenerateSay(
                                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS,
                                     clientSession.Account.Language),
-                                SayColorType.Yellow));
+                                SayColorType.Yellow)).ConfigureAwait(false);
                             clientSession.Character.Shop = null;
                             return;
                         }
@@ -133,10 +133,10 @@ namespace NosCore.PacketHandlers.Shops
 
                     if (clientSession.Character.Shop.ShopItems.Count == 0)
                     {
-                        await clientSession.SendPacket(new ShopEndPacket {Type = ShopEndPacketType.PersonalShop});
+                        await clientSession.SendPacket(new ShopEndPacket {Type = ShopEndPacketType.PersonalShop}).ConfigureAwait(false);
                         await clientSession.SendPacket(clientSession.Character.GenerateSay(
                             GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, clientSession.Account.Language),
-                            SayColorType.Yellow));
+                            SayColorType.Yellow)).ConfigureAwait(false);
                         clientSession.Character.Shop = null;
                         return;
                     }
@@ -150,28 +150,28 @@ namespace NosCore.PacketHandlers.Shops
                             clientSession.Account.Language) :
                         mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
 
-                    await clientSession.Character.MapInstance.SendPacket(clientSession.Character.GenerateShop());
+                    await clientSession.Character.MapInstance.SendPacket(clientSession.Character.GenerateShop()).ConfigureAwait(false);
                     await clientSession.SendPacket(new InfoPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_OPEN,
                             clientSession.Account.Language)
-                    });
+                    }).ConfigureAwait(false);
 
                     clientSession.Character.Requests.Subscribe(data =>
                         data.ClientSession.SendPacket(
                             clientSession.Character.GenerateNpcReq(clientSession.Character.Shop.ShopId)));
                     await clientSession.Character.MapInstance.SendPacket(clientSession.Character.GeneratePFlag(),
-                        new EveryoneBut(clientSession.Channel!.Id));
+                        new EveryoneBut(clientSession.Channel!.Id)).ConfigureAwait(false);
                     clientSession.Character.IsSitting = true;
                     clientSession.Character.LoadSpeed();
-                    await clientSession.SendPacket(clientSession.Character.GenerateCond());
-                    await clientSession.Character.MapInstance.SendPacket(clientSession.Character.GenerateRest());
+                    await clientSession.SendPacket(clientSession.Character.GenerateCond()).ConfigureAwait(false);
+                    await clientSession.Character.MapInstance.SendPacket(clientSession.Character.GenerateRest()).ConfigureAwait(false);
                     break;
                 case CreateShopPacketType.Close:
-                    await clientSession.Character.CloseShop();
+                    await clientSession.Character.CloseShop().ConfigureAwait(false);
                     break;
                 case CreateShopPacketType.Create:
-                    await clientSession.SendPacket(new IshopPacket());
+                    await clientSession.SendPacket(new IshopPacket()).ConfigureAwait(false);
                     break;
                 default:
                     //todo log

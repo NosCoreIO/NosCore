@@ -66,7 +66,7 @@ namespace NosCore.Tests.ItemHandlerTests
         {
             Session!.Character.InShop = true;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
            _logger!.Verify(s=>s.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP)), Times.Exactly(1));
         }
 
@@ -75,7 +75,7 @@ namespace NosCore.Tests.ItemHandlerTests
         {
             UseItem.Mode = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
             var lastpacket = (DelayPacket?)Session.LastPackets.FirstOrDefault(s => s is DelayPacket);
             Assert.IsNotNull(lastpacket);
         }
@@ -85,7 +85,7 @@ namespace NosCore.Tests.ItemHandlerTests
         {
             UseItem.Mode = 2;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
             Assert.IsTrue(Session.Character.IsVehicled);
         }
 
@@ -94,7 +94,7 @@ namespace NosCore.Tests.ItemHandlerTests
         {
             Session!.Character.IsVehicled = true;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
             Assert.IsFalse(Session.Character.IsVehicled);
         }
     }

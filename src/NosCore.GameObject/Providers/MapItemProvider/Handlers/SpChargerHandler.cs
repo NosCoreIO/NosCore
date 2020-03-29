@@ -49,12 +49,12 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                         requestData.ClientSession.Account.Language),
                     requestData.Data.Item1.ItemInstance.Item.EffectValue),
                 Type = 0
-            });
-            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint());
+            }).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint()).ConfigureAwait(false);
 
             requestData.ClientSession.Character.MapInstance!.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
             await requestData.ClientSession.Character.MapInstance.SendPacket(
-                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
+                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId)).ConfigureAwait(false);
         }
     }
 }

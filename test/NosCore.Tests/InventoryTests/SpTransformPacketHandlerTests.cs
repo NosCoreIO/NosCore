@@ -62,7 +62,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task Test_Transform_NoSp()
         {
-            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session!);
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session!).ConfigureAwait(false);
             var packet = (MsgPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SP, _session.Account.Language));
@@ -77,7 +77,7 @@ namespace NosCore.Tests.InventoryTests
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE, _session.Account.Language));
@@ -88,7 +88,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task Test_Transform_Sitted()
         {
             _session!.Character.IsSitting = true;
-            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session).ConfigureAwait(false);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
@@ -101,7 +101,7 @@ namespace NosCore.Tests.InventoryTests
             _session.Character.UseSp = true;
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
             Assert.IsFalse(_session.Character.UseSp);
         }
 
@@ -115,7 +115,7 @@ namespace NosCore.Tests.InventoryTests
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.UseSp);
         }
 
@@ -135,7 +135,7 @@ namespace NosCore.Tests.InventoryTests
             item.Slot = (byte)EquipmentType.Sp;
             fairy.Type = NoscorePocketType.Wear;
             fairy.Slot = (byte)EquipmentType.Fairy;
-            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY, _session.Account.Language));
@@ -150,7 +150,7 @@ namespace NosCore.Tests.InventoryTests
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOW_REP, _session.Account.Language));
@@ -168,7 +168,7 @@ namespace NosCore.Tests.InventoryTests
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
                 string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language),
@@ -184,7 +184,7 @@ namespace NosCore.Tests.InventoryTests
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, _session.Account.Language));
@@ -200,7 +200,7 @@ namespace NosCore.Tests.InventoryTests
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session).ConfigureAwait(false);
             var packet = (DelayPacket?)_session.LastPackets.FirstOrDefault(s => s is DelayPacket);
             Assert.IsTrue(packet?.Delay == 5000);
         }

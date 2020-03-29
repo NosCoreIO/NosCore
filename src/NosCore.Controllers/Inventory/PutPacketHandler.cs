@@ -61,14 +61,14 @@ namespace NosCore.PacketHandlers.Inventory
                                 Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
                                     clientSession.Account.Language),
                                 Type = 0
-                            });
+                            }).ConfigureAwait(false);
                             return;
                         }
 
                         invitem = clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
                             (NoscorePocketType) putPacket.PocketType);
-                        await clientSession.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
-                        await clientSession.Character.MapInstance.SendPacket(droppedItem.GenerateDrop());
+                        await clientSession.SendPacket(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot)).ConfigureAwait(false);
+                        await clientSession.Character.MapInstance.SendPacket(droppedItem.GenerateDrop()).ConfigureAwait(false);
                     }
                     else
                     {
@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.Inventory
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.DROP_MAP_FULL,
                                 clientSession.Account.Language),
                             Type = 0
-                        });
+                        }).ConfigureAwait(false);
                     }
                 }
                 else
@@ -87,7 +87,7 @@ namespace NosCore.PacketHandlers.Inventory
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_DROP_AMOUNT,
                             clientSession.Account.Language),
                         Type = 0
-                    });
+                    }).ConfigureAwait(false);
                 }
             }
             else
@@ -97,7 +97,7 @@ namespace NosCore.PacketHandlers.Inventory
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
                         clientSession.Account.Language),
                     Type = 0
-                });
+                }).ConfigureAwait(false);
             }
         }
     }

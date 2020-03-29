@@ -96,12 +96,12 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                                 MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][5]
                             }
                         }
-                    });
+                    }).ConfigureAwait(false);
                 }
                 else
                 {
                     var warehouseItems = await _warehouseHttpClient.GetWarehouseItems(clientSession.Character.CharacterId,
-                        WarehouseType.Warehouse);
+                        WarehouseType.Warehouse).ConfigureAwait(false);
                     await clientSession.SendPacket(new StashAllPacket
                     {
                         WarehouseSize =
@@ -109,7 +109,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                         IvnSubPackets = warehouseItems.Select(invItem =>
                             invItem.ItemInstance.GenerateIvnSubPacket((PocketType) invItem.ItemInstance!.Item!.Type,
                                 invItem.Slot)).ToList()
-                    });
+                    }).ConfigureAwait(false);
                 }
             }
             return;

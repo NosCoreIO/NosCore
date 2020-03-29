@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Movement;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Networking;
@@ -44,7 +45,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void Test_Pulse_Packet()
+        public async Task Test_Pulse_Packet()
         {
             var pulsePacket = new PulsePacket
             {
@@ -57,7 +58,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 {
                     Tick = i
                 };
-                _pulsePacketHandler?.Execute(pulsePacket, _session!);
+                await _pulsePacketHandler!.Execute(pulsePacket, _session!).ConfigureAwait(false);
             }
 
             Assert.IsTrue(_session?.LastPulse == pulsePacket.Tick);

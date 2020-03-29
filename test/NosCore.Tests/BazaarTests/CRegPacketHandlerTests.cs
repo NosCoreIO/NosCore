@@ -97,7 +97,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0
-            }, _session);
+            }, _session).ConfigureAwait(false);
 
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
@@ -116,7 +116,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
 
             var lastpacket = (MsgPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket?.Message ==
@@ -137,7 +137,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = -1,
                 Taxe = 0,
                 MedalUsed = 0
-            }, _session);
+            }, _session).ConfigureAwait(false);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
@@ -155,7 +155,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0
-            }, _session);
+            }, _session).ConfigureAwait(false);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
@@ -176,7 +176,7 @@ namespace NosCore.Tests.BazaarTests
                 Taxe = 0,
                 MedalUsed = 0,
                 Price = 100000001
-            }, _session);
+            }, _session).ConfigureAwait(false);
             var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED, _session.Account.Language));
@@ -203,7 +203,7 @@ namespace NosCore.Tests.BazaarTests
                 Taxe = 0,
                 MedalUsed = 0,
                 Price = 10000000
-            }, _session);
+            }, _session).ConfigureAwait(false);
             var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(0, _session.Character.InventoryService.Count);
             Assert.IsTrue(lastpacket?.Message ==
@@ -227,7 +227,7 @@ namespace NosCore.Tests.BazaarTests
                 Taxe = 0,
                 MedalUsed = 0,
                 Price = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount + 1
-            }, _session);
+            }, _session).ConfigureAwait(false);
             var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED, _session.Account.Language));
@@ -250,7 +250,7 @@ namespace NosCore.Tests.BazaarTests
                 Taxe = 0,
                 MedalUsed = 0,
                 Price = 1
-            }, _session);
+            }, _session).ConfigureAwait(false);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
@@ -272,7 +272,7 @@ namespace NosCore.Tests.BazaarTests
                 Taxe = 0,
                 MedalUsed = 0,
                 Price = 1
-            }, _session);
+            }, _session).ConfigureAwait(false);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
@@ -295,7 +295,7 @@ namespace NosCore.Tests.BazaarTests
                 Taxe = 0,
                 MedalUsed = 0,
                 Price = 1
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(999, _session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance!.Amount);
             Assert.IsTrue(lastpacket?.Message ==
@@ -319,7 +319,7 @@ namespace NosCore.Tests.BazaarTests
                 Taxe = 0,
                 MedalUsed = 0,
                 Price = 1
-            }, _session);
+            }, _session).ConfigureAwait(false);
             var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(0, _session.Character.InventoryService.Count);
             Assert.IsTrue(lastpacket?.Message ==
@@ -343,7 +343,7 @@ namespace NosCore.Tests.BazaarTests
                 Taxe = 0,
                 MedalUsed = 0,
                 Price = 1
-            }, _session);
+            }, _session).ConfigureAwait(false);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
@@ -364,7 +364,7 @@ namespace NosCore.Tests.BazaarTests
                 Taxe = 0,
                 MedalUsed = 0,
                 Price = 1
-            }, _session);
+            }, _session).ConfigureAwait(false);
             var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.AreEqual(50, _session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance!.Amount);
             Assert.IsTrue(lastpacket?.Message ==

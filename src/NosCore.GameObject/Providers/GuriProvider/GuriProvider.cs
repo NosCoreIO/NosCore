@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Providers.GuriProvider
                 {
                     handlersRequest.Subscribe(async o => await Observable.FromAsync(async () =>
                     {
-                        await handler.Execute(o);
+                        await handler.Execute(o).ConfigureAwait(false);
                     }));
                 }
             });

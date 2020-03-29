@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.Friend
         public override async Task Execute(BlInsPacket blinsPacket, ClientSession session)
         {
             var result = await _blacklistHttpClient.AddToBlacklist(new BlacklistRequest
-                {CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket});
+                {CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket}).ConfigureAwait(false);
             switch (result)
             {
                 case LanguageKey.CANT_BLOCK_FRIEND:
@@ -52,22 +52,22 @@ namespace NosCore.PacketHandlers.Friend
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_BLOCK_FRIEND,
                             session.Account.Language)
-                    });
+                    }).ConfigureAwait(false);
                     break;
                 case LanguageKey.ALREADY_BLACKLISTED:
                     await session.SendPacket(new InfoPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_BLACKLISTED,
                             session.Account.Language)
-                    });
+                    }).ConfigureAwait(false);
                     break;
                 case LanguageKey.BLACKLIST_ADDED:
                     await session.SendPacket(new InfoPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED,
                             session.Account.Language)
-                    });
-                    await session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient));
+                    }).ConfigureAwait(false);
+                    await session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
                     break;
                 default:
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_REQUEST_DISCONNECTED));
