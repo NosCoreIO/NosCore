@@ -97,7 +97,7 @@ namespace NosCore.Tests.BazaarTests
                 NewPrice = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session);
+            }, _session).ConfigureAwait(false);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
@@ -110,7 +110,7 @@ namespace NosCore.Tests.BazaarTests
                 NewPrice = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             Assert.IsNull(_session!.LastPackets.FirstOrDefault());
         }
 
@@ -124,7 +124,7 @@ namespace NosCore.Tests.BazaarTests
                 NewPrice = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             Assert.IsNull(_session!.LastPackets.FirstOrDefault());
         }
 
@@ -132,12 +132,12 @@ namespace NosCore.Tests.BazaarTests
         public async Task ModifyWhenSold()
         {
            await _cmodPacketHandler!.Execute(new CModPacket
-            {
-                BazaarId = 3,
-                NewPrice = 60,
-                Amount = 1,
-                VNum = 1012
-            }, _session!);
+           {
+               BazaarId = 3,
+               NewPrice = 60,
+               Amount = 1,
+               VNum = 1012
+           }, _session!).ConfigureAwait(false);
             var lastpacket = (ModalPacket?) _session!.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS, _session.Account.Language));
@@ -152,7 +152,7 @@ namespace NosCore.Tests.BazaarTests
                 NewPrice = 70,
                 Amount = 2,
                 VNum = 1012
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             var lastpacket = (ModalPacket?) _session!.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
@@ -162,12 +162,12 @@ namespace NosCore.Tests.BazaarTests
         public async Task ModifyWhenPriceSamePrice()
         {
            await _cmodPacketHandler!.Execute(new CModPacket
-            {
-                BazaarId = 2,
-                NewPrice = 60,
-                Amount = 1,
-                VNum = 1012
-            }, _session!);
+           {
+               BazaarId = 2,
+               NewPrice = 60,
+               Amount = 1,
+               VNum = 1012
+           }, _session!).ConfigureAwait(false);
             Assert.IsNull(_session!.LastPackets.FirstOrDefault());
         }
 
@@ -180,7 +180,7 @@ namespace NosCore.Tests.BazaarTests
                 NewPrice = 70,
                 Amount = 1,
                 VNum = 1012
-            }, _session!);
+            }, _session!).ConfigureAwait(false);
             var lastpacket = (SayPacket?) _session!.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue(lastpacket?.Message ==
                 string.Format(

@@ -55,17 +55,17 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
         {
             if (clientSession.Character.Gold >= GoldToPay)
             {
-                await clientSession.Character.RemoveGold(GoldToPay);
+                await clientSession.Character.RemoveGold(GoldToPay).ConfigureAwait(false);
                 await clientSession.ChangeMap(
                     mapId, (short) RandomFactory.Instance.RandomNumber(x1, x2),
-                    (short) RandomFactory.Instance.RandomNumber(y1, y2));
+                    (short) RandomFactory.Instance.RandomNumber(y1, y2)).ConfigureAwait(false);
                 return;
             }
 
             await clientSession.SendPacket(clientSession.Character.GenerateSay(
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, clientSession.Account.Language),
                 SayColorType.Yellow
-            ));
+            )).ConfigureAwait(false);
         }
     }
 }

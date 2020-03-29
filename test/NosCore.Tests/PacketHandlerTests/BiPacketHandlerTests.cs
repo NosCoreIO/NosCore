@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Inventory;
@@ -57,21 +58,21 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void Test_Delete_FromSlot()
+        public async Task Test_Delete_FromSlot()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 999), 0));
-            _biPacketHandler!.Execute(new BiPacket
-                {Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Main}, _session);
+            await _biPacketHandler!.Execute(new BiPacket
+                {Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Main}, _session).ConfigureAwait(false);
             var packet = (IvnPacket?) _session.LastPackets.FirstOrDefault(s => s is IvnPacket);
             Assert.IsTrue(packet?.IvnSubPackets.All(iv => (iv?.Slot == 0) && (iv.VNum == -1)) ?? false);
         }
 
         [TestMethod]
-        public void Test_Delete_FromEquiment()
+        public async Task Test_Delete_FromEquiment()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
-            _biPacketHandler!.Execute(new BiPacket
-                {Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Equipment}, _session);
+            await _biPacketHandler!.Execute(new BiPacket
+                {Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Equipment}, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Count == 0);
             var packet = (IvnPacket?) _session.LastPackets.FirstOrDefault(s => s is IvnPacket);
             Assert.IsTrue(packet?.IvnSubPackets.All(iv => (iv?.Slot == 0) && (iv.VNum == -1)) ?? false);

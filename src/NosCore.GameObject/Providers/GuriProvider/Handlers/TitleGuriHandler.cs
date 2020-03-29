@@ -58,10 +58,10 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
                 Active = false,
                 CharacterId = requestData.ClientSession.Character.VisualId
             });
-            await requestData.ClientSession.Character.MapInstance!.SendPacket(requestData.ClientSession.Character.GenerateTitle());
-            await requestData.ClientSession.SendPacket(new InfoPacket { Message = requestData.ClientSession.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE) });
+            await requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character.GenerateTitle()).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacket(new InfoPacket { Message = requestData.ClientSession.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE) }).ConfigureAwait(false);
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
-            await requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+            await requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot)).ConfigureAwait(false);
         }
     }
 }

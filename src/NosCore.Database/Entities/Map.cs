@@ -45,7 +45,7 @@ namespace NosCore.Database.Entities
 
         public virtual ICollection<Character> Character { get; set; }
 
-        public byte[] Data { get; set; } = new byte[0];
+        public byte[] Data { get; set; } = null!;
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]

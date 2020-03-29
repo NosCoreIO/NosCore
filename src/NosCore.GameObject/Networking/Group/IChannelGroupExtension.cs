@@ -51,14 +51,14 @@ namespace NosCore.GameObject.Networking.Group
                     return;
                 }
 
-                await channelGroup.Sessions.WriteAndFlushAsync(packetDefinitions);
+                await channelGroup.Sessions.WriteAndFlushAsync(packetDefinitions).ConfigureAwait(false);
                 if (matcher == null)
                 {
-                    await channelGroup.Sessions.WriteAndFlushAsync(packetDefinitions);
+                    await channelGroup.Sessions.WriteAndFlushAsync(packetDefinitions).ConfigureAwait(false);
                 }
                 else
                 {
-                    await channelGroup.Sessions.WriteAndFlushAsync(packetDefinitions, matcher);
+                    await channelGroup.Sessions.WriteAndFlushAsync(packetDefinitions, matcher).ConfigureAwait(false);
                 }
             }
         }

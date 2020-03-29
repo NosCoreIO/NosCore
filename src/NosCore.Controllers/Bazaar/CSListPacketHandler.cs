@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Bazaar
         {
             var list = new List<RcsListPacket.RcsListElementPacket?>();
             var bzlist = await _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, 0, 0, 0, 0, 0,
-                clientSession.Character.CharacterId);
+                clientSession.Character.CharacterId).ConfigureAwait(false);
 
             foreach (var bz in bzlist)
             {
@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 PageNumber = packet.Index,
                 Items = list
-            });
+            }).ConfigureAwait(false);
         }
     }
 }

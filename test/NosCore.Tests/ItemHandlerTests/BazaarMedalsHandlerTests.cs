@@ -67,7 +67,7 @@ namespace NosCore.Tests.ItemHandlerTests
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
@@ -82,7 +82,7 @@ namespace NosCore.Tests.ItemHandlerTests
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
@@ -91,7 +91,7 @@ namespace NosCore.Tests.ItemHandlerTests
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
             Assert.AreEqual(0, Session.Character.InventoryService.Count);
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
         }

@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.Group
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
                                 clientSession.Account.Language)
-                        });
+                        }).ConfigureAwait(false);
                         return;
                     }
 
@@ -87,18 +87,18 @@ namespace NosCore.PacketHandlers.Group
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_IN_GROUP,
                                 clientSession.Account.Language)
-                        });
+                        }).ConfigureAwait(false);
                         return;
                     }
 
-                    var blacklisteds = await _blacklistHttpCLient.GetBlackLists(clientSession.Character.VisualId);
+                    var blacklisteds = await _blacklistHttpCLient.GetBlackLists(clientSession.Character.VisualId).ConfigureAwait(false);
                     if (blacklisteds != null && blacklisteds.Any(s => s.CharacterId == pjoinPacket.CharacterId))
                     {
                         await clientSession.SendPacket(new InfoPacket
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
                                 clientSession.Account.Language)
-                        });
+                        }).ConfigureAwait(false);
                         return;
                     }
 
@@ -108,7 +108,7 @@ namespace NosCore.PacketHandlers.Group
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_BLOCKED,
                                 clientSession.Account.Language)
-                        });
+                        }).ConfigureAwait(false);
                         return;
                     }
 
@@ -122,7 +122,7 @@ namespace NosCore.PacketHandlers.Group
                                 Message = string.Format(
                                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.DELAY_GROUP_REQUEST,
                                         clientSession.Account.Language), diffTimeSpan.Seconds)
-                            });
+                            }).ConfigureAwait(false);
                             return;
                         }
                     }
@@ -137,7 +137,7 @@ namespace NosCore.PacketHandlers.Group
                         await clientSession.SendPacket(new InfoPacket
                         {
                             Message = clientSession.GetMessageFromKey(LanguageKey.GROUP_INVITE)
-                        });
+                        }).ConfigureAwait(false);
                         await targetSession.SendPacket(new DlgPacket
                         {
                             Question = string.Format(
@@ -153,7 +153,7 @@ namespace NosCore.PacketHandlers.Group
                                 CharacterId = clientSession.Character.CharacterId,
                                 RequestType = GroupRequestType.Declined
                             }
-                        });
+                        }).ConfigureAwait(false);
                     }
 
                     break;
@@ -168,7 +168,7 @@ namespace NosCore.PacketHandlers.Group
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_SHARE_INFO,
                             clientSession.Account.Language)
-                    });
+                    }).ConfigureAwait(false);
 
                     clientSession.Character.Group.Values
                         .Where(s => s.Item2.VisualId != clientSession.Character.CharacterId)
@@ -221,13 +221,13 @@ namespace NosCore.PacketHandlers.Group
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
                                 clientSession.Account.Language)
-                        });
+                        }).ConfigureAwait(false);
 
                         await targetSession!.SendPacket(new InfoPacket
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
                                 targetSession.AccountLanguage)
-                        });
+                        }).ConfigureAwait(false);
                         return;
                     }
 
@@ -238,7 +238,7 @@ namespace NosCore.PacketHandlers.Group
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP,
                                 targetSession.AccountLanguage)
-                        });
+                        }).ConfigureAwait(false);
                     }
                     else if (targetSession.Group.Count > 1)
                     {
@@ -255,13 +255,13 @@ namespace NosCore.PacketHandlers.Group
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP,
                                 clientSession.Account.Language)
-                        });
+                        }).ConfigureAwait(false);
 
                         await targetSession.SendPacket(new InfoPacket
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_ADMIN,
                                 targetSession.AccountLanguage)
-                        });
+                        }).ConfigureAwait(false);
 
                         targetSession.Group = clientSession.Character.Group;
                         clientSession.Character.GroupRequestCharacterIds.Clear();
@@ -284,8 +284,8 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     GroupAccess.Instance.Groups[currentGroup.GroupId] = currentGroup;
-                    await clientSession.Character.MapInstance!.SendPacket(
-                        clientSession.Character.Group.GeneratePidx(clientSession.Character));
+                    await clientSession.Character.MapInstance.SendPacket(
+                        clientSession.Character.Group.GeneratePidx(clientSession.Character)).ConfigureAwait(false);
 
                     break;
                 case GroupRequestType.Declined:
@@ -299,7 +299,7 @@ namespace NosCore.PacketHandlers.Group
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_REFUSED,
                             targetSession.AccountLanguage)
-                    });
+                    }).ConfigureAwait(false);
                     break;
                 case GroupRequestType.AcceptedShare:
                     if (targetSession == null || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
@@ -318,7 +318,7 @@ namespace NosCore.PacketHandlers.Group
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ACCEPTED_SHARE,
                             clientSession.Account.Language),
                         Type = MessageType.White
-                    });
+                    }).ConfigureAwait(false);
 
                     //TODO: add a way to change respawn points when system will be done
                     break;
@@ -333,7 +333,7 @@ namespace NosCore.PacketHandlers.Group
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHARED_REFUSED,
                             targetSession.AccountLanguage)
-                    });
+                    }).ConfigureAwait(false);
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.GROUPREQUESTTYPE_UNKNOWN));

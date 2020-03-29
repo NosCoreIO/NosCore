@@ -27,7 +27,7 @@ namespace NosCore.Database.Entities
     {
         public FamilyAuthority Authority { get; set; }
 
-        public virtual Character Character { get; set; } = new Character();
+        public virtual Character Character { get; set; } = null!;
 
         public long CharacterId { get; set; }
 
@@ -36,7 +36,7 @@ namespace NosCore.Database.Entities
 
         public int Experience { get; set; }
 
-        public virtual Family Family { get; set; } = new Family();
+        public virtual Family Family { get; set; } = null!;
 
         [Key]
         public long FamilyCharacterId { get; set; }

@@ -76,7 +76,7 @@ namespace NosCore.GameObject
 
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
-        public MapInstance? MapInstance { get; set; }
+        public MapInstance MapInstance { get; set; } = null!;
         public DateTime LastMove { get; set; }
         public bool IsAlive { get; set; }
         public int MaxHp => NpcMonster.MaxHp;
@@ -102,7 +102,7 @@ namespace NosCore.GameObject
             {
                 try
                 {
-                    if (!MapInstance!.IsSleeping)
+                    if (!MapInstance.IsSleeping)
                     {
                         MonsterLife();
                     }

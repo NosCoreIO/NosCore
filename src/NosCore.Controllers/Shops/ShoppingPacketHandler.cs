@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Shops
                 case VisualType.Npc:
                     shopRate = clientSession.Character.GenerateShopRates();
                     aliveEntity =
-                        clientSession.Character.MapInstance!.Npcs.Find(s => s.VisualId == shoppingPacket.VisualId);
+                        clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == shoppingPacket.VisualId);
                     break;
 
                 default:

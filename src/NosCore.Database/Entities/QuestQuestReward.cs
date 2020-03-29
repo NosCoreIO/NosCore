@@ -34,12 +34,12 @@ namespace NosCore.Database.Entities
         public short QuestRewardId { get; set; }
 
         [Required]
-        public virtual QuestReward QuestReward { get; set; } = new QuestReward();
+        public virtual QuestReward QuestReward { get; set; } = null!;
 
         [Required]
         public short QuestId { get; set; }
 
         [Required]
-        public virtual Quest Quest { get; set; } = new Quest();
+        public virtual Quest Quest { get; set; } = null!;
     }
 }

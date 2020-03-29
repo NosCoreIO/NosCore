@@ -101,7 +101,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = 2
             };
 
-            await _blDelPacketHandler!.Execute(blDelPacket, _session);
+            await _blDelPacketHandler!.Execute(blDelPacket, _session).ConfigureAwait(false);
 
             Assert.IsTrue(!_characterRelationDao.LoadAll().Any());
         }
@@ -134,7 +134,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _blDelPacketHandler!.Execute(blDelPacket, _session);
+            await _blDelPacketHandler!.Execute(blDelPacket, _session).ConfigureAwait(false);
 
             Assert.IsTrue(!_characterRelationDao.LoadAll().Any());
         }
@@ -158,7 +158,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _blDelPacketHandler!.Execute(blDelPacket, _session);
+            await _blDelPacketHandler!.Execute(blDelPacket, _session).ConfigureAwait(false);
             var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
                 _session.Account.Language), lastpacket!.Message);

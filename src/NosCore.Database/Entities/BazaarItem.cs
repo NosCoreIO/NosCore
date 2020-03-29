@@ -25,7 +25,7 @@ namespace NosCore.Database.Entities
 {
     public class BazaarItem : IEntity
     {
-        public virtual Character Seller { get; set; } = new Character();
+        public virtual Character Seller { get; set; } = null!;
 
         public short Amount { get; set; }
 
@@ -38,7 +38,7 @@ namespace NosCore.Database.Entities
 
         public bool IsPackage { get; set; }
 
-        public virtual ItemInstance ItemInstance { get; set; } = new ItemInstance();
+        public virtual ItemInstance ItemInstance { get; set; } = null!;
 
         public Guid ItemInstanceId { get; set; }
 

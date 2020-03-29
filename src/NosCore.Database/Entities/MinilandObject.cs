@@ -25,7 +25,7 @@ namespace NosCore.Database.Entities
 {
     public class MinilandObject : IEntity
     {
-        public virtual InventoryItemInstance InventoryItemInstance { get; set; } = new InventoryItemInstance();
+        public virtual InventoryItemInstance InventoryItemInstance { get; set; } = null!;
 
         public Guid? InventoryItemInstanceId { get; set; }
 

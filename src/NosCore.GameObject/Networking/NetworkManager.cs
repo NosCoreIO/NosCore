@@ -55,11 +55,11 @@ namespace NosCore.GameObject.Networking
                     .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
                         _pipelineFactory(channel).CreatePipeline()));
 
-                var bootstrapChannel = await bootstrap.BindAsync(_configuration.Port);
+                var bootstrapChannel = await bootstrap.BindAsync(_configuration.Port).ConfigureAwait(false);
 
                 Console.ReadLine();
 
-                await bootstrapChannel.CloseAsync();
+                await bootstrapChannel.CloseAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {

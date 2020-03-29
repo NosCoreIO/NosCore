@@ -38,6 +38,6 @@ namespace NosCore.Database.Entities
 
         public short QuestId { get; set; }
 
-        public virtual Quest Quest { get; set; } = new Quest();
+        public virtual Quest Quest { get; set; } = null!;
     }
 }

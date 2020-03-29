@@ -71,7 +71,7 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
 
         public async Task<MailData?> GetGift(long id, long characterId, bool isCopy)
         {
-            return (await Get<IEnumerable<MailData>>($"{id}&characterId={characterId}&senderCopy={isCopy}")!).FirstOrDefault();
+            return (await Get<IEnumerable<MailData>>($"{id}&characterId={characterId}&senderCopy={isCopy}")!.ConfigureAwait(false)).FirstOrDefault();
         }
 
         public Task DeleteGift(long giftId, long visualId, bool isCopy)

@@ -69,7 +69,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
         public short PositionY { get; set; }
-        public MapInstance? MapInstance { get; set; }
+        public MapInstance MapInstance { get; set; } = null!;
 
         public Subject<RequestData<Tuple<MapItem, GetPacket>>>? Requests { get; set; }
 

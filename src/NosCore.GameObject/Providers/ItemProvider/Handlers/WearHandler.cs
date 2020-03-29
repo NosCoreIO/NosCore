@@ -56,7 +56,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
         public async Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
-            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(123));
+            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(123)).ConfigureAwait(false);
 
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
@@ -75,7 +75,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                             (PocketType)itemInstance.Type,
                             itemInstance.Slot, 1, (byte)packet.Parameter),
                         Question = requestData.ClientSession.GetMessageFromKey(LanguageKey.ASK_BIND)
-                    });
+                    }).ConfigureAwait(false);
                 return;
             }
 
@@ -91,7 +91,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 await requestData.ClientSession.SendPacket(
                     requestData.ClientSession.Character.GenerateSay(
                         requestData.ClientSession.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT),
-                        SayColorType.Yellow));
+                        SayColorType.Yellow)).ConfigureAwait(false);
                 return;
             }
 
@@ -109,7 +109,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
                             requestData.ClientSession.Account.Language)
-                    });
+                    }).ConfigureAwait(false);
                     return;
                 }
             }
@@ -127,7 +127,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                         Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
                                 requestData.ClientSession.Account.Language),
                             requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage))
-                    });
+                    }).ConfigureAwait(false);
                     return;
                 }
 
@@ -135,7 +135,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 {
                     await requestData.ClientSession.SendPacket(
                         requestData.ClientSession.Character.GenerateSay(
-                            requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED), SayColorType.Yellow));
+                            requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED), SayColorType.Yellow)).ConfigureAwait(false);
                     return;
                 }
 
@@ -145,7 +145,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
                             requestData.ClientSession.Account.Language)
-                    });
+                    }).ConfigureAwait(false);
                     return;
                 }
             }
@@ -155,7 +155,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 await requestData.ClientSession.SendPacket(
                     requestData.ClientSession.Character.GenerateSay(
                         requestData.ClientSession.GetMessageFromKey(LanguageKey.LOW_JOB_LVL),
-                        SayColorType.Yellow));
+                        SayColorType.Yellow)).ConfigureAwait(false);
                 return;
             }
 
@@ -166,26 +166,26 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.InventoryService
                     .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.Type);
 
-            await  requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot));
+            await  requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot)).ConfigureAwait(false);
 
-            await requestData.ClientSession.Character.MapInstance!.SendPacket(requestData.ClientSession.Character
-                .GenerateEq());
-            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment());
+            await requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character
+                .GenerateEq()).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment()).ConfigureAwait(false);
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
             {
-                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint());
+                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint()).ConfigureAwait(false);
             }
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
-                await requestData.ClientSession.Character.MapInstance!.SendPacket(
-                    requestData.ClientSession.Character.GeneratePairy(itemInstance.ItemInstance as WearableInstance));
+                await requestData.ClientSession.Character.MapInstance.SendPacket(
+                    requestData.ClientSession.Character.GeneratePairy(itemInstance.ItemInstance as WearableInstance)).ConfigureAwait(false);
             }
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Amulet)
             {
-                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(39));
+                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(39)).ConfigureAwait(false);
             }
 
             itemInstance.ItemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;

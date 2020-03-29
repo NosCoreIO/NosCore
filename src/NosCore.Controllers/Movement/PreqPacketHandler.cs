@@ -54,12 +54,12 @@ namespace NosCore.PacketHandlers.Movement
             {
                 await session.SendPacket(session.Character.GenerateSay(
                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.PORTAL_DELAY, session.Account.Language),
-                    SayColorType.Yellow));
+                    SayColorType.Yellow)).ConfigureAwait(false);
                 return;
             }
 
             var portals = new List<Portal>();
-            portals.AddRange(session.Character.MapInstance!.Portals);
+            portals.AddRange(session.Character.MapInstance.Portals);
             portals.AddRange(_minilandProvider
                 .GetMinilandPortals(session.Character.CharacterId)
                 .Where(s => s.SourceMapInstanceId == session.Character.MapInstanceId));
@@ -83,12 +83,12 @@ namespace NosCore.PacketHandlers.Movement
                 && (_mapInstanceProvider.GetMapInstance(portal.DestinationMapInstanceId)!.MapInstanceType
                     == MapInstanceType.BaseMapInstance))
             {
-                await session.ChangeMap(session.Character.MapId, session.Character.MapX, session.Character.MapY);
+                await session.ChangeMap(session.Character.MapId, session.Character.MapX, session.Character.MapY).ConfigureAwait(false);
             }
             else
             {
                 await session.ChangeMapInstance(portal.DestinationMapInstanceId, portal.DestinationX,
-                    portal.DestinationY);
+                    portal.DestinationY).ConfigureAwait(false);
             }
         }
     }

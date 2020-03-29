@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Command
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
-                await session.Character.SetLevel(levelPacket.Level);
+                await session.Character.SetLevel(levelPacket.Level).ConfigureAwait(false);
                 return;
             }
 
@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var channels = (await _channelHttpClient.GetChannels())
+            var channels = (await _channelHttpClient.GetChannels().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer);
 
             ConnectedAccount? receiver = null;
@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.Command
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
                 var accounts = await
-                    _connectedAccountHttpClient.GetConnectedAccount(channel);
+                    _connectedAccountHttpClient.GetConnectedAccount(channel).ConfigureAwait(false);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Name == levelPacket.Name);
 
@@ -92,11 +92,11 @@ namespace NosCore.PacketHandlers.Command
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
-            await _statHttpClient.ChangeStat(data, config!);
+            await _statHttpClient.ChangeStat(data, config!).ConfigureAwait(false);
         }
     }
 }

@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Command
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
-                await session.Character.SetJobLevel(levelPacket.Level);
+                await session.Character.SetJobLevel(levelPacket.Level).ConfigureAwait(false);
                 return;
             }
 
@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var receiver = await _connectedAccountHttpClient.GetCharacter(null, levelPacket.Name);
+            var receiver = await _connectedAccountHttpClient.GetCharacter(null, levelPacket.Name).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -67,11 +67,11 @@ namespace NosCore.PacketHandlers.Command
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
-                });
+                }).ConfigureAwait(false);
                 return;
             }
 
-            await _statHttpClient.ChangeStat(data, receiver.Item1!);
+            await _statHttpClient.ChangeStat(data, receiver.Item1!).ConfigureAwait(false);
         }
     }
 }

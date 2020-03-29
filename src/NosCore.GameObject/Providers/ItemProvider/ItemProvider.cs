@@ -115,7 +115,7 @@ namespace NosCore.GameObject.Providers.ItemProvider
                 {
                     handlersRequest.Subscribe(async o => await Observable.FromAsync(async () =>
                       {
-                          await handler.Execute(o);
+                          await handler.Execute(o).ConfigureAwait(false);
                       }));
                 }
             });

@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Inventory
                     await clientSession.SendPacket(new MsgPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SP, clientSession.Account.Language)
-                    });
+                    }).ConfigureAwait(false);
 
                     return;
                 }
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE,
                             clientSession.Account.Language)
-                    });
+                    }).ConfigureAwait(false);
                     return;
                 }
 
@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.Inventory
                 if (clientSession.Character.UseSp)
                 {
                     clientSession.Character.LastSp = SystemTime.Now();
-                    await clientSession.Character.RemoveSp();
+                    await clientSession.Character.RemoveSp().ConfigureAwait(false);
                 }
                 else
                 {
@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Inventory
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS,
                                 clientSession.Account.Language)
-                        });
+                        }).ConfigureAwait(false);
                         return;
                     }
 
@@ -92,7 +92,7 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         if (spTransformPacket.Type == SlPacketType.WearSpAndTransform)
                         {
-                            await clientSession.Character.ChangeSp();
+                            await clientSession.Character.ChangeSp().ConfigureAwait(false);
                         }
                         else
                         {
@@ -101,13 +101,13 @@ namespace NosCore.PacketHandlers.Inventory
                                 Type = 3,
                                 Delay = 5000,
                                 Packet = new SpTransformPacket { Type = SlPacketType.WearSp }
-                            });
-                            await clientSession.Character.MapInstance!.SendPacket(new GuriPacket
+                            }).ConfigureAwait(false);
+                            await clientSession.Character.MapInstance.SendPacket(new GuriPacket
                             {
                                 Type = GuriPacketType.Unknow,
                                 Value = 1,
                                 EntityId = clientSession.Character.CharacterId
-                            });
+                            }).ConfigureAwait(false);
                         }
                     }
                     else
@@ -117,7 +117,7 @@ namespace NosCore.PacketHandlers.Inventory
                             Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
                                     clientSession.Account.Language),
                                 clientSession.Character.SpCooldown - (int)Math.Round(currentRunningSeconds))
-                        });
+                        }).ConfigureAwait(false);
                     }
                 }
             }
