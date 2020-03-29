@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Quicklist;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Quicklist;
@@ -42,9 +43,9 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void Test_Add_Quicklist()
+        public async Task Test_Add_Quicklist()
         {
-            _qsetPacketHandler!.Execute(new QsetPacket
+            await _qsetPacketHandler!.Execute(new QsetPacket
             {
                 Type = QSetType.Set,
                 OriginQuickList = 1,
@@ -54,18 +55,18 @@ namespace NosCore.Tests.PacketHandlerTests
             }, _session!);
             var lastpacket = (QsetClientPacket?) _session!.LastPackets.FirstOrDefault(s => s is QsetClientPacket);
             Assert.AreEqual(QSetType.Set, lastpacket?.Data?.Type);
-            Assert.AreEqual(1, lastpacket?.OriginQuickList);
-            Assert.AreEqual(2, lastpacket?.OriginQuickListSlot);
-            Assert.AreEqual(0, (int?) lastpacket?.Data?.Data);
-            Assert.AreEqual(3, lastpacket?.Data?.OriginQuickList);
-            Assert.AreEqual(4, lastpacket?.Data?.OriginQuickListSlot);
+            Assert.AreEqual(1, lastpacket?.OriginQuickList ?? 0);
+            Assert.AreEqual(2, lastpacket?.OriginQuickListSlot ?? 0);
+            Assert.AreEqual(0, lastpacket?.Data?.Data ?? 0);
+            Assert.AreEqual(3, lastpacket?.Data?.OriginQuickList ?? 0);
+            Assert.AreEqual(4, lastpacket?.Data?.OriginQuickListSlot ?? 0);
             Assert.AreEqual(1, _session.Character.QuicklistEntries.Count);
         }
 
         [TestMethod]
-        public void Test_Delete_FromQuicklist()
+        public async Task Test_Delete_FromQuicklist()
         {
-            _qsetPacketHandler!.Execute(new QsetPacket
+            await _qsetPacketHandler!.Execute(new QsetPacket
             {
                 Type = QSetType.Remove,
                 OriginQuickList = 1,
@@ -74,19 +75,19 @@ namespace NosCore.Tests.PacketHandlerTests
                 SecondData = 4
             }, _session!);
             var lastpacket = (QsetClientPacket?) _session!.LastPackets.FirstOrDefault(s => s is QsetClientPacket);
-            Assert.AreEqual(QSetType.Reset, lastpacket?.Data?.Type);
-            Assert.AreEqual(1, lastpacket?.OriginQuickList);
-            Assert.AreEqual(2, lastpacket?.OriginQuickListSlot);
-            Assert.AreEqual(0, (int?) lastpacket?.Data?.Data);
-            Assert.AreEqual(7, lastpacket?.Data?.OriginQuickList);
-            Assert.AreEqual(-1, lastpacket?.Data?.OriginQuickListSlot);
+            Assert.AreEqual(QSetType.Reset, lastpacket?.Data?.Type ?? 0);
+            Assert.AreEqual(1, lastpacket?.OriginQuickList ?? 0);
+            Assert.AreEqual(2, lastpacket?.OriginQuickListSlot ?? 0);
+            Assert.AreEqual(0, lastpacket?.Data?.Data ?? 0);
+            Assert.AreEqual(7, lastpacket?.Data?.OriginQuickList ?? 0);
+            Assert.AreEqual(-1, lastpacket?.Data?.OriginQuickListSlot ?? 0);
             Assert.AreEqual(0, _session.Character.QuicklistEntries.Count);
         }
 
         [TestMethod]
-        public void Test_Move_Quicklist()
+        public async Task Test_Move_Quicklist()
         {
-            _qsetPacketHandler!.Execute(new QsetPacket
+            await _qsetPacketHandler!.Execute(new QsetPacket
             {
                 Type = QSetType.Set,
                 OriginQuickList = 1,
@@ -95,7 +96,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 SecondData = 4
             }, _session!);
 
-            _qsetPacketHandler.Execute(new QsetPacket
+            await _qsetPacketHandler.Execute(new QsetPacket
             {
                 Type = QSetType.Set,
                 OriginQuickList = 1,
@@ -105,7 +106,7 @@ namespace NosCore.Tests.PacketHandlerTests
             }, _session!);
 
             _session!.LastPackets.Clear();
-            _qsetPacketHandler.Execute(new QsetPacket
+            await _qsetPacketHandler.Execute(new QsetPacket
             {
                 Type = QSetType.Move,
                 OriginQuickList = 1,
@@ -116,25 +117,25 @@ namespace NosCore.Tests.PacketHandlerTests
             var firstpacket = (QsetClientPacket?) _session.LastPackets.FirstOrDefault(s => s is QsetClientPacket);
             var lastpacket = (QsetClientPacket?) _session.LastPackets.Skip(1).FirstOrDefault(s => s is QsetClientPacket);
             Assert.AreEqual(QSetType.Set, lastpacket?.Data?.Type);
-            Assert.AreEqual(1, lastpacket?.OriginQuickList);
-            Assert.AreEqual(2, lastpacket?.OriginQuickListSlot);
-            Assert.AreEqual(0, (int?) lastpacket?.Data?.Data);
-            Assert.AreEqual(4, lastpacket?.Data?.OriginQuickList);
-            Assert.AreEqual(5, lastpacket?.Data?.OriginQuickListSlot);
+            Assert.AreEqual(1, lastpacket?.OriginQuickList ?? 0);
+            Assert.AreEqual(2, lastpacket?.OriginQuickListSlot ?? 0);
+            Assert.AreEqual(0, (int?) lastpacket?.Data?.Data ?? 0);
+            Assert.AreEqual(4, lastpacket?.Data?.OriginQuickList ?? 0);
+            Assert.AreEqual(5, lastpacket?.Data?.OriginQuickListSlot ?? 0);
 
-            Assert.AreEqual(1, firstpacket?.OriginQuickList);
-            Assert.AreEqual(3, firstpacket?.OriginQuickListSlot);
-            Assert.AreEqual(0, (int?) firstpacket?.Data?.Data);
-            Assert.AreEqual(3, firstpacket?.Data?.OriginQuickList);
-            Assert.AreEqual(4, firstpacket?.Data?.OriginQuickListSlot);
+            Assert.AreEqual(1, firstpacket?.OriginQuickList ?? 0);
+            Assert.AreEqual(3, firstpacket?.OriginQuickListSlot ?? 0);
+            Assert.AreEqual(0, (int?) firstpacket?.Data?.Data ?? 0);
+            Assert.AreEqual(3, firstpacket?.Data?.OriginQuickList ?? 0);
+            Assert.AreEqual(4, firstpacket?.Data?.OriginQuickListSlot ?? 0);
 
             Assert.AreEqual(2, _session.Character.QuicklistEntries.Count);
         }
 
         [TestMethod]
-        public void Test_Move_ToEmpty()
+        public async Task Test_Move_ToEmpty()
         {
-            _qsetPacketHandler!.Execute(new QsetPacket
+           await _qsetPacketHandler!.Execute(new QsetPacket
             {
                 Type = QSetType.Set,
                 OriginQuickList = 1,
@@ -143,7 +144,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 SecondData = 4
             }, _session!);
             _session!.LastPackets.Clear();
-            _qsetPacketHandler.Execute(new QsetPacket
+            await _qsetPacketHandler.Execute(new QsetPacket
             {
                 Type = QSetType.Move,
                 OriginQuickList = 1,
@@ -157,18 +158,18 @@ namespace NosCore.Tests.PacketHandlerTests
             var firstPacket = (QsetClientPacket?) _session.LastPackets.FirstOrDefault(s => s is QsetClientPacket);
             var lastpacket = (QsetClientPacket?) _session.LastPackets.Skip(1).FirstOrDefault(s => s is QsetClientPacket);
 
-            Assert.AreEqual(QSetType.Set, firstPacket?.Data?.Type);
-            Assert.AreEqual(1, firstPacket?.OriginQuickList);
-            Assert.AreEqual(3, firstPacket?.OriginQuickListSlot);
-            Assert.AreEqual(0, (int?)lastpacket?.Data?.Data);
-            Assert.AreEqual(3, firstPacket?.Data?.OriginQuickList);
-            Assert.AreEqual(4, firstPacket?.Data?.OriginQuickListSlot);
+            Assert.AreEqual(QSetType.Set, firstPacket?.Data?.Type ?? 0);
+            Assert.AreEqual(1, firstPacket?.OriginQuickList ?? 0);
+            Assert.AreEqual(3, firstPacket?.OriginQuickListSlot ?? 0);
+            Assert.AreEqual(0, (int?)lastpacket?.Data?.Data ?? 0);
+            Assert.AreEqual(3, firstPacket?.Data?.OriginQuickList ?? 0);
+            Assert.AreEqual(4, firstPacket?.Data?.OriginQuickListSlot ?? 0);
 
-            Assert.AreEqual(1, lastpacket?.OriginQuickList);
-            Assert.AreEqual(2, lastpacket?.OriginQuickListSlot);
-            Assert.AreEqual(0, (int?) lastpacket?.Data?.Data);
-            Assert.AreEqual(7, lastpacket?.Data?.OriginQuickList);
-            Assert.AreEqual(-1, lastpacket?.Data?.OriginQuickListSlot);
+            Assert.AreEqual(1, lastpacket?.OriginQuickList ?? 0);
+            Assert.AreEqual(2, lastpacket?.OriginQuickListSlot ?? 0);
+            Assert.AreEqual(0, (int?) lastpacket?.Data?.Data ?? 0);
+            Assert.AreEqual(7, lastpacket?.Data?.OriginQuickList ?? 0);
+            Assert.AreEqual(-1, lastpacket?.Data?.OriginQuickListSlot ?? 0);
         }
     }
 }

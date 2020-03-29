@@ -82,8 +82,8 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstanceId = _guid,
                     Price = 50
                 });
-            Assert.AreEqual(_bazaarItemsHolder?.BazaarItems[0].BazaarItem?.ItemInstanceId, _guid);
-            Assert.AreEqual(_bazaarItemsHolder?.BazaarItems[0].BazaarItem?.Amount, 99);
+            Assert.AreEqual(_guid, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.ItemInstanceId);
+            Assert.AreEqual(99, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.Amount ?? 0);
             Assert.AreEqual(LanguageKey.OBJECT_IN_BAZAAR, add);
         }
 
@@ -109,8 +109,8 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstanceId = _guid,
                     Price = 50
                 });
-            Assert.AreNotEqual(_bazaarItemsHolder!.BazaarItems[0].BazaarItem?.ItemInstanceId, _guid);
-            Assert.AreEqual(_bazaarItemsHolder.BazaarItems[0].BazaarItem?.Amount, 50);
+            Assert.AreNotEqual(_guid, _bazaarItemsHolder!.BazaarItems[0].BazaarItem?.ItemInstanceId);
+            Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Amount ?? 0);
             Assert.AreEqual(LanguageKey.OBJECT_IN_BAZAAR, add);
         }
 
@@ -208,11 +208,11 @@ namespace NosCore.Tests.BazaarTests
         {
             var rand = new Random();
             _mockBzDao!.Setup(m => m.InsertOrUpdate(ref It.Ref<BazaarItemDto>.IsAny))
-                .Returns((DelegateInsert) ((ref BazaarItemDto y) =>
-                {
-                    y.BazaarItemId = rand.Next(0, 9999999);
-                    return SaveResult.Saved;
-                }));
+                .Returns((DelegateInsert)((ref BazaarItemDto y) =>
+               {
+                   y.BazaarItemId = rand.Next(0, 9999999);
+                   return SaveResult.Saved;
+               }));
             LanguageKey? add = null;
             for (var i = 0; i < 12; i++)
             {
@@ -317,8 +317,8 @@ namespace NosCore.Tests.BazaarTests
                 });
             Assert.AreEqual(true, _bazaarController.DeleteBazaar(0, 99, "test2"));
             Assert.AreEqual(1, _bazaarItemsHolder!.BazaarItems.Values.Count);
-            Assert.AreEqual(0, _bazaarItemsHolder.BazaarItems[0].ItemInstance?.Amount);
-            Assert.AreEqual(99, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Amount);
+            Assert.AreEqual(0, _bazaarItemsHolder.BazaarItems[0].ItemInstance?.Amount ?? 0);
+            Assert.AreEqual(99, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Amount ?? 0);
         }
 
         [TestMethod]
