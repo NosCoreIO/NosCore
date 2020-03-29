@@ -37,19 +37,19 @@ namespace NosCore.PacketHandlers.Group
 {
     public class PleavePacketHandler : PacketHandler<PleavePacket>, IWorldPacketHandler
     {
-        public override Task Execute(PleavePacket bIPacket, ClientSession clientSession)
+        public override async Task Execute(PleavePacket bIPacket, ClientSession clientSession)
         {
             var group = clientSession.Character.Group;
 
-            if (group.Count == 1)
+            if (group!.Count == 1)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             if (group.Count > 2)
             {
                 var isLeader = group.IsGroupLeader(clientSession.Character.CharacterId);
-                clientSession.Character.LeaveGroup();
+                await clientSession.Character.LeaveGroup();
 
                 if (isLeader)
                 {
@@ -58,41 +58,41 @@ namespace NosCore.PacketHandlers.Group
 
                     if (targetsession == null)
                     {
-                        return Task.CompletedTask;
+                        return;
                     }
 
-                    targetsession.SendPacket(new InfoPacket
+                    await targetsession.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER,
                             clientSession.Account.Language)
                     });
                 }
 
                 if (group.Type != GroupType.Group)
                 {
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 foreach (var member in group.Values.Where(s => s.Item2 is ICharacterEntity))
                 {
                     var character = member.Item2 as ICharacterEntity;
-                    character.SendPacket(character.Group.GeneratePinit());
-                    character.SendPacket(new MsgPacket
+                    await (character == null ? Task.CompletedTask : character.SendPacket(character.Group!.GeneratePinit()));
+                    await (character == null ? Task.CompletedTask : character.SendPacket(new MsgPacket
                     {
                         Message = string.Format(
-                            Language.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP,
+                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP,
                                 clientSession.Account.Language),
                             clientSession.Character.Name)
-                    });
+                    }));
                 }
 
-                clientSession.SendPacket(clientSession.Character.Group.GeneratePinit());
-                clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacket(clientSession.Character.Group!.GeneratePinit());
+                await clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT,
                         clientSession.Account.Language)
                 });
-                clientSession.Character.MapInstance.SendPacket(
+                await clientSession.Character.MapInstance!.SendPacket(
                     clientSession.Character.Group.GeneratePidx(clientSession.Character));
             }
             else
@@ -111,21 +111,20 @@ namespace NosCore.PacketHandlers.Group
                         continue;
                     }
 
-                    targetsession.SendPacket(new MsgPacket
+                    await targetsession.SendPacket(new MsgPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
                             targetsession.AccountLanguage),
                         Type = MessageType.White
                     });
 
-                    targetsession.LeaveGroup();
-                    targetsession.SendPacket(targetsession.Group.GeneratePinit());
-                    Broadcaster.Instance.SendPacket(targetsession.Group.GeneratePidx(targetsession));
+                    await targetsession.LeaveGroup();
+                    await targetsession.SendPacket(targetsession.Group!.GeneratePinit());
+                    await Broadcaster.Instance.SendPacket(targetsession.Group.GeneratePidx(targetsession));
                 }
 
                 GroupAccess.Instance.Groups.TryRemove(group.GroupId, out _);
             }
-            return Task.CompletedTask;
         }
     }
 }

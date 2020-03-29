@@ -26,7 +26,7 @@ namespace NosCore.Data.CommandPackets
     public class TeleportPacket : CommandPacket
     {
         [PacketIndex(0)]
-        public string TeleportArgument { get; set; }
+        public string? TeleportArgument { get; set; }
 
         [PacketIndex(1)]
         public short? MapX { get; set; }

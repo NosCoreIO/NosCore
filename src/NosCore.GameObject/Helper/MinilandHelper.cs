@@ -25,7 +25,7 @@ namespace NosCore.GameObject.Helper
 {
     public sealed class MinilandHelper
     {
-        private static MinilandHelper _instance;
+        private static MinilandHelper? _instance;
         private readonly Dictionary<short, Gift[][]> gifts = new Dictionary<short, Gift[][]>
             {
                 {

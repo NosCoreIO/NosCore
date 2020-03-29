@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 {
     public class MapInstance : IBroadcastable, IDisposable
     {
-        private const short maxPacketsBuffer = 250;
+        public short MaxPacketsBuffer { get; } = 250;
         private readonly ILogger _logger;
 
         private readonly List<IMapInstanceEventHandler> _mapInstanceEventHandler;
@@ -80,9 +80,9 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             _logger = logger;
             Requests = new Dictionary<MapInstanceEventType, Subject<RequestData<MapInstance>>>();
             _mapInstanceEventHandler = mapInstanceEventHandler;
-            foreach (MapInstanceEventType eventTypes in Enum.GetValues(typeof(MapInstanceEventType)))
+            foreach (var eventTypes in Enum.GetValues(typeof(MapInstanceEventType)))
             {
-                Requests[eventTypes] = new Subject<RequestData<MapInstance>>();
+                Requests[(MapInstanceEventType)eventTypes!] = new Subject<RequestData<MapInstance>>();
             }
         }
 
@@ -144,7 +144,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public int XpRate { get; set; }
 
-        private IDisposable Life { get; set; }
+        private IDisposable? Life { get; set; }
         public Dictionary<MapInstanceEventType, Subject<RequestData<MapInstance>>> Requests { get; set; }
 
         public IChannelGroup Sessions { get; set; }
@@ -178,10 +178,10 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 .ForEach(s => s.ChangeMap(s.MapId, s.MapX, s.MapY));
         }
 
-        public MapItem PutItem(short amount, IItemInstance inv, ClientSession session)
+        public MapItem? PutItem(short amount, IItemInstance inv, ClientSession session)
         {
             var random2 = Guid.NewGuid();
-            MapItem droppedItem = null;
+            MapItem? droppedItem = null;
             var possibilities = new List<MapCell>();
 
             for (short x = -1; x < 2; x++)
@@ -226,7 +226,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             inv.Amount -= amount;
             if (inv.Amount == 0)
             {
-                session.Character.InventoryService.DeleteById(inv.Id);
+                session.Character.InventoryService!.DeleteById(inv.Id);
             }
 
             return droppedItem;

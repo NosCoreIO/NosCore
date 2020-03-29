@@ -24,7 +24,7 @@ namespace NosCore.GameObject
 {
     public class ShopItem : ShopItemDto
     {
-        public IItemInstance ItemInstance { get; set; }
+        public IItemInstance? ItemInstance { get; set; }
 
         public long? Price { get; set; }
 

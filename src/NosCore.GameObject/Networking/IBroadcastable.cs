@@ -27,5 +27,6 @@ namespace NosCore.GameObject.Networking
     {
         IChannelGroup Sessions { get; set; }
         ConcurrentQueue<IPacket> LastPackets { get; }
+        short MaxPacketsBuffer { get; }
     }
 }

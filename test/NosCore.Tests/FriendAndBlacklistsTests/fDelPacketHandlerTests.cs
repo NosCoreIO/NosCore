@@ -29,8 +29,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -52,20 +52,20 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class FDelPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private Mock<IChannelHttpClient> _channelHttpClient;
-        private Mock<IGenericDao<CharacterDto>> _characterDao;
-        private IGenericDao<CharacterRelationDto> _characterRelationDao;
-        private Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient;
-        private FdelPacketHandler _fDelPacketHandler;
-        private FriendController _friendController;
-        private Mock<IFriendHttpClient> _friendHttpClient;
-        private ClientSession _session;
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private Mock<IChannelHttpClient>? _channelHttpClient;
+        private Mock<IGenericDao<CharacterDto>>? _characterDao;
+        private IGenericDao<CharacterRelationDto>? _characterRelationDao;
+        private Mock<IConnectedAccountHttpClient>? _connectedAccountHttpClient;
+        private FdelPacketHandler? _fDelPacketHandler;
+        private FriendController? _friendController;
+        private Mock<IFriendHttpClient>? _friendHttpClient;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
         {
-            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(_logger);
+            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(Logger);
             Broadcaster.Reset();
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();
@@ -79,7 +79,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
                 _connectedAccountHttpClient.Object);
             _characterDao = new Mock<IGenericDao<CharacterDto>>();
-            _friendController = new FriendController(_logger, _characterRelationDao, _characterDao.Object,
+            _friendController = new FriendController(Logger, _characterRelationDao, _characterDao.Object,
                 new FriendRequestHolder(), _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>()))
                 .Returns(async (long id) => await _friendController.GetFriends(id));
@@ -94,12 +94,12 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
             {
-                _session.Character,
+                _session!.Character!,
                 new CharacterDto {CharacterId = 2, Name = "test"}
             };
-            _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+            _characterDao!.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
-            _characterRelationDao.InsertOrUpdate(new[]
+            _characterRelationDao!.InsertOrUpdate(new[]
             {
                 new CharacterRelationDto
                 {
@@ -121,9 +121,9 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = 2
             };
 
-            await _fDelPacketHandler.Execute(fdelPacket, _session);
+            await _fDelPacketHandler!.Execute(fdelPacket, _session);
 
-            Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 0);
+            Assert.IsTrue(!(_characterRelationDao!.LoadAll()).Any());
         }
 
         [TestMethod]
@@ -134,12 +134,12 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
             {
-                _session.Character,
-                targetSession.Character
+                _session!.Character!,
+                targetSession.Character!
             };
-            _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+            _characterDao!.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
-            _characterRelationDao.InsertOrUpdate(new[]
+            _characterRelationDao!.InsertOrUpdate(new[]
             {
                 new CharacterRelationDto
                 {
@@ -161,9 +161,9 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _fDelPacketHandler.Execute(fdelPacket, _session);
+            await _fDelPacketHandler!.Execute(fdelPacket, _session);
 
-            Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 0);
+            Assert.IsTrue(!_characterRelationDao.LoadAll().Any());
         }
 
         [TestMethod]
@@ -174,10 +174,10 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
             {
-                _session.Character,
-                targetSession.Character
+                _session!.Character!,
+                targetSession.Character!
             };
-            _characterDao.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+            _characterDao!.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
 
             var fdelPacket = new FdelPacket
@@ -185,10 +185,10 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _fDelPacketHandler.Execute(fdelPacket, _session);
-            var lastpacket = (InfoPacket)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.NOT_IN_FRIENDLIST,
-                _session.Account.Language), lastpacket.Message);
+            await _fDelPacketHandler!.Execute(fdelPacket, _session);
+            var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_FRIENDLIST,
+                _session.Account.Language), lastpacket?.Message);
         }
     }
 }

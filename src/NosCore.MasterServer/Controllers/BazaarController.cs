@@ -71,12 +71,12 @@ namespace NosCore.MasterServer.Controllers
             IEnumerable<BazaarLink> bzlinks;
             if (id != -1)
             {
-                bzlinks = _holder.BazaarItems.Values.Where(s => s.BazaarItem.BazaarItemId == id);
+                bzlinks = _holder.BazaarItems.Values.Where(s => s.BazaarItem?.BazaarItemId == id);
             }
             else
             {
                 bzlinks = _holder.BazaarItems.Values.Where(s =>
-                    (s.BazaarItem.SellerId == sellerFilter) || (sellerFilter == null));
+                    (s.BazaarItem?.SellerId == sellerFilter) || (sellerFilter == null));
             }
 
             foreach (var bz in bzlinks)
@@ -182,26 +182,26 @@ namespace NosCore.MasterServer.Controllers
         [HttpDelete]
         public bool DeleteBazaar(long id, short count, string requestCharacterName)
         {
-            var bzlink = _holder.BazaarItems.Values.FirstOrDefault(s => s.BazaarItem.BazaarItemId == id);
+            var bzlink = _holder.BazaarItems.Values.FirstOrDefault(s => s.BazaarItem?.BazaarItemId == id);
             if (bzlink == null)
             {
                 throw new ArgumentException();
             }
 
-            if ((bzlink.ItemInstance.Amount - count < 0) || (count < 0))
+            if ((bzlink.ItemInstance?.Amount - count < 0) || (count < 0))
             {
                 return false;
             }
 
-            if ((bzlink.ItemInstance.Amount == count) && (requestCharacterName == bzlink.SellerName))
+            if ((bzlink.ItemInstance?.Amount == count) && (requestCharacterName == bzlink.SellerName))
             {
-                _bazaarItemDao.Delete(bzlink.BazaarItem.BazaarItemId);
+                _bazaarItemDao.Delete(bzlink.BazaarItem!.BazaarItemId);
                 _holder.BazaarItems.TryRemove(bzlink.BazaarItem.BazaarItemId, out _);
                 _itemInstanceDao.Delete(bzlink.ItemInstance.Id);
             }
             else
             {
-                var item = (IItemInstanceDto) bzlink.ItemInstance;
+                var item = (IItemInstanceDto) bzlink.ItemInstance!;
                 item.Amount -= count;
                 _itemInstanceDao.InsertOrUpdate(ref item);
             }
@@ -212,7 +212,7 @@ namespace NosCore.MasterServer.Controllers
         [HttpPost]
         public LanguageKey AddBazaar([FromBody] BazaarRequest bazaarRequest)
         {
-            var items = _holder.BazaarItems.Values.Where(o => o.BazaarItem.SellerId == bazaarRequest.CharacterId);
+            var items = _holder.BazaarItems.Values.Where(o => o.BazaarItem!.SellerId == bazaarRequest.CharacterId);
             if (items.Count() > 10 * (bazaarRequest.HasMedal ? 10 : 1) - 1)
             {
                 return LanguageKey.LIMIT_EXCEEDED;
@@ -266,15 +266,15 @@ namespace NosCore.MasterServer.Controllers
         public BazaarLink? ModifyBazaar(long id, [FromBody] JsonPatchDocument<BazaarLink> bzMod)
         {
             var item = _holder.BazaarItems.Values
-                .FirstOrDefault(o => o.BazaarItem.BazaarItemId == id);
-            if ((item == null) || (item.BazaarItem.Amount != item.ItemInstance.Amount))
+                .FirstOrDefault(o => o.BazaarItem?.BazaarItemId == id);
+            if ((item?.BazaarItem == null) || (item.BazaarItem?.Amount != item.ItemInstance?.Amount))
             {
                 return null;
             }
 
             bzMod.ApplyTo(item);
             var bz = item.BazaarItem;
-            _bazaarItemDao.InsertOrUpdate(ref bz);
+            _bazaarItemDao.InsertOrUpdate(ref bz!);
             return item;
 
         }

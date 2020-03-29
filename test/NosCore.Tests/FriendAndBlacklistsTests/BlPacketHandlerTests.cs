@@ -43,15 +43,15 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class BlPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private BlPacketHandler _blPacketHandler;
-        private IGenericDao<CharacterRelationDto> _characterRelationDao;
-        private ClientSession _session;
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private BlPacketHandler? _blPacketHandler;
+        private IGenericDao<CharacterRelationDto>? _characterRelationDao;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
         {
-            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, long>(_logger);
+            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, long>(Logger);
             Broadcaster.Reset();
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();
@@ -68,7 +68,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         }
 
         [TestMethod]
-        public void Test_Distant_Blacklist()
+        public async Task Test_Distant_Blacklist()
         {
             var targetSession = TestHelpers.Instance.GenerateSession();
             var blPacket = new BlPacket
@@ -83,18 +83,18 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                         ChannelId = 1, ConnectedCharacter = new Character {Id = targetSession.Character.CharacterId}
                     }));
             using var blacklist = new BlacklistController(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
-                _characterRelationDao, TestHelpers.Instance.CharacterDao);
+                _characterRelationDao!, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklist(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.AddBlacklist(new BlacklistRequest
                 {
-                    CharacterId = _session.Character.CharacterId,
+                    CharacterId = _session!.Character.CharacterId,
                     BlInsPacket = new BlInsPacket
                     {
                         CharacterId = targetSession.Character.VisualId
                     }
                 }));
-            _blPacketHandler.Execute(blPacket, _session);
-            Assert.IsTrue(_characterRelationDao.FirstOrDefault(s =>
+            await _blPacketHandler!.Execute(blPacket, _session);
+            Assert.IsTrue(_characterRelationDao!.FirstOrDefault(s =>
                 (s.CharacterId == _session.Character.CharacterId) &&
                 (s.RelatedCharacterId == targetSession.Character.CharacterId)
                 && (s.RelationType == CharacterRelationType.Blocked)) != null);

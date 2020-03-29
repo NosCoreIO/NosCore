@@ -47,19 +47,19 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             return (item.ItemType == ItemType.Special) && (item.Effect == ItemEffectType.Vehicle);
         }
 
-        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public async Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
             if (requestData.ClientSession.Character.InExchangeOrShop)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP));
-                return Task.CompletedTask;
+                return;
             }
 
             if ((packet.Mode == 1) && !requestData.ClientSession.Character.IsVehicled)
             {
-                requestData.ClientSession.SendPacket(new DelayPacket
+                await requestData.ClientSession.SendPacket(new DelayPacket
                 {
                     Type = 3,
                     Delay = 3000,
@@ -67,13 +67,13 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                         itemInstance.Slot,
                         2, 0)
                 });
-                return Task.CompletedTask;
+                return;
             }
 
             if ((packet.Mode == 2) && !requestData.ClientSession.Character.IsVehicled)
             {
                 requestData.ClientSession.Character.IsVehicled = true;
-                requestData.ClientSession.Character.VehicleSpeed = itemInstance.ItemInstance.Item.Speed;
+                requestData.ClientSession.Character.VehicleSpeed = itemInstance.ItemInstance!.Item!.Speed;
                 requestData.ClientSession.Character.MorphUpgrade = 0;
                 requestData.ClientSession.Character.MorphDesign = 0;
                 requestData.ClientSession.Character.Morph =
@@ -84,16 +84,15 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                             ? itemInstance.ItemInstance.Item.Morph
                             : itemInstance.ItemInstance.Item.SecondMorph;
 
-                requestData.ClientSession.Character.MapInstance.SendPacket(
+                await requestData.ClientSession.Character.MapInstance!.SendPacket(
                     requestData.ClientSession.Character.GenerateEff(196));
-                requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character
+                await requestData.ClientSession.Character.MapInstance!.SendPacket(requestData.ClientSession.Character
                     .GenerateCMode());
-                requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateCond());
-                return Task.CompletedTask;
+                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateCond());
+                return;
             }
 
-            requestData.ClientSession.Character.RemoveVehicle();
-            return Task.CompletedTask;
+            await requestData.ClientSession.Character.RemoveVehicle();
         }
     }
 }

@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 
@@ -48,7 +48,7 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
 
         public async Task<List<CharacterRelationStatus>> GetListFriends(long visualEntityVisualId)
         {
-            return (await Get<List<CharacterRelationStatus>>(visualEntityVisualId))
+            return (await Get<List<CharacterRelationStatus>>(visualEntityVisualId)!)
                 .Where(w => w.RelationType != CharacterRelationType.Blocked)
                 .ToList();
         }

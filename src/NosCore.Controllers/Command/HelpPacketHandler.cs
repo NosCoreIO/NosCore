@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Command
                     continue;
                 }
 
-                var message = method.Invoke(classInstance, null).ToString();
+                var message = method.Invoke(classInstance, null)?.ToString();
                 if (!string.IsNullOrEmpty(message))
                 {
                     session.SendPacket(session.Character.GenerateSay(message, SayColorType.Green));

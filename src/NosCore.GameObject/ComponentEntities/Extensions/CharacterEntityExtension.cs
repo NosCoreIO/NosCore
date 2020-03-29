@@ -31,8 +31,8 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
@@ -53,7 +53,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         }
 
         public static ServerExcListPacket GenerateServerExcListPacket(this ICharacterEntity aliveEntity, long? gold,
-            long? bankGold, List<ServerExcListSubPacket> subPackets)
+            long? bankGold, List<ServerExcListSubPacket?>? subPackets)
         {
             return new ServerExcListPacket
             {
@@ -84,7 +84,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 TitleId = (short)(s.TitleType - 9300),
                 TitleStatus = (byte)((s.Visible ? 2 : 0) + (s.Active ? 4 : 0) + 1)
-            }).ToList();
+            }).ToList() as List<TitleSubPacket?>;
             return new TitlePacket
             {
                 Data = data.Any() ? data : null
@@ -114,7 +114,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static async Task<BlinitPacket> GenerateBlinit(this ICharacterEntity visualEntity,
             IBlacklistHttpClient blacklistHttpClient)
         {
-            var subpackets = new List<BlinitSubPacket>();
+            var subpackets = new List<BlinitSubPacket?>();
             var blackList = await blacklistHttpClient.GetBlackLists(visualEntity.VisualId);
             foreach (var relation in blackList)
             {
@@ -146,7 +146,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     await connectedAccountHttpClient.GetConnectedAccount(server));
             }
 
-            var subpackets = new List<FinitSubPacket>();
+            var subpackets = new List<FinitSubPacket?>();
             var friendlist = await friendHttpClient.GetListFriends(visualEntity.VisualId);
             //TODO add spouselist
             //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
@@ -188,11 +188,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         }
                     }),
                     ReceiverType = ReceiverType.OnlySomeone,
-                    SenderCharacter = new Data.WebApi.Character { Id = visualEntity.VisualId, Name = visualEntity.Name },
+                    SenderCharacter = new Data.WebApi.Character { Id = visualEntity.VisualId, Name = visualEntity.Name! },
                     ReceiverCharacter = new Data.WebApi.Character
                     {
                         Id = friend.CharacterId,
-                        Name = friend.CharacterName
+                        Name = friend.CharacterName!
                     }
                 })));
         }
@@ -259,7 +259,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         Mp = (int)(visualEntity.Mp / (float)visualEntity.MaxMp * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
-                    GroupId = visualEntity.Group.GroupId,
+                    GroupId = visualEntity.Group!.GroupId,
                     Fairy = 0,
                     FairyElement = 0,
                     Unknown = 0,

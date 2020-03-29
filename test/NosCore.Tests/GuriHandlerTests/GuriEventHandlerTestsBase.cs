@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.GameObject;
@@ -26,15 +27,15 @@ namespace NosCore.Tests.GuriHandlerTests
 {
     public abstract class GuriEventHandlerTestsBase
     {
-        protected IEventHandler<GuriPacket, GuriPacket> _handler;
-        protected ClientSession _session;
-        protected readonly UseItemPacket _useItem = new UseItemPacket();
+        protected IEventHandler<GuriPacket, GuriPacket>? Handler;
+        protected ClientSession? Session;
+        protected readonly UseItemPacket UseItem = new UseItemPacket();
 
-        protected void ExecuteGuriEventHandler(GuriPacket guriPacket)
+        protected async Task ExecuteGuriEventHandler(GuriPacket guriPacket)
         {
-            _handler.Execute(
+            await Handler!.Execute(
                 new RequestData<GuriPacket>(
-                    _session,
+                    Session!,
                     guriPacket));
         }
     }

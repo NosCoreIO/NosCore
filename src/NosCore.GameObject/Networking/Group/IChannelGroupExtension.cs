@@ -27,43 +27,46 @@ namespace NosCore.GameObject.Networking.Group
 {
     public static class IBroadcastableExtension
     {
-        private const short maxPacketsBuffer = 250;
-
-        public static void SendPacket(this IBroadcastable channelGroup, IPacket packet)
+        public static Task SendPacket(this IBroadcastable channelGroup, IPacket packet)
         {
-            channelGroup.SendPackets(new[] { packet });
+            return channelGroup.SendPackets(new[] { packet });
         }
 
-        public static void SendPacket(this IBroadcastable channelGroup, IPacket packet, IChannelMatcher matcher)
+        public static Task SendPacket(this IBroadcastable channelGroup, IPacket packet, IChannelMatcher matcher)
         {
-            channelGroup.SendPackets(new[] { packet }, matcher);
+           return channelGroup.SendPackets(new[] { packet }, matcher);
         }
 
 
-        public static void SendPackets(this IBroadcastable channelGroup, IEnumerable<IPacket> packets,
-            IChannelMatcher matcher)
+        public static async Task SendPackets(this IBroadcastable channelGroup, IEnumerable<IPacket> packets,
+            IChannelMatcher? matcher)
         {
-            var packetDefinitions = (packets as IPacket[] ?? packets.ToArray()).Where(c => c != null);
+            var packetDefinitions = (packets as IPacket[] ?? packets).Where(c => c != null).ToArray();
             if (packetDefinitions.Any())
             {
                 Parallel.ForEach(packets, packet => channelGroup.LastPackets.Enqueue(packet));
-                Parallel.For(0, channelGroup.LastPackets.Count - maxPacketsBuffer, (_, __) => channelGroup.LastPackets.TryDequeue(out var ___));
-                channelGroup.Sessions?.WriteAndFlushAsync(packetDefinitions);
+                Parallel.For(0, channelGroup.LastPackets.Count - channelGroup.MaxPacketsBuffer, (_, __) => channelGroup.LastPackets.TryDequeue(out var ___));
+                if (channelGroup?.Sessions == null)
+                {
+                    return;
+                }
+
+                await channelGroup.Sessions.WriteAndFlushAsync(packetDefinitions);
                 if (matcher == null)
                 {
-                    channelGroup.Sessions?.WriteAndFlushAsync(packetDefinitions);
+                    await channelGroup.Sessions.WriteAndFlushAsync(packetDefinitions);
                 }
                 else
                 {
-                    channelGroup.Sessions?.WriteAndFlushAsync(packetDefinitions, matcher);
+                    await channelGroup.Sessions.WriteAndFlushAsync(packetDefinitions, matcher);
                 }
             }
         }
 
 
-        public static void SendPackets(this IBroadcastable channelGroup, IEnumerable<IPacket> packets)
+        public static Task SendPackets(this IBroadcastable channelGroup, IEnumerable<IPacket> packets)
         {
-            channelGroup.SendPackets(packets, null);
+            return channelGroup.SendPackets(packets, null);
         }
     }
 }

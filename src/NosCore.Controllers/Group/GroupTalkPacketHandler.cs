@@ -32,15 +32,14 @@ namespace NosCore.PacketHandlers.Group
     {
         public override Task Execute(GroupTalkPacket groupTalkPacket, ClientSession clientSession)
         {
-            if (clientSession.Character.Group.Count == 1)
+            if (clientSession.Character.Group!.Count == 1)
             {
                 return Task.CompletedTask;
             }
 
-            clientSession.Character.Group.SendPacket(
+            return clientSession.Character.Group.SendPacket(
                 clientSession.Character.GenerateSpk(new SpeakPacket
                     {Message = groupTalkPacket.Message, SpeakType = SpeakType.Group}));
-            return Task.CompletedTask;
         }
     }
 }

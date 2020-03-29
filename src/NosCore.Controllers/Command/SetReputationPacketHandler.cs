@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Command
         {
             if ((setReputationPacket.Name == session.Character.Name) || string.IsNullOrEmpty(setReputationPacket.Name))
             {
-                session.Character.SetReputation(setReputationPacket.Reputation);
+                await session.Character.SetReputation(setReputationPacket.Reputation);
                 return;
             }
 
@@ -63,15 +63,15 @@ namespace NosCore.PacketHandlers.Command
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
-                session.SendPacket(new InfoPacket
+                await session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
                 return;
             }
 
-            await _statHttpClient.ChangeStat(data, receiver.Item1);
+            await _statHttpClient.ChangeStat(data, receiver.Item1!);
         }
     }
 }

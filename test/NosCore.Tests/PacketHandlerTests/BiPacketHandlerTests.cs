@@ -36,10 +36,10 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class BiPacketHandlerTests
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private BiPacketHandler _biPacketHandler;
-        private IItemProvider _item;
-        private ClientSession _session;
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private BiPacketHandler? _biPacketHandler;
+        private IItemProvider? _item;
+        private ClientSession? _session;
 
         [TestCleanup]
         public void Cleanup()
@@ -53,28 +53,28 @@ namespace NosCore.Tests.PacketHandlerTests
             SystemTime.Freeze();
             _session = TestHelpers.Instance.GenerateSession();
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _biPacketHandler = new BiPacketHandler(_logger);
+            _biPacketHandler = new BiPacketHandler(Logger);
         }
 
         [TestMethod]
         public void Test_Delete_FromSlot()
         {
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 999), 0));
-            _biPacketHandler.Execute(new BiPacket
+            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 999), 0));
+            _biPacketHandler!.Execute(new BiPacket
                 {Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Main}, _session);
-            var packet = (IvnPacket) _session.LastPackets.FirstOrDefault(s => s is IvnPacket);
-            Assert.IsTrue(packet.IvnSubPackets.All(iv => (iv.Slot == 0) && (iv.VNum == -1)));
+            var packet = (IvnPacket?) _session.LastPackets.FirstOrDefault(s => s is IvnPacket);
+            Assert.IsTrue(packet?.IvnSubPackets.All(iv => (iv?.Slot == 0) && (iv.VNum == -1)) ?? false);
         }
 
         [TestMethod]
         public void Test_Delete_FromEquiment()
         {
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
-            _biPacketHandler.Execute(new BiPacket
+            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
+            _biPacketHandler!.Execute(new BiPacket
                 {Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Equipment}, _session);
             Assert.IsTrue(_session.Character.InventoryService.Count == 0);
-            var packet = (IvnPacket) _session.LastPackets.FirstOrDefault(s => s is IvnPacket);
-            Assert.IsTrue(packet.IvnSubPackets.All(iv => (iv.Slot == 0) && (iv.VNum == -1)));
+            var packet = (IvnPacket?) _session.LastPackets.FirstOrDefault(s => s is IvnPacket);
+            Assert.IsTrue(packet?.IvnSubPackets.All(iv => (iv?.Slot == 0) && (iv.VNum == -1)) ?? false);
         }
     }
 }

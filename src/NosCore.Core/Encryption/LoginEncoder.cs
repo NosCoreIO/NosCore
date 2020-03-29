@@ -59,7 +59,7 @@ namespace NosCore.Core.Encryption
                 output.Add(Unpooled.WrappedBuffer(message.SelectMany(packet =>
                 {
                     var packetString = _serializer.Serialize(packet);
-                    var tmp = _loginServerConfiguration.UserLanguage.GetEncoding().GetBytes($"{packetString} ");
+                    var tmp = _loginServerConfiguration.UserLanguage.GetEncoding()!.GetBytes($"{packetString} ");
                     for (var i = 0; i < packetString.Length; i++)
                     {
                         tmp[i] = Convert.ToByte(tmp[i] + 15);
@@ -69,7 +69,9 @@ namespace NosCore.Core.Encryption
                     return tmp.Length == 0 ? new byte[] {0xFF} : tmp;
                 }).ToArray()));
             }
+#pragma warning disable CA1031 // Do not catch general exception types
             catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
             {
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ENCODE_ERROR), ex);
             }

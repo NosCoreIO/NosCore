@@ -48,26 +48,26 @@ namespace NosCore.PacketHandlers.Friend
             switch (result)
             {
                 case LanguageKey.CANT_BLOCK_FRIEND:
-                    session.SendPacket(new InfoPacket
+                    await session.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.CANT_BLOCK_FRIEND,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_BLOCK_FRIEND,
                             session.Account.Language)
                     });
                     break;
                 case LanguageKey.ALREADY_BLACKLISTED:
-                    session.SendPacket(new InfoPacket
+                    await session.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.ALREADY_BLACKLISTED,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_BLACKLISTED,
                             session.Account.Language)
                     });
                     break;
                 case LanguageKey.BLACKLIST_ADDED:
-                    session.SendPacket(new InfoPacket
+                    await session.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED,
                             session.Account.Language)
                     });
-                    session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient));
+                    await session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient));
                     break;
                 default:
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_REQUEST_DISCONNECTED));

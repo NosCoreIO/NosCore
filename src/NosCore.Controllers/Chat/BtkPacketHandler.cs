@@ -19,10 +19,10 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
@@ -62,12 +62,12 @@ namespace NosCore.PacketHandlers.Chat
 
             if (friendlist.All(s => s.CharacterId != btkPacket.CharacterId))
             {
-                _logger.Error(Language.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
+                _logger.Error(GameLanguage.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
                     session.Account.Language));
                 return;
             }
 
-            var message = btkPacket.Message;
+            var message = btkPacket.Message ?? "";
             if (message.Length > 60)
             {
                 message = message.Substring(0, 60);
@@ -80,7 +80,7 @@ namespace NosCore.PacketHandlers.Chat
 
             if (receiverSession != null)
             {
-                receiverSession.SendPacket(session.Character.GenerateTalk(message));
+                await receiverSession.SendPacket(session.Character.GenerateTalk(message));
                 return;
             }
 
@@ -88,9 +88,9 @@ namespace NosCore.PacketHandlers.Chat
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
-                session.SendPacket(new InfoPacket
+                await session.SendPacket(new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, session.Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, session.Account.Language)
                 });
                 return;
             }
@@ -99,7 +99,7 @@ namespace NosCore.PacketHandlers.Chat
             {
                 Packet = _packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character
-                { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name },
+                { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name ?? "" },
                 SenderCharacter = new Character
                 { Name = session.Character.Name, Id = session.Character.CharacterId },
                 OriginWorldId = MasterClientListSingleton.Instance.ChannelId,

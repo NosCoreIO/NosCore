@@ -24,7 +24,7 @@ namespace NosCore.Core
 {
     public class RandomFactory : IDisposable
     {
-        private static RandomFactory _instance;
+        private static RandomFactory? _instance;
         private static int _seed = Environment.TickCount;
 
         private readonly ThreadLocal<Random> _random =
@@ -49,7 +49,7 @@ namespace NosCore.Core
 
         public int RandomNumber(int min, int max)
         {
-            return _random.Value.Next(min, max);
+            return _random.Value!.Next(min, max);
         }
 
         protected virtual void Dispose(bool disposing)

@@ -29,10 +29,10 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class PulsePacketHandlerTests
     {
-        private PulsePacketHandler _pulsePacketHandler;
+        private PulsePacketHandler? _pulsePacketHandler;
 
 
-        private ClientSession _session;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
@@ -57,10 +57,10 @@ namespace NosCore.Tests.PacketHandlerTests
                 {
                     Tick = i
                 };
-                _pulsePacketHandler.Execute(pulsePacket, _session);
+                _pulsePacketHandler?.Execute(pulsePacket, _session!);
             }
 
-            Assert.IsTrue(_session.LastPulse == pulsePacket.Tick);
+            Assert.IsTrue(_session?.LastPulse == pulsePacket.Tick);
         }
     }
 }

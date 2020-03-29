@@ -27,7 +27,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
 {
     public interface IItemInstance : IItemInstanceDto, IRequestableEntity<Tuple<InventoryItemInstance, UseItemPacket>>
     {
-        Item Item { get; set; }
+        Item? Item { get; set; }
         object Clone();
     }
 }

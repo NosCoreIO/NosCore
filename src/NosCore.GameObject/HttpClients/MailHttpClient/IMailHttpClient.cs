@@ -35,7 +35,7 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
             byte upgrade, bool isNosmall);
 
         Task<IEnumerable<MailData>> GetGifts(long characterId);
-        Task<MailData> GetGift(long id, long characterId, bool isCopy);
+        Task<MailData?> GetGift(long id, long characterId, bool isCopy);
         Task DeleteGift(long giftId, long visualId, bool isCopy);
         Task ViewGift(long giftId, JsonPatchDocument<MailDto> mailData);
         Task SendMessage(ICharacterEntity character, long characterId, string title, string text);

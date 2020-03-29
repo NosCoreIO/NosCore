@@ -42,34 +42,34 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _accountDao = accountDao;
         }
 
-        public override Task Execute(CharacterDeletePacket packet, ClientSession clientSession)
+        public override async Task Execute(CharacterDeletePacket packet, ClientSession clientSession)
         {
             if (clientSession.HasCurrentMapInstance)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             var account = _accountDao
                 .FirstOrDefault(s => s.AccountId.Equals(clientSession.Account.AccountId));
             if (account == null)
             {
-                return Task.CompletedTask;
+                return;
             }
 
-            if ((account.Password.ToLower() == packet.Password.ToSha512()) || (account.Name == packet.Password))
+            if ((account.Password!.ToLower() == packet.Password!.ToSha512()) || (account.Name == packet.Password))
             {
                 var character = _characterDao.FirstOrDefault(s =>
                     (s.AccountId == account.AccountId) && (s.Slot == packet.Slot)
                     && (s.State == CharacterState.Active));
                 if (character == null)
                 {
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 character.State = CharacterState.Inactive;
                 _characterDao.InsertOrUpdate(ref character);
 
-                return clientSession.HandlePackets(new[]
+                await clientSession.HandlePackets(new[]
                 {
                     new EntryPointPacket
                     {
@@ -81,12 +81,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             else
             {
-                clientSession.SendPacket(new InfoPacket
+                await clientSession.SendPacket(new InfoPacket
                 {
                     Message = clientSession.GetMessageFromKey(LanguageKey.BAD_PASSWORD)
                 });
             }
-            return Task.CompletedTask;
         }
     }
 }

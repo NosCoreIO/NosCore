@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Friend
                 var miniland = _minilandProvider.GetMiniland(mJoinPacket.VisualId);
                 if (miniland.State == MinilandState.Open)
                 {
-                    session.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
+                    await session.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
                 }
                 else
                 {
@@ -62,12 +62,12 @@ namespace NosCore.PacketHandlers.Friend
                             .ToList()
                             .Contains(target.VisualId))
                     {
-                        session.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
+                        await session.ChangeMapInstance(miniland.MapInstanceId, 5, 8);
                         return;
                     }
-                    session.SendPacket(new InfoPacket
+                    await session.SendPacket(new InfoPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND,
                                 session.Account.Language)
                     });
                 }

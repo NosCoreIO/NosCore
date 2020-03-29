@@ -25,7 +25,7 @@ namespace NosCore.Database.DAL
 {
     public static class TypeExtensions
     {
-        public static PropertyInfo FindKey(this Type typeDto)
+        public static PropertyInfo? FindKey(this Type typeDto)
         {
             var pis = typeDto.GetProperties();
             for (var index = 0; (index < pis.Length); index++)

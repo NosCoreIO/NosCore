@@ -32,7 +32,7 @@ namespace NosCore.Database.Entities
         public int Value { get; set; }
 
         [ForeignKey(nameof(WearableInstanceId))]
-        public virtual WearableInstance WearableInstance { get; set; }
+        public virtual WearableInstance WearableInstance { get; set; } = new WearableInstance();
 
         public Guid WearableInstanceId { get; set; }
     }

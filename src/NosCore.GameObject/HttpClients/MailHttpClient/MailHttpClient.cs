@@ -26,7 +26,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
@@ -66,12 +66,12 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
 
         public Task<IEnumerable<MailData>> GetGifts(long characterId)
         {
-            return Get<IEnumerable<MailData>>($"-1&characterId={characterId}");
+            return Get<IEnumerable<MailData>>($"-1&characterId={characterId}")!;
         }
 
-        public async Task<MailData> GetGift(long id, long characterId, bool isCopy)
+        public async Task<MailData?> GetGift(long id, long characterId, bool isCopy)
         {
-            return (await Get<IEnumerable<MailData>>($"{id}&characterId={characterId}&senderCopy={isCopy}")).FirstOrDefault();
+            return (await Get<IEnumerable<MailData>>($"{id}&characterId={characterId}&senderCopy={isCopy}")!).FirstOrDefault();
         }
 
         public Task DeleteGift(long giftId, long visualId, bool isCopy)
@@ -85,9 +85,9 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
         }
 
         private MailRequest GenerateMailRequest(ICharacterEntity characterEntity, long receiverId,
-            [CanBeNull] IItemInstanceDto itemInstance,
+            IItemInstanceDto? itemInstance,
             short? vnum, short? amount, sbyte? rare,
-            byte? upgrade, bool isNosmall, string title, string text)
+            byte? upgrade, bool isNosmall, string? title, string? text)
         {
             var mail = new MailDto
             {

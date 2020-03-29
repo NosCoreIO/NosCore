@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
         }
 
         //TODO: Remove these clientsessions as parameter
-        public Tuple<ExchangeResultType, Dictionary<long, InfoPacket>> ValidateExchange(ClientSession session,
+        public Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?> ValidateExchange(ClientSession session,
             ICharacterEntity targetSession)
         {
             var exchangeInfo = GetData(session.Character.CharacterId);
@@ -73,7 +73,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             {
                 dictionary.Add(targetSession.VisualId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL,
                         targetSession.AccountLanguage)
                 });
             }
@@ -82,9 +82,9 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             {
                 dictionary.Add(targetSession.VisualId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, session.Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD, session.Account.Language)
                 });
-                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure,
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Failure,
                     dictionary);
             }
 
@@ -92,9 +92,9 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             {
                 dictionary.Add(targetSession.VisualId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
                 });
-                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure,
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Failure,
                     dictionary);
             }
 
@@ -102,44 +102,44 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
                 });
-                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure,
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Failure,
                     dictionary);
             }
 
-            if (exchangeInfo.ExchangeItems.Keys.Any(s => !s.ItemInstance.Item.IsTradable))
+            if (exchangeInfo.ExchangeItems.Keys.Any(s => !s.ItemInstance!.Item!.IsTradable))
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_TRADABLE,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_TRADABLE,
                         session.Account.Language)
                 });
-                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure,
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Failure,
                     dictionary);
             }
 
             if (!session.Character.InventoryService.EnoughPlace(
-                    targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
+                    targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance!).ToList(),
                     targetInfo.ExchangeItems.Keys.First().Type) ||
                 !targetSession.InventoryService.EnoughPlace(
-                    exchangeInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
+                    exchangeInfo.ExchangeItems.Keys.Select(s => s.ItemInstance!).ToList(),
                     targetInfo.ExchangeItems.Keys.First().Type))
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, session.Account.Language)
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, session.Account.Language)
                 });
                 dictionary.Add(targetSession.VisualId, new InfoPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL,
                         targetSession.AccountLanguage)
                 });
-                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Failure,
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Failure,
                     dictionary);
             }
 
-            return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>>(ExchangeResultType.Success, null);
+            return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Success, null);
         }
 
         public void ConfirmExchange(long visualId)
@@ -191,7 +191,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                 _exchangeRequests.Any(k => (k.Key == targetId) && (k.Value == targetId));
         }
 
-        public ExcClosePacket CloseExchange(long visualId, ExchangeResultType resultType)
+        public ExcClosePacket? CloseExchange(long visualId, ExchangeResultType resultType)
         {
             var data = _exchangeRequests.FirstOrDefault(k => (k.Key == visualId) || (k.Value == visualId));
             if ((data.Key == 0) && (data.Value == 0))
@@ -245,9 +245,9 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                     var originInventory = user == firstUser ? sessionInventory : targetInventory;
                     var targetId = user == firstUser ? secondUser : firstUser;
                     var sessionId = user == firstUser ? firstUser : secondUser;
-                    InventoryItemInstance newItem = null;
+                    InventoryItemInstance? newItem = null;
 
-                    if (item.Value == item.Key.ItemInstance.Amount)
+                    if (item.Value == item.Key.ItemInstance!.Amount)
                     {
                         originInventory.Remove(item.Key.ItemInstanceId);
                     }

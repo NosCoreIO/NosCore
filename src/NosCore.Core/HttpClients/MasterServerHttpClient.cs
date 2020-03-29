@@ -26,7 +26,7 @@ using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using System.Text.Json;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 
 namespace NosCore.Core.HttpClients
 {
@@ -34,7 +34,7 @@ namespace NosCore.Core.HttpClients
     {
         private readonly Channel _channel;
         private readonly IChannelHttpClient _channelHttpClient;
-        protected readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         protected MasterServerHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
             IChannelHttpClient channelHttpClient)
@@ -44,13 +44,20 @@ namespace NosCore.Core.HttpClients
             _channelHttpClient = channelHttpClient;
         }
 
+#pragma warning disable CA1056 // Uri properties should not be strings
         public virtual string ApiUrl { get; set; } = "";
+#pragma warning restore CA1056 // Uri properties should not be strings
         public virtual bool RequireConnection { get; set; }
 
-        public virtual async Task<HttpClient?> Connect()
+        protected HttpClient CreateClient()
+        {
+            return _httpClientFactory.CreateClient();
+        }
+
+        public virtual async Task<HttpClient> Connect()
         {
             var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
+            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
 
             if (RequireConnection)
             {
@@ -70,7 +77,7 @@ namespace NosCore.Core.HttpClients
                 return null;
             }
 
-            client.BaseAddress = new Uri(channel.WebApi.ToString());
+            client.BaseAddress = new Uri(channel.WebApi!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
             return client;
         }
@@ -122,7 +129,7 @@ namespace NosCore.Core.HttpClients
         [return: MaybeNull]
         protected async Task<T> Get<T>()
         {
-            return await Get<T>(null).ConfigureAwait(false);
+            return await Get<T>(null)!.ConfigureAwait(false);
         }
 
         [return: MaybeNull]

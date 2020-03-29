@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Login
                 return Task.CompletedTask;
             }
 
-            return _loginService.Login(packet.Username, packet.Md5String, packet.ClientVersion, clientSession, packet.Password,
+            return _loginService.Login(packet.Username, packet.Md5String!, packet.ClientVersion!, clientSession, packet.Password!,
                  false);
         }
     }

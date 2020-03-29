@@ -77,9 +77,9 @@ namespace NosCore.Core.Encryption
                 var des = _deserializer.Deserialize(decryptedPacket.ToString());
                 if ((des != null) && des.IsValid)
                 {
-                    output.Add(new[] {des});
+                    output?.Add(new[] {des});
                 }
-                else if (!des.IsValid)
+                else if ((des != null) && !des.IsValid)
                 {
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), des);
                 }
@@ -89,7 +89,9 @@ namespace NosCore.Core.Encryption
                         decryptedPacket.ToString()));
                 }
             }
+#pragma warning disable CA1031 // Do not catch general exception types
             catch
+#pragma warning restore CA1031 // Do not catch general exception types
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING), "");
             }

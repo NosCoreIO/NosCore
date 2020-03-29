@@ -40,43 +40,42 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                 (item.Item2.Type > 0) && (item.Item2.Type < 4) && (item.Item1 != null);
         }
 
-        public Task Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
+        public async Task Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
             if (requestData.ClientSession.Character.Class != (byte) CharacterClassType.Adventurer)
             {
-                requestData.ClientSession.SendPacket(new MsgPacket
+                await requestData.ClientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
                         requestData.ClientSession.Account.Language),
                     Type = MessageType.White
                 });
-                return Task.CompletedTask;
+                return;
             }
 
             if ((requestData.ClientSession.Character.Level < 15) || (requestData.ClientSession.Character.JobLevel < 20))
             {
-                requestData.ClientSession.SendPacket(new MsgPacket
+                await requestData.ClientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
                         requestData.ClientSession.Account.Language),
                     Type = MessageType.White
                 });
-                return Task.CompletedTask;
+                return;
             }
 
             if (requestData.ClientSession.Character.InventoryService.Any(s => s.Value.Type == NoscorePocketType.Wear))
             {
-                requestData.ClientSession.SendPacket(new MsgPacket
+                await requestData.ClientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
                         requestData.ClientSession.Account.Language),
                     Type = MessageType.White
                 });
-                return Task.CompletedTask;
+                return;
             }
 
-            requestData.ClientSession.Character.ChangeClass((CharacterClassType) requestData.Data.Item2.Type);
-            return Task.CompletedTask;
+            await requestData.ClientSession.Character.ChangeClass((CharacterClassType)(requestData.Data.Item2.Type ?? 0));
         }
     }
 }

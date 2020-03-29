@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Event
                     if (session.StaticBonusList.RemoveAll(s => s.DateEnd!= null && s.DateEnd < SystemTime.Now()) > 0)
                     {
                         session.SendPacket(session.GenerateSay(
-                            Language.Instance.GetMessageFromKey(LanguageKey.ITEM_TIMEOUT, session.AccountLanguage),
+                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_TIMEOUT, session.AccountLanguage),
                             SayColorType.Yellow));
                     }
                 });

@@ -24,7 +24,7 @@ namespace NosCore.GameObject.Helper
 {
     public sealed class CharacterHelper
     {
-        private static CharacterHelper _instance;
+        private static CharacterHelper? _instance;
 
         private int[][]? _criticalDist;
         private int[][]? _criticalDistRate;
@@ -92,18 +92,18 @@ namespace NosCore.GameObject.Helper
 
         public double HeroXpLoad(byte heroLevel)
         {
-            return heroLevel == 0 ? 1 : HeroXpData[heroLevel - 1];
+            return heroLevel == 0 ? 1 : HeroXpData![heroLevel - 1];
         }
 
         public double JobXpLoad(byte jobLevel, CharacterClassType classType)
         {
-            return classType == CharacterClassType.Adventurer ? FirstJobXpData[jobLevel - 1]
-                : SecondJobXpData[jobLevel - 1];
+            return classType == CharacterClassType.Adventurer ? FirstJobXpData![jobLevel - 1]
+                : SecondJobXpData![jobLevel - 1];
         }
 
         public double XpLoad(byte level)
         {
-            return XpData[level - 1];
+            return XpData![level - 1];
         }
 
         public static float ExperiencePenalty(byte playerLevel, byte monsterLevel)
@@ -241,27 +241,27 @@ namespace NosCore.GameObject.Helper
 
         public int MagicalDefence(CharacterClassType @class, byte level)
         {
-            return _magicalDef[(byte) @class][level];
+            return _magicalDef![(byte) @class][level];
         }
 
         public int MaxDistance(CharacterClassType @class, byte level)
         {
-            return _maxDist[(byte) @class][level];
+            return _maxDist![(byte) @class][level];
         }
 
         public int MaxHit(CharacterClassType @class, byte level)
         {
-            return _maxHit[(byte) @class][level];
+            return _maxHit![(byte) @class][level];
         }
 
         public int MinDistance(CharacterClassType @class, byte level)
         {
-            return _minDist[(byte) @class][level];
+            return _minDist![(byte) @class][level];
         }
 
         public int MinHit(CharacterClassType @class, byte level)
         {
-            return _minHit[(int) @class][level];
+            return _minHit![(int) @class][level];
         }
 
         public int RarityPoint(short rarity, short lvl)
@@ -493,14 +493,16 @@ namespace NosCore.GameObject.Helper
             };
         }
 
+#pragma warning disable IDE0060 // Remove unused parameter
         internal int DarkResistance(CharacterClassType @class, byte level)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return 0;
         }
 
         internal int Defence(CharacterClassType @class, byte level)
         {
-            return _hitDef[(byte) @class][level];
+            return _hitDef![(byte) @class][level];
         }
 
         /// <summary>
@@ -511,7 +513,7 @@ namespace NosCore.GameObject.Helper
         /// <returns></returns>
         internal int DefenceRate(CharacterClassType @class, byte level)
         {
-            return _hitDodge[(byte) @class][level];
+            return _hitDodge![(byte) @class][level];
         }
 
         /// <summary>
@@ -522,7 +524,7 @@ namespace NosCore.GameObject.Helper
         /// <returns></returns>
         internal int DistanceDefence(CharacterClassType @class, byte level)
         {
-            return _distDef[(byte) @class][level];
+            return _distDef![(byte) @class][level];
         }
 
         /// <summary>
@@ -533,7 +535,7 @@ namespace NosCore.GameObject.Helper
         /// <returns></returns>
         internal int DistanceDefenceRate(CharacterClassType @class, byte level)
         {
-            return _distDodge[(byte) @class][level];
+            return _distDodge![(byte) @class][level];
         }
 
         /// <summary>
@@ -544,55 +546,61 @@ namespace NosCore.GameObject.Helper
         /// <returns></returns>
         internal int DistanceRate(CharacterClassType @class, byte level)
         {
-            return _distRate[(byte) @class][level];
+            return _distRate![(byte) @class][level];
         }
 
         internal int DistCritical(CharacterClassType @class, byte level)
         {
-            return _criticalDist[(byte) @class][level];
+            return _criticalDist![(byte) @class][level];
         }
 
         internal int DistCriticalRate(CharacterClassType @class, byte level)
         {
-            return _criticalDistRate[(byte) @class][level];
+            return _criticalDistRate![(byte) @class][level];
         }
 
-        internal int Element(CharacterClassType @class, byte level)
+#pragma warning disable IDE0060 // Remove unused parameter
+        internal int Element(CharacterClassType _, byte __)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return 0;
         }
-
-        internal int ElementRate(CharacterClassType @class, byte level)
+#pragma warning disable IDE0060 // Remove unused parameter
+        internal int ElementRate(CharacterClassType _, byte __)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return 0;
         }
-
-        internal int FireResistance(CharacterClassType @class, byte level)
+#pragma warning disable IDE0060 // Remove unused parameter
+        internal int FireResistance(CharacterClassType _, byte __)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return 0;
         }
 
         internal int HitCritical(CharacterClassType @class, byte level)
         {
-            return _criticalHit[(byte) @class][level];
+            return _criticalHit![(byte) @class][level];
         }
 
         internal int HitCriticalRate(CharacterClassType @class, byte level)
         {
-            return _criticalHitRate[(byte) @class][level];
+            return _criticalHitRate![(byte) @class][level];
         }
 
         internal int HitRate(CharacterClassType @class, byte level)
         {
-            return _hitRate[(byte) @class][level];
+            return _hitRate![(byte) @class][level];
         }
-
-        internal int LightResistance(CharacterClassType @class, byte level)
+#pragma warning disable IDE0060 // Remove unused parameter
+        internal int LightResistance(CharacterClassType _, byte __)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return 0;
         }
-
-        internal int WaterResistance(CharacterClassType @class, byte level)
+#pragma warning disable IDE0060 // Remove unused parameter
+        internal int WaterResistance(CharacterClassType _, byte __)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return 0;
         }

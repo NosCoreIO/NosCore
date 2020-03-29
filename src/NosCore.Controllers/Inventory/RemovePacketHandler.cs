@@ -41,12 +41,12 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override Task Execute(RemovePacket removePacket, ClientSession clientSession)
+        public override async Task Execute(RemovePacket removePacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrShop)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
-                return Task.CompletedTask;
+                return;
             }
 
             var inventory =
@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Inventory
                     NoscorePocketType.Wear);
             if (inventory == null)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             var inv = clientSession.Character.InventoryService.MoveInPocket((short) removePacket.InventorySlot,
@@ -62,26 +62,25 @@ namespace NosCore.PacketHandlers.Inventory
 
             if (inv == null)
             {
-                clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacket(new MsgPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         clientSession.Account.Language),
                     Type = 0
                 });
-                return Task.CompletedTask;
+                return;
             }
 
-            clientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot));
+            await clientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot));
 
-            clientSession.Character.MapInstance.SendPacket(clientSession.Character.GenerateEq());
-            clientSession.SendPacket(clientSession.Character.GenerateEquipment());
+            await clientSession.Character.MapInstance!.SendPacket(clientSession.Character.GenerateEq());
+            await clientSession.SendPacket(clientSession.Character.GenerateEquipment());
 
-            if (inv.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
+            if (inv.ItemInstance!.Item!.EquipmentSlot == EquipmentType.Fairy)
             {
-                clientSession.Character.MapInstance.SendPacket(
+                await clientSession.Character.MapInstance!.SendPacket(
                     clientSession.Character.GeneratePairy(null));
             }
-            return Task.CompletedTask;
         }
     }
 }

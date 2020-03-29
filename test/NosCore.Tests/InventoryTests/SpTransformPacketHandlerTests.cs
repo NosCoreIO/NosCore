@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Specialists;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -37,9 +38,9 @@ namespace NosCore.Tests.InventoryTests
     [TestClass]
     public class SpTransformPacketHandlerTests
     {
-        private IItemProvider _item;
-        private ClientSession _session;
-        private SpTransformPacketHandler _spTransformPacketHandler;
+        private IItemProvider? _item;
+        private ClientSession? _session;
+        private SpTransformPacketHandler? _spTransformPacketHandler;
 
         [TestCleanup]
         public void Cleanup()
@@ -59,149 +60,149 @@ namespace NosCore.Tests.InventoryTests
 
 
         [TestMethod]
-        public void Test_Transform_NoSp()
+        public async Task Test_Transform_NoSp()
         {
-            _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSp}, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.NO_SP, _session.Account.Language));
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session!);
+            var packet = (MsgPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SP, _session.Account.Language));
         }
 
         [TestMethod]
-        public void Test_Transform_Vehicle()
+        public async Task Test_Transform_Vehicle()
         {
-            _session.Character.IsVehicled = true;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1),
+            _session!.Character.IsVehicled = true;
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte) EquipmentType.Sp;
-            _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSp}, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE, _session.Account.Language));
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
+            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE, _session.Account.Language));
         }
 
 
         [TestMethod]
-        public void Test_Transform_Sitted()
+        public async Task Test_Transform_Sitted()
         {
-            _session.Character.IsSitting = true;
-            _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSp}, _session);
+            _session!.Character.IsSitting = true;
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
         [TestMethod]
-        public void Test_RemoveSp()
+        public async Task Test_RemoveSp()
         {
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1),
+            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             _session.Character.UseSp = true;
             item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte) EquipmentType.Sp;
-            _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSpAndTransform}, _session);
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
             Assert.IsFalse(_session.Character.UseSp);
         }
 
         [TestMethod]
-        public void Test_Transform()
+        public async Task Test_Transform()
         {
-            _session.Character.SpPoint = 1;
+            _session!.Character.SpPoint = 1;
             _session.Character.Reput = 5000000;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1),
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte) EquipmentType.Sp;
-            _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSpAndTransform}, _session);
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
             Assert.IsTrue(_session.Character.UseSp);
         }
 
         [TestMethod]
-        public void Test_Transform_BadFairy()
+        public async Task Test_Transform_BadFairy()
         {
-            _session.Character.SpPoint = 1;
+            _session!.Character.SpPoint = 1;
             _session.Character.Reput = 5000000;
-            var item = _session.Character.InventoryService
-                .AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1), _session.Character.CharacterId))
+            var item = _session.Character.InventoryService!
+                .AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1), _session.Character.CharacterId))
                 .First();
             var fairy = _session.Character.InventoryService
-                .AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1), _session.Character.CharacterId))
+                .AddItemToPocket(InventoryItemInstance.Create(_item!.Create(2, 1), _session.Character.CharacterId))
                 .First();
 
             item.Type = NoscorePocketType.Wear;
-            item.Slot = (byte) EquipmentType.Sp;
+            item.Slot = (byte)EquipmentType.Sp;
             fairy.Type = NoscorePocketType.Wear;
-            fairy.Slot = (byte) EquipmentType.Fairy;
-            _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSpAndTransform}, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY, _session.Account.Language));
+            fairy.Slot = (byte)EquipmentType.Fairy;
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
+            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY, _session.Account.Language));
         }
 
         [TestMethod]
-        public void Test_Transform_BadReput()
+        public async Task Test_Transform_BadReput()
         {
-            _session.Character.SpPoint = 1;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1),
+            _session!.Character.SpPoint = 1;
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte) EquipmentType.Sp;
-            _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSpAndTransform}, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.LOW_REP, _session.Account.Language));
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
+            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOW_REP, _session.Account.Language));
         }
 
 
         [TestMethod]
-        public void Test_TransformBefore_Cooldown()
+        public async Task Test_TransformBefore_Cooldown()
         {
-            _session.Character.SpPoint = 1;
+            _session!.Character.SpPoint = 1;
             _session.Character.LastSp = SystemTime.Now();
             _session.Character.SpCooldown = 30;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1),
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte) EquipmentType.Sp;
-            _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSpAndTransform}, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
-                string.Format(Language.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language),
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
+            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
+                string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language),
                     30));
         }
 
         [TestMethod]
-        public void Test_Transform_OutOfSpPoint()
+        public async Task Test_Transform_OutOfSpPoint()
         {
-            _session.Character.LastSp = SystemTime.Now();
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1),
+            _session!.Character.LastSp = SystemTime.Now();
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte) EquipmentType.Sp;
-            _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSpAndTransform}, _session);
-            var packet = (MsgPacket) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet.Message ==
-                Language.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, _session.Account.Language));
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
+            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message ==
+                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, _session.Account.Language));
         }
 
         [TestMethod]
-        public void Test_Transform_Delay()
+        public async Task Test_Transform_Delay()
         {
-            _session.Character.SpPoint = 1;
+            _session!.Character.SpPoint = 1;
             _session.Character.LastSp = SystemTime.Now();
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(912, 1),
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte) EquipmentType.Sp;
-            _spTransformPacketHandler.Execute(new SpTransformPacket {Type = SlPacketType.WearSp}, _session);
-            var packet = (DelayPacket) _session.LastPackets.FirstOrDefault(s => s is DelayPacket);
-            Assert.IsTrue(packet.Delay == 5000);
+            item.Value.Slot = (byte)EquipmentType.Sp;
+            await _spTransformPacketHandler!.Execute(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
+            var packet = (DelayPacket?)_session.LastPackets.FirstOrDefault(s => s is DelayPacket);
+            Assert.IsTrue(packet?.Delay == 5000);
         }
     }
 }

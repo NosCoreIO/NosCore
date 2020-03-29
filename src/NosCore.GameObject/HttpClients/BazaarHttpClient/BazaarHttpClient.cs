@@ -25,11 +25,11 @@ using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 
 namespace NosCore.GameObject.HttpClients.BazaarHttpClient
 {
@@ -69,7 +69,7 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
 
         public async Task<BazaarLink?> GetBazaarLink(long bazaarId)
         {
-            return (await Get<List<BazaarLink?>>(bazaarId)).FirstOrDefault();
+            return (await Get<List<BazaarLink?>>(bazaarId)!).FirstOrDefault();
         }
 
         public async Task<bool> Remove(long bazaarId, int count, string requestCharacterName)

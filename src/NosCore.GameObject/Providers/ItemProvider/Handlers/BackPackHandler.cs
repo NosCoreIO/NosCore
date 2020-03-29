@@ -54,7 +54,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
         {
             var itemInstance = requestData.Data.Item1;
 
-            if (itemInstance.ItemInstance.Item.Effect == ItemEffectType.InventoryUpgrade 
+            if (itemInstance.ItemInstance!.Item!.Effect == ItemEffectType.InventoryUpgrade 
                 && requestData.ClientSession.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BackPack))
             {
                 return Task.CompletedTask;
@@ -74,7 +74,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             });
 
             requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(string.Format(
-                    Language.Instance.GetMessageFromKey(LanguageKey.EFFECT_ACTIVATED,
+                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.EFFECT_ACTIVATED,
                         requestData.ClientSession.Account.Language),
                     itemInstance.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]),
                 SayColorType.Green));

@@ -36,7 +36,7 @@ namespace NosCore.Data.StaticEntities
             {
                 dic.Add(prop,
                     new Tuple<PropertyInfo, Type>(properties.FirstOrDefault(s => s.Name == $"{prop.Name}I18NKey"),
-                        prop.GetCustomAttribute<I18NFromAttribute>().Type));
+                        prop.GetCustomAttribute<I18NFromAttribute>()!.Type));
             }
 
             return dic;
@@ -51,13 +51,13 @@ namespace NosCore.Data.StaticEntities
             {
                 var key = accessor[staticDto, prop.Value.Item1.Name]?.ToString() ?? "NONAME";
                 var dic = new I18NString();
-                foreach (RegionType region in regions)
+                foreach (var region in regions)
                 {
                     if (langDictionary[prop.Value.Item2].ContainsKey(key))
                     {
-                        if (langDictionary[prop.Value.Item2][key].ContainsKey(region))
+                        if (langDictionary[prop.Value.Item2][key].ContainsKey((RegionType)region!))
                         {
-                            dic[region] = langDictionary[prop.Value.Item2][key][region].Text;
+                            dic[(RegionType)region] = langDictionary[prop.Value.Item2][key][(RegionType)region].Text;
                         }
                     }
                 }

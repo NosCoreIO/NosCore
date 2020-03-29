@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations.Character;
@@ -30,8 +31,8 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class CharacterDeletePacketHandlerTests
     {
-        private CharacterDeletePacketHandler _characterDeletePacketHandler;
-        private ClientSession _session;
+        private CharacterDeletePacketHandler? _characterDeletePacketHandler;
+        private ClientSession? _session;
 
         [TestInitialize]
         public void Setup()
@@ -43,10 +44,10 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void DeleteCharacter_Invalid_Password()
+        public async Task DeleteCharacter_Invalid_Password()
         {
-            _session.Character.MapInstance = null;
-            _characterDeletePacketHandler.Execute(new CharacterDeletePacket
+            _session!.Character.MapInstance = null;
+            await _characterDeletePacketHandler!.Execute(new CharacterDeletePacket
             {
                 Slot = 1,
                 Password = "testpassword"
@@ -58,24 +59,24 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void DeleteCharacterWhenInGame_Does_Not_Delete_Character()
+        public async Task DeleteCharacterWhenInGame_Does_Not_Delete_Character()
         {
-            _characterDeletePacketHandler.Execute(new CharacterDeletePacket
+            await _characterDeletePacketHandler!.Execute(new CharacterDeletePacket
             {
                 Slot = 1,
                 Password = "test"
-            }, _session);
+            }, _session!);
             Assert.IsNotNull(
                 TestHelpers.Instance.CharacterDao
                     .FirstOrDefault(s =>
-                        (s.AccountId == _session.Account.AccountId) && (s.State == CharacterState.Active)));
+                        (s.AccountId == _session!.Account.AccountId) && (s.State == CharacterState.Active)));
         }
 
         [TestMethod]
-        public void DeleteCharacter()
+        public async Task DeleteCharacter()
         {
-            _session.Character.MapInstance = null;
-            _characterDeletePacketHandler.Execute(new CharacterDeletePacket
+            _session!.Character.MapInstance = null;
+            await _characterDeletePacketHandler!.Execute(new CharacterDeletePacket
             {
                 Slot = 1,
                 Password = "test"

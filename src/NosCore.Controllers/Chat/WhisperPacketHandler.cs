@@ -21,11 +21,11 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.Account;
@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Chat
                 var messageBuilder = new StringBuilder();
 
                 //Todo: review this
-                var messageData = whisperPacket.Message.Split(' ');
+                var messageData = whisperPacket.Message!.Split(' ');
                 var receiverName = messageData[whisperPacket.Message.StartsWith("GM ") ? 1 : 0];
 
                 for (var i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
@@ -80,13 +80,13 @@ namespace NosCore.PacketHandlers.Chat
                 var message = new StringBuilder(messageBuilder.ToString().Length > 60
                     ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
 
-                session.SendPacket(session.Character!.GenerateSpk(new SpeakPacket
+                await session.SendPacket(session.Character.GenerateSpk(new SpeakPacket
                 {
                     SpeakType = SpeakType.Player,
                     Message = message.ToString()
                 }));
 
-                var speakPacket = session.Character!.GenerateSpk(new SpeakPacket
+                var speakPacket = session.Character.GenerateSpk(new SpeakPacket
                 {
                     SpeakType = session.Account.Authority >= AuthorityType.GameMaster ? SpeakType.GameMaster
                         : SpeakType.Player,
@@ -100,18 +100,18 @@ namespace NosCore.PacketHandlers.Chat
 
                 if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
                 {
-                    session.SendPacket(session.Character!.GenerateSay(
-                        Language.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, session.Account.Language),
+                    await session.SendPacket(session.Character.GenerateSay(
+                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, session.Account.Language),
                         SayColorType.Yellow));
                     return;
                 }
 
-                var blacklisteds = await _blacklistHttpClient.GetBlackLists(session.Character!.VisualId);
-                if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter.Id))
+                var blacklisteds = await _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
+                if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter?.Id))
                 {
-                    session.SendPacket(new SayPacket
+                    await session.SendPacket(new SayPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
                             session.Account.Language),
                         Type = SayColorType.Yellow
                     });
@@ -119,7 +119,7 @@ namespace NosCore.PacketHandlers.Chat
                 }
 
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
-                    $"{speakPacket.Message} <{Language.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Item2.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
+                    $"{speakPacket.Message} <{GameLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Item2.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
 
                 await _packetHttpClient.BroadcastPacket(new PostedPacket
                 {
@@ -130,8 +130,8 @@ namespace NosCore.PacketHandlers.Chat
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.Item2.ChannelId);
 
-                session.SendPacket(session.Character.GenerateSay(
-                    Language.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
+                await session.SendPacket(session.Character.GenerateSay(
+                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
                         session.Account.Language), SayColorType.Purple));
             }
             catch (Exception e)

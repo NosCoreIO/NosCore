@@ -33,7 +33,7 @@ namespace NosCore.PacketHandlers.Movement
 {
     public class WalkPacketHandler : PacketHandler<WalkPacket>, IWorldPacketHandler
     {
-        public override Task Execute(WalkPacket walkPacket, ClientSession session)
+        public override async Task Execute(WalkPacket walkPacket, ClientSession session)
         {
             var distance = (int) Heuristic.Octile(Math.Abs(session.Character.PositionX - walkPacket.XCoordinate),
                 Math.Abs(session.Character.PositionY - walkPacket.YCoordinate));
@@ -41,14 +41,14 @@ namespace NosCore.PacketHandlers.Movement
             if (((session.Character.Speed < walkPacket.Speed)
                 && (session.Character.LastSpeedChange.AddSeconds(5) <= SystemTime.Now())) || (distance > 60))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             //todo check speed and distance
             if ((walkPacket.XCoordinate + walkPacket.YCoordinate) % 3 % 2 != walkPacket.Unknown)
             {
                 //todo log and disconnect
-                return Task.CompletedTask;
+                return;
             }
 
             if (session.Character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance)
@@ -60,10 +60,9 @@ namespace NosCore.PacketHandlers.Movement
             session.Character.PositionX = walkPacket.XCoordinate;
             session.Character.PositionY = walkPacket.YCoordinate;
 
-            session.Character.MapInstance?.SendPacket(session.Character.GenerateMove(),
-                new EveryoneBut(session.Channel.Id));
+            await session.Character.MapInstance!.SendPacket(session.Character.GenerateMove(),
+                new EveryoneBut(session.Channel!.Id));
             session.Character.LastMove = SystemTime.Now();
-            return Task.CompletedTask;
         }
     }
 }

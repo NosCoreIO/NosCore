@@ -42,14 +42,14 @@ namespace NosCore.PacketHandlers.Movement
 
         public override Task Execute(SitPacket sitpacket, ClientSession clientSession)
         {
-            sitpacket.Users.ForEach(u =>
+            sitpacket.Users!.ForEach(u =>
             {
                 IAliveEntity entity;
 
-                switch (u.VisualType)
+                switch (u!.VisualType)
                 {
                     case VisualType.Player:
-                        entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == u.VisualId);
+                        entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == u.VisualId)!;
                         if (entity.VisualId != clientSession.Character.VisualId)
                         {
                             _logger.Error(

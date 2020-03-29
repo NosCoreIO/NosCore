@@ -28,7 +28,7 @@ namespace NosCore.GameObject
 {
     public class Pet : MapMonsterDto, INamedEntity //TODO replace MapMonsterDTO by the correct PetDTO
     {
-        public IDisposable Life { get; private set; }
+        public IDisposable? Life { get; private set; }
 
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
@@ -44,7 +44,7 @@ namespace NosCore.GameObject
         public byte MorphBonus { get; set; }
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public VisualType VisualType => VisualType.Monster;
         public long VisualId => 0; // PetId;
 
@@ -60,19 +60,15 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        public Group Group { get; set; }
+        public Group? Group { get; set; }
         public long LevelXp { get; set; }
 
-        public MapInstance MapInstance { get; set; }
+        public MapInstance? MapInstance { get; set; }
 
         public short Race => NpcMonster.Race;
 
-        public Shop Shop => null;
+        public Shop? Shop => null;
 
-        public void SetLevel(byte level)
-        {
-            throw new NotImplementedException();
-        }
 
         internal void Initialize(NpcMonsterDto npcMonster)
         {

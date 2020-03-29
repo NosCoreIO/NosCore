@@ -38,8 +38,8 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
         {
         }
 
-        public new Item Item { get; set; }
-        public Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>> Requests { get; set; }
+        public new Item? Item { get; set; }
+        public Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>>? Requests { get; set; }
 
         public object Clone()
         {

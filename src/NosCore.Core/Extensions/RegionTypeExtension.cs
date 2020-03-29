@@ -24,7 +24,7 @@ namespace NosCore.Core.Extensions
 {
     public static class RegionTypeExtension
     {
-        public static Encoding GetEncoding(this RegionType region)
+        public static Encoding? GetEncoding(this RegionType region)
         {
             switch (region)
             {

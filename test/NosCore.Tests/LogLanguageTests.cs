@@ -48,7 +48,7 @@ namespace NosCore.Tests
             {
                 var content = File.ReadAllText(file);
                 var regex = new Regex(
-                    @"string\.Format\([\s\n]*[Log]*Language.Instance.GetMessageFromKey\((?<key>[\s\n]*LanguageKey\.[\s\n]*[0-9A-Za-z_]*)[\s\n]*,[\s\n]*[\.0-9A-Za-z_]*\)(?<parameter>[\s\n]*,[\s\n]*[\.0-9A-Za-z_\[\]]*)*[\s\n]*\)",
+                    @"string\.Format\([\s\n]*[(Log)|(Game)]*Language.Instance.GetMessageFromKey\((?<key>[\s\n]*LanguageKey\.[\s\n]*[0-9A-Za-z_]*)[\s\n]*,[\s\n]*[\.0-9A-Za-z_]*\)(?<parameter>[\s\n]*,[\s\n]*[\.!?0-9A-Za-z_\[\]]*)*[\s\n]*\)",
                     RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
                 var matches = regex.Matches(content);
                 foreach (Match? match in matches)
@@ -84,19 +84,19 @@ namespace NosCore.Tests
         public void CheckEveryLanguageValueSet(RegionType type)
         {
             var unfound = new StringBuilder();
-            foreach (LanguageKey val in Enum.GetValues(typeof(LanguageKey)))
+            foreach (var val in (LanguageKey[])Enum.GetValues(typeof(LanguageKey)))
             {
-                var value = Language.Instance.GetMessageFromKey(val, type);
+                var value = GameLanguage.Instance.GetMessageFromKey(val, type);
                 if (value == $"#<{val.ToString()}>")
                 {
                     unfound.Append("\nvalue ").Append(value).Append(" not defined");
                 }
             }
 
-            foreach (LogLanguageKey val in Enum.GetValues(typeof(LogLanguageKey)))
+            foreach (var val in Enum.GetValues(typeof(LogLanguageKey)))
             {
-                var value = LogLanguage.Instance.GetMessageFromKey(val, type.ToString());
-                if (value == $"#<{val.ToString()}>")
+                var value = LogLanguage.Instance.GetMessageFromKey((LogLanguageKey)val!, type.ToString());
+                if (value == $"#<{val}>")
                 {
                     unfound.Append("\nvalue ").Append(value).Append(" not defined");
                 }
@@ -137,21 +137,7 @@ namespace NosCore.Tests
                 }
             }
 
-            foreach (LanguageKey? val in Enum.GetValues(typeof(LanguageKey)))
-            {
-                var type = val!.GetType();
-                var typeInfo = type.GetTypeInfo();
-                var memberInfo = typeInfo.GetMember(val.ToString() ?? "");
-                var attributes = memberInfo[0].GetCustomAttributes<UsedImplicitlyAttribute>();
-                var attribute = attributes.FirstOrDefault();
-
-                if ((dict.ContainsKey($"LanguageKey.{val}") == false) && (attribute == null))
-                {
-                    uselessKeys.Append("\nLanguageKey ").Append(val).Append(" is not used!");
-                }
-            }
-
-            foreach (LogLanguageKey val in Enum.GetValues(typeof(LogLanguageKey)))
+            foreach (var val in (LanguageKey[])Enum.GetValues(typeof(LanguageKey)))
             {
                 var type = val.GetType();
                 var typeInfo = type.GetTypeInfo();
@@ -159,9 +145,31 @@ namespace NosCore.Tests
                 var attributes = memberInfo[0].GetCustomAttributes<UsedImplicitlyAttribute>();
                 var attribute = attributes.FirstOrDefault();
 
+                if (!dict.ContainsKey($"LanguageKey.{val}") && (attribute == null))
+                {
+                    uselessKeys.Append("\nLanguageKey ").Append(val).Append(" is not used!");
+                }
+            }
+
+            foreach (LogLanguageKey val in (LogLanguageKey[]) Enum.GetValues(typeof(LogLanguageKey)))
+            {
+                var type = val!.GetType();
+                var typeInfo = type.GetTypeInfo();
+                try
+                {
+                    var memberInfo = typeInfo.GetMember(val.ToString());
+                    var attributes = memberInfo[0].GetCustomAttributes<UsedImplicitlyAttribute>();
+                    var attribute = attributes.FirstOrDefault();
+               
+
                 if ((dict.ContainsKey($"LogLanguageKey.{val}") == false) && (attribute == null))
                 {
                     uselessKeys.Append("\nLogLanguageKey ").Append(val).Append(" is not used!");
+                }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
                 }
             }
 
@@ -184,9 +192,9 @@ namespace NosCore.Tests
         public void CheckParametersLanguages(RegionType type)
         {
             var unfound = new StringBuilder();
-            foreach (LanguageKey val in Enum.GetValues(typeof(LanguageKey)))
+            foreach (var val in Enum.GetValues(typeof(LanguageKey)))
             {
-                var value = Language.Instance.GetMessageFromKey(val, type);
+                var value = GameLanguage.Instance.GetMessageFromKey((LanguageKey)val!, type);
                 var paramCount = Regex.Matches(value, @"{[0-9A-Za-z]}").Count();
                 var expectedCount = !_dict.ContainsKey($"LanguageKey.{val}") ? 0
                     : _dict[$"LanguageKey.{val}"];
@@ -220,7 +228,7 @@ namespace NosCore.Tests
             var values = Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s => s.ToString()).ToList();
             var logvalues = Enum.GetValues(typeof(LogLanguageKey)).OfType<LogLanguageKey>().Select(s => s.ToString())
                 .ToList();
-            foreach (DictionaryEntry? entry in LogLanguage.Instance.GetRessourceSet(type.ToString()))
+            foreach (DictionaryEntry? entry in LogLanguage.Instance.GetRessourceSet(type.ToString())!)
             {
                 var resourceKey = entry?.Key.ToString() ?? "";
                 if (!values.Contains(resourceKey) && !logvalues.Contains(resourceKey))

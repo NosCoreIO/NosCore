@@ -25,7 +25,7 @@ namespace NosCore.Data.WebApi
     {
         public Guid ItemInstanceId { get; set; }
         public long CharacterId { get; set; }
-        public string CharacterName { get; set; }
+        public string? CharacterName { get; set; }
         public bool HasMedal { get; set; }
         public long Price { get; set; }
         public bool IsPackage { get; set; }

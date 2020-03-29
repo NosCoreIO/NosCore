@@ -21,6 +21,7 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using System;
+using System.Threading.Tasks;
 using NosCore.GameObject;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
@@ -28,17 +29,17 @@ namespace NosCore.Tests.ItemHandlerTests
 {
     public abstract class UseItemEventHandlerTestsBase
     {
-        protected IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>> _handler;
-        protected ClientSession _session;
-        protected readonly UseItemPacket _useItem = new UseItemPacket();
+        protected IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>? Handler;
+        protected ClientSession? Session;
+        protected readonly UseItemPacket UseItem = new UseItemPacket();
 
-        protected void ExecuteInventoryItemInstanceEventHandler(InventoryItemInstance item)
+        protected async Task ExecuteInventoryItemInstanceEventHandler(InventoryItemInstance item)
         {
-            _handler.Execute(
+            await Handler!.Execute(
                 new RequestData<Tuple<InventoryItemInstance, UseItemPacket>>(
-                    _session,
+                    Session!,
                     new Tuple<InventoryItemInstance, UseItemPacket>(
-                        item, _useItem
+                        item, UseItem
                     )));
         }
     }

@@ -31,10 +31,11 @@ using Serilog;
 
 namespace NosCore.Database.DAL
 {
-    public class GenericDao<TEntity, TDto, TPk> : IGenericDao<TDto> where TEntity : class
+    public class GenericDao<TEntity, TDto, TPk> : IGenericDao<TDto>
+    where TEntity : class
     {
         private readonly ILogger _logger;
-        private readonly PropertyInfo _primaryKey;
+        private readonly PropertyInfo? _primaryKey;
 
         public GenericDao(ILogger logger)
         {
@@ -68,7 +69,7 @@ namespace NosCore.Database.DAL
                         object? value;
                         try
                         {
-                            value = _primaryKey.GetValue(dto, null);
+                            value = _primaryKey?.GetValue(dto, null);
                         }
                         catch
                         {
@@ -96,10 +97,10 @@ namespace NosCore.Database.DAL
                 }
                 else
                 {
-                    object value;
+                    object? value;
                     try
                     {
-                        value = _primaryKey.GetValue(dtokey, null);
+                        value = _primaryKey?.GetValue(dtokey, null);
                     }
                     catch
                     {
@@ -127,7 +128,7 @@ namespace NosCore.Database.DAL
             {
                 if (predicate == null)
                 {
-                    return default;
+                    return default!;
                 }
 
                 TEntity ent;
@@ -142,7 +143,7 @@ namespace NosCore.Database.DAL
             catch (Exception e)
             {
                 _logger.Error(e.Message, e);
-                return default;
+                return default!;
             }
         }
 
@@ -152,10 +153,10 @@ namespace NosCore.Database.DAL
             {
                 using (var context = DataAccessHelper.Instance.CreateContext())
                 {
-                    var entity = dto.Adapt<TEntity>();
+                    var entity = dto!.Adapt<TEntity>();
                     var dbset = context.Set<TEntity>();
 
-                    var value = _primaryKey.GetValue(dto, null);
+                    var value = _primaryKey?.GetValue(dto, null);
                     TEntity entityfound = value is object[] objects ? dbset.Find(objects) : dbset.Find(value);
                     if (entityfound != null)
                     {
@@ -195,18 +196,18 @@ namespace NosCore.Database.DAL
 
                     foreach (var dto in dtos)
                     {
-                        list.Add(new Tuple<TEntity, TPk>(dto.Adapt<TEntity>(), (TPk) _primaryKey.GetValue(dto, null)));
+                        list.Add(new Tuple<TEntity, TPk>(dto!.Adapt<TEntity>(), (TPk)_primaryKey!.GetValue(dto, null)!));
                     }
 
                     var ids = list.Select(s => s.Item2).ToArray();
-                    var dbkey = typeof(TEntity).GetProperty(_primaryKey.Name);
-                    var entityfounds = dbset.FindAllAsync(dbkey, ids).ToList();
+                    var dbkey = typeof(TEntity).GetProperty(_primaryKey!.Name);
+                    var entityfounds = dbset.FindAllAsync(dbkey!, ids).ToList();
 
                     foreach (var dto in list)
                     {
                         var entity = dto.Item1;
                         var entityfound =
-                            entityfounds.FirstOrDefault(s => (dynamic) dbkey.GetValue(s, null) == dto.Item2);
+                            entityfounds.FirstOrDefault(s => (dynamic?)dbkey?.GetValue(s, null) == dto.Item2);
                         if (entityfound != null)
                         {
                             context.Entry(entityfound).CurrentValues.SetValues(entity);

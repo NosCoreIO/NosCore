@@ -24,11 +24,11 @@ namespace NosCore.Database.Entities
 {
     public class StaticBuff : IEntity
     {
-        public virtual Character Character { get; set; }
+        public virtual Character Character { get; set; } = new Character();
 
         public long CharacterId { get; set; }
 
-        public virtual Card Card { get; set; }
+        public virtual Card Card { get; set; } = new Card();
 
         public short CardId { get; set; }
 

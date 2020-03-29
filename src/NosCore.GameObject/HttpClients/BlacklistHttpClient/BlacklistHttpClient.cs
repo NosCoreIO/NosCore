@@ -23,7 +23,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 
@@ -41,7 +41,7 @@ namespace NosCore.GameObject.HttpClients.BlacklistHttpClient
 
         public Task<List<CharacterRelationStatus>> GetBlackLists(long characterVisualId)
         {
-            return Get<List<CharacterRelationStatus>>(characterVisualId);
+            return Get<List<CharacterRelationStatus>>(characterVisualId)!;
         }
 
         public Task<LanguageKey> AddToBlacklist(BlacklistRequest blacklistRequest)

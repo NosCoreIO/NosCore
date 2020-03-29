@@ -46,9 +46,10 @@ namespace NosCore.Database.Entities
             CharacterQuest = new HashSet<CharacterQuest>();
             Miniland = new HashSet<Miniland>();
             Warehouses = new HashSet<Warehouse>();
+            FamilyCharacter = new HashSet<FamilyCharacter>();
         }
 
-        public virtual Account Account { get; set; }
+        public virtual Account Account { get; set; } = new Account();
 
         public long AccountId { get; set; }
 
@@ -134,7 +135,7 @@ namespace NosCore.Database.Entities
 
         public virtual ICollection<Mail> Mail1 { get; set; }
 
-        public virtual Map Map { get; set; }
+        public virtual Map Map { get; set; } = new Map();
 
         public short MapId { get; set; }
 

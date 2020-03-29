@@ -38,7 +38,7 @@ namespace NosCore.Database
     public class ItemInstanceDao : IGenericDao<IItemInstanceDto>
     {
         private readonly ILogger _logger;
-        private readonly PropertyInfo _primaryKey;
+        private readonly PropertyInfo? _primaryKey;
 
         public ItemInstanceDao(ILogger logger)
         {
@@ -72,7 +72,7 @@ namespace NosCore.Database
                         object? value;
                         try
                         {
-                            value = _primaryKey.GetValue(dto, null);
+                            value = _primaryKey?.GetValue(dto, null);
                         }
                         catch
                         {
@@ -94,7 +94,7 @@ namespace NosCore.Database
                     object? value;
                     try
                     {
-                        value = _primaryKey.GetValue(dtokey, null);
+                        value = _primaryKey?.GetValue(dtokey, null);
                     }
                     catch
                     {
@@ -122,7 +122,7 @@ namespace NosCore.Database
             {
                 if (predicate == null)
                 {
-                    return default;
+                    return default!;
                 }
 
                 ItemInstance ent;
@@ -141,7 +141,7 @@ namespace NosCore.Database
             catch (Exception e)
             {
                 _logger.Error(e.Message, e);
-                return default;
+                return default!;
             }
         }
 
@@ -159,7 +159,7 @@ namespace NosCore.Database
 
                     var dbset = context.Set<ItemInstance>();
 
-                    var value = _primaryKey.GetValue(dto, null);
+                    var value = _primaryKey?.GetValue(dto, null);
                     ItemInstance entityfound = value is object[] objects ? dbset.Find(objects) : dbset.Find(value);
                     if (entityfound != null)
                     {
@@ -208,18 +208,18 @@ namespace NosCore.Database
                                 : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
                                     : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
                                         : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
-                                            : dto.Adapt<ItemInstance>(), (Guid) _primaryKey.GetValue(dto, null)));
+                                            : dto.Adapt<ItemInstance>(), (Guid) _primaryKey!.GetValue(dto, null)!));
                     }
 
                     var ids = list.Select(s => s.Item2).ToArray();
-                    var dbkey = typeof(ItemInstance).GetProperty(_primaryKey.Name);
-                    var entityfounds = dbset.FindAllAsync(dbkey, ids).ToList();
+                    var dbkey = typeof(ItemInstance).GetProperty(_primaryKey!.Name);
+                    var entityfounds = dbset.FindAllAsync(dbkey!, ids).ToList();
 
                     foreach (var dto in list)
                     {
                         var entity = dto.Item1;
                         var entityfound =
-                            entityfounds.FirstOrDefault(s => (dynamic) dbkey.GetValue(s, null) == (dynamic) dto.Item2);
+                            entityfounds.FirstOrDefault(s => (dynamic?) dbkey?.GetValue(s, null) == (dynamic) dto.Item2);
                         if (entityfound != null)
                         {
                             context.Entry(entityfound).CurrentValues.SetValues(entity);

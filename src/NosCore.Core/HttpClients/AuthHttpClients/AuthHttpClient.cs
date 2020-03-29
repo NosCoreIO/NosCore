@@ -19,12 +19,11 @@
 
 using System;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Mapster;
-using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ChannelHttpClients;
 
-namespace NosCore.Core.HttpClients.AuthHttpClient
+namespace NosCore.Core.HttpClients.AuthHttpClients
 {
     public class AuthHttpClient : MasterServerHttpClient, IAuthHttpClient
     {
@@ -39,7 +38,11 @@ namespace NosCore.Core.HttpClients.AuthHttpClient
         public async Task<string?> GetAwaitingConnection(string? name, string packetPassword,
             int clientSessionSessionId)
         {
-            var client = await Connect();
+            var client = await Connect().ConfigureAwait(false);
+            if (client == null)
+            {
+                return null;
+            }
             var response = await client
                 .GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={name}&token={packetPassword}&sessionId={clientSessionSessionId}"))
                 .ConfigureAwait(false);

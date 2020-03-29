@@ -53,32 +53,32 @@ namespace NosCore.PacketHandlers.Bazaar
 
             var bz = await _bazaarHttpClient.GetBazaarLink(packet.BazaarId);
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name) &&
-                (bz.BazaarItem.Price != packet.NewPrice))
+                (bz.BazaarItem?.Price != packet.NewPrice))
             {
-                if (bz.BazaarItem.Amount != bz.ItemInstance.Amount)
+                if (bz.BazaarItem?.Amount != bz.ItemInstance?.Amount)
                 {
-                    clientSession.SendPacket(new ModalPacket
+                    await clientSession.SendPacket(new ModalPacket
                     {
-                        Message = Language.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS,
                             clientSession.Account.Language),
                         Type = 1
                     });
                     return;
                 }
 
-                if (bz.BazaarItem.Amount == packet.Amount)
+                if (bz.BazaarItem?.Amount == packet.Amount)
                 {
                     var patch = new JsonPatchDocument<BazaarLink>();
-                    patch.Replace(link => link.BazaarItem.Price, packet.NewPrice);
+                    patch.Replace(link => link.BazaarItem!.Price, packet.NewPrice);
                     var bzMod = await _bazaarHttpClient.Modify(packet.BazaarId, patch);
 
-                    if ((bzMod != null) && (bzMod.BazaarItem.Price != bz.BazaarItem.Price))
+                    if ((bzMod != null) && (bzMod.BazaarItem?.Price != bz.BazaarItem.Price))
                     {
                         await clientSession.HandlePackets(new[]
                             {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}});
-                        clientSession.SendPacket(clientSession.Character.GenerateSay(
+                        await clientSession.SendPacket(clientSession.Character.GenerateSay(
                             string.Format(
-                                Language.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED,
+                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED,
                                     clientSession.Account.Language),
                                 bz.BazaarItem.Price
                             ), SayColorType.Yellow));
@@ -86,9 +86,9 @@ namespace NosCore.PacketHandlers.Bazaar
                     }
                 }
 
-                clientSession.SendPacket(new ModalPacket
+                await clientSession.SendPacket(new ModalPacket
                 {
-                    Message = Language.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR,
                         clientSession.Account.Language),
                     Type = 1
                 });
