@@ -59,7 +59,7 @@ namespace NosCore.Tests.PacketHandlerTests
             Assert.AreEqual(0, (int?) lastpacket?.Data?.Data);
             Assert.AreEqual(3, lastpacket?.Data?.OriginQuickList);
             Assert.AreEqual(4, lastpacket?.Data?.OriginQuickListSlot);
-            Assert.AreEqual(1, _session.Character!.QuicklistEntries.Count);
+            Assert.AreEqual(1, _session.Character.QuicklistEntries.Count);
         }
 
         [TestMethod]
@@ -80,7 +80,7 @@ namespace NosCore.Tests.PacketHandlerTests
             Assert.AreEqual(0, (int?) lastpacket?.Data?.Data);
             Assert.AreEqual(7, lastpacket?.Data?.OriginQuickList);
             Assert.AreEqual(-1, lastpacket?.Data?.OriginQuickListSlot);
-            Assert.AreEqual(0, _session.Character!.QuicklistEntries.Count);
+            Assert.AreEqual(0, _session.Character.QuicklistEntries.Count);
         }
 
         [TestMethod]
@@ -128,7 +128,7 @@ namespace NosCore.Tests.PacketHandlerTests
             Assert.AreEqual(3, firstpacket?.Data?.OriginQuickList);
             Assert.AreEqual(4, firstpacket?.Data?.OriginQuickListSlot);
 
-            Assert.AreEqual(2, _session.Character!.QuicklistEntries.Count);
+            Assert.AreEqual(2, _session.Character.QuicklistEntries.Count);
         }
 
         [TestMethod]
@@ -152,7 +152,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 SecondData = 2
             }, _session);
 
-            Assert.AreEqual(1, _session.Character!.QuicklistEntries.Count);
+            Assert.AreEqual(1, _session.Character.QuicklistEntries.Count);
 
             var firstPacket = (QsetClientPacket?) _session.LastPackets.FirstOrDefault(s => s is QsetClientPacket);
             var lastpacket = (QsetClientPacket?) _session.LastPackets.Skip(1).FirstOrDefault(s => s is QsetClientPacket);

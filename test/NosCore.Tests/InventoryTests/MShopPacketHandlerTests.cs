@@ -70,7 +70,7 @@ namespace NosCore.Tests.InventoryTests
             Broadcaster.Reset();
 
             _session = TestHelpers.Instance.GenerateSession();
-            _session.Character!.MapInstance!.Portals = new List<Portal>
+            _session.Character.MapInstance!.Portals = new List<Portal>
             {
                 new Portal
                 {
@@ -102,7 +102,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanNotCreateShopInTeam()
         {
-            _session!.Character!.PositionX = 7;
+            _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
             _session.Character.Group = new Group(GroupType.Team);
             await _mShopPacketHandler!.Execute(_shopPacket, _session);
@@ -115,7 +115,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanCreateShopInGroup()
         {
-            _session!.Character!.PositionX = 7;
+            _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
             _session.Character.Group = new Group(GroupType.Group);
             await _mShopPacketHandler!.Execute(_shopPacket, _session);
@@ -127,7 +127,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanNotCreateShopInNotShopAllowedMaps()
         {
-            _session!.Character!.PositionX = 7;
+            _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
             await _mShopPacketHandler!.Execute(_shopPacket, _session);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
@@ -148,7 +148,7 @@ namespace NosCore.Tests.InventoryTests
             var itemBuilder = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session!.Character!.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0));
+            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0));
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
             await _mShopPacketHandler!.Execute(_shopPacket, _session);
             Assert.IsNull(_session.Character.Shop);
@@ -165,7 +165,7 @@ namespace NosCore.Tests.InventoryTests
             var itemBuilder = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session!.Character!.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
+            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 1);
@@ -190,7 +190,7 @@ namespace NosCore.Tests.InventoryTests
             var itemBuilder = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            _session!.Character!.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
+            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 2), 0),
                 NoscorePocketType.Etc, 1);
@@ -205,7 +205,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanNotCreateShopInExchange()
         {
-            _session!.Character!.InExchangeOrTrade = true;
+            _session!.Character.InExchangeOrTrade = true;
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true}
@@ -228,7 +228,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanNotCreateEmptyShop()
         {
-            _session!.Character!.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
+            _session!.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
 
             await _mShopPacketHandler!.Execute(new MShopPacket
             {

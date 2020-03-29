@@ -105,7 +105,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 {
                     CharacterId = 2,
                     CharacterRelationId = guid,
-                    RelatedCharacterId = _session.Character!.CharacterId,
+                    RelatedCharacterId = _session.Character.CharacterId,
                     RelationType = CharacterRelationType.Friend
                 },
                 new CharacterRelationDto
@@ -143,9 +143,9 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             {
                 new CharacterRelationDto
                 {
-                    CharacterId = targetSession.Character!.CharacterId,
+                    CharacterId = targetSession.Character.CharacterId,
                     CharacterRelationId = guid,
-                    RelatedCharacterId = _session.Character!.CharacterId,
+                    RelatedCharacterId = _session.Character.CharacterId,
                     RelationType = CharacterRelationType.Friend
                 },
                 new CharacterRelationDto
@@ -182,7 +182,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
 
             var fdelPacket = new FdelPacket
             {
-                CharacterId = targetSession.Character!.CharacterId
+                CharacterId = targetSession.Character.CharacterId
             };
 
             await _fDelPacketHandler.Execute(fdelPacket, _session);

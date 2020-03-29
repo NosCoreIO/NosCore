@@ -63,7 +63,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_Get()
         {
-            _session.Character!.PositionX = 0;
+            _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _session.Character.MapInstance!.MapItems.TryAdd(100001,
                 TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1012, 1), 1,
@@ -81,7 +81,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_GetInStack()
         {
-            _session.Character!.PositionX = 0;
+            _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
 
             _session.Character.MapInstance!.MapItems.TryAdd(100001,
@@ -121,7 +121,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_Get_KeepRarity()
         {
-            _session.Character!.PositionX = 0;
+            _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _session.Character.MapInstance!.MapItems.TryAdd(100001,
                 TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance, _item.Create(1, 1, 6), 1,
@@ -139,7 +139,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public void Test_Get_NotYourObject()
         {
-            _session.Character!.PositionX = 0;
+            _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             var mapItem =
                 TestHelpers.Instance.MapItemProvider.Create(_session.Character.MapInstance!, _item.Create(1012, 1), 1,

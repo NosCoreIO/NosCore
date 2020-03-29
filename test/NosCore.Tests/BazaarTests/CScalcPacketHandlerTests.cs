@@ -69,7 +69,7 @@ namespace NosCore.Tests.BazaarTests
             _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).ReturnsAsync(
                 new BazaarLink
                 {
-                    SellerName = _session.Character!.Name,
+                    SellerName = _session.Character.Name,
                     BazaarItem = new BazaarItemDto {Price = 50, Amount = 1},
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 0}
                 });
@@ -89,7 +89,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task RetrieveWhenInExchangeOrTrade()
         {
-            _session!.Character!.InExchangeOrTrade = true;
+            _session!.Character.InExchangeOrTrade = true;
             await _cScalcPacketHandler!.Execute(new CScalcPacket
             {
                 BazaarId = 1,
@@ -133,7 +133,7 @@ namespace NosCore.Tests.BazaarTests
         {
             var guid1 = Guid.NewGuid();
             var guid2 = Guid.NewGuid();
-            _session.Character!.InventoryService.AddItemToPocket(new InventoryItemInstance
+            _session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance
             {
                 Id = guid2, ItemInstanceId = guid2, Slot = 0, Type = NoscorePocketType.Main,
                 ItemInstance = new ItemInstance {ItemVNum = 1012, Amount = 999, Id = guid2}
@@ -157,7 +157,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task RetrieveWhenMaxGold()
         {
-            _session.Character!.Gold = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount;
+            _session.Character.Gold = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount;
             await _cScalcPacketHandler!.Execute(new CScalcPacket
             {
                 BazaarId = 0,

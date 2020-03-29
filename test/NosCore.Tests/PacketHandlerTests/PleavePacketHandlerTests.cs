@@ -54,7 +54,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 var session = TestHelpers.Instance.GenerateSession();
                 session.RegisterChannel(null);
                 _characters.Add(i, session.Character!);
-                session.Character!.Group.JoinGroup(session.Character);
+                session.Character.Group.JoinGroup(session.Character);
             }
 
             _pLeavePacketHandler = new PleavePacketHandler();

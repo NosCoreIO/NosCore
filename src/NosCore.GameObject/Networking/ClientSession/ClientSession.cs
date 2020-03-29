@@ -78,11 +78,11 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
         }
 
-        public ClientSession(ServerConfiguration configuration, IMapInstanceProvider mapInstanceProvider,
-            IExchangeProvider exchangeProvider, ILogger logger,
+        public ClientSession(ServerConfiguration configuration, IMapInstanceProvider? mapInstanceProvider,
+            IExchangeProvider? exchangeProvider, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
-            IMinilandProvider minilandProvider) : base(logger)
+            IMinilandProvider? minilandProvider) : base(logger)
         {
             _logger = logger;
             _packetsHandlers = packetsHandlers.ToList();
@@ -92,7 +92,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             if (configuration is WorldConfiguration worldConfiguration)
             {
                 WorldConfiguration = worldConfiguration;
-                _mapInstanceProvider = mapInstanceProvider;
+                _mapInstanceProvider = mapInstanceProvider!;
                 _exchangeProvider = exchangeProvider;
                 _minilandProvider = minilandProvider;
                 _isWorldClient = true;
@@ -119,7 +119,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public AccountDto Account { get; set; }
 
-        public Character? Character
+        public Character Character
         {
             get
             {
@@ -127,10 +127,10 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     // cant access an
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHARACTER_NOT_INIT));
-                    return null;
+                    throw new NullReferenceException();
                 }
 
-                return _character;
+                return _character!;
             }
 
             private set => _character = value;
@@ -173,9 +173,9 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
             try
             {
-                if ((Character == null) || !Character.IsDisconnecting)
+                if (!(_character?.IsDisconnecting ?? false))
                 {
-                    if (Character != null)
+                    if (_character != null)
                     {
                         Character.IsDisconnecting = true;
                         if (Character.Hp < 1)

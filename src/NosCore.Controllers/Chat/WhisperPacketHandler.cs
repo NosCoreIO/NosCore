@@ -80,13 +80,13 @@ namespace NosCore.PacketHandlers.Chat
                 var message = new StringBuilder(messageBuilder.ToString().Length > 60
                     ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
 
-                await session.SendPacket(session.Character!.GenerateSpk(new SpeakPacket
+                await session.SendPacket(session.Character.GenerateSpk(new SpeakPacket
                 {
                     SpeakType = SpeakType.Player,
                     Message = message.ToString()
                 }));
 
-                var speakPacket = session.Character!.GenerateSpk(new SpeakPacket
+                var speakPacket = session.Character.GenerateSpk(new SpeakPacket
                 {
                     SpeakType = session.Account.Authority >= AuthorityType.GameMaster ? SpeakType.GameMaster
                         : SpeakType.Player,
@@ -100,13 +100,13 @@ namespace NosCore.PacketHandlers.Chat
 
                 if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
                 {
-                    await session.SendPacket(session.Character!.GenerateSay(
+                    await session.SendPacket(session.Character.GenerateSay(
                         Language.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, session.Account.Language),
                         SayColorType.Yellow));
                     return;
                 }
 
-                var blacklisteds = await _blacklistHttpClient.GetBlackLists(session.Character!.VisualId);
+                var blacklisteds = await _blacklistHttpClient.GetBlackLists(session.Character.VisualId);
                 if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter.Id))
                 {
                     await session.SendPacket(new SayPacket

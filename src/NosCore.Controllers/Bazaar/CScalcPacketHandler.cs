@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Bazaar
 
         public override async Task Execute(CScalcPacket packet, ClientSession clientSession)
         {
-            if (clientSession.Character!.InExchangeOrTrade)
+            if (clientSession.Character.InExchangeOrTrade)
             {
                 return;
             }

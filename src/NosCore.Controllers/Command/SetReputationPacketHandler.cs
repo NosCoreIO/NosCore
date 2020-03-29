@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Command
 
         public override async Task Execute(SetReputationPacket setReputationPacket, ClientSession session)
         {
-            if ((setReputationPacket.Name == session.Character!.Name) || string.IsNullOrEmpty(setReputationPacket.Name))
+            if ((setReputationPacket.Name == session.Character.Name) || string.IsNullOrEmpty(setReputationPacket.Name))
             {
                 await session.Character.SetReputation(setReputationPacket.Reputation);
                 return;
