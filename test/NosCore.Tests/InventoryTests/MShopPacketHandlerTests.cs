@@ -70,7 +70,7 @@ namespace NosCore.Tests.InventoryTests
             Broadcaster.Reset();
 
             _session = TestHelpers.Instance.GenerateSession();
-            _session.Character.MapInstance!.Portals = new List<Portal>
+            _session.Character.MapInstance.Portals = new List<Portal>
             {
                 new Portal
                 {

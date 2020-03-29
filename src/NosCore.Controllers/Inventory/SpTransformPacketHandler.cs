@@ -102,7 +102,7 @@ namespace NosCore.PacketHandlers.Inventory
                                 Delay = 5000,
                                 Packet = new SpTransformPacket { Type = SlPacketType.WearSp }
                             }).ConfigureAwait(false);
-                            await clientSession.Character.MapInstance!.SendPacket(new GuriPacket
+                            await clientSession.Character.MapInstance.SendPacket(new GuriPacket
                             {
                                 Type = GuriPacketType.Unknow,
                                 Value = 1,

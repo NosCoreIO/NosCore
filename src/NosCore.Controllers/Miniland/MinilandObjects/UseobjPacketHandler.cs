@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
         {
             var miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             var minilandObject =
-                clientSession.Character.MapInstance!.MapDesignObjects.Values.FirstOrDefault(s =>
+                clientSession.Character.MapInstance.MapDesignObjects.Values.FirstOrDefault(s =>
                     s.Slot == useobjPacket.ObjectId);
             if ((minilandObject != null) && (miniland != null))
             {

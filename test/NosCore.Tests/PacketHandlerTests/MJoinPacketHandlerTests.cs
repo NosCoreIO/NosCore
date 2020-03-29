@@ -80,7 +80,7 @@ namespace NosCore.Tests.PacketHandlerTests
             };
             await _mjoinPacketHandler!.Execute(mjoinPacket, _session!).ConfigureAwait(false);
 
-            Assert.IsFalse(_session!.Character.MapInstance!.Map.MapId == 20001);
+            Assert.IsFalse(_session!.Character.MapInstance.Map.MapId == 20001);
         }
 
         [TestMethod]
@@ -93,7 +93,7 @@ namespace NosCore.Tests.PacketHandlerTests
             };
            await _mjoinPacketHandler!.Execute(mjoinPacket, _session!).ConfigureAwait(false);
 
-            Assert.IsFalse(_session!.Character.MapInstance!.Map.MapId == 20001);
+            Assert.IsFalse(_session!.Character.MapInstance.Map.MapId == 20001);
         }
 
 
@@ -133,7 +133,7 @@ namespace NosCore.Tests.PacketHandlerTests
             var lastpacket = (InfoPacket?) _session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(lastpacket?.Message,
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND, _session.Account.Language));
-            Assert.IsFalse(_session.Character.MapInstance!.Map.MapId == 20001);
+            Assert.IsFalse(_session.Character.MapInstance.Map.MapId == 20001);
         }
 
         [TestMethod]
@@ -168,7 +168,7 @@ namespace NosCore.Tests.PacketHandlerTests
                     new ConnectedAccount
                         {ChannelId = 1, ConnectedCharacter = new Character {Id = _session!.Character.CharacterId}}));
 
-            Assert.IsTrue(_session.Character.MapInstance!.Map.MapId == 20001);
+            Assert.IsTrue(_session.Character.MapInstance.Map.MapId == 20001);
         }
 
         [TestMethod]
@@ -203,7 +203,7 @@ namespace NosCore.Tests.PacketHandlerTests
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
             await _mjoinPacketHandler!.Execute(mjoinPacket, _session).ConfigureAwait(false);
 
-            Assert.IsTrue(_session.Character.MapInstance!.Map.MapId == 20001);
+            Assert.IsTrue(_session.Character.MapInstance.Map.MapId == 20001);
         }
 
         [TestMethod]
@@ -241,7 +241,7 @@ namespace NosCore.Tests.PacketHandlerTests
             var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(lastpacket!.Message,
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND, _session.Account.Language));
-            Assert.IsFalse(_session.Character.MapInstance!.Map.MapId == 20001);
+            Assert.IsFalse(_session.Character.MapInstance.Map.MapId == 20001);
         }
     }
 }

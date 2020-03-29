@@ -92,7 +92,7 @@ namespace NosCore.PacketHandlers.Group
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT,
                         clientSession.Account.Language)
                 }).ConfigureAwait(false);
-                await clientSession.Character.MapInstance!.SendPacket(
+                await clientSession.Character.MapInstance.SendPacket(
                     clientSession.Character.Group.GeneratePidx(clientSession.Character)).ConfigureAwait(false);
             }
             else

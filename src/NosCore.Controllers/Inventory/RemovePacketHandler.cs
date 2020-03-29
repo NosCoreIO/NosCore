@@ -73,12 +73,12 @@ namespace NosCore.PacketHandlers.Inventory
 
             await clientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot)).ConfigureAwait(false);
 
-            await clientSession.Character.MapInstance!.SendPacket(clientSession.Character.GenerateEq()).ConfigureAwait(false);
+            await clientSession.Character.MapInstance.SendPacket(clientSession.Character.GenerateEq()).ConfigureAwait(false);
             await clientSession.SendPacket(clientSession.Character.GenerateEquipment()).ConfigureAwait(false);
 
             if (inv.ItemInstance!.Item!.EquipmentSlot == EquipmentType.Fairy)
             {
-                await clientSession.Character.MapInstance!.SendPacket(
+                await clientSession.Character.MapInstance.SendPacket(
                     clientSession.Character.GeneratePairy(null)).ConfigureAwait(false);
             }
         }

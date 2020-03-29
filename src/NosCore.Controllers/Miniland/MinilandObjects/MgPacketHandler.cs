@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             _minigamePacket = minigamePacket;
             _miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             _minilandObject =
-                clientSession.Character.MapInstance!.MapDesignObjects.Values.FirstOrDefault(s =>
+                clientSession.Character.MapInstance.MapDesignObjects.Values.FirstOrDefault(s =>
                     s.Slot == minigamePacket.Id);
             if ((_minilandObject == null) || (_miniland == null))
             {
@@ -334,7 +334,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
         private async Task ShowBoxLevels(byte game)
         {
             _miniland!.CurrentMinigame = 0;
-            await _clientSession!.Character.MapInstance!.SendPacket(new GuriPacket
+            await _clientSession!.Character.MapInstance.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
@@ -362,7 +362,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
         private Task BroadcastEffect()
         {
             _miniland!.CurrentMinigame = 0;
-            return _clientSession!.Character.MapInstance!.SendPacket(new GuriPacket
+            return _clientSession!.Character.MapInstance.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
@@ -400,7 +400,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 return;
             }
 
-            await _clientSession!.Character.MapInstance!.SendPacket(new GuriPacket
+            await _clientSession!.Character.MapInstance.SendPacket(new GuriPacket
             {
                 Type = GuriPacketType.Unknow,
                 Value = 1,

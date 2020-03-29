@@ -168,7 +168,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
             await  requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot)).ConfigureAwait(false);
 
-            await requestData.ClientSession.Character.MapInstance!.SendPacket(requestData.ClientSession.Character
+            await requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character
                 .GenerateEq()).ConfigureAwait(false);
             await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment()).ConfigureAwait(false);
 
@@ -179,7 +179,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
-                await requestData.ClientSession.Character.MapInstance!.SendPacket(
+                await requestData.ClientSession.Character.MapInstance.SendPacket(
                     requestData.ClientSession.Character.GeneratePairy(itemInstance.ItemInstance as WearableInstance)).ConfigureAwait(false);
             }
 

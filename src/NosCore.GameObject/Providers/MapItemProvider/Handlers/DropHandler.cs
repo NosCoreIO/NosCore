@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             if (inv != null)
             {
                 await requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot)).ConfigureAwait(false);
-                requestData.ClientSession.Character.MapInstance!.MapItems.TryRemove(requestData.Data.Item1.VisualId,
+                requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId,
                     out _);
                 await requestData.ClientSession.Character.MapInstance.SendPacket(
                     requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId)).ConfigureAwait(false);

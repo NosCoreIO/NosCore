@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Movement
             }
 
             var portals = new List<Portal>();
-            portals.AddRange(session.Character.MapInstance!.Portals);
+            portals.AddRange(session.Character.MapInstance.Portals);
             portals.AddRange(_minilandProvider
                 .GetMinilandPortals(session.Character.CharacterId)
                 .Where(s => s.SourceMapInstanceId == session.Character.MapInstanceId));
