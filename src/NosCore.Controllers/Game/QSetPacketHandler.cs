@@ -32,7 +32,7 @@ namespace NosCore.PacketHandlers.Game
     {
         private void SendQSet(ClientSession session, short q1, short q2, QSetType type, short data1, short data2)
         {
-            session.SendPacket(new QsetClientPacket
+            session.SendPacketAsync(new QsetClientPacket
             {
                 OriginQuickList = q1,
                 OriginQuickListSlot = q2,
@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Game
             });
         }
 
-        public override Task Execute(QsetPacket qSetPacket, ClientSession session)
+        public override Task ExecuteAsync(QsetPacket qSetPacket, ClientSession session)
         {
             short data1 = 0, data2 = 0, q1 = qSetPacket.OriginQuickList, q2 = qSetPacket.OriginQuickListSlot;
             var type = qSetPacket.Type;

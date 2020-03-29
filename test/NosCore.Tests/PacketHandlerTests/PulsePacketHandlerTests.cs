@@ -58,7 +58,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 {
                     Tick = i
                 };
-                await _pulsePacketHandler!.Execute(pulsePacket, _session!).ConfigureAwait(false);
+                await _pulsePacketHandler!.ExecuteAsync(pulsePacket, _session!).ConfigureAwait(false);
             }
 
             Assert.IsTrue(_session?.LastPulse == pulsePacket.Tick);

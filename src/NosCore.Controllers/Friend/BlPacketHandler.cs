@@ -30,14 +30,14 @@ namespace NosCore.PacketHandlers.Friend
 {
     public class BlPacketHandler : PacketHandler<BlPacket>, IWorldPacketHandler
     {
-        public override Task Execute(BlPacket finsPacket, ClientSession session)
+        public override Task ExecuteAsync(BlPacket finsPacket, ClientSession session)
         {
             var target =
                 Broadcaster.Instance.GetCharacter(s => s.Name == finsPacket.CharacterName);
 
             if (target == null)
             {
-                session.SendPacket(new InfoPacket
+                session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Friend
                 CharacterId = target.VisualId
             };
 
-            return session.HandlePackets(new[] {blinsPacket});
+            return session.HandlePacketsAsync(new[] {blinsPacket});
         }
     }
 }

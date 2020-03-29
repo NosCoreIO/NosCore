@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Game
             _logger = logger;
         }
 
-        public override Task Execute(NcifPacket ncifPacket, ClientSession session)
+        public override Task ExecuteAsync(NcifPacket ncifPacket, ClientSession session)
         {
             IAliveEntity? entity;
 
@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Game
 
             if (entity != null)
             {
-                session.SendPacket(entity.GenerateStatInfo());
+                session.SendPacketAsync(entity.GenerateStatInfo());
             }
             return Task.CompletedTask;
         }

@@ -66,22 +66,22 @@ namespace NosCore.Tests.BazaarTests
             _cScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration,
                 _bazaarHttpClient.Object, _itemProvider.Object, Logger, _itemInstanceDao.Object);
 
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).ReturnsAsync(
+            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(0)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = _session.Character.Name,
                     BazaarItem = new BazaarItemDto {Price = 50, Amount = 1},
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 0}
                 });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(2)).ReturnsAsync(
+            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(2)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = "test",
                     BazaarItem = new BazaarItemDto {Price = 60, Amount = 1},
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 0}
                 });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(1)).ReturnsAsync((BazaarLink?) null);
-            _bazaarHttpClient.Setup(b => b.Remove(It.IsAny<long>(), It.IsAny<int>(), It.IsAny<string>())).ReturnsAsync(true);
+            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(1)).ReturnsAsync((BazaarLink?) null);
+            _bazaarHttpClient.Setup(b => b.RemoveAsync(It.IsAny<long>(), It.IsAny<int>(), It.IsAny<string>())).ReturnsAsync(true);
             _itemProvider.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>())).Returns(new ItemInstance
                 {Amount = 0, ItemVNum = 1012, Item = new Item()});
         }
@@ -90,7 +90,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task RetrieveWhenInExchangeOrTrade()
         {
             _session!.Character.InExchangeOrTrade = true;
-            await _cScalcPacketHandler!.Execute(new CScalcPacket
+            await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
             {
                 BazaarId = 1,
                 Price = 50,
@@ -103,7 +103,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task RetrieveWhenNoItem()
         {
-            await _cScalcPacketHandler!.Execute(new CScalcPacket
+            await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
             {
                 BazaarId = 1,
                 Price = 50,
@@ -117,7 +117,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task RetrieveWhenNotYourItem()
         {
-           await _cScalcPacketHandler!.Execute(new CScalcPacket
+           await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
            {
                BazaarId = 2,
                Price = 50,
@@ -143,7 +143,7 @@ namespace NosCore.Tests.BazaarTests
                 Id = guid1, ItemInstanceId = guid1, Slot = 1, Type = NoscorePocketType.Main,
                 ItemInstance = new ItemInstance {ItemVNum = 1012, Amount = 999, Id = guid1}
             });
-           await _cScalcPacketHandler!.Execute(new CScalcPacket
+           await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
            {
                BazaarId = 0,
                Price = 50,
@@ -158,7 +158,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task RetrieveWhenMaxGold()
         {
             _session!.Character.Gold = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount;
-            await _cScalcPacketHandler!.Execute(new CScalcPacket
+            await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
             {
                 BazaarId = 0,
                 Price = 50,
@@ -176,7 +176,7 @@ namespace NosCore.Tests.BazaarTests
         {
             _itemInstanceDao!.Setup(s=>s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto,bool>>>()))
                 .Returns(new ItemInstanceDto { ItemVNum = 1012, Amount = 0 });
-            await _cScalcPacketHandler!.Execute(new CScalcPacket
+            await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
             {
                 BazaarId = 0,
                 Price = 50,

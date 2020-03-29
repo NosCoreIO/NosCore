@@ -29,15 +29,15 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
 {
     public interface IMailHttpClient
     {
-        Task SendGift(ICharacterEntity characterEntity, long receiverId, IItemInstanceDto itemInstance, bool isNosmall);
+        Task SendGiftAsync(ICharacterEntity characterEntity, long receiverId, IItemInstanceDto itemInstance, bool isNosmall);
 
-        Task SendGift(ICharacterEntity characterEntity, long receiverId, short vnum, short amount, sbyte rare,
+        Task SendGiftAsync(ICharacterEntity characterEntity, long receiverId, short vnum, short amount, sbyte rare,
             byte upgrade, bool isNosmall);
 
-        Task<IEnumerable<MailData>> GetGifts(long characterId);
-        Task<MailData?> GetGift(long id, long characterId, bool isCopy);
-        Task DeleteGift(long giftId, long visualId, bool isCopy);
-        Task ViewGift(long giftId, JsonPatchDocument<MailDto> mailData);
-        Task SendMessage(ICharacterEntity character, long characterId, string title, string text);
+        Task<IEnumerable<MailData>> GetGiftsAsync(long characterId);
+        Task<MailData?> GetGiftAsync(long id, long characterId, bool isCopy);
+        Task DeleteGiftAsync(long giftId, long visualId, bool isCopy);
+        Task ViewGiftAsync(long giftId, JsonPatchDocument<MailDto> mailData);
+        Task SendMessageAsync(ICharacterEntity character, long characterId, string title, string text);
     }
 }

@@ -44,16 +44,16 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
             RequireConnection = true;
         }
 
-        public async Task Disconnect(long connectedCharacterId)
+        public Task DisconnectAsync(long connectedCharacterId)
         {
-            await Delete(connectedCharacterId).ConfigureAwait(false);
+            return DeleteAsync(connectedCharacterId);
         }
 
-        public async Task<Tuple<ServerConfiguration?, ConnectedAccount?>> GetCharacter(long? characterId, string? characterName)
+        public async Task<Tuple<ServerConfiguration?, ConnectedAccount?>> GetCharacterAsync(long? characterId, string? characterName)
         {
-            foreach (var channel in (await _channelHttpClient.GetChannels().ConfigureAwait(false)).Where(c => c.Type == ServerType.WorldServer))
+            foreach (var channel in (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false)).Where(c => c.Type == ServerType.WorldServer))
             {
-                var accounts = await GetConnectedAccount(channel).ConfigureAwait(false);
+                var accounts = await GetConnectedAccountAsync(channel).ConfigureAwait(false);
                 var target = accounts.FirstOrDefault(s =>
                     (s.ConnectedCharacter?.Name == characterName) || (s.ConnectedCharacter?.Id == characterId));
 
@@ -66,7 +66,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
             return new Tuple<ServerConfiguration?, ConnectedAccount?>(null, null);
         }
 
-        public async Task<List<ConnectedAccount>> GetConnectedAccount(ChannelInfo channel)
+        public async Task<List<ConnectedAccount>> GetConnectedAccountAsync(ChannelInfo channel)
         {
             if (channel == null)
             {

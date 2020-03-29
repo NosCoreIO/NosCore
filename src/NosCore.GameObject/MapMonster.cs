@@ -116,7 +116,7 @@ namespace NosCore.GameObject
 
         private void MonsterLife()
         {
-            this.Move();
+            this.MoveAsync();
         }
     }
 }

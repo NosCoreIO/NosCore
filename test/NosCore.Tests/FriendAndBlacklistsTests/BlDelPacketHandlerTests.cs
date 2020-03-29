@@ -69,9 +69,9 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _characterDao = new Mock<IGenericDao<CharacterDto>>();
             _blackListController = new BlacklistController(_connectedAccountHttpClient.Object, _characterRelationDao,
                 _characterDao.Object);
-            _blackListHttpClient.Setup(s => s.GetBlackLists(It.IsAny<long>()))
+            _blackListHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
                 .Returns((long id) => _blackListController.GetBlacklisted(id));
-            _blackListHttpClient.Setup(s => s.DeleteFromBlacklist(It.IsAny<Guid>()))
+            _blackListHttpClient.Setup(s => s.DeleteFromBlacklistAsync(It.IsAny<Guid>()))
                 .Callback((Guid id) => _blackListController.Delete(id));
         }
 
@@ -101,7 +101,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = 2
             };
 
-            await _blDelPacketHandler!.Execute(blDelPacket, _session).ConfigureAwait(false);
+            await _blDelPacketHandler!.ExecuteAsync(blDelPacket, _session).ConfigureAwait(false);
 
             Assert.IsTrue(!_characterRelationDao.LoadAll().Any());
         }
@@ -134,7 +134,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _blDelPacketHandler!.Execute(blDelPacket, _session).ConfigureAwait(false);
+            await _blDelPacketHandler!.ExecuteAsync(blDelPacket, _session).ConfigureAwait(false);
 
             Assert.IsTrue(!_characterRelationDao.LoadAll().Any());
         }
@@ -158,7 +158,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _blDelPacketHandler!.Execute(blDelPacket, _session).ConfigureAwait(false);
+            await _blDelPacketHandler!.ExecuteAsync(blDelPacket, _session).ConfigureAwait(false);
             var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
                 _session.Account.Language), lastpacket!.Message);

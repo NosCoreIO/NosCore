@@ -26,6 +26,6 @@ namespace NosCore.GameObject
     {
         bool Condition(T condition);
 
-        Task Execute(RequestData<T2> requestData);
+        Task ExecuteAsync(RequestData<T2> requestData);
     }
 }

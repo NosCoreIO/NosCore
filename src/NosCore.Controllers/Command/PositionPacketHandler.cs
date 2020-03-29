@@ -28,9 +28,9 @@ namespace NosCore.PacketHandlers.Command
 {
     public class PositionPacketHandler : PacketHandler<PositionPacket>, IWorldPacketHandler
     {
-        public override Task Execute(PositionPacket _, ClientSession session)
+        public override Task ExecuteAsync(PositionPacket _, ClientSession session)
         {
-            session.SendPacket(session.Character.GenerateSay(
+            session.SendPacketAsync(session.Character.GenerateSay(
                 $"Map:{session.Character.MapInstance.Map.MapId} - X:{session.Character.PositionX} - Y:{session.Character.PositionY} - " +
                 $"Dir:{session.Character.Direction} - Cell:{session.Character.MapInstance.Map[session.Character.PositionX, session.Character.PositionY]}",
                 SayColorType.Green));

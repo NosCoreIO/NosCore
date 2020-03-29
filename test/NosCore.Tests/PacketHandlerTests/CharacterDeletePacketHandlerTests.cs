@@ -47,7 +47,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task DeleteCharacter_Invalid_Password()
         {
             _session!.Character.MapInstance = null!;
-            await _characterDeletePacketHandler!.Execute(new CharacterDeletePacket
+            await _characterDeletePacketHandler!.ExecuteAsync(new CharacterDeletePacket
             {
                 Slot = 1,
                 Password = "testpassword"
@@ -61,7 +61,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task DeleteCharacterWhenInGame_Does_Not_Delete_Character()
         {
-            await _characterDeletePacketHandler!.Execute(new CharacterDeletePacket
+            await _characterDeletePacketHandler!.ExecuteAsync(new CharacterDeletePacket
             {
                 Slot = 1,
                 Password = "test"
@@ -76,7 +76,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task DeleteCharacter()
         {
             _session!.Character.MapInstance = null!;
-            await _characterDeletePacketHandler!.Execute(new CharacterDeletePacket
+            await _characterDeletePacketHandler!.ExecuteAsync(new CharacterDeletePacket
             {
                 Slot = 1,
                 Password = "test"

@@ -44,20 +44,20 @@ namespace NosCore.PacketHandlers.Bazaar
             _logger = logger;
         }
 
-        public override async Task Execute(CModPacket packet, ClientSession clientSession)
+        public override async Task ExecuteAsync(CModPacket packet, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
                 return;
             }
 
-            var bz = await _bazaarHttpClient.GetBazaarLink(packet.BazaarId).ConfigureAwait(false);
+            var bz = await _bazaarHttpClient.GetBazaarLinkAsync(packet.BazaarId).ConfigureAwait(false);
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name) &&
                 (bz.BazaarItem?.Price != packet.NewPrice))
             {
                 if (bz.BazaarItem?.Amount != bz.ItemInstance?.Amount)
                 {
-                    await clientSession.SendPacket(new ModalPacket
+                    await clientSession.SendPacketAsync(new ModalPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS,
                             clientSession.Account.Language),
@@ -70,13 +70,13 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     var patch = new JsonPatchDocument<BazaarLink>();
                     patch.Replace(link => link.BazaarItem!.Price, packet.NewPrice);
-                    var bzMod = await _bazaarHttpClient.Modify(packet.BazaarId, patch).ConfigureAwait(false);
+                    var bzMod = await _bazaarHttpClient.ModifyAsync(packet.BazaarId, patch).ConfigureAwait(false);
 
                     if ((bzMod != null) && (bzMod.BazaarItem?.Price != bz.BazaarItem.Price))
                     {
-                        await clientSession.HandlePackets(new[]
+                        await clientSession.HandlePacketsAsync(new[]
                             {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}}).ConfigureAwait(false);
-                        await clientSession.SendPacket(clientSession.Character.GenerateSay(
+                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
                             string.Format(
                                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED,
                                     clientSession.Account.Language),
@@ -86,7 +86,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     }
                 }
 
-                await clientSession.SendPacket(new ModalPacket
+                await clientSession.SendPacketAsync(new ModalPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR,
                         clientSession.Account.Language),

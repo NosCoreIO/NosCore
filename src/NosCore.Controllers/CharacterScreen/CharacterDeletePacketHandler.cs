@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _accountDao = accountDao;
         }
 
-        public override async Task Execute(CharacterDeletePacket packet, ClientSession clientSession)
+        public override async Task ExecuteAsync(CharacterDeletePacket packet, ClientSession clientSession)
         {
             if (clientSession.HasCurrentMapInstance)
             {
@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.State = CharacterState.Inactive;
                 _characterDao.InsertOrUpdate(ref character);
 
-                await clientSession.HandlePackets(new[]
+                await clientSession.HandlePacketsAsync(new[]
                 {
                     new EntryPointPacket
                     {
@@ -81,7 +81,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             else
             {
-                await clientSession.SendPacket(new InfoPacket
+                await clientSession.SendPacketAsync(new InfoPacket
                 {
                     Message = clientSession.GetMessageFromKey(LanguageKey.BAD_PASSWORD)
                 }).ConfigureAwait(false);

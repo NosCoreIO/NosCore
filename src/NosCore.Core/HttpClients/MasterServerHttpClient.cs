@@ -54,7 +54,7 @@ namespace NosCore.Core.HttpClients
             return _httpClientFactory.CreateClient();
         }
 
-        public virtual async Task<HttpClient> Connect()
+        public virtual async Task<HttpClient> ConnectAsync()
         {
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
@@ -62,16 +62,16 @@ namespace NosCore.Core.HttpClients
             if (RequireConnection)
             {
                 client.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshToken().ConfigureAwait(false));
+                    new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
             }
 
             return client;
         }
 
-        public async Task<HttpClient?> Connect(int channelId)
+        public async Task<HttpClient?> ConnectAsync(int channelId)
         {
             using var client = _httpClientFactory.CreateClient();
-            var channel = await _channelHttpClient.GetChannel(channelId).ConfigureAwait(false);
+            var channel = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
             if (channel == null)
             {
                 return null;
@@ -82,9 +82,9 @@ namespace NosCore.Core.HttpClients
             return client;
         }
 
-        protected async Task<T> Post<T>(object objectToPost)
+        protected async Task<T> PostAsync<T>(object objectToPost)
         {
-            var client = await Connect().ConfigureAwait(false);
+            var client = await ConnectAsync().ConfigureAwait(false);
             using var content = new StringContent(JsonSerializer.Serialize(objectToPost),
                 Encoding.Default, "application/json");
             var response = await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
@@ -101,9 +101,9 @@ namespace NosCore.Core.HttpClients
         }
 
 
-        protected async Task<T> Patch<T>(object id, object objectToPost)
+        protected async Task<T> PatchAsync<T>(object id, object objectToPost)
         {
-            var client = await Connect().ConfigureAwait(false);
+            var client = await ConnectAsync().ConfigureAwait(false);
             using var content = new StringContent(JsonSerializer.Serialize(objectToPost),
                 Encoding.Default, "application/json");
             var response = await client.PatchAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}"), content).ConfigureAwait(false);
@@ -118,24 +118,24 @@ namespace NosCore.Core.HttpClients
             throw new WebException();
         }
 
-        protected async Task<HttpResponseMessage> Post(object objectToPost)
+        protected async Task<HttpResponseMessage> PostAsync(object objectToPost)
         {
-            var client = await Connect().ConfigureAwait(false);
+            var client = await ConnectAsync().ConfigureAwait(false);
             using var content = new StringContent(JsonSerializer.Serialize(objectToPost),
                 Encoding.Default, "application/json");
             return await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
         }
 
         [return: MaybeNull]
-        protected async Task<T> Get<T>()
+        protected Task<T> GetAsync<T>()
         {
-            return await Get<T>(null)!.ConfigureAwait(false);
+            return GetAsync<T>(null)!;
         }
 
         [return: MaybeNull]
-        protected async Task<T> Get<T>(object? id)
+        protected async Task<T> GetAsync<T>(object? id)
         {
-            var client = await Connect().ConfigureAwait(false);
+            var client = await ConnectAsync().ConfigureAwait(false);
             var response = await client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}{(id != null ? $"?id={id}" : "")}")).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
@@ -148,9 +148,9 @@ namespace NosCore.Core.HttpClients
             throw new WebException();
         }
 
-        protected async Task<HttpResponseMessage> Delete(object id)
+        protected async Task<HttpResponseMessage> DeleteAsync(object id)
         {
-            var client = await Connect().ConfigureAwait(false);
+            var client = await ConnectAsync().ConfigureAwait(false);
             return await client.DeleteAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}")).ConfigureAwait(false);
         }
     }

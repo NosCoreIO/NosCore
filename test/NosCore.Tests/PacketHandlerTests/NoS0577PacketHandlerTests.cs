@@ -77,7 +77,7 @@ namespace NosCore.Tests.PacketHandlerTests
             var authController = new AuthController(_loginConfiguration.MasterCommunication!,
                 TestHelpers.Instance.AccountDao, Logger);
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            _authHttpClient.Setup(s => s.GetAwaitingConnection(It.IsAny<string>(), It.IsAny<string>(),
+            _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
                 (string?)((OkObjectResult)authController.GetExpectingConnection(a, b, c)).Value);
             SessionFactory.Instance.ReadyForAuth.Clear();
@@ -87,14 +87,14 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task LoginBCrypt()
         {
             _loginConfiguration.MasterCommunication!.HashingType = HashingType.BCrypt;
-            _channelHttpClient.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
+            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
             _session!.Account.NewAuthSalt = BCrypt.Net.BCrypt.GenerateSalt();
             _session.Account.NewAuthPassword = _tokenGuid.ToBcrypt(_session.Account.NewAuthSalt);
 
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            await _noS0577PacketHandler!.Execute(new NoS0577Packet
+            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session).ConfigureAwait(false);
@@ -107,13 +107,13 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task LoginPbkdf2()
         {
             _loginConfiguration.MasterCommunication!.HashingType = HashingType.Pbkdf2;
-            _channelHttpClient.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
+            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
             _session!.Account.NewAuthPassword = _tokenGuid.ToPbkdf2Hash("MY_SUPER_SECRET_HASH");
             _session.Account.NewAuthSalt = "MY_SUPER_SECRET_HASH";
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            await _noS0577PacketHandler!.Execute(new NoS0577Packet
+            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session).ConfigureAwait(false);
@@ -125,7 +125,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task LoginOldClient()
         {
             _loginConfiguration.ClientVersion = new ClientVersionSubPacket { Major = 1 };
-            await _noS0577PacketHandler!.Execute(new NoS0577Packet
+            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session!).ConfigureAwait(false);
@@ -138,7 +138,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task LoginWrongToken()
         {
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
-            await _noS0577PacketHandler!.Execute(new NoS0577Packet
+            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(Guid.NewGuid().ToString()),
             }, _session).ConfigureAwait(false);
@@ -150,11 +150,11 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginAsync()
         {
-            _channelHttpClient.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
+            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
-            await _noS0577PacketHandler!.Execute(new NoS0577Packet
+            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session).ConfigureAwait(false);
@@ -165,12 +165,12 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginAlreadyConnected()
         {
-            _channelHttpClient.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
+            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>
                     {new ConnectedAccount {Name = _session!.Account.Name}});
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            await _noS0577PacketHandler!.Execute(new NoS0577Packet
+            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session).ConfigureAwait(false);
@@ -181,11 +181,11 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginNoServer()
         {
-            _channelHttpClient.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo>());
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
+            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>());
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
-            await _noS0577PacketHandler!.Execute(new NoS0577Packet
+            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session).ConfigureAwait(false);

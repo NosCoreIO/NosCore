@@ -39,7 +39,7 @@ namespace NosCore.PacketHandlers.Movement
             _logger = logger;
         }
 
-        public override Task Execute(ClientDirPacket dirpacket, ClientSession session)
+        public override Task ExecuteAsync(ClientDirPacket dirpacket, ClientSession session)
         {
             IAliveEntity entity;
             switch (dirpacket.VisualType)
@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Movement
                     return Task.CompletedTask;
             }
 
-            entity.ChangeDir(dirpacket.Direction);
+            entity.ChangeDirAsync(dirpacket.Direction);
             return Task.CompletedTask;
         }
     }

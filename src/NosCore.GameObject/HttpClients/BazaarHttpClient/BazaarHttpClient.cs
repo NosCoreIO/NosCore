@@ -43,17 +43,17 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
             RequireConnection = true;
         }
 
-        public async Task<List<BazaarLink>> GetBazaarLinks(int i, int packetIndex, int pagesize, BazaarListType packetTypeFilter,
+        public async Task<List<BazaarLink>> GetBazaarLinksAsync(int i, int packetIndex, int pagesize, BazaarListType packetTypeFilter,
             byte packetSubTypeFilter,
             byte packetLevelFilter, byte packetRareFilter, byte packetUpgradeFilter, long? sellerFilter)
         {
-            var client = await Connect().ConfigureAwait(false);
+            var client = await ConnectAsync().ConfigureAwait(false);
             var response = await client
                 .GetAsync(
                     $"{ApiUrl}?id={i}&Index={packetIndex}&PageSize={pagesize}&TypeFilter={packetTypeFilter}&SubTypeFilter={packetSubTypeFilter}&LevelFilter={packetLevelFilter}&RareFilter={packetRareFilter}&UpgradeFilter={packetUpgradeFilter}&SellerFilter={sellerFilter}").ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                return JsonSerializer.Deserialize<List<BazaarLink>>(response.Content.ReadAsStringAsync().Result, new JsonSerializerOptions
+                return JsonSerializer.Deserialize<List<BazaarLink>>(await response.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
@@ -62,19 +62,19 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
             throw new ArgumentException();
         }
 
-        public Task<LanguageKey?> AddBazaar(BazaarRequest bazaarRequest)
+        public Task<LanguageKey?> AddBazaarAsync(BazaarRequest bazaarRequest)
         {
-            return Post<LanguageKey?>(bazaarRequest);
+            return PostAsync<LanguageKey?>(bazaarRequest);
         }
 
-        public async Task<BazaarLink?> GetBazaarLink(long bazaarId)
+        public async Task<BazaarLink?> GetBazaarLinkAsync(long bazaarId)
         {
-            return (await Get<List<BazaarLink?>>(bazaarId)!.ConfigureAwait(false)).FirstOrDefault();
+            return (await GetAsync<List<BazaarLink?>>(bazaarId)!.ConfigureAwait(false)).FirstOrDefault();
         }
 
-        public async Task<bool> Remove(long bazaarId, int count, string requestCharacterName)
+        public async Task<bool> RemoveAsync(long bazaarId, int count, string requestCharacterName)
         {
-            var client = await Connect().ConfigureAwait(false);
+            var client = await ConnectAsync().ConfigureAwait(false);
             var response = await client
                 .DeleteAsync($"{ApiUrl}?id={bazaarId}&Count={count}&requestCharacterName={requestCharacterName}").ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
@@ -88,9 +88,9 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
             throw new ArgumentException();
         }
 
-        public Task<BazaarLink> Modify(long bazaarId, JsonPatchDocument<BazaarLink> patchBz)
+        public Task<BazaarLink> ModifyAsync(long bazaarId, JsonPatchDocument<BazaarLink> patchBz)
         {
-            return Patch<BazaarLink>(bazaarId, patchBz);
+            return PatchAsync<BazaarLink>(bazaarId, patchBz);
         }
     }
 }

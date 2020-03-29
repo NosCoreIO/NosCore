@@ -25,10 +25,10 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
 {
     public interface IChannelHttpClient
     {
-        Task Connect();
-        Task<HttpStatusCode> Ping();
-        Task<string?> GetOrRefreshToken();
-        Task<List<ChannelInfo>> GetChannels();
-        Task<ChannelInfo> GetChannel(int channelId);
+        Task ConnectAsync();
+        Task<HttpStatusCode> PingAsync();
+        Task<string?> GetOrRefreshTokenAsync();
+        Task<List<ChannelInfo>> GetChannelsAsync();
+        Task<ChannelInfo> GetChannelAsync(int channelId);
     }
 }

@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.Shops
 {
     public class MShopPacketHandler : PacketHandler<MShopPacket>, IWorldPacketHandler
     {
-        public override async Task Execute(MShopPacket mShopPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(MShopPacket mShopPacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Shops
                     Math.Abs(clientSession.Character.PositionY - port.SourceY)) <= 6);
             if (portal != null)
             {
-                await clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL,
                         clientSession.Account.Language),
@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Shops
 
             if ((clientSession.Character.Group != null) && (clientSession.Character.Group?.Type != GroupType.Group))
             {
-                await clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID,
                         clientSession.Account.Language),
@@ -73,7 +73,7 @@ namespace NosCore.PacketHandlers.Shops
 
             if (!clientSession.Character.MapInstance.ShopAllowed)
             {
-                await clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED,
                         clientSession.Account.Language),
@@ -111,8 +111,8 @@ namespace NosCore.PacketHandlers.Shops
 
                         if (!inv.ItemInstance.Item!.IsTradable || (inv.ItemInstance.BoundCharacterId != null))
                         {
-                            await clientSession.SendPacket(new ShopEndPacket {Type = ShopEndPacketType.PersonalShop}).ConfigureAwait(false);
-                            await clientSession.SendPacket(clientSession.Character.GenerateSay(
+                            await clientSession.SendPacketAsync(new ShopEndPacket {Type = ShopEndPacketType.PersonalShop}).ConfigureAwait(false);
+                            await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
                                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS,
                                     clientSession.Account.Language),
                                 SayColorType.Yellow)).ConfigureAwait(false);
@@ -133,8 +133,8 @@ namespace NosCore.PacketHandlers.Shops
 
                     if (clientSession.Character.Shop.ShopItems.Count == 0)
                     {
-                        await clientSession.SendPacket(new ShopEndPacket {Type = ShopEndPacketType.PersonalShop}).ConfigureAwait(false);
-                        await clientSession.SendPacket(clientSession.Character.GenerateSay(
+                        await clientSession.SendPacketAsync(new ShopEndPacket {Type = ShopEndPacketType.PersonalShop}).ConfigureAwait(false);
+                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
                             GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, clientSession.Account.Language),
                             SayColorType.Yellow)).ConfigureAwait(false);
                         clientSession.Character.Shop = null;
@@ -150,28 +150,28 @@ namespace NosCore.PacketHandlers.Shops
                             clientSession.Account.Language) :
                         mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
 
-                    await clientSession.Character.MapInstance.SendPacket(clientSession.Character.GenerateShop()).ConfigureAwait(false);
-                    await clientSession.SendPacket(new InfoPacket
+                    await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateShop()).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(new InfoPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_OPEN,
                             clientSession.Account.Language)
                     }).ConfigureAwait(false);
 
                     clientSession.Character.Requests.Subscribe(data =>
-                        data.ClientSession.SendPacket(
+                        data.ClientSession.SendPacketAsync(
                             clientSession.Character.GenerateNpcReq(clientSession.Character.Shop.ShopId)));
-                    await clientSession.Character.MapInstance.SendPacket(clientSession.Character.GeneratePFlag(),
+                    await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GeneratePFlag(),
                         new EveryoneBut(clientSession.Channel!.Id)).ConfigureAwait(false);
                     clientSession.Character.IsSitting = true;
                     clientSession.Character.LoadSpeed();
-                    await clientSession.SendPacket(clientSession.Character.GenerateCond()).ConfigureAwait(false);
-                    await clientSession.Character.MapInstance.SendPacket(clientSession.Character.GenerateRest()).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(clientSession.Character.GenerateCond()).ConfigureAwait(false);
+                    await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateRest()).ConfigureAwait(false);
                     break;
                 case CreateShopPacketType.Close:
-                    await clientSession.Character.CloseShop().ConfigureAwait(false);
+                    await clientSession.Character.CloseShopAsync().ConfigureAwait(false);
                     break;
                 case CreateShopPacketType.Create:
-                    await clientSession.SendPacket(new IshopPacket()).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(new IshopPacket()).ConfigureAwait(false);
                     break;
                 default:
                     //todo log

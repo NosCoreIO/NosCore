@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Shops
             _worldConfiguration = worldConfiguration;
         }
 
-        public override Task Execute(SellPacket sellPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(SellPacket sellPacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
@@ -50,58 +50,60 @@ namespace NosCore.PacketHandlers.Shops
                 return Task.CompletedTask;
             }
 
-            if (sellPacket.Amount.HasValue && sellPacket.Slot.HasValue)
+            if (!sellPacket.Amount.HasValue || !sellPacket.Slot.HasValue)
             {
-                var type = (NoscorePocketType) sellPacket.Data;
-
-                var inv = clientSession.Character.InventoryService.LoadBySlotAndType(sellPacket.Slot.Value, type);
-                if ((inv == null) || (sellPacket.Amount.Value > inv.ItemInstance!.Amount))
-                {
-                    //TODO log
-                    return Task.CompletedTask;
-                }
-
-                if (!inv.ItemInstance.Item!.IsSoldable)
-                {
-                    clientSession.SendPacket(new SMemoPacket
-                    {
-                        Type = SMemoType.Error,
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE,
-                            clientSession.Account.Language)
-                    });
-                    return Task.CompletedTask;
-                }
-
-                var price = inv.ItemInstance.Item.ItemType == ItemType.Sell ? inv.ItemInstance.Item.Price
-                    : inv.ItemInstance.Item.Price / 20;
-
-                if (clientSession.Character.Gold + price * sellPacket.Amount.Value > _worldConfiguration.MaxGoldAmount)
-                {
-                    clientSession.SendPacket(new MsgPacket
-                    {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
-                            clientSession.Account.Language),
-                        Type = 0
-                    });
-                    return Task.CompletedTask;
-                }
-
-                clientSession.Character.Gold += price * sellPacket.Amount.Value;
-                clientSession.SendPacket(new SMemoPacket
-                {
-                    Type = SMemoType.Success,
-                    Message = string.Format(
-                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE,
-                            clientSession.Account.Language),
-                        inv.ItemInstance.Item.Name[clientSession.Account.Language],
-                        sellPacket.Amount.Value
-                    )
-                });
-
-                clientSession.Character.InventoryService.RemoveItemAmountFromInventory(sellPacket.Amount.Value,
-                    inv.ItemInstanceId);
-                clientSession.SendPacket(clientSession.Character.GenerateGold());
+                return Task.CompletedTask;
             }
+
+            var type = (NoscorePocketType) sellPacket.Data;
+
+            var inv = clientSession.Character.InventoryService.LoadBySlotAndType(sellPacket.Slot.Value, type);
+            if ((inv == null) || (sellPacket.Amount.Value > inv.ItemInstance!.Amount))
+            {
+                //TODO log
+                return Task.CompletedTask;
+            }
+
+            if (!inv.ItemInstance.Item!.IsSoldable)
+            {
+                clientSession.SendPacketAsync(new SMemoPacket
+                {
+                    Type = SMemoType.Error,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE,
+                        clientSession.Account.Language)
+                });
+                return Task.CompletedTask;
+            }
+
+            var price = inv.ItemInstance.Item.ItemType == ItemType.Sell ? inv.ItemInstance.Item.Price
+                : inv.ItemInstance.Item.Price / 20;
+
+            if (clientSession.Character.Gold + price * sellPacket.Amount.Value > _worldConfiguration.MaxGoldAmount)
+            {
+                clientSession.SendPacketAsync(new MsgPacket
+                {
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
+                        clientSession.Account.Language),
+                    Type = 0
+                });
+                return Task.CompletedTask;
+            }
+
+            clientSession.Character.Gold += price * sellPacket.Amount.Value;
+            clientSession.SendPacketAsync(new SMemoPacket
+            {
+                Type = SMemoType.Success,
+                Message = string.Format(
+                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE,
+                        clientSession.Account.Language),
+                    inv.ItemInstance.Item.Name[clientSession.Account.Language],
+                    sellPacket.Amount.Value
+                )
+            });
+
+            clientSession.Character.InventoryService.RemoveItemAmountFromInventory(sellPacket.Amount.Value,
+                inv.ItemInstanceId);
+            clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
             return Task.CompletedTask;
         }
     }

@@ -24,8 +24,8 @@ namespace NosCore.Core.HttpClients.IncommingMailHttpClients
 {
     public interface IIncommingMailHttpClient
     {
-        Task NotifyIncommingMail(int channelId, MailData mailRequest);
-        Task OpenIncommingMail(int channelId, MailData mailData);
-        Task DeleteIncommingMail(int channelId, long id, short mailId, byte postType);
+        Task NotifyIncommingMailAsync(int channelId, MailData mailRequest);
+        Task OpenIncommingMailAsync(int channelId, MailData mailData);
+        Task DeleteIncommingMailAsync(int channelId, long id, short mailId, byte postType);
     }
 }

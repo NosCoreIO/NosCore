@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override async Task Execute(GetPacket getPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(GetPacket getPacket, ClientSession clientSession)
         {
             if (!clientSession.Character.MapInstance.MapItems.ContainsKey(getPacket.VisualId))
             {
@@ -76,7 +76,7 @@ namespace NosCore.PacketHandlers.Inventory
             if ((mapItem.OwnerId != null) && (mapItem.DroppedAt.AddSeconds(30) > SystemTime.Now()) &&
                 (mapItem.OwnerId != clientSession.Character.CharacterId))
             {
-                await clientSession.SendPacket(clientSession.Character.GenerateSay(
+                await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, clientSession.Account.Language),
                     SayColorType.Yellow)).ConfigureAwait(false);
                 return;

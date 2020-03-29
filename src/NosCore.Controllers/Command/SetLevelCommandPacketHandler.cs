@@ -51,11 +51,11 @@ namespace NosCore.PacketHandlers.Command
             _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
-        public override async Task Execute(SetLevelCommandPacket levelPacket, ClientSession session)
+        public override async Task ExecuteAsync(SetLevelCommandPacket levelPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
-                await session.Character.SetLevel(levelPacket.Level).ConfigureAwait(false);
+                await session.Character.SetLevelAsync(levelPacket.Level).ConfigureAwait(false);
                 return;
             }
 
@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var channels = (await _channelHttpClient.GetChannels().ConfigureAwait(false))
+            var channels = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer);
 
             ConnectedAccount? receiver = null;
@@ -75,20 +75,22 @@ namespace NosCore.PacketHandlers.Command
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
                 var accounts = await
-                    _connectedAccountHttpClient.GetConnectedAccount(channel).ConfigureAwait(false);
+                    _connectedAccountHttpClient.GetConnectedAccountAsync(channel).ConfigureAwait(false);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Name == levelPacket.Name);
 
-                if (target != null)
+                if (target == null)
                 {
-                    receiver = target;
-                    config = channel.WebApi;
+                    continue;
                 }
+
+                receiver = target;
+                config = channel.WebApi;
             }
 
             if (receiver == null) //TODO: Handle 404 in WebApi
             {
-                await session.SendPacket(new InfoPacket
+                await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
@@ -96,7 +98,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStat(data, config!).ConfigureAwait(false);
+            await _statHttpClient.ChangeStatAsync(data, config!).ConfigureAwait(false);
         }
     }
 }

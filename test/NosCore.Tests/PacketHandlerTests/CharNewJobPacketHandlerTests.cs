@@ -51,7 +51,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task CreateMartialArtistWhenNoLevel80_Does_Not_Create_Character()
         {
             const string name = "TestCharacter";
-            await _charNewJobPacketHandler!.Execute(new CharNewJobPacket
+            await _charNewJobPacketHandler!.ExecuteAsync(new CharNewJobPacket
             {
                 Name = name
             }, _session!).ConfigureAwait(false);
@@ -65,7 +65,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _chara!.Level = 80;
             CharacterDto character = _chara;
             TestHelpers.Instance.CharacterDao.InsertOrUpdate(ref character);
-            await _charNewJobPacketHandler!.Execute(new CharNewJobPacket
+            await _charNewJobPacketHandler!.ExecuteAsync(new CharNewJobPacket
             {
                 Name = name
             }, _session!).ConfigureAwait(false);
@@ -80,7 +80,7 @@ namespace NosCore.Tests.PacketHandlerTests
             CharacterDto character = _chara;
             _chara.Level = 80;
             TestHelpers.Instance.CharacterDao.InsertOrUpdate(ref character);
-            await _charNewJobPacketHandler!.Execute(new CharNewJobPacket
+            await _charNewJobPacketHandler!.ExecuteAsync(new CharNewJobPacket
             {
                 Name = name
             }, _session!).ConfigureAwait(false);

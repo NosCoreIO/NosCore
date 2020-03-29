@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Shops
             _nRunProvider = nRunProvider;
         }
 
-        public override Task Execute(NrunPacket nRunPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(NrunPacket nRunPacket, ClientSession clientSession)
         {
             var forceNull = false;
             IAliveEntity? aliveEntity;

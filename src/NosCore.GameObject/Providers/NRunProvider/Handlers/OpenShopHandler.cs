@@ -34,9 +34,9 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             return (item.Item2.Runner == NrunRunnerType.OpenShop) && (item.Item1 != null);
         }
 
-        public Task Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
+        public Task ExecuteAsync(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
-            return requestData.ClientSession.HandlePackets(new[]
+            return requestData.ClientSession.HandlePacketsAsync(new[]
             {
                 new ShoppingPacket
                 {

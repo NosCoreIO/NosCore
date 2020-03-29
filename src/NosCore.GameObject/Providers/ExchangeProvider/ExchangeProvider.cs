@@ -119,27 +119,27 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                     dictionary);
             }
 
-            if (!session.Character.InventoryService.EnoughPlace(
-                    targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance!).ToList(),
-                    targetInfo.ExchangeItems.Keys.First().Type) ||
-                !targetSession.InventoryService.EnoughPlace(
-                    exchangeInfo.ExchangeItems.Keys.Select(s => s.ItemInstance!).ToList(),
-                    targetInfo.ExchangeItems.Keys.First().Type))
+            if (session.Character.InventoryService.EnoughPlace(
+                targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance!).ToList(),
+                targetInfo.ExchangeItems.Keys.First().Type) && targetSession.InventoryService.EnoughPlace(
+                exchangeInfo.ExchangeItems.Keys.Select(s => s.ItemInstance!).ToList(),
+                targetInfo.ExchangeItems.Keys.First().Type))
             {
-                dictionary.Add(session.Character.CharacterId, new InfoPacket
-                {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, session.Account.Language)
-                });
-                dictionary.Add(targetSession.VisualId, new InfoPacket
-                {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL,
-                        targetSession.AccountLanguage)
-                });
-                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Failure,
-                    dictionary);
+                return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Success, null);
             }
 
-            return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Success, null);
+            dictionary.Add(session.Character.CharacterId, new InfoPacket
+            {
+                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL, session.Account.Language)
+            });
+            dictionary.Add(targetSession.VisualId, new InfoPacket
+            {
+                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVENTORY_FULL,
+                    targetSession.AccountLanguage)
+            });
+            return new Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?>(ExchangeResultType.Failure,
+                dictionary);
+
         }
 
         public void ConfirmExchange(long visualId)

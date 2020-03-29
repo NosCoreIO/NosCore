@@ -39,15 +39,15 @@ namespace NosCore.PacketHandlers.Miniland
             _minilandProvider = minilandProvider;
         }
 
-        public override async Task Execute(MLEditPacket mlEditPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(MLEditPacket mlEditPacket, ClientSession clientSession)
         {
             var miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             switch (mlEditPacket.Type)
             {
                 case 1:
-                    await clientSession.SendPacket(new MlintroPacket {Intro = mlEditPacket.MinilandInfo!.Replace(' ', '^')}).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(new MlintroPacket {Intro = mlEditPacket.MinilandInfo!.Replace(' ', '^')}).ConfigureAwait(false);
                     miniland.MinilandMessage = mlEditPacket.MinilandInfo;
-                    await clientSession.SendPacket(new InfoPacket
+                    await clientSession.SendPacketAsync(new InfoPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_INFO_CHANGED,
                             clientSession.Account.Language)
@@ -58,30 +58,30 @@ namespace NosCore.PacketHandlers.Miniland
                     switch (mlEditPacket.Parameter)
                     {
                         case MinilandState.Private:
-                            await clientSession.SendPacket(new MsgPacket
+                            await clientSession.SendPacketAsync(new MsgPacket
                             {
                                 Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_PRIVATE,
                                     clientSession.Account.Language)
                             }).ConfigureAwait(false);
-                            await _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Private).ConfigureAwait(false);
+                            await _minilandProvider.SetStateAsync(clientSession.Character.CharacterId, MinilandState.Private).ConfigureAwait(false);
                             break;
 
                         case MinilandState.Lock:
-                            await clientSession.SendPacket(new MsgPacket
+                            await clientSession.SendPacketAsync(new MsgPacket
                             {
                                 Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_LOCK,
                                     clientSession.Account.Language)
                             }).ConfigureAwait(false);
-                            await _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Lock).ConfigureAwait(false);
+                            await _minilandProvider.SetStateAsync(clientSession.Character.CharacterId, MinilandState.Lock).ConfigureAwait(false);
                             break;
 
                         case MinilandState.Open:
-                            await clientSession.SendPacket(new MsgPacket
+                            await clientSession.SendPacketAsync(new MsgPacket
                             {
                                 Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_PUBLIC,
                                     clientSession.Account.Language)
                             }).ConfigureAwait(false);
-                            await _minilandProvider.SetState(clientSession.Character.CharacterId, MinilandState.Open).ConfigureAwait(false);
+                            await _minilandProvider.SetStateAsync(clientSession.Character.CharacterId, MinilandState.Open).ConfigureAwait(false);
                             break;
 
                         default:

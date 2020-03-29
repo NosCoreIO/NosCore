@@ -82,36 +82,36 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         bool IsDisconnecting { get; }
 
-        Task GenerateMail(IEnumerable<MailData> data);
+        Task GenerateMailAsync(IEnumerable<MailData> data);
 
-        Task SendPacket(IPacket packetDefinition);
+        Task SendPacketAsync(IPacket packetDefinition);
 
-        Task SendPackets(IEnumerable<IPacket> packetDefinitions);
+        Task SendPacketsAsync(IEnumerable<IPacket> packetDefinitions);
 
-        Task LeaveGroup();
+        Task LeaveGroupAsync();
 
         void JoinGroup(Group group);
 
         void Save();
 
-        Task SetJobLevel(byte level);
+        Task SetJobLevelAsync(byte level);
 
-        Task SetHeroLevel(byte level);
+        Task SetHeroLevelAsync(byte level);
 
-        Task SetReputation(long reput);
+        Task SetReputationAsync(long reput);
 
-        Task SetGold(long gold);
+        Task SetGoldAsync(long gold);
 
-        Task AddGold(long gold);
+        Task AddGoldAsync(long gold);
 
-        Task RemoveGold(long gold);
+        Task RemoveGoldAsync(long gold);
 
         void AddBankGold(long bankGold);
 
         void RemoveBankGold(long bankGold);
 
-        Task ChangeClass(CharacterClassType classType);
+        Task ChangeClassAsync(CharacterClassType classType);
 
-        Task ChangeMap(short mapId, short mapX, short mapY);
+        Task ChangeMapAsync(short mapId, short mapX, short mapY);
     }
 }

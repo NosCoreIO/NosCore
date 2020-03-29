@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.Group
 {
     public class PleavePacketHandler : PacketHandler<PleavePacket>, IWorldPacketHandler
     {
-        public override async Task Execute(PleavePacket bIPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(PleavePacket bIPacket, ClientSession clientSession)
         {
             var group = clientSession.Character.Group;
 
@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Group
             if (group.Count > 2)
             {
                 var isLeader = group.IsGroupLeader(clientSession.Character.CharacterId);
-                await clientSession.Character.LeaveGroup().ConfigureAwait(false);
+                await clientSession.Character.LeaveGroupAsync().ConfigureAwait(false);
 
                 if (isLeader)
                 {
@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    await targetsession.SendPacket(new InfoPacket
+                    await targetsession.SendPacketAsync(new InfoPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER,
                             clientSession.Account.Language)
@@ -76,8 +76,8 @@ namespace NosCore.PacketHandlers.Group
                 foreach (var member in group.Values.Where(s => s.Item2 is ICharacterEntity))
                 {
                     var character = member.Item2 as ICharacterEntity;
-                    await (character == null ? Task.CompletedTask : character.SendPacket(character.Group!.GeneratePinit())).ConfigureAwait(false);
-                    await (character == null ? Task.CompletedTask : character.SendPacket(new MsgPacket
+                    await (character == null ? Task.CompletedTask : character.SendPacketAsync(character.Group!.GeneratePinit())).ConfigureAwait(false);
+                    await (character == null ? Task.CompletedTask : character.SendPacketAsync(new MsgPacket
                     {
                         Message = string.Format(
                             GameLanguage.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP,
@@ -86,13 +86,13 @@ namespace NosCore.PacketHandlers.Group
                     })).ConfigureAwait(false);
                 }
 
-                await clientSession.SendPacket(clientSession.Character.Group!.GeneratePinit()).ConfigureAwait(false);
-                await clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacketAsync(clientSession.Character.Group!.GeneratePinit()).ConfigureAwait(false);
+                await clientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT,
                         clientSession.Account.Language)
                 }).ConfigureAwait(false);
-                await clientSession.Character.MapInstance.SendPacket(
+                await clientSession.Character.MapInstance.SendPacketAsync(
                     clientSession.Character.Group.GeneratePidx(clientSession.Character)).ConfigureAwait(false);
             }
             else
@@ -111,16 +111,16 @@ namespace NosCore.PacketHandlers.Group
                         continue;
                     }
 
-                    await targetsession.SendPacket(new MsgPacket
+                    await targetsession.SendPacketAsync(new MsgPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
                             targetsession.AccountLanguage),
                         Type = MessageType.White
                     }).ConfigureAwait(false);
 
-                    await targetsession.LeaveGroup().ConfigureAwait(false);
-                    await targetsession.SendPacket(targetsession.Group!.GeneratePinit()).ConfigureAwait(false);
-                    await Broadcaster.Instance.SendPacket(targetsession.Group.GeneratePidx(targetsession)).ConfigureAwait(false);
+                    await targetsession.LeaveGroupAsync().ConfigureAwait(false);
+                    await targetsession.SendPacketAsync(targetsession.Group!.GeneratePinit()).ConfigureAwait(false);
+                    await Broadcaster.Instance.SendPacketAsync(targetsession.Group.GeneratePidx(targetsession)).ConfigureAwait(false);
                 }
 
                 GroupAccess.Instance.Groups.TryRemove(group.GroupId, out _);

@@ -56,9 +56,9 @@ namespace NosCore.PacketHandlers.Chat
             _packetHttpClient = packetHttpClient;
         }
 
-        public override async Task Execute(BtkPacket btkPacket, ClientSession session)
+        public override async Task ExecuteAsync(BtkPacket btkPacket, ClientSession session)
         {
-            var friendlist = await _friendHttpClient.GetListFriends(session.Character.VisualId).ConfigureAwait(false);
+            var friendlist = await _friendHttpClient.GetListFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
 
             if (friendlist.All(s => s.CharacterId != btkPacket.CharacterId))
             {
@@ -80,22 +80,22 @@ namespace NosCore.PacketHandlers.Chat
 
             if (receiverSession != null)
             {
-                await receiverSession.SendPacket(session.Character.GenerateTalk(message)).ConfigureAwait(false);
+                await receiverSession.SendPacketAsync(session.Character.GenerateTalk(message)).ConfigureAwait(false);
                 return;
             }
 
-            var receiver = await _connectedAccountHttpClient.GetCharacter(btkPacket.CharacterId, null).ConfigureAwait(false);
+            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(btkPacket.CharacterId, null).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
-                await session.SendPacket(new InfoPacket
+                await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, session.Account.Language)
                 }).ConfigureAwait(false);
                 return;
             }
 
-            await _packetHttpClient.BroadcastPacket(new PostedPacket
+            await _packetHttpClient.BroadcastPacketAsync(new PostedPacket
             {
                 Packet = _packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character

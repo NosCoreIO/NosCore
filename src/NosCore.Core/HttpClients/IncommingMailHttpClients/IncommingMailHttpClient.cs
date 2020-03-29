@@ -38,9 +38,9 @@ namespace NosCore.Core.HttpClients.IncommingMailHttpClients
             RequireConnection = true;
         }
 
-        public async Task DeleteIncommingMail(int channelId, long id, short mailId, byte postType)
+        public async Task DeleteIncommingMailAsync(int channelId, long id, short mailId, byte postType)
         {
-            using var client = await Connect(channelId).ConfigureAwait(false); 
+            using var client = await ConnectAsync(channelId).ConfigureAwait(false); 
             if(client == null)
             {
                 return;
@@ -48,9 +48,9 @@ namespace NosCore.Core.HttpClients.IncommingMailHttpClients
             await client.DeleteAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}&mailId={mailId}&postType={postType}")).ConfigureAwait(false);
         }
 
-        public async Task NotifyIncommingMail(int channelId, MailData mailRequest)
+        public async Task NotifyIncommingMailAsync(int channelId, MailData mailRequest)
         {
-            using var client = await Connect(channelId).ConfigureAwait(false);
+            using var client = await ConnectAsync(channelId).ConfigureAwait(false);
             if (client == null)
             {
                 return;
@@ -60,7 +60,7 @@ namespace NosCore.Core.HttpClients.IncommingMailHttpClients
             await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
         }
 
-        public Task OpenIncommingMail(int channelId, MailData mailData)
+        public Task OpenIncommingMailAsync(int channelId, MailData mailData)
         {
             throw new NotImplementedException();
         }

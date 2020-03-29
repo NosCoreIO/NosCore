@@ -44,11 +44,11 @@ namespace NosCore.PacketHandlers.Command
             _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
-        public override async Task Execute(ChangeClassPacket changeClassPacket, ClientSession session)
+        public override async Task ExecuteAsync(ChangeClassPacket changeClassPacket, ClientSession session)
         {
             if ((changeClassPacket.Name == session.Character.Name) || string.IsNullOrEmpty(changeClassPacket.Name))
             {
-                await session.Character.ChangeClass(changeClassPacket.ClassType).ConfigureAwait(false);
+                await session.Character.ChangeClassAsync(changeClassPacket.ClassType).ConfigureAwait(false);
                 return;
             }
 
@@ -59,11 +59,11 @@ namespace NosCore.PacketHandlers.Command
                 Data = (byte) changeClassPacket.ClassType
             };
 
-            var receiver = await _connectedAccountHttpClient.GetCharacter(null, changeClassPacket.Name).ConfigureAwait(false);
+            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, changeClassPacket.Name).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
-                await session.SendPacket(new InfoPacket
+                await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStat(data, receiver.Item1!).ConfigureAwait(false);
+            await _statHttpClient.ChangeStatAsync(data, receiver.Item1!).ConfigureAwait(false);
         }
     }
 }

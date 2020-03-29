@@ -39,18 +39,18 @@ namespace NosCore.PacketHandlers.Friend
             _blacklistHttpClient = blacklistHttpClient;
         }
 
-        public override async Task Execute(BlDelPacket bldelPacket, ClientSession session)
+        public override async Task ExecuteAsync(BlDelPacket bldelPacket, ClientSession session)
         {
-            var list = await _blacklistHttpClient.GetBlackLists(session.Character.VisualId).ConfigureAwait(false);
+            var list = await _blacklistHttpClient.GetBlackListsAsync(session.Character.VisualId).ConfigureAwait(false);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == bldelPacket.CharacterId);
             if (idtorem != null)
             {
-                await _blacklistHttpClient.DeleteFromBlacklist(idtorem.CharacterRelationId).ConfigureAwait(false);
-                await session.SendPacket(await session.Character.GenerateBlinit(_blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                await _blacklistHttpClient.DeleteFromBlacklistAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
+                await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(_blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             }
             else
             {
-                await session.SendPacket(new InfoPacket
+                await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
                         session.Account.Language)

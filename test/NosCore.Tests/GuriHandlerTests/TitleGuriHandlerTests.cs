@@ -64,7 +64,7 @@ namespace NosCore.Tests.GuriHandlerTests
         public async Task Test_TitleGuriHandler()
         {
             Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
-            await ExecuteGuriEventHandler(new GuriPacket
+            await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
@@ -80,7 +80,7 @@ namespace NosCore.Tests.GuriHandlerTests
         {
             Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
             Session.Character.Titles = new List<TitleDto> { new TitleDto { TitleType = 1 } };
-            await ExecuteGuriEventHandler(new GuriPacket
+            await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
@@ -93,7 +93,7 @@ namespace NosCore.Tests.GuriHandlerTests
         [TestMethod]
         public async Task Test_TitleGuriHandlerWhenNoTitleItem()
         {
-            await ExecuteGuriEventHandler(new GuriPacket
+            await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0

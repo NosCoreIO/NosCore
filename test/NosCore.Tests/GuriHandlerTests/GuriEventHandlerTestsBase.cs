@@ -31,12 +31,12 @@ namespace NosCore.Tests.GuriHandlerTests
         protected ClientSession? Session;
         protected readonly UseItemPacket UseItem = new UseItemPacket();
 
-        protected async Task ExecuteGuriEventHandler(GuriPacket guriPacket)
+        protected Task ExecuteGuriEventHandlerAsync(GuriPacket guriPacket)
         {
-            await Handler!.Execute(
+            return Handler!.ExecuteAsync(
                 new RequestData<GuriPacket>(
                     Session!,
-                    guriPacket)).ConfigureAwait(false);
+                    guriPacket));
         }
     }
 }

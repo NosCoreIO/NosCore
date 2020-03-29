@@ -44,7 +44,7 @@ namespace NosCore.WorldServer.Controllers
                 return Ok(); // TODO : Handle 404 in WebApi
             }
 
-            targetSession.Session.Disconnect();
+            targetSession.Session.DisconnectAsync();
             return Ok();
         }
     }

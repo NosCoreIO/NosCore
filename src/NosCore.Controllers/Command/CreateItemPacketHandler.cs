@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Command
             _worldConfiguration = worldConfiguration;
         }
 
-        public override Task Execute(CreateItemPacket createItemPacket, ClientSession session)
+        public override Task ExecuteAsync(CreateItemPacket createItemPacket, ClientSession session)
         {
             var vnum = createItemPacket.VNum;
             sbyte rare = 0;
@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Command
             var iteminfo = _items.Find(item => item.VNum == vnum);
             if (iteminfo == null)
             {
-                session.SendPacket(new MsgPacket
+                session.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, session.Account.Language),
                     Type = 0
@@ -132,7 +132,7 @@ namespace NosCore.PacketHandlers.Command
 
             if (inv == null || inv.Count <= 0)
             {
-                session.SendPacket(new MsgPacket
+                session.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         session.Account.Language),
@@ -141,7 +141,7 @@ namespace NosCore.PacketHandlers.Command
                 return Task.CompletedTask;
             }
 
-            session.SendPacket(inv.GeneratePocketChange());
+            session.SendPacketAsync(inv.GeneratePocketChange());
             var firstItem = inv[0];
 
             if (session.Character.InventoryService.LoadBySlotAndType(firstItem.Slot,
@@ -168,7 +168,7 @@ namespace NosCore.PacketHandlers.Command
                 }
             }
 
-            session.SendPacket(session.Character.GenerateSay(
+            session.SendPacketAsync(session.Character.GenerateSay(
                 $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, session.Account.Language)}: {iteminfo.Name[session.Account.Language]} x {amount}",
                 SayColorType.Green));
             return Task.CompletedTask;

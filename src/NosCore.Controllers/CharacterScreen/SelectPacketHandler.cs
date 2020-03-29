@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _titleDao = titleDao;
         }
 
-        public override Task Execute(SelectPacket packet, ClientSession clientSession)
+        public override Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
         {
             try
             {
@@ -105,9 +105,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 clientSession.SetCharacter(character);
 
 #pragma warning disable CS0618
-                clientSession.SendPackets(clientSession.Character.GenerateInv());
+                clientSession.SendPacketsAsync(clientSession.Character.GenerateInv());
 #pragma warning restore CS0618
-                clientSession.SendPacket(clientSession.Character.GenerateMlobjlst());
+                clientSession.SendPacketAsync(clientSession.Character.GenerateMlobjlst());
                 if (clientSession.Character.Hp > clientSession.Character.HpLoad())
                 {
                     clientSession.Character.Hp = (int) clientSession.Character.HpLoad();
@@ -124,7 +124,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
                 clientSession.Character.Titles = _titleDao
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
-                clientSession.SendPacket(new OkPacket());
+                clientSession.SendPacketAsync(new OkPacket());
             }
             catch (Exception ex)
             {

@@ -72,7 +72,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task LoginOldClient()
         {
             _loginConfiguration!.ClientVersion = new ClientVersionSubPacket {Major = 1};
-            await _noS0575PacketHandler!.Execute(new NoS0575Packet
+            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,
                 Username = _session!.Account.Name.ToUpperInvariant()
@@ -86,7 +86,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task LoginOldAuthWithNewAuthEnforced()
         {
             _loginConfiguration!.EnforceNewAuth = true;
-            await _noS0575PacketHandler!.Execute(new NoS0575Packet
+            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,
                 Username = _session!.Account.Name.ToUpperInvariant()
@@ -98,7 +98,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginNoAccount()
         {
-            await _noS0575PacketHandler!.Execute(new NoS0575Packet
+            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,
                 Username = "noaccount"
@@ -111,7 +111,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginWrongCaps()
         {
-            await _noS0575PacketHandler!.Execute(new NoS0575Packet
+            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,
                 Username = _session!.Account.Name.ToUpperInvariant()
@@ -124,7 +124,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginWrongPAssword()
         {
-            await _noS0575PacketHandler!.Execute(new NoS0575Packet
+            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = "test1".ToSha512(),
                 Username = _session!.Account.Name
@@ -137,10 +137,10 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task Login()
         {
-            _channelHttpClient!.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo> {new ChannelInfo()});
-            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
+            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> {new ChannelInfo()});
+            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
-            await _noS0575PacketHandler!.Execute(new NoS0575Packet
+            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,
                 Username = _session!.Account.Name
@@ -152,11 +152,11 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginAlreadyConnected()
         {
-            _channelHttpClient!.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo> {new ChannelInfo()});
-            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>())).ReturnsAsync(
+            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> {new ChannelInfo()});
+            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>())).ReturnsAsync(
                 new List<ConnectedAccount>
                     {new ConnectedAccount {Name = _session!.Account.Name}});
-            await _noS0575PacketHandler!.Execute(new NoS0575Packet
+            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,
                 Username = _session.Account.Name
@@ -168,11 +168,11 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginNoServer()
         {
-            _channelHttpClient!.Setup(s => s.GetChannels()).ReturnsAsync(new List<ChannelInfo>());
-            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccount(It.IsAny<ChannelInfo>()))
+            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>());
+            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
 
-            await _noS0575PacketHandler!.Execute(new NoS0575Packet
+            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,
                 Username = _session!.Account.Name

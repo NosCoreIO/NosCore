@@ -45,7 +45,7 @@ namespace NosCore.LoginServer
 
         public void Run()
         {
-            _channelHttpClient.Connect();
+            _channelHttpClient.ConnectAsync();
             try
             {
                 try

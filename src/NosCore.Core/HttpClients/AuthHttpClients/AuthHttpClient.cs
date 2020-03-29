@@ -35,10 +35,10 @@ namespace NosCore.Core.HttpClients.AuthHttpClients
             RequireConnection = true;
         }
 
-        public async Task<string?> GetAwaitingConnection(string? name, string packetPassword,
+        public async Task<string?> GetAwaitingConnectionAsync(string? name, string packetPassword,
             int clientSessionSessionId)
         {
-            var client = await Connect().ConfigureAwait(false);
+            var client = await ConnectAsync().ConfigureAwait(false);
             if (client == null)
             {
                 return null;

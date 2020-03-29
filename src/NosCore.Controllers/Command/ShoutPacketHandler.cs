@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Command
             _packetHttpClient = packetHttpClient;
         }
 
-        public override Task Execute(ShoutPacket shoutPacket, ClientSession session)
+        public override Task ExecuteAsync(ShoutPacket shoutPacket, ClientSession session)
         {
             var message =
                 $"({GameLanguage.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, session.Account.Language)}) {shoutPacket.Message}";

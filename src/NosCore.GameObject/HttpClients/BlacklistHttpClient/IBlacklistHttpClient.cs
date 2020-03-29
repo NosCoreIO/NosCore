@@ -27,8 +27,8 @@ namespace NosCore.GameObject.HttpClients.BlacklistHttpClient
 {
     public interface IBlacklistHttpClient
     {
-        Task<List<CharacterRelationStatus>> GetBlackLists(long characterVisualId);
-        Task<LanguageKey> AddToBlacklist(BlacklistRequest blacklistRequest);
-        Task DeleteFromBlacklist(Guid characterRelationId);
+        Task<List<CharacterRelationStatus>> GetBlackListsAsync(long characterVisualId);
+        Task<LanguageKey> AddToBlacklistAsync(BlacklistRequest blacklistRequest);
+        Task DeleteFromBlacklistAsync(Guid characterRelationId);
     }
 }

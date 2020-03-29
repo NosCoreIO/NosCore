@@ -44,11 +44,11 @@ namespace NosCore.PacketHandlers.Bazaar
             _items = items;
         }
 
-        public override async Task Execute(CBListPacket packet, ClientSession clientSession)
+        public override async Task ExecuteAsync(CBListPacket packet, ClientSession clientSession)
         {
             var itemssearch = packet.ItemVNumFilter.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
 
-            var bzlist = await _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
+            var bzlist = await _bazaarHttpClient.GetBazaarLinksAsync(-1, packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
                 packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null).ConfigureAwait(false);
             var bzlistsearched = bzlist.Where(s => itemssearch!.Contains(s.ItemInstance!.ItemVNum)).ToList();
 
@@ -76,7 +76,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     .ToList()
             };
 
-            await clientSession.SendPacket(new RcbListPacket
+            await clientSession.SendPacketAsync(new RcbListPacket
             {
                 PageIndex = packet.Index,
                 Items = definitivelist

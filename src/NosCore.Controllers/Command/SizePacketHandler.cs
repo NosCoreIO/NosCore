@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Command
             _logger = logger;
         }
 
-        public override Task Execute(SizePacket sizePacket, ClientSession session)
+        public override Task ExecuteAsync(SizePacket sizePacket, ClientSession session)
         {
             IAliveEntity entity;
             switch (sizePacket.VisualType)
@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Command
             }
 
             entity.Size = sizePacket.Size;
-            return session.Character.MapInstance.SendPacket(entity.GenerateCharSc());
+            return session.Character.MapInstance.SendPacketAsync(entity.GenerateCharSc());
         }
     }
 }
