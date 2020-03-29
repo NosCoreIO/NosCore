@@ -63,6 +63,7 @@ namespace NosCore.GameObject.Networking.LoginService
             {
                 clientSession.SessionId = clientSession.Channel?.Id != null
                     ? SessionFactory.Instance.Sessions[clientSession.Channel.Id.AsLongText()].SessionId : 0;
+/*
                 if (false) //TODO Maintenance
                 {
                     await clientSession.SendPacket(new FailcPacket
@@ -72,6 +73,7 @@ namespace NosCore.GameObject.Networking.LoginService
                     await clientSession.Disconnect();
                     return;
                 }
+*/
 
                 if (((_loginConfiguration.ClientVersion != null) &&
                         (clientVersion != _loginConfiguration.ClientVersion))

@@ -76,7 +76,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 EquipmentType.MainWeapon
                     ? (4 + _minilandObject.InventoryItemInstance.ItemInstance.ItemVNum) % 10
                     : (int)_minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot / 3);
-            var full = false;
+            //todo check if enought points
 
             switch (minigamePacket.Type)
             {
