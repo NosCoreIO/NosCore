@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto
                 {
                     CharacterId = requestData.ClientSession.Character.CharacterId,
-                    DateEnd = SystemTime.Now().AddDays(itemInstance.ItemInstance.Item.EffectValue),
+                    DateEnd = SystemTime.Now().AddDays(itemInstance.ItemInstance!.Item!.EffectValue),
                     StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.SilverNosMerchantUpgrade
                         ? StaticBonusType.BazaarMedalSilver : StaticBonusType.BazaarMedalGold
                 });

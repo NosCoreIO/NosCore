@@ -19,10 +19,10 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;

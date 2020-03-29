@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider.Handlers
             {
                 requestData.ClientSession.SendPacket(new MsgPacket
                 {
-                    Message = miniland.MinilandMessage.Replace(' ', '^')
+                    Message = miniland.MinilandMessage!.Replace(' ', '^')
                 });
 
                 miniland.DailyVisitCount++;

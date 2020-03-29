@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
     {
         public Guid MapInstanceId { get; set; }
 
-        public ICharacterEntity CharacterEntity { get; set; }
+        public ICharacterEntity? CharacterEntity { get; set; }
         public int CurrentMinigame { get; set; }
 
         public MlInfoBrPacket GenerateMlinfobr()

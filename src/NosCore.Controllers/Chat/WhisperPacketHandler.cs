@@ -21,11 +21,11 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.Account;
@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Chat
                 var messageBuilder = new StringBuilder();
 
                 //Todo: review this
-                var messageData = whisperPacket.Message.Split(' ');
+                var messageData = whisperPacket.Message!.Split(' ');
                 var receiverName = messageData[whisperPacket.Message.StartsWith("GM ") ? 1 : 0];
 
                 for (var i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)

@@ -29,7 +29,6 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
 {
     public class IncommingMailHttpClient : MasterServerHttpClient, IIncommingMailHttpClient
     {
-        private readonly IChannelHttpClient _channelHttpClient;
 
         public IncommingMailHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
             IChannelHttpClient channelHttpClient)
@@ -37,18 +36,25 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClient
         {
             ApiUrl = "api/incommingMail";
             RequireConnection = true;
-            _channelHttpClient = channelHttpClient;
         }
 
         public async Task DeleteIncommingMail(int channelId, long id, short mailId, byte postType)
         {
             using var client = await Connect(channelId).ConfigureAwait(false); 
+            if(client == null)
+            {
+                return;
+            }
             await client.DeleteAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}&mailId={mailId}&postType={postType}")).ConfigureAwait(false);
         }
 
         public async Task NotifyIncommingMail(int channelId, MailData mailRequest)
         {
             using var client = await Connect(channelId).ConfigureAwait(false);
+            if (client == null)
+            {
+                return;
+            }
             using var content = new StringContent(JsonSerializer.Serialize(mailRequest), Encoding.Default,
                 "application/json");
             await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);

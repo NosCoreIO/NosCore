@@ -23,8 +23,6 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClient;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
@@ -37,6 +35,8 @@ using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.HttpClients.ChannelHttpClient;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClient;
 
 namespace NosCore.PacketHandlers.Game
 {

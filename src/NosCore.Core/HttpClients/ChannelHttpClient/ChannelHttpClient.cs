@@ -194,7 +194,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClient
             if (!MasterClientListSingleton.Instance.Channels.Any())
             {
                 using var client = _httpClientFactory.CreateClient();
-                client.BaseAddress = new Uri(_channel.MasterCommunication.ToString());
+                client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
                 client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", await GetOrRefreshToken().ConfigureAwait(false));
 

@@ -42,10 +42,10 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 
         public async Task Execute(RequestData<GuriPacket> requestData)
         {
-            var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)requestData.Data.VisualId,
+            var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)(requestData.Data.VisualId ?? 0),
                 NoscorePocketType.Main);
-            if (inv?.ItemInstance.Item.ItemType != ItemType.Title ||
-                requestData.ClientSession.Character.Titles.Any(s => s.TitleType == inv.ItemInstance.ItemVNum))
+            if (inv?.ItemInstance?.Item.ItemType != ItemType.Title ||
+                requestData.ClientSession.Character.Titles.Any(s => s.TitleType == inv.ItemInstance?.ItemVNum))
             {
                 return;
             }
@@ -53,12 +53,12 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             requestData.ClientSession.Character.Titles.Add(new TitleDto
             {
                 Id = Guid.NewGuid(),
-                TitleType = inv.ItemInstance.ItemVNum,
+                TitleType = inv.ItemInstance!.ItemVNum,
                 Visible = false,
                 Active = false,
                 CharacterId = requestData.ClientSession.Character.VisualId
             });
-            await requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character.GenerateTitle());
+            await requestData.ClientSession.Character.MapInstance!.SendPacket(requestData.ClientSession.Character.GenerateTitle());
             await requestData.ClientSession.SendPacket(new InfoPacket { Message = requestData.ClientSession.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE) });
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
             await requestData.ClientSession.SendPacket(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));

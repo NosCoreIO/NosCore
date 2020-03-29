@@ -78,7 +78,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     new IvnSubPacket
                     {
                         Slot = slot,
-                        VNum = itemInstance.ItemInstance.ItemVNum,
+                        VNum = itemInstance.ItemInstance!.ItemVNum,
                         RareAmount =
                             itemInstance.Type != NoscorePocketType.Equipment ? itemInstance.ItemInstance.Amount
                                 : itemInstance.ItemInstance.Rare,
@@ -98,7 +98,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 {
                     Type = type,
                     IvnSubPackets = itemInstance.Select(item => item.ItemInstance.GenerateIvnSubPacket(type, item.Slot))
-                        .ToList()
+                        .ToList() as List<IvnSubPacket?>
                 };
             }
 

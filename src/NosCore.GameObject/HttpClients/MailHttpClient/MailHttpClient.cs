@@ -85,9 +85,9 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
         }
 
         private MailRequest GenerateMailRequest(ICharacterEntity characterEntity, long receiverId,
-            [CanBeNull] IItemInstanceDto itemInstance,
+            IItemInstanceDto? itemInstance,
             short? vnum, short? amount, sbyte? rare,
-            byte? upgrade, bool isNosmall, string title, string text)
+            byte? upgrade, bool isNosmall, string? title, string? text)
         {
             var mail = new MailDto
             {

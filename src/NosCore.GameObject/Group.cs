@@ -36,6 +36,8 @@ namespace NosCore.GameObject
 {
     public class Group : ConcurrentDictionary<Tuple<VisualType, long>, Tuple<int, INamedEntity>>, IBroadcastable
     {
+        public short MaxPacketsBuffer { get; } = 250;
+
         private int _lastId;
 
         public Group(GroupType type)
@@ -68,7 +70,7 @@ namespace NosCore.GameObject
             return new PinitPacket
             {
                 GroupSize = Count == 1 ? 0 : Count,
-                PinitSubPackets = Values.Select(s => s.Item2.GenerateSubPinit(Count == 1 ? i : ++i)).ToList()
+                PinitSubPackets = Values.Select(s => s.Item2.GenerateSubPinit(Count == 1 ? i : ++i)).ToList() as List<PinitSubPacket?>
             };
         }
 

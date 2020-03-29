@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Bazaar
 
         public override async Task Execute(CSListPacket packet, ClientSession clientSession)
         {
-            var list = new List<RcsListPacket.RcsListElementPacket>();
+            var list = new List<RcsListPacket.RcsListElementPacket?>();
             var bzlist = await _bazaarHttpClient.GetBazaarLinks(-1, packet.Index, 50, 0, 0, 0, 0, 0,
                 clientSession.Character.CharacterId);
 

@@ -75,7 +75,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                 return;
             }
 
-            await requestData.ClientSession.Character.ChangeClass((CharacterClassType) requestData.Data.Item2.Type);
+            await requestData.ClientSession.Character.ChangeClass((CharacterClassType)(requestData.Data.Item2.Type ?? 0));
         }
     }
 }

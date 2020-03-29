@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    if (targetSession?.Group.IsGroupFull ?? true)
+                    if (targetSession?.Group?.IsGroupFull ?? true)
                     {
                         await clientSession.SendPacket(new InfoPacket
                         {
@@ -81,7 +81,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    if ((targetSession.Group.Count > 1) && (clientSession.Character.Group.Count > 1))
+                    if ((targetSession.Group!.Count > 1) && (clientSession.Character.Group.Count > 1))
                     {
                         await clientSession.SendPacket(new InfoPacket
                         {
@@ -203,14 +203,14 @@ namespace NosCore.PacketHandlers.Group
 
                     break;
                 case GroupRequestType.Accepted:
-                    if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                    if (targetSession == null || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
                         return;
                     }
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
 
-                    if ((clientSession.Character.Group.Count > 1) && (targetSession.Group.Count > 1))
+                    if ((clientSession.Character.Group.Count > 1) && (targetSession?.Group?.Count > 1))
                     {
                         return;
                     }
@@ -223,7 +223,7 @@ namespace NosCore.PacketHandlers.Group
                                 clientSession.Account.Language)
                         });
 
-                        await targetSession.SendPacket(new InfoPacket
+                        await targetSession!.SendPacket(new InfoPacket
                         {
                             Message = Language.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
                                 targetSession.AccountLanguage)
@@ -289,7 +289,7 @@ namespace NosCore.PacketHandlers.Group
 
                     break;
                 case GroupRequestType.Declined:
-                    if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                    if (targetSession == null || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
                         return;
                     }
@@ -302,7 +302,7 @@ namespace NosCore.PacketHandlers.Group
                     });
                     break;
                 case GroupRequestType.AcceptedShare:
-                    if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                    if (targetSession == null || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
                         return;
                     }
@@ -323,7 +323,7 @@ namespace NosCore.PacketHandlers.Group
                     //TODO: add a way to change respawn points when system will be done
                     break;
                 case GroupRequestType.DeclinedShare:
-                    if (!targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                    if (targetSession == null || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
                         return;
                     }

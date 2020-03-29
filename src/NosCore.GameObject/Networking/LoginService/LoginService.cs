@@ -168,7 +168,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             return;
                         }
 
-                        var subpacket = new List<NsTeStSubPacket>();
+                        var subpacket = new List<NsTeStSubPacket?>();
                         i = 1;
                         var servergroup = string.Empty;
                         var worldCount = 1;
@@ -177,7 +177,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             if (server.Name != servergroup)
                             {
                                 i = 1;
-                                servergroup = server.Name;
+                                servergroup = server.Name ?? "";
                                 worldCount++;
                             }
 

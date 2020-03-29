@@ -152,7 +152,7 @@ namespace NosCore.GameObject.Providers.InventoryService
 
             // create new item
             var freeSlot = newItem.Type == NoscorePocketType.Wear
-                ? LoadBySlotAndType((short)newItem.ItemInstance.Item.EquipmentSlot, NoscorePocketType.Wear) == null
+                ? LoadBySlotAndType((short)newItem.ItemInstance!.Item.EquipmentSlot, NoscorePocketType.Wear) == null
                     ? (short?)newItem.ItemInstance.Item.EquipmentSlot
                     : null
                 : GetFreeSlot(newItem.Type);
@@ -161,7 +161,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                 return invlist;
             }
 
-            newItem.Slot = slot ?? freeSlot.Value;
+            newItem.Slot = slot ?? freeSlot ?? 0;
 
             if (ContainsKey(newItem.ItemInstanceId))
             {
@@ -259,7 +259,7 @@ namespace NosCore.GameObject.Providers.InventoryService
             }
 
             var sourceInstance = LoadBySlotAndType(sourceSlot, sourceType);
-            if (!(sourceInstance.ItemInstance is WearableInstance || sourceInstance.ItemInstance is SpecialistInstance))
+            if (!(sourceInstance!.ItemInstance is WearableInstance || sourceInstance.ItemInstance is SpecialistInstance))
             {
                 var e = new InvalidOperationException("SourceInstance can't be moved between pockets");
                 _logger.Error(e.Message, e);

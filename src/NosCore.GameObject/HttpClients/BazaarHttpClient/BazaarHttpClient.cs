@@ -25,11 +25,11 @@ using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClient;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NosCore.Core.HttpClients.ChannelHttpClient;
 
 namespace NosCore.GameObject.HttpClients.BazaarHttpClient
 {

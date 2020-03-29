@@ -84,7 +84,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 TitleId = (short)(s.TitleType - 9300),
                 TitleStatus = (byte)((s.Visible ? 2 : 0) + (s.Active ? 4 : 0) + 1)
-            }).ToList();
+            }).ToList() as List<TitleSubPacket?>;
             return new TitlePacket
             {
                 Data = data.Any() ? data : null
@@ -114,7 +114,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static async Task<BlinitPacket> GenerateBlinit(this ICharacterEntity visualEntity,
             IBlacklistHttpClient blacklistHttpClient)
         {
-            var subpackets = new List<BlinitSubPacket>();
+            var subpackets = new List<BlinitSubPacket?>();
             var blackList = await blacklistHttpClient.GetBlackLists(visualEntity.VisualId);
             foreach (var relation in blackList)
             {
@@ -146,7 +146,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     await connectedAccountHttpClient.GetConnectedAccount(server));
             }
 
-            var subpackets = new List<FinitSubPacket>();
+            var subpackets = new List<FinitSubPacket?>();
             var friendlist = await friendHttpClient.GetListFriends(visualEntity.VisualId);
             //TODO add spouselist
             //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
