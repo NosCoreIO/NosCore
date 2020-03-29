@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -43,7 +44,7 @@ namespace NosCore.Tests.GuriHandlerTests
     [TestClass]
     public class TitleGuriHandlerTests : GuriEventHandlerTestsBase
     {
-        private IItemProvider _itemProvider;
+        private IItemProvider? _itemProvider;
 
         [TestInitialize]
         public void Setup()
@@ -60,26 +61,26 @@ namespace NosCore.Tests.GuriHandlerTests
         }
 
         [TestMethod]
-        public void Test_TitleGuriHandler()
+        public async Task Test_TitleGuriHandler()
         {
-            Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
-            ExecuteGuriEventHandler(new GuriPacket
+            Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            await ExecuteGuriEventHandler(new GuriPacket
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
             });
             var lastpacket = (InfoPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.WEAR_NEW_TITLE,
-                Session.Account.Language), lastpacket.Message);
+                Session.Account.Language), lastpacket?.Message);
             Assert.AreEqual(1, Session.Character.Titles.Count);
         }
 
         [TestMethod]
-        public void Test_TitleGuriHandlerWhenDuplicate()
+        public async Task Test_TitleGuriHandlerWhenDuplicate()
         {
-            Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1, 1), 0));
+            Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
             Session.Character.Titles = new List<TitleDto> { new TitleDto { TitleType = 1 } };
-            ExecuteGuriEventHandler(new GuriPacket
+            await ExecuteGuriEventHandler(new GuriPacket
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
@@ -90,14 +91,14 @@ namespace NosCore.Tests.GuriHandlerTests
         }
 
         [TestMethod]
-        public void Test_TitleGuriHandlerWhenNoTitleItem()
+        public async Task Test_TitleGuriHandlerWhenNoTitleItem()
         {
-            ExecuteGuriEventHandler(new GuriPacket
+            await ExecuteGuriEventHandler(new GuriPacket
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
             });
-            var lastpacket = (InfoPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket?)Session!.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.IsNull(lastpacket);
             Assert.AreEqual(0, Session.Character.Titles.Count);
         }

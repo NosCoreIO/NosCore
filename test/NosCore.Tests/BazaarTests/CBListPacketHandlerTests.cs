@@ -75,7 +75,7 @@ namespace NosCore.Tests.BazaarTests
                     It.IsAny<byte>(),
                     It.IsAny<long?>())
             ).ReturnsAsync(new List<BazaarLink>());
-            await _cblistPacketHandler!.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session);
+            await _cblistPacketHandler!.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!);
             var lastpacket = (RcbListPacket?) _session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket?.Items?.Count == 0);
         }
@@ -83,7 +83,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task ListShouldReturnTheItems()
         {
-            _bazaarHttpClient.Setup(b =>
+            _bazaarHttpClient!.Setup(b =>
                 b.GetBazaarLinks(
                     It.IsAny<int>(),
                     It.IsAny<int>(),
@@ -133,7 +133,7 @@ namespace NosCore.Tests.BazaarTests
                 }
             });
             await _cblistPacketHandler!.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!);
-            var lastpacket = (RcbListPacket?) _session.LastPackets.FirstOrDefault(s => s is RcbListPacket);
+            var lastpacket = (RcbListPacket?) _session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket?.Items?.Count == 0);
         }
 

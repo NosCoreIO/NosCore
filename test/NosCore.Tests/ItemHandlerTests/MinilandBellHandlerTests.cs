@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
@@ -43,8 +44,8 @@ namespace NosCore.Tests.ItemHandlerTests
     [TestClass]
     public class MinilandBellHandlerTests : UseItemEventHandlerTestsBase
     {
-        private ItemProvider _itemProvider;
-        private Mock<IMinilandProvider> _minilandProvider;
+        private ItemProvider? _itemProvider;
+        private Mock<IMinilandProvider>? _minilandProvider;
 
         [TestInitialize]
         public void Setup()
@@ -63,48 +64,48 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public void Test_Miniland_On_Instance()
+        public async Task Test_Miniland_On_Instance()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetMapInstance(TestHelpers.Instance.MinilandId);
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
-            Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            Session!.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetMapInstance(TestHelpers.Instance.MinilandId);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (SayPacket?)Session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE, Session.Character.Account.Language), lastpacket.Message);
+            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE, Session.Character.Account.Language), lastpacket?.Message);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
         [TestMethod]
-        public void Test_Miniland_On_Vehicle()
+        public async Task Test_Miniland_On_Vehicle()
         {
-            Session.Character.IsVehicled = true;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
-            Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            Session!.Character.IsVehicled = true;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (SayPacket?)Session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE_IN_VEHICLE, Session.Character.Account.Language), lastpacket.Message);
+            Assert.AreEqual(Language.Instance.GetMessageFromKey(LanguageKey.CANT_USE_IN_VEHICLE, Session.Character.Account.Language), lastpacket?.Message);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
         [TestMethod]
-        public void Test_Miniland_Delay()
+        public async Task Test_Miniland_Delay()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
-            Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (DelayPacket?)Session.LastPackets.FirstOrDefault(s => s is DelayPacket);
             Assert.IsNotNull(lastpacket);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
         [TestMethod]
-        public void Test_Miniland()
+        public async Task Test_Miniland()
         {
             UseItem.Mode = 2;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
-            Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-            Assert.AreEqual(MapInstanceType.NormalInstance, Session.Character.MapInstance.MapInstanceType);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            Assert.AreEqual(MapInstanceType.NormalInstance, Session!.Character.MapInstance!.MapInstanceType);
             Assert.AreEqual(0, Session.Character.InventoryService.Count);
         }
     }

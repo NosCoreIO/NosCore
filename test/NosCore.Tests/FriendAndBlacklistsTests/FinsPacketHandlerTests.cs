@@ -89,21 +89,21 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         [TestMethod]
         public async Task Test_Add_Friend()
         {
-            _friendRequestHolder.FriendRequestCharacters.TryAdd(Guid.NewGuid(),
-                new Tuple<long, long>(_targetSession.Character.CharacterId, _session.Character.CharacterId));
+            _friendRequestHolder!.FriendRequestCharacters.TryAdd(Guid.NewGuid(),
+                new Tuple<long, long>(_targetSession!.Character.CharacterId, _session!.Character.CharacterId));
             var finsPacket = new FinsPacket
             {
                 CharacterId = _targetSession.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
 
-            using var friend = new FriendController(Logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
+            using var friend = new FriendController(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
                 _friendRequestHolder, _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest
                     {CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket}));
-            await _finsPacketHandler.Execute(finsPacket, _session);
-            Assert.IsTrue(_characterRelationDao.LoadAll().Count() == 2);
+            await _finsPacketHandler!.Execute(finsPacket, _session);
+            Assert.IsTrue(_characterRelationDao!.LoadAll().Count() == 2);
         }
 
         [TestMethod]
@@ -111,17 +111,17 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         {
             var finsPacket = new FinsPacket
             {
-                CharacterId = _targetSession.Character.CharacterId,
+                CharacterId = _targetSession!.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
-            using var friend = new FriendController(Logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder, _connectedAccountHttpClient.Object);
+            using var friend = new FriendController(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
+                _friendRequestHolder!, _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>())).Returns(
                 friend.AddFriend(new FriendShipRequest
-                    {CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket}));
-            await _finsPacketHandler.Execute(finsPacket, _session);
+                    {CharacterId = _session!.Character.CharacterId, FinsPacket = finsPacket}));
+            await _finsPacketHandler!.Execute(finsPacket, _session);
 
-            Assert.IsFalse(_characterRelationDao.LoadAll().Any());
+            Assert.IsFalse(_characterRelationDao!.LoadAll().Any());
         }
 
         [TestMethod]
@@ -129,17 +129,17 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         {
             var finsPacket = new FinsPacket
             {
-                CharacterId = _targetSession.Character.CharacterId,
+                CharacterId = _targetSession!.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
-            using var friend = new FriendController(Logger, _characterRelationDao, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder, _connectedAccountHttpClient.Object);
+            using var friend = new FriendController(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
+                _friendRequestHolder!, _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest
-                    {CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket}));
+                    {CharacterId = _session!.Character.CharacterId, FinsPacket = finsPacket}));
 
-            await _finsPacketHandler.Execute(finsPacket, _session);
-            Assert.IsFalse(_characterRelationDao.LoadAll().Any());
+            await _finsPacketHandler!.Execute(finsPacket, _session);
+            Assert.IsFalse(_characterRelationDao!.LoadAll().Any());
         }
     }
 }

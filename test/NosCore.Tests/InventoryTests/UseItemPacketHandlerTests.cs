@@ -37,9 +37,9 @@ namespace NosCore.Tests.InventoryTests
     [TestClass]
     public class UseItemPacketHandlerTests
     {
-        private IItemProvider _item;
-        private ClientSession _session;
-        private UseItemPacketHandler _useItemPacketHandler;
+        private IItemProvider? _item;
+        private ClientSession? _session;
+        private UseItemPacketHandler? _useItemPacketHandler;
 
         [TestCleanup]
         public void Cleanup()
@@ -60,22 +60,22 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void Test_Binding()
         {
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
-            _useItemPacketHandler.Execute(new UseItemPacket {Slot = 0, Type = PocketType.Equipment, Mode = 1},
+            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
+            _useItemPacketHandler!.Execute(new UseItemPacket {Slot = 0, Type = PocketType.Equipment, Mode = 1},
                 _session);
 
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
-                (s.Value.ItemInstance.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Wear) &&
+                (s.Value.ItemInstance!.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Wear) &&
                 (s.Value.ItemInstance.BoundCharacterId == _session.Character.VisualId)));
         }
 
         [TestMethod]
         public void Test_Increment_SpAdditionPoints()
         {
-            _session.Character.SpAdditionPoint = 0;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1078, 1), 0));
+            _session!.Character.SpAdditionPoint = 0;
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
-            _useItemPacketHandler.Execute(new UseItemPacket
+            _useItemPacketHandler!.Execute(new UseItemPacket
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
@@ -90,10 +90,10 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void Test_Overflow_SpAdditionPoints()
         {
-            _session.Character.SpAdditionPoint = _session.WorldConfiguration.MaxAdditionalSpPoints;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1078, 1), 0));
+            _session!.Character.SpAdditionPoint = _session.WorldConfiguration.MaxAdditionalSpPoints;
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
-            _useItemPacketHandler.Execute(new UseItemPacket
+            _useItemPacketHandler!.Execute(new UseItemPacket
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
@@ -111,10 +111,10 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void Test_CloseToLimit_SpAdditionPoints()
         {
-            _session.Character.SpAdditionPoint = _session.WorldConfiguration.MaxAdditionalSpPoints - 1;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1078, 1), 0));
+            _session!.Character.SpAdditionPoint = _session.WorldConfiguration.MaxAdditionalSpPoints - 1;
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
-            _useItemPacketHandler.Execute(new UseItemPacket
+            _useItemPacketHandler!.Execute(new UseItemPacket
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,

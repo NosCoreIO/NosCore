@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -61,15 +62,15 @@ namespace NosCore.Tests.PacketHandlerTests
 
 
         [TestMethod]
-        public void Test_Get()
+        public async Task Test_Get()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _session.Character.MapInstance!.MapItems.TryAdd(100001,
-                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item.Create(1012, 1), 1,
+                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1012, 1), 1,
                     1));
 
-            _getPacketHandler!.Execute(new GetPacket
+            await _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
@@ -79,16 +80,16 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void Test_GetInStack()
+        public async Task Test_GetInStack()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
 
             _session.Character.MapInstance!.MapItems.TryAdd(100001,
-                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item.Create(1012, 1), 1,
+                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1012, 1), 1,
                     1));
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
-            _getPacketHandler!.Execute(new GetPacket
+            await _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
@@ -98,28 +99,28 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void Test_GetFullInventory()
+        public async Task Test_GetFullInventory()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _session.Character.MapInstance!.MapItems.TryAdd(100001,
-                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item.Create(1, 1), 1, 1));
+                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1, 1), 1, 1));
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
-            _getPacketHandler!.Execute(new GetPacket
+            await _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session);
-            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                 _session.Account.Language)) && (packet?.Type == 0));
             Assert.IsTrue(_session.Character.InventoryService.Count == 2);
         }
 
         [TestMethod]
-        public void Test_Get_KeepRarity()
+        public async Task Test_Get_KeepRarity()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
@@ -127,7 +128,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1, 1, 6), 1,
                     1));
 
-            _getPacketHandler!.Execute(new GetPacket
+            await _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
@@ -137,7 +138,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void Test_Get_NotYourObject()
+        public async Task Test_Get_NotYourObject()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
@@ -149,20 +150,20 @@ namespace NosCore.Tests.PacketHandlerTests
             mapItem.DroppedAt = SystemTime.Now();
             _session.Character.MapInstance!.MapItems.TryAdd(100001, mapItem);
 
-            _getPacketHandler!.Execute(new GetPacket
+            await _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session);
-            var packet = (SayPacket?) _session.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue((packet?.Message == Language.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM,
                 _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
             Assert.IsTrue(_session.Character.InventoryService!.Count == 0);
         }
 
         [TestMethod]
-        public void Test_Get_NotYourObjectAfterDelay()
+        public async Task Test_Get_NotYourObjectAfterDelay()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
@@ -175,7 +176,7 @@ namespace NosCore.Tests.PacketHandlerTests
             mapItem.DroppedAt = SystemTime.Now().AddSeconds(-30);
             _session.Character.MapInstance!.MapItems.TryAdd(100001, mapItem);
 
-            _getPacketHandler!.Execute(new GetPacket
+            await _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
@@ -185,7 +186,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public void Test_GetAway()
+        public async Task Test_GetAway()
         {
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
@@ -193,7 +194,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _session.Character.MapInstance!.MapItems.TryAdd(100001,
                 TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1012, 1), 1,
                     1));
-            _getPacketHandler!.Execute(new GetPacket
+            await _getPacketHandler!.Execute(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,

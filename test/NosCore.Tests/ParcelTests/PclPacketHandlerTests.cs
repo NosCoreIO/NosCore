@@ -75,20 +75,20 @@ namespace NosCore.Tests.ParcelTests
         [TestMethod]
         public async Task Test_DeleteGift()
         {
-            _mailHttpClient.Setup(s => s.GetGift(1, _session.Character.CharacterId, false)).ReturnsAsync(new MailData());
-            await _pclPacketHandler.Execute(new PclPacket
+            _mailHttpClient!.Setup(s => s.GetGift(1, _session!.Character.CharacterId, false)).ReturnsAsync(new MailData());
+            await _pclPacketHandler!.Execute(new PclPacket
             {
                 Type = 5,
                 GiftId = 1
-            }, _session);
-            var packet = (ParcelPacket?)_session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
+            }, _session!);
+            var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsTrue(packet?.Type == 7);
         }
 
         [TestMethod]
         public async Task Test_ReceiveGift()
         {
-            var item = _item.Create(1);
+            var item = _item!.Create(1);
             var mail = new MailData
             {
                 ItemInstance = (ItemInstanceDto) item,
@@ -97,15 +97,15 @@ namespace NosCore.Tests.ParcelTests
                     ItemInstanceId = item.Id
                 }
             };
-            _itemInstanceDao.Setup(o => o.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+            _itemInstanceDao!.Setup(o => o.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
                 .Returns(item);
-            _mailHttpClient.Setup(s => s.GetGift(1, _session.Character.CharacterId, false)).ReturnsAsync(mail);
-            await _pclPacketHandler.Execute(new PclPacket
+            _mailHttpClient!.Setup(s => s.GetGift(1, _session!.Character.CharacterId, false)).ReturnsAsync(mail);
+            await _pclPacketHandler!.Execute(new PclPacket
             {
                 Type = 4,
                 GiftId = 1
-            }, _session);
-            var packet = (ParcelPacket?)_session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
+            }, _session!);
+            var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsTrue(packet?.Type == 2);
         }
 
@@ -113,7 +113,7 @@ namespace NosCore.Tests.ParcelTests
         public async Task Test_ReceiveGiftNoPlace()
         {
             TestHelpers.Instance.WorldConfiguration.BackpackSize = 0;
-            var item = _item.Create(1);
+            var item = _item!.Create(1);
             var mail = new MailData
             {
                 ItemInstance = (ItemInstanceDto)item,
@@ -122,15 +122,15 @@ namespace NosCore.Tests.ParcelTests
                     ItemInstanceId = item.Id
                 }
             };
-            _itemInstanceDao.Setup(o => o.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+            _itemInstanceDao!.Setup(o => o.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
                 .Returns(item);
-            _mailHttpClient.Setup(s => s.GetGift(1, _session.Character.CharacterId, false)).ReturnsAsync(mail);
-            await _pclPacketHandler.Execute(new PclPacket
+            _mailHttpClient!.Setup(s => s.GetGift(1, _session!.Character.CharacterId, false)).ReturnsAsync(mail);
+            await _pclPacketHandler!.Execute(new PclPacket
             {
                 Type = 4,
                 GiftId = 1
-            }, _session);
-            var packet = (ParcelPacket?)_session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
+            }, _session!);
+            var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsTrue(packet?.Type == 5);
         }
     }

@@ -117,7 +117,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task RetrieveWhenNotYourItem()
         {
-           await _cScalcPacketHandler.Execute(new CScalcPacket
+           await _cScalcPacketHandler!.Execute(new CScalcPacket
             {
                 BazaarId = 2,
                 Price = 50,
@@ -133,7 +133,7 @@ namespace NosCore.Tests.BazaarTests
         {
             var guid1 = Guid.NewGuid();
             var guid2 = Guid.NewGuid();
-            _session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance
+            _session!.Character.InventoryService!.AddItemToPocket(new InventoryItemInstance
             {
                 Id = guid2, ItemInstanceId = guid2, Slot = 0, Type = NoscorePocketType.Main,
                 ItemInstance = new ItemInstance {ItemVNum = 1012, Amount = 999, Id = guid2}
@@ -157,7 +157,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task RetrieveWhenMaxGold()
         {
-            _session.Character.Gold = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount;
+            _session!.Character.Gold = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount;
             await _cScalcPacketHandler!.Execute(new CScalcPacket
             {
                 BazaarId = 0,
@@ -174,7 +174,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task Retrieve()
         {
-            _itemInstanceDao.Setup(s=>s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto,bool>>>()))
+            _itemInstanceDao!.Setup(s=>s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto,bool>>>()))
                 .Returns(new ItemInstanceDto { ItemVNum = 1012, Amount = 0 });
             await _cScalcPacketHandler!.Execute(new CScalcPacket
             {

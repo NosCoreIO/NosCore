@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -42,8 +43,8 @@ namespace NosCore.Tests.ItemHandlerTests
     [TestClass]
     public class VehicleEventHandlerTests : UseItemEventHandlerTestsBase
     {
-        private Mock<ILogger> _logger;
-        private ItemProvider _itemProvider;
+        private Mock<ILogger>? _logger;
+        private ItemProvider? _itemProvider;
 
         [TestInitialize]
         public void Setup()
@@ -61,39 +62,39 @@ namespace NosCore.Tests.ItemHandlerTests
 
 
         [TestMethod]
-        public void Test_Can_Not_Vehicle_In_Shop()
+        public async Task Test_Can_Not_Vehicle_In_Shop()
         {
-            Session.Character.InShop = true;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
-           _logger.Verify(s=>s.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP)), Times.Exactly(1));
+            Session!.Character.InShop = true;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
+           _logger!.Verify(s=>s.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP)), Times.Exactly(1));
         }
 
         [TestMethod]
-        public void Test_Vehicle_GetDelayed()
+        public async Task Test_Vehicle_GetDelayed()
         {
             UseItem.Mode = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             var lastpacket = (DelayPacket?)Session.LastPackets.FirstOrDefault(s => s is DelayPacket);
             Assert.IsNotNull(lastpacket);
         }
 
         [TestMethod]
-        public void Test_Vehicle()
+        public async Task Test_Vehicle()
         {
             UseItem.Mode = 2;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             Assert.IsTrue(Session.Character.IsVehicled);
         }
 
         [TestMethod]
-        public void Test_Vehicle_Remove()
+        public async Task Test_Vehicle_Remove()
         {
-            Session.Character.IsVehicled = true;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider.Create(1), Session.Character.CharacterId);
-            ExecuteInventoryItemInstanceEventHandler(itemInstance);
+            Session!.Character.IsVehicled = true;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            await ExecuteInventoryItemInstanceEventHandler(itemInstance);
             Assert.IsFalse(Session.Character.IsVehicled);
         }
     }
