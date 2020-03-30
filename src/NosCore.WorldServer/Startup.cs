@@ -471,6 +471,7 @@ namespace NosCore.WorldServer
 
             container.Resolve<IMapInstanceProvider>().Initialize();
             Task.Run(() => container.Resolve<WorldServer>().RunAsync());
+
             return new AutofacServiceProvider(container);
         }
 

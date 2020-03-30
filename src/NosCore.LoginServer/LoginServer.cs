@@ -46,7 +46,6 @@ namespace NosCore.LoginServer
 
         public async Task RunAsync()
         {
-            await _channelHttpClient.ConnectAsync().ConfigureAwait(false);
             try
             {
                 try
@@ -59,7 +58,8 @@ namespace NosCore.LoginServer
                 }
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                     _loginConfiguration.Port);
-                await _networkManager.RunServerAsync().ConfigureAwait(false);
+
+                await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
             }
             catch
             {

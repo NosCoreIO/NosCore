@@ -60,7 +60,6 @@ namespace NosCore.WorldServer
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             _events.ForEach(e => { Observable.Interval(e.Delay).Subscribe(_ => e.Execution()); });
-            await _channelHttpClient.ConnectAsync();
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
                 var eventSaveAll = new SaveAll();
@@ -82,7 +81,7 @@ namespace NosCore.WorldServer
                 }
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                     _worldConfiguration.Port);
-                await _networkManager.RunServerAsync().ConfigureAwait(false);
+                await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
             }
             catch
             {
