@@ -162,7 +162,7 @@ namespace NosCore.GameObject
 
         public int DignityIcon => GetDignityIco();
 
-        public IChannel? Channel => Session.Channel;
+        public IChannel? Channel => Session?.Channel;
 
         public Task SendPacketAsync(IPacket? packetDefinition)
         {

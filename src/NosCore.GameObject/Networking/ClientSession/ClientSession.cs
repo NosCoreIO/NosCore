@@ -69,21 +69,11 @@ namespace NosCore.GameObject.Networking.ClientSession
         private Character? _character;
         private int? _waitForPacketsAmount;
 
-        public ClientSession(ServerConfiguration configuration,
-            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
-            : this(configuration, null, null, logger, packetsHandlers, friendHttpClient, packetSerializer,
-                packetHttpClient, null)
-        {
-        }
-
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         public ClientSession(ServerConfiguration configuration, IMapInstanceProvider? mapInstanceProvider,
             IExchangeProvider? exchangeProvider, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
             IMinilandProvider? minilandProvider) : base(logger)
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             _logger = logger;
             _packetsHandlers = packetsHandlers.ToList();
