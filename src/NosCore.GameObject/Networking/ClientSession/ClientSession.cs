@@ -56,18 +56,26 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic =
             new Dictionary<Type, PacketHeaderAttribute>();
 
-        private readonly IExchangeProvider _exchangeProvider;
-        private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IExchangeProvider _exchangeProvider = null!;
+        private readonly IFriendHttpClient _friendHttpClient = null!;
 
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
-        private readonly IMapInstanceProvider _mapInstanceProvider;
-        private readonly IMinilandProvider _minilandProvider;
+        private readonly IMapInstanceProvider _mapInstanceProvider = null!;
+        private readonly IMinilandProvider _minilandProvider = null!;
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
         private Character? _character;
         private int? _waitForPacketsAmount;
+        
+        public ClientSession(ServerConfiguration configuration,
+            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
+            : this(configuration, null, null, logger, packetsHandlers, friendHttpClient, packetSerializer,
+                packetHttpClient, null)
+        {
+        }
 
         public ClientSession(ServerConfiguration configuration, IMapInstanceProvider? mapInstanceProvider,
             IExchangeProvider? exchangeProvider, ILogger logger,
@@ -100,7 +108,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        public WorldConfiguration WorldConfiguration { get; }
+        public WorldConfiguration WorldConfiguration { get; } = null!;
 
         public bool GameStarted { get; set; }
 
@@ -110,7 +118,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public int LastPulse { get; set; }
 
-        public AccountDto Account { get; set; }
+        public AccountDto Account { get; set; } = null!;
 
         public Character Character
         {

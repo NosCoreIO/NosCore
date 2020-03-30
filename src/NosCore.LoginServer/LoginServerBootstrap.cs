@@ -141,11 +141,11 @@ namespace NosCore.LoginServer
                 .SingleInstance();
         }
 
-        public static void Main()
+        public static async Task Main()
         {
             try
             {
-                BuildHost(new string[0]).Run();
+                await BuildHost(new string[0]).RunAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -178,13 +178,11 @@ namespace NosCore.LoginServer
                     containerBuilder.Populate(services);
                     var container = containerBuilder.Build();
 
+                    Task.Run(() => container.Resolve<LoginServer>().RunAsync());
                     TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
                        .AfterMapping(dest => Task.Run(dest.Initialize));
                     TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
-
-
-                    Task.Run(() => container.Resolve<LoginServer>().RunAsync());
                 })
                 .Build();
         }
