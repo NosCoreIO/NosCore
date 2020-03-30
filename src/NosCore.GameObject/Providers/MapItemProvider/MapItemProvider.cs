@@ -58,10 +58,13 @@ namespace NosCore.GameObject.Providers.MapItemProvider
             {
                 if (handler.Condition(item))
                 {
-                    handlersRequest.Subscribe(o => Observable.FromAsync(async () =>
+                    handlersRequest.Subscribe(async o =>
                     {
-                        await handler.ExecuteAsync(o).ConfigureAwait(false);
-                    }));
+                        await Observable.FromAsync(async () =>
+                                {
+                                    await handler.ExecuteAsync(o).ConfigureAwait(false);
+                                });
+                    });
                 }
             });
             item.Requests = handlersRequest;

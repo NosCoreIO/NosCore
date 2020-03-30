@@ -46,10 +46,13 @@ namespace NosCore.GameObject.Providers.NRunProvider
             {
                 if (handler.Condition(data))
                 {
-                    handlersRequest.Subscribe(o => Observable.FromAsync(async () =>
+                    handlersRequest.Subscribe(async o =>
                     {
-                        await handler.ExecuteAsync(o).ConfigureAwait(false);
-                    }));
+                        await Observable.FromAsync(async () =>
+                        {
+                            await handler.ExecuteAsync(o).ConfigureAwait(false);
+                        });
+                    });
                 }
             });
             handlersRequest.OnNext(new RequestData<Tuple<IAliveEntity, NrunPacket>>(clientSession, data));
