@@ -19,6 +19,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -35,11 +36,11 @@ namespace NosCore.WorldServer
         private const string ConfigurationPath = "../../../configuration";
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
-        public static void Main()
+        public static async Task Main()
         {
             try
             {
-                BuildWebHost(new string[0]).Run();
+                await BuildWebHost(new string[0]).RunAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
