@@ -29,7 +29,6 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.Database.DAL;
@@ -72,13 +71,13 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _targetSession = TestHelpers.Instance.GenerateSession();
             _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(Logger);
             _friendRequestHolder = new FriendRequestHolder();
-            _connectedAccountHttpClient.Setup(s => s.GetCharacter(_targetSession.Character.CharacterId, null))
+            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_targetSession.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     {
                         ChannelId = 1, ConnectedCharacter = new Character {Id = _targetSession.Character.CharacterId}
                     }));
-            _connectedAccountHttpClient.Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
+            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                         {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
@@ -99,10 +98,10 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
 
             using var friend = new FriendController(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
                 _friendRequestHolder, _connectedAccountHttpClient.Object);
-            _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
+            _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest
                     {CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket}));
-            await _finsPacketHandler!.Execute(finsPacket, _session).ConfigureAwait(false);
+            await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
             Assert.IsTrue(_characterRelationDao!.LoadAll().Count() == 2);
         }
 
@@ -116,10 +115,10 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             };
             using var friend = new FriendController(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
                 _friendRequestHolder!, _connectedAccountHttpClient.Object);
-            _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>())).Returns(
+            _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>())).Returns(
                 friend.AddFriend(new FriendShipRequest
                     {CharacterId = _session!.Character.CharacterId, FinsPacket = finsPacket}));
-            await _finsPacketHandler!.Execute(finsPacket, _session).ConfigureAwait(false);
+            await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
 
             Assert.IsFalse(_characterRelationDao!.LoadAll().Any());
         }
@@ -134,11 +133,11 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             };
             using var friend = new FriendController(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
                 _friendRequestHolder!, _connectedAccountHttpClient.Object);
-            _friendHttpClient.Setup(s => s.AddFriend(It.IsAny<FriendShipRequest>()))
+            _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriend(new FriendShipRequest
                     {CharacterId = _session!.Character.CharacterId, FinsPacket = finsPacket}));
 
-            await _finsPacketHandler!.Execute(finsPacket, _session).ConfigureAwait(false);
+            await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
             Assert.IsFalse(_characterRelationDao!.LoadAll().Any());
         }
     }

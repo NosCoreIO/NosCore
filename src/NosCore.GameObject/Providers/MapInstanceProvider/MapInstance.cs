@@ -175,13 +175,13 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         {
             Broadcaster.Instance.GetCharacters(filter)
                 .Where(s => !s.IsDisconnecting && s.MapInstanceId == MapInstanceId).ToList()
-                .ForEach(s => s.ChangeMap(s.MapId, s.MapX, s.MapY));
+                .ForEach(s => s.ChangeMapAsync(s.MapId, s.MapX, s.MapY));
         }
 
         public MapItem? PutItem(short amount, IItemInstance inv, ClientSession session)
         {
             var random2 = Guid.NewGuid();
-            MapItem? droppedItem = null;
+            MapItem? droppedItem;
             var possibilities = new List<MapCell>();
 
             for (short x = -1; x < 2; x++)
@@ -322,14 +322,13 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (!disposing || (Life == null))
             {
-                if (Life != null)
-                {
-                    Life.Dispose();
-                    Life = null;
-                }
+                return;
             }
+
+            Life.Dispose();
+            Life = null;
         }
     }
 }

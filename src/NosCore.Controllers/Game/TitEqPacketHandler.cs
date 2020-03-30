@@ -26,46 +26,47 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using Serilog;
 
 namespace NosCore.PacketHandlers.Game
 {
     public class TitEqPacketHandler : PacketHandler<TitEqPacket>, IWorldPacketHandler
     {
-        public override Task Execute(TitEqPacket titEqPacket, ClientSession session)
+        public override async Task ExecuteAsync(TitEqPacket titEqPacket, ClientSession session)
         {
             var tit = session.Character.Titles.FirstOrDefault(s => s.TitleType == titEqPacket.TitleId);
-            if (tit != null)
+            if (tit == null)
             {
-                switch (titEqPacket.Mode)
-                {
-                    case 1:
-                        foreach (var title in session.Character.Titles.Where(s => s.TitleType != titEqPacket.TitleId))
-                        {
-                            title.Visible = false;
-                        }
-                        tit.Visible = !tit.Visible;
-                        session.SendPacket(new InfoPacket
-                        {
-                            Message = session.GetMessageFromKey(LanguageKey.TITLE_VISIBILITY_CHANGED)
-                        });
-                        break;
-                    default:
-                        foreach (var title in session.Character.Titles.Where(s => s.TitleType != titEqPacket.TitleId))
-                        {
-                            title.Active = false;
-                        }
-                        tit.Active = !tit.Active;
-                        session.SendPacket(new InfoPacket
-                        {
-                            Message = session.GetMessageFromKey(LanguageKey.TITLE_EFFECT_CHANGED)
-                        });
-                        break;
-                }
-                session.Character.MapInstance.SendPacket(session.Character.GenerateTitInfo());
-                session.Character.SendPacket(session.Character.GenerateTitle());
+                return;
             }
-            return Task.CompletedTask;
+
+
+            switch (titEqPacket.Mode)
+            {
+                case 1:
+                    foreach (var title in session.Character.Titles.Where(s => s.TitleType != titEqPacket.TitleId))
+                    {
+                        title.Visible = false;
+                    }
+                    tit.Visible = !tit.Visible;
+                    await session.SendPacketAsync(new InfoPacket
+                    {
+                        Message = session.GetMessageFromKey(LanguageKey.TITLE_VISIBILITY_CHANGED)
+                    }).ConfigureAwait(false);
+                    break;
+                default:
+                    foreach (var title in session.Character.Titles.Where(s => s.TitleType != titEqPacket.TitleId))
+                    {
+                        title.Active = false;
+                    }
+                    tit.Active = !tit.Active;
+                    await session.SendPacketAsync(new InfoPacket
+                    {
+                        Message = session.GetMessageFromKey(LanguageKey.TITLE_EFFECT_CHANGED)
+                    }).ConfigureAwait(false);
+                    break;
+            }
+            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateTitInfo()).ConfigureAwait(false);
+            await session.Character.SendPacketAsync(session.Character.GenerateTitle()).ConfigureAwait(false);
         }
     }
 }

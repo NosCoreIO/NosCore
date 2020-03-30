@@ -24,7 +24,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Inventory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core;
-using NosCore.Core.I18N;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
@@ -61,7 +60,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task Test_Delete_FromSlot()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 999), 0));
-            await _biPacketHandler!.Execute(new BiPacket
+            await _biPacketHandler!.ExecuteAsync(new BiPacket
                 {Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Main}, _session).ConfigureAwait(false);
             var packet = (IvnPacket?) _session.LastPackets.FirstOrDefault(s => s is IvnPacket);
             Assert.IsTrue(packet?.IvnSubPackets.All(iv => (iv?.Slot == 0) && (iv.VNum == -1)) ?? false);
@@ -71,7 +70,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task Test_Delete_FromEquiment()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
-            await _biPacketHandler!.Execute(new BiPacket
+            await _biPacketHandler!.ExecuteAsync(new BiPacket
                 {Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Equipment}, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Count == 0);
             var packet = (IvnPacket?) _session.LastPackets.FirstOrDefault(s => s is IvnPacket);

@@ -65,36 +65,36 @@ namespace NosCore.Tests.BazaarTests
             _cbuyPacketHandler = new CBuyPacketHandler(_bazaarHttpClient.Object, _itemProvider.Object, Logger,
                 _itemInstanceDao.Object);
 
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(0)).ReturnsAsync(
+            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(0)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = "test",
                     BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
                 });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(2)).ReturnsAsync(
+            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(2)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = _session!.Character.Name,
                     BazaarItem = new BazaarItemDto { Price = 60, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012 }
                 });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(3)).ReturnsAsync(
+            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(3)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = "test",
                     BazaarItem = new BazaarItemDto { Price = 50, Amount = 99, IsPackage = true },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 99 }
                 });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLink(1)).ReturnsAsync((BazaarLink?)null);
-            _bazaarHttpClient.Setup(b => b.Remove(It.IsAny<long>(), It.IsAny<int>(), It.IsAny<string>())).ReturnsAsync(true);
+            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(1)).ReturnsAsync((BazaarLink?)null);
+            _bazaarHttpClient.Setup(b => b.RemoveAsync(It.IsAny<long>(), It.IsAny<int>(), It.IsAny<string>())).ReturnsAsync(true);
         }
 
         [TestMethod]
         public async Task BuyWhenExchangeOrTrade()
         {
             _session!.Character.InExchangeOrTrade = true;
-            await _cbuyPacketHandler!.Execute(new CBuyPacket
+            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
                 BazaarId = 1,
                 Price = 50,
@@ -107,7 +107,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task BuyWhenNoItemFound()
         {
-            await _cbuyPacketHandler!.Execute(new CBuyPacket
+            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
                 BazaarId = 1,
                 Price = 50,
@@ -122,7 +122,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task BuyWhenSeller()
         {
-            await _cbuyPacketHandler!.Execute(new CBuyPacket
+            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
                 BazaarId = 2,
                 Price = 50,
@@ -137,7 +137,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task BuyWhenDifferentPrice()
         {
-            await _cbuyPacketHandler!.Execute(new CBuyPacket
+            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
                 BazaarId = 0,
                 Price = 40,
@@ -164,7 +164,7 @@ namespace NosCore.Tests.BazaarTests
                 Id = guid1, ItemInstanceId = guid1, Slot = 1, Type = NoscorePocketType.Main,
                 ItemInstance = new ItemInstance { ItemVNum = 1012, Amount = 999, Id = guid1 }
             });
-            await _cbuyPacketHandler!.Execute(new CBuyPacket
+            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
                 BazaarId = 0,
                 Price = 50,
@@ -180,7 +180,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task BuyMoreThanSelling()
         {
             _session!.Character.Gold = 5000;
-            await _cbuyPacketHandler!.Execute(new CBuyPacket
+            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
                 BazaarId = 0,
                 Price = 50,
@@ -196,7 +196,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task BuyPartialPackage()
         {
             _session!.Character.Gold = 5000;
-            await _cbuyPacketHandler!.Execute(new CBuyPacket
+            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
                 BazaarId = 3,
                 Price = 50,
@@ -213,7 +213,7 @@ namespace NosCore.Tests.BazaarTests
             var item = new Item { Type = NoscorePocketType.Main };
             _itemProvider!.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>()))
                 .Returns(new ItemInstance { Amount = 1, ItemVNum = 1012, Item = item });
-            await _cbuyPacketHandler!.Execute(new CBuyPacket
+            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
                 BazaarId = 3,
                 Price = 50,
@@ -228,7 +228,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task BuyNotEnoughMoney()
         {
-            await _cbuyPacketHandler!.Execute(new CBuyPacket
+            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
                 BazaarId = 0,
                 Price = 50,
@@ -247,7 +247,7 @@ namespace NosCore.Tests.BazaarTests
             var item = new Item { Type = NoscorePocketType.Main };
             _itemProvider!.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>()))
                 .Returns(new ItemInstance { Amount = 1, ItemVNum = 1012, Item = item });
-            await _cbuyPacketHandler!.Execute(new CBuyPacket
+            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
                 BazaarId = 0,
                 Price = 50,

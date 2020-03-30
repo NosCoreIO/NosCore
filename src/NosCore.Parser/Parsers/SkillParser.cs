@@ -111,7 +111,7 @@ namespace NosCore.Parser.Parsers
                 var skillscount = skills.Count(s => s.Class == skill.Class);
                 if ((firstskill == null) || (skill.SkillVNum <= firstskill.SkillVNum + 10))
                 {
-                    skill.LevelMinimum = (byte)(skill.Class switch
+                    skill.LevelMinimum = skill.Class switch
                     {
                         8 => (byte)(skillscount - 1 * 10),
                         9 => (byte)(skillscount - 4 * 4),
@@ -125,7 +125,7 @@ namespace NosCore.Parser.Parsers
                             _ => 0
                         },
                         _ => (byte)(skillscount - 5 * 4)
-                    });
+                    };
 
                 }
             }
@@ -161,7 +161,8 @@ namespace NosCore.Parser.Parsers
                     ThirdData = (short)(int.Parse(chunks["BASIC"][j][7]) / 4)
                 };
                 list.Add(comb);
-            };
+            }
+
             return list;
         }
 
@@ -182,7 +183,8 @@ namespace NosCore.Parser.Parsers
                     continue;
                 }
                 list.Add(comb);
-            };
+            }
+
             return list;
         }
     }

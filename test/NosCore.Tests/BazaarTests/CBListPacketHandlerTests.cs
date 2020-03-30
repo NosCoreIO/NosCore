@@ -64,7 +64,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task ListShouldReturnEmptyWhenNoItems()
         {
             _bazaarHttpClient!.Setup(b =>
-                b.GetBazaarLinks(
+                b.GetBazaarLinksAsync(
                     It.IsAny<int>(),
                     It.IsAny<int>(),
                     It.IsAny<int>(),
@@ -75,7 +75,7 @@ namespace NosCore.Tests.BazaarTests
                     It.IsAny<byte>(),
                     It.IsAny<long?>())
             ).ReturnsAsync(new List<BazaarLink>());
-            await _cblistPacketHandler!.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!).ConfigureAwait(false);
+            await _cblistPacketHandler!.ExecuteAsync(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!).ConfigureAwait(false);
             var lastpacket = (RcbListPacket?) _session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket?.Items?.Count == 0);
         }
@@ -84,7 +84,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task ListShouldReturnTheItems()
         {
             _bazaarHttpClient!.Setup(b =>
-                b.GetBazaarLinks(
+                b.GetBazaarLinksAsync(
                     It.IsAny<int>(),
                     It.IsAny<int>(),
                     It.IsAny<int>(),
@@ -104,7 +104,7 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 }
             });
-            await _cblistPacketHandler!.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!).ConfigureAwait(false);
+            await _cblistPacketHandler!.ExecuteAsync(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!).ConfigureAwait(false);
             var lastpacket = (RcbListPacket?) _session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket?.Items?.Count == 1);
         }
@@ -113,7 +113,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task ListShouldReturnTheItemsNotValid()
         {
             _bazaarHttpClient!.Setup(b =>
-                b.GetBazaarLinks(
+                b.GetBazaarLinksAsync(
                     It.IsAny<int>(),
                     It.IsAny<int>(),
                     It.IsAny<int>(),
@@ -132,7 +132,7 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 }
             });
-            await _cblistPacketHandler!.Execute(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!).ConfigureAwait(false);
+            await _cblistPacketHandler!.ExecuteAsync(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!).ConfigureAwait(false);
             var lastpacket = (RcbListPacket?) _session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket?.Items?.Count == 0);
         }

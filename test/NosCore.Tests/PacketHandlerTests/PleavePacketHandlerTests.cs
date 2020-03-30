@@ -25,7 +25,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Groups;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
@@ -67,7 +66,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task Test_Leave_Group_When_Not_Grouped()
         {
-            await _pLeavePacketHandler!.Execute(new PleavePacket(), _characters[0].Session).ConfigureAwait(false);
+            await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _characters[0].Session).ConfigureAwait(false);
 
             Assert.IsTrue((_characters[0].Group != null) && (_characters[0].Group!.Count == 1));
         }
@@ -86,14 +85,14 @@ namespace NosCore.Tests.PacketHandlerTests
                     CharacterId = _characters[i].CharacterId
                 };
 
-                await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
+                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             }
 
             Assert.IsTrue(_characters[0].Group!.IsGroupFull
                 && _characters[1].Group!.IsGroupFull
                 && _characters[2].Group!.IsGroupFull);
 
-            await _pLeavePacketHandler!.Execute(new PleavePacket(), _characters[1].Session).ConfigureAwait(false);
+            await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _characters[1].Session).ConfigureAwait(false);
 
             Assert.IsTrue(_characters[1].Group!.Count == 1);
         }
@@ -112,7 +111,7 @@ namespace NosCore.Tests.PacketHandlerTests
                     CharacterId = _characters[i].CharacterId
                 };
 
-                await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
+                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             }
 
             Assert.IsTrue(_characters[0].Group!.IsGroupFull
@@ -120,7 +119,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 && _characters[2].Group!.IsGroupFull && _characters[0].Group!
                     .IsGroupLeader(_characters[0].CharacterId));
 
-            await _pLeavePacketHandler!.Execute(new PleavePacket(), _characters[0].Session).ConfigureAwait(false);
+            await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _characters[0].Session).ConfigureAwait(false);
 
             Assert.IsTrue(_characters[1].Group!
                 .IsGroupLeader(_characters[1].CharacterId));
@@ -140,7 +139,7 @@ namespace NosCore.Tests.PacketHandlerTests
                     CharacterId = _characters[i].CharacterId
                 };
 
-                await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
+                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             }
 
             Assert.IsTrue(_characters[0].Group!.IsGroupFull
@@ -148,7 +147,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 && _characters[2].Group!.IsGroupFull && _characters[0].Group!
                     .IsGroupLeader(_characters[0].CharacterId));
 
-            await _pLeavePacketHandler!.Execute(new PleavePacket(), _characters[1].Session).ConfigureAwait(false);
+            await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _characters[1].Session).ConfigureAwait(false);
 
             Assert.IsTrue(_characters[0].Group!
                 .IsGroupLeader(_characters[0].CharacterId));
@@ -166,8 +165,8 @@ namespace NosCore.Tests.PacketHandlerTests
                 CharacterId = _characters[1].CharacterId
             };
 
-            await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
-            await _pLeavePacketHandler!.Execute(new PleavePacket(), _characters[0].Session).ConfigureAwait(false);
+            await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
+            await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _characters[0].Session).ConfigureAwait(false);
             Assert.IsTrue((_characters[0].Group!.Count == 1)
                 && (_characters[1].Group!.Count == 1));
         }
@@ -184,13 +183,13 @@ namespace NosCore.Tests.PacketHandlerTests
                 CharacterId = _characters[1].CharacterId
             };
 
-            await _pJoinPacketHandler!.Execute(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
+            await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             Assert.IsTrue((_characters[0].Group!.Count > 1)
                 && (_characters[1].Group!.Count > 1)
                 && (_characters[0].Group!.GroupId
                     == _characters[1].Group!.GroupId));
 
-            await _pLeavePacketHandler!.Execute(new PleavePacket(), _characters[0].Session).ConfigureAwait(false);
+            await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _characters[0].Session).ConfigureAwait(false);
 
             Assert.IsTrue((_characters[0].Group!.Count == 1)
                 && (_characters[1].Group!.Count == 1));

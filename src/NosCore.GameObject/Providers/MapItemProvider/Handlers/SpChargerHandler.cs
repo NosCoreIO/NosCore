@@ -38,11 +38,11 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                 (item.ItemInstance.Item.Effect == ItemEffectType.SpCharger);
         }
 
-        public async Task Execute(RequestData<Tuple<MapItem, GetPacket>> requestData)
+        public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             requestData.ClientSession.Character.AddSpPoints(requestData.Data.Item1.ItemInstance!.Item!.EffectValue);
 
-            await requestData.ClientSession.SendPacket(new MsgPacket
+            await requestData.ClientSession.SendPacketAsync(new MsgPacket
             {
                 Message = string.Format(
                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_POINTSADDED,
@@ -50,10 +50,10 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
                     requestData.Data.Item1.ItemInstance.Item.EffectValue),
                 Type = 0
             }).ConfigureAwait(false);
-            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint()).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSpPoint()).ConfigureAwait(false);
 
             requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
-            await requestData.ClientSession.Character.MapInstance.SendPacket(
+            await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
                 requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId)).ConfigureAwait(false);
         }
     }

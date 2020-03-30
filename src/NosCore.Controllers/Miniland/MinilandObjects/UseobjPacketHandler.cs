@@ -43,76 +43,77 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             _warehouseHttpClient = warehouseHttpClient;
         }
 
-        public override async Task Execute(UseObjPacket useobjPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(UseObjPacket useobjPacket, ClientSession clientSession)
         {
             var miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             var minilandObject =
                 clientSession.Character.MapInstance.MapDesignObjects.Values.FirstOrDefault(s =>
                     s.Slot == useobjPacket.ObjectId);
-            if ((minilandObject != null) && (miniland != null))
+            if (minilandObject == null)
             {
-                if (!minilandObject.InventoryItemInstance!.ItemInstance!.Item!.IsWarehouse)
-                {
-                    var game = (byte) (minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot ==
-                        EquipmentType.MainWeapon
-                            ? (4 + minilandObject.InventoryItemInstance.ItemInstance.ItemVNum) % 10
-                            : (int) minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot / 3);
-                    var full = false;
-                    await clientSession.SendPacket(new MloInfoPacket
-                    {
-                        IsOwner = miniland.MapInstanceId == clientSession.Character.MapInstanceId,
-                        ObjectVNum = minilandObject.InventoryItemInstance.ItemInstance.ItemVNum,
-                        Slot = (byte) useobjPacket.ObjectId,
-                        MinilandPoints = miniland.MinilandPoint,
-                        LawDurability = minilandObject.DurabilityPoint < 1000,
-                        IsFull = full,
-                        MinigamePoints = new MloInfoPacketSubPacket[6]
-                        {
-                            new MloInfoPacketSubPacket
-                                {MinimumPoints = 0, MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0]},
-                            new MloInfoPacketSubPacket
-                            {
-                                MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0] + 1,
-                                MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][1]
-                            },
-                            new MloInfoPacketSubPacket
-                            {
-                                MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][1] + 1,
-                                MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][2]
-                            },
-                            new MloInfoPacketSubPacket
-                            {
-                                MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][2] + 1,
-                                MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][3]
-                            },
-                            new MloInfoPacketSubPacket
-                            {
-                                MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][3] + 1,
-                                MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][4]
-                            },
-                            new MloInfoPacketSubPacket
-                            {
-                                MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][4] + 1,
-                                MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][5]
-                            }
-                        }
-                    }).ConfigureAwait(false);
-                }
-                else
-                {
-                    var warehouseItems = await _warehouseHttpClient.GetWarehouseItems(clientSession.Character.CharacterId,
-                        WarehouseType.Warehouse).ConfigureAwait(false);
-                    await clientSession.SendPacket(new StashAllPacket
-                    {
-                        WarehouseSize =
-                            (byte) minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint,
-                        IvnSubPackets = warehouseItems.Select(invItem =>
-                            invItem.ItemInstance.GenerateIvnSubPacket((PocketType) invItem.ItemInstance!.Item!.Type,
-                                invItem.Slot)).ToList()
-                    }).ConfigureAwait(false);
-                }
+                return;
             }
-            return;
+
+            if (!minilandObject.InventoryItemInstance!.ItemInstance!.Item!.IsWarehouse)
+            {
+                var game = (byte) (minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot ==
+                    EquipmentType.MainWeapon
+                        ? (4 + minilandObject.InventoryItemInstance.ItemInstance.ItemVNum) % 10
+                        : (int) minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot / 3);
+                var full = false;
+                await clientSession.SendPacketAsync(new MloInfoPacket
+                {
+                    IsOwner = miniland.MapInstanceId == clientSession.Character.MapInstanceId,
+                    ObjectVNum = minilandObject.InventoryItemInstance.ItemInstance.ItemVNum,
+                    Slot = (byte) useobjPacket.ObjectId,
+                    MinilandPoints = miniland.MinilandPoint,
+                    LawDurability = minilandObject.DurabilityPoint < 1000,
+                    IsFull = full,
+                    MinigamePoints = new MloInfoPacketSubPacket[]
+                    {
+                        new MloInfoPacketSubPacket
+                            {MinimumPoints = 0, MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0]},
+                        new MloInfoPacketSubPacket
+                        {
+                            MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0] + 1,
+                            MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][1]
+                        },
+                        new MloInfoPacketSubPacket
+                        {
+                            MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][1] + 1,
+                            MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][2]
+                        },
+                        new MloInfoPacketSubPacket
+                        {
+                            MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][2] + 1,
+                            MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][3]
+                        },
+                        new MloInfoPacketSubPacket
+                        {
+                            MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][3] + 1,
+                            MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][4]
+                        },
+                        new MloInfoPacketSubPacket
+                        {
+                            MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][4] + 1,
+                            MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][5]
+                        }
+                    }
+                }).ConfigureAwait(false);
+            }
+            else
+            {
+                var warehouseItems = await _warehouseHttpClient.GetWarehouseItemsAsync(clientSession.Character.CharacterId,
+                    WarehouseType.Warehouse).ConfigureAwait(false);
+                await clientSession.SendPacketAsync(new StashAllPacket
+                {
+                    WarehouseSize =
+                        (byte) minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint,
+                    IvnSubPackets = warehouseItems.Select(invItem =>
+                        invItem.ItemInstance.GenerateIvnSubPacket((PocketType) invItem.ItemInstance!.Item!.Type,
+                            invItem.Slot)).ToList()
+                }).ConfigureAwait(false);
+            }
         }
     }
 }

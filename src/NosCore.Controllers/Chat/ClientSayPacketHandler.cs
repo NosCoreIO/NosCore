@@ -31,15 +31,15 @@ namespace NosCore.PacketHandlers.Chat
 {
     public class ClientSayPacketHandler : PacketHandler<ClientSayPacket>, IWorldPacketHandler
     {
-        public override async Task Execute(ClientSayPacket clientSayPacket, ClientSession session)
+        public override Task ExecuteAsync(ClientSayPacket clientSayPacket, ClientSession session)
         {
             //TODO: Add a penalty check when it will be ready
             const SayColorType type = SayColorType.White;
-            await session.Character.MapInstance.SendPacket(session.Character.GenerateSay(new SayPacket
+            return session.Character.MapInstance.SendPacketAsync(session.Character.GenerateSay(new SayPacket
             {
                 Message = clientSayPacket.Message,
                 Type = type
-            }), new EveryoneBut(session!.Channel!.Id)).ConfigureAwait(false); //TODO  ReceiverType.AllExceptMeAndBlacklisted
+            }), new EveryoneBut(session!.Channel!.Id));
         }
     }
 }

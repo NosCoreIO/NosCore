@@ -47,12 +47,12 @@ namespace NosCore.PacketHandlers.Movement
             _minilandProvider = minilandProvider;
         }
 
-        public override async Task Execute(PreqPacket _, ClientSession session)
+        public override async Task ExecuteAsync(PreqPacket _, ClientSession session)
         {
             if (((SystemTime.Now() - session.Character.LastPortal).TotalSeconds < 4) ||
                 (session.Character.LastPortal > session.Character.LastMove))
             {
-                await session.SendPacket(session.Character.GenerateSay(
+                await session.SendPacketAsync(session.Character.GenerateSay(
                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.PORTAL_DELAY, session.Account.Language),
                     SayColorType.Yellow)).ConfigureAwait(false);
                 return;
@@ -83,11 +83,11 @@ namespace NosCore.PacketHandlers.Movement
                 && (_mapInstanceProvider.GetMapInstance(portal.DestinationMapInstanceId)!.MapInstanceType
                     == MapInstanceType.BaseMapInstance))
             {
-                await session.ChangeMap(session.Character.MapId, session.Character.MapX, session.Character.MapY).ConfigureAwait(false);
+                await session.ChangeMapAsync(session.Character.MapId, session.Character.MapX, session.Character.MapY).ConfigureAwait(false);
             }
             else
             {
-                await session.ChangeMapInstance(portal.DestinationMapInstanceId, portal.DestinationX,
+                await session.ChangeMapInstanceAsync(portal.DestinationMapInstanceId, portal.DestinationX,
                     portal.DestinationY).ConfigureAwait(false);
             }
         }

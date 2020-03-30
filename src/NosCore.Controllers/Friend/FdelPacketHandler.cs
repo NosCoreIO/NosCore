@@ -47,27 +47,27 @@ namespace NosCore.PacketHandlers.Friend
             _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
-        public override async Task Execute(FdelPacket fdelPacket, ClientSession session)
+        public override async Task ExecuteAsync(FdelPacket fdelPacket, ClientSession session)
         {
-            var list = await _friendHttpClient.GetListFriends(session.Character.VisualId).ConfigureAwait(false);
+            var list = await _friendHttpClient.GetListFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == fdelPacket.CharacterId);
             if (idtorem != null)
             {
-                await _friendHttpClient.DeleteFriend(idtorem.CharacterRelationId).ConfigureAwait(false);
-                await session.SendPacket(new InfoPacket
+                await _friendHttpClient.DeleteFriendAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
+                await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)
                 }).ConfigureAwait(false);
                 var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
-                await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacket(await targetCharacter.GenerateFinit(_friendHttpClient, _channelHttpClient,
+                await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
                     _connectedAccountHttpClient).ConfigureAwait(false))).ConfigureAwait(false);
 
-                await session.Character.SendPacket(await session.Character.GenerateFinit(_friendHttpClient, _channelHttpClient,
+                await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
                     _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             }
             else
             {
-                await session.SendPacket(new InfoPacket
+                await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_FRIENDLIST,
                         session.Account.Language)

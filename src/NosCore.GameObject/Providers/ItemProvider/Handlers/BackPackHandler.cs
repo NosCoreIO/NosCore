@@ -32,7 +32,6 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
-using Serilog;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
@@ -50,7 +49,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             return (item.Effect == ItemEffectType.InventoryUpgrade || item.Effect == ItemEffectType.InventoryTicketUpgrade);
         }
 
-        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             var itemInstance = requestData.Data.Item1;
 
@@ -73,18 +72,18 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.InventoryTicketUpgrade ? StaticBonusType.InventoryTicketUpgrade : StaticBonusType.BackPack
             });
 
-            requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSay(string.Format(
+            requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSay(string.Format(
                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.EFFECT_ACTIVATED,
                         requestData.ClientSession.Account.Language),
                     itemInstance.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]),
                 SayColorType.Green));
-            requestData.ClientSession.SendPacket(
+            requestData.ClientSession.SendPacketAsync(
                 itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
                 itemInstance.ItemInstanceId);
 
             requestData.ClientSession.Character.LoadExpensions();
-            requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateExts(_conf));
+            requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateExts(_conf));
             return Task.CompletedTask;
         }
     }

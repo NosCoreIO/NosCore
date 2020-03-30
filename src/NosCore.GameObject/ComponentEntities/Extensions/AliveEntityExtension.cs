@@ -44,10 +44,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class AliveEntityExtension
     {
-        public static Task ChangeDir(this IAliveEntity aliveEntity, byte direction)
+        public static Task ChangeDirAsync(this IAliveEntity aliveEntity, byte direction)
         {
             aliveEntity.Direction = direction;
-            return aliveEntity.MapInstance.SendPacket(
+            return aliveEntity.MapInstance.SendPacketAsync(
                 aliveEntity.GenerateChangeDir());
         }
 
@@ -117,49 +117,54 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static Task Move(this INonPlayableEntity nonPlayableEntity)
+        public static Task MoveAsync(this INonPlayableEntity nonPlayableEntity)
         {
             if (!nonPlayableEntity.IsAlive)
             {
                 return Task.CompletedTask;
             }
 
-            if (nonPlayableEntity.IsMoving && (nonPlayableEntity.Speed > 0))
+            if (!nonPlayableEntity.IsMoving || (nonPlayableEntity.Speed <= 0))
             {
-                var time = (SystemTime.Now() - nonPlayableEntity.LastMove).TotalMilliseconds;
-
-                if (time > RandomFactory.Instance.RandomNumber(400, 3200))
-                {
-                    var mapX = nonPlayableEntity.MapX;
-                    var mapY = nonPlayableEntity.MapY;
-                    if (nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
-                        (byte)RandomFactory.Instance.RandomNumber(0, 3),
-                        (byte)RandomFactory.Instance.RandomNumber(0, 3)))
-                    {
-                        var distance = (int)Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
-                            Math.Abs(nonPlayableEntity.PositionY - mapY));
-                        var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
-                        Observable.Timer(TimeSpan.FromMilliseconds(value))
-                            .Subscribe(
-                                _ =>
-                                {
-                                    nonPlayableEntity.PositionX = mapX;
-                                    nonPlayableEntity.PositionY = mapY;
-                                });
-
-                        nonPlayableEntity.LastMove = SystemTime.Now().AddMilliseconds(value);
-                        return nonPlayableEntity.MapInstance.SendPacket(
-                            nonPlayableEntity.GenerateMove(mapX, mapY));
-                    }
-                }
+                return Task.CompletedTask;
             }
-            return Task.CompletedTask;
+
+            var time = (SystemTime.Now() - nonPlayableEntity.LastMove).TotalMilliseconds;
+
+            if (!(time > RandomFactory.Instance.RandomNumber(400, 3200)))
+            {
+                return Task.CompletedTask;
+            }
+
+            var mapX = nonPlayableEntity.MapX;
+            var mapY = nonPlayableEntity.MapY;
+            if (!nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
+                (byte) RandomFactory.Instance.RandomNumber(0, 3),
+                (byte) RandomFactory.Instance.RandomNumber(0, 3)))
+            {
+                return Task.CompletedTask;
+            }
+
+            var distance = (int)Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
+                Math.Abs(nonPlayableEntity.PositionY - mapY));
+            var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
+            Observable.Timer(TimeSpan.FromMilliseconds(value))
+                .Subscribe(
+                    _ =>
+                    {
+                        nonPlayableEntity.PositionX = mapX;
+                        nonPlayableEntity.PositionY = mapY;
+                    });
+
+            nonPlayableEntity.LastMove = SystemTime.Now().AddMilliseconds(value);
+            return nonPlayableEntity.MapInstance.SendPacketAsync(
+                nonPlayableEntity.GenerateMove(mapX, mapY));
         }
 
-        public static Task Rest(this IAliveEntity aliveEntity)
+        public static Task RestAsync(this IAliveEntity aliveEntity)
         {
             aliveEntity.IsSitting = !aliveEntity.IsSitting;
-            return aliveEntity.MapInstance.SendPacket(
+            return aliveEntity.MapInstance.SendPacketAsync(
                 aliveEntity.GenerateRest());
         }
 

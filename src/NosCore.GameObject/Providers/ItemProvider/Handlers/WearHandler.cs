@@ -54,9 +54,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 || (item.ItemType == ItemType.Specialist);
         }
 
-        public async Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
-            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(123)).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateEff(123)).ConfigureAwait(false);
 
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
             if (itemInstance.ItemInstance!.BoundCharacterId == null && (packet.Mode == 0) && itemInstance.ItemInstance.Item!.RequireBinding)
             {
-                await requestData.ClientSession.SendPacket(
+                await requestData.ClientSession.SendPacketAsync(
                     new QnaPacket
                     {
                         YesPacket = requestData.ClientSession.Character.GenerateUseItem(
@@ -88,7 +88,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     (((itemInstance.ItemInstance.Item.Class >> (byte)requestData.ClientSession.Character.Class) & 1) !=
                         1)))
             {
-                await requestData.ClientSession.SendPacket(
+                await requestData.ClientSession.SendPacketAsync(
                     requestData.ClientSession.Character.GenerateSay(
                         requestData.ClientSession.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT),
                         SayColorType.Yellow)).ConfigureAwait(false);
@@ -105,7 +105,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     (itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.Element) &&
                     (itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.SecondaryElement))
                 {
-                    await requestData.ClientSession.SendPacket(new MsgPacket
+                    await requestData.ClientSession.SendPacketAsync(new MsgPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
                             requestData.ClientSession.Account.Language)
@@ -122,7 +122,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     (byte)EquipmentType.Sp, NoscorePocketType.Wear);
                 if ((timeSpanSinceLastSpUsage < requestData.ClientSession.Character.SpCooldown) && (sp != null))
                 {
-                    await requestData.ClientSession.SendPacket(new MsgPacket
+                    await requestData.ClientSession.SendPacketAsync(new MsgPacket
                     {
                         Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
                                 requestData.ClientSession.Account.Language),
@@ -133,7 +133,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
                 if (requestData.ClientSession.Character.UseSp)
                 {
-                    await requestData.ClientSession.SendPacket(
+                    await requestData.ClientSession.SendPacketAsync(
                         requestData.ClientSession.Character.GenerateSay(
                             requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED), SayColorType.Yellow)).ConfigureAwait(false);
                     return;
@@ -141,7 +141,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
                 if (itemInstance.ItemInstance.Rare == -2)
                 {
-                    await requestData.ClientSession.SendPacket(new MsgPacket
+                    await requestData.ClientSession.SendPacketAsync(new MsgPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
                             requestData.ClientSession.Account.Language)
@@ -152,7 +152,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
             if (requestData.ClientSession.Character.JobLevel < itemInstance.ItemInstance.Item.LevelJobMinimum)
             {
-                await requestData.ClientSession.SendPacket(
+                await requestData.ClientSession.SendPacketAsync(
                     requestData.ClientSession.Character.GenerateSay(
                         requestData.ClientSession.GetMessageFromKey(LanguageKey.LOW_JOB_LVL),
                         SayColorType.Yellow)).ConfigureAwait(false);
@@ -166,26 +166,26 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.InventoryService
                     .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.Type);
 
-            await  requestData.ClientSession.SendPacket(newItem.GeneratePocketChange(packet.Type, packet.Slot)).ConfigureAwait(false);
+            await  requestData.ClientSession.SendPacketAsync(newItem.GeneratePocketChange(packet.Type, packet.Slot)).ConfigureAwait(false);
 
-            await requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character
+            await requestData.ClientSession.Character.MapInstance.SendPacketAsync(requestData.ClientSession.Character
                 .GenerateEq()).ConfigureAwait(false);
-            await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEquipment()).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateEquipment()).ConfigureAwait(false);
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
             {
-                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateSpPoint()).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSpPoint()).ConfigureAwait(false);
             }
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
-                await requestData.ClientSession.Character.MapInstance.SendPacket(
+                await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
                     requestData.ClientSession.Character.GeneratePairy(itemInstance.ItemInstance as WearableInstance)).ConfigureAwait(false);
             }
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Amulet)
             {
-                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateEff(39)).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateEff(39)).ConfigureAwait(false);
             }
 
             itemInstance.ItemInstance.BoundCharacterId = requestData.ClientSession.Character.CharacterId;

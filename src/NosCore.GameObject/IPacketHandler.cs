@@ -25,7 +25,7 @@ namespace NosCore.GameObject
 {
     public interface IPacketHandler
     {
-        Task Execute(IPacket packet, ClientSession clientSession);
+        Task ExecuteAsync(IPacket packet, ClientSession clientSession);
     }
 
     public interface ILoginPacketHandler
@@ -38,16 +38,16 @@ namespace NosCore.GameObject
 
     public interface IPacketHandler<in TPacket> : IPacketHandler where TPacket : IPacket
     {
-        Task Execute(TPacket packet, ClientSession clientSession);
+        Task ExecuteAsync(TPacket packet, ClientSession clientSession);
     }
 
     public abstract class PacketHandler<TPacket> : IPacketHandler<TPacket> where TPacket : IPacket
     {
-        public abstract Task Execute(TPacket packet, ClientSession clientSession);
+        public abstract Task ExecuteAsync(TPacket packet, ClientSession clientSession);
 
-        public Task Execute(IPacket packet, ClientSession clientSession)
+        public Task ExecuteAsync(IPacket packet, ClientSession clientSession)
         {
-            return Execute((TPacket) packet, clientSession);
+            return ExecuteAsync((TPacket) packet, clientSession);
         }
     }
 }

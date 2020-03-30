@@ -25,7 +25,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
-using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.Database.DAL;
@@ -59,11 +58,11 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _session = TestHelpers.Instance.GenerateSession();
             _blInsPacketHandler = new BlInsPackettHandler(TestHelpers.Instance.BlacklistHttpClient.Object);
             TestHelpers.Instance.ConnectedAccountHttpClient
-                .Setup(s => s.GetCharacter(_session.Character.CharacterId, null))
+                .Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                         {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
-            TestHelpers.Instance.ConnectedAccountHttpClient.Setup(s => s.GetCharacter(null, _session.Character.Name))
+            TestHelpers.Instance.ConnectedAccountHttpClient.Setup(s => s.GetCharacterAsync(null, _session.Character.Name))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                         {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
@@ -77,7 +76,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = 2
             };
 
-            await _blInsPacketHandler!.Execute(blinsPacket, _session!).ConfigureAwait(false);
+            await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session!).ConfigureAwait(false);
             Assert.IsNull(
                 _characterRelationDao.FirstOrDefault(s =>
                     (_session!.Character.CharacterId == s.CharacterId) &&
@@ -89,7 +88,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         {
             var targetSession = TestHelpers.Instance.GenerateSession();
             TestHelpers.Instance.ConnectedAccountHttpClient
-                .Setup(s => s.GetCharacter(targetSession.Character.CharacterId, null))
+                .Setup(s => s.GetCharacterAsync(targetSession.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     {
@@ -97,7 +96,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                     }));
             using var blacklist = new BlacklistController(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
                 _characterRelationDao, TestHelpers.Instance.CharacterDao);
-            TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklist(It.IsAny<BlacklistRequest>()))
+            TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklistAsync(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.AddBlacklist(new BlacklistRequest
                 {
                     CharacterId = _session!.Character.CharacterId,
@@ -111,7 +110,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-           await _blInsPacketHandler!.Execute(blinsPacket, _session).ConfigureAwait(false);
+           await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session).ConfigureAwait(false);
             Assert.IsNotNull(
                 _characterRelationDao.FirstOrDefault(s => (_session.Character.CharacterId == s.CharacterId)
                     && (targetSession.Character.CharacterId == s.RelatedCharacterId) &&

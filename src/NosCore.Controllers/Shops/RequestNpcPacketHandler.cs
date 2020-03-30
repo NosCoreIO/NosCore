@@ -39,7 +39,7 @@ namespace NosCore.PacketHandlers.Shops
             _logger = logger;
         }
 
-        public override Task Execute(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
         {
             IRequestableEntity? requestableEntity;
             switch (requestNpcPacket.Type)

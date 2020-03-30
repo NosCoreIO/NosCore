@@ -42,14 +42,14 @@ namespace NosCore.PacketHandlers.Command
             _mailHttpClient = mailHttpClient;
         }
 
-        public override async Task Execute(GiftPacket giftPacket, ClientSession session)
+        public override async Task ExecuteAsync(GiftPacket giftPacket, ClientSession session)
         {
             var receiver =
-                await _connectedAccountHttpClient.GetCharacter(null, giftPacket.CharacterName ?? session.Character.Name).ConfigureAwait(false);
+                await _connectedAccountHttpClient.GetCharacterAsync(null, giftPacket.CharacterName ?? session.Character.Name).ConfigureAwait(false);
 
             if (receiver.Item2 == null)
             {
-                await session.SendPacket(new InfoPacket
+                await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
@@ -57,9 +57,9 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _mailHttpClient.SendGift(session.Character!, receiver.Item2.ConnectedCharacter!.Id, giftPacket.VNum,
+            await _mailHttpClient.SendGiftAsync(session.Character!, receiver.Item2.ConnectedCharacter!.Id, giftPacket.VNum,
                 giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false).ConfigureAwait(false);
-            await session.SendPacket(session.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(
+            await session.SendPacketAsync(session.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(
                 LanguageKey.GIFT_SENT,
                 session.Account.Language), SayColorType.Yellow)).ConfigureAwait(false);
         }

@@ -42,16 +42,18 @@ namespace NosCore.PacketHandlers.Login
             _logger = logger;
         }
 
-        public override Task Execute(NoS0575Packet packet, ClientSession clientSession)
+        public override Task ExecuteAsync(NoS0575Packet packet, ClientSession clientSession)
         {
-            if (_loginConfiguration.EnforceNewAuth)
+            if (!_loginConfiguration.EnforceNewAuth)
             {
-                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TRY_OLD_AUTH), packet.Username);
-                return Task.CompletedTask;
+                return _loginService.LoginAsync(packet.Username, packet.Md5String!, packet.ClientVersion!, clientSession,
+                    packet.Password!,
+                    false);
             }
 
-            return _loginService.Login(packet.Username, packet.Md5String!, packet.ClientVersion!, clientSession, packet.Password!,
-                 false);
+            _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TRY_OLD_AUTH), packet.Username);
+            return Task.CompletedTask;
+
         }
     }
 }

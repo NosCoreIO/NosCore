@@ -22,10 +22,10 @@ using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject
 {
-    public interface IEventHandler<T, T2>
+    public interface IEventHandler<in T, T2>
     {
         bool Condition(T condition);
 
-        Task Execute(RequestData<T2> requestData);
+        Task ExecuteAsync(RequestData<T2> requestData);
     }
 }

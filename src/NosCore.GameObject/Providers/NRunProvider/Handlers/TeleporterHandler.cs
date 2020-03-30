@@ -40,29 +40,29 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                     (mapNpc.Dialog == 16) || (mapNpc.Dialog == 9768));
         }
 
-        public Task Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
+        public Task ExecuteAsync(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
             return requestData.Data.Item2.Type switch
             {
-                1 => RemoveGoldAndTeleport(requestData.ClientSession, 20, 1000, 7, 11, 90, 94),
-                2 => RemoveGoldAndTeleport(requestData.ClientSession, 145, 2000, 11, 15, 108, 112),
-                _ => RemoveGoldAndTeleport(requestData.ClientSession, 1, 0, 77, 82, 113, 119),
+                1 => RemoveGoldAndTeleportAsync(requestData.ClientSession, 20, 1000, 7, 11, 90, 94),
+                2 => RemoveGoldAndTeleportAsync(requestData.ClientSession, 145, 2000, 11, 15, 108, 112),
+                _ => RemoveGoldAndTeleportAsync(requestData.ClientSession, 1, 0, 77, 82, 113, 119),
             };
         }
 
-        private async Task RemoveGoldAndTeleport(ClientSession clientSession, short mapId, long GoldToPay, short x1, short x2,
+        private async Task RemoveGoldAndTeleportAsync(ClientSession clientSession, short mapId, long GoldToPay, short x1, short x2,
             short y1, short y2)
         {
             if (clientSession.Character.Gold >= GoldToPay)
             {
-                await clientSession.Character.RemoveGold(GoldToPay).ConfigureAwait(false);
-                await clientSession.ChangeMap(
+                await clientSession.Character.RemoveGoldAsync(GoldToPay).ConfigureAwait(false);
+                await clientSession.ChangeMapAsync(
                     mapId, (short) RandomFactory.Instance.RandomNumber(x1, x2),
                     (short) RandomFactory.Instance.RandomNumber(y1, y2)).ConfigureAwait(false);
                 return;
             }
 
-            await clientSession.SendPacket(clientSession.Character.GenerateSay(
+            await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, clientSession.Account.Language),
                 SayColorType.Yellow
             )).ConfigureAwait(false);

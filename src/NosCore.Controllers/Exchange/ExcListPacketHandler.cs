@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Exchange
             _logger = logger;
         }
 
-        public override Task Execute(ExcListPacket packet, ClientSession clientSession)
+        public override Task ExecuteAsync(ExcListPacket packet, ClientSession clientSession)
         {
             if ((packet.Gold > clientSession.Character.Gold) || (packet.BankGold > clientSession.Account.BankMoney))
             {
@@ -72,17 +72,17 @@ namespace NosCore.PacketHandlers.Exchange
                         var closeExchange =
                             _exchangeProvider.CloseExchange(clientSession.Character.VisualId,
                                 ExchangeResultType.Failure);
-                        clientSession.SendPacket(closeExchange);
-                        target.SendPacket(closeExchange);
+                        clientSession.SendPacketAsync(closeExchange);
+                        target.SendPacketAsync(closeExchange);
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE_LIST));
                         return Task.CompletedTask;
                     }
 
                     if (!item.ItemInstance.Item!.IsTradable)
                     {
-                        clientSession.SendPacket(_exchangeProvider.CloseExchange(clientSession.Character.CharacterId,
+                        clientSession.SendPacketAsync(_exchangeProvider.CloseExchange(clientSession.Character.CharacterId,
                             ExchangeResultType.Failure));
-                        target.SendPacket(_exchangeProvider.CloseExchange(target.VisualId, ExchangeResultType.Failure));
+                        target.SendPacketAsync(_exchangeProvider.CloseExchange(target.VisualId, ExchangeResultType.Failure));
                         _logger.Error(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM));
                         return Task.CompletedTask;
@@ -110,7 +110,7 @@ namespace NosCore.PacketHandlers.Exchange
             }
 
             _exchangeProvider.SetGold(clientSession.Character.CharacterId, packet.Gold, packet.BankGold);
-            target?.SendPacket(
+            target?.SendPacketAsync(
                 clientSession.Character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList));
             return Task.CompletedTask;
         }

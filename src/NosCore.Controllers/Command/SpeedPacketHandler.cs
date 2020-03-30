@@ -28,16 +28,16 @@ namespace NosCore.PacketHandlers.Command
 {
     public class SpeedPacketHandler : PacketHandler<SpeedPacket>, IWorldPacketHandler
     {
-        public override Task Execute(SpeedPacket speedPacket, ClientSession session)
+        public override Task ExecuteAsync(SpeedPacket speedPacket, ClientSession session)
         {
             if ((speedPacket.Speed > 0) && (speedPacket.Speed < 60))
             {
                 session.Character.Speed = speedPacket.Speed >= 60 ? (byte) 59 : speedPacket.Speed;
-                session.SendPacket(session.Character.GenerateCond());
+                session.SendPacketAsync(session.Character.GenerateCond());
             }
             else
             {
-                session.SendPacket(session.Character.GenerateSay(speedPacket.Help(), SayColorType.Yellow));
+                session.SendPacketAsync(session.Character.GenerateSay(speedPacket.Help(), SayColorType.Yellow));
             }
             return Task.CompletedTask;
         }

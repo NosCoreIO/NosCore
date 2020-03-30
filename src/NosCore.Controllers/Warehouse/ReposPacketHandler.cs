@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Warehouse
         {
         }
 
-        public override Task Execute(ReposPacket reposPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(ReposPacket reposPacket, ClientSession clientSession)
         {
             return Task.CompletedTask;
         }

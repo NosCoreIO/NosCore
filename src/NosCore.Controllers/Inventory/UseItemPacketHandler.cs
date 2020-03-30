@@ -29,7 +29,7 @@ namespace NosCore.PacketHandlers.Inventory
 {
     public class UseItemPacketHandler : PacketHandler<UseItemPacket>, IWorldPacketHandler
     {
-        public override Task Execute(UseItemPacket useItemPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(UseItemPacket useItemPacket, ClientSession clientSession)
         {
             var inv =
                 clientSession.Character.InventoryService.LoadBySlotAndType(useItemPacket.Slot,

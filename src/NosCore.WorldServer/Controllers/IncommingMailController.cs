@@ -52,12 +52,12 @@ namespace NosCore.WorldServer.Controllers
 
             if (data.ItemInstance != null)
             {
-                session.SendPacket(session.GenerateSay(
+                session.SendPacketAsync(session.GenerateSay(
                     string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage),
                         data.ItemInstance.Amount), SayColorType.Green));
             }
 
-            session.GenerateMail(new[] {data});
+            session.GenerateMailAsync(new[] {data});
             return Ok();
         }
 
@@ -76,7 +76,7 @@ namespace NosCore.WorldServer.Controllers
                 throw new InvalidOperationException();
             }
 
-            session.SendPacket(new PostPacket
+            session.SendPacketAsync(new PostPacket
             {
                 Type = 2,
                 PostType = postType,

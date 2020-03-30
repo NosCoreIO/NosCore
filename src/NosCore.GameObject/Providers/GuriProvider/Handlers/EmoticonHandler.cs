@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
             return (packet.Type == GuriPacketType.Effect) && (packet.Data >= 973) && (packet.Data <= 999);
         }
 
-        public Task Execute(RequestData<GuriPacket> requestData)
+        public Task ExecuteAsync(RequestData<GuriPacket> requestData)
         {
             if (requestData.ClientSession.Character.EmoticonsBlocked)
             {
@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 
             if (requestData.Data.VisualId.GetValueOrDefault() == requestData.ClientSession.Character.CharacterId)
             {
-                return requestData.ClientSession.Character.MapInstance.SendPacket(
+                return requestData.ClientSession.Character.MapInstance.SendPacketAsync(
                     requestData.ClientSession.Character.GenerateEff(Convert.ToInt32(requestData.Data.Data) +
                         4099)); //TODO , ReceiverType.AllNoEmoBlocked
             }

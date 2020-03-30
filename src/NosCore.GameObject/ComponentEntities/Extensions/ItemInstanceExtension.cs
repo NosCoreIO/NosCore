@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Inventory;
-using JetBrains.Annotations;
 using NosCore.Data;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
@@ -91,18 +90,19 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 
         public static IvnPacket? GeneratePocketChange(this List<InventoryItemInstance> itemInstance)
         {
-            if (itemInstance.Count > 0)
+            if (itemInstance.Count <= 0)
             {
-                var type = (PocketType) itemInstance[0].Type;
-                return new IvnPacket
-                {
-                    Type = type,
-                    IvnSubPackets = itemInstance.Select(item => item.ItemInstance.GenerateIvnSubPacket(type, item.Slot))
-                        .ToList() as List<IvnSubPacket?>
-                };
+                return null;
             }
 
-            return null;
+            var type = (PocketType) itemInstance[0].Type;
+            return new IvnPacket
+            {
+                Type = type,
+                IvnSubPackets = itemInstance.Select(item => item.ItemInstance.GenerateIvnSubPacket(type, item.Slot))
+                    .ToList() as List<IvnSubPacket?>
+            };
+
         }
     }
 }

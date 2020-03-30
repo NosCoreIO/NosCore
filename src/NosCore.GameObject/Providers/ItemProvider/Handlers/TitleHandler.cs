@@ -34,9 +34,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
     {
         public bool Condition(Item.Item item) => item.ItemType == ItemType.Title;
 
-        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
-            requestData.ClientSession.SendPacket(new QnaPacket
+            requestData.ClientSession.SendPacketAsync(new QnaPacket
             {
                 YesPacket = new GuriPacket
                 {

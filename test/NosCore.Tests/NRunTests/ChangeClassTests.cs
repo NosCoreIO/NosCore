@@ -66,7 +66,7 @@ namespace NosCore.Tests.NRunTests
         public void UserCantChangeClassLowLevel(CharacterClassType characterClass)
         {
             _session!.Character.Level = 15;
-            _nRunHandler!.Execute(new NrunPacket
+            _nRunHandler!.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -76,7 +76,7 @@ namespace NosCore.Tests.NRunTests
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
-                _session.Account.Language)) && (packet?.Type == MessageType.White));
+                _session.Account.Language)) && (packet.Type == MessageType.White));
         }
 
         [DataTestMethod]
@@ -86,7 +86,7 @@ namespace NosCore.Tests.NRunTests
         public void UserCantChangeClassLowJobLevel(CharacterClassType characterClass)
         {
             _session!.Character.JobLevel = 20;
-            _nRunHandler!.Execute(new NrunPacket
+            _nRunHandler!.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -96,7 +96,7 @@ namespace NosCore.Tests.NRunTests
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
-                _session.Account.Language)) && (packet?.Type == MessageType.White));
+                _session.Account.Language)) && (packet.Type == MessageType.White));
         }
 
         [DataTestMethod]
@@ -106,7 +106,7 @@ namespace NosCore.Tests.NRunTests
         public void UserCantChangeBadClass(CharacterClassType characterClass)
         {
             _session!.Character.Class = characterClass;
-            _nRunHandler!.Execute(new NrunPacket
+            _nRunHandler!.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -116,7 +116,7 @@ namespace NosCore.Tests.NRunTests
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
-                _session.Account.Language)) && (packet?.Type == MessageType.White));
+                _session.Account.Language)) && (packet.Type == MessageType.White));
         }
 
         [DataTestMethod]
@@ -126,7 +126,7 @@ namespace NosCore.Tests.NRunTests
         {
             _session!.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _nRunHandler!.Execute(new NrunPacket
+            _nRunHandler!.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -147,7 +147,7 @@ namespace NosCore.Tests.NRunTests
         {
             _session!.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _nRunHandler!.Execute(new NrunPacket
+            _nRunHandler!.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -170,7 +170,7 @@ namespace NosCore.Tests.NRunTests
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
-            _nRunHandler!.Execute(new NrunPacket
+            _nRunHandler!.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -180,7 +180,7 @@ namespace NosCore.Tests.NRunTests
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
-                _session.Account.Language)) && (packet?.Type == MessageType.White));
+                _session.Account.Language)) && (packet.Type == MessageType.White));
         }
     }
 }

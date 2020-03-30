@@ -25,9 +25,9 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
 {
     public interface IPacketHttpClient
     {
-        Task BroadcastPacket(PostedPacket packet, int channelId);
-        Task BroadcastPacket(PostedPacket packet);
+        Task BroadcastPacketAsync(PostedPacket packet, int channelId);
+        Task BroadcastPacketAsync(PostedPacket packet);
         Task BroadcastPacketsAsync(List<PostedPacket> packets);
-        Task BroadcastPackets(List<PostedPacket> packets, int channelId);
+        Task BroadcastPacketsAsync(List<PostedPacket> packets, int channelId);
     }
 }

@@ -24,7 +24,7 @@ namespace NosCore.GameObject.Networking.LoginService
 {
     public interface ILoginService
     {
-        Task Login(string? username, string md5String, ClientVersionSubPacket clientVersion,
+        Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,
             ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth);
     }
 }

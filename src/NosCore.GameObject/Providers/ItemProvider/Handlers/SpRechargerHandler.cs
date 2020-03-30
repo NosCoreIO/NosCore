@@ -48,20 +48,20 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 (item.Effect <= ItemEffectType.CraftedSpRecharger);
         }
 
-        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.MaxAdditionalSpPoints)
             {
                 var itemInstance = requestData.Data.Item1;
                 requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
                     itemInstance.ItemInstanceId);
-                requestData.ClientSession.SendPacket(
+                requestData.ClientSession.SendPacketAsync(
                     itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot));
                 requestData.ClientSession.Character.AddAdditionalSpPoints(itemInstance.ItemInstance!.Item!.EffectValue);
             }
             else
             {
-                requestData.ClientSession.Character.SendPacket(new MsgPacket
+                requestData.ClientSession.Character.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
                         requestData.ClientSession.Character.Account.Language),

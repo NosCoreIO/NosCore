@@ -66,7 +66,7 @@ namespace NosCore.MasterServer.Controllers
             }
             else
             {
-                var warehouseLink = new WarehouseLink { };
+                var warehouseLink = new WarehouseLink();
                 list.Add(warehouseLink);
             }
 

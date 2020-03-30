@@ -51,35 +51,37 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
             _itemInstanceDao = itemInstanceDao;
         }
 
-        public async Task<List<WarehouseItem>> GetWarehouseItems(long characterId, WarehouseType warehouse)
+        public async Task<List<WarehouseItem>> GetWarehouseItemsAsync(long characterId, WarehouseType warehouse)
         {
-            var client = await Connect().ConfigureAwait(false);
+            var client = await ConnectAsync().ConfigureAwait(false);
             var response = await client
                 .GetAsync($"{ApiUrl}?id=null&ownerId={characterId}&warehouseType={warehouse}&slot=null").ConfigureAwait(false);
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                var warehouseItems = new List<WarehouseItem>();
-                var warehouselinks =
-                    JsonSerializer.Deserialize<List<WarehouseLink>>(response.Content.ReadAsStringAsync().Result, new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
-                foreach (var warehouselink in warehouselinks)
+                throw new ArgumentException();
+            }
+
+            var warehouseItems = new List<WarehouseItem>();
+            var warehouselinks =
+                JsonSerializer.Deserialize<List<WarehouseLink>>(await response.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
-                    var warehouseItem = warehouselink.Warehouse!.Adapt<WarehouseItem>();
-                    var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == warehouselink.ItemInstance!.Id);
-                    warehouseItem.ItemInstance = _itemProvider.Convert(itemInstance!);
-                    warehouseItems.Add(warehouseItem);
-                }
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+            foreach (var warehouselink in warehouselinks)
+            {
+                var warehouseItem = warehouselink.Warehouse!.Adapt<WarehouseItem>();
+                var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == warehouselink.ItemInstance!.Id);
+                warehouseItem.ItemInstance = _itemProvider.Convert(itemInstance!);
+                warehouseItems.Add(warehouseItem);
             }
 
             throw new ArgumentException();
         }
 
-        public Task<bool> DepositItem(long characterId, WarehouseType warehouse, IItemInstance itemInstance, short slot)
+        public Task<bool> DepositItemAsync(long characterId, WarehouseType warehouse, IItemInstance itemInstance, short slot)
         {
-            return Post<bool>(new WareHouseDepositRequest
+            return PostAsync<bool>(new WareHouseDepositRequest
             {
                 OwnerId = characterId,
                 WarehouseType = warehouse,
@@ -88,12 +90,12 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
             });
         }
 
-        public Task DeleteWarehouseItem(long characterId, WarehouseType warehouse, short slot)
+        public Task DeleteWarehouseItemAsync(long characterId, WarehouseType warehouse, short slot)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<WarehouseItem>> MoveWarehouseItem(long characterId, WarehouseType warehouse, short slot,
+        public Task<List<WarehouseItem>> MoveWarehouseItemAsync(long characterId, WarehouseType warehouse, short slot,
             short destinationSlot)
         {
             throw new NotImplementedException();

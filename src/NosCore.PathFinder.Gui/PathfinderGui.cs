@@ -18,11 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using NosCore.Packets.ClientPackets.Inventory;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -30,20 +28,15 @@ using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
-using NosCore.GameObject;
-using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Providers.ItemProvider;
 using OpenTK.Graphics;
 using Serilog;
-using InventoryItemInstance = NosCore.GameObject.Providers.InventoryService.InventoryItemInstance;
-using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 
 namespace NosCore.PathFinder.Gui
 {
@@ -96,20 +89,22 @@ namespace NosCore.PathFinder.Gui
 
                     var map = _mapDao.FirstOrDefault(m => m.MapId == askMapId)?.Adapt<GameObject.Map.Map>();
 
-                    if ((map?.XLength > 0) && (map.YLength > 0))
+                    if ((!(map?.XLength > 0)) || (map.YLength <= 0))
                     {
-                        if (_guiWindow?.Exists ?? false)
-                        {
-                            _guiWindow.Exit();
-                        }
-
-                        new Thread(() =>
-                        {
-                            _guiWindow = new GuiWindow(map, 4, map.XLength, map.YLength, GraphicsMode.Default,
-                                $"NosCore Pathfinder GUI - Map {map.MapId}");
-                            _guiWindow.Run(30);
-                        }).Start();
+                        continue;
                     }
+
+                    if (_guiWindow?.Exists ?? false)
+                    {
+                        _guiWindow.Exit();
+                    }
+
+                    new Thread(() =>
+                    {
+                        _guiWindow = new GuiWindow(map, 4, map.XLength, map.YLength, GraphicsMode.Default,
+                            $"NosCore Pathfinder GUI - Map {map.MapId}");
+                        _guiWindow.Run(30);
+                    }).Start();
                 }
             }
             catch

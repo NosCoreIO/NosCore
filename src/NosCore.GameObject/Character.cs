@@ -81,14 +81,12 @@ namespace NosCore.GameObject
         private readonly IGenericDao<TitleDto> _titleDao;
         private byte _speed;
 
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider,
             IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao,
             IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<AccountDto> accountDao,
             ILogger logger, IGenericDao<StaticBonusDto> staticBonusDao,
             IGenericDao<QuicklistEntryDto> quicklistEntriesDao, IGenericDao<MinilandDto> minilandDao,
             IMinilandProvider minilandProvider, IGenericDao<TitleDto> titleDao)
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         {
             InventoryService = inventory;
             ExchangeProvider = exchangeProvider;
@@ -113,7 +111,7 @@ namespace NosCore.GameObject
 
         public DateTime LastPortal { get; set; }
 
-        public ClientSession Session { get; set; }
+        public ClientSession Session { get; set; } = null!;
 
         public DateTime LastSpeedChange { get; set; }
 
@@ -166,14 +164,14 @@ namespace NosCore.GameObject
 
         public IChannel? Channel => Session?.Channel;
 
-        public Task SendPacket(IPacket? packetDefinition)
+        public Task SendPacketAsync(IPacket? packetDefinition)
         {
-            return Session.SendPacket(packetDefinition);
+            return Session.SendPacketAsync(packetDefinition);
         }
 
-        public Task SendPackets(IEnumerable<IPacket?> packetDefinitions)
+        public Task SendPacketsAsync(IEnumerable<IPacket?> packetDefinitions)
         {
-            return Session.SendPackets(packetDefinitions);
+            return Session.SendPacketsAsync(packetDefinitions);
         }
 
         public MapInstance MapInstance { get; set; } = null!;
@@ -243,24 +241,24 @@ namespace NosCore.GameObject
 
         public int MaxMp => (int)MpLoad();
 
-        public async Task SetHeroLevel(byte level)
+        public async Task SetHeroLevelAsync(byte level)
         {
             HeroLevel = level;
             HeroXp = 0;
-            await GenerateLevelupPackets().ConfigureAwait(false);
-            await SendPacket(new MsgPacket
+            await GenerateLevelupPacketsAsync().ConfigureAwait(false);
+            await SendPacketAsync(new MsgPacket
             {
                 Type = MessageType.White,
                 Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.HERO_LEVEL_CHANGED, Session.Account.Language)
             }).ConfigureAwait(false);
         }
 
-        public async Task SetJobLevel(byte jobLevel)
+        public async Task SetJobLevelAsync(byte jobLevel)
         {
             JobLevel = (byte)((Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20
                 : jobLevel);
             JobLevelXp = 0;
-            await SendPacket(GenerateLev()).ConfigureAwait(false);
+            await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
             var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == MapInstance);
             Parallel.ForEach(mapSessions, s =>
             {
@@ -269,9 +267,9 @@ namespace NosCore.GameObject
                 //    TODO: Generate GIDX
                 //}
 
-                s.SendPacket(this.GenerateEff(8));
+                s.SendPacketAsync(this.GenerateEff(8));
             });
-            await SendPacket(new MsgPacket
+            await SendPacketAsync(new MsgPacket
             {
                 Type = MessageType.White,
                 Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.JOB_LEVEL_CHANGED, Session.Account.Language)
@@ -295,7 +293,7 @@ namespace NosCore.GameObject
             InventoryService.Expensions[NoscorePocketType.Etc] += expension;
         }
 
-        public async Task LeaveGroup()
+        public async Task LeaveGroupAsync()
         {
             Group!.LeaveGroup(this);
             foreach (var member in Group.Keys.Where(s => (s.Item2 != CharacterId) || (s.Item1 != VisualType.Player)))
@@ -303,22 +301,24 @@ namespace NosCore.GameObject
                 var groupMember = Broadcaster.Instance.GetCharacter(s =>
                     (s.VisualId == member.Item2) && (member.Item1 == VisualType.Player));
 
-                if (groupMember != null)
+                if (groupMember == null)
                 {
-                    if (Group.Count == 1)
-                    {
-                        await groupMember.LeaveGroup().ConfigureAwait(false);
-                        await groupMember.SendPacket(Group.GeneratePidx(groupMember)).ConfigureAwait(false);
-                        await groupMember.SendPacket(new MsgPacket
-                        {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
-                                groupMember.AccountLanguage),
-                            Type = MessageType.White
-                        }).ConfigureAwait(false);
-                    }
-
-                    await groupMember.SendPacket(groupMember.Group!.GeneratePinit()).ConfigureAwait(false);
+                    continue;
                 }
+
+                if (Group.Count == 1)
+                {
+                    await groupMember.LeaveGroupAsync().ConfigureAwait(false);
+                    await groupMember.SendPacketAsync(Group.GeneratePidx(groupMember)).ConfigureAwait(false);
+                    await groupMember.SendPacketAsync(new MsgPacket
+                    {
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
+                            groupMember.AccountLanguage),
+                        Type = MessageType.White
+                    }).ConfigureAwait(false);
+                }
+
+                await groupMember.SendPacketAsync(groupMember.Group!.GeneratePinit()).ConfigureAwait(false);
             }
 
             Group = new Group(GroupType.Group);
@@ -424,7 +424,7 @@ namespace NosCore.GameObject
         public List<TitleDto> Titles { get; set; } = new List<TitleDto>();
         public bool IsDisconnecting { get; internal set; }
 
-        public async Task ChangeClass(CharacterClassType classType)
+        public async Task ChangeClassAsync(CharacterClassType classType)
         {
             if (Class == classType)
             {
@@ -435,8 +435,8 @@ namespace NosCore.GameObject
 
             JobLevel = 1;
             JobLevelXp = 0;
-            await SendPacket(new NpInfoPacket()).ConfigureAwait(false);
-            await SendPacket(new PclearPacket()).ConfigureAwait(false);
+            await SendPacketAsync(new NpInfoPacket()).ConfigureAwait(false);
+            await SendPacketAsync(new PclearPacket()).ConfigureAwait(false);
 
             if (classType == CharacterClassType.Adventurer)
             {
@@ -448,15 +448,15 @@ namespace NosCore.GameObject
             Class = classType;
             Hp = MaxHp;
             Mp = MaxMp;
-            await SendPacket(GenerateTit()).ConfigureAwait(false);
-            await SendPacket(GenerateStat()).ConfigureAwait(false);
-            await MapInstance.SendPacket(GenerateEq()).ConfigureAwait(false);
-            await MapInstance.SendPacket(this.GenerateEff(8)).ConfigureAwait(false);
+            await SendPacketAsync(GenerateTit()).ConfigureAwait(false);
+            await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(GenerateEq()).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateEff(8)).ConfigureAwait(false);
             //TODO: Faction
-            await SendPacket(this.GenerateCond()).ConfigureAwait(false);
-            await SendPacket(GenerateLev()).ConfigureAwait(false);
-            await SendPacket(this.GenerateCMode()).ConfigureAwait(false);
-            await SendPacket(new MsgPacket
+            await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
+            await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
+            await SendPacketAsync(new MsgPacket
             {
                 Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CLASS_CHANGED, Account.Language),
                 Type = MessageType.White
@@ -475,22 +475,22 @@ namespace NosCore.GameObject
                 }
             };
 
-            await MapInstance.SendPacket(this.GenerateIn(Prefix ?? ""), new EveryoneBut(Session!.Channel!.Id)).ConfigureAwait(false);
-            await MapInstance.SendPacket(Group!.GeneratePidx(this)).ConfigureAwait(false);
-            await MapInstance.SendPacket(this.GenerateEff(6)).ConfigureAwait(false);
-            await MapInstance.SendPacket(this.GenerateEff(198)).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateIn(Prefix ?? ""), new EveryoneBut(Session!.Channel!.Id)).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(Group!.GeneratePidx(this)).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateEff(6)).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateEff(198)).ConfigureAwait(false);
         }
 
-        public Task AddGold(long gold)
+        public Task AddGoldAsync(long gold)
         {
             Gold += gold;
-            return SendPacket(this.GenerateGold());
+            return SendPacketAsync(this.GenerateGold());
         }
 
-        public Task RemoveGold(long gold)
+        public Task RemoveGoldAsync(long gold)
         {
             Gold -= gold;
-            return SendPacket(this.GenerateGold());
+            return SendPacketAsync(this.GenerateGold());
         }
 
         public void AddBankGold(long bankGold)
@@ -503,24 +503,24 @@ namespace NosCore.GameObject
             Account.BankMoney -= bankGold;
         }
 
-        public async Task SetGold(long gold)
+        public async Task SetGoldAsync(long gold)
         {
             Gold = gold;
-            await SendPacket(this.GenerateGold()).ConfigureAwait(false);
-            await SendPacket(this.GenerateSay(
+            await SendPacketAsync(this.GenerateGold()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateSay(
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.UPDATE_GOLD, Session.Account.Language),
                 SayColorType.Purple)).ConfigureAwait(false);
         }
 
-        public async Task SetReputation(long reput)
+        public async Task SetReputationAsync(long reput)
         {
             Reput = reput;
-            await SendPacket(GenerateFd()).ConfigureAwait(false);
-            await SendPacket(this.GenerateSay(
+            await SendPacketAsync(GenerateFd()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateSay(
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language),
                 SayColorType.Purple)).ConfigureAwait(false);
         }
-        public async Task GenerateMail(IEnumerable<MailData> mails)
+        public async Task GenerateMailAsync(IEnumerable<MailData> mails)
         {
             foreach (var mail in mails)
             {
@@ -528,30 +528,30 @@ namespace NosCore.GameObject
                 {
                     if (mail.ItemInstance != null)
                     {
-                        await Session.SendPacket(mail.GeneratePost(0)).ConfigureAwait(false);
+                        await Session.SendPacketAsync(mail.GeneratePost(0)).ConfigureAwait(false);
                     }
                     else
                     {
-                        await Session.SendPacket(mail.GeneratePost(1)).ConfigureAwait(false);
+                        await Session.SendPacketAsync(mail.GeneratePost(1)).ConfigureAwait(false);
                     }
                 }
                 else
                 {
                     if (mail.ItemInstance != null)
                     {
-                        await Session.SendPacket(mail.GeneratePost(3)).ConfigureAwait(false);
+                        await Session.SendPacketAsync(mail.GeneratePost(3)).ConfigureAwait(false);
                     }
                     else
                     {
-                        await Session.SendPacket(mail.GeneratePost(2)).ConfigureAwait(false);
+                        await Session.SendPacketAsync(mail.GeneratePost(2)).ConfigureAwait(false);
                     }
                 }
             }
         }
 
-        public Task ChangeMap(short mapId, short mapX, short mapY)
+        public Task ChangeMapAsync(short mapId, short mapX, short mapY)
         {
-            return Session.ChangeMap(mapId, mapX, mapY);
+            return Session.ChangeMapAsync(mapId, mapX, mapY);
         }
 
         public string GetMessageFromKey(LanguageKey languageKey)
@@ -559,17 +559,17 @@ namespace NosCore.GameObject
             return Session.GetMessageFromKey(languageKey);
         }
 
-        public async Task CloseShop()
+        public async Task CloseShopAsync()
         {
             Shop = null;
 
-            await MapInstance.SendPacket(this.GenerateShop()).ConfigureAwait(false);
-            await MapInstance.SendPacket(this.GeneratePFlag()).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateShop()).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GeneratePFlag()).ConfigureAwait(false);
 
             IsSitting = false;
             LoadSpeed();
-            await SendPacket(this.GenerateCond()).ConfigureAwait(false);
-            await MapInstance.SendPacket(this.GenerateRest()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateRest()).ConfigureAwait(false);
         }
 
         public RsfiPacket GenerateRsfi()
@@ -611,7 +611,7 @@ namespace NosCore.GameObject
             return new Tuple<double, byte>(percent, shopKind);
         }
 
-        public async Task Buy(Shop shop, short slot, short amount)
+        public async Task BuyAsync(Shop shop, short slot, short amount)
         {
             var item = shop.ShopItems.Values.FirstOrDefault(it => it.Slot == slot);
             if (item == null)
@@ -631,7 +631,7 @@ namespace NosCore.GameObject
 
             if ((reputprice == 0) && (price * percent > Gold))
             {
-                await SendPacket(new SMemoPacket
+                await SendPacketAsync(new SMemoPacket
                 {
                     Type = SMemoType.FatalError,
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, Account.Language)
@@ -641,7 +641,7 @@ namespace NosCore.GameObject
 
             if (reputprice > Reput)
             {
-                await SendPacket(new SMemoPacket
+                await SendPacketAsync(new SMemoPacket
                 {
                     Type = SMemoType.FatalError,
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, Account.Language)
@@ -660,7 +660,7 @@ namespace NosCore.GameObject
             {
                 if (price + shop.Session.Character.Gold > shop.Session.WorldConfiguration.MaxGoldAmount)
                 {
-                    await SendPacket(new SMemoPacket
+                    await SendPacketAsync(new SMemoPacket
                     {
                         Type = SMemoType.FatalError,
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, Account.Language)
@@ -683,15 +683,15 @@ namespace NosCore.GameObject
             if (inv?.Count > 0)
             {
                 inv.ForEach(it => it.CharacterId = CharacterId);
-                var packet = await (shop.Session == null ? Task.FromResult((NInvPacket?)null) : shop.Session.Character.BuyFrom(item, amount, slotChar)).ConfigureAwait(false);
+                var packet = await (shop.Session == null ? Task.FromResult((NInvPacket?)null) : shop.Session.Character.BuyFromAsync(item, amount, slotChar)).ConfigureAwait(false);
                 if (packet != null)
                 {
-                    await SendPacket(packet).ConfigureAwait(false);
+                    await SendPacketAsync(packet).ConfigureAwait(false);
                 }
 
-                await SendPackets(
+                await SendPacketsAsync(
                     inv.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot))).ConfigureAwait(false);
-                await SendPacket(new SMemoPacket
+                await SendPacketAsync(new SMemoPacket
                 {
                     Type = SMemoType.Success,
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_VALID, Account.Language)
@@ -699,20 +699,20 @@ namespace NosCore.GameObject
                 if (reputprice == 0)
                 {
                     Gold -= (long)(price * percent);
-                    await SendPacket(this.GenerateGold()).ConfigureAwait(false);
+                    await SendPacketAsync(this.GenerateGold()).ConfigureAwait(false);
                 }
                 else
                 {
                     Reput -= reputprice;
-                    await SendPacket(GenerateFd()).ConfigureAwait(false);
-                    await SendPacket(this.GenerateSay(
+                    await SendPacketAsync(GenerateFd()).ConfigureAwait(false);
+                    await SendPacketAsync(this.GenerateSay(
                         GameLanguage.Instance.GetMessageFromKey(LanguageKey.REPUT_DECREASED, Account.Language),
                         SayColorType.Purple)).ConfigureAwait(false);
                 }
             }
             else
             {
-                await SendPacket(new MsgPacket
+                await SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         Session.Account.Language),
@@ -721,7 +721,7 @@ namespace NosCore.GameObject
             }
         }
 
-        private async Task<NInvPacket?> BuyFrom(ShopItem item, short amount, short slotChar)
+        private async Task<NInvPacket?> BuyFromAsync(ShopItem item, short amount, short slotChar)
         {
             var type = item.Type;
             var itemInstance = amount == item.ItemInstance?.Amount
@@ -734,8 +734,8 @@ namespace NosCore.GameObject
                 Shop!.ShopItems.TryRemove(slot, out _);
             }
 
-            await SendPacket(itemInstance.GeneratePocketChange((PocketType)type, slotChar)).ConfigureAwait(false);
-            await SendPacket(new SMemoPacket
+            await SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)type, slotChar)).ConfigureAwait(false);
+            await SendPacketAsync(new SMemoPacket
             {
                 Type = SMemoType.Success,
                 Message = string.Format(
@@ -744,10 +744,10 @@ namespace NosCore.GameObject
             }).ConfigureAwait(false);
             var sellAmount = (item?.Price ?? 0) * amount;
             Gold += sellAmount;
-            await SendPacket(this.GenerateGold()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateGold()).ConfigureAwait(false);
             Shop!.Sell += sellAmount;
 
-            await SendPacket(new SellListPacket
+            await SendPacketAsync(new SellListPacket
             {
                 ValueSold = Shop.Sell,
                 SellListSubPacket = new List<SellListSubPacket?>
@@ -761,34 +761,35 @@ namespace NosCore.GameObject
                 }
             }).ConfigureAwait(false);
 
-            if (Shop.ShopItems.Count == 0)
+            if (Shop.ShopItems.Count != 0)
             {
-                await CloseShop().ConfigureAwait(false);
-                return null;
+                return this.GenerateNInv(1, 0, 0);
             }
 
-            return this.GenerateNInv(1, 0, 0);
+            await CloseShopAsync().ConfigureAwait(false);
+            return null;
+
         }
 
-        private async Task GenerateLevelupPackets()
+        private async Task GenerateLevelupPacketsAsync()
         {
-            await SendPacket(GenerateStat()).ConfigureAwait(false);
-            await SendPacket(this.GenerateStatInfo()).ConfigureAwait(false);
+            await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateStatInfo()).ConfigureAwait(false);
             //Session.SendPacket(GenerateStatChar());
-            await SendPacket(GenerateLev()).ConfigureAwait(false);
+            await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
             var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == MapInstance);
 
             Parallel.ForEach(mapSessions, s =>
             {
                 if (s.VisualId != VisualId)
                 {
-                    s.SendPacket(this.GenerateIn(Authority == AuthorityType.Moderator
+                    s.SendPacketAsync(this.GenerateIn(Authority == AuthorityType.Moderator
                         ? GameLanguage.Instance.GetMessageFromKey(LanguageKey.SUPPORT, Account.Language) : string.Empty));
                     //TODO: Generate GIDX
                 }
 
-                s.SendPacket(this.GenerateEff(6));
-                s.SendPacket(this.GenerateEff(198));
+                s.SendPacketAsync(this.GenerateEff(6));
+                s.SendPacketAsync(this.GenerateEff(198));
             });
 
             foreach (var member in Group!.Keys)
@@ -796,17 +797,17 @@ namespace NosCore.GameObject
                 var groupMember = Broadcaster.Instance.GetCharacter(s =>
                     (s.VisualId == member.Item2) && (member.Item1 == VisualType.Player));
 
-                groupMember?.SendPacket(groupMember.Group!.GeneratePinit());
+                groupMember?.SendPacketAsync(groupMember.Group!.GeneratePinit());
             }
 
-            await SendPacket(Group.GeneratePinit()).ConfigureAwait(false);
+            await SendPacketAsync(Group.GeneratePinit()).ConfigureAwait(false);
         }
 
-        public async Task SetLevel(byte level)
+        public async Task SetLevelAsync(byte level)
         {
-            (this as INamedEntity).SetLevel(level);
-            await GenerateLevelupPackets().ConfigureAwait(false);
-            await SendPacket(new MsgPacket
+            this.SetLevel(level);
+            await GenerateLevelupPacketsAsync().ConfigureAwait(false);
+            await SendPacketAsync(new MsgPacket
             {
                 Type = MessageType.White,
                 Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.LEVEL_CHANGED, Session.Account.Language)
@@ -957,101 +958,103 @@ namespace NosCore.GameObject
             var inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket?>() };
             var inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket?>() };
 
-            if (InventoryService != null)
+            if (InventoryService == null)
             {
-                foreach (var inv in InventoryService.Select(s => s.Value))
+                return new List<IPacket> {inv0, inv1, inv2, inv3, inv6, inv7};
+            }
+
+            foreach (var inv in InventoryService.Select(s => s.Value))
+            {
+                switch (inv.Type)
                 {
-                    switch (inv.Type)
-                    {
-                        case NoscorePocketType.Equipment:
-                            if (inv.ItemInstance!.Item!.EquipmentSlot == EquipmentType.Sp)
-                            {
-                                if (inv.ItemInstance is SpecialistInstance specialistInstance)
-                                {
-                                    inv7.IvnSubPackets.Add(new IvnSubPacket
-                                    {
-                                        Slot = inv.Slot,
-                                        VNum = inv.ItemInstance.ItemVNum,
-                                        RareAmount = specialistInstance.Rare,
-                                        UpgradeDesign = specialistInstance.Upgrade,
-                                        SecondUpgrade = specialistInstance.SpStoneUpgrade
-                                    });
-                                }
-                            }
-                            else
-                            {
-                                if (inv.ItemInstance is WearableInstance wearableInstance)
-                                {
-                                    inv0.IvnSubPackets.Add(new IvnSubPacket
-                                    {
-                                        Slot = inv.Slot,
-                                        VNum = inv.ItemInstance.ItemVNum,
-                                        RareAmount = wearableInstance.Rare,
-                                        UpgradeDesign = inv.ItemInstance.Item.IsColored ? wearableInstance.Design
-                                            : wearableInstance.Upgrade
-                                    });
-                                }
-                            }
-
-                            break;
-
-                        case NoscorePocketType.Main:
-                            inv1.IvnSubPackets.Add(new IvnSubPacket
-                            {
-                                Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
-                            });
-                            break;
-
-                        case NoscorePocketType.Etc:
-                            inv2.IvnSubPackets.Add(new IvnSubPacket
-                            {
-                                Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
-                            });
-                            break;
-
-                        case NoscorePocketType.Miniland:
-                            inv3.IvnSubPackets.Add(new IvnSubPacket
-                            {
-                                Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
-                            });
-                            break;
-
-                        case NoscorePocketType.Specialist:
-                            if (inv.ItemInstance is SpecialistInstance specialist)
-                            {
-                                inv6.IvnSubPackets.Add(new IvnSubPacket
-                                {
-                                    Slot = inv.Slot,
-                                    VNum = inv.ItemInstance.ItemVNum,
-                                    RareAmount = specialist.Rare,
-                                    UpgradeDesign = specialist.Upgrade,
-                                    SecondUpgrade = specialist.SpStoneUpgrade
-                                });
-                            }
-
-                            break;
-
-                        case NoscorePocketType.Costume:
-                            if (inv.ItemInstance is WearableInstance costumeInstance)
+                    case NoscorePocketType.Equipment:
+                        if (inv.ItemInstance!.Item!.EquipmentSlot == EquipmentType.Sp)
+                        {
+                            if (inv.ItemInstance is SpecialistInstance specialistInstance)
                             {
                                 inv7.IvnSubPackets.Add(new IvnSubPacket
                                 {
                                     Slot = inv.Slot,
                                     VNum = inv.ItemInstance.ItemVNum,
-                                    RareAmount = costumeInstance.Rare,
-                                    UpgradeDesign = costumeInstance.Upgrade
+                                    RareAmount = specialistInstance.Rare,
+                                    UpgradeDesign = specialistInstance.Upgrade,
+                                    SecondUpgrade = specialistInstance.SpStoneUpgrade
                                 });
                             }
+                        }
+                        else
+                        {
+                            if (inv.ItemInstance is WearableInstance wearableInstance)
+                            {
+                                inv0.IvnSubPackets.Add(new IvnSubPacket
+                                {
+                                    Slot = inv.Slot,
+                                    VNum = inv.ItemInstance.ItemVNum,
+                                    RareAmount = wearableInstance.Rare,
+                                    UpgradeDesign = inv.ItemInstance.Item.IsColored ? wearableInstance.Design
+                                        : wearableInstance.Upgrade
+                                });
+                            }
+                        }
 
-                            break;
+                        break;
 
-                        case NoscorePocketType.Wear:
-                            break;
-                        default:
-                            _logger.Information(
-                                LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.POCKETTYPE_UNKNOWN));
-                            break;
-                    }
+                    case NoscorePocketType.Main:
+                        inv1.IvnSubPackets.Add(new IvnSubPacket
+                        {
+                            Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                        });
+                        break;
+
+                    case NoscorePocketType.Etc:
+                        inv2.IvnSubPackets.Add(new IvnSubPacket
+                        {
+                            Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                        });
+                        break;
+
+                    case NoscorePocketType.Miniland:
+                        inv3.IvnSubPackets.Add(new IvnSubPacket
+                        {
+                            Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                        });
+                        break;
+
+                    case NoscorePocketType.Specialist:
+                        if (inv.ItemInstance is SpecialistInstance specialist)
+                        {
+                            inv6.IvnSubPackets.Add(new IvnSubPacket
+                            {
+                                Slot = inv.Slot,
+                                VNum = inv.ItemInstance.ItemVNum,
+                                RareAmount = specialist.Rare,
+                                UpgradeDesign = specialist.Upgrade,
+                                SecondUpgrade = specialist.SpStoneUpgrade
+                            });
+                        }
+
+                        break;
+
+                    case NoscorePocketType.Costume:
+                        if (inv.ItemInstance is WearableInstance costumeInstance)
+                        {
+                            inv7.IvnSubPackets.Add(new IvnSubPacket
+                            {
+                                Slot = inv.Slot,
+                                VNum = inv.ItemInstance.ItemVNum,
+                                RareAmount = costumeInstance.Rare,
+                                UpgradeDesign = costumeInstance.Upgrade
+                            });
+                        }
+
+                        break;
+
+                    case NoscorePocketType.Wear:
+                        break;
+                    default:
+                        _logger.Information(
+                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.POCKETTYPE_UNKNOWN));
+                        break;
                 }
             }
 
@@ -1304,14 +1307,14 @@ namespace NosCore.GameObject
         {
             SpPoint = SpPoint + spPointToAdd > Session.WorldConfiguration.MaxSpPoints
                 ? Session.WorldConfiguration.MaxSpPoints : SpPoint + spPointToAdd;
-            SendPacket(GenerateSpPoint());
+            SendPacketAsync(GenerateSpPoint());
         }
 
         public void AddAdditionalSpPoints(int spPointToAdd)
         {
             SpAdditionPoint = SpAdditionPoint + spPointToAdd > Session.WorldConfiguration.MaxAdditionalSpPoints
                 ? Session.WorldConfiguration.MaxAdditionalSpPoints : SpAdditionPoint + spPointToAdd;
-            SendPacket(GenerateSpPoint());
+            SendPacketAsync(GenerateSpPoint());
         }
 
         public EquipPacket? GenerateEquipment()
@@ -1329,8 +1332,8 @@ namespace NosCore.GameObject
                     EquipmentType = eqType,
                     VNum = eq.ItemInstance!.ItemVNum,
                     Rare = eq.ItemInstance.Rare,
-                    Upgrade = (eq?.ItemInstance!.Item!.IsColored ? eq.ItemInstance?.Design
-                        : eq?.ItemInstance.Upgrade) ?? 0,
+                    Upgrade = (eq.ItemInstance!.Item!.IsColored ? eq.ItemInstance?.Design
+                        : eq.ItemInstance.Upgrade) ?? 0,
                     Unknown = 0
                 };
             }
@@ -1375,40 +1378,40 @@ namespace NosCore.GameObject
             };
         }
 
-        public async Task RemoveSp()
+        public async Task RemoveSpAsync()
         {
             UseSp = false;
             Morph = 0;
             MorphUpgrade = 0;
             MorphDesign = 0;
             LoadSpeed();
-            await SendPacket(this.GenerateCond()).ConfigureAwait(false);
-            await SendPacket(GenerateLev()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
+            await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
             SpCooldown = 30;
-            await SendPacket(this.GenerateSay(
+            await SendPacketAsync(this.GenerateSay(
                 string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.STAY_TIME, Account.Language), SpCooldown),
                 SayColorType.Purple)).ConfigureAwait(false);
-            await SendPacket(new SdPacket { Cooldown = SpCooldown }).ConfigureAwait(false);
-            await MapInstance.SendPacket(this.GenerateCMode()).ConfigureAwait(false);
-            await MapInstance.SendPacket(new GuriPacket
+            await SendPacketAsync(new SdPacket { Cooldown = SpCooldown }).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
                 EntityId = CharacterId
             }).ConfigureAwait(false);
-            await SendPacket(GenerateStat()).ConfigureAwait(false);
+            await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
 
             Observable.Timer(TimeSpan.FromMilliseconds(SpCooldown * 1000)).Subscribe(o =>
             {
-                SendPacket(this.GenerateSay(
+                SendPacketAsync(this.GenerateSay(
                    string.Format(
                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_DISAPPEAR, Account.Language),
                        SpCooldown), SayColorType.Purple));
-                SendPacket(new SdPacket { Cooldown = 0 });
+                SendPacketAsync(new SdPacket { Cooldown = 0 });
             });
         }
 
-        public async Task ChangeSp()
+        public async Task ChangeSpAsync()
         {
             if (!(InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is
                 SpecialistInstance sp))
@@ -1419,7 +1422,7 @@ namespace NosCore.GameObject
 
             if (GetReputIco() < sp.Item!.ReputationMinimum)
             {
-                await SendPacket(new MsgPacket
+                await SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOW_REP,
                         Session.Account.Language)
@@ -1432,7 +1435,7 @@ namespace NosCore.GameObject
                 && (sp.Item.Element != 0) && (fairy.Item!.Element != sp.Item.Element)
                 && (fairy.Item.Element != sp.Item.SecondaryElement))
             {
-                await SendPacket(new MsgPacket
+                await SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
                         Session.Account.Language)
@@ -1445,22 +1448,22 @@ namespace NosCore.GameObject
             Morph = sp.Item.Morph;
             MorphUpgrade = sp.Upgrade;
             MorphDesign = sp.Design;
-            await MapInstance.SendPacket(this.GenerateCMode()).ConfigureAwait(false);
-            await SendPacket(GenerateLev()).ConfigureAwait(false);
-            await MapInstance.SendPacket(this.GenerateEff(196)).ConfigureAwait(false);
-            await MapInstance.SendPacket(new GuriPacket
+            await MapInstance.SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
+            await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateEff(196)).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Unknow2,
                 Value = 1,
                 EntityId = CharacterId
             }).ConfigureAwait(false);
-            await SendPacket(GenerateSpPoint()).ConfigureAwait(false);
+            await SendPacketAsync(GenerateSpPoint()).ConfigureAwait(false);
             LoadSpeed();
-            await SendPacket(this.GenerateCond()).ConfigureAwait(false);
-            await SendPacket(GenerateStat()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
+            await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
         }
 
-        public async Task RemoveVehicle()
+        public async Task RemoveVehicleAsync()
         {
             if (UseSp)
             {
@@ -1484,8 +1487,8 @@ namespace NosCore.GameObject
 
             IsVehicled = false;
             VehicleSpeed = 0;
-            await SendPacket(this.GenerateCond()).ConfigureAwait(false);
-            await MapInstance.SendPacket(this.GenerateCMode()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
         }
 
         public MlobjlstPacket GenerateMlobjlst()

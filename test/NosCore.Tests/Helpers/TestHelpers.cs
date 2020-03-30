@@ -101,9 +101,9 @@ namespace NosCore.Tests.Helpers
 
         private TestHelpers()
         {
-            BlacklistHttpClient.Setup(s => s.GetBlackLists(It.IsAny<long>()))
+            BlacklistHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
-            FriendHttpClient.Setup(s => s.GetListFriends(It.IsAny<long>()))
+            FriendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
             AccountDao = new GenericDao<Account, AccountDto, long>(_logger);
             _portalDao = new GenericDao<Portal, PortalDto, int>(_logger);
@@ -264,7 +264,10 @@ namespace NosCore.Tests.Helpers
             { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = "test".ToSha512() };
             AccountDao.InsertOrUpdate(ref acc);
             var minilandProvider = new Mock<IMinilandProvider>();
-            var session = new ClientSession(WorldConfiguration, MapInstanceProvider, new Mock<IExchangeProvider>().Object, _logger,
+            var session = new ClientSession(WorldConfiguration, 
+                MapInstanceProvider,
+                new Mock<IExchangeProvider>().Object,
+                _logger,
                 new List<IPacketHandler>
                 {
                     new CharNewPacketHandler(CharacterDao, MinilandDao),
@@ -274,7 +277,11 @@ namespace NosCore.Tests.Helpers
                         ConnectedAccountHttpClient.Object),
                     new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemProvider>().Object, MapInstanceProvider,
                         _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<TitleDto>>().Object)
-                }, FriendHttpClient.Object, new Mock<ISerializer>().Object, PacketHttpClient.Object, minilandProvider.Object)
+                }, 
+                FriendHttpClient.Object,
+                new Mock<ISerializer>().Object,
+                PacketHttpClient.Object, 
+                minilandProvider.Object)
             {
                 SessionId = _lastId
             };

@@ -28,9 +28,9 @@ namespace NosCore.PacketHandlers.Command
 {
     public class EffectCommandPackettHandler : PacketHandler<EffectCommandPacket>, IWorldPacketHandler
     {
-        public override Task Execute(EffectCommandPacket effectCommandpacket, ClientSession session)
+        public override Task ExecuteAsync(EffectCommandPacket effectCommandpacket, ClientSession session)
         {
-            return session.Character.MapInstance.SendPacket(
+            return session.Character.MapInstance.SendPacketAsync(
                 session.Character.GenerateEff(effectCommandpacket.EffectId));
         }
     }

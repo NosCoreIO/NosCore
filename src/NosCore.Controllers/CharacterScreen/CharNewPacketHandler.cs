@@ -43,9 +43,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _minilandDao = minilandDao;
         }
 
-        public override Task Execute(CharNewPacket packet, ClientSession clientSession)
+        public override Task ExecuteAsync(CharNewPacket packet, ClientSession clientSession)
         {
-            if (clientSession.HasCurrentMapInstance)
+            if (clientSession.HasSelectedCharacter)
             {
                 return Task.CompletedTask;
             }
@@ -102,11 +102,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         WelcomeMusicInfo = "Spring^Melody"
                     };
                     _minilandDao.InsertOrUpdate(ref miniland);
-                    return clientSession.HandlePackets(new[] {new SelectPacket {Slot = chara.Slot}});
+                    return clientSession.HandlePacketsAsync(new[] {new SelectPacket {Slot = chara.Slot}});
                 }
                 else
                 {
-                    clientSession.SendPacket(new InfoPacket
+                    clientSession.SendPacketAsync(new InfoPacket
                     {
                         Message = clientSession.GetMessageFromKey(LanguageKey.ALREADY_TAKEN)
                     });
@@ -114,7 +114,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             else
             {
-                clientSession.SendPacket(new InfoPacket
+                clientSession.SendPacketAsync(new InfoPacket
                 {
                     Message = clientSession.GetMessageFromKey(LanguageKey.INVALID_CHARNAME)
                 });

@@ -43,18 +43,18 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task BroadcastPacket(PostedPacket packet, int channelId)
+        public async Task BroadcastPacketAsync(PostedPacket packet, int channelId)
         {
-            var channel = await _channelHttpClient.GetChannel(channelId).ConfigureAwait(false);
+            var channel = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
             if (channel != null)
             {
                 SendPacketToChannel(packet, channel.WebApi!.ToString());
             }
         }
 
-        public async Task BroadcastPacket(PostedPacket packet)
+        public async Task BroadcastPacketAsync(PostedPacket packet)
         {
-            foreach (var channel in (await _channelHttpClient.GetChannels().ConfigureAwait(false))
+            foreach (var channel in (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer) ?? new List<ChannelInfo>())
             {
                 SendPacketToChannel(packet, channel.WebApi!.ToString());
@@ -63,12 +63,12 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
 
         public Task BroadcastPacketsAsync(List<PostedPacket> packets)
         {
-            return Task.WhenAll(packets.Select(packet => BroadcastPacket(packet)));
+            return Task.WhenAll(packets.Select(packet => BroadcastPacketAsync(packet)));
         }
 
-        public Task BroadcastPackets(List<PostedPacket> packets, int channelId)
+        public Task BroadcastPacketsAsync(List<PostedPacket> packets, int channelId)
         {
-            return Task.WhenAll(packets.Select(packet => BroadcastPacket(packet, channelId)));
+            return Task.WhenAll(packets.Select(packet => BroadcastPacketAsync(packet, channelId)));
         }
 
         private async void SendPacketToChannel(PostedPacket postedPacket, string channel)
@@ -76,7 +76,7 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(channel);
             client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshToken().ConfigureAwait(false));
+                new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
             var content = new StringContent(JsonSerializer.Serialize(postedPacket),
                 Encoding.Default, "application/json");
 

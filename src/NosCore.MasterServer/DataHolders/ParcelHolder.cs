@@ -52,14 +52,16 @@ namespace NosCore.MasterServer.DataHolders
             // returns value if exists
             get
             {
-                if (!ContainsKey(characterId))
+                if (ContainsKey(characterId))
                 {
-                    TryAdd(characterId, new ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>());
-                    this.First(s => s.Key == characterId).Value
-                        .TryAdd(false, new ConcurrentDictionary<long, MailData>());
-                    this.First(s => s.Key == characterId).Value
-                        .TryAdd(true, new ConcurrentDictionary<long, MailData>());
+                    return this.First(s => s.Key == characterId).Value;
                 }
+
+                TryAdd(characterId, new ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>());
+                this.First(s => s.Key == characterId).Value
+                    .TryAdd(false, new ConcurrentDictionary<long, MailData>());
+                this.First(s => s.Key == characterId).Value
+                    .TryAdd(true, new ConcurrentDictionary<long, MailData>());
 
                 return this.First(s => s.Key == characterId).Value;
             }
@@ -71,7 +73,7 @@ namespace NosCore.MasterServer.DataHolders
             var idcopy = 0;
             var idmail = 0;
             var charactersIds = mails.Select(s => s.ReceiverId)
-                .Union(mails.Where(s => s.SenderId != null).Select(s => (long) s.SenderId!));
+                .Union(mails.Where(s => s.SenderId != null).Select(s => (long)s.SenderId!));
             var characternames = new Dictionary<long, string?>();
             foreach (var characterId in charactersIds)
             {
@@ -87,9 +89,9 @@ namespace NosCore.MasterServer.DataHolders
                     it = _items.FirstOrDefault(s => s.VNum == itinst.ItemVNum);
                 }
 
-                var senderName = mail.SenderId == null ? "NOSMALL" : characternames[(long) mail.SenderId];
+                var senderName = mail.SenderId == null ? "NOSMALL" : characternames[(long)mail.SenderId];
                 var receiverName = characternames[mail.ReceiverId];
-                var mailId = mail.IsSenderCopy ? (short) idcopy : (short) idmail;
+                var mailId = mail.IsSenderCopy ? (short)idcopy : (short)idmail;
                 this[mail.IsSenderCopy ? mail.SenderId ?? 0 : mail.ReceiverId][mail.IsSenderCopy].TryAdd(mailId,
                     new MailData
                     {
@@ -98,7 +100,7 @@ namespace NosCore.MasterServer.DataHolders
                         ReceiverName = receiverName,
                         MailId = mailId,
                         MailDto = mail,
-                        ItemType = (short?) it?.ItemType ?? -1
+                        ItemType = (short?)it?.ItemType ?? -1
                     });
                 if (mail.IsSenderCopy)
                 {

@@ -26,7 +26,7 @@ namespace NosCore.PacketHandlers.Warehouse
 {
     public class StashEndPacketHandler : PacketHandler<StashEndPacket>, IWorldPacketHandler
     {
-        public override Task Execute(StashEndPacket packet, ClientSession clientSession)
+        public override Task ExecuteAsync(StashEndPacket packet, ClientSession clientSession)
         {
             return Task.CompletedTask;
         }

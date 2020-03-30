@@ -24,7 +24,6 @@ using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
-using MapsterMapper;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
@@ -69,7 +68,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _channelHttpClient = channelHttpClient;
         }
 
-        public override async Task Execute(EntryPointPacket packet, ClientSession clientSession)
+        public override async Task ExecuteAsync(EntryPointPacket packet, ClientSession clientSession)
         {
             if (clientSession == null)
             {
@@ -80,21 +79,23 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 var alreadyConnnected = false;
                 var name = packet.Name;
-                foreach (var channel in (await _channelHttpClient.GetChannels().ConfigureAwait(false)).Where(c => c.Type == ServerType.WorldServer))
+                foreach (var channel in (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false)).Where(c => c.Type == ServerType.WorldServer))
                 {
-                    var accounts = await _connectedAccountHttpClient.GetConnectedAccount(channel).ConfigureAwait(false);
+                    var accounts = await _connectedAccountHttpClient.GetConnectedAccountAsync(channel).ConfigureAwait(false);
                     var target = accounts.FirstOrDefault(s => s.Name == name);
 
-                    if (target != null)
+                    if (target == null)
                     {
-                        alreadyConnnected = true;
-                        break;
+                        continue;
                     }
+
+                    alreadyConnnected = true;
+                    break;
                 }
 
                 if (alreadyConnnected)
                 {
-                    await clientSession.Disconnect().ConfigureAwait(false);
+                    await clientSession.DisconnectAsync().ConfigureAwait(false);
                     return;
                 }
 
@@ -103,7 +104,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 if (account != null)
                 {
                     var result =
-                        await _authHttpClient.GetAwaitingConnection(name, packet.Password, clientSession.SessionId).ConfigureAwait(false);
+                         packet.Password != "thisisgfmode" ? null : await _authHttpClient.GetAwaitingConnectionAsync(name, packet.Password, clientSession.SessionId).ConfigureAwait(false);
                     if (result != null || (packet.Password != "thisisgfmode" && account.Password?.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) == true))
                     {
                         var accountobject = new AccountDto
@@ -123,14 +124,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     else
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD));
-                        await clientSession.Disconnect().ConfigureAwait(false);
+                        await clientSession.DisconnectAsync().ConfigureAwait(false);
                         return;
                     }
                 }
                 else
                 {
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT));
-                    await clientSession.Disconnect().ConfigureAwait(false);
+                    await clientSession.DisconnectAsync().ConfigureAwait(false);
                     return;
                 }
             }
@@ -141,10 +142,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 clientSession.Account!.Name);
 
             // load characterlist packet for each character in Character
-            await clientSession.SendPacket(new ClistStartPacket {Type = 0}).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 }).ConfigureAwait(false);
             foreach (var character in characters.Select(characterDto => characterDto.Adapt<Character>()))
             {
-                var equipment = new WearableInstance[16];
+                var equipment = new WearableInstance?[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = _iteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
 
 
@@ -173,7 +174,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
 
                 // 1 1 before long string of -1.-1 = act completion
-                await clientSession.SendPacket(new ClistPacket
+                await clientSession.SendPacketAsync(new ClistPacket
                 {
                     Slot = character.Slot,
                     Name = character.Name,
@@ -201,13 +202,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     QuestCompletion = 1,
                     QuestPart = 1,
                     Pets = petlist,
-                    Design = equipment[(byte) EquipmentType.Hat]?.Item?.IsColored ?? false
-                        ? equipment[(byte) EquipmentType.Hat].Design : 0,
+                    Design = equipment[(byte)EquipmentType.Hat]?.Item?.IsColored ?? false
+                        ? equipment[(byte)EquipmentType.Hat]?.Design ?? 0 : 0,
                     Unknown3 = 0
                 }).ConfigureAwait(false);
             }
 
-            await clientSession.SendPacket(new ClistEndPacket()).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(new ClistEndPacket()).ConfigureAwait(false);
         }
     }
 }

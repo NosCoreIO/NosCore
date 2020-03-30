@@ -61,7 +61,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task Test_PutPartialSlot()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 999), 0));
-            await _putPacketHandler!.Execute(new PutPacket
+            await _putPacketHandler!.ExecuteAsync(new PutPacket
             {
                 PocketType = PocketType.Main,
                 Slot = 0,
@@ -75,7 +75,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task Test_PutNotDroppable()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1013, 1), 0));
-            await _putPacketHandler!.Execute(new PutPacket
+            await _putPacketHandler!.ExecuteAsync(new PutPacket
             {
                 PocketType = PocketType.Main,
                 Slot = 0,
@@ -83,7 +83,7 @@ namespace NosCore.Tests.InventoryTests
             }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
-                _session.Account.Language)) && (packet?.Type == 0));
+                _session.Account.Language)) && (packet.Type == 0));
             Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
 
@@ -92,7 +92,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task Test_Put()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 1), 0));
-            await _putPacketHandler!.Execute(new PutPacket
+            await _putPacketHandler!.ExecuteAsync(new PutPacket
             {
                 PocketType = PocketType.Main,
                 Slot = 0,
@@ -107,7 +107,7 @@ namespace NosCore.Tests.InventoryTests
             _session!.Character.PositionX = 2;
             _session.Character.PositionY = 2;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 1), 0));
-            await _putPacketHandler!.Execute(new PutPacket
+            await _putPacketHandler!.ExecuteAsync(new PutPacket
             {
                 PocketType = PocketType.Main,
                 Slot = 0,
@@ -115,7 +115,7 @@ namespace NosCore.Tests.InventoryTests
             }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
-                _session.Account.Language)) && (packet?.Type == 0));
+                _session.Account.Language)) && (packet.Type == 0));
             Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
 
@@ -125,7 +125,7 @@ namespace NosCore.Tests.InventoryTests
             _session!.Character.PositionX = -1;
             _session.Character.PositionY = -1;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 1), 0));
-            await _putPacketHandler!.Execute(new PutPacket
+            await _putPacketHandler!.ExecuteAsync(new PutPacket
             {
                 PocketType = PocketType.Main,
                 Slot = 0,

@@ -35,7 +35,7 @@ namespace NosCore.PacketHandlers.Inventory
 {
     public class SpTransformPacketHandler : PacketHandler<SpTransformPacket>, IWorldPacketHandler
     {
-        public override async Task Execute(SpTransformPacket spTransformPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(SpTransformPacket spTransformPacket, ClientSession clientSession)
         {
             if (spTransformPacket.Type == SlPacketType.ChangePoints)
             {
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Inventory
                 if (!(clientSession.Character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp,
                     NoscorePocketType.Wear)?.ItemInstance is SpecialistInstance specialistInstance))
                 {
-                    await clientSession.SendPacket(new MsgPacket
+                    await clientSession.SendPacketAsync(new MsgPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SP, clientSession.Account.Language)
                     }).ConfigureAwait(false);
@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Inventory
 
                 if (clientSession.Character.IsVehicled)
                 {
-                    await clientSession.SendPacket(new MsgPacket
+                    await clientSession.SendPacketAsync(new MsgPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE,
                             clientSession.Account.Language)
@@ -74,13 +74,13 @@ namespace NosCore.PacketHandlers.Inventory
                 if (clientSession.Character.UseSp)
                 {
                     clientSession.Character.LastSp = SystemTime.Now();
-                    await clientSession.Character.RemoveSp().ConfigureAwait(false);
+                    await clientSession.Character.RemoveSpAsync().ConfigureAwait(false);
                 }
                 else
                 {
                     if ((clientSession.Character.SpPoint == 0) && (clientSession.Character.SpAdditionPoint == 0))
                     {
-                        await clientSession.SendPacket(new MsgPacket
+                        await clientSession.SendPacketAsync(new MsgPacket
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS,
                                 clientSession.Account.Language)
@@ -92,17 +92,17 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         if (spTransformPacket.Type == SlPacketType.WearSpAndTransform)
                         {
-                            await clientSession.Character.ChangeSp().ConfigureAwait(false);
+                            await clientSession.Character.ChangeSpAsync().ConfigureAwait(false);
                         }
                         else
                         {
-                            await clientSession.SendPacket(new DelayPacket
+                            await clientSession.SendPacketAsync(new DelayPacket
                             {
                                 Type = 3,
                                 Delay = 5000,
                                 Packet = new SpTransformPacket { Type = SlPacketType.WearSp }
                             }).ConfigureAwait(false);
-                            await clientSession.Character.MapInstance.SendPacket(new GuriPacket
+                            await clientSession.Character.MapInstance.SendPacketAsync(new GuriPacket
                             {
                                 Type = GuriPacketType.Unknow,
                                 Value = 1,
@@ -112,7 +112,7 @@ namespace NosCore.PacketHandlers.Inventory
                     }
                     else
                     {
-                        await clientSession.SendPacket(new MsgPacket
+                        await clientSession.SendPacketAsync(new MsgPacket
                         {
                             Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
                                     clientSession.Account.Language),

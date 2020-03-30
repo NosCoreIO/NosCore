@@ -26,7 +26,7 @@ namespace NosCore.PacketHandlers.Warehouse
 {
     public class FDepositPacketHandler : PacketHandler<FDepositPacket>, IWorldPacketHandler
     {
-        public override Task Execute(FDepositPacket fdepositPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(FDepositPacket fdepositPacket, ClientSession clientSession)
         {
             return Task.CompletedTask;
         }

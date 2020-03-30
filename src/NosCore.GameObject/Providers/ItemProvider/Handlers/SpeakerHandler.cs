@@ -33,9 +33,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
         public bool Condition(Item.Item item) =>
             item.ItemType == ItemType.Magical && item.Effect == ItemEffectType.Speaker;
 
-        public Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
-            requestData.ClientSession.SendPacket(new GuriPacket
+            requestData.ClientSession.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Effect,
                 Unknown = 3,

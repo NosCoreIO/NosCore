@@ -26,7 +26,7 @@ namespace NosCore.PacketHandlers.Warehouse
 {
     public class FReposPacketHandler : PacketHandler<FReposPacket>, IWorldPacketHandler
     {
-        public override Task Execute(FReposPacket freposPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(FReposPacket freposPacket, ClientSession clientSession)
         {
             return Task.CompletedTask;
         }

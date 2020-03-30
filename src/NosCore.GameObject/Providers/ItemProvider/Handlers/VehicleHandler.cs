@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             return (item.ItemType == ItemType.Special) && (item.Effect == ItemEffectType.Vehicle);
         }
 
-        public async Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
@@ -59,7 +59,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
             if ((packet.Mode == 1) && !requestData.ClientSession.Character.IsVehicled)
             {
-                await requestData.ClientSession.SendPacket(new DelayPacket
+                await requestData.ClientSession.SendPacketAsync(new DelayPacket
                 {
                     Type = 3,
                     Delay = 3000,
@@ -84,15 +84,15 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                             ? itemInstance.ItemInstance.Item.Morph
                             : itemInstance.ItemInstance.Item.SecondMorph;
 
-                await requestData.ClientSession.Character.MapInstance.SendPacket(
+                await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
                     requestData.ClientSession.Character.GenerateEff(196)).ConfigureAwait(false);
-                await requestData.ClientSession.Character.MapInstance.SendPacket(requestData.ClientSession.Character
+                await requestData.ClientSession.Character.MapInstance.SendPacketAsync(requestData.ClientSession.Character
                     .GenerateCMode()).ConfigureAwait(false);
-                await requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateCond()).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateCond()).ConfigureAwait(false);
                 return;
             }
 
-            await requestData.ClientSession.Character.RemoveVehicle().ConfigureAwait(false);
+            await requestData.ClientSession.Character.RemoveVehicleAsync().ConfigureAwait(false);
         }
     }
 }

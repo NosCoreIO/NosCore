@@ -44,23 +44,23 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider.Handlers
             var miniland = _minilandProvider.GetMinilandFromMapInstanceId(requestData.Data.MapInstanceId);
             if (miniland.CharacterEntity!.VisualId != requestData.ClientSession.Character.CharacterId)
             {
-                requestData.ClientSession.SendPacket(new MsgPacket
+                requestData.ClientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = miniland.MinilandMessage!.Replace(' ', '^')
                 });
 
                 miniland.DailyVisitCount++;
                 miniland.VisitCount++;
-                requestData.ClientSession.SendPacket(miniland.GenerateMlinfobr());
+                requestData.ClientSession.SendPacketAsync(miniland.GenerateMlinfobr());
             }
             else
             {
-                requestData.ClientSession.SendPacket(miniland.GenerateMlinfo());
-                requestData.ClientSession.SendPacket(requestData.ClientSession.Character.GenerateMlobjlst());
+                requestData.ClientSession.SendPacketAsync(miniland.GenerateMlinfo());
+                requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateMlobjlst());
             }
 
             //TODO add pets
-            requestData.ClientSession.SendPacket(
+            requestData.ClientSession.SendPacketAsync(
                 requestData.ClientSession.Character.GenerateSay(
                     string.Format(
                         GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_VISITOR,

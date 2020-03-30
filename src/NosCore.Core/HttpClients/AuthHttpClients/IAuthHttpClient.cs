@@ -23,6 +23,6 @@ namespace NosCore.Core.HttpClients.AuthHttpClients
 {
     public interface IAuthHttpClient
     {
-        Task<string?> GetAwaitingConnection(string? name, string packetPassword, int clientSessionSessionId);
+        Task<string?> GetAwaitingConnectionAsync(string? name, string packetPassword, int clientSessionSessionId);
     }
 }

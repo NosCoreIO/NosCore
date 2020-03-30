@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
@@ -43,9 +44,9 @@ namespace NosCore.LoginServer
             _channelHttpClient = channelHttpClient;
         }
 
-        public void Run()
+        public async Task RunAsync()
         {
-            _channelHttpClient.Connect();
+            await _channelHttpClient.ConnectAsync().ConfigureAwait(false);
             try
             {
                 try
@@ -58,7 +59,7 @@ namespace NosCore.LoginServer
                 }
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                     _loginConfiguration.Port);
-                _networkManager.RunServerAsync().Wait();
+                await _networkManager.RunServerAsync().ConfigureAwait(false);
             }
             catch
             {

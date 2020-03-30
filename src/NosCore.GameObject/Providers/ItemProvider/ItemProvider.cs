@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using Mapster;
 using NosCore.Data;
@@ -113,10 +112,13 @@ namespace NosCore.GameObject.Providers.ItemProvider
             {
                 if (handler.Condition(itemInstance.Item!))
                 {
-                    handlersRequest.Subscribe(async o => await Observable.FromAsync(async () =>
-                      {
-                          await handler.Execute(o).ConfigureAwait(false);
-                      }));
+                    handlersRequest.Subscribe(async o =>
+                    {
+                        await Observable.FromAsync(async () =>
+                        {
+                            await handler.ExecuteAsync(o).ConfigureAwait(false);
+                        });
+                    });
                 }
             });
             itemInstance.Requests = handlersRequest;

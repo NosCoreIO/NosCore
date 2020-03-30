@@ -28,13 +28,13 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
 {
     public interface IBazaarHttpClient
     {
-        Task<List<BazaarLink>> GetBazaarLinks(int i, int packetIndex, int pagesize, BazaarListType packetTypeFilter,
+        Task<List<BazaarLink>> GetBazaarLinksAsync(int i, int packetIndex, int pagesize, BazaarListType packetTypeFilter,
             byte packetSubTypeFilter, byte packetLevelFilter,
             byte packetRareFilter, byte packetUpgradeFilter, long? sellerFilter);
 
-        Task<LanguageKey?> AddBazaar(BazaarRequest bazaarRequest);
-        Task<BazaarLink?> GetBazaarLink(long bazaarId);
-        Task<bool> Remove(long bazaarId, int count, string requestCharacterName);
-        Task<BazaarLink> Modify(long bazaarId, JsonPatchDocument<BazaarLink> patchBz);
+        Task<LanguageKey?> AddBazaarAsync(BazaarRequest bazaarRequest);
+        Task<BazaarLink?> GetBazaarLinkAsync(long bazaarId);
+        Task<bool> RemoveAsync(long bazaarId, int count, string requestCharacterName);
+        Task<BazaarLink> ModifyAsync(long bazaarId, JsonPatchDocument<BazaarLink> patchBz);
     }
 }

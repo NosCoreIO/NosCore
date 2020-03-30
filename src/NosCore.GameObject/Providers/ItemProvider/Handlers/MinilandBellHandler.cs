@@ -45,14 +45,14 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
         public bool Condition(Item.Item item) => item.Effect == ItemEffectType.Teleport && item.EffectValue == 2;
 
-        public async Task Execute(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
 
             if (requestData.ClientSession.Character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance)
             {
-                await requestData.ClientSession.Character.SendPacket(new SayPacket
+                await requestData.ClientSession.Character.SendPacketAsync(new SayPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_USE,
                         requestData.ClientSession.Character.Account.Language),
@@ -63,7 +63,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
             if (requestData.ClientSession.Character.IsVehicled)
             {
-                await requestData.ClientSession.Character.SendPacket(new SayPacket
+                await requestData.ClientSession.Character.SendPacketAsync(new SayPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_USE_IN_VEHICLE,
                         requestData.ClientSession.Character.Account.Language),
@@ -74,7 +74,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
             if (packet.Mode == 0)
             {
-                await requestData.ClientSession.SendPacket(new DelayPacket
+                await requestData.ClientSession.SendPacketAsync(new DelayPacket
                 {
                     Type = 3,
                     Delay = 5000,
@@ -86,10 +86,10 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             }
 
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await requestData.ClientSession.SendPacket(
+            await requestData.ClientSession.SendPacketAsync(
                 itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
             var miniland = _minilandProvider.GetMiniland(requestData.ClientSession.Character.CharacterId);
-            await requestData.ClientSession.ChangeMapInstance(miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
+            await requestData.ClientSession.ChangeMapInstanceAsync(miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
         }
     }
 }

@@ -24,7 +24,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.WarehouseHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MinilandProvider;
 
 namespace NosCore.PacketHandlers.Warehouse
 {
@@ -37,11 +36,11 @@ namespace NosCore.PacketHandlers.Warehouse
             _warehouseHttpClient = warehouseHttpClient;
         }
 
-        public override Task Execute(DepositPacket depositPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(DepositPacket depositPacket, ClientSession clientSession)
         {
             IItemInstance itemInstance = new ItemInstance();
             short slot = 0;
-            var warehouseItems = _warehouseHttpClient.DepositItem(clientSession.Character.CharacterId,
+            var warehouseItems = _warehouseHttpClient.DepositItemAsync(clientSession.Character.CharacterId,
                 WarehouseType.Warehouse, itemInstance, slot);
             return Task.CompletedTask;
         }

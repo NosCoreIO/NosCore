@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Shops
             _logger = logger;
         }
 
-        public override Task Execute(BuyPacket buyPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(BuyPacket buyPacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
@@ -72,13 +72,14 @@ namespace NosCore.PacketHandlers.Shops
                     return Task.CompletedTask;
             }
 
-            if (aliveEntity == null)
+            if (aliveEntity != null)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
-                return Task.CompletedTask;
+                return clientSession.Character.BuyAsync(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount);
             }
 
-            return clientSession.Character.Buy(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount);
+            _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
+            return Task.CompletedTask;
+
         }
     }
 }

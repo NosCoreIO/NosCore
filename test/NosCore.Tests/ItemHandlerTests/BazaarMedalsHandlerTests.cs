@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using NosCore.Core;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
@@ -34,7 +33,6 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Tests.Helpers;
-using Serilog;
 
 namespace NosCore.Tests.ItemHandlerTests
 {
@@ -67,7 +65,7 @@ namespace NosCore.Tests.ItemHandlerTests
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
@@ -82,7 +80,7 @@ namespace NosCore.Tests.ItemHandlerTests
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
@@ -91,7 +89,7 @@ namespace NosCore.Tests.ItemHandlerTests
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             Assert.AreEqual(0, Session.Character.InventoryService.Count);
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
         }

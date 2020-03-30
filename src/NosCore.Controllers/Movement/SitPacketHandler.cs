@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Movement
             _logger = logger;
         }
 
-        public override Task Execute(SitPacket sitpacket, ClientSession clientSession)
+        public override Task ExecuteAsync(SitPacket sitpacket, ClientSession clientSession)
         {
             sitpacket.Users!.ForEach(u =>
             {
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Movement
                         return;
                 }
 
-                entity.Rest();
+                entity.RestAsync();
             });
             return Task.CompletedTask;
         }

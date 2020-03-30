@@ -27,8 +27,8 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
 {
     public interface IFriendHttpClient
     {
-        Task<LanguageKey> AddFriend(FriendShipRequest friendShipRequest);
-        Task<List<CharacterRelationStatus>> GetListFriends(long visualEntityVisualId);
-        Task DeleteFriend(Guid characterRelationId);
+        Task<LanguageKey> AddFriendAsync(FriendShipRequest friendShipRequest);
+        Task<List<CharacterRelationStatus>> GetListFriendsAsync(long visualEntityVisualId);
+        Task DeleteFriendAsync(Guid characterRelationId);
     }
 }

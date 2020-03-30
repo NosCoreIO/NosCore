@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Bazaar
             _inventoryItemInstanceDao = inventoryItemInstanceDao;
         }
 
-        public override async Task Execute(CRegPacket cRegPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(CRegPacket cRegPacket, ClientSession clientSession)
         {
             if (clientSession.Character.InExchangeOrTrade)
             {
@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.Bazaar
             var maxGold = _configuration.MaxGoldAmount;
             if (clientSession.Character.Gold < tax)
             {
-                await clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
                         clientSession.Account.Language)
@@ -98,7 +98,7 @@ namespace NosCore.PacketHandlers.Bazaar
 
             if (price > (medal == null ? 100000000 : maxGold))
             {
-                await clientSession.SendPacket(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED,
                         clientSession.Account.Language)
@@ -143,7 +143,7 @@ namespace NosCore.PacketHandlers.Bazaar
             IItemInstanceDto bazaaritem = bazar.ItemInstance;
             _itemInstanceDao.InsertOrUpdate(ref bazaaritem);
 
-            var result = await _bazaarHttpClient.AddBazaar(new BazaarRequest
+            var result = await _bazaarHttpClient.AddBazaarAsync(new BazaarRequest
             {
                 ItemInstanceId = bazar.ItemInstance.Id,
                 CharacterId = clientSession.Character.CharacterId,
@@ -158,7 +158,7 @@ namespace NosCore.PacketHandlers.Bazaar
             switch (result)
             {
                 case LanguageKey.LIMIT_EXCEEDED:
-                    await clientSession.SendPacket(new MsgPacket
+                    await clientSession.SendPacketAsync(new MsgPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.LIMIT_EXCEEDED,
                             clientSession.Account.Language)
@@ -177,22 +177,22 @@ namespace NosCore.PacketHandlers.Bazaar
                             bazar.ItemInstanceId);
                     }
 
-                    await clientSession.SendPacket(((InventoryItemInstance?)null).GeneratePocketChange(
+                    await clientSession.SendPacketAsync(((InventoryItemInstance?)null).GeneratePocketChange(
                         cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType) cRegPacket.Inventory,
                         cRegPacket.Slot)).ConfigureAwait(false);
                     clientSession.Character.Gold -= tax;
-                    await clientSession.SendPacket(clientSession.Character.GenerateGold()).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
 
-                    await clientSession.SendPacket(clientSession.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(
+                    await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(
                         LanguageKey.OBJECT_IN_BAZAAR,
                         clientSession.Account.Language), SayColorType.Yellow)).ConfigureAwait(false);
-                    await clientSession.SendPacket(new MsgPacket
+                    await clientSession.SendPacketAsync(new MsgPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR,
                             clientSession.Account.Language)
                     }).ConfigureAwait(false);
 
-                    await clientSession.SendPacket(new RCRegPacket {Type = VisualType.Player}).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(new RCRegPacket {Type = VisualType.Player}).ConfigureAwait(false);
                     break;
             }
         }

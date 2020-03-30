@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                 && item.Item1 is MapNpc;
         }
 
-        public Task Execute(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
+        public Task ExecuteAsync(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
             if (requestData.ClientSession.Character.InExchangeOrTrade)
             {
@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             var medal = medalBonus != null ? medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold
                 ? (byte) MedalType.Gold : (byte) MedalType.Silver : (byte) 0;
             var time = medalBonus != null ? (int)(medalBonus.DateEnd == null ? 720 : ((TimeSpan)(medalBonus.DateEnd - SystemTime.Now())).TotalHours) : 0;
-            requestData.ClientSession.SendPacket(new WopenPacket
+            requestData.ClientSession.SendPacketAsync(new WopenPacket
             {
                 Type = WindowType.NosBazaar,
                 Unknown = medal,

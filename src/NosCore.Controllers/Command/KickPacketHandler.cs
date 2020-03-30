@@ -37,13 +37,13 @@ namespace NosCore.PacketHandlers.Command
             _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
-        public override async Task Execute(KickPacket kickPacket, ClientSession session)
+        public override async Task ExecuteAsync(KickPacket kickPacket, ClientSession session)
         {
-            var receiver = await _connectedAccountHttpClient.GetCharacter(null, kickPacket.Name).ConfigureAwait(false);
+            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, kickPacket.Name).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
-                await session.SendPacket(new InfoPacket
+                await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _connectedAccountHttpClient.Disconnect(receiver.Item2.ConnectedCharacter!.Id).ConfigureAwait(false);
+            await _connectedAccountHttpClient.DisconnectAsync(receiver.Item2.ConnectedCharacter!.Id).ConfigureAwait(false);
         }
     }
 }

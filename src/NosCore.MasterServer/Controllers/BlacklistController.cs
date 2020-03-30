@@ -51,39 +51,40 @@ namespace NosCore.MasterServer.Controllers
         [HttpPost]
         public async Task<LanguageKey> AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
         {
-            var character = await _connectedAccountHttpClient.GetCharacter(blacklistRequest.CharacterId, null).ConfigureAwait(false);
+            var character = await _connectedAccountHttpClient.GetCharacterAsync(blacklistRequest.CharacterId, null).ConfigureAwait(false);
             var targetCharacter = await
-                _connectedAccountHttpClient.GetCharacter(blacklistRequest.BlInsPacket?.CharacterId, null).ConfigureAwait(false);
-            if ((character.Item2 != null) && (targetCharacter.Item2 != null))
+                _connectedAccountHttpClient.GetCharacterAsync(blacklistRequest.BlInsPacket?.CharacterId, null).ConfigureAwait(false);
+            if ((character.Item2 == null) || (targetCharacter.Item2 == null))
             {
-                var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId)
-                    .ToList();
-                if (relations.Any(s =>
-                    (s.RelatedCharacterId == blacklistRequest.BlInsPacket?.CharacterId) &&
-                    (s.RelationType != CharacterRelationType.Blocked)))
-                {
-                    return LanguageKey.CANT_BLOCK_FRIEND;
-                }
-
-                if (relations.Any(s =>
-                    (s.RelatedCharacterId == blacklistRequest.BlInsPacket?.CharacterId) &&
-                    (s.RelationType == CharacterRelationType.Blocked)))
-                {
-                    return LanguageKey.ALREADY_BLACKLISTED;
-                }
-
-                var data = new CharacterRelationDto
-                {
-                    CharacterId = character.Item2.ConnectedCharacter!.Id,
-                    RelatedCharacterId = targetCharacter.Item2.ConnectedCharacter!.Id,
-                    RelationType = CharacterRelationType.Blocked
-                };
-
-                _characterRelationDao.InsertOrUpdate(ref data);
-                return LanguageKey.BLACKLIST_ADDED;
+                throw new ArgumentException();
             }
 
-            throw new ArgumentException();
+            var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId)
+                .ToList();
+            if (relations.Any(s =>
+                (s.RelatedCharacterId == blacklistRequest.BlInsPacket?.CharacterId) &&
+                (s.RelationType != CharacterRelationType.Blocked)))
+            {
+                return LanguageKey.CANT_BLOCK_FRIEND;
+            }
+
+            if (relations.Any(s =>
+                (s.RelatedCharacterId == blacklistRequest.BlInsPacket?.CharacterId) &&
+                (s.RelationType == CharacterRelationType.Blocked)))
+            {
+                return LanguageKey.ALREADY_BLACKLISTED;
+            }
+
+            var data = new CharacterRelationDto
+            {
+                CharacterId = character.Item2.ConnectedCharacter!.Id,
+                RelatedCharacterId = targetCharacter.Item2.ConnectedCharacter!.Id,
+                RelationType = CharacterRelationType.Blocked
+            };
+
+            _characterRelationDao.InsertOrUpdate(ref data);
+            return LanguageKey.BLACKLIST_ADDED;
+
         }
 
         [HttpGet]
@@ -98,7 +99,7 @@ namespace NosCore.MasterServer.Controllers
                 {
                     CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId)?.Name ?? "",
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = (await _connectedAccountHttpClient.GetCharacter(rel.RelatedCharacterId, null).ConfigureAwait(false)).Item1 != null,
+                    IsConnected = (await _connectedAccountHttpClient.GetCharacterAsync(rel.RelatedCharacterId, null).ConfigureAwait(false)).Item1 != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId
                 });

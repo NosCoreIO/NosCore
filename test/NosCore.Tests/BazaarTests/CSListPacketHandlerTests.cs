@@ -17,12 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.PacketHandlers.Bazaar;
-
 namespace NosCore.Tests.BazaarTests
 {
     //[TestClass]

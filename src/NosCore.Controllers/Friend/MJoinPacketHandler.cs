@@ -43,16 +43,16 @@ namespace NosCore.PacketHandlers.Friend
             _minilandProvider = minilandProvider;
         }
 
-        public override async Task Execute(MJoinPacket mJoinPacket, ClientSession session)
+        public override async Task ExecuteAsync(MJoinPacket mJoinPacket, ClientSession session)
         {
             var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == mJoinPacket.VisualId);
-            var friendList = await _friendHttpClient.GetListFriends(session.Character.CharacterId).ConfigureAwait(false);
+            var friendList = await _friendHttpClient.GetListFriendsAsync(session.Character.CharacterId).ConfigureAwait(false);
             if (target != null && friendList.Any(s => s.CharacterId == mJoinPacket.VisualId))
             {
                 var miniland = _minilandProvider.GetMiniland(mJoinPacket.VisualId);
                 if (miniland.State == MinilandState.Open)
                 {
-                    await session.ChangeMapInstance(miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
+                    await session.ChangeMapInstanceAsync(miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
                 }
                 else
                 {
@@ -62,10 +62,10 @@ namespace NosCore.PacketHandlers.Friend
                             .ToList()
                             .Contains(target.VisualId))
                     {
-                        await session.ChangeMapInstance(miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
+                        await session.ChangeMapInstanceAsync(miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
                         return;
                     }
-                    await session.SendPacket(new InfoPacket
+                    await session.SendPacketAsync(new InfoPacket
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND,
                             session.Account.Language)

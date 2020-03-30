@@ -28,11 +28,11 @@ namespace NosCore.PacketHandlers.Command
 {
     public class InvisibleCommandPacketHandler : PacketHandler<InvisibleCommandPacket>, IWorldPacketHandler
     {
-        public override Task Execute(InvisibleCommandPacket changeClassPacket, ClientSession session)
+        public override Task ExecuteAsync(InvisibleCommandPacket changeClassPacket, ClientSession session)
         {
             session.Character.Camouflage = !session.Character.Camouflage;
             session.Character.Invisible = !session.Character.Invisible;
-            return session.Character.MapInstance.SendPacket(session.Character.GenerateInvisible());
+            return session.Character.MapInstance.SendPacketAsync(session.Character.GenerateInvisible());
             //Session.SendPacket(Session.Character.GenerateEq());
         }
     }

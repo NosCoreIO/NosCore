@@ -24,7 +24,6 @@ using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.Inventory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using NosCore.Configuration;
 using NosCore.Data;
 using NosCore.Data.Dto;
@@ -37,7 +36,6 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Tests.Helpers;
-using Serilog;
 
 namespace NosCore.Tests.ItemHandlerTests
 {
@@ -70,7 +68,7 @@ namespace NosCore.Tests.ItemHandlerTests
             });
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
 
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
@@ -81,7 +79,7 @@ namespace NosCore.Tests.ItemHandlerTests
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (ExtsPacket?)Session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
             Assert.IsNotNull(lastpacket);
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
@@ -102,7 +100,7 @@ namespace NosCore.Tests.ItemHandlerTests
             });
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
 
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
@@ -113,7 +111,7 @@ namespace NosCore.Tests.ItemHandlerTests
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandler(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (ExtsPacket?)Session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
             Assert.IsNotNull(lastpacket);
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);

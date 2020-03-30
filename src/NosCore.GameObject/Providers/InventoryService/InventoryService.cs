@@ -161,7 +161,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                 return invlist;
             }
 
-            newItem.Slot = slot ?? freeSlot ?? 0;
+            newItem.Slot = slot ?? (short) freeSlot;
 
             if (ContainsKey(newItem.ItemInstanceId))
             {
