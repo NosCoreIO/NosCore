@@ -26,27 +26,13 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
-using Serilog;
 
 namespace NosCore.PacketHandlers.Inventory
 {
     public class MvePacketHandler : PacketHandler<MvePacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-
-        public MvePacketHandler(ILogger logger)
-        {
-            _logger = logger;
-        }
-
         public override Task ExecuteAsync(MvePacket mvePacket, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrShop)
-            {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
-                return Task.CompletedTask;
-            }
-
             var inv = clientSession.Character.InventoryService.MoveInPocket(mvePacket.Slot,
                 (NoscorePocketType) mvePacket.InventoryType,
                 (NoscorePocketType) mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);

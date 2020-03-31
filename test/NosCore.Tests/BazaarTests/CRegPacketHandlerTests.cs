@@ -86,7 +86,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task RegisterWhenInExchangeOrTrade()
         {
-            _session!.Character.InExchangeOrTrade = true;
+            _session!.Character.InShop = true;
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
                 Type = 0,

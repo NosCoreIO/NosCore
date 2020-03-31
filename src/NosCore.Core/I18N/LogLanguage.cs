@@ -57,7 +57,7 @@ namespace NosCore.Core.I18N
                         cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower(cult))
                     ?.GetString(messageKey.ToString()) : string.Empty;
 
-            return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey.ToString()}>";
+            return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey}>";
         }
 
         public ResourceSet? GetRessourceSet()

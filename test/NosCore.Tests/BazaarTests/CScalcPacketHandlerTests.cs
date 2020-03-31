@@ -89,7 +89,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task RetrieveWhenInExchangeOrTrade()
         {
-            _session!.Character.InExchangeOrTrade = true;
+            _session!.Character.InShop = true;
             await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
             {
                 BazaarId = 1,

@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             return new GroundEffectPacket
             {
                 Effect = (ushort) Effect,
-                XYCoordinates = $"{MapX}{MapY.ToString("00")}",
+                XYCoordinates = $"{MapX}{MapY:00}",
                 MapX = (ushort) MapX,
                 MapY = (ushort) MapY,
                 IsRemoval = isRemoval

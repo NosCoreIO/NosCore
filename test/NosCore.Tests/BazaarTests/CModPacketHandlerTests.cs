@@ -90,7 +90,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task ModifyWhenInExchange()
         {
-            _session!.Character.InExchangeOrTrade = true;
+            _session!.Character.InShop = true;
             await _cmodPacketHandler!.ExecuteAsync(new CModPacket
             {
                 BazaarId = 1,
