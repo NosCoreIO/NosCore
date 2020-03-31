@@ -54,7 +54,10 @@ namespace NosCore.Tests.BazaarTests
         public async Task OpenWhenInShop()
         {
             _session!.Character.InShop = true;
-            await _cskillPacketHandler!.ExecuteAsync(new CSkillPacket(), _session).ConfigureAwait(false);
+            await _session!.HandlePacketsAsync(new[]
+            {
+                new CSkillPacket()
+            }).ConfigureAwait(false);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 

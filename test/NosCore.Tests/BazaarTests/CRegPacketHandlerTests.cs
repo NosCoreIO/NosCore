@@ -43,6 +43,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.Bazaar;
+using NosCore.Packets.Interfaces;
 using NosCore.Tests.Helpers;
 
 namespace NosCore.Tests.BazaarTests
@@ -87,17 +88,17 @@ namespace NosCore.Tests.BazaarTests
         public async Task RegisterWhenInExchangeOrTrade()
         {
             _session!.Character.InShop = true;
-            await _cregPacketHandler!.ExecuteAsync(new CRegPacket
+            await _session!.HandlePacketsAsync(new[]{new CRegPacket
             {
                 Type = 0,
                 Inventory = 0,
                 Slot = 0,
                 Durability = 0,
-                IsPackage = 0,
+                IsPackage = false,
                 Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0
-            }, _session).ConfigureAwait(false);
+            }}).ConfigureAwait(false);
 
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
@@ -112,7 +113,7 @@ namespace NosCore.Tests.BazaarTests
                 Inventory = 0,
                 Slot = 0,
                 Durability = 0,
-                IsPackage = 0,
+                IsPackage = false,
                 Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0
@@ -133,7 +134,7 @@ namespace NosCore.Tests.BazaarTests
                 Inventory = 0,
                 Slot = 0,
                 Durability = 0,
-                IsPackage = 0,
+                IsPackage = false,
                 Amount = -1,
                 Taxe = 0,
                 MedalUsed = 0
@@ -151,7 +152,7 @@ namespace NosCore.Tests.BazaarTests
                 Inventory = 1,
                 Slot = 0,
                 Durability = 0,
-                IsPackage = 0,
+                IsPackage = false,
                 Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0
@@ -171,7 +172,7 @@ namespace NosCore.Tests.BazaarTests
                 Inventory = 1,
                 Slot = 0,
                 Durability = 0,
-                IsPackage = 0,
+                IsPackage = false,
                 Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0,
@@ -198,7 +199,7 @@ namespace NosCore.Tests.BazaarTests
                 Inventory = 1,
                 Slot = 0,
                 Durability = 1,
-                IsPackage = 0,
+                IsPackage = false,
                 Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0,
@@ -222,7 +223,7 @@ namespace NosCore.Tests.BazaarTests
                 Inventory = 1,
                 Slot = 0,
                 Durability = 0,
-                IsPackage = 0,
+                IsPackage = false,
                 Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0,
@@ -245,7 +246,7 @@ namespace NosCore.Tests.BazaarTests
                 Inventory = 1,
                 Slot = 0,
                 Durability = 2,
-                IsPackage = 0,
+                IsPackage = false,
                 Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0,
@@ -267,7 +268,7 @@ namespace NosCore.Tests.BazaarTests
                 Inventory = 1,
                 Slot = 0,
                 Durability = 7,
-                IsPackage = 0,
+                IsPackage = false,
                 Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0,
@@ -290,7 +291,7 @@ namespace NosCore.Tests.BazaarTests
                 Inventory = 1,
                 Slot = 0,
                 Durability = 1,
-                IsPackage = 0,
+                IsPackage = false,
                 Amount = 949,
                 Taxe = 0,
                 MedalUsed = 0,
@@ -314,7 +315,7 @@ namespace NosCore.Tests.BazaarTests
                 Inventory = 1,
                 Slot = 0,
                 Durability = 1,
-                IsPackage = 0,
+                IsPackage = false,
                 Amount = 999,
                 Taxe = 0,
                 MedalUsed = 0,
@@ -338,7 +339,7 @@ namespace NosCore.Tests.BazaarTests
                 Inventory = 1,
                 Slot = 0,
                 Durability = 1,
-                IsPackage = 0,
+                IsPackage = false,
                 Amount = 2,
                 Taxe = 0,
                 MedalUsed = 0,
@@ -359,7 +360,7 @@ namespace NosCore.Tests.BazaarTests
                 Inventory = 1,
                 Slot = 0,
                 Durability = 1,
-                IsPackage = 0,
+                IsPackage = false,
                 Amount = 949,
                 Taxe = 0,
                 MedalUsed = 0,
