@@ -27,4 +27,8 @@
     <ProjectReference Include="..\NosCore.PathFinder\NosCore.PathFinder.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Providers\QuestProvider\Handlers\" />
+  </ItemGroup>
+
 </Project>

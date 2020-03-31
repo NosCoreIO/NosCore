@@ -24,7 +24,7 @@ using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject.Providers.NRunProvider
 {
-    public interface INrunProvider
+    public interface INRunProvider
     {
         void NRunLaunch(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data);
     }

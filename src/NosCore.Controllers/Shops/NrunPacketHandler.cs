@@ -35,9 +35,9 @@ namespace NosCore.PacketHandlers.Shops
     public class NrunPacketHandler : PacketHandler<NrunPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        private readonly INrunProvider _nRunProvider;
+        private readonly IQuestProvider _nRunProvider;
 
-        public NrunPacketHandler(ILogger logger, INrunProvider nRunProvider)
+        public NrunPacketHandler(ILogger logger, IQuestProvider nRunProvider)
         {
             _logger = logger;
             _nRunProvider = nRunProvider;
