@@ -43,12 +43,6 @@ namespace NosCore.PacketHandlers.Inventory
 
         public override async Task ExecuteAsync(RemovePacket removePacket, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrShop)
-            {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
-                return;
-            }
-
             var inventory =
                 clientSession.Character.InventoryService.LoadBySlotAndType((short) removePacket.InventorySlot,
                     NoscorePocketType.Wear);

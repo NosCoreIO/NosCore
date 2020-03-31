@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Inventory
             var invitem =
                 clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
                     (NoscorePocketType) putPacket.PocketType);
-            if ((invitem?.ItemInstance?.Item?.IsDroppable ?? false) && !clientSession.Character.InExchangeOrShop)
+            if (invitem?.ItemInstance?.Item?.IsDroppable ?? false)
             {
                 if ((putPacket.Amount > 0) && (putPacket.Amount <= _worldConfiguration.MaxItemAmount))
                 {
