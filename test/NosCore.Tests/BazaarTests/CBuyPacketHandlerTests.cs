@@ -93,7 +93,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task BuyWhenExchangeOrTrade()
         {
-            _session!.Character.InExchangeOrTrade = true;
+            _session!.Character.InShop = true;
             await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
                 BazaarId = 1,

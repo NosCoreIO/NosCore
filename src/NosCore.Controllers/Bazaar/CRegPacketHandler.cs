@@ -78,11 +78,6 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            if (clientSession.Character.InExchangeOrShop)
-            {
-                return;
-            }
-
             var it = clientSession.Character.InventoryService!.LoadBySlotAndType(cRegPacket.Slot,
                 cRegPacket.Inventory == 4 ? 0 : (NoscorePocketType) cRegPacket.Inventory);
             if ((it?.ItemInstance == null) || !it.ItemInstance.Item!.IsSoldable || (it.ItemInstance.BoundCharacterId != null) ||

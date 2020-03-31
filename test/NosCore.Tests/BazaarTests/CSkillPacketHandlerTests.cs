@@ -53,7 +53,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task OpenWhenInShop()
         {
-            _session!.Character.InExchangeOrTrade = true;
+            _session!.Character.InShop = true;
             await _cskillPacketHandler!.ExecuteAsync(new CSkillPacket(), _session).ConfigureAwait(false);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
