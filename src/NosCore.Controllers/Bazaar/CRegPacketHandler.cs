@@ -58,11 +58,6 @@ namespace NosCore.PacketHandlers.Bazaar
 
         public override async Task ExecuteAsync(CRegPacket cRegPacket, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrTrade)
-            {
-                return;
-            }
-
             var medal = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
                 (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
                 (s.StaticBonusType == StaticBonusType.BazaarMedalSilver));
@@ -83,7 +78,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            if ((cRegPacket.Amount <= 0) || clientSession.Character.InExchangeOrShop || cRegPacket.Inventory > (byte)PocketType.Etc)
+            if (clientSession.Character.InExchangeOrShop)
             {
                 return;
             }
@@ -106,7 +101,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            if ((medal == null) && (cRegPacket.Durability > 1))
+            if (medal == null && cRegPacket.Durability != 0)
             {
                 return;
             }
@@ -150,7 +145,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 CharacterName = clientSession.Character.Name,
                 HasMedal = medal != null,
                 Price = cRegPacket.Price,
-                IsPackage = cRegPacket.IsPackage != 0,
+                IsPackage = cRegPacket.IsPackage,
                 Duration = duration,
                 Amount = cRegPacket.Amount
             }).ConfigureAwait(false);
@@ -178,7 +173,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     }
 
                     await clientSession.SendPacketAsync(((InventoryItemInstance?)null).GeneratePocketChange(
-                        cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType) cRegPacket.Inventory,
+                        cRegPacket.Inventory == 4 ? PocketType.Equipment : cRegPacket.Inventory,
                         cRegPacket.Slot)).ConfigureAwait(false);
                     clientSession.Character.Gold -= tax;
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);

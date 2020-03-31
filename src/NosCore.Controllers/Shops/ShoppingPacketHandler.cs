@@ -43,12 +43,6 @@ namespace NosCore.PacketHandlers.Shops
 
         public override Task ExecuteAsync(ShoppingPacket shoppingPacket, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrTrade)
-            {
-                //TODO log
-                return Task.CompletedTask;
-            }
-
             var shopRate = new Tuple<double, byte>(0, 0);
             IAliveEntity? aliveEntity;
             switch (shoppingPacket.VisualType)
