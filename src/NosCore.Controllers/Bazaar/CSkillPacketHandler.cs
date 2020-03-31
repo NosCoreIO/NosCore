@@ -36,11 +36,6 @@ namespace NosCore.PacketHandlers.Bazaar
     {
         public override Task ExecuteAsync(CSkillPacket packet, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrTrade)
-            {
-                return Task.CompletedTask;
-            }
-
             var medalBonus = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
                 (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
                 (s.StaticBonusType == StaticBonusType.BazaarMedalSilver));

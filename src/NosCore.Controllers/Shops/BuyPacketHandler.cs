@@ -44,18 +44,6 @@ namespace NosCore.PacketHandlers.Shops
 
         public override Task ExecuteAsync(BuyPacket buyPacket, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrTrade)
-            {
-                //TODO log
-                return Task.CompletedTask;
-            }
-
-            if (buyPacket.Amount > _worldConfiguration.MaxItemAmount)
-            {
-                //TODO log
-                return Task.CompletedTask;
-            }
-
             IAliveEntity? aliveEntity;
             switch (buyPacket.VisualType)
             {

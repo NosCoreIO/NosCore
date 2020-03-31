@@ -40,12 +40,6 @@ namespace NosCore.PacketHandlers.Shops
     {
         public override async Task ExecuteAsync(MShopPacket mShopPacket, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrTrade)
-            {
-                //todo log
-                return;
-            }
-
             var portal = clientSession.Character.MapInstance.Portals.Find(port =>
                 Heuristic.Octile(Math.Abs(clientSession.Character.PositionX - port.SourceX),
                     Math.Abs(clientSession.Character.PositionY - port.SourceY)) <= 6);
