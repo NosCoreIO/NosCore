@@ -117,7 +117,6 @@ namespace NosCore.GameObject
 
         public DateTime LastMove { get; set; }
         public IItemProvider ItemProvider { get; set; }
-        public bool InExchangeOrTrade { get; set; }
 
         public bool UseSp { get; set; }
 

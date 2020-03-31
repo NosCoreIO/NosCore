@@ -87,7 +87,7 @@ namespace NosCore.Tests
             foreach (var val in (LanguageKey[])Enum.GetValues(typeof(LanguageKey)))
             {
                 var value = GameLanguage.Instance.GetMessageFromKey(val, type);
-                if (value == $"#<{val.ToString()}>")
+                if (value == $"#<{val}>")
                 {
                     unfound.Append("\nvalue ").Append(value).Append(" not defined");
                 }

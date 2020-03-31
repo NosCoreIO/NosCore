@@ -46,6 +46,7 @@ using NosCore.Database.DAL;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
@@ -60,6 +61,7 @@ using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.GameObject.Providers.MapItemProvider.Handlers;
 using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.PacketHandlers.Bazaar;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.PacketHandlers.Friend;
 using NosCore.PacketHandlers.Inventory;
@@ -264,7 +266,7 @@ namespace NosCore.Tests.Helpers
             { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = "test".ToSha512() };
             AccountDao.InsertOrUpdate(ref acc);
             var minilandProvider = new Mock<IMinilandProvider>();
-            var session = new ClientSession(WorldConfiguration, 
+            var session = new ClientSession(WorldConfiguration,
                 MapInstanceProvider,
                 new Mock<IExchangeProvider>().Object,
                 _logger,
@@ -276,11 +278,15 @@ namespace NosCore.Tests.Helpers
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
                         ConnectedAccountHttpClient.Object),
                     new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemProvider>().Object, MapInstanceProvider,
-                        _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<TitleDto>>().Object)
-                }, 
+                        _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<TitleDto>>().Object),
+                    new CSkillPacketHandler(),
+                    new CBuyPacketHandler(new Mock<IBazaarHttpClient>().Object, new Mock<IItemProvider>().Object, _logger, _itemInstanceDao),
+                    new CRegPacketHandler(WorldConfiguration,new Mock<IBazaarHttpClient>().Object,_itemInstanceDao, _inventoryItemInstanceDao ),
+                    new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, new Mock<IItemProvider>().Object, _logger, _itemInstanceDao )
+                },
                 FriendHttpClient.Object,
                 new Mock<ISerializer>().Object,
-                PacketHttpClient.Object, 
+                PacketHttpClient.Object,
                 minilandProvider.Object)
             {
                 SessionId = _lastId

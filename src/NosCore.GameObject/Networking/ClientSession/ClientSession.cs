@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
         private Character? _character;
         private int? _waitForPacketsAmount;
-        
+
         public ClientSession(ServerConfiguration configuration,
             ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
@@ -463,6 +463,14 @@ namespace NosCore.GameObject.Networking.ClientSession
                             if (packet.IsValid)
                             {
                                 var attr = _attributeDic[packet.GetType()];
+                                if (HasSelectedCharacter && attr.BlockedByTrading && Character.InExchangeOrShop)
+                                {
+                                    _logger.Warning(
+                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLAYER_IN_SHOP),
+                                        packet.Header);
+                                    return;
+                                }
+
                                 if (!HasSelectedCharacter && !attr.AnonymousAccess)
                                 {
                                     _logger.Warning(

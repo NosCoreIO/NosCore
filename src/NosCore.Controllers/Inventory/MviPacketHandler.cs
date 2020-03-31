@@ -40,13 +40,6 @@ namespace NosCore.PacketHandlers.Inventory
 
         public override Task ExecuteAsync(MviPacket mviPacket, ClientSession clientSession)
         {
-            // check if the character is allowed to move the item
-            if (clientSession.Character.InExchangeOrShop)
-            {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
-                return Task.CompletedTask;
-            }
-
             // actually move the item from source to destination
             clientSession.Character.InventoryService.TryMoveItem((NoscorePocketType) mviPacket.InventoryType, mviPacket.Slot,
                 mviPacket.Amount,
