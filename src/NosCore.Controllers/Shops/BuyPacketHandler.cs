@@ -20,7 +20,6 @@
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
-using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -34,28 +33,14 @@ namespace NosCore.PacketHandlers.Shops
     public class BuyPacketHandler : PacketHandler<BuyPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        private readonly WorldConfiguration _worldConfiguration;
 
-        public BuyPacketHandler(WorldConfiguration worldConfiguration, ILogger logger)
+        public BuyPacketHandler(ILogger logger)
         {
-            _worldConfiguration = worldConfiguration;
             _logger = logger;
         }
 
         public override Task ExecuteAsync(BuyPacket buyPacket, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrTrade)
-            {
-                //TODO log
-                return Task.CompletedTask;
-            }
-
-            if (buyPacket.Amount > _worldConfiguration.MaxItemAmount)
-            {
-                //TODO log
-                return Task.CompletedTask;
-            }
-
             IAliveEntity? aliveEntity;
             switch (buyPacket.VisualType)
             {

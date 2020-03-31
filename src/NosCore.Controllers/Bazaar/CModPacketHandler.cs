@@ -46,11 +46,6 @@ namespace NosCore.PacketHandlers.Bazaar
 
         public override async Task ExecuteAsync(CModPacket packet, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrTrade)
-            {
-                return;
-            }
-
             var bz = await _bazaarHttpClient.GetBazaarLinkAsync(packet.BazaarId).ConfigureAwait(false);
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name) &&
                 (bz.BazaarItem?.Price != packet.NewPrice))

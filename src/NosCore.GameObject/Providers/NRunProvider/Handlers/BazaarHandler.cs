@@ -40,11 +40,6 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 
         public Task ExecuteAsync(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
-            if (requestData.ClientSession.Character.InExchangeOrTrade)
-            {
-                return Task.CompletedTask;
-            }
-
             var medalBonus = requestData.ClientSession.Character.StaticBonusList
                 .FirstOrDefault(s =>
                     (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||

@@ -63,7 +63,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanNotSellInExchange()
         {
-            _session!.Character.InExchangeOrTrade = true;
+            _session!.Character.InShop = true;
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true}
