@@ -60,7 +60,7 @@ namespace NosCore.Tests
         {
             TypeAdapterConfig<CharacterDto, GameObject.Character>.NewConfig().ConstructUsing(src =>
                 new GameObject.Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, _characterDao, _itemInstanceDao, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, _accountDao, Logger,
-                    new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object));
+                    new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object, new Mock<IGenericDao<CharacterQuestDto>>().Object));
             TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig()
                 .ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), Logger));
             new Mapper();

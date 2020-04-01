@@ -15,6 +15,7 @@ ServerName: S1-NosCore
 Host: 127.0.0.1
 Port: 1337
 ConnectedAccountLimit: 100
+SceneOnCreate: true
 ServerGroup: 0
 WorldInformation: true
 WebApi:

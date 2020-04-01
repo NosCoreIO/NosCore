@@ -80,13 +80,14 @@ namespace NosCore.GameObject
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
         private readonly IGenericDao<TitleDto> _titleDao;
         private byte _speed;
+        private IGenericDao<CharacterQuestDto> _characterQuestsDao;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider,
             IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao,
             IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<AccountDto> accountDao,
             ILogger logger, IGenericDao<StaticBonusDto> staticBonusDao,
             IGenericDao<QuicklistEntryDto> quicklistEntriesDao, IGenericDao<MinilandDto> minilandDao,
-            IMinilandProvider minilandProvider, IGenericDao<TitleDto> titleDao)
+            IMinilandProvider minilandProvider, IGenericDao<TitleDto> titleDao, IGenericDao<CharacterQuestDto> characterQuestDao)
         {
             InventoryService = inventory;
             ExchangeProvider = exchangeProvider;
@@ -103,6 +104,7 @@ namespace NosCore.GameObject
             _titleDao = titleDao;
             QuicklistEntries = new List<QuicklistEntryDto>();
             _quicklistEntriesDao = quicklistEntriesDao;
+            _characterQuestsDao = characterQuestDao;
             _minilandDao = minilandDao;
             _minilandProvider = minilandProvider;
         }
@@ -139,6 +141,7 @@ namespace NosCore.GameObject
         public RegionType AccountLanguage => Account.Language;
 
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
+        public ConcurrentDictionary<Guid, CharacterQuestDto> Quests { get; set; } = null!;
         public Subject<RequestData>? Requests { get; set; }
 
         public short Race => (byte)Class;
