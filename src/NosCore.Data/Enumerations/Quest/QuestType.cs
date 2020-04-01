@@ -22,7 +22,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace NosCore.Data.Enumerations.Quest
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public enum QuestType : byte
+    public enum QuestType : short
     {
         Hunt = 1,
         SpecialCollect = 2,
