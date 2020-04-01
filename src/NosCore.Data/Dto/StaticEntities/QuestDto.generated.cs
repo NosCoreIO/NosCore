@@ -36,7 +36,7 @@ namespace NosCore.Data.StaticEntities
 		[Key]
 		public short QuestId { get; set; }
 
-	 	public int QuestType { get; set; }
+	 	public NosCore.Data.Enumerations.Quest.QuestType QuestType { get; set; }
 
 	 	public System.Collections.Generic.ICollection<CharacterQuestDto> CharacterQuest { get; set; }
 

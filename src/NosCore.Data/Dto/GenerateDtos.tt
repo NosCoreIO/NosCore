@@ -7,7 +7,6 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Collections.Generic" #> 
 <#@ import namespace="Microsoft.VisualStudio.TextTemplating" #>
-
 <#
 	foreach(var ns in GetNamespaceElements()) {
 		foreach(var cc in ns.Members.OfType<EnvDTE.CodeClass>()) {
@@ -34,8 +33,7 @@
 				dtoInterface = "IStaticDto";
 				classNamespace = "NosCore.Data.StaticEntities";
 			}
-#>
-//  __  _  __    __   ___ __  ___ ___  
+#>//  __  _  __    __   ___ __  ___ ___  
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
 // |_|\__|\__/ |___/ \__/\__/|_|_\___| 
@@ -72,7 +70,7 @@ namespace <#= classNamespace #>
 			var staticMetaData = cc.Attributes.Cast<EnvDTE.CodeAttribute>().FirstOrDefault(s=> s.Name == "StaticMetaData");
 			if(staticMetaData!=null)
 			{
-				var attrValues = staticMetaData.Children.OfType<CodeAttributeArgument>();
+				var attrValues = staticMetaData.Children.OfType<EnvDTE80.CodeAttributeArgument>();
 				var attributeToPrint = "[StaticMetaData("; 
 				foreach(var attrValue in attrValues) {
 					attributeToPrint+=$"{attrValue.Name} = {attrValue.Value},";
@@ -90,7 +88,7 @@ namespace <#= classNamespace #>
 				 var i18nStr = prop.Attributes.Cast<EnvDTE.CodeAttribute>().FirstOrDefault(s=> s.Name == "I18NString");
 				 if(i18nStr!=null)
 				 {
-					var attrValue = i18nStr.Children.OfType<CodeAttributeArgument>().First().Value.ToString().TrimEnd(')');
+					var attrValue = i18nStr.Children.OfType<EnvDTE80.CodeAttributeArgument>().First().Value.ToString().TrimEnd(')');
 			 #>
 	[I18NFrom(<#= attrValue #>Dto))]
 		public I18NString <#= prop.Name #> { get; set; } = new I18NString();

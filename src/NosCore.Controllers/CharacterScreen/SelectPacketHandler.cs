@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -47,12 +48,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<QuicklistEntryDto> _quickListEntriesDao;
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
         private readonly IGenericDao<TitleDto> _titleDao;
+        private readonly IGenericDao<CharacterQuestDto> _characterQuestDao;
 
         public SelectPacketHandler(IGenericDao<CharacterDto> characterDao, ILogger logger,
             IItemProvider itemProvider,
             IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao,
             IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao,
-            IGenericDao<QuicklistEntryDto> quickListEntriesDao, IGenericDao<TitleDto> titleDao)
+            IGenericDao<QuicklistEntryDto> quickListEntriesDao, IGenericDao<TitleDto> titleDao, IGenericDao<CharacterQuestDto> characterQuestDao)
         {
             _characterDao = characterDao;
             _logger = logger;
@@ -63,6 +65,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _staticBonusDao = staticBonusDao;
             _quickListEntriesDao = quickListEntriesDao;
             _titleDao = titleDao;
+            _characterQuestDao = characterQuestDao;
         }
 
         public override Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -84,7 +87,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
 
                 var character = characterDto.Adapt<Character>();
-                
+
                 character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId(character.MapId);
                 character.MapInstance = _mapInstanceProvider.GetMapInstance(character.MapInstanceId)!;
                 character.PositionX = character.MapX;
@@ -109,14 +112,16 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 clientSession.SendPacketAsync(clientSession.Character.GenerateMlobjlst());
                 if (clientSession.Character.Hp > clientSession.Character.HpLoad())
                 {
-                    clientSession.Character.Hp = (int) clientSession.Character.HpLoad();
+                    clientSession.Character.Hp = (int)clientSession.Character.HpLoad();
                 }
 
                 if (clientSession.Character.Mp > clientSession.Character.MpLoad())
                 {
-                    clientSession.Character.Mp = (int) clientSession.Character.MpLoad();
+                    clientSession.Character.Mp = (int)clientSession.Character.MpLoad();
                 }
 
+                clientSession.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuestDto>(_characterQuestDao
+                    .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToDictionary(x => x.Id, x => x));
                 clientSession.Character.QuicklistEntries = _quickListEntriesDao
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
                 clientSession.Character.StaticBonusList = _staticBonusDao

@@ -77,9 +77,13 @@ namespace NosCore.PacketHandlers.Game
 
             session.GameStarted = true;
 
-            if (_worldConfiguration.SceneOnCreate && packet.KeepAliveId == null)
+            if (packet.KeepAliveId == null)
             {
-                await session.SendPacketAsync(new ScenePacket {SceneId = 40}).ConfigureAwait(false);
+                if (_worldConfiguration.SceneOnCreate)
+                {
+                    await session.SendPacketAsync(new ScenePacket { SceneId = 40 }).ConfigureAwait(false);
+                }
+                //await session.SendPacketAsync(new ScriptPacket { SceneId = 40 }).ConfigureAwait(false);
             }
 
             if (_worldConfiguration.WorldInformation)
@@ -211,7 +215,7 @@ namespace NosCore.PacketHandlers.Game
             await session.Character.GenerateMailAsync(mails).ConfigureAwait(false);
 
             await session.SendPacketAsync(session.Character.GenerateTitle()).ConfigureAwait(false);
-            int giftcount = mails.Select(s=>s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId != null && !mail.IsOpened);
+            int giftcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId != null && !mail.IsOpened);
             int mailcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId == null && !mail.IsOpened);
             if (giftcount > 0)
             {
