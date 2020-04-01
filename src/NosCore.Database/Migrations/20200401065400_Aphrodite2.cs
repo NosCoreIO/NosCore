@@ -30,7 +30,7 @@ namespace NosCore.Database.Migrations
                 name: "ThirdObjective",
                 table: "CharacterQuest");
 
-            migrationBuilder.AlterColumn<byte>(
+            migrationBuilder.AlterColumn<short>(
                 name: "QuestType",
                 table: "Quest",
                 nullable: false,
@@ -45,7 +45,7 @@ namespace NosCore.Database.Migrations
                 table: "Quest",
                 type: "integer",
                 nullable: false,
-                oldClrType: typeof(byte));
+                oldClrType: typeof(short));
 
             migrationBuilder.AddColumn<int>(
                 name: "FifthObjective",

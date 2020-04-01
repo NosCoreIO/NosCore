@@ -32,6 +32,8 @@ namespace NosCore.Database
         
         public virtual DbSet<AuditLog>? AuditLog { get; set; }
 
+        public virtual DbSet<Script>? Script { get; set; }
+
         public virtual DbSet<BazaarItem>? BazaarItem { get; set; }
 
         public virtual DbSet<Card>? Card { get; set; }
@@ -169,6 +171,10 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Account>()
                 .HasIndex(e => new {e.Name})
+                .IsUnique();
+
+            modelBuilder.Entity<Script>()
+                .HasIndex(e => new { e.ScriptId, e.ScriptStepId })
                 .IsUnique();
 
             modelBuilder.Entity<I18NActDesc>()

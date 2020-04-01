@@ -1995,7 +1995,7 @@ namespace NosCore.Database.Migrations
                     b.Property<short?>("NextQuestId")
                         .HasColumnType("smallint");
 
-                    b.Property<byte>("QuestType")
+                    b.Property<short>("QuestType")
                         .HasColumnType("smallint");
 
                     b.Property<short?>("RequiredQuestId")
