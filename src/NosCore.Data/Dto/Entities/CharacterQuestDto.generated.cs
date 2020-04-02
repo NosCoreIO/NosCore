@@ -41,6 +41,8 @@ namespace NosCore.Data.Dto
 
 	 	public short QuestId { get; set; }
 
+	 	public System.DateTime? CompletedOn { get; set; }
+
 	 	[Key]
 		public System.Guid Id { get; set; }
 

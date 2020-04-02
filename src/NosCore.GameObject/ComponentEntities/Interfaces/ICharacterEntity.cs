@@ -28,8 +28,10 @@ using DotNetty.Transport.Channels;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Providers.InventoryService;
+using System;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
@@ -81,6 +83,9 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         List<TitleDto> Titles { get; set; }
 
         bool IsDisconnecting { get; }
+        ScriptDto? Script { get; set; }
+        Guid? CurrentScriptId { get; set; }
+        ConcurrentDictionary<Guid, CharacterQuestDto> Quests { get; set; }
 
         Task GenerateMailAsync(IEnumerable<MailData> data);
 

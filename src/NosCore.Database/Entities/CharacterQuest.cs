@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
@@ -30,5 +31,7 @@ namespace NosCore.Database.Entities
         public virtual Quest Quest { get; set; } = null!;
 
         public short QuestId { get; set; }
+
+        public DateTime? CompletedOn { get; set; }
     }
 }

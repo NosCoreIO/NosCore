@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using NosCore.Data.Enumerations.Quest;
-using NosCore.Database.Entities;
+﻿using System.Threading.Tasks;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.GuriProvider;
 using NosCore.GameObject.Providers.QuestProvider;
 using NosCore.Packets.ClientPackets.Quest;
 
-namespace NosCore.PacketHandlers.Game
+namespace NosCore.PacketHandlers.Quest
 {
     public class QtPacketHandler : PacketHandler<QtPacket>, IWorldPacketHandler
     {

@@ -207,6 +207,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
+        //public static QstListPacket GenerateQuestPacket(this ICharacterEntity visualEntity)
+        //{
+
+        //}
+
         public static IconPacket GenerateIcon(this ICharacterEntity visualEntity, byte iconType, short iconParameter)
         {
             return new IconPacket

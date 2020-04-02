@@ -364,6 +364,12 @@ namespace NosCore.GameObject
 
                 var minilandDto = (MinilandDto)_minilandProvider.GetMiniland(CharacterId);
                 _minilandDao.InsertOrUpdate(ref minilandDto);
+
+                var questsToDelete = _characterQuestsDao
+                    .Where(i => i.CharacterId == CharacterId).ToList()
+                    .Where(i => Quests.Values.All(o => o.QuestId != i.QuestId)).ToList();
+                _characterQuestsDao.Delete(questsToDelete);
+                _characterQuestsDao.InsertOrUpdate(Quests.Values);
             }
             catch (Exception e)
             {
