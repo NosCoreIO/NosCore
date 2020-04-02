@@ -168,8 +168,13 @@ namespace NosCore.GameObject.Providers.QuestProvider
 
         public async Task<bool> AddQuestAsync(ICharacterEntity character, short questId)
         {
-            var characterQuest = character.Quests.OrderByDescending(s=>s.Value.CompletedOn).FirstOrDefault(s => s.Value.QuestId == questId);
-            if (characterQuest.Equals(new KeyValuePair<Guid, CharacterQuestDto>()) || characterQuest.Value.Quest.IsDaily)
+            var characterQuest = character.Quests.OrderByDescending(s => s.Value.CompletedOn).FirstOrDefault(s => s.Value.QuestId == questId);
+            if (!characterQuest.Equals(new KeyValuePair<Guid, CharacterQuestDto>()) &&
+                !characterQuest.Value.Quest.IsDaily)
+            {
+                return false;
+            }
+
             {
                 var quest = _quests.FirstOrDefault(s => s.QuestId == questId);
                 if (quest == null)
@@ -180,7 +185,7 @@ namespace NosCore.GameObject.Providers.QuestProvider
 
                 if (character.Quests.Any(q => !q.Value.Quest.IsSecondary) ||
                     (character.Quests.Where(q => q.Value.Quest.QuestType != QuestType.WinRaid).ToList().Count >= 5 &&
-                    quest.QuestType != QuestType.WinRaid))
+                        quest.QuestType != QuestType.WinRaid))
                 {
                     return false;
                 }
@@ -236,7 +241,6 @@ namespace NosCore.GameObject.Providers.QuestProvider
                 return true;
             }
 
-            return false;
         }
 
         public Task ValidateQuest(ClientSession clientSession, Guid characterQuestId)
