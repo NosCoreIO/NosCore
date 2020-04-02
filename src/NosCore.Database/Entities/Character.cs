@@ -62,8 +62,8 @@ namespace NosCore.Database.Entities
 
         public int ArenaWinner { get; set; }
 
-        public Guid CurrentScriptId { get; set; }
-        public virtual Script Script { get; set; } = null!;
+        public Guid? CurrentScriptId { get; set; }
+        public virtual Script? Script { get; set; }
 
         public virtual ICollection<BazaarItem> BazaarItem { get; set; }
 
