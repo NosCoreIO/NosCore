@@ -26,6 +26,13 @@ namespace NosCore.Database.Entities
 {
     public class Script : SynchronizableBaseEntity, IStaticEntity
     {
+        public Script()
+        {
+            Characters = new HashSet<Character>();
+        }
+
+        public virtual ICollection<Character> Characters { get; set; }
+
         public byte ScriptId { get; set; }
 
         public short ScriptStepId { get; set; }
@@ -33,7 +40,12 @@ namespace NosCore.Database.Entities
         [Required]
         public string StepType { get; set; } = null!;
 
-        [Required]
-        public string Argument { get; set; } = null!;
+        public string? StringArgument { get; set; }
+
+        public short? Argument1 { get; set; }
+
+        public short? Argument2 { get; set; }
+
+        public short? Argument3 { get; set; }
     }
 }

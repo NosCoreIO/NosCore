@@ -165,6 +165,7 @@ namespace NosCore.Parser
                         factory.ImportShopItems();
                         //factory.ImportShopSkills();
                         //factory.ImportRecipe();
+                        factory.ImportScripts();
                         factory.ImportQuests();
                     }
                     else
@@ -321,6 +322,14 @@ namespace NosCore.Parser
                         if (key.KeyChar != 'n')
                         {
                             //factory.ImportRecipe();
+                        }
+
+                        _logger.Information(
+                            $"{LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PARSE_SCRIPTS)} [Y/n]");
+                        key = Console.ReadKey(true);
+                        if (key.KeyChar != 'n')
+                        {
+                            factory.ImportScripts();
                         }
 
                         _logger.Information(
