@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    [Migration("20200401111648_Aphrodite3")]
-    partial class Aphrodite3
+    [Migration("20200402063615_Aphrodite2")]
+    partial class Aphrodite2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -319,6 +319,9 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("Compliment")
                         .HasColumnType("smallint");
 
+                    b.Property<Guid>("CurrentScriptId")
+                        .HasColumnType("uuid");
+
                     b.Property<float>("Dignity")
                         .HasColumnType("real");
 
@@ -455,6 +458,8 @@ namespace NosCore.Database.Migrations
                     b.HasKey("CharacterId");
 
                     b.HasIndex("AccountId");
+
+                    b.HasIndex("CurrentScriptId");
 
                     b.HasIndex("MapId");
 
@@ -2298,9 +2303,14 @@ namespace NosCore.Database.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Argument")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<short?>("Argument1")
+                        .HasColumnType("smallint");
+
+                    b.Property<short?>("Argument2")
+                        .HasColumnType("smallint");
+
+                    b.Property<short?>("Argument3")
+                        .HasColumnType("smallint");
 
                     b.Property<byte>("ScriptId")
                         .HasColumnType("smallint");
@@ -2310,6 +2320,9 @@ namespace NosCore.Database.Migrations
 
                     b.Property<string>("StepType")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("StringArgument")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -2921,6 +2934,12 @@ namespace NosCore.Database.Migrations
                     b.HasOne("NosCore.Database.Entities.Account", "Account")
                         .WithMany("Character")
                         .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NosCore.Database.Entities.Script", "Script")
+                        .WithMany("Characters")
+                        .HasForeignKey("CurrentScriptId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

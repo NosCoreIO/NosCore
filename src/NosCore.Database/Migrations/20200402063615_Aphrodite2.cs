@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace NosCore.Database.Migrations
 {
@@ -36,10 +37,68 @@ namespace NosCore.Database.Migrations
                 nullable: false,
                 oldClrType: typeof(int),
                 oldType: "integer");
+
+            migrationBuilder.AddColumn<Guid>(
+                name: "CurrentScriptId",
+                table: "Character",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
+
+            migrationBuilder.CreateTable(
+                name: "Script",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    ScriptId = table.Column<byte>(nullable: false),
+                    ScriptStepId = table.Column<short>(nullable: false),
+                    StepType = table.Column<string>(nullable: false),
+                    StringArgument = table.Column<string>(nullable: true),
+                    Argument1 = table.Column<short>(nullable: true),
+                    Argument2 = table.Column<short>(nullable: true),
+                    Argument3 = table.Column<short>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Script", x => x.Id);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Character_CurrentScriptId",
+                table: "Character",
+                column: "CurrentScriptId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Script_ScriptId_ScriptStepId",
+                table: "Script",
+                columns: new[] { "ScriptId", "ScriptStepId" },
+                unique: true);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Character_Script_CurrentScriptId",
+                table: "Character",
+                column: "CurrentScriptId",
+                principalTable: "Script",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Character_Script_CurrentScriptId",
+                table: "Character");
+
+            migrationBuilder.DropTable(
+                name: "Script");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Character_CurrentScriptId",
+                table: "Character");
+
+            migrationBuilder.DropColumn(
+                name: "CurrentScriptId",
+                table: "Character");
+
             migrationBuilder.AlterColumn<int>(
                 name: "QuestType",
                 table: "Quest",
