@@ -18,13 +18,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Quest;
 
 namespace NosCore.GameObject.Providers.QuestProvider
 {
     public interface IQuestProvider
     {
-        Task UpdateQuestAsync(ClientSession clientSession, QuestData data);
-        Task CheckScriptAsync(ClientSession session);
+        //Task UpdateQuestAsync(ICharacterEntity character, QuestData data);
+        Task RunScriptAsync(ICharacterEntity character);
+        Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet);
+        Task<bool> AddQuestAsync(ICharacterEntity character, short questId);
     }
 }
