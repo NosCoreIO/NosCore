@@ -45,6 +45,10 @@ namespace NosCore.Data.Dto
 
 	 	public int ArenaWinner { get; set; }
 
+	 	public System.Guid? CurrentScriptId { get; set; }
+
+	 	public ScriptDto Script { get; set; }
+
 	 	public System.Collections.Generic.ICollection<BazaarItemDto> BazaarItem { get; set; }
 
 	 	public System.Collections.Generic.ICollection<MinilandDto> Miniland { get; set; }

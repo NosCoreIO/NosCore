@@ -317,7 +317,7 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("Compliment")
                         .HasColumnType("smallint");
 
-                    b.Property<Guid>("CurrentScriptId")
+                    b.Property<Guid?>("CurrentScriptId")
                         .HasColumnType("uuid");
 
                     b.Property<float>("Dignity")
@@ -2938,8 +2938,7 @@ namespace NosCore.Database.Migrations
                     b.HasOne("NosCore.Database.Entities.Script", "Script")
                         .WithMany("Characters")
                         .HasForeignKey("CurrentScriptId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("NosCore.Database.Entities.Map", "Map")
                         .WithMany("Character")

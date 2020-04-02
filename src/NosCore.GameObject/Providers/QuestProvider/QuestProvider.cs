@@ -22,10 +22,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
+using NosCore.Configuration;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.Quest;
 
 namespace NosCore.GameObject.Providers.QuestProvider
 {
@@ -34,14 +38,19 @@ namespace NosCore.GameObject.Providers.QuestProvider
         private readonly List<IEventHandler<QuestData, Tuple<CharacterQuestDto, QuestData>>>
             _handlers;
 
+        private readonly List<ScriptDto> _scripts;
+        private readonly WorldConfiguration _worldConfiguration;
+
 
         public QuestProvider(
-            IEnumerable<IEventHandler<QuestData, Tuple<CharacterQuestDto, QuestData>>> handlers)
+            IEnumerable<IEventHandler<QuestData, Tuple<CharacterQuestDto, QuestData>>> handlers, List<ScriptDto> scripts, WorldConfiguration worldConfiguration)
         {
             _handlers = handlers.ToList();
+            _scripts = scripts;
+            _worldConfiguration = worldConfiguration;
         }
 
-        public void UpdateQuest(ClientSession clientSession, QuestData data)
+        public Task UpdateQuestAsync(ClientSession clientSession, QuestData data)
         {
             //search for quest with Objective Matching.
             var handlersRequest = new Subject<RequestData<Tuple<CharacterQuestDto, QuestData>>>();
@@ -68,10 +77,38 @@ namespace NosCore.GameObject.Providers.QuestProvider
             //        ValidateQuest(clientSession, quest.Id);
             //    }
             //}
+
+            return Task.CompletedTask;
         }
 
-        public void ValidateQuest(ClientSession clientSession, Guid characterQuestId)
+        public async Task CheckScriptAsync(ClientSession session)
         {
+            if (session.Character.CurrentScriptId == null)
+            {
+                if (_worldConfiguration.SceneOnCreate)
+                {
+                    await session.SendPacketAsync(new ScenePacket { SceneId = 40 }).ConfigureAwait(false);
+                    await Task.Delay(TimeSpan.FromSeconds(75)).ConfigureAwait(false);
+                }
+            }
+
+            var firstScript = _scripts.OrderBy(s => s.ScriptId).ThenBy(s => s.ScriptStepId).FirstOrDefault();
+            if (firstScript == null)
+            {
+                return;
+            }
+            session.Character.CurrentScriptId = firstScript.Id;
+            session.Character.Script = firstScript;
+            await session.SendPacketAsync(new ScriptPacket()
+            {
+                ScriptId = firstScript.ScriptId,
+                ScriptStepId = firstScript.ScriptStepId
+            }).ConfigureAwait(false);
+        }
+
+        public Task ValidateQuest(ClientSession clientSession, Guid characterQuestId)
+        {
+            return Task.CompletedTask;
             //get quest
             //check all valid
             //ApplyBonus
