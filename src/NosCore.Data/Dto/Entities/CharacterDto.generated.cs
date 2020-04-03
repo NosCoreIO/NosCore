@@ -33,7 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class CharacterDto : IDto
 	{
-		internal AccountDto Account { get; set; }
+		public AccountDto Account { get; set; }
 
 	 	public long AccountId { get; set; }
 
@@ -47,13 +47,13 @@ namespace NosCore.Data.Dto
 
 	 	public System.Guid? CurrentScriptId { get; set; }
 
-	 	internal ScriptDto Script { get; set; }
+	 	public ScriptDto Script { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<BazaarItemDto> BazaarItem { get; set; }
+	 	public System.Collections.Generic.ICollection<BazaarItemDto> BazaarItem { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<MinilandDto> Miniland { get; set; }
+	 	public System.Collections.Generic.ICollection<MinilandDto> Miniland { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<CharacterActPartDto> CharacterActParts { get; set; }
+	 	public System.Collections.Generic.ICollection<CharacterActPartDto> CharacterActParts { get; set; }
 
 	 	#nullable enable
 		public string? Biography { get; set; } = "";
@@ -63,11 +63,11 @@ namespace NosCore.Data.Dto
 	 	[Key]
 		public long CharacterId { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<CharacterRelationDto> CharacterRelation1 { get; set; }
+	 	public System.Collections.Generic.ICollection<CharacterRelationDto> CharacterRelation1 { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<CharacterRelationDto> CharacterRelation2 { get; set; }
+	 	public System.Collections.Generic.ICollection<CharacterRelationDto> CharacterRelation2 { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<CharacterSkillDto> CharacterSkill { get; set; }
+	 	public System.Collections.Generic.ICollection<CharacterSkillDto> CharacterSkill { get; set; }
 
 	 	public NosCore.Packets.Enumerations.CharacterClassType Class { get; set; }
 
@@ -83,7 +83,7 @@ namespace NosCore.Data.Dto
 
 	 	public byte Faction { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<FamilyCharacterDto> FamilyCharacter { get; set; }
+	 	public System.Collections.Generic.ICollection<FamilyCharacterDto> FamilyCharacter { get; set; }
 
 	 	public bool FamilyRequestBlocked { get; set; }
 
@@ -109,7 +109,7 @@ namespace NosCore.Data.Dto
 
 	 	public bool HpBlocked { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<InventoryItemInstanceDto> Inventory { get; set; }
+	 	public System.Collections.Generic.ICollection<InventoryItemInstanceDto> Inventory { get; set; }
 
 	 	public byte JobLevel { get; set; }
 
@@ -119,11 +119,11 @@ namespace NosCore.Data.Dto
 
 	 	public long LevelXp { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<MailDto> Mail { get; set; }
+	 	public System.Collections.Generic.ICollection<MailDto> Mail { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<MailDto> Mail1 { get; set; }
+	 	public System.Collections.Generic.ICollection<MailDto> Mail1 { get; set; }
 
-	 	internal MapDto Map { get; set; }
+	 	public MapDto Map { get; set; }
 
 	 	public short MapId { get; set; }
 
@@ -135,9 +135,9 @@ namespace NosCore.Data.Dto
 
 	 	public int MasterTicket { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<CharacterQuestDto> CharacterQuest { get; set; }
+	 	public System.Collections.Generic.ICollection<CharacterQuestDto> CharacterQuest { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<MateDto> Mate { get; set; }
+	 	public System.Collections.Generic.ICollection<MateDto> Mate { get; set; }
 
 	 	public byte MaxMateCount { get; set; }
 
@@ -154,13 +154,13 @@ namespace NosCore.Data.Dto
 
 	 	public bool QuickGetUp { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<QuicklistEntryDto> QuicklistEntry { get; set; }
+	 	public System.Collections.Generic.ICollection<QuicklistEntryDto> QuicklistEntry { get; set; }
 
 	 	public long RagePoint { get; set; }
 
 	 	public long Reput { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<RespawnDto> Respawn { get; set; }
+	 	public System.Collections.Generic.ICollection<RespawnDto> Respawn { get; set; }
 
 	 	public byte Slot { get; set; }
 
@@ -170,11 +170,11 @@ namespace NosCore.Data.Dto
 
 	 	public NosCore.Data.Enumerations.Character.CharacterState State { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<StaticBonusDto> StaticBonus { get; set; }
+	 	public System.Collections.Generic.ICollection<StaticBonusDto> StaticBonus { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<TitleDto> Title { get; set; }
+	 	public System.Collections.Generic.ICollection<TitleDto> Title { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<StaticBuffDto> StaticBuff { get; set; }
+	 	public System.Collections.Generic.ICollection<StaticBuffDto> StaticBuff { get; set; }
 
 	 	public int TalentLose { get; set; }
 
@@ -184,7 +184,7 @@ namespace NosCore.Data.Dto
 
 	 	public bool WhisperBlocked { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<WarehouseDto> Warehouses { get; set; }
+	 	public System.Collections.Generic.ICollection<WarehouseDto> Warehouses { get; set; }
 
 	 }
 }

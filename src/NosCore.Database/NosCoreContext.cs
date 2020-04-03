@@ -300,7 +300,7 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Character>()
                 .HasOne(e => e.Script)
-                .WithMany(e => e.Characters)
+                .WithMany(e => e!.Characters)
                 .HasForeignKey(e => e.CurrentScriptId)
                 .OnDelete(DeleteBehavior.Restrict);
 

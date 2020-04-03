@@ -34,7 +34,7 @@ namespace NosCore.Data.StaticEntities
 	[StaticMetaData(LoadedMessage = LogLanguageKey.SHOPS_LOADED)]
 	public class ShopDto : IStaticDto
 	{
-		internal MapNpcDto MapNpc { get; set; }
+		public MapNpcDto MapNpc { get; set; }
 
 	 	public int MapNpcId { get; set; }
 
@@ -45,9 +45,9 @@ namespace NosCore.Data.StaticEntities
 	 	[Key]
 		public int ShopId { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<ShopItemDto> ShopItem { get; set; }
+	 	public System.Collections.Generic.ICollection<ShopItemDto> ShopItem { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<ShopSkillDto> ShopSkill { get; set; }
+	 	public System.Collections.Generic.ICollection<ShopSkillDto> ShopSkill { get; set; }
 
 	 	public byte ShopType { get; set; }
 

@@ -110,7 +110,7 @@ namespace NosCore.GameObject
             _minilandProvider = minilandProvider;
         }
 
-        public ScriptDto? Script { get; set; }
+        public new ScriptDto? Script { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
 

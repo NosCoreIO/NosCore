@@ -36,11 +36,11 @@ namespace NosCore.Data.StaticEntities
 		[Key]
 		public short MapTypeMapId { get; set; }
 
-	 	internal MapDto Map { get; set; }
+	 	public MapDto Map { get; set; }
 
 	 	public short MapId { get; set; }
 
-	 	internal MapTypeDto MapType { get; set; }
+	 	public MapTypeDto MapType { get; set; }
 
 	 	public short MapTypeId { get; set; }
 

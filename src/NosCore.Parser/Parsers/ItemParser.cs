@@ -93,7 +93,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(ItemDto.IsDroppable), chunk => chunk["FLAG"][0][6] == "0"},
                 {nameof(ItemDto.IsSoldable), chunk => chunk["FLAG"][0][5] == "0"},
                 {nameof(ItemDto.LevelMinimum),  chunk => ImportLevelMinimum(chunk)},
-                {nameof(ItemDto.BCards),  chunk => ImportBCards(chunk)},
+                {nameof(ItemDto.BCards),  ImportBCards},
                 {nameof(ItemDto.Effect),  chunk => ImportEffect(chunk)},
                 {nameof(ItemDto.EffectValue),  chunk => ImportEffectValue(chunk)},
                 {nameof(ItemDto.FireResistance),  chunk => ImportResistance(chunk, ElementType.Fire)},

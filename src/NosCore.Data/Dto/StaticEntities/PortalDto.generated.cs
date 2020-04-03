@@ -41,9 +41,9 @@ namespace NosCore.Data.StaticEntities
 
 	 	public bool IsDisabled { get; set; }
 
-	 	internal MapDto Map { get; set; }
+	 	public MapDto Map { get; set; }
 
-	 	internal MapDto Map1 { get; set; }
+	 	public MapDto Map1 { get; set; }
 
 	 	[Key]
 		public int PortalId { get; set; }

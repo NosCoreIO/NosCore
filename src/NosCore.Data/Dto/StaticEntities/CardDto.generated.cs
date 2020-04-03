@@ -57,9 +57,9 @@ namespace NosCore.Data.StaticEntities
 
 	 	public byte Propability { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
+	 	public System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<StaticBuffDto> StaticBuff { get; set; }
+	 	public System.Collections.Generic.ICollection<StaticBuffDto> StaticBuff { get; set; }
 
 	 }
 }
