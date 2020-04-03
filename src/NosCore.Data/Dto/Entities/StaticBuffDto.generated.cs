@@ -33,11 +33,11 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class StaticBuffDto : IDto
 	{
-		internal CharacterDto Character { get; set; }
+		public CharacterDto Character { get; set; }
 
 	 	public long CharacterId { get; set; }
 
-	 	internal CardDto Card { get; set; }
+	 	public CardDto Card { get; set; }
 
 	 	public short CardId { get; set; }
 

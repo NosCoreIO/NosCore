@@ -80,7 +80,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short DistanceDefenceDodge { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<DropDto> Drop { get; set; }
+	 	public System.Collections.Generic.ICollection<DropDto> Drop { get; set; }
 
 	 	public NosCore.Data.Enumerations.Items.ItemEffectType Effect { get; set; }
 
@@ -122,9 +122,9 @@ namespace NosCore.Data.StaticEntities
 
 	 	public bool IsTradable { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
+	 	public System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<ItemInstanceDto> ItemInstances { get; set; }
+	 	public System.Collections.Generic.ICollection<ItemInstanceDto> ItemInstances { get; set; }
 
 	 	public byte ItemSubType { get; set; }
 
@@ -142,9 +142,9 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short MagicDefence { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<RollGeneratedItemDto> RollGeneratedItem { get; set; }
+	 	public System.Collections.Generic.ICollection<RollGeneratedItemDto> RollGeneratedItem { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<RollGeneratedItemDto> RollGeneratedItem2 { get; set; }
+	 	public System.Collections.Generic.ICollection<RollGeneratedItemDto> RollGeneratedItem2 { get; set; }
 
 	 	public byte MaxCellon { get; set; }
 
@@ -179,9 +179,9 @@ namespace NosCore.Data.StaticEntities
 
 	 	public byte PvpStrength { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<RecipeDto> Recipe { get; set; }
+	 	public System.Collections.Generic.ICollection<RecipeDto> Recipe { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<RecipeItemDto> RecipeItem { get; set; }
+	 	public System.Collections.Generic.ICollection<RecipeItemDto> RecipeItem { get; set; }
 
 	 	public short ReduceOposantResistance { get; set; }
 
@@ -193,7 +193,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public byte Sex { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<ShopItemDto> ShopItem { get; set; }
+	 	public System.Collections.Generic.ICollection<ShopItemDto> ShopItem { get; set; }
 
 	 	public byte Speed { get; set; }
 

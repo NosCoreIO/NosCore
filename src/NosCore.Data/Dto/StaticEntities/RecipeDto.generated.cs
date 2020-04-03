@@ -35,18 +35,18 @@ namespace NosCore.Data.StaticEntities
 	{
 		public byte Amount { get; set; }
 
-	 	internal ItemDto Item { get; set; }
+	 	public ItemDto Item { get; set; }
 
 	 	public short ItemVNum { get; set; }
 
-	 	internal MapNpcDto MapNpc { get; set; }
+	 	public MapNpcDto MapNpc { get; set; }
 
 	 	public int MapNpcId { get; set; }
 
 	 	[Key]
 		public short RecipeId { get; set; }
 
-	 	internal System.Collections.Generic.ICollection<RecipeItemDto> RecipeItem { get; set; }
+	 	public System.Collections.Generic.ICollection<RecipeItemDto> RecipeItem { get; set; }
 
 	 }
 }

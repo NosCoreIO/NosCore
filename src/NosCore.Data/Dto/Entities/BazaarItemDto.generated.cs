@@ -33,7 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class BazaarItemDto : IDto
 	{
-		internal CharacterDto Seller { get; set; }
+		public CharacterDto Seller { get; set; }
 
 	 	public short Amount { get; set; }
 
@@ -46,7 +46,7 @@ namespace NosCore.Data.Dto
 
 	 	public bool IsPackage { get; set; }
 
-	 	internal ItemInstanceDto ItemInstance { get; set; }
+	 	public ItemInstanceDto ItemInstance { get; set; }
 
 	 	public System.Guid ItemInstanceId { get; set; }
 

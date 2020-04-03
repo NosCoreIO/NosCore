@@ -33,18 +33,18 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class RespawnDto : IDto
 	{
-		internal CharacterDto Character { get; set; }
+		public CharacterDto Character { get; set; }
 
 	 	public long CharacterId { get; set; }
 
-	 	internal MapDto Map { get; set; }
+	 	public MapDto Map { get; set; }
 
 	 	public short MapId { get; set; }
 
 	 	[Key]
 		public long RespawnId { get; set; }
 
-	 	internal RespawnMapTypeDto RespawnMapType { get; set; }
+	 	public RespawnMapTypeDto RespawnMapType { get; set; }
 
 	 	public long RespawnMapTypeId { get; set; }
 

@@ -33,11 +33,11 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class CharacterQuestDto : IDto
 	{
-		internal CharacterDto Character { get; set; }
+		public CharacterDto Character { get; set; }
 
 	 	public long CharacterId { get; set; }
 
-	 	internal QuestDto Quest { get; set; }
+	 	public QuestDto Quest { get; set; }
 
 	 	public short QuestId { get; set; }
 

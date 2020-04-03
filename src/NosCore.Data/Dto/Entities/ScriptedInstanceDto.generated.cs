@@ -33,7 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class ScriptedInstanceDto : IDto
 	{
-		internal MapDto Map { get; set; }
+		public MapDto Map { get; set; }
 
 	 	public short MapId { get; set; }
 

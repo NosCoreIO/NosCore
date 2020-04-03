@@ -28,7 +28,7 @@ namespace NosCore.GameObject
 {
     public class CharacterQuest : CharacterQuestDto
     {
-        public Quest Quest { get; set; } = null!;
+        public new Quest Quest { get; set; } = null!;
 
         public QstiPacket GenerateQstiPacket(bool showDialog)
         {
