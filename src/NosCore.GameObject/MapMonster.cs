@@ -35,7 +35,7 @@ namespace NosCore.GameObject
         private readonly ILogger _logger;
 
         private readonly List<NpcMonsterDto> _npcMonsters;
-
+        public NpcMonsterDto NpcMonster { get; private set; } = null!;
         public MapMonster(List<NpcMonsterDto> npcMonsters, ILogger logger)
         {
             _npcMonsters = npcMonsters;
@@ -46,7 +46,7 @@ namespace NosCore.GameObject
 
         public void Initialize()
         {
-            NpcMonster = _npcMonsters.Find(s => s.NpcMonsterVNum == VNum);
+            NpcMonster = _npcMonsters.Find(s => s.NpcMonsterVNum == VNum)!;
             Mp = NpcMonster?.MaxMp ?? 0;
             Hp = NpcMonster?.MaxHp ?? 0;
             Speed = NpcMonster?.Speed ?? 0;

@@ -33,9 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class QuicklistEntryDto : IDto
 	{
-		public CharacterDto Character { get; set; }
-
-	 	public long CharacterId { get; set; }
+		public long CharacterId { get; set; }
 
 	 	public short Morph { get; set; }
 

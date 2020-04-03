@@ -35,16 +35,12 @@ namespace NosCore.Data.Dto
 	{
 		public NosCore.Data.Enumerations.Family.FamilyAuthority Authority { get; set; }
 
-	 	public CharacterDto Character { get; set; }
-
 	 	public long CharacterId { get; set; }
 
 	 	#nullable enable
 		public string? DailyMessage { get; set; } = "";
 		#nullable disable
 	 	public int Experience { get; set; }
-
-	 	public FamilyDto Family { get; set; }
 
 	 	[Key]
 		public long FamilyCharacterId { get; set; }

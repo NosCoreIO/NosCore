@@ -48,7 +48,5 @@ namespace NosCore.Data.StaticEntities
 
 	 	public int Amount { get; set; }
 
-	 	public System.Collections.Generic.ICollection<QuestQuestRewardDto> QuestQuestReward { get; set; }
-
 	 }
 }

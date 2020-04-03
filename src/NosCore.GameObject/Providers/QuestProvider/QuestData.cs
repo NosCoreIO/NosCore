@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using NosCore.Data.Enumerations.Quest;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Providers.QuestProvider
 {

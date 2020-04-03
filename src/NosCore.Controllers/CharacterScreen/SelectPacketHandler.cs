@@ -28,6 +28,7 @@ using NosCore.Core;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
@@ -49,12 +50,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
         private readonly IGenericDao<TitleDto> _titleDao;
         private readonly IGenericDao<CharacterQuestDto> _characterQuestDao;
+        private IGenericDao<ScriptDto> _scriptDao;
 
         public SelectPacketHandler(IGenericDao<CharacterDto> characterDao, ILogger logger,
             IItemProvider itemProvider,
             IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao,
             IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao,
-            IGenericDao<QuicklistEntryDto> quickListEntriesDao, IGenericDao<TitleDto> titleDao, IGenericDao<CharacterQuestDto> characterQuestDao)
+            IGenericDao<QuicklistEntryDto> quickListEntriesDao, IGenericDao<TitleDto> titleDao, IGenericDao<CharacterQuestDto> characterQuestDao,
+            IGenericDao<ScriptDto> scriptDao)
         {
             _characterDao = characterDao;
             _logger = logger;
@@ -66,6 +69,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _quickListEntriesDao = quickListEntriesDao;
             _titleDao = titleDao;
             _characterQuestDao = characterQuestDao;
+            _scriptDao = scriptDao;
         }
 
         public override Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -93,7 +97,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Direction = 2;
-                character.Account = clientSession.Account;
+                character.Script = character.CurrentScriptId != null ? _scriptDao.FirstOrDefault(s => s.Id == character.CurrentScriptId) : null;
                 character.Group!.JoinGroup(character);
 
                 var inventories = _inventoryItemInstanceDao

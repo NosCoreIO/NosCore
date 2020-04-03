@@ -44,14 +44,6 @@ namespace NosCore.Data.StaticEntities
 
 	 	public int SecondData { get; set; }
 
-	 	public CardDto Card { get; set; }
-
-	 	public ItemDto Item { get; set; }
-
-	 	public SkillDto Skill { get; set; }
-
-	 	public NpcMonsterDto NpcMonster { get; set; }
-
 	 	public short? CardId { get; set; }
 
 	 	public short? ItemVNum { get; set; }

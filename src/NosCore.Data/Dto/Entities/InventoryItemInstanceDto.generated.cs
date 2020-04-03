@@ -33,15 +33,9 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class InventoryItemInstanceDto : IDto
 	{
-		public CharacterDto Character { get; set; }
-
-	 	public long CharacterId { get; set; }
-
-	 	public ItemInstanceDto ItemInstance { get; set; }
+		public long CharacterId { get; set; }
 
 	 	public System.Guid ItemInstanceId { get; set; }
-
-	 	public System.Collections.Generic.ICollection<MinilandObjectDto> MinilandObject { get; set; }
 
 	 	public short Slot { get; set; }
 

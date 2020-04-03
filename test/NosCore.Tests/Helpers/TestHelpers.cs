@@ -278,7 +278,8 @@ namespace NosCore.Tests.Helpers
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
                         ConnectedAccountHttpClient.Object),
                     new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemProvider>().Object, MapInstanceProvider,
-                        _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<TitleDto>>().Object, new Mock<IGenericDao<CharacterQuestDto>>().Object),
+                        _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<TitleDto>>().Object, new Mock<IGenericDao<CharacterQuestDto>>().Object,
+                        new Mock<IGenericDao<ScriptDto>>().Object),
                     new CSkillPacketHandler(),
                     new CBuyPacketHandler(new Mock<IBazaarHttpClient>().Object, new Mock<IItemProvider>().Object, _logger, _itemInstanceDao),
                     new CRegPacketHandler(WorldConfiguration,new Mock<IBazaarHttpClient>().Object,_itemInstanceDao, _inventoryItemInstanceDao ),
@@ -312,7 +313,7 @@ namespace NosCore.Tests.Helpers
             session.InitializeAccount(acc);
             session.SetCharacter(chara);
             session.Character.MapInstance = MapInstanceProvider.GetBaseMapById(0);
-            session.Character.Account = acc;
+            session.Account = acc;
             session.RegisterChannel(new Mock<IChannel>().Object);
             Broadcaster.Instance.RegisterSession(session);
             return session;

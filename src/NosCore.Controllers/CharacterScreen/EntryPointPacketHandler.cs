@@ -205,7 +205,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     Pets = petlist,
                     Design = equipment[(byte)EquipmentType.Hat]?.Item?.IsColored ?? false
                         ? equipment[(byte)EquipmentType.Hat]?.Design ?? 0 : 0,
-                    Unknown3 = 0
+                    Rename = false
                 }).ConfigureAwait(false);
             }
 
