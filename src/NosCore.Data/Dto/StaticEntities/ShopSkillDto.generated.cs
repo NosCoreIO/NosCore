@@ -34,10 +34,14 @@ namespace NosCore.Data.StaticEntities
 	[StaticMetaData(LoadedMessage = LogLanguageKey.SHOPSKILLS_LOADED)]
 	public class ShopSkillDto : IStaticDto
 	{
-		public int ShopId { get; set; }
+		internal ShopDto Shop { get; set; }
+
+	 	public int ShopId { get; set; }
 
 	 	[Key]
 		public int ShopSkillId { get; set; }
+
+	 	internal SkillDto Skill { get; set; }
 
 	 	public short SkillVNum { get; set; }
 

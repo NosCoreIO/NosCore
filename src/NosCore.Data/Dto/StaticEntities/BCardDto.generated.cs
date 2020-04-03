@@ -44,6 +44,14 @@ namespace NosCore.Data.StaticEntities
 
 	 	public int SecondData { get; set; }
 
+	 	internal CardDto Card { get; set; }
+
+	 	internal ItemDto Item { get; set; }
+
+	 	internal SkillDto Skill { get; set; }
+
+	 	internal NpcMonsterDto NpcMonster { get; set; }
+
 	 	public short? CardId { get; set; }
 
 	 	public short? ItemVNum { get; set; }

@@ -33,12 +33,16 @@ namespace NosCore.Data.StaticEntities
 	/// </summary>
 	public class NpcMonsterSkillDto : IStaticDto
 	{
-		[Key]
+		internal NpcMonsterDto NpcMonster { get; set; }
+
+	 	[Key]
 		public long NpcMonsterSkillId { get; set; }
 
 	 	public short NpcMonsterVNum { get; set; }
 
 	 	public short Rate { get; set; }
+
+	 	internal SkillDto Skill { get; set; }
 
 	 	public short SkillVNum { get; set; }
 

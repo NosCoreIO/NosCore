@@ -38,6 +38,8 @@ namespace NosCore.Data.Dto
 
 	 	public NosCore.Data.Enumerations.Account.AuthorityType Authority { get; set; }
 
+	 	internal System.Collections.Generic.ICollection<CharacterDto> Character { get; set; }
+
 	 	#nullable enable
 		public string? Email { get; set; } = "";
 		#nullable disable
@@ -52,6 +54,8 @@ namespace NosCore.Data.Dto
 	 	#nullable enable
 		public string? NewAuthSalt { get; set; } = "";
 		#nullable disable
+	 	internal System.Collections.Generic.ICollection<PenaltyLogDto> PenaltyLog { get; set; }
+
 	 	#nullable enable
 		public string? RegistrationIp { get; set; } = "";
 		#nullable disable

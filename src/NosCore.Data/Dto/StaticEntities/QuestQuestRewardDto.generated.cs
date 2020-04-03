@@ -38,7 +38,11 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short QuestRewardId { get; set; }
 
+	 	internal QuestRewardDto QuestReward { get; set; }
+
 	 	public short QuestId { get; set; }
+
+	 	internal QuestDto Quest { get; set; }
 
 	 }
 }

@@ -46,6 +46,8 @@ namespace NosCore.Data.Dto
 
 	 	public bool IsSitting { get; set; }
 
+	 	internal MapDto Map { get; set; }
+
 	 	public short MapId { get; set; }
 
 	 	[Key]
@@ -55,9 +57,17 @@ namespace NosCore.Data.Dto
 
 	 	public short MapY { get; set; }
 
+	 	internal NpcMonsterDto NpcMonster { get; set; }
+
 	 	public short VNum { get; set; }
 
 	 	public byte Direction { get; set; }
+
+	 	internal System.Collections.Generic.ICollection<RecipeDto> Recipe { get; set; }
+
+	 	internal System.Collections.Generic.ICollection<ShopDto> Shop { get; set; }
+
+	 	internal System.Collections.Generic.ICollection<TeleporterDto> Teleporter { get; set; }
 
 	 }
 }

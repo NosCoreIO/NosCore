@@ -210,38 +210,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 
         public static QstlistPacket GenerateQuestPacket(this ICharacterEntity visualEntity)
         {
-            var list = new QstlistPacket()
+           return new QstlistPacket()
             {
-                QstiPackets = new List<QstiPacket>()
-            };
-
-       
-            foreach (var quest in visualEntity.Quests.Values)
-            {
-                var objectives = new List<QuestObjectiveSubPacket>();
-                var questCount = 0;
-                //foreach (var objective in quest.Quest.QuestObjective)
-                //{
-                //    objectives.Add(new QuestObjectiveSubPacket()
-                //    {
-                //        CurrentCount = 0,
-                //        MaxCount = 5,
-                //        IsFinished = questCount == 0 ? false : (bool?)null
-                //    });
-                //    questCount++;
-                //}
-                //list.QstiPackets.Add(new QstiPacket
-                //{
-                //    QuestId = quest.QuestId,
-                //    InfoId = quest.QuestId,
-                //    GoalType = quest.Quest.QuestType,
-                //    ObjectiveCount = 5,
-                //    ShowDialog = true,
-                //    QuestObjectiveSubPackets = objectives
-                //});
-            }
-
-            return list;
+                QstiPackets = visualEntity.Quests.Values.Select(quest => quest.GenerateQstiPacket(true)).ToList()
+           };
         }
 
         public static IconPacket GenerateIcon(this ICharacterEntity visualEntity, byte iconType, short iconParameter)

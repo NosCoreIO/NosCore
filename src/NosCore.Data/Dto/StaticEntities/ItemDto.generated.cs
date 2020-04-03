@@ -80,6 +80,8 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short DistanceDefenceDodge { get; set; }
 
+	 	internal System.Collections.Generic.ICollection<DropDto> Drop { get; set; }
+
 	 	public NosCore.Data.Enumerations.Items.ItemEffectType Effect { get; set; }
 
 	 	public int EffectValue { get; set; }
@@ -120,6 +122,10 @@ namespace NosCore.Data.StaticEntities
 
 	 	public bool IsTradable { get; set; }
 
+	 	internal System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
+
+	 	internal System.Collections.Generic.ICollection<ItemInstanceDto> ItemInstances { get; set; }
+
 	 	public byte ItemSubType { get; set; }
 
 	 	public NosCore.Data.Enumerations.Items.ItemType ItemType { get; set; }
@@ -135,6 +141,10 @@ namespace NosCore.Data.StaticEntities
 	 	public short LightResistance { get; set; }
 
 	 	public short MagicDefence { get; set; }
+
+	 	internal System.Collections.Generic.ICollection<RollGeneratedItemDto> RollGeneratedItem { get; set; }
+
+	 	internal System.Collections.Generic.ICollection<RollGeneratedItemDto> RollGeneratedItem2 { get; set; }
 
 	 	public byte MaxCellon { get; set; }
 
@@ -169,6 +179,10 @@ namespace NosCore.Data.StaticEntities
 
 	 	public byte PvpStrength { get; set; }
 
+	 	internal System.Collections.Generic.ICollection<RecipeDto> Recipe { get; set; }
+
+	 	internal System.Collections.Generic.ICollection<RecipeItemDto> RecipeItem { get; set; }
+
 	 	public short ReduceOposantResistance { get; set; }
 
 	 	public byte ReputationMinimum { get; set; }
@@ -178,6 +192,8 @@ namespace NosCore.Data.StaticEntities
 	 	public NosCore.Packets.Enumerations.ElementType SecondaryElement { get; set; }
 
 	 	public byte Sex { get; set; }
+
+	 	internal System.Collections.Generic.ICollection<ShopItemDto> ShopItem { get; set; }
 
 	 	public byte Speed { get; set; }
 

@@ -33,7 +33,9 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class BazaarItemDto : IDto
 	{
-		public short Amount { get; set; }
+		internal CharacterDto Seller { get; set; }
+
+	 	public short Amount { get; set; }
 
 	 	[Key]
 		public long BazaarItemId { get; set; }
@@ -43,6 +45,8 @@ namespace NosCore.Data.Dto
 	 	public short Duration { get; set; }
 
 	 	public bool IsPackage { get; set; }
+
+	 	internal ItemInstanceDto ItemInstance { get; set; }
 
 	 	public System.Guid ItemInstanceId { get; set; }
 
