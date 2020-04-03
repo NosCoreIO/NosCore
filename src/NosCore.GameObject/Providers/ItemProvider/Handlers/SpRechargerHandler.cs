@@ -64,7 +64,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 requestData.ClientSession.Character.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
-                        requestData.ClientSession.Character.Account.Language),
+                        requestData.ClientSession.Account.Language),
                     Type = MessageType.White
                 });
             }

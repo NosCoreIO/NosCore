@@ -17,21 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using NosCore.Database.Entities.Base;
+using System.Threading.Tasks;
+using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Quest;
 
-namespace NosCore.Database.Entities
+namespace NosCore.GameObject.Providers.QuestProvider
 {
-    public class CharacterQuest : SynchronizableBaseEntity
+    public interface IQuestProvider
     {
-        public virtual Character Character { get; set; } = null!;
-
-        public long CharacterId { get; set; }
-
-        public virtual Quest Quest { get; set; } = null!;
-
-        public short QuestId { get; set; }
-
-        public DateTime? CompletedOn { get; set; }
+        //Task UpdateQuestAsync(ICharacterEntity character, QuestData data);
+        Task RunScriptAsync(ICharacterEntity character);
+        Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet);
+        Task<bool> AddQuestAsync(ICharacterEntity character, short questId);
     }
 }

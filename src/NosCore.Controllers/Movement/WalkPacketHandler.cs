@@ -22,11 +22,13 @@ using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
+using NosCore.Data.Enumerations.Quest;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Providers.QuestProvider;
 using NosCore.PathFinder;
 
 namespace NosCore.PacketHandlers.Movement

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -17,21 +17,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    public class CharacterQuest : SynchronizableBaseEntity
+    public class Script : SynchronizableBaseEntity, IStaticEntity
     {
-        public virtual Character Character { get; set; } = null!;
+        public Script()
+        {
+            Characters = new HashSet<Character>();
+        }
 
-        public long CharacterId { get; set; }
+        public virtual ICollection<Character> Characters { get; set; }
 
-        public virtual Quest Quest { get; set; } = null!;
+        public byte ScriptId { get; set; }
 
-        public short QuestId { get; set; }
+        public short ScriptStepId { get; set; }
 
-        public DateTime? CompletedOn { get; set; }
+        [Required]
+        public string StepType { get; set; } = null!;
+
+        public string? StringArgument { get; set; }
+
+        public short? Argument1 { get; set; }
+
+        public short? Argument2 { get; set; }
+
+        public short? Argument3 { get; set; }
     }
 }

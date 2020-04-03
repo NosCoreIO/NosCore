@@ -96,7 +96,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            if (medal == null && cRegPacket.Durability > 1)
+            if ((medal == null) && (cRegPacket.Durability > 1))
             {
                 return;
             }
@@ -168,7 +168,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     }
 
                     await clientSession.SendPacketAsync(((InventoryItemInstance?)null).GeneratePocketChange(
-                        cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType)cRegPacket.Inventory,
+                        cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType) cRegPacket.Inventory,
                         cRegPacket.Slot)).ConfigureAwait(false);
                     clientSession.Character.Gold -= tax;
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);

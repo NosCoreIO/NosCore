@@ -24,11 +24,13 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
+using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -43,11 +45,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _minilandDao = minilandDao;
         }
 
-        public override Task ExecuteAsync(CharNewPacket packet, ClientSession clientSession)
+        public override async Task ExecuteAsync(CharNewPacket packet, ClientSession clientSession)
         {
             if (clientSession.HasSelectedCharacter)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             // TODO: Hold Account Information in Authorized object
@@ -57,7 +59,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             if (_characterDao.FirstOrDefault(s =>
                 (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active)) != null)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             var rg = new Regex(
@@ -78,10 +80,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         HairStyle = packet.HairStyle,
                         Hp = packet.IsMartialArtist ? 12965 : 221,
                         JobLevel = 1,
-                        Level = (byte) (packet.IsMartialArtist ? 81 : 1),
+                        Level = (byte)(packet.IsMartialArtist ? 81 : 1),
                         MapId = 1,
-                        MapX = (short) RandomFactory.Instance.RandomNumber(78, 81),
-                        MapY = (short) RandomFactory.Instance.RandomNumber(114, 118),
+                        MapX = (short)RandomFactory.Instance.RandomNumber(78, 81),
+                        MapY = (short)RandomFactory.Instance.RandomNumber(114, 118),
                         Mp = packet.IsMartialArtist ? 2369 : 221,
                         MaxMateCount = 10,
                         SpPoint = 10000,
@@ -102,24 +104,24 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         WelcomeMusicInfo = "Spring^Melody"
                     };
                     _minilandDao.InsertOrUpdate(ref miniland);
-                    return clientSession.HandlePacketsAsync(new[] {new SelectPacket {Slot = chara.Slot}});
+                    await clientSession.SendPacketAsync(new SuccessPacket()).ConfigureAwait(false);
+                    await clientSession.HandlePacketsAsync(new[] { new EntryPointPacket() }).ConfigureAwait(false);
                 }
                 else
                 {
-                    clientSession.SendPacketAsync(new InfoPacket
+                    await clientSession.SendPacketAsync(new InfoPacket
                     {
                         Message = clientSession.GetMessageFromKey(LanguageKey.ALREADY_TAKEN)
-                    });
+                    }).ConfigureAwait(false);
                 }
             }
             else
             {
-                clientSession.SendPacketAsync(new InfoPacket
+                await clientSession.SendPacketAsync(new InfoPacket
                 {
                     Message = clientSession.GetMessageFromKey(LanguageKey.INVALID_CHARNAME)
-                });
+                }).ConfigureAwait(false);
             }
-            return Task.CompletedTask;
         }
     }
 }

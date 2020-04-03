@@ -41,17 +41,7 @@ namespace NosCore.Data.Dto
 
 	 	public short QuestId { get; set; }
 
-	 	public int FirstObjective { get; set; }
-
-	 	public int SecondObjective { get; set; }
-
-	 	public int ThirdObjective { get; set; }
-
-	 	public int FourthObjective { get; set; }
-
-	 	public int FifthObjective { get; set; }
-
-	 	public bool IsMainQuest { get; set; }
+	 	public System.DateTime? CompletedOn { get; set; }
 
 	 	[Key]
 		public System.Guid Id { get; set; }

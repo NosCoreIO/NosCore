@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NosCore.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -9,9 +10,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    partial class NosCoreContextModelSnapshot : ModelSnapshot
+    [Migration("20200402063615_Aphrodite2")]
+    partial class Aphrodite2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -317,7 +319,7 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("Compliment")
                         .HasColumnType("smallint");
 
-                    b.Property<Guid?>("CurrentScriptId")
+                    b.Property<Guid>("CurrentScriptId")
                         .HasColumnType("uuid");
 
                     b.Property<float>("Dignity")
@@ -491,9 +493,6 @@ namespace NosCore.Database.Migrations
 
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("CompletedOn")
-                        .HasColumnType("timestamp without time zone");
 
                     b.Property<short>("QuestId")
                         .HasColumnType("smallint");
@@ -2941,7 +2940,8 @@ namespace NosCore.Database.Migrations
                     b.HasOne("NosCore.Database.Entities.Script", "Script")
                         .WithMany("Characters")
                         .HasForeignKey("CurrentScriptId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("NosCore.Database.Entities.Map", "Map")
                         .WithMany("Character")

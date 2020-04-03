@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 await requestData.ClientSession.Character.SendPacketAsync(new SayPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_USE,
-                        requestData.ClientSession.Character.Account.Language),
+                        requestData.ClientSession.Account.Language),
                     Type = SayColorType.Yellow
                 }).ConfigureAwait(false);
                 return;
@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 await requestData.ClientSession.Character.SendPacketAsync(new SayPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_USE_IN_VEHICLE,
-                        requestData.ClientSession.Character.Account.Language),
+                        requestData.ClientSession.Account.Language),
                     Type = SayColorType.Yellow
                 }).ConfigureAwait(false);
                 return;

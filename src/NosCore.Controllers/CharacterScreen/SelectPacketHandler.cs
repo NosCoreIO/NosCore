@@ -18,6 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -27,6 +29,7 @@ using NosCore.Core;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
@@ -47,12 +50,17 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IGenericDao<QuicklistEntryDto> _quickListEntriesDao;
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
         private readonly IGenericDao<TitleDto> _titleDao;
+        private readonly IGenericDao<CharacterQuestDto> _characterQuestDao;
+        private readonly IGenericDao<ScriptDto> _scriptDao;
+        private readonly List<QuestObjectiveDto> _questObjectives;
+        private readonly List<QuestDto> _quests;
 
         public SelectPacketHandler(IGenericDao<CharacterDto> characterDao, ILogger logger,
             IItemProvider itemProvider,
             IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao,
             IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao,
-            IGenericDao<QuicklistEntryDto> quickListEntriesDao, IGenericDao<TitleDto> titleDao)
+            IGenericDao<QuicklistEntryDto> quickListEntriesDao, IGenericDao<TitleDto> titleDao, IGenericDao<CharacterQuestDto> characterQuestDao,
+            IGenericDao<ScriptDto> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives)
         {
             _characterDao = characterDao;
             _logger = logger;
@@ -63,6 +71,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _staticBonusDao = staticBonusDao;
             _quickListEntriesDao = quickListEntriesDao;
             _titleDao = titleDao;
+            _characterQuestDao = characterQuestDao;
+            _scriptDao = scriptDao;
+            _quests = quests;
+            _questObjectives = questObjectives;
         }
 
         public override Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -84,13 +96,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
 
                 var character = characterDto.Adapt<Character>();
-                
+
                 character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId(character.MapId);
                 character.MapInstance = _mapInstanceProvider.GetMapInstance(character.MapInstanceId)!;
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Direction = 2;
-                character.Account = clientSession.Account;
+                character.Script = character.CurrentScriptId != null ? _scriptDao.FirstOrDefault(s => s.Id == character.CurrentScriptId) : null;
                 character.Group!.JoinGroup(character);
 
                 var inventories = _inventoryItemInstanceDao
@@ -109,14 +121,23 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 clientSession.SendPacketAsync(clientSession.Character.GenerateMlobjlst());
                 if (clientSession.Character.Hp > clientSession.Character.HpLoad())
                 {
-                    clientSession.Character.Hp = (int) clientSession.Character.HpLoad();
+                    clientSession.Character.Hp = (int)clientSession.Character.HpLoad();
                 }
 
                 if (clientSession.Character.Mp > clientSession.Character.MpLoad())
                 {
-                    clientSession.Character.Mp = (int) clientSession.Character.MpLoad();
+                    clientSession.Character.Mp = (int)clientSession.Character.MpLoad();
                 }
 
+                clientSession.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(_characterQuestDao
+                    .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToDictionary(x => x.Id, x =>
+                    {
+                        var charquest = x.Adapt<CharacterQuest>();
+                        charquest.Quest = _quests.First(s => s.QuestId == charquest.QuestId).Adapt<GameObject.Quest>();
+                        charquest.Quest.QuestObjectives =
+                            _questObjectives.Where(s => s.QuestId == charquest.QuestId).ToList();
+                        return charquest;
+                    }));
                 clientSession.Character.QuicklistEntries = _quickListEntriesDao
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
                 clientSession.Character.StaticBonusList = _staticBonusDao

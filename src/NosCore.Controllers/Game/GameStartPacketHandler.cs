@@ -35,8 +35,10 @@ using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Threading;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.GameObject.Providers.QuestProvider;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -50,12 +52,13 @@ namespace NosCore.PacketHandlers.Game
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly IQuestProvider _questProvider;
 
         public GameStartPacketHandler(WorldConfiguration worldConfiguration, IFriendHttpClient friendHttpClient,
             IChannelHttpClient channelHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient,
             IPacketHttpClient packetHttpClient,
-            ISerializer packetSerializer, IMailHttpClient mailHttpClient)
+            ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestProvider questProvider)
         {
             _worldConfiguration = worldConfiguration;
             _packetSerializer = packetSerializer;
@@ -65,6 +68,7 @@ namespace NosCore.PacketHandlers.Game
             _friendHttpClient = friendHttpClient;
             _packetHttpClient = packetHttpClient;
             _mailHttpClient = mailHttpClient;
+            _questProvider = questProvider;
         }
 
         public override async Task ExecuteAsync(GameStartPacket packet, ClientSession session)
@@ -77,9 +81,9 @@ namespace NosCore.PacketHandlers.Game
 
             session.GameStarted = true;
 
-            if (_worldConfiguration.SceneOnCreate && packet.KeepAliveId == null)
+            if (session.Character.CurrentScriptId == null)
             {
-                await session.SendPacketAsync(new ScenePacket {SceneId = 40}).ConfigureAwait(false);
+                _questProvider.RunScriptAsync(session.Character).Forget();
             }
 
             if (_worldConfiguration.WorldInformation)
@@ -211,7 +215,7 @@ namespace NosCore.PacketHandlers.Game
             await session.Character.GenerateMailAsync(mails).ConfigureAwait(false);
 
             await session.SendPacketAsync(session.Character.GenerateTitle()).ConfigureAwait(false);
-            int giftcount = mails.Select(s=>s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId != null && !mail.IsOpened);
+            int giftcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId != null && !mail.IsOpened);
             int mailcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId == null && !mail.IsOpened);
             if (giftcount > 0)
             {

@@ -32,6 +32,8 @@ namespace NosCore.Database
         
         public virtual DbSet<AuditLog>? AuditLog { get; set; }
 
+        public virtual DbSet<Script>? Script { get; set; }
+
         public virtual DbSet<BazaarItem>? BazaarItem { get; set; }
 
         public virtual DbSet<Card>? Card { get; set; }
@@ -171,6 +173,10 @@ namespace NosCore.Database
                 .HasIndex(e => new {e.Name})
                 .IsUnique();
 
+            modelBuilder.Entity<Script>()
+                .HasIndex(e => new { e.ScriptId, e.ScriptStepId })
+                .IsUnique();
+
             modelBuilder.Entity<I18NActDesc>()
                 .HasIndex(e => new {e.Key, e.RegionType})
                 .IsUnique();
@@ -290,6 +296,12 @@ namespace NosCore.Database
                 .HasMany(e => e.CharacterRelation2)
                 .WithOne(e => e.Character2)
                 .HasForeignKey(e => e.RelatedCharacterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Character>()
+                .HasOne(e => e.Script)
+                .WithMany(e => e!.Characters)
+                .HasForeignKey(e => e.CurrentScriptId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Character>()
