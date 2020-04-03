@@ -216,7 +216,7 @@ namespace NosCore.GameObject.Providers.QuestProvider
                     return false;
                 }
 
-                if (characterQuest.Value.Quest.IsDaily && (characterQuest.Value.CompletedOn?.AddDays(1) > DateTime.Now))
+                if (quest.IsDaily && (characterQuest.Value?.CompletedOn?.AddDays(1) > DateTime.Now))
                 {
                     await character.SendPacketAsync(new MsgPacket
                     {
