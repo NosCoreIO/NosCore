@@ -66,7 +66,6 @@ namespace NosCore.Parser.Parsers.Generic
                     {
                         try
                         {
-                            var test = _actionList[actionOnKey].DynamicInvoke();
                             _typeAccessor[parsedItem, actionOnKey] = _actionList[actionOnKey].Invoke(lines);
                         }
                         catch (Exception ex)
