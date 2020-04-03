@@ -33,9 +33,7 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class FamilyLogDto : IDto
 	{
-		public FamilyDto Family { get; set; }
-
-	 	public long FamilyId { get; set; }
+		public long FamilyId { get; set; }
 
 	 	#nullable enable
 		public string? FamilyLogData { get; set; } = "";

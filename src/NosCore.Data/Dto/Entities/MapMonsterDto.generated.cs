@@ -38,8 +38,6 @@ namespace NosCore.Data.Dto
 
 	 	public bool IsMoving { get; set; }
 
-	 	public MapDto Map { get; set; }
-
 	 	public short MapId { get; set; }
 
 	 	[Key]
@@ -50,8 +48,6 @@ namespace NosCore.Data.Dto
 	 	public short MapY { get; set; }
 
 	 	public short VNum { get; set; }
-
-	 	public NpcMonsterDto NpcMonster { get; set; }
 
 	 	public byte Direction { get; set; }
 

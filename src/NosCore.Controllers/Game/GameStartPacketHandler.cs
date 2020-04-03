@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Game
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly WorldConfiguration _worldConfiguration;
-        private IQuestProvider _questProvider;
+        private readonly IQuestProvider _questProvider;
 
         public GameStartPacketHandler(WorldConfiguration worldConfiguration, IFriendHttpClient friendHttpClient,
             IChannelHttpClient channelHttpClient,

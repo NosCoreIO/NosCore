@@ -43,11 +43,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short CastTime { get; set; }
 
-	 	public System.Collections.Generic.ICollection<CharacterSkillDto> CharacterSkill { get; set; }
-
 	 	public byte Class { get; set; }
-
-	 	public System.Collections.Generic.ICollection<ComboDto> Combo { get; set; }
 
 	 	public short Cooldown { get; set; }
 
@@ -82,13 +78,9 @@ namespace NosCore.Data.StaticEntities
 		[AdaptMember("Name")]
 		public string NameI18NKey { get; set; }
 
-	 	public System.Collections.Generic.ICollection<NpcMonsterSkillDto> NpcMonsterSkill { get; set; }
-
 	 	public int Price { get; set; }
 
 	 	public byte Range { get; set; }
-
-	 	public System.Collections.Generic.ICollection<ShopSkillDto> ShopSkill { get; set; }
 
 	 	public byte SkillType { get; set; }
 
@@ -104,8 +96,6 @@ namespace NosCore.Data.StaticEntities
 	 	public short UpgradeSkill { get; set; }
 
 	 	public short UpgradeType { get; set; }
-
-	 	public System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
 
 	 }
 }

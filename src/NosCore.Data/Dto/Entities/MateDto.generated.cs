@@ -37,8 +37,6 @@ namespace NosCore.Data.Dto
 
 	 	public bool CanPickUp { get; set; }
 
-	 	public CharacterDto Character { get; set; }
-
 	 	public long CharacterId { get; set; }
 
 	 	public byte Defence { get; set; }
@@ -71,8 +69,6 @@ namespace NosCore.Data.Dto
 	 	#nullable enable
 		public string? Name { get; set; } = "";
 		#nullable disable
-	 	public NpcMonsterDto NpcMonster { get; set; }
-
 	 	public short VNum { get; set; }
 
 	 	public short Skin { get; set; }

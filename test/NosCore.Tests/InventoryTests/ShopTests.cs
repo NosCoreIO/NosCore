@@ -285,7 +285,7 @@ namespace NosCore.Tests.InventoryTests
                 State = CharacterState.Active
             });
             var mapinstance = _instanceProvider!.GetBaseMapById(0);
-            session2.Character.Account = account;
+            session2.Account = account;
             session2.Character.MapInstance = _instanceProvider.GetBaseMapById(0);
             session2.Character.MapInstance = mapinstance;
 

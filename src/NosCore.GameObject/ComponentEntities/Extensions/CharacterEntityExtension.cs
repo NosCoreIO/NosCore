@@ -42,6 +42,7 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
+using NosCore.Packets.ServerPackets.Quest;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -170,11 +171,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             IPacketHttpClient packetHttpClient, ISerializer packetSerializer, bool isConnected)
         {
             var friendlist = await friendHttpClient.GetListFriendsAsync(visualEntity.VisualId).ConfigureAwait(false);
-           await Task.WhenAll(friendlist.Select(friend =>
-               packetHttpClient.BroadcastPacketAsync(new PostedPacket
-               {
-                   Packet = packetSerializer.Serialize(new[]
-                   {
+            await Task.WhenAll(friendlist.Select(friend =>
+                packetHttpClient.BroadcastPacketAsync(new PostedPacket
+                {
+                    Packet = packetSerializer.Serialize(new[]
+                    {
                        new FinfoPacket
                        {
                            FriendList = new List<FinfoSubPackets?>
@@ -186,15 +187,15 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                                }
                            }
                        }
-                   }),
-                   ReceiverType = ReceiverType.OnlySomeone,
-                   SenderCharacter = new Data.WebApi.Character { Id = visualEntity.VisualId, Name = visualEntity.Name! },
-                   ReceiverCharacter = new Data.WebApi.Character
-                   {
-                       Id = friend.CharacterId,
-                       Name = friend.CharacterName!
-                   }
-               }))).ConfigureAwait(false);
+                    }),
+                    ReceiverType = ReceiverType.OnlySomeone,
+                    SenderCharacter = new Data.WebApi.Character { Id = visualEntity.VisualId, Name = visualEntity.Name! },
+                    ReceiverCharacter = new Data.WebApi.Character
+                    {
+                        Id = friend.CharacterId,
+                        Name = friend.CharacterName!
+                    }
+                }))).ConfigureAwait(false);
         }
 
         public static ServerGetPacket GenerateGet(this ICharacterEntity visualEntity, long itemId)
@@ -207,10 +208,41 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        //public static QstListPacket GenerateQuestPacket(this ICharacterEntity visualEntity)
-        //{
+        public static QstlistPacket GenerateQuestPacket(this ICharacterEntity visualEntity)
+        {
+            var list = new QstlistPacket()
+            {
+                QstiPackets = new List<QstiPacket>()
+            };
 
-        //}
+       
+            foreach (var quest in visualEntity.Quests.Values)
+            {
+                var objectives = new List<QuestObjectiveSubPacket>();
+                var questCount = 0;
+                //foreach (var objective in quest.Quest.QuestObjective)
+                //{
+                //    objectives.Add(new QuestObjectiveSubPacket()
+                //    {
+                //        CurrentCount = 0,
+                //        MaxCount = 5,
+                //        IsFinished = questCount == 0 ? false : (bool?)null
+                //    });
+                //    questCount++;
+                //}
+                //list.QstiPackets.Add(new QstiPacket
+                //{
+                //    QuestId = quest.QuestId,
+                //    InfoId = quest.QuestId,
+                //    GoalType = quest.Quest.QuestType,
+                //    ObjectiveCount = 5,
+                //    ShowDialog = true,
+                //    QuestObjectiveSubPackets = objectives
+                //});
+            }
+
+            return list;
+        }
 
         public static IconPacket GenerateIcon(this ICharacterEntity visualEntity, byte iconType, short iconParameter)
         {

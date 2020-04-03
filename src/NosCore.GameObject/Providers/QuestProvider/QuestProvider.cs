@@ -30,6 +30,7 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Quest;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Quest;
@@ -168,79 +169,79 @@ namespace NosCore.GameObject.Providers.QuestProvider
 
         public async Task<bool> AddQuestAsync(ICharacterEntity character, short questId)
         {
-            var characterQuest = character.Quests.OrderByDescending(s => s.Value.CompletedOn).FirstOrDefault(s => s.Value.QuestId == questId);
-            if (!characterQuest.Equals(new KeyValuePair<Guid, CharacterQuestDto>()) &&
-                !characterQuest.Value.Quest.IsDaily)
-            {
-                return false;
-            }
+            //var characterQuest = character.Quests.OrderByDescending(s => s.Value.CompletedOn).FirstOrDefault(s => s.Value.QuestId == questId);
+            //if (!characterQuest.Equals(new KeyValuePair<Guid, CharacterQuestDto>()) &&
+            //    !characterQuest.Value.Quest.IsDaily)
+            //{
+            //    return false;
+            //}
 
-            {
-                var quest = _quests.FirstOrDefault(s => s.QuestId == questId);
-                if (quest == null)
-                {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUEST_NOT_FOUND));
-                    return true;
-                }
+            //{
+            //    var quest = _quests.FirstOrDefault(s => s.QuestId == questId);
+            //    if (quest == null)
+            //    {
+            //        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUEST_NOT_FOUND));
+            //        return true;
+            //    }
 
-                if (character.Quests.Any(q => !q.Value.Quest.IsSecondary) ||
-                    (character.Quests.Where(q => q.Value.Quest.QuestType != QuestType.WinRaid).ToList().Count >= 5 &&
-                        quest.QuestType != QuestType.WinRaid))
-                {
-                    return false;
-                }
+            //    if (character.Quests.Any(q => !q.Value.Quest.IsSecondary) ||
+            //        (character.Quests.Where(q => q.Value.Quest.QuestType != QuestType.WinRaid).ToList().Count >= 5 &&
+            //            quest.QuestType != QuestType.WinRaid))
+            //    {
+            //        return false;
+            //    }
 
-                if (quest.LevelMin > character.Level)
-                {
-                    await character.SendPacketAsync(new MsgPacket
-                    {
-                        Type = MessageType.Whisper,
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL, character.AccountLanguage)
-                    }).ConfigureAwait(false);
-                    return false;
-                }
+            //    if (quest.LevelMin > character.Level)
+            //    {
+            //        await character.SendPacketAsync(new MsgPacket
+            //        {
+            //            Type = MessageType.Whisper,
+            //            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL, character.AccountLanguage)
+            //        }).ConfigureAwait(false);
+            //        return false;
+            //    }
 
-                if (quest.LevelMax < character.Level)
-                {
-                    await character.SendPacketAsync(new MsgPacket
-                    {
-                        Type = MessageType.Whisper,
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_HIGH_LEVEL, character.AccountLanguage)
-                    }).ConfigureAwait(false);
-                    return false;
-                }
+            //    if (quest.LevelMax < character.Level)
+            //    {
+            //        await character.SendPacketAsync(new MsgPacket
+            //        {
+            //            Type = MessageType.Whisper,
+            //            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_HIGH_LEVEL, character.AccountLanguage)
+            //        }).ConfigureAwait(false);
+            //        return false;
+            //    }
 
-                if (characterQuest.Value.Quest.IsDaily && (characterQuest.Value.CompletedOn?.AddDays(1) > DateTime.Now))
-                {
-                    await character.SendPacketAsync(new MsgPacket
-                    {
-                        Type = MessageType.Whisper,
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.QUEST_ALREADY_DONE, character.AccountLanguage)
-                    }).ConfigureAwait(false);
-                    return false;
-                }
+            //    if (characterQuest.Value.Quest.IsDaily && (characterQuest.Value.CompletedOn?.AddDays(1) > DateTime.Now))
+            //    {
+            //        await character.SendPacketAsync(new MsgPacket
+            //        {
+            //            Type = MessageType.Whisper,
+            //            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.QUEST_ALREADY_DONE, character.AccountLanguage)
+            //        }).ConfigureAwait(false);
+            //        return false;
+            //    }
 
-                if (quest.TargetMap == character.MapId)
-                {
-                    await character.SendPacketAsync(new TargetPacket
-                    {
-                        QuestId = quest.QuestId, TargetMap = quest.TargetMap ?? 0, TargetX = quest.TargetX ?? 0,
-                        TargetY = quest.TargetY ?? 0
-                    }).ConfigureAwait(false);
-                }
+            //    if (quest.TargetMap == character.MapId)
+            //    {
+            //        await character.SendPacketAsync(new TargetPacket
+            //        {
+            //            QuestId = quest.QuestId, TargetMap = quest.TargetMap ?? 0, TargetX = quest.TargetX ?? 0,
+            //            TargetY = quest.TargetY ?? 0
+            //        }).ConfigureAwait(false);
+            //    }
 
-                character.Quests.TryAdd(Guid.NewGuid(), new CharacterQuestDto
-                {
-                    CharacterId = character.VisualId,
-                    Id = Guid.NewGuid(),
-                    Quest = quest,
-                    QuestId = quest.QuestId
-                });
-                //await character.SendPacketAsync(character.GenerateQuestPacket()).ConfigureAwait(false);
+            //    character.Quests.TryAdd(Guid.NewGuid(), new CharacterQuestDto
+            //    {
+            //        CharacterId = character.VisualId,
+            //        Id = Guid.NewGuid(),
+            //        Quest = quest,
+            //        QuestId = quest.QuestId
+            //    });
+            //    await character.SendPacketAsync(character.GenerateQuestPacket()).ConfigureAwait(false);
 
-                return true;
-            }
-
+            //    return true;
+            //}
+            return false;
         }
 
         public Task ValidateQuest(ClientSession clientSession, Guid characterQuestId)

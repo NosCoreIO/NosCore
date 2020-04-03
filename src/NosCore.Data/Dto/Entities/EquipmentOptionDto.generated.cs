@@ -40,8 +40,6 @@ namespace NosCore.Data.Dto
 
 	 	public int Value { get; set; }
 
-	 	public WearableInstanceDto WearableInstance { get; set; }
-
 	 	public System.Guid WearableInstanceId { get; set; }
 
 	 	[Key]

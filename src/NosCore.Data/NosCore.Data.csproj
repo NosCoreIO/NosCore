@@ -40,7 +40,7 @@
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
     <PackageReference Include="Mapster" Version="5.2.0" />
     <PackageReference Include="Mapster.JsonNet" Version="1.0.1" />
-    <PackageReference Include="NosCore.Packets" Version="0.20.4" />
+    <PackageReference Include="NosCore.Packets" Version="0.21.0" />
   </ItemGroup>
 
   <ItemGroup>

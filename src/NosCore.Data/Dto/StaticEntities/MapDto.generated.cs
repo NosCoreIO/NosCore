@@ -34,18 +34,10 @@ namespace NosCore.Data.StaticEntities
 	[StaticMetaData(LoadedMessage = LogLanguageKey.MAPS_LOADED,EmptyMessage = LogLanguageKey.NO_MAP)]
 	public class MapDto : IStaticDto
 	{
-		public System.Collections.Generic.ICollection<CharacterDto> Character { get; set; }
-
-	 	public byte[] Data { get; set; }
+		public byte[] Data { get; set; }
 
 	 	[Key]
 		public short MapId { get; set; }
-
-	 	public System.Collections.Generic.ICollection<MapMonsterDto> MapMonster { get; set; }
-
-	 	public System.Collections.Generic.ICollection<MapNpcDto> MapNpc { get; set; }
-
-	 	public System.Collections.Generic.ICollection<MapTypeMapDto> MapTypeMap { get; set; }
 
 	 	public int Music { get; set; }
 
@@ -54,19 +46,7 @@ namespace NosCore.Data.StaticEntities
 		[AdaptMember("Name")]
 		public string NameI18NKey { get; set; }
 
-	 	public System.Collections.Generic.ICollection<PortalDto> Portal { get; set; }
-
-	 	public System.Collections.Generic.ICollection<PortalDto> Portal1 { get; set; }
-
-	 	public System.Collections.Generic.ICollection<RespawnDto> Respawn { get; set; }
-
-	 	public System.Collections.Generic.ICollection<RespawnMapTypeDto> RespawnMapType { get; set; }
-
-	 	public System.Collections.Generic.ICollection<ScriptedInstanceDto> ScriptedInstance { get; set; }
-
 	 	public bool ShopAllowed { get; set; }
-
-	 	public System.Collections.Generic.ICollection<TeleporterDto> Teleporter { get; set; }
 
 	 }
 }
