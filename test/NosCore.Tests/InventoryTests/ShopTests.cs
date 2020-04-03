@@ -275,7 +275,7 @@ namespace NosCore.Tests.InventoryTests
             session2.SessionId = 1;
 
             session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object,
-                new Mock<IGenericDao<CharacterDto>>().Object, new Mock<IGenericDao<IItemInstanceDto>>().Object, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, new Mock<IGenericDao<AccountDto>>().Object, Logger, new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object)
+                new Mock<IGenericDao<CharacterDto>>().Object, new Mock<IGenericDao<IItemInstanceDto>>().Object, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, new Mock<IGenericDao<AccountDto>>().Object, Logger, new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object, new Mock<IGenericDao<CharacterQuestDto>>().Object)
             {
                 CharacterId = 1,
                 Name = "chara2",
@@ -285,7 +285,7 @@ namespace NosCore.Tests.InventoryTests
                 State = CharacterState.Active
             });
             var mapinstance = _instanceProvider!.GetBaseMapById(0);
-            session2.Character.Account = account;
+            session2.Account = account;
             session2.Character.MapInstance = _instanceProvider.GetBaseMapById(0);
             session2.Character.MapInstance = mapinstance;
 

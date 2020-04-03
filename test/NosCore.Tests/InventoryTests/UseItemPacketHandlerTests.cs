@@ -106,7 +106,7 @@ namespace NosCore.Tests.InventoryTests
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((_session.Character.SpAdditionPoint == _session.WorldConfiguration.MaxAdditionalSpPoints) &&
                 (packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
-                    _session.Character.Account.Language)));
+                    _session.Account.Language)));
         }
 
         [TestMethod]

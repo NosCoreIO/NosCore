@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Packets.Enumerations;
@@ -60,6 +61,9 @@ namespace NosCore.Database.Entities
         public int Act4Points { get; set; }
 
         public int ArenaWinner { get; set; }
+
+        public Guid? CurrentScriptId { get; set; }
+        public virtual Script? Script { get; set; }
 
         public virtual ICollection<BazaarItem> BazaarItem { get; set; }
 

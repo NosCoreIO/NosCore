@@ -27,7 +27,7 @@ namespace NosCore.Parser.Parsers.Generic
             _fileAddress = fileAddress;
             _endPattern = endPattern;
             _firstIndex = firstIndex;
-            _typeAccessor = TypeAccessor.Create(typeof(T));
+            _typeAccessor = TypeAccessor.Create(typeof(T), true);
             _actionList = actionList;
             _logger = logger;
         }

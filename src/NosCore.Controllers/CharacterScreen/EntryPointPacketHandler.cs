@@ -134,12 +134,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     await clientSession.DisconnectAsync().ConfigureAwait(false);
                     return;
                 }
+
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
+                    clientSession.Account!.Name);
             }
 
             var characters = _characterDao.Where(s =>
                 (s.AccountId == clientSession.Account!.AccountId) && (s.State == CharacterState.Active));
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
-                clientSession.Account!.Name);
 
             // load characterlist packet for each character in Character
             await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 }).ConfigureAwait(false);
@@ -204,7 +205,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     Pets = petlist,
                     Design = equipment[(byte)EquipmentType.Hat]?.Item?.IsColored ?? false
                         ? equipment[(byte)EquipmentType.Hat]?.Design ?? 0 : 0,
-                    Unknown3 = 0
+                    Rename = false
                 }).ConfigureAwait(false);
             }
 

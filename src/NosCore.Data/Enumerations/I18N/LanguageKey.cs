@@ -152,7 +152,10 @@ namespace NosCore.Data.Enumerations.I18N
         QUEST_PRIZES_PARSED,
         QUESTS_PARSED,
         ACTS_PARTS_PARSED,
-        PLATFORM_UNSUPORTED_CONSOLE_TITLE
+        PLATFORM_UNSUPORTED_CONSOLE_TITLE,
+        SCRIPTS_PARSED,
+        PARSE_SCRIPTS,
+        QUEST_NOT_FOUND
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -308,6 +311,8 @@ namespace NosCore.Data.Enumerations.I18N
         GIFTED,
         NEW_MAIL,
         DELAY_GROUP_REQUEST,
-        SPEAKER
+        SPEAKER,
+        TOO_HIGH_LEVEL,
+        QUEST_ALREADY_DONE
     }
 }

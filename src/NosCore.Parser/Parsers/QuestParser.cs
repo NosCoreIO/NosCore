@@ -25,6 +25,7 @@ using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Enumerations;
 using NosCore.Parser.Parsers.Generic;
 using Serilog;
 
@@ -56,7 +57,7 @@ namespace NosCore.Parser.Parsers
         private readonly IGenericDao<QuestRewardDto> _questRewardDao;
         private Dictionary<short, QuestRewardDto>? _questRewards;
 
-        public QuestParser(IGenericDao<QuestDto> questDao, IGenericDao<QuestObjectiveDto> questObjectiveDao, 
+        public QuestParser(IGenericDao<QuestDto> questDao, IGenericDao<QuestObjectiveDto> questObjectiveDao,
             IGenericDao<QuestRewardDto> questRewardDao, IGenericDao<QuestQuestRewardDto> questQuestRewardDao, ILogger logger)
         {
             _logger = logger;
@@ -73,7 +74,7 @@ namespace NosCore.Parser.Parsers
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
                 {nameof(QuestDto.QuestId), chunk => Convert.ToInt16(chunk["VNUM"][0][1])},
-                {nameof(QuestDto.QuestType), chunk => Convert.ToInt32(chunk["VNUM"][0][2])},
+                {nameof(QuestDto.QuestType), chunk => (QuestType)Enum.Parse(typeof(QuestType), chunk["VNUM"][0][2])},
                 {nameof(QuestDto.AutoFinish), chunk => chunk["VNUM"][0][3] == "1"},
                 {nameof(QuestDto.IsDaily), chunk => chunk["VNUM"][0][4] == "-1"},
                 {nameof(QuestDto.RequiredQuestId), chunk => chunk["VNUM"][0][5] != "-1" ? short.Parse(chunk["VNUM"][0][5]) : (short?)null },

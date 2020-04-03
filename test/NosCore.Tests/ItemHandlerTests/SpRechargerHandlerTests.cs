@@ -63,7 +63,7 @@ namespace NosCore.Tests.ItemHandlerTests
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (MsgPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL, Session.Character.Account.Language), lastpacket?.Message);
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL, Session.Account.Language), lastpacket?.Message);
             Assert.AreEqual(1, Session.Character.SpAdditionPoint);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }

@@ -278,7 +278,8 @@ namespace NosCore.Tests.Helpers
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
                         ConnectedAccountHttpClient.Object),
                     new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemProvider>().Object, MapInstanceProvider,
-                        _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<TitleDto>>().Object),
+                        _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<TitleDto>>().Object, new Mock<IGenericDao<CharacterQuestDto>>().Object,
+                        new Mock<IGenericDao<ScriptDto>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>()),
                     new CSkillPacketHandler(),
                     new CBuyPacketHandler(new Mock<IBazaarHttpClient>().Object, new Mock<IItemProvider>().Object, _logger, _itemInstanceDao),
                     new CRegPacketHandler(WorldConfiguration,new Mock<IBazaarHttpClient>().Object,_itemInstanceDao, _inventoryItemInstanceDao ),
@@ -294,7 +295,7 @@ namespace NosCore.Tests.Helpers
 
             var chara = new GameObject.Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
                 new ExchangeProvider(new Mock<IItemProvider>().Object, WorldConfiguration, _logger), new Mock<IItemProvider>().Object, CharacterDao, new Mock<IGenericDao<IItemInstanceDto>>().Object, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, AccountDao,
-                _logger, new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, minilandProvider.Object, new Mock<IGenericDao<TitleDto>>().Object)
+                _logger, new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, minilandProvider.Object, new Mock<IGenericDao<TitleDto>>().Object, new Mock<IGenericDao<CharacterQuestDto>>().Object)
             {
                 CharacterId = _lastId,
                 Name = "TestExistingCharacter" + _lastId,
@@ -312,7 +313,7 @@ namespace NosCore.Tests.Helpers
             session.InitializeAccount(acc);
             session.SetCharacter(chara);
             session.Character.MapInstance = MapInstanceProvider.GetBaseMapById(0);
-            session.Character.Account = acc;
+            session.Account = acc;
             session.RegisterChannel(new Mock<IChannel>().Object);
             Broadcaster.Instance.RegisterSession(session);
             return session;
