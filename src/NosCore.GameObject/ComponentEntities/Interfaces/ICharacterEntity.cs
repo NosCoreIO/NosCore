@@ -85,7 +85,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         bool IsDisconnecting { get; }
         ScriptDto? Script { get; set; }
         Guid? CurrentScriptId { get; set; }
-        ConcurrentDictionary<Guid, CharacterQuestDto> Quests { get; set; }
+        ConcurrentDictionary<Guid, CharacterQuest> Quests { get; set; }
 
         Task GenerateMailAsync(IEnumerable<MailData> data);
 

@@ -119,7 +119,7 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        public new Shop? Shop { get; private set; }
+        public Shop? Shop { get; private set; }
 
         public Subject<RequestData>? Requests { get; set; }
 

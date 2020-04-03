@@ -33,7 +33,9 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class StaticBonusDto : IDto
 	{
-		public long CharacterId { get; set; }
+		internal CharacterDto Character { get; set; }
+
+	 	public long CharacterId { get; set; }
 
 	 	public System.DateTime? DateEnd { get; set; }
 

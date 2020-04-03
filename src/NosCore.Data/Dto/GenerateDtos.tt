@@ -126,14 +126,12 @@ namespace <#= classNamespace #>
 	#nullable enable
 	<#
 				     }
-				     if (!isDto)//this disable dtos inheritance
-				     {
 #>
-	public <#=
+	<#= isDto ? "internal":"public" #> <#=
 				                 isDto ? ConvertToDtoName(prop.Type.AsString) : prop.Type.AsString #><#= isNullable ? "?" : "" #> <#= prop.Name #> { get; set; }<#= declaration #>
 <#= isNullable ? "		#nullable disable" : "" #>
 	 <#
-				     }
+				     
 				 }
 			}
 #>

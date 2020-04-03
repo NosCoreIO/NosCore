@@ -33,7 +33,11 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class CharacterRelationDto : IDto
 	{
-		public long CharacterId { get; set; }
+		internal CharacterDto Character1 { get; set; }
+
+	 	internal CharacterDto Character2 { get; set; }
+
+	 	public long CharacterId { get; set; }
 
 	 	[Key]
 		public System.Guid CharacterRelationId { get; set; }

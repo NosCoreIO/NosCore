@@ -279,7 +279,7 @@ namespace NosCore.Tests.Helpers
                         ConnectedAccountHttpClient.Object),
                     new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemProvider>().Object, MapInstanceProvider,
                         _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<TitleDto>>().Object, new Mock<IGenericDao<CharacterQuestDto>>().Object,
-                        new Mock<IGenericDao<ScriptDto>>().Object),
+                        new Mock<IGenericDao<ScriptDto>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>()),
                     new CSkillPacketHandler(),
                     new CBuyPacketHandler(new Mock<IBazaarHttpClient>().Object, new Mock<IItemProvider>().Object, _logger, _itemInstanceDao),
                     new CRegPacketHandler(WorldConfiguration,new Mock<IBazaarHttpClient>().Object,_itemInstanceDao, _inventoryItemInstanceDao ),

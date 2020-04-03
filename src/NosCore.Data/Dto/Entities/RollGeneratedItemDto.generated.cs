@@ -38,6 +38,8 @@ namespace NosCore.Data.Dto
 
 	 	public short OriginalItemDesign { get; set; }
 
+	 	internal ItemDto OriginalItem { get; set; }
+
 	 	public short OriginalItemVNum { get; set; }
 
 	 	public short Probability { get; set; }
@@ -53,6 +55,8 @@ namespace NosCore.Data.Dto
 	 	public short MinimumOriginalItemRare { get; set; }
 
 	 	public short MaximumOriginalItemRare { get; set; }
+
+	 	internal ItemDto ItemGenerated { get; set; }
 
 	 	public bool IsSuperReward { get; set; }
 

@@ -35,7 +35,11 @@ namespace NosCore.Data.Dto
 	{
 		public short Amount { get; set; }
 
+	 	internal ItemDto Item { get; set; }
+
 	 	public short ItemVNum { get; set; }
+
+	 	internal RecipeDto Recipe { get; set; }
 
 	 	public short RecipeId { get; set; }
 

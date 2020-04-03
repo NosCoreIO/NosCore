@@ -33,7 +33,9 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class ScriptedInstanceDto : IDto
 	{
-		public short MapId { get; set; }
+		internal MapDto Map { get; set; }
+
+	 	public short MapId { get; set; }
 
 	 	public short PositionX { get; set; }
 

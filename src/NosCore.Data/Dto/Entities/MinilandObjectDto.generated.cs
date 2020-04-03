@@ -33,7 +33,9 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class MinilandObjectDto : IDto
 	{
-		public System.Guid? InventoryItemInstanceId { get; set; }
+		internal InventoryItemInstanceDto InventoryItemInstance { get; set; }
+
+	 	public System.Guid? InventoryItemInstanceId { get; set; }
 
 	 	public byte Level1BoxAmount { get; set; }
 

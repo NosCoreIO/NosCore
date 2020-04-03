@@ -22,11 +22,42 @@ using System.Collections.Generic;
 using NosCore.Data.Dto;
 using NosCore.Packets.ServerPackets.Portals;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.ServerPackets.Quest;
 
 namespace NosCore.GameObject
 {
     public class CharacterQuest : CharacterQuestDto
     {
-        //List<QuestObjectiveDto> 
+        public Quest Quest { get; set; } = null!;
+
+        public QstiPacket GenerateQstiPacket(bool showDialog)
+        {
+            var objectives = new List<QuestObjectiveSubPacket>();
+            var questCount = 0;
+            foreach (var objective in Quest.QuestObjectives)
+            {
+                objectives.Add(new QuestObjectiveSubPacket()
+                {
+                    CurrentCount = 0,
+                    MaxCount = 5,
+                    IsFinished = questCount == 0 ? false : (bool?)null
+                });
+                questCount++;
+            }
+            return new QstiPacket
+            {
+                QuestId = QuestId,
+                InfoId = QuestId,
+                GoalType = Quest.QuestType,
+                ObjectiveCount = 5,
+                ShowDialog = showDialog,
+                QuestObjectiveSubPackets = objectives
+            };
+        }
+    }
+
+    public class Quest : QuestDto
+    {
+        public List<QuestObjectiveDto> QuestObjectives { get; set; } = null!;
     }
 }

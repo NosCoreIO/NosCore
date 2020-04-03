@@ -74,4 +74,10 @@
     <Folder Include="Dto\I18N\" />
     <Folder Include="Dto\StaticEntities\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>NosCore.Parser</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 </Project>

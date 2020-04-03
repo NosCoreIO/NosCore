@@ -39,9 +39,17 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short DefaultY { get; set; }
 
+	 	internal MapDto Map { get; set; }
+
+	 	internal System.Collections.Generic.ICollection<MapTypeDto> MapTypes { get; set; }
+
+	 	internal System.Collections.Generic.ICollection<MapTypeDto> MapTypes1 { get; set; }
+
 	 	#nullable enable
 		public string? Name { get; set; } = "";
 		#nullable disable
+	 	internal System.Collections.Generic.ICollection<RespawnDto> Respawn { get; set; }
+
 	 	[Key]
 		public long RespawnMapTypeId { get; set; }
 

@@ -33,7 +33,9 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class PenaltyLogDto : IDto
 	{
-		public long AccountId { get; set; }
+		internal AccountDto Account { get; set; }
+
+	 	public long AccountId { get; set; }
 
 	 	public string AdminName { get; set; }
 

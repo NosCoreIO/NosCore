@@ -81,7 +81,7 @@ namespace NosCore.GameObject
         private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
         private readonly IGenericDao<TitleDto> _titleDao;
         private byte _speed;
-        private IGenericDao<CharacterQuestDto> _characterQuestsDao;
+        private readonly IGenericDao<CharacterQuestDto> _characterQuestsDao;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider,
             IGenericDao<CharacterDto> characterDao, IGenericDao<IItemInstanceDto> itemInstanceDao,
@@ -144,7 +144,7 @@ namespace NosCore.GameObject
         public RegionType AccountLanguage => Session.Account.Language;
 
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
-        public ConcurrentDictionary<Guid, CharacterQuestDto> Quests { get; set; } = null!;
+        public ConcurrentDictionary<Guid, CharacterQuest> Quests { get; set; } = null!;
         public Subject<RequestData>? Requests { get; set; }
 
         public short Race => (byte)Class;
