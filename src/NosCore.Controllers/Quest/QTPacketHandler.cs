@@ -1,45 +1,46 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.QuestProvider;
 using NosCore.Packets.ClientPackets.Quest;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.PacketHandlers.Quest
 {
     public class QtPacketHandler : PacketHandler<QtPacket>, IWorldPacketHandler
     {
-        private IQuestProvider _questProvider;
+        private readonly IQuestProvider _questProvider;
 
         public QtPacketHandler(IQuestProvider questProvider)
         {
             _questProvider = questProvider;
         }
 
-        public override Task ExecuteAsync(QtPacket qtPacket, ClientSession session)
+        public override async Task ExecuteAsync(QtPacket qtPacket, ClientSession session)
         {
-            //switch (qtPacket.Type)
-            //{
-            //    // On Target Dest
-            //    case 1:
-            //        Session.Character.IncrementQuests(QuestType.GoTo, Session.CurrentMapInstance.Map.MapId, Session.Character.PositionX, Session.Character.PositionY);
-            //        break;
+            var charQuest = session.Character.Quests.FirstOrDefault(q => q.Value.QuestId == qtPacket.Data);
+            if (charQuest.Equals(new KeyValuePair<Guid, CharacterQuest>()))
+            {
+                return;
+            }
 
-            //    // Give Up Quest
-            //    case 3:
-            //        CharacterQuest charQuest = Session.Character.Quests?.FirstOrDefault(q => q.QuestNumber == qtPacket.Data);
-            //        if (charQuest == null || charQuest.IsMainQuest)
-            //        {
-            //            return;
-            //        }
+            switch (qtPacket.Type)
+            {
+                case QuestActionType.Achieve:
+                    await _questProvider.RunScriptAsync(session.Character).ConfigureAwait(false);
+                    break;
 
-            //        Session.Character.RemoveQuest(charQuest.QuestId, true);
-            //        break;
+                case QuestActionType.GiveUp:
 
-            //    // Ask for rewards
-            //    case 4:
-            //        break;
-            //}
-            return Task.CompletedTask;
+                    session.Character.Quests.TryRemove(charQuest.Key, out _);
+                    break;
+
+                case QuestActionType.Validate:
+                    break;
+            }
         }
     }
 }
