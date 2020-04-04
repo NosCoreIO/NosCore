@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using NosCore.Data.Dto;
 using NosCore.Packets.ServerPackets.Portals;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Quest;
 
 namespace NosCore.GameObject
@@ -40,7 +41,7 @@ namespace NosCore.GameObject
                 {
                     CurrentCount = 0,
                     MaxCount = 5,
-                    IsFinished = questCount == 0 ? false : (bool?)null
+                    IsFinished = questCount == 0 ? CompletedOn != null : (bool?)null
                 });
                 questCount++;
             }
@@ -54,10 +55,30 @@ namespace NosCore.GameObject
                 QuestObjectiveSubPackets = objectives
             };
         }
+
+
     }
 
     public class Quest : QuestDto
     {
+        public TargetPacket GenerateTargetPacket()
+        {
+            return new TargetPacket
+            {
+                QuestId = QuestId, TargetMap = TargetMap ?? 0, TargetX = TargetX ?? 0,
+                TargetY = TargetY ?? 0
+            };
+        }
+
+        public TargetOffPacket GenerateTargetOffPacket()
+        {
+            return new TargetOffPacket
+            {
+                QuestId = QuestId, TargetMap = TargetMap ?? 0, TargetX = TargetX ?? 0,
+                TargetY = TargetY ?? 0
+            };
+        }
+
         public List<QuestObjectiveDto> QuestObjectives { get; set; } = null!;
     }
 }
