@@ -33,7 +33,7 @@ namespace NosCore.Data.StaticEntities
 	/// </summary>
 	public class ScriptDto : IStaticDto
 	{
-		public System.Collections.Generic.ICollection<CharacterDto> Characters { get; set; }
+		internal System.Collections.Generic.ICollection<CharacterDto> Characters { get; set; }
 
 	 	public byte ScriptId { get; set; }
 

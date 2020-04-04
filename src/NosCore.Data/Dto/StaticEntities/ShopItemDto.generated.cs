@@ -36,13 +36,13 @@ namespace NosCore.Data.StaticEntities
 	{
 		public byte Color { get; set; }
 
-	 	public ItemDto Item { get; set; }
+	 	internal ItemDto Item { get; set; }
 
 	 	public short ItemVNum { get; set; }
 
 	 	public short Rare { get; set; }
 
-	 	public ShopDto Shop { get; set; }
+	 	internal ShopDto Shop { get; set; }
 
 	 	public int ShopId { get; set; }
 

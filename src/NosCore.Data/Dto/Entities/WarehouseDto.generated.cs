@@ -33,15 +33,15 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class WarehouseDto : IDto
 	{
-		public CharacterDto Character { get; set; }
+		internal CharacterDto Character { get; set; }
 
 	 	public long? CharacterId { get; set; }
 
-	 	public FamilyDto Family { get; set; }
+	 	internal FamilyDto Family { get; set; }
 
 	 	public long? FamilyId { get; set; }
 
-	 	public System.Collections.Generic.ICollection<WarehouseItemDto> WarehouseItems { get; set; }
+	 	internal System.Collections.Generic.ICollection<WarehouseItemDto> WarehouseItems { get; set; }
 
 	 	public NosCore.Data.Enumerations.Miniland.WarehouseType Type { get; set; }
 

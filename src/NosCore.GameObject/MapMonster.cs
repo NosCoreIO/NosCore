@@ -35,7 +35,7 @@ namespace NosCore.GameObject
         private readonly ILogger _logger;
 
         private readonly List<NpcMonsterDto> _npcMonsters;
-        public new NpcMonsterDto NpcMonster { get; private set; } = null!;
+        public NpcMonsterDto NpcMonster { get; private set; } = null!;
         public MapMonster(List<NpcMonsterDto> npcMonsters, ILogger logger)
         {
             _npcMonsters = npcMonsters;

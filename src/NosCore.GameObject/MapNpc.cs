@@ -44,7 +44,7 @@ namespace NosCore.GameObject
         private readonly List<NpcMonsterDto>? _npcMonsters;
         private readonly IGenericDao<ShopItemDto>? _shopItems;
         private readonly IGenericDao<ShopDto>? _shops;
-        public new NpcMonsterDto NpcMonster { get; private set; } = null!;
+        public NpcMonsterDto NpcMonster { get; private set; } = null!;
         public MapNpc(IItemProvider? itemProvider, IGenericDao<ShopDto>? shops,
             IGenericDao<ShopItemDto>? shopItems,
             List<NpcMonsterDto>? npcMonsters, ILogger logger)
@@ -119,7 +119,7 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        public new Shop? Shop { get; private set; }
+        public Shop? Shop { get; private set; }
 
         public Subject<RequestData>? Requests { get; set; }
 

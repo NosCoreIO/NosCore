@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FastMember;
+using TypeKitchen;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
@@ -18,7 +18,7 @@ namespace NosCore.Parser.Parsers.Generic
         private readonly ILogger _logger;
         private readonly string _fileAddress;
         private readonly string _endPattern;
-        private readonly TypeAccessor _typeAccessor;
+        private readonly ITypeWriteAccessor _typeAccessor;
         private readonly Dictionary<string, Func<Dictionary<string, string[][]>, object?>> _actionList;
         private readonly int _firstIndex;
 
@@ -27,7 +27,7 @@ namespace NosCore.Parser.Parsers.Generic
             _fileAddress = fileAddress;
             _endPattern = endPattern;
             _firstIndex = firstIndex;
-            _typeAccessor = TypeAccessor.Create(typeof(T), true);
+            _typeAccessor = WriteAccessor.Create(typeof(T), AccessorMemberScope.All, out _);
             _actionList = actionList;
             _logger = logger;
         }

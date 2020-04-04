@@ -40,11 +40,11 @@ namespace NosCore.Data.StaticEntities
 
 	 	public byte ActId { get; set; }
 
-	 	public ActDto Act { get; set; }
+	 	internal ActDto Act { get; set; }
 
 	 	public byte MaxTs { get; set; }
 
-	 	public System.Collections.Generic.HashSet<CharacterActPartDto> CharacterActParts { get; set; }
+	 	internal System.Collections.Generic.HashSet<CharacterActPartDto> CharacterActParts { get; set; }
 
 	 }
 }

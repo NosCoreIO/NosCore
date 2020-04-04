@@ -28,7 +28,6 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
 using FastExpressionCompiler;
-using FastMember;
 using JetBrains.Annotations;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -62,7 +61,9 @@ using NosCore.Database.Entities;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
+using TypeKitchen;
 using ILogger = Serilog.ILogger;
+using Validator = System.ComponentModel.DataAnnotations.Validator;
 
 namespace NosCore.MasterServer
 {
@@ -114,8 +115,9 @@ namespace NosCore.MasterServer
                     var props = StaticDtoExtension.GetI18NProperties(typeof(ItemDto));
 
                     var regions = Enum.GetValues(typeof(RegionType));
-                    var accessors = TypeAccessor.Create(typeof(ItemDto));
-                    Parallel.ForEach(items, s => s.InjectI18N(props, dic, regions, accessors));
+                    var writeAccessors = WriteAccessor.Create(typeof(ItemDto));
+                    var readAccessors = ReadAccessor.Create(typeof(ItemDto));
+                    Parallel.ForEach(items, s => s.InjectI18N(props, dic, regions, writeAccessors, readAccessors));
                     var staticMetaDataAttribute = typeof(ItemDto).GetCustomAttribute<StaticMetaDataAttribute>();
                     if ((items.Count != 0) || (staticMetaDataAttribute == null) ||
                         (staticMetaDataAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))

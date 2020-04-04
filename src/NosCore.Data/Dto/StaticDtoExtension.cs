@@ -21,8 +21,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using FastMember;
 using NosCore.Data.Enumerations;
+using TypeKitchen;
 
 namespace NosCore.Data.StaticEntities
 {
@@ -45,11 +45,11 @@ namespace NosCore.Data.StaticEntities
         public static void InjectI18N(this IStaticDto staticDto,
             IDictionary<PropertyInfo, Tuple<PropertyInfo, Type>> propertyInfos,
             IDictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>> langDictionary, Array regions,
-            TypeAccessor accessor)
+            ITypeWriteAccessor writeAccessor, ITypeReadAccessor readAccessor)
         {
             foreach (var prop in propertyInfos)
             {
-                var key = accessor[staticDto, prop.Value.Item1.Name]?.ToString() ?? "NONAME";
+                var key = readAccessor[staticDto, prop.Value.Item1.Name]?.ToString() ?? "NONAME";
                 var dic = new I18NString();
                 foreach (var region in regions)
                 {
@@ -64,7 +64,7 @@ namespace NosCore.Data.StaticEntities
                     }
                 }
 
-                accessor[staticDto, prop.Key.Name] = dic;
+                writeAccessor[staticDto, prop.Key.Name] = dic;
             }
         }
     }
