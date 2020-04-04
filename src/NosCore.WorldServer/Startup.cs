@@ -37,7 +37,6 @@ using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using FastExpressionCompiler;
-using FastMember;
 using JetBrains.Annotations;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -85,12 +84,14 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PacketHandlers.Login;
 using NosCore.WorldServer.Controllers;
+using TypeKitchen;
 using Character = NosCore.GameObject.Character;
 using Deserializer = NosCore.Packets.Deserializer;
 using ILogger = Serilog.ILogger;
 using InventoryItemInstance = NosCore.GameObject.Providers.InventoryService.InventoryItemInstance;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Serializer = NosCore.Packets.Serializer;
+using Validator = System.ComponentModel.DataAnnotations.Validator;
 
 namespace NosCore.WorldServer
 {
@@ -130,8 +131,9 @@ namespace NosCore.WorldServer
                     if (props.Count > 0)
                     {
                         var regions = Enum.GetValues(typeof(RegionType));
-                        var accessors = TypeAccessor.Create(typeof(TDto));
-                        Parallel.ForEach(items, s => ((IStaticDto)s!).InjectI18N(props, dic, regions, accessors));
+                        var readAccessors = ReadAccessor.Create(typeof(TDto));
+                        var writeAccessors = WriteAccessor.Create(typeof(TDto));
+                        Parallel.ForEach(items, s => ((IStaticDto)s!).InjectI18N(props, dic, regions, writeAccessors, readAccessors));
                     }
 
                     if ((items.Count != 0) || (staticMetaDataAttribute == null) ||
