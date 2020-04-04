@@ -69,12 +69,9 @@ namespace NosCore.GameObject.Providers.QuestProvider
                 await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
             }
 
-            if (packet != null)
+            if (packet != null && !await CheckScriptStateAsync(packet, character).ConfigureAwait(false))
             {
-                if (!await CheckScriptStateAsync(packet, character).ConfigureAwait(false))
-                {
-                    return;
-                }
+                return;
             }
 
             var scripts = _scripts.OrderBy(s => s.ScriptId).ThenBy(s => s.ScriptStepId).ToList();
@@ -99,11 +96,11 @@ namespace NosCore.GameObject.Providers.QuestProvider
             int? scriptStepId;
             switch (packet.Type)
             {
-                case ScriptType.Dialog:
+                case QuestActionType.Dialog:
                     scriptId = packet.FirstArgument;
                     scriptStepId = packet.SecondArgument;
                     break;
-                case ScriptType.Quest:
+                case QuestActionType.Validate:
                     scriptId = packet.SecondArgument;
                     scriptStepId = packet.ThirdArgument;
                     break;
@@ -119,7 +116,7 @@ namespace NosCore.GameObject.Providers.QuestProvider
             return await IsValidScriptAsync(character, packet.Type, (int)scriptId, (int)scriptStepId).ConfigureAwait(false);
         }
 
-        private async Task<bool> IsValidScriptAsync(ICharacterEntity character, ScriptType type, int scriptId, int scriptStepId)
+        private async Task<bool> IsValidScriptAsync(ICharacterEntity character, QuestActionType type, int scriptId, int scriptStepId)
         {
             var script = _scripts.FirstOrDefault(s => (s.ScriptId == scriptId) && (s.ScriptStepId == scriptStepId));
             if (script == null)
@@ -131,7 +128,7 @@ namespace NosCore.GameObject.Providers.QuestProvider
                 "q_complete" => ValidateQuest(character, script.Argument1 ?? 0),
                 "quest" => (character.Script?.ScriptId != scriptId
                     || character.Script?.ScriptStepId != scriptStepId
-                    || type != ScriptType.Quest
+                    || type != QuestActionType.Validate
                     || !script.Argument1.HasValue
                     || await AddQuestAsync(character, (short)script.Argument1).ConfigureAwait(false)
                 ),
@@ -158,73 +155,72 @@ namespace NosCore.GameObject.Providers.QuestProvider
                 return false;
             }
 
+
+            var questDto = _quests.FirstOrDefault(s => s.QuestId == questId);
+            if (questDto == null)
             {
-                var questDto = _quests.FirstOrDefault(s => s.QuestId == questId);
-                if (questDto == null)
-                {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUEST_NOT_FOUND));
-                    return true;
-                }
-                var quest = questDto.Adapt<Quest>();
-                quest.QuestObjectives = _questObjectives.Where(s => s.QuestId == questId).ToList();
-
-                if (character.Quests.Any(q => !q.Value.Quest.IsSecondary) ||
-                    (character.Quests.Where(q => q.Value.Quest.QuestType != QuestType.WinRaid).ToList().Count >= 5 &&
-                        quest.QuestType != QuestType.WinRaid))
-                {
-                    return false;
-                }
-
-                if (quest.LevelMin > character.Level)
-                {
-                    await character.SendPacketAsync(new MsgPacket
-                    {
-                        Type = MessageType.Whisper,
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL, character.AccountLanguage)
-                    }).ConfigureAwait(false);
-                    return false;
-                }
-
-                if (quest.LevelMax < character.Level)
-                {
-                    await character.SendPacketAsync(new MsgPacket
-                    {
-                        Type = MessageType.Whisper,
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_HIGH_LEVEL, character.AccountLanguage)
-                    }).ConfigureAwait(false);
-                    return false;
-                }
-
-                if (quest.IsDaily && (characterQuest.Value?.CompletedOn?.AddDays(1) > DateTime.Now))
-                {
-                    await character.SendPacketAsync(new MsgPacket
-                    {
-                        Type = MessageType.Whisper,
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.QUEST_ALREADY_DONE, character.AccountLanguage)
-                    }).ConfigureAwait(false);
-                    return false;
-                }
-
-                if (quest.TargetMap == character.MapId)
-                {
-                    await character.SendPacketAsync(new TargetPacket
-                    {
-                        QuestId = quest.QuestId, TargetMap = quest.TargetMap ?? 0, TargetX = quest.TargetX ?? 0,
-                        TargetY = quest.TargetY ?? 0
-                    }).ConfigureAwait(false);
-                }
-
-                character.Quests.TryAdd(Guid.NewGuid(), new CharacterQuest
-                {
-                    CharacterId = character.VisualId,
-                    Id = Guid.NewGuid(),
-                    Quest = quest,
-                    QuestId = quest.QuestId
-                });
-                await character.SendPacketAsync(character.GenerateQuestPacket()).ConfigureAwait(false);
-
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUEST_NOT_FOUND));
                 return true;
             }
+            var quest = questDto.Adapt<Quest>();
+            quest.QuestObjectives = _questObjectives.Where(s => s.QuestId == questId).ToList();
+
+            if (character.Quests.Any(q => !q.Value.Quest.IsSecondary) ||
+                (character.Quests.Where(q => q.Value.Quest.QuestType != QuestType.WinRaid).ToList().Count >= 5 &&
+                    quest.QuestType != QuestType.WinRaid))
+            {
+                return false;
+            }
+
+            if (quest.LevelMin > character.Level)
+            {
+                await character.SendPacketAsync(new MsgPacket
+                {
+                    Type = MessageType.Whisper,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL, character.AccountLanguage)
+                }).ConfigureAwait(false);
+                return false;
+            }
+
+            if (quest.LevelMax < character.Level)
+            {
+                await character.SendPacketAsync(new MsgPacket
+                {
+                    Type = MessageType.Whisper,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_HIGH_LEVEL, character.AccountLanguage)
+                }).ConfigureAwait(false);
+                return false;
+            }
+
+            if (quest.IsDaily && (characterQuest.Value?.CompletedOn?.AddDays(1) > DateTime.Now))
+            {
+                await character.SendPacketAsync(new MsgPacket
+                {
+                    Type = MessageType.Whisper,
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.QUEST_ALREADY_DONE, character.AccountLanguage)
+                }).ConfigureAwait(false);
+                return false;
+            }
+
+            if (quest.TargetMap == character.MapId)
+            {
+                await character.SendPacketAsync(new TargetPacket
+                {
+                    QuestId = quest.QuestId, TargetMap = quest.TargetMap ?? 0, TargetX = quest.TargetX ?? 0,
+                    TargetY = quest.TargetY ?? 0
+                }).ConfigureAwait(false);
+            }
+
+            character.Quests.TryAdd(Guid.NewGuid(), new CharacterQuest
+            {
+                CharacterId = character.VisualId,
+                Id = Guid.NewGuid(),
+                Quest = quest,
+                QuestId = quest.QuestId
+            });
+            await character.SendPacketAsync(character.GenerateQuestPacket()).ConfigureAwait(false);
+
+            return true;
         }
 
         public bool ValidateQuest(ICharacterEntity character, short questId)
