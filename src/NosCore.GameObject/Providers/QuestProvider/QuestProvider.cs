@@ -136,12 +136,13 @@ namespace NosCore.GameObject.Providers.QuestProvider
                 "targetoff" => await TargetOffPacketAsync(script.Argument1 ?? 0, character).ConfigureAwait(false),
                 "web" => true,
                 "talk" => true,
-                "target" => true,
                 "openwin" => true,
                 "opendual" => true,
-                "move" => true,
-                "run" => true,
-                "q_pay" => true,
+
+                "move" => false, //todo handle
+                "q_pay" => false, //todo handle
+                "target" => false,  //todo handle
+                "run" => true,  //todo handle
                 _ => false,
             };
         }
