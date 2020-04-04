@@ -201,6 +201,7 @@ namespace NosCore.GameObject.Providers.QuestProvider
 
                 await character.SendPacketAsync(new MsgPacket()
                 {
+                    Type = MessageType.Whisper,
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.QUEST_FINISHED, character.AccountLanguage)
                 }).ConfigureAwait(false);
                 await character.SendPacketAsync(characterQuest.Value.GenerateQstiPacket(false)).ConfigureAwait(false);
