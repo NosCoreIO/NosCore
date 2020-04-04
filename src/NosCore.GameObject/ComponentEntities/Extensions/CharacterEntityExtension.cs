@@ -210,10 +210,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 
         public static QstlistPacket GenerateQuestPacket(this ICharacterEntity visualEntity)
         {
-           return new QstlistPacket()
+            return new QstlistPacket()
             {
-                QstiPackets = visualEntity.Quests.Values.Select(quest => quest.GenerateQstiPacket(true)).ToList()
-           };
+                QstiPackets = visualEntity.Quests.Values.Where(s => s.CompletedOn != null).Select(quest => quest.GenerateQstiPacket(true)).ToList()
+            };
         }
 
         public static IconPacket GenerateIcon(this ICharacterEntity visualEntity, byte iconType, short iconParameter)

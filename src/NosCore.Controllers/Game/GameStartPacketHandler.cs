@@ -39,6 +39,7 @@ using Microsoft.VisualStudio.Threading;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.GameObject.Providers.QuestProvider;
+using NosCore.Packets.ServerPackets.Quest;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -225,6 +226,8 @@ namespace NosCore.PacketHandlers.Game
             {
                 await session.SendPacketAsync(session.Character.GenerateSay(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.NEW_MAIL, session.Account.Language), mailcount), SayColorType.Yellow)).ConfigureAwait(false);
             }
+
+            await session.SendPacketAsync(session.Character.GenerateQuestPacket()).ConfigureAwait(false);
             //            Session.Character.DeleteTimeout();
 
             //            foreach (StaticBuffDTO sb in _staticBuffDao.Where(s => s.CharacterId == Session.Character.CharacterId))

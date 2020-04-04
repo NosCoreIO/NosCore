@@ -29,16 +29,29 @@ namespace NosCore.PacketHandlers.Quest
 
             switch (qtPacket.Type)
             {
+                case QuestActionType.Validate:
+                    await _questProvider.RunScriptAsync(session.Character, session.Character.Script == null ? null : new ScriptClientPacket
+                    {
+                        Type = QuestActionType.Validate,
+                        FirstArgument = session.Character.Script.Argument1,
+                        SecondArgument = session.Character.Script.ScriptId,
+                        ThirdArgument = session.Character.Script.ScriptStepId,
+                    }).ConfigureAwait(false);
+                    break;
+
                 case QuestActionType.Achieve:
-                    await _questProvider.RunScriptAsync(session.Character).ConfigureAwait(false);
+                    await _questProvider.RunScriptAsync(session.Character, session.Character.Script == null ? null : new ScriptClientPacket
+                    {
+                        Type = QuestActionType.Achieve,
+                        FirstArgument = session.Character.Script.Argument1,
+                        SecondArgument = session.Character.Script.ScriptId,
+                        ThirdArgument = session.Character.Script.ScriptStepId,
+                    }).ConfigureAwait(false);
                     break;
 
                 case QuestActionType.GiveUp:
-
-                    session.Character.Quests.TryRemove(charQuest.Key, out _);
-                    break;
-
-                case QuestActionType.Validate:
+                    session.Character.Quests.TryRemove(charQuest.Key, out var questToRemove);
+                    questToRemove?.GenerateQstiPacket(false);
                     break;
             }
         }
