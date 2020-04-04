@@ -212,7 +212,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         {
             return new QstlistPacket()
             {
-                QstiPackets = visualEntity.Quests.Values.Where(s => s.CompletedOn != null).Select(quest => quest.GenerateQstiPacket(true)).ToList()
+                QuestSubPackets = visualEntity.Quests.Values.Where(s => s.CompletedOn == null).Select(quest => quest.GenerateQuestSubPacket(true)).ToList()
             };
         }
 
