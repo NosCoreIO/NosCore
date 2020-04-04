@@ -34,6 +34,7 @@ using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Core;
 using NosCore.Data;
+using NosCore.Data.Enumerations;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.InventoryService;
@@ -209,7 +210,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static ShopPacket GenerateShop(this IAliveEntity visualEntity)
+        public static ShopPacket GenerateShop(this IAliveEntity visualEntity, RegionType language)
         {
             return new ShopPacket
             {
@@ -218,7 +219,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 ShopId = visualEntity.Shop?.ShopId ?? 0,
                 MenuType = visualEntity.Shop?.MenuType ?? 0,
                 ShopType = visualEntity.Shop?.ShopType,
-                Name = visualEntity.Shop?.Name
+                Name = visualEntity.Shop?.Name[language]
             };
         }
 
