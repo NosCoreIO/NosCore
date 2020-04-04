@@ -40,10 +40,6 @@ namespace NosCore.Database.Entities
 
         public byte MenuType { get; set; }
 
-        [Required]
-        [MaxLength(255)]
-        public string Name { get; set; } = "";
-
         [Key]
         public int ShopId { get; set; }
 

@@ -19,6 +19,7 @@
 
 using System.Collections.Concurrent;
 using System.Linq;
+using NosCore.Data;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 
@@ -31,6 +32,7 @@ namespace NosCore.GameObject
         public Shop()
         {
             ShopItems = new ConcurrentDictionary<int, ShopItem>();
+            Name = new I18NString();
         }
 
         public ConcurrentDictionary<int, ShopItem> ShopItems { get; set; }
@@ -43,5 +45,6 @@ namespace NosCore.GameObject
             get => _size ?? ShopItems.Values.Max(s => s.Slot) + 1;
             set => _size = value;
         }
+        public I18NString Name { get; set; }
     }
 }

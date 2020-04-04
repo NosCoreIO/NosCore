@@ -29,6 +29,7 @@ using NosCore.Packets.ServerPackets.MiniMap;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.Core;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -255,7 +256,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 }));
         }
 
-        public List<IPacket> GetMapItems()
+        public List<IPacket> GetMapItems(RegionType language)
         {
             var packets = new List<IPacket>();
             // TODO: Parallelize getting of items of mapinstance
@@ -277,7 +278,8 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
                 if (s.Shop != null)
                 {
-                    packets.Add(s.GenerateShop());
+                    var shopPacket = s.GenerateShop(language);
+                    packets.Add(shopPacket);
                 }
 
                 if (s.Size != 10)
