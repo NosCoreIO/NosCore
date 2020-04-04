@@ -313,6 +313,7 @@ namespace NosCore.Data.Enumerations.I18N
         DELAY_GROUP_REQUEST,
         SPEAKER,
         TOO_HIGH_LEVEL,
-        QUEST_ALREADY_DONE
+        QUEST_ALREADY_DONE,
+        QUEST_FINISHED
     }
 }
