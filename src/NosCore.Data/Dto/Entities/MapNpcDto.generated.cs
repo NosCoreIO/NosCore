@@ -34,7 +34,7 @@ namespace NosCore.Data.Dto
 	[StaticMetaData(LoadedMessage = LogLanguageKey.MAPNPCS_LOADED)]
 	public class MapNpcDto : IDto
 	{
-		public short Dialog { get; set; }
+		public short? Dialog { get; set; }
 
 	 	public short Effect { get; set; }
 

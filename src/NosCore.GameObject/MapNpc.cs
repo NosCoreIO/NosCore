@@ -125,7 +125,7 @@ namespace NosCore.GameObject
 
         private void ShowDialog(RequestData requestData)
         {
-            requestData.ClientSession.SendPacketAsync(this.GenerateNpcReq(Dialog));
+            requestData.ClientSession.SendPacketAsync(this.GenerateNpcReq(Dialog ?? 0));
         }
 
         internal void StopLife()

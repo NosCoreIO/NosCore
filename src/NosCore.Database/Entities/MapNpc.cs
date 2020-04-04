@@ -36,7 +36,7 @@ namespace NosCore.Database.Entities
             Teleporter = new HashSet<Teleporter>();
         }
 
-        public short Dialog { get; set; }
+        public short? Dialog { get; set; }
 
         public short Effect { get; set; }
 
