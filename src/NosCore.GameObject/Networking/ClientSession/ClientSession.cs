@@ -348,7 +348,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     SendPacketAsync(s.GeneratePFlag());
                     SendPacketAsync(s.GenerateShop());
                 });
-                await Character.SendPacketsAsync(Character.Quests.Values.Where(q => q.Quest.TargetMap != Character.MapId)
+                await Character.SendPacketsAsync(Character.Quests.Values.Where(q => q.Quest.TargetMap == Character.MapId)
                     .Select(qst => qst.Quest.GenerateTargetPacket())).ConfigureAwait(false);
                 await Character.MapInstance.SendPacketAsync(Character.GenerateTitInfo()).ConfigureAwait(false);
                 Character.MapInstance.IsSleeping = false;

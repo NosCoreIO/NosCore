@@ -60,14 +60,14 @@ namespace NosCore.GameObject.Providers.QuestProvider
         public Task RunScriptAsync(ICharacterEntity character) => RunScriptAsync(character, null);
         public async Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet)
         {
-            if (character.CurrentScriptId == null)
+            if (character.CurrentScriptId == null) //todo handle other acts
             {
                 if (_worldConfiguration.SceneOnCreate)
                 {
                     await character.SendPacketAsync(new ScenePacket { SceneId = 40 }).ConfigureAwait(false);
                     await Task.Delay(TimeSpan.FromSeconds(71)).ConfigureAwait(false);
                 }
-                await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+                await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
             }
 
             if (packet != null)

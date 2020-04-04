@@ -17,12 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using NosCore.Data.Dto;
-using NosCore.Packets.ServerPackets.Portals;
 using NosCore.Data.StaticEntities;
-using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Quest;
 
 namespace NosCore.GameObject
@@ -33,10 +30,19 @@ namespace NosCore.GameObject
 
         public QstiPacket GenerateQstiPacket(bool showDialog)
         {
+            return new QstiPacket
+            {
+                QuestSubPacket = GenerateQuestSubPacket(showDialog)
+            };
+        }
+
+        public QuestSubPacket GenerateQuestSubPacket(bool showDialog)
+        {
             var objectives = new List<QuestObjectiveSubPacket>();
             var questCount = 0;
             foreach (var objective in Quest.QuestObjectives)
             {
+                //todo add objective
                 objectives.Add(new QuestObjectiveSubPacket()
                 {
                     CurrentCount = 0,
@@ -45,7 +51,8 @@ namespace NosCore.GameObject
                 });
                 questCount++;
             }
-            return new QstiPacket
+
+            return new QuestSubPacket
             {
                 QuestId = QuestId,
                 InfoId = QuestId,
@@ -55,7 +62,6 @@ namespace NosCore.GameObject
                 QuestObjectiveSubPackets = objectives
             };
         }
-
 
     }
 
