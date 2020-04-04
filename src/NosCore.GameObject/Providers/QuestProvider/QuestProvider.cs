@@ -132,18 +132,48 @@ namespace NosCore.GameObject.Providers.QuestProvider
                     || !script.Argument1.HasValue
                     || await AddQuestAsync(character, (short)script.Argument1).ConfigureAwait(false)
                 ),
+                "time" => await TimeAsync(script.Argument1 ?? 0, character).ConfigureAwait(false),
+                "targetoff" => await TargetOffPacketAsync(script.Argument1 ?? 0, character).ConfigureAwait(false),
                 "web" => true,
                 "talk" => true,
                 "target" => true,
                 "openwin" => true,
-                "opendual" => false,
-                "time" => false,
-                "move" => false,
+                "opendual" => true,
+                "move" => true,
                 "run" => true,
                 "q_pay" => true,
-                "targetoff" => true,
                 _ => false,
             };
+        }
+
+        private async Task<bool> TimeAsync(short scriptArgument1, ICharacterEntity character)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(scriptArgument1)).ConfigureAwait(false);
+            return true;
+        }
+
+        private async Task<bool> TargetOffPacketAsync(short questId, ICharacterEntity character)
+        {
+            var questDto = _quests.FirstOrDefault(s => s.QuestId == questId);
+            if (questDto == null)
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUEST_NOT_FOUND));
+                return false;
+            }
+
+            if (!ValidateQuest(character, questId))
+            {
+                return false;
+            }
+
+            await character.SendPacketAsync(new TargetOffPacket
+            {
+                QuestId = questId,
+                TargetMap = questDto.TargetMap ?? 0,
+                TargetY = questDto.TargetY ?? 0,
+                TargetX = questDto.TargetX ?? 0
+            }).ConfigureAwait(false);
+            return true;
         }
 
         public async Task<bool> AddQuestAsync(ICharacterEntity character, short questId)
