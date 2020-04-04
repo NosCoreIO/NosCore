@@ -20,35 +20,28 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Packets.Enumerations;
+using NosCore.Data;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    [StaticMetaData(LoadedMessage = LogLanguageKey.SCRIPTS_LOADED)]
-    public class Script : SynchronizableBaseEntity, IStaticEntity
+    [StaticMetaData(LoadedMessage = LogLanguageKey.NPCMONSTERSTALKS_LOADED)]
+    public class NpcTalk : IStaticEntity
     {
-        public Script()
+        public NpcTalk()
         {
-            Characters = new HashSet<Character>();
         }
 
-        public virtual ICollection<Character> Characters { get; set; }
-
-        public byte ScriptId { get; set; }
-
-        public short ScriptStepId { get; set; }
+        [Key]
+        public short DialogId { get; set; }
 
         [Required]
-        public string StepType { get; set; } = null!;
-
-        public string? StringArgument { get; set; }
-
-        public short? Argument1 { get; set; }
-
-        public short? Argument2 { get; set; }
-
-        public short? Argument3 { get; set; }
+        [MaxLength(255)]
+        [I18NString(typeof(I18NNpcMonsterTalk))]
+        public string Name { get; set; } = "";
     }
 }

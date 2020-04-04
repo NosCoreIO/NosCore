@@ -19,10 +19,13 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
+    [StaticMetaData(LoadedMessage = LogLanguageKey.QUESTREWARDS_LOADED)]
     public class QuestReward : IStaticEntity
     {
         public QuestReward()
