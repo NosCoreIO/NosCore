@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
@@ -26,9 +28,7 @@ namespace NosCore.GameObject.Providers.QuestProvider
 {
     public interface IQuestProvider
     {
-        //Task UpdateQuestAsync(ICharacterEntity character, QuestData data);
         Task RunScriptAsync(ICharacterEntity character);
         Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet);
-        Task<bool> AddQuestAsync(ICharacterEntity character, short questId);
     }
 }

@@ -103,7 +103,7 @@ namespace NosCore.Tests.InventoryTests
             Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 990), 0),
                 NoscorePocketType.Main, 2);
             var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 27), 0));
-            Assert.IsTrue(items.All(item => item.ItemInstance!.Amount == 999) && (items.Count == 3));
+            Assert.IsTrue(items.All(item => item.ItemInstance!.Amount == 999) && (items?.Count == 3));
         }
 
         [TestMethod]
