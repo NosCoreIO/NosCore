@@ -102,6 +102,8 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketAsync(session.Character.GenerateTit()).ConfigureAwait(false);
             await session.SendPacketAsync(session.Character.GenerateSpPoint()).ConfigureAwait(false);
             await session.SendPacketAsync(session.Character.GenerateRsfi()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateQuestPacket()).ConfigureAwait(false);
+
             if (session.Character.Hp <= 0)
             {
                 //                ServerManager.Instance.ReviveFirstPosition(Session.Character.CharacterId);
@@ -153,7 +155,7 @@ namespace NosCore.PacketHandlers.Game
             //            Session.SendPacket("zzim");
             //            Session.SendPacket($"twk 2 {Session.Character.CharacterId} {Session.Account.Name} {Session.Character.Name} shtmxpdlfeoqkr");
 
-            //            // qstlist target sqst bf
+            //            // sqst bf
             //            Session.SendPacket("act6");
             //            Session.SendPacket(Session.Character.GenerateFaction());
             //            // MATES
@@ -227,7 +229,6 @@ namespace NosCore.PacketHandlers.Game
                 await session.SendPacketAsync(session.Character.GenerateSay(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.NEW_MAIL, session.Account.Language), mailcount), SayColorType.Yellow)).ConfigureAwait(false);
             }
 
-            await session.SendPacketAsync(session.Character.GenerateQuestPacket()).ConfigureAwait(false);
             //            Session.Character.DeleteTimeout();
 
             //            foreach (StaticBuffDTO sb in _staticBuffDao.Where(s => s.CharacterId == Session.Character.CharacterId))
