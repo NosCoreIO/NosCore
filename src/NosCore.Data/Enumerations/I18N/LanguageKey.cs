@@ -160,7 +160,8 @@ namespace NosCore.Data.Enumerations.I18N
         QUESTS_LOADED,
         QUESTOBJECTIVES_LOADED,
         QUESTREWARDS_LOADED,
-        SCRIPTS_LOADED
+        SCRIPTS_LOADED,
+        NPCTALKS_PARSED
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

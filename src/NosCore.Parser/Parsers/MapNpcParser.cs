@@ -34,12 +34,14 @@ namespace NosCore.Parser.Parsers
         private readonly ILogger _logger;
         private readonly IGenericDao<MapNpcDto> _mapNpcDao;
         private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao;
+        private readonly IGenericDao<NpcTalkDto> _npcTalkDao;
 
-        public MapNpcParser(IGenericDao<MapNpcDto> mapNpcDao, IGenericDao<NpcMonsterDto> npcMonsterDao, ILogger logger)
+        public MapNpcParser(IGenericDao<MapNpcDto> mapNpcDao, IGenericDao<NpcMonsterDto> npcMonsterDao, IGenericDao<NpcTalkDto> npcTalkDao, ILogger logger)
         {
             _mapNpcDao = mapNpcDao;
             _logger = logger;
             _npcMonsterDao = npcMonsterDao;
+            _npcTalkDao = npcTalkDao;
         }
 
         public void InsertMapNpcs(List<string[]> packetList)
@@ -50,8 +52,8 @@ namespace NosCore.Parser.Parsers
             short map = 0;
             var npcs = new List<MapNpcDto>();
             var npcMvPacketsList = packetList.Where(o => o.Length > 14 && o[0].Equals("mv") && o[1].Equals("2") && long.Parse(o[2]) < 20000).GroupBy(s => s[2]).Select(s => Convert.ToInt32(s.First()[2])).ToList();
-            var effPacketsDictionary = packetList.Where(o => o[0].Equals("eff") && o[1].Equals("2") && long.Parse(o[2]) <= 20000).GroupBy(s => Convert.ToInt16(s[2])).ToDictionary(x=>x.Key, x => Convert.ToInt16(x.First()[3]));
-
+            var effPacketsDictionary = packetList.Where(o => o[0].Equals("eff") && o[1].Equals("2") && long.Parse(o[2]) <= 20000).GroupBy(s => Convert.ToInt16(s[2])).ToDictionary(x => x.Key, x => Convert.ToInt16(x.First()[3]));
+            var npcTalks = _npcTalkDao.LoadAll().ToDictionary(s => s.DialogId, s => s);
             foreach (var currentPacket in packetList.Where(o => (o.Length > 7 && o[0].Equals("in") && (o[1] == "2") && long.Parse(o[3]) <= 20000) || o[0].Equals("at")))
             {
                 if ((currentPacket.Length > 5) && (currentPacket[0] == "at"))
@@ -72,7 +74,7 @@ namespace NosCore.Parser.Parsers
                     EffectDelay = 4750,
                     IsMoving = npcMvPacketsList.Contains(mapnpcid),
                     Direction = byte.Parse(currentPacket[6]),
-                    Dialog = currentPacket[9] == "0" ? (short?)null : short.Parse(currentPacket[9]),
+                    Dialog = short.Parse(currentPacket[9]) != 0 ? short.Parse(currentPacket[9]) : (short?)null,
                     IsSitting = currentPacket[13] != "1",
                     IsDisabled = false
                 };

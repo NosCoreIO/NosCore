@@ -71,5 +71,7 @@ namespace NosCore.Database.Entities
         public virtual ICollection<Shop> Shop { get; set; }
 
         public virtual ICollection<Teleporter> Teleporter { get; set; }
+
+        public virtual NpcTalk? NpcTalk { get; set; } = null!;
     }
 }

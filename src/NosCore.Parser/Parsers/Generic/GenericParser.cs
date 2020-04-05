@@ -36,7 +36,8 @@ namespace NosCore.Parser.Parsers.Generic
         {
             using var stream = new StreamReader(_fileAddress, Encoding.Default);
             var content = stream.ReadToEnd();
-            return content.Split(_endPattern);
+            var i = 0;
+            return content.Split(_endPattern).Select(s => $"{(i++ == 0 ? "" : _endPattern)}{s}");
         }
         public List<T> GetDtos() => GetDtos("\t");
         public List<T> GetDtos(string splitter)

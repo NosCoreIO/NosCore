@@ -34,6 +34,7 @@ namespace NosCore.Database.Entities
     {
         public NpcTalk()
         {
+            MapNpc = new HashSet<MapNpc>();
         }
 
         [Key]
@@ -43,5 +44,7 @@ namespace NosCore.Database.Entities
         [MaxLength(255)]
         [I18NString(typeof(I18NNpcMonsterTalk))]
         public string Name { get; set; } = "";
+
+        public virtual ICollection<MapNpc> MapNpc { get; set; }
     }
 }
