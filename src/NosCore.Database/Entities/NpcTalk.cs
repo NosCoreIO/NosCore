@@ -19,34 +19,32 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using NosCore.Packets.Enumerations;
+using NosCore.Data;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {
-    [StaticMetaData(LoadedMessage = LogLanguageKey.SHOPS_LOADED)]
-    public class Shop : IStaticEntity
+    [StaticMetaData(LoadedMessage = LogLanguageKey.NPCMONSTERSTALKS_LOADED)]
+    public class NpcTalk : IStaticEntity
     {
-        public Shop()
+        public NpcTalk()
         {
-            ShopItem = new HashSet<ShopItem>();
-            ShopSkill = new HashSet<ShopSkill>();
+            MapNpc = new HashSet<MapNpc>();
         }
 
-        public virtual MapNpc MapNpc { get; set; } = null!;
-
-        public int MapNpcId { get; set; }
-
-        public byte MenuType { get; set; }
-
         [Key]
-        public int ShopId { get; set; }
+        public short DialogId { get; set; }
 
-        public virtual ICollection<ShopItem> ShopItem { get; set; }
+        [Required]
+        [MaxLength(255)]
+        [I18NString(typeof(I18NNpcMonsterTalk))]
+        public string Name { get; set; } = "";
 
-        public virtual ICollection<ShopSkill> ShopSkill { get; set; }
-
-        public byte ShopType { get; set; }
+        public virtual ICollection<MapNpc> MapNpc { get; set; }
     }
 }

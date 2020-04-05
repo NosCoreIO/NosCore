@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Relations;
@@ -30,6 +31,7 @@ using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.Database.DAL;
 using NosCore.GameObject;
@@ -64,7 +66,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         public void Setup()
         {
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
-                .ConstructUsing(src => new MapNpc(null, null, null, null, Logger));
+                .ConstructUsing(src => new MapNpc(null, null, null, null, Logger, new List<NpcTalkDto>()));
             Broadcaster.Reset();
             TestHelpers.Reset();
             _session = TestHelpers.Instance.GenerateSession();

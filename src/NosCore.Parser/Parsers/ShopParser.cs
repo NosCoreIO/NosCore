@@ -71,7 +71,6 @@ namespace NosCore.Parser.Parsers
 
                 var shop = new ShopDto
                 {
-                    Name = name.ToString(),
                     MapNpcId = npc.MapNpcId,
                     MenuType = byte.Parse(currentPacket[4]),
                     ShopType = byte.Parse(currentPacket[5])

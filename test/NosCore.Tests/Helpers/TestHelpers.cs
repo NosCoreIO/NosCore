@@ -250,7 +250,7 @@ namespace NosCore.Tests.Helpers
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig()
                 .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _shopDao, _shopItemDao,
-                    new List<NpcMonsterDto>(), _logger));
+                    new List<NpcMonsterDto>(), _logger, new List<NpcTalkDto>()));
             TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig()
                 .ConstructUsing(src => new GameObject.MapMonster(new List<NpcMonsterDto>(), _logger));
             var contextBuilder =

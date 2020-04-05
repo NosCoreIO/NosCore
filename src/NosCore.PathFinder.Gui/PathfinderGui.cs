@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -76,7 +77,7 @@ namespace NosCore.PathFinder.Gui
 
                 var npcMonsters = _npcMonsterDao.LoadAll().ToList();
                 TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig().ConstructUsing(src => new GameObject.MapMonster(npcMonsters, Logger));
-                TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig().ConstructUsing(src => new GameObject.MapNpc(new Mock<IItemProvider>().Object, new Mock<IGenericDao<ShopDto>>().Object, new Mock<IGenericDao<ShopItemDto>>().Object, npcMonsters, Logger));
+                TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig().ConstructUsing(src => new GameObject.MapNpc(new Mock<IItemProvider>().Object, new Mock<IGenericDao<ShopDto>>().Object, new Mock<IGenericDao<ShopItemDto>>().Object, npcMonsters, Logger, new List<NpcTalkDto>()));
                 while (true)
                 {
                     Logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));

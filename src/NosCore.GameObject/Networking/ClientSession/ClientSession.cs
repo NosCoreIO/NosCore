@@ -308,7 +308,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 await SendPacketAsync(Character.GeneratePairy(
                     Character.InventoryService!.LoadBySlotAndType((byte)EquipmentType.Fairy,
                         NoscorePocketType.Wear)?.ItemInstance as WearableInstance)).ConfigureAwait(false);
-                await SendPacketsAsync(Character.MapInstance.GetMapItems()).ConfigureAwait(false);
+                await SendPacketsAsync(Character.MapInstance.GetMapItems(Character.AccountLanguage)).ConfigureAwait(false);
                 await SendPacketsAsync(Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect())).ConfigureAwait(false);
 
                 var minilandPortals = _minilandProvider
@@ -346,7 +346,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
 
                     SendPacketAsync(s.GeneratePFlag());
-                    SendPacketAsync(s.GenerateShop());
+                    SendPacketAsync(s.GenerateShop(Account.Language));
                 });
                 await Character.SendPacketsAsync(Character.Quests.Values.Where(q => q.Quest.TargetMap == Character.MapId)
                     .Select(qst => qst.Quest.GenerateTargetPacket())).ConfigureAwait(false);

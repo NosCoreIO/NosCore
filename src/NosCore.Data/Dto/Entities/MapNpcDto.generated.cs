@@ -34,7 +34,7 @@ namespace NosCore.Data.Dto
 	[StaticMetaData(LoadedMessage = LogLanguageKey.MAPNPCS_LOADED)]
 	public class MapNpcDto : IDto
 	{
-		public short Dialog { get; set; }
+		public short? Dialog { get; set; }
 
 	 	public short Effect { get; set; }
 
@@ -68,6 +68,8 @@ namespace NosCore.Data.Dto
 	 	public System.Collections.Generic.ICollection<ShopDto> Shop { get; set; }
 
 	 	public System.Collections.Generic.ICollection<TeleporterDto> Teleporter { get; set; }
+
+	 	public NpcTalkDto NpcTalk { get; set; }
 
 	 }
 }

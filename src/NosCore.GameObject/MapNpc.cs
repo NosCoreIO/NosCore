@@ -20,12 +20,14 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using Mapster;
 using NosCore.Core;
+using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -44,12 +46,14 @@ namespace NosCore.GameObject
         private readonly List<NpcMonsterDto>? _npcMonsters;
         private readonly IGenericDao<ShopItemDto>? _shopItems;
         private readonly IGenericDao<ShopDto>? _shops;
+        private readonly List<NpcTalkDto> _npcTalks;
         public new NpcMonsterDto NpcMonster { get; private set; } = null!;
         public MapNpc(IItemProvider? itemProvider, IGenericDao<ShopDto>? shops,
             IGenericDao<ShopItemDto>? shopItems,
-            List<NpcMonsterDto>? npcMonsters, ILogger logger)
+            List<NpcMonsterDto>? npcMonsters, ILogger logger, List<NpcTalkDto> npcTalks)
         {
             _npcMonsters = npcMonsters;
+            _npcTalks = npcTalks;
             _shops = shops;
             _shopItems = shopItems;
             _itemProvider = itemProvider;
@@ -75,19 +79,19 @@ namespace NosCore.GameObject
                 return;
             }
 
+
+            var shopItemsDto = _shopItems!.Where(s => s.ShopId == shopObj.ShopId);
+            var shopItemsList = new ConcurrentDictionary<int, ShopItem>();
+            Parallel.ForEach(shopItemsDto, shopItemGrouping =>
             {
-                var shopItemsDto = _shopItems!.Where(s => s.ShopId == shopObj.ShopId);
-                var shopItemsList = new ConcurrentDictionary<int, ShopItem>();
-                Parallel.ForEach(shopItemsDto, shopItemGrouping =>
-                {
-                    var shopItem = shopItemGrouping.Adapt<ShopItem>();
-                    shopItem.ItemInstance = _itemProvider!.Create(shopItemGrouping.ItemVNum, -1);
-                    shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
-                });
-                Shop = shopObj.Adapt<Shop>();
-                Shop.Session = null;
-                Shop.ShopItems = shopItemsList;
-            }
+                var shopItem = shopItemGrouping.Adapt<ShopItem>();
+                shopItem.ItemInstance = _itemProvider!.Create(shopItemGrouping.ItemVNum, -1);
+                shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
+            });
+            Shop = shopObj.Adapt<Shop>();
+            Shop.Name = _npcTalks!.Find(s => s.DialogId == Dialog)?.Name ?? new I18NString();
+            Shop.Session = null;
+            Shop.ShopItems = shopItemsList;
         }
 
         public byte Speed { get; set; }
@@ -125,7 +129,7 @@ namespace NosCore.GameObject
 
         private void ShowDialog(RequestData requestData)
         {
-            requestData.ClientSession.SendPacketAsync(this.GenerateNpcReq(Dialog));
+            requestData.ClientSession.SendPacketAsync(this.GenerateNpcReq(Dialog ?? 0));
         }
 
         internal void StopLife()
