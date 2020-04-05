@@ -40,8 +40,6 @@ namespace NosCore.Data.StaticEntities
 
 	 	public byte MenuType { get; set; }
 
-	 	public string Name { get; set; }
-
 	 	[Key]
 		public int ShopId { get; set; }
 

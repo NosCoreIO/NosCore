@@ -574,7 +574,7 @@ namespace NosCore.GameObject
         {
             Shop = null;
 
-            await MapInstance.SendPacketAsync(this.GenerateShop()).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateShop(AccountLanguage)).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(this.GeneratePFlag()).ConfigureAwait(false);
 
             IsSitting = false;

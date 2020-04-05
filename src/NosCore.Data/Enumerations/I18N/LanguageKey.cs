@@ -155,7 +155,13 @@ namespace NosCore.Data.Enumerations.I18N
         PLATFORM_UNSUPORTED_CONSOLE_TITLE,
         SCRIPTS_PARSED,
         PARSE_SCRIPTS,
-        QUEST_NOT_FOUND
+        QUEST_NOT_FOUND,
+        NPCMONSTERSTALKS_LOADED,
+        QUESTS_LOADED,
+        QUESTOBJECTIVES_LOADED,
+        QUESTREWARDS_LOADED,
+        SCRIPTS_LOADED,
+        NPCTALKS_PARSED
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

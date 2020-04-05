@@ -148,6 +148,9 @@ namespace NosCore.Database
 
         public virtual DbSet<I18NSkill>? I18NSkill { get; set; }
 
+        public virtual DbSet<NpcTalk>? NpcTalk { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // remove automatic pluralization
@@ -278,6 +281,12 @@ namespace NosCore.Database
                 .HasMany(e => e.StaticBonus)
                 .WithOne(e => e.Character)
                 .HasForeignKey(e => e.CharacterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<NpcTalk>()
+                .HasMany(e => e.MapNpc)
+                .WithOne(e => e.NpcTalk)
+                .HasForeignKey(e => e.Dialog)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Character>()

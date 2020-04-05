@@ -417,11 +417,24 @@ namespace NosCore.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "NpcTalk",
+                columns: table => new
+                {
+                    DialogId = table.Column<short>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(maxLength: 255, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NpcTalk", x => x.DialogId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Quest",
                 columns: table => new
                 {
                     QuestId = table.Column<short>(nullable: false),
-                    QuestType = table.Column<int>(nullable: false),
+                    QuestType = table.Column<short>(nullable: false),
                     LevelMin = table.Column<byte>(nullable: false),
                     LevelMax = table.Column<byte>(nullable: false),
                     StartDialogId = table.Column<int>(nullable: true),
@@ -459,6 +472,24 @@ namespace NosCore.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_QuestReward", x => x.QuestRewardId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Script",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    ScriptId = table.Column<byte>(nullable: false),
+                    ScriptStepId = table.Column<short>(nullable: false),
+                    StepType = table.Column<string>(nullable: false),
+                    StringArgument = table.Column<string>(nullable: true),
+                    Argument1 = table.Column<short>(nullable: true),
+                    Argument2 = table.Column<short>(nullable: true),
+                    Argument3 = table.Column<short>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Script", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -602,82 +633,6 @@ namespace NosCore.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Character",
-                columns: table => new
-                {
-                    CharacterId = table.Column<long>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    AccountId = table.Column<long>(nullable: false),
-                    Act4Dead = table.Column<int>(nullable: false),
-                    Act4Kill = table.Column<int>(nullable: false),
-                    Act4Points = table.Column<int>(nullable: false),
-                    ArenaWinner = table.Column<int>(nullable: false),
-                    Biography = table.Column<string>(maxLength: 255, nullable: true),
-                    BuffBlocked = table.Column<bool>(nullable: false),
-                    Class = table.Column<byte>(nullable: false),
-                    Compliment = table.Column<short>(nullable: false),
-                    Dignity = table.Column<float>(nullable: false),
-                    Elo = table.Column<int>(nullable: false),
-                    EmoticonsBlocked = table.Column<bool>(nullable: false),
-                    ExchangeBlocked = table.Column<bool>(nullable: false),
-                    Faction = table.Column<byte>(nullable: false),
-                    FamilyRequestBlocked = table.Column<bool>(nullable: false),
-                    FriendRequestBlocked = table.Column<bool>(nullable: false),
-                    Gender = table.Column<byte>(nullable: false),
-                    Gold = table.Column<long>(nullable: false),
-                    GroupRequestBlocked = table.Column<bool>(nullable: false),
-                    HairColor = table.Column<byte>(nullable: false),
-                    HairStyle = table.Column<byte>(nullable: false),
-                    HeroChatBlocked = table.Column<bool>(nullable: false),
-                    HeroLevel = table.Column<byte>(nullable: false),
-                    HeroXp = table.Column<long>(nullable: false),
-                    Hp = table.Column<int>(nullable: false),
-                    HpBlocked = table.Column<bool>(nullable: false),
-                    JobLevel = table.Column<byte>(nullable: false),
-                    JobLevelXp = table.Column<long>(nullable: false),
-                    Level = table.Column<byte>(nullable: false),
-                    LevelXp = table.Column<long>(nullable: false),
-                    MapId = table.Column<short>(nullable: false),
-                    MapX = table.Column<short>(nullable: false),
-                    MapY = table.Column<short>(nullable: false),
-                    MasterPoints = table.Column<int>(nullable: false),
-                    MasterTicket = table.Column<int>(nullable: false),
-                    MaxMateCount = table.Column<byte>(nullable: false),
-                    MinilandInviteBlocked = table.Column<bool>(nullable: false),
-                    MouseAimLock = table.Column<bool>(nullable: false),
-                    Mp = table.Column<int>(nullable: false),
-                    Prefix = table.Column<string>(maxLength: 25, nullable: true),
-                    Name = table.Column<string>(unicode: false, maxLength: 255, nullable: false),
-                    QuickGetUp = table.Column<bool>(nullable: false),
-                    RagePoint = table.Column<long>(nullable: false),
-                    Reput = table.Column<long>(nullable: false),
-                    Slot = table.Column<byte>(nullable: false),
-                    SpAdditionPoint = table.Column<int>(nullable: false),
-                    SpPoint = table.Column<int>(nullable: false),
-                    State = table.Column<byte>(nullable: false),
-                    TalentLose = table.Column<int>(nullable: false),
-                    TalentSurrender = table.Column<int>(nullable: false),
-                    TalentWin = table.Column<int>(nullable: false),
-                    WhisperBlocked = table.Column<bool>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Character", x => x.CharacterId);
-                    table.ForeignKey(
-                        name: "FK_Character_Account_AccountId",
-                        column: x => x.AccountId,
-                        principalTable: "Account",
-                        principalColumn: "AccountId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Character_Map_MapId",
-                        column: x => x.MapId,
-                        principalTable: "Map",
-                        principalColumn: "MapId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Portal",
                 columns: table => new
                 {
@@ -789,7 +744,7 @@ namespace NosCore.Database.Migrations
                 columns: table => new
                 {
                     MapNpcId = table.Column<int>(nullable: false),
-                    Dialog = table.Column<short>(nullable: false),
+                    Dialog = table.Column<short>(nullable: true),
                     Effect = table.Column<short>(nullable: false),
                     EffectDelay = table.Column<short>(nullable: false),
                     IsDisabled = table.Column<bool>(nullable: false),
@@ -804,6 +759,12 @@ namespace NosCore.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MapNpc", x => x.MapNpcId);
+                    table.ForeignKey(
+                        name: "FK_MapNpc_NpcTalk_Dialog",
+                        column: x => x.Dialog,
+                        principalTable: "NpcTalk",
+                        principalColumn: "DialogId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_MapNpc_Map_MapId",
                         column: x => x.MapId,
@@ -862,6 +823,89 @@ namespace NosCore.Database.Migrations
                         column: x => x.QuestRewardId,
                         principalTable: "QuestReward",
                         principalColumn: "QuestRewardId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Character",
+                columns: table => new
+                {
+                    CharacterId = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    AccountId = table.Column<long>(nullable: false),
+                    Act4Dead = table.Column<int>(nullable: false),
+                    Act4Kill = table.Column<int>(nullable: false),
+                    Act4Points = table.Column<int>(nullable: false),
+                    ArenaWinner = table.Column<int>(nullable: false),
+                    CurrentScriptId = table.Column<Guid>(nullable: true),
+                    Biography = table.Column<string>(maxLength: 255, nullable: true),
+                    BuffBlocked = table.Column<bool>(nullable: false),
+                    Class = table.Column<byte>(nullable: false),
+                    Compliment = table.Column<short>(nullable: false),
+                    Dignity = table.Column<float>(nullable: false),
+                    Elo = table.Column<int>(nullable: false),
+                    EmoticonsBlocked = table.Column<bool>(nullable: false),
+                    ExchangeBlocked = table.Column<bool>(nullable: false),
+                    Faction = table.Column<byte>(nullable: false),
+                    FamilyRequestBlocked = table.Column<bool>(nullable: false),
+                    FriendRequestBlocked = table.Column<bool>(nullable: false),
+                    Gender = table.Column<byte>(nullable: false),
+                    Gold = table.Column<long>(nullable: false),
+                    GroupRequestBlocked = table.Column<bool>(nullable: false),
+                    HairColor = table.Column<byte>(nullable: false),
+                    HairStyle = table.Column<byte>(nullable: false),
+                    HeroChatBlocked = table.Column<bool>(nullable: false),
+                    HeroLevel = table.Column<byte>(nullable: false),
+                    HeroXp = table.Column<long>(nullable: false),
+                    Hp = table.Column<int>(nullable: false),
+                    HpBlocked = table.Column<bool>(nullable: false),
+                    JobLevel = table.Column<byte>(nullable: false),
+                    JobLevelXp = table.Column<long>(nullable: false),
+                    Level = table.Column<byte>(nullable: false),
+                    LevelXp = table.Column<long>(nullable: false),
+                    MapId = table.Column<short>(nullable: false),
+                    MapX = table.Column<short>(nullable: false),
+                    MapY = table.Column<short>(nullable: false),
+                    MasterPoints = table.Column<int>(nullable: false),
+                    MasterTicket = table.Column<int>(nullable: false),
+                    MaxMateCount = table.Column<byte>(nullable: false),
+                    MinilandInviteBlocked = table.Column<bool>(nullable: false),
+                    MouseAimLock = table.Column<bool>(nullable: false),
+                    Mp = table.Column<int>(nullable: false),
+                    Prefix = table.Column<string>(maxLength: 25, nullable: true),
+                    Name = table.Column<string>(unicode: false, maxLength: 255, nullable: false),
+                    QuickGetUp = table.Column<bool>(nullable: false),
+                    RagePoint = table.Column<long>(nullable: false),
+                    Reput = table.Column<long>(nullable: false),
+                    Slot = table.Column<byte>(nullable: false),
+                    SpAdditionPoint = table.Column<int>(nullable: false),
+                    SpPoint = table.Column<int>(nullable: false),
+                    State = table.Column<byte>(nullable: false),
+                    TalentLose = table.Column<int>(nullable: false),
+                    TalentSurrender = table.Column<int>(nullable: false),
+                    TalentWin = table.Column<int>(nullable: false),
+                    WhisperBlocked = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Character", x => x.CharacterId);
+                    table.ForeignKey(
+                        name: "FK_Character_Account_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "Account",
+                        principalColumn: "AccountId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Character_Script_CurrentScriptId",
+                        column: x => x.CurrentScriptId,
+                        principalTable: "Script",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Character_Map_MapId",
+                        column: x => x.MapId,
+                        principalTable: "Map",
+                        principalColumn: "MapId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -963,6 +1007,111 @@ namespace NosCore.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "MapType",
+                columns: table => new
+                {
+                    MapTypeId = table.Column<short>(nullable: false),
+                    MapTypeName = table.Column<string>(nullable: false),
+                    PotionDelay = table.Column<short>(nullable: false),
+                    RespawnMapTypeId = table.Column<long>(nullable: true),
+                    ReturnMapTypeId = table.Column<long>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MapType", x => x.MapTypeId);
+                    table.ForeignKey(
+                        name: "FK_MapType_RespawnMapType_RespawnMapTypeId",
+                        column: x => x.RespawnMapTypeId,
+                        principalTable: "RespawnMapType",
+                        principalColumn: "RespawnMapTypeId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_MapType_RespawnMapType_ReturnMapTypeId",
+                        column: x => x.ReturnMapTypeId,
+                        principalTable: "RespawnMapType",
+                        principalColumn: "RespawnMapTypeId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Recipe",
+                columns: table => new
+                {
+                    RecipeId = table.Column<short>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Amount = table.Column<byte>(nullable: false),
+                    ItemVNum = table.Column<short>(nullable: false),
+                    MapNpcId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Recipe", x => x.RecipeId);
+                    table.ForeignKey(
+                        name: "FK_Recipe_Item_ItemVNum",
+                        column: x => x.ItemVNum,
+                        principalTable: "Item",
+                        principalColumn: "VNum",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Recipe_MapNpc_MapNpcId",
+                        column: x => x.MapNpcId,
+                        principalTable: "MapNpc",
+                        principalColumn: "MapNpcId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Shop",
+                columns: table => new
+                {
+                    ShopId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MapNpcId = table.Column<int>(nullable: false),
+                    MenuType = table.Column<byte>(nullable: false),
+                    ShopType = table.Column<byte>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Shop", x => x.ShopId);
+                    table.ForeignKey(
+                        name: "FK_Shop_MapNpc_MapNpcId",
+                        column: x => x.MapNpcId,
+                        principalTable: "MapNpc",
+                        principalColumn: "MapNpcId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Teleporter",
+                columns: table => new
+                {
+                    TeleporterId = table.Column<short>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Index = table.Column<short>(nullable: false),
+                    Type = table.Column<byte>(nullable: false),
+                    MapId = table.Column<short>(nullable: false),
+                    MapNpcId = table.Column<int>(nullable: false),
+                    MapX = table.Column<short>(nullable: false),
+                    MapY = table.Column<short>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Teleporter", x => x.TeleporterId);
+                    table.ForeignKey(
+                        name: "FK_Teleporter_Map_MapId",
+                        column: x => x.MapId,
+                        principalTable: "Map",
+                        principalColumn: "MapId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Teleporter_MapNpc_MapNpcId",
+                        column: x => x.MapNpcId,
+                        principalTable: "MapNpc",
+                        principalColumn: "MapNpcId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CharacterActPart",
                 columns: table => new
                 {
@@ -994,12 +1143,7 @@ namespace NosCore.Database.Migrations
                     Id = table.Column<Guid>(nullable: false),
                     CharacterId = table.Column<long>(nullable: false),
                     QuestId = table.Column<short>(nullable: false),
-                    FirstObjective = table.Column<int>(nullable: false),
-                    SecondObjective = table.Column<int>(nullable: false),
-                    ThirdObjective = table.Column<int>(nullable: false),
-                    FourthObjective = table.Column<int>(nullable: false),
-                    FifthObjective = table.Column<int>(nullable: false),
-                    IsMainQuest = table.Column<bool>(nullable: false)
+                    CompletedOn = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1270,6 +1414,41 @@ namespace NosCore.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Respawn",
+                columns: table => new
+                {
+                    RespawnId = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CharacterId = table.Column<long>(nullable: false),
+                    MapId = table.Column<short>(nullable: false),
+                    RespawnMapTypeId = table.Column<long>(nullable: false),
+                    X = table.Column<short>(nullable: false),
+                    Y = table.Column<short>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Respawn", x => x.RespawnId);
+                    table.ForeignKey(
+                        name: "FK_Respawn_Character_CharacterId",
+                        column: x => x.CharacterId,
+                        principalTable: "Character",
+                        principalColumn: "CharacterId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Respawn_Map_MapId",
+                        column: x => x.MapId,
+                        principalTable: "Map",
+                        principalColumn: "MapId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Respawn_RespawnMapType_RespawnMapTypeId",
+                        column: x => x.RespawnMapTypeId,
+                        principalTable: "RespawnMapType",
+                        principalColumn: "RespawnMapTypeId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "StaticBonus",
                 columns: table => new
                 {
@@ -1365,143 +1544,149 @@ namespace NosCore.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MapType",
+                name: "Drop",
                 columns: table => new
                 {
-                    MapTypeId = table.Column<short>(nullable: false),
-                    MapTypeName = table.Column<string>(nullable: false),
-                    PotionDelay = table.Column<short>(nullable: false),
-                    RespawnMapTypeId = table.Column<long>(nullable: true),
-                    ReturnMapTypeId = table.Column<long>(nullable: true)
+                    DropId = table.Column<short>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Amount = table.Column<int>(nullable: false),
+                    DropChance = table.Column<int>(nullable: false),
+                    VNum = table.Column<short>(nullable: false),
+                    MapTypeId = table.Column<short>(nullable: true),
+                    MonsterVNum = table.Column<short>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MapType", x => x.MapTypeId);
+                    table.PrimaryKey("PK_Drop", x => x.DropId);
                     table.ForeignKey(
-                        name: "FK_MapType_RespawnMapType_RespawnMapTypeId",
-                        column: x => x.RespawnMapTypeId,
-                        principalTable: "RespawnMapType",
-                        principalColumn: "RespawnMapTypeId",
+                        name: "FK_Drop_MapType_MapTypeId",
+                        column: x => x.MapTypeId,
+                        principalTable: "MapType",
+                        principalColumn: "MapTypeId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_MapType_RespawnMapType_ReturnMapTypeId",
-                        column: x => x.ReturnMapTypeId,
-                        principalTable: "RespawnMapType",
-                        principalColumn: "RespawnMapTypeId",
+                        name: "FK_Drop_NpcMonster_MonsterVNum",
+                        column: x => x.MonsterVNum,
+                        principalTable: "NpcMonster",
+                        principalColumn: "NpcMonsterVNum",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Drop_Item_VNum",
+                        column: x => x.VNum,
+                        principalTable: "Item",
+                        principalColumn: "VNum",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Respawn",
+                name: "MapTypeMap",
                 columns: table => new
                 {
-                    RespawnId = table.Column<long>(nullable: false)
+                    MapTypeMapId = table.Column<short>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CharacterId = table.Column<long>(nullable: false),
                     MapId = table.Column<short>(nullable: false),
-                    RespawnMapTypeId = table.Column<long>(nullable: false),
-                    X = table.Column<short>(nullable: false),
-                    Y = table.Column<short>(nullable: false)
+                    MapTypeId = table.Column<short>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Respawn", x => x.RespawnId);
+                    table.PrimaryKey("PK_MapTypeMap", x => x.MapTypeMapId);
                     table.ForeignKey(
-                        name: "FK_Respawn_Character_CharacterId",
-                        column: x => x.CharacterId,
-                        principalTable: "Character",
-                        principalColumn: "CharacterId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Respawn_Map_MapId",
+                        name: "FK_MapTypeMap_Map_MapId",
                         column: x => x.MapId,
                         principalTable: "Map",
                         principalColumn: "MapId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Respawn_RespawnMapType_RespawnMapTypeId",
-                        column: x => x.RespawnMapTypeId,
-                        principalTable: "RespawnMapType",
-                        principalColumn: "RespawnMapTypeId",
+                        name: "FK_MapTypeMap_MapType_MapTypeId",
+                        column: x => x.MapTypeId,
+                        principalTable: "MapType",
+                        principalColumn: "MapTypeId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Recipe",
+                name: "RecipeItem",
                 columns: table => new
                 {
-                    RecipeId = table.Column<short>(nullable: false)
+                    RecipeItemId = table.Column<short>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Amount = table.Column<byte>(nullable: false),
+                    Amount = table.Column<short>(nullable: false),
                     ItemVNum = table.Column<short>(nullable: false),
-                    MapNpcId = table.Column<int>(nullable: false)
+                    RecipeId = table.Column<short>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Recipe", x => x.RecipeId);
+                    table.PrimaryKey("PK_RecipeItem", x => x.RecipeItemId);
                     table.ForeignKey(
-                        name: "FK_Recipe_Item_ItemVNum",
+                        name: "FK_RecipeItem_Item_ItemVNum",
                         column: x => x.ItemVNum,
                         principalTable: "Item",
                         principalColumn: "VNum",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Recipe_MapNpc_MapNpcId",
-                        column: x => x.MapNpcId,
-                        principalTable: "MapNpc",
-                        principalColumn: "MapNpcId",
+                        name: "FK_RecipeItem_Recipe_RecipeId",
+                        column: x => x.RecipeId,
+                        principalTable: "Recipe",
+                        principalColumn: "RecipeId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Shop",
+                name: "ShopItem",
                 columns: table => new
                 {
-                    ShopId = table.Column<int>(nullable: false)
+                    ShopItemId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MapNpcId = table.Column<int>(nullable: false),
-                    MenuType = table.Column<byte>(nullable: false),
-                    Name = table.Column<string>(maxLength: 255, nullable: false),
-                    ShopType = table.Column<byte>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Shop", x => x.ShopId);
-                    table.ForeignKey(
-                        name: "FK_Shop_MapNpc_MapNpcId",
-                        column: x => x.MapNpcId,
-                        principalTable: "MapNpc",
-                        principalColumn: "MapNpcId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Teleporter",
-                columns: table => new
-                {
-                    TeleporterId = table.Column<short>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Index = table.Column<short>(nullable: false),
+                    Color = table.Column<byte>(nullable: false),
+                    ItemVNum = table.Column<short>(nullable: false),
+                    Rare = table.Column<short>(nullable: false),
+                    ShopId = table.Column<int>(nullable: false),
+                    Slot = table.Column<byte>(nullable: false),
                     Type = table.Column<byte>(nullable: false),
-                    MapId = table.Column<short>(nullable: false),
-                    MapNpcId = table.Column<int>(nullable: false),
-                    MapX = table.Column<short>(nullable: false),
-                    MapY = table.Column<short>(nullable: false)
+                    Upgrade = table.Column<byte>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Teleporter", x => x.TeleporterId);
+                    table.PrimaryKey("PK_ShopItem", x => x.ShopItemId);
                     table.ForeignKey(
-                        name: "FK_Teleporter_Map_MapId",
-                        column: x => x.MapId,
-                        principalTable: "Map",
-                        principalColumn: "MapId",
+                        name: "FK_ShopItem_Item_ItemVNum",
+                        column: x => x.ItemVNum,
+                        principalTable: "Item",
+                        principalColumn: "VNum",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Teleporter_MapNpc_MapNpcId",
-                        column: x => x.MapNpcId,
-                        principalTable: "MapNpc",
-                        principalColumn: "MapNpcId",
+                        name: "FK_ShopItem_Shop_ShopId",
+                        column: x => x.ShopId,
+                        principalTable: "Shop",
+                        principalColumn: "ShopId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ShopSkill",
+                columns: table => new
+                {
+                    ShopSkillId = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ShopId = table.Column<int>(nullable: false),
+                    SkillVNum = table.Column<short>(nullable: false),
+                    Slot = table.Column<byte>(nullable: false),
+                    Type = table.Column<byte>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ShopSkill", x => x.ShopSkillId);
+                    table.ForeignKey(
+                        name: "FK_ShopSkill_Shop_ShopId",
+                        column: x => x.ShopId,
+                        principalTable: "Shop",
+                        principalColumn: "ShopId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ShopSkill_Skill_SkillVNum",
+                        column: x => x.SkillVNum,
+                        principalTable: "Skill",
+                        principalColumn: "SkillVNum",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -1665,153 +1850,6 @@ namespace NosCore.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Drop",
-                columns: table => new
-                {
-                    DropId = table.Column<short>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Amount = table.Column<int>(nullable: false),
-                    DropChance = table.Column<int>(nullable: false),
-                    VNum = table.Column<short>(nullable: false),
-                    MapTypeId = table.Column<short>(nullable: true),
-                    MonsterVNum = table.Column<short>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Drop", x => x.DropId);
-                    table.ForeignKey(
-                        name: "FK_Drop_MapType_MapTypeId",
-                        column: x => x.MapTypeId,
-                        principalTable: "MapType",
-                        principalColumn: "MapTypeId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Drop_NpcMonster_MonsterVNum",
-                        column: x => x.MonsterVNum,
-                        principalTable: "NpcMonster",
-                        principalColumn: "NpcMonsterVNum",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Drop_Item_VNum",
-                        column: x => x.VNum,
-                        principalTable: "Item",
-                        principalColumn: "VNum",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MapTypeMap",
-                columns: table => new
-                {
-                    MapTypeMapId = table.Column<short>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MapId = table.Column<short>(nullable: false),
-                    MapTypeId = table.Column<short>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MapTypeMap", x => x.MapTypeMapId);
-                    table.ForeignKey(
-                        name: "FK_MapTypeMap_Map_MapId",
-                        column: x => x.MapId,
-                        principalTable: "Map",
-                        principalColumn: "MapId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_MapTypeMap_MapType_MapTypeId",
-                        column: x => x.MapTypeId,
-                        principalTable: "MapType",
-                        principalColumn: "MapTypeId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RecipeItem",
-                columns: table => new
-                {
-                    RecipeItemId = table.Column<short>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Amount = table.Column<short>(nullable: false),
-                    ItemVNum = table.Column<short>(nullable: false),
-                    RecipeId = table.Column<short>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RecipeItem", x => x.RecipeItemId);
-                    table.ForeignKey(
-                        name: "FK_RecipeItem_Item_ItemVNum",
-                        column: x => x.ItemVNum,
-                        principalTable: "Item",
-                        principalColumn: "VNum",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_RecipeItem_Recipe_RecipeId",
-                        column: x => x.RecipeId,
-                        principalTable: "Recipe",
-                        principalColumn: "RecipeId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ShopItem",
-                columns: table => new
-                {
-                    ShopItemId = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Color = table.Column<byte>(nullable: false),
-                    ItemVNum = table.Column<short>(nullable: false),
-                    Rare = table.Column<short>(nullable: false),
-                    ShopId = table.Column<int>(nullable: false),
-                    Slot = table.Column<byte>(nullable: false),
-                    Type = table.Column<byte>(nullable: false),
-                    Upgrade = table.Column<byte>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ShopItem", x => x.ShopItemId);
-                    table.ForeignKey(
-                        name: "FK_ShopItem_Item_ItemVNum",
-                        column: x => x.ItemVNum,
-                        principalTable: "Item",
-                        principalColumn: "VNum",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ShopItem_Shop_ShopId",
-                        column: x => x.ShopId,
-                        principalTable: "Shop",
-                        principalColumn: "ShopId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ShopSkill",
-                columns: table => new
-                {
-                    ShopSkillId = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ShopId = table.Column<int>(nullable: false),
-                    SkillVNum = table.Column<short>(nullable: false),
-                    Slot = table.Column<byte>(nullable: false),
-                    Type = table.Column<byte>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ShopSkill", x => x.ShopSkillId);
-                    table.ForeignKey(
-                        name: "FK_ShopSkill_Shop_ShopId",
-                        column: x => x.ShopId,
-                        principalTable: "Shop",
-                        principalColumn: "ShopId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ShopSkill_Skill_SkillVNum",
-                        column: x => x.SkillVNum,
-                        principalTable: "Skill",
-                        principalColumn: "SkillVNum",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "MinilandObject",
                 columns: table => new
                 {
@@ -1881,6 +1919,11 @@ namespace NosCore.Database.Migrations
                 name: "IX_Character_AccountId",
                 table: "Character",
                 column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Character_CurrentScriptId",
+                table: "Character",
+                column: "CurrentScriptId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Character_MapId",
@@ -2074,6 +2117,11 @@ namespace NosCore.Database.Migrations
                 column: "VNum");
 
             migrationBuilder.CreateIndex(
+                name: "IX_MapNpc_Dialog",
+                table: "MapNpc",
+                column: "Dialog");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MapNpc_MapId",
                 table: "MapNpc",
                 column: "MapId");
@@ -2218,6 +2266,12 @@ namespace NosCore.Database.Migrations
                 name: "IX_RollGeneratedItem_OriginalItemVNum",
                 table: "RollGeneratedItem",
                 column: "OriginalItemVNum");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Script_ScriptId_ScriptStepId",
+                table: "Script",
+                columns: new[] { "ScriptId", "ScriptStepId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ScriptedInstance_MapId",
@@ -2490,10 +2544,16 @@ namespace NosCore.Database.Migrations
                 name: "Item");
 
             migrationBuilder.DropTable(
+                name: "NpcTalk");
+
+            migrationBuilder.DropTable(
                 name: "NpcMonster");
 
             migrationBuilder.DropTable(
                 name: "Account");
+
+            migrationBuilder.DropTable(
+                name: "Script");
 
             migrationBuilder.DropTable(
                 name: "Map");

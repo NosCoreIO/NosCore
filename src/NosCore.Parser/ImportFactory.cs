@@ -54,6 +54,7 @@ namespace NosCore.Parser
         private readonly SkillParser _skillParser;
         private readonly ActParser _actParser;
         private readonly ScriptParser _scriptParser;
+        private readonly NpcTalkParser _npcTalkParser;
         private readonly IGenericDao<I18NActDescDto> _i18NActDescDao;
         private readonly IGenericDao<I18NBCardDto> _i18NbCardDao;
         private readonly IGenericDao<I18NCardDto> _i18NCardDao;
@@ -73,7 +74,7 @@ namespace NosCore.Parser
             MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser,
             MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser,
             PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
-            ShopItemParser shopItemParser, ShopParser shopParser, SkillParser skillParser,
+            ShopItemParser shopItemParser, ShopParser shopParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
             QuestPrizeParser questPrizeParser, QuestParser questParser, ActParser actParser, ScriptParser scriptParser,
             IGenericDao<AccountDto> accountDao, IGenericDao<I18NQuestDto> i18NQuestDao, IGenericDao<I18NSkillDto> i18NSkillDao,
             IGenericDao<I18NNpcMonsterTalkDto> i18NNpcMonsterTalkDao,
@@ -100,6 +101,7 @@ namespace NosCore.Parser
             _shopParser = shopParser;
             _scriptParser = scriptParser;
             _skillParser = skillParser;
+            _npcTalkParser = npcTalkParser;
             _accountDao = accountDao;
             _i18NQuestDao = i18NQuestDao;
             _i18NSkillDao = i18NSkillDao;
@@ -148,6 +150,7 @@ namespace NosCore.Parser
 
         public void ImportMapNpcs()
         {
+            _npcTalkParser.Parse(_folder);
             _mapNpcParser.InsertMapNpcs(_packetList);
         }
 
