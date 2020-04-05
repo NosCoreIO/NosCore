@@ -69,5 +69,7 @@ namespace NosCore.Data.Dto
 
 	 	public System.Collections.Generic.ICollection<TeleporterDto> Teleporter { get; set; }
 
+	 	public NpcTalkDto NpcTalk { get; set; }
+
 	 }
 }

@@ -42,5 +42,7 @@ namespace NosCore.Data.StaticEntities
 		[AdaptMember("Name")]
 		public string NameI18NKey { get; set; }
 
+	 	public System.Collections.Generic.ICollection<MapNpcDto> MapNpc { get; set; }
+
 	 }
 }

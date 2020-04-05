@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    [Migration("20200329102627_Aphrodite1")]
+    [Migration("20200405000656_Aphrodite1")]
     partial class Aphrodite1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -319,6 +319,9 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("Compliment")
                         .HasColumnType("smallint");
 
+                    b.Property<Guid?>("CurrentScriptId")
+                        .HasColumnType("uuid");
+
                     b.Property<float>("Dignity")
                         .HasColumnType("real");
 
@@ -456,6 +459,8 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("AccountId");
 
+                    b.HasIndex("CurrentScriptId");
+
                     b.HasIndex("MapId");
 
                     b.ToTable("Character");
@@ -489,26 +494,11 @@ namespace NosCore.Database.Migrations
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("FifthObjective")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FirstObjective")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FourthObjective")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsMainQuest")
-                        .HasColumnType("boolean");
+                    b.Property<DateTime?>("CompletedOn")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<short>("QuestId")
                         .HasColumnType("smallint");
-
-                    b.Property<int>("SecondObjective")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ThirdObjective")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -1504,7 +1494,7 @@ namespace NosCore.Database.Migrations
                     b.Property<int>("MapNpcId")
                         .HasColumnType("integer");
 
-                    b.Property<short>("Dialog")
+                    b.Property<short?>("Dialog")
                         .HasColumnType("smallint");
 
                     b.Property<byte>("Direction")
@@ -1538,6 +1528,8 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.HasKey("MapNpcId");
+
+                    b.HasIndex("Dialog");
 
                     b.HasIndex("MapId");
 
@@ -1909,6 +1901,23 @@ namespace NosCore.Database.Migrations
                     b.ToTable("NpcMonsterSkill");
                 });
 
+            modelBuilder.Entity("NosCore.Database.Entities.NpcTalk", b =>
+                {
+                    b.Property<short>("DialogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("character varying(255)")
+                        .HasMaxLength(255);
+
+                    b.HasKey("DialogId");
+
+                    b.ToTable("NpcTalk");
+                });
+
             modelBuilder.Entity("NosCore.Database.Entities.PenaltyLog", b =>
                 {
                     b.Property<int>("PenaltyLogId")
@@ -2015,8 +2024,8 @@ namespace NosCore.Database.Migrations
                     b.Property<short?>("NextQuestId")
                         .HasColumnType("smallint");
 
-                    b.Property<int>("QuestType")
-                        .HasColumnType("integer");
+                    b.Property<short>("QuestType")
+                        .HasColumnType("smallint");
 
                     b.Property<short?>("RequiredQuestId")
                         .HasColumnType("smallint");
@@ -2311,6 +2320,41 @@ namespace NosCore.Database.Migrations
                     b.ToTable("RollGeneratedItem");
                 });
 
+            modelBuilder.Entity("NosCore.Database.Entities.Script", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<short?>("Argument1")
+                        .HasColumnType("smallint");
+
+                    b.Property<short?>("Argument2")
+                        .HasColumnType("smallint");
+
+                    b.Property<short?>("Argument3")
+                        .HasColumnType("smallint");
+
+                    b.Property<byte>("ScriptId")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("ScriptStepId")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("StepType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("StringArgument")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScriptId", "ScriptStepId")
+                        .IsUnique();
+
+                    b.ToTable("Script");
+                });
+
             modelBuilder.Entity("NosCore.Database.Entities.ScriptedInstance", b =>
                 {
                     b.Property<short>("ScriptedInstanceId")
@@ -2356,11 +2400,6 @@ namespace NosCore.Database.Migrations
 
                     b.Property<byte>("MenuType")
                         .HasColumnType("smallint");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("character varying(255)")
-                        .HasMaxLength(255);
 
                     b.Property<byte>("ShopType")
                         .HasColumnType("smallint");
@@ -2915,6 +2954,11 @@ namespace NosCore.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("NosCore.Database.Entities.Script", "Script")
+                        .WithMany("Characters")
+                        .HasForeignKey("CurrentScriptId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("NosCore.Database.Entities.Map", "Map")
                         .WithMany("Character")
                         .HasForeignKey("MapId")
@@ -3107,6 +3151,11 @@ namespace NosCore.Database.Migrations
 
             modelBuilder.Entity("NosCore.Database.Entities.MapNpc", b =>
                 {
+                    b.HasOne("NosCore.Database.Entities.NpcTalk", "NpcTalk")
+                        .WithMany("MapNpc")
+                        .HasForeignKey("Dialog")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("NosCore.Database.Entities.Map", "Map")
                         .WithMany("MapNpc")
                         .HasForeignKey("MapId")

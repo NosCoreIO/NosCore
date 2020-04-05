@@ -1492,7 +1492,7 @@ namespace NosCore.Database.Migrations
                     b.Property<int>("MapNpcId")
                         .HasColumnType("integer");
 
-                    b.Property<short>("Dialog")
+                    b.Property<short?>("Dialog")
                         .HasColumnType("smallint");
 
                     b.Property<byte>("Direction")
@@ -1526,6 +1526,8 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.HasKey("MapNpcId");
+
+                    b.HasIndex("Dialog");
 
                     b.HasIndex("MapId");
 
@@ -1895,6 +1897,23 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("SkillVNum");
 
                     b.ToTable("NpcMonsterSkill");
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.NpcTalk", b =>
+                {
+                    b.Property<short>("DialogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("character varying(255)")
+                        .HasMaxLength(255);
+
+                    b.HasKey("DialogId");
+
+                    b.ToTable("NpcTalk");
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.PenaltyLog", b =>
@@ -2379,11 +2398,6 @@ namespace NosCore.Database.Migrations
 
                     b.Property<byte>("MenuType")
                         .HasColumnType("smallint");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("character varying(255)")
-                        .HasMaxLength(255);
 
                     b.Property<byte>("ShopType")
                         .HasColumnType("smallint");
@@ -3135,6 +3149,11 @@ namespace NosCore.Database.Migrations
 
             modelBuilder.Entity("NosCore.Database.Entities.MapNpc", b =>
                 {
+                    b.HasOne("NosCore.Database.Entities.NpcTalk", "NpcTalk")
+                        .WithMany("MapNpc")
+                        .HasForeignKey("Dialog")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("NosCore.Database.Entities.Map", "Map")
                         .WithMany("MapNpc")
                         .HasForeignKey("MapId")
