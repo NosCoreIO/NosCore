@@ -46,7 +46,7 @@ namespace NosCore.GameObject
         private readonly List<NpcMonsterDto>? _npcMonsters;
         private readonly IGenericDao<ShopItemDto>? _shopItems;
         private readonly IGenericDao<ShopDto>? _shops;
-        private List<NpcTalkDto> _npcTalks;
+        private readonly List<NpcTalkDto> _npcTalks;
         public new NpcMonsterDto NpcMonster { get; private set; } = null!;
         public MapNpc(IItemProvider? itemProvider, IGenericDao<ShopDto>? shops,
             IGenericDao<ShopItemDto>? shopItems,
