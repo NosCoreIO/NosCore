@@ -74,7 +74,7 @@ namespace NosCore.Parser.Parsers
                     EffectDelay = 4750,
                     IsMoving = npcMvPacketsList.Contains(mapnpcid),
                     Direction = byte.Parse(currentPacket[6]),
-                    Dialog = short.Parse(currentPacket[9]) != 0 ? short.Parse(currentPacket[9]) : (short?)null,
+                    Dialog = npcTalks.ContainsKey(short.Parse(currentPacket[9])) ? short.Parse(currentPacket[9]) : (short?)null,
                     IsSitting = currentPacket[13] != "1",
                     IsDisabled = false
                 };
