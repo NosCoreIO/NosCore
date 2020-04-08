@@ -41,9 +41,9 @@ namespace NosCore.Tests.ItemHandlerTests
         private ItemProvider? _itemProvider;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            Session = TestHelpers.Instance.GenerateSession();
+            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             Handler = new TitleHandler();
             var items = new List<ItemDto>
             {
@@ -54,7 +54,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_TitleItemHandler()
+        public async Task Test_TitleItemHandlerAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);

@@ -26,6 +26,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -41,13 +42,13 @@ namespace NosCore.PacketHandlers.Bazaar
     public class CScalcPacketHandler : PacketHandler<CScalcPacket>, IWorldPacketHandler
     {
         private readonly IBazaarHttpClient _bazaarHttpClient;
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
         private readonly IItemProvider _itemProvider;
         private readonly ILogger _logger;
         private readonly WorldConfiguration _worldConfiguration;
 
         public CScalcPacketHandler(WorldConfiguration worldConfiguration, IBazaarHttpClient bazaarHttpClient,
-            IItemProvider itemProvider, ILogger logger, IGenericDao<IItemInstanceDto> itemInstanceDao)
+            IItemProvider itemProvider, ILogger logger, IDao<IItemInstanceDto, Guid> itemInstanceDao)
         {
             _worldConfiguration = worldConfiguration;
             _bazaarHttpClient = bazaarHttpClient;
@@ -73,7 +74,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(string.Format(
                             GameLanguage.Instance.GetMessageFromKey(LanguageKey.REMOVE_FROM_BAZAAR,
                                 clientSession.Account.Language), price), SayColorType.Yellow)).ConfigureAwait(false);
-                        var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == bz.ItemInstance.Id);
+                        var itemInstance = await _itemInstanceDao.FirstOrDefaultAsync(s => s.Id == bz.ItemInstance.Id).ConfigureAwait(false);
                         if (itemInstance == null)
                         {
                             return;

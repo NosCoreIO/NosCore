@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -44,7 +45,7 @@ namespace NosCore.GameObject
 
         public IDisposable? Life { get; private set; }
 
-        public void Initialize()
+        public Task InitializeAsync()
         {
             NpcMonster = _npcMonsters.Find(s => s.NpcMonsterVNum == VNum)!;
             Mp = NpcMonster?.MaxMp ?? 0;
@@ -53,6 +54,7 @@ namespace NosCore.GameObject
             PositionX = MapX;
             PositionY = MapY;
             IsAlive = true;
+            return Task.CompletedTask;
         }
 
         public bool IsSitting { get; set; }
@@ -116,7 +118,7 @@ namespace NosCore.GameObject
 
         private void MonsterLife()
         {
-            this.MoveAsync();
+            await this.MoveAsync().ConfigureAwait(false);
         }
     }
 }

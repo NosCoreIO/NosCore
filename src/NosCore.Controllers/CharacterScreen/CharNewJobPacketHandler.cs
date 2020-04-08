@@ -22,6 +22,7 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using Mapster;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject;
@@ -31,9 +32,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class CharNewJobPacketHandler : PacketHandler<CharNewJobPacket>, IWorldPacketHandler
     {
-        private readonly IGenericDao<CharacterDto> _characterDao;
+        private readonly IDao<CharacterDto, long> _characterDao;
 
-        public CharNewJobPacketHandler(IGenericDao<CharacterDto> characterDao)
+        public CharNewJobPacketHandler(IDao<CharacterDto, long> characterDao)
         {
             _characterDao = characterDao;
         }
@@ -41,7 +42,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
         public override Task ExecuteAsync(CharNewJobPacket packet, ClientSession clientSession)
         {
             //TODO add a flag on Account
-            if (_characterDao.FirstOrDefault(s =>
+            if (_characterDao.FirstOrDefaultAsync(s =>
                 (s.Level >= 80) && (s.AccountId == clientSession.Account.AccountId) &&
                 (s.State == CharacterState.Active)) == null)
             {
@@ -50,7 +51,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return Task.CompletedTask;
             }
 
-            if (_characterDao.FirstOrDefault(s =>
+            if (_characterDao.FirstOrDefaultAsync(s =>
                 (s.AccountId == clientSession.Account.AccountId) &&
                 (s.Class == CharacterClassType.MartialArtist) && (s.State == CharacterState.Active)) != null)
             {

@@ -17,11 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Mapster;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -32,19 +35,19 @@ namespace NosCore.MasterServer.DataHolders
     public class ParcelHolder : ConcurrentDictionary<long,
         ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>>
     {
-        private readonly IGenericDao<CharacterDto> _characterDao;
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IDao<CharacterDto, long> _characterDao;
+        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
         private readonly List<ItemDto> _items;
-        private readonly IGenericDao<MailDto> _mailDao;
+        private readonly IDao<MailDto, long> _mailDao;
 
-        public ParcelHolder(IGenericDao<CharacterDto> characterDao, IGenericDao<MailDto> mailDao, List<ItemDto> items,
-            IGenericDao<IItemInstanceDto> itemInstanceDao)
+        public ParcelHolder(IDao<CharacterDto, long> characterDao, IDao<MailDto, long> mailDao, List<ItemDto> items,
+            IDao<IItemInstanceDto, Guid> itemInstanceDao)
         {
             _mailDao = mailDao;
             _items = items;
             _characterDao = characterDao;
             _itemInstanceDao = itemInstanceDao;
-            Initialize();
+            InitializeAsync();
         }
 
         public new ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>> this[long characterId]
@@ -67,7 +70,7 @@ namespace NosCore.MasterServer.DataHolders
             }
         }
 
-        private void Initialize()
+        private async Task InitializeAsync()
         {
             var mails = _mailDao.LoadAll().ToList();
             var idcopy = 0;
@@ -77,12 +80,12 @@ namespace NosCore.MasterServer.DataHolders
             var characternames = new Dictionary<long, string?>();
             foreach (var characterId in charactersIds)
             {
-                characternames.Add(characterId, _characterDao.FirstOrDefault(s => s.CharacterId == characterId)?.Name);
+                characternames.Add(characterId, (await _characterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId).ConfigureAwait(false))?.Name);
             }
 
             foreach (var mail in mails)
             {
-                var itinst = _itemInstanceDao.FirstOrDefault(s => s.Id == mail.ItemInstanceId);
+                var itinst = await _itemInstanceDao.FirstOrDefaultAsync(s => s.Id == mail.ItemInstanceId).ConfigureAwait(false);
                 ItemDto? it = null;
                 if (itinst != null)
                 {

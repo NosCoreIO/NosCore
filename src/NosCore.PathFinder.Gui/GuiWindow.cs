@@ -52,14 +52,14 @@ namespace NosCore.PathFinder.Gui
         private readonly byte _gridsize;
         private readonly Map _map;
 
-        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao =
-            new GenericDao<MapMonster, MapMonsterDto, long>(_logger);
+        private readonly IDao<MapMonsterDto, int> _mapMonsterDao =
+           new Dao<MapMonster, MapMonsterDto, int>(_logger);
 
-        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<MapNpc, MapNpcDto, long>(_logger);
+        private readonly IDao<MapNpcDto, int> _mapNpcDao =new Dao<MapNpc, MapNpcDto, int>(_logger);
         private readonly List<GameObject.MapMonster> _monsters;
 
-        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao =
-            new GenericDao<NpcMonster, NpcMonsterDto, long>(_logger);
+        private readonly IDao<NpcMonsterDto, short> _npcMonsterDao =
+           new Dao<NpcMonster, NpcMonsterDto, short>(_logger);
 
         private readonly List<GameObject.MapNpc> _npcs;
         private readonly int _originalHeight;

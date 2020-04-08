@@ -32,6 +32,7 @@ using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
@@ -46,6 +47,7 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.Dao;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
 {
@@ -54,8 +56,8 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     {
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private Mock<IChannelHttpClient>? _channelHttpClient;
-        private Mock<IGenericDao<CharacterDto>>? _characterDao;
-        private IGenericDao<CharacterRelationDto>? _characterRelationDao;
+        private Mock<IDao<CharacterDto, long>>? _characterDao;
+        private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
         private Mock<IConnectedAccountHttpClient>? _connectedAccountHttpClient;
         private FdelPacketHandler? _fDelPacketHandler;
         private FriendController? _friendController;
@@ -63,12 +65,12 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(Logger);
+            _characterRelationDao =new Dao<CharacterRelation, CharacterRelationDto, Guid>(Logger, TestHelpers.Instance.ContextBuilder);
             Broadcaster.Reset();
             TestHelpers.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(It.IsAny<long?>(), It.IsAny<string?>()))
@@ -78,17 +80,17 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
             _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
                 _connectedAccountHttpClient.Object);
-            _characterDao = new Mock<IGenericDao<CharacterDto>>();
+            _characterDao = new Mock<IDao<CharacterDto, long>>();
             _friendController = new FriendController(Logger, _characterRelationDao, _characterDao.Object,
                 new FriendRequestHolder(), _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>()))
-                .Returns((long id) => _friendController.GetFriends(id));
+                .Returns((long id) => _friendController.GetFriendsAsync(id));
             _friendHttpClient.Setup(s => s.DeleteFriendAsync(It.IsAny<Guid>()))
-                .Callback((Guid id) => _friendController.Delete(id));
+                .Callback((Guid id) => _friendController.DeleteAsync(id));
         }
 
         [TestMethod]
-        public async Task Test_Delete_Friend_When_Disconnected()
+        public async Task Test_Delete_Friend_When_DisconnectedAsync()
         {
             var guid = Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
@@ -97,25 +99,25 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 _session!.Character!,
                 new CharacterDto {CharacterId = 2, Name = "test"}
             };
-            _characterDao!.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
-                .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
-            _characterRelationDao!.InsertOrUpdate(new[]
-            {
-                new CharacterRelationDto
-                {
-                    CharacterId = 2,
-                    CharacterRelationId = guid,
-                    RelatedCharacterId = _session.Character.CharacterId,
-                    RelationType = CharacterRelationType.Friend
-                },
-                new CharacterRelationDto
-                {
-                    RelatedCharacterId = 2,
-                    CharacterRelationId = targetGuid,
-                    CharacterId = _session.Character.CharacterId,
-                    RelationType = CharacterRelationType.Friend
-                }
-            });
+            _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile())));
+           await _characterRelationDao!.TryInsertOrUpdateAsync(new[]
+           {
+               new CharacterRelationDto
+               {
+                   CharacterId = 2,
+                   CharacterRelationId = guid,
+                   RelatedCharacterId = _session.Character.CharacterId,
+                   RelationType = CharacterRelationType.Friend
+               },
+               new CharacterRelationDto
+               {
+                   RelatedCharacterId = 2,
+                   CharacterRelationId = targetGuid,
+                   CharacterId = _session.Character.CharacterId,
+                   RelationType = CharacterRelationType.Friend
+               }
+           }).ConfigureAwait(false);
             var fdelPacket = new FdelPacket
             {
                 CharacterId = 2
@@ -127,9 +129,9 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         }
 
         [TestMethod]
-        public async Task Test_Delete_Friend()
+        public async Task Test_Delete_FriendAsync()
         {
-            var targetSession = TestHelpers.Instance.GenerateSession();
+            var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             var guid = Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
@@ -137,9 +139,9 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 _session!.Character!,
                 targetSession.Character!
             };
-            _characterDao!.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
-                .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
-            _characterRelationDao!.InsertOrUpdate(new[]
+            _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+                .ReturnsAsync((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
+            await _characterRelationDao!.TryInsertOrUpdateAsync(new[]
             {
                 new CharacterRelationDto
                 {
@@ -155,7 +157,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                     CharacterId = _session.Character.CharacterId,
                     RelationType = CharacterRelationType.Friend
                 }
-            });
+            }).ConfigureAwait(false);
             var fdelPacket = new FdelPacket
             {
                 CharacterId = targetSession.Character.CharacterId
@@ -167,9 +169,9 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         }
 
         [TestMethod]
-        public async Task Test_Delete_Friend_No_Friend()
+        public async Task Test_Delete_Friend_No_FriendAsync()
         {
-            var targetSession = TestHelpers.Instance.GenerateSession();
+            var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             var guid = Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
@@ -177,8 +179,8 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 _session!.Character!,
                 targetSession.Character!
             };
-            _characterDao!.Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
-                .Returns((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
+            _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile())));
 
             var fdelPacket = new FdelPacket
             {

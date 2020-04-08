@@ -35,16 +35,16 @@ namespace NosCore.Tests.PacketHandlerTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             new Mapper();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _characterDeletePacketHandler =
                 new CharacterDeletePacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao);
         }
 
         [TestMethod]
-        public async Task DeleteCharacter_Invalid_Password()
+        public async Task DeleteCharacter_Invalid_PasswordAsync()
         {
             _session!.SetCharacter(null);
             await _characterDeletePacketHandler!.ExecuteAsync(new CharacterDeletePacket
@@ -53,13 +53,13 @@ namespace NosCore.Tests.PacketHandlerTests
                 Password = "testpassword"
             }, _session).ConfigureAwait(false);
             Assert.IsNotNull(
-                TestHelpers.Instance.CharacterDao
-                    .FirstOrDefault(s =>
-                        (s.AccountId == _session.Account.AccountId) && (s.State == CharacterState.Active)));
+                await TestHelpers.Instance.CharacterDao
+                    .FirstOrDefaultAsync(s =>
+                        (s.AccountId == _session.Account.AccountId) && (s.State == CharacterState.Active)).ConfigureAwait(false));
         }
 
         [TestMethod]
-        public async Task DeleteCharacterWhenInGame_Does_Not_Delete_Character()
+        public async Task DeleteCharacterWhenInGame_Does_Not_Delete_CharacterAsync()
         {
             await _characterDeletePacketHandler!.ExecuteAsync(new CharacterDeletePacket
             {
@@ -67,13 +67,13 @@ namespace NosCore.Tests.PacketHandlerTests
                 Password = "test"
             }, _session!).ConfigureAwait(false);
             Assert.IsNotNull(
-                TestHelpers.Instance.CharacterDao
-                    .FirstOrDefault(s =>
-                        (s.AccountId == _session!.Account.AccountId) && (s.State == CharacterState.Active)));
+                await TestHelpers.Instance.CharacterDao
+                    .FirstOrDefaultAsync(s =>
+                        (s.AccountId == _session!.Account.AccountId) && (s.State == CharacterState.Active)).ConfigureAwait(false));
         }
 
         [TestMethod]
-        public async Task DeleteCharacter()
+        public async Task DeleteCharacterAsync()
         {
             _session!.SetCharacter(null);
             await _characterDeletePacketHandler!.ExecuteAsync(new CharacterDeletePacket
@@ -82,9 +82,9 @@ namespace NosCore.Tests.PacketHandlerTests
                 Password = "test"
             }, _session).ConfigureAwait(false);
             Assert.IsNull(
-                TestHelpers.Instance.CharacterDao
-                    .FirstOrDefault(s =>
-                        (s.AccountId == _session.Account.AccountId) && (s.State == CharacterState.Active)));
+                await TestHelpers.Instance.CharacterDao
+                    .FirstOrDefaultAsync(s =>
+                        (s.AccountId == _session.Account.AccountId) && (s.State == CharacterState.Active)).ConfigureAwait(false));
         }
     }
 }

@@ -17,10 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
+
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface IInitializable
     {
-        void Initialize();
+        Task InitializeAsync();
     }
 }

@@ -45,6 +45,8 @@ using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
 using CharacterRelation = NosCore.Database.Entities.CharacterRelation;
+using NosCore.Dao;
+using NosCore.Dao.Interfaces;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
 {
@@ -53,7 +55,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     {
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
-        private IGenericDao<CharacterRelationDto>? _characterRelationDao;
+        private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
         private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
         private FinsPacketHandler? _finsPacketHandler;
         private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
@@ -63,15 +65,15 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         private ClientSession? _targetSession;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
                 .ConstructUsing(src => new MapNpc(null, null, null, null, Logger, new List<NpcTalkDto>()));
             Broadcaster.Reset();
             TestHelpers.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
-            _targetSession = TestHelpers.Instance.GenerateSession();
-            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(Logger);
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _characterRelationDao =new Dao<CharacterRelation, CharacterRelationDto, Guid>(Logger, TestHelpers.Instance.ContextBuilder);
             _friendRequestHolder = new FriendRequestHolder();
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_targetSession.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
@@ -88,7 +90,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         }
 
         [TestMethod]
-        public async Task Test_Add_Friend()
+        public async Task Test_Add_FriendAsync()
         {
             _friendRequestHolder!.FriendRequestCharacters.TryAdd(Guid.NewGuid(),
                 new Tuple<long, long>(_targetSession!.Character.CharacterId, _session!.Character.CharacterId));
@@ -101,14 +103,14 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             using var friend = new FriendController(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
                 _friendRequestHolder, _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
-                .Returns(friend.AddFriend(new FriendShipRequest
+                .Returns(friend.AddFriendAsync(new FriendShipRequest
                     {CharacterId = _session.Character.CharacterId, FinsPacket = finsPacket}));
             await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
             Assert.IsTrue(_characterRelationDao!.LoadAll().Count() == 2);
         }
 
         [TestMethod]
-        public async Task Test_Add_Friend_When_Disconnected()
+        public async Task Test_Add_Friend_When_DisconnectedAsync()
         {
             var finsPacket = new FinsPacket
             {
@@ -118,7 +120,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             using var friend = new FriendController(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
                 _friendRequestHolder!, _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>())).Returns(
-                friend.AddFriend(new FriendShipRequest
+                friend.AddFriendAsync(new FriendShipRequest
                     {CharacterId = _session!.Character.CharacterId, FinsPacket = finsPacket}));
             await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
 
@@ -126,7 +128,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         }
 
         [TestMethod]
-        public async Task Test_Add_Not_Requested_Friend()
+        public async Task Test_Add_Not_Requested_FriendAsync()
         {
             var finsPacket = new FinsPacket
             {
@@ -136,7 +138,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             using var friend = new FriendController(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
                 _friendRequestHolder!, _connectedAccountHttpClient.Object);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
-                .Returns(friend.AddFriend(new FriendShipRequest
+                .Returns(friend.AddFriendAsync(new FriendShipRequest
                     {CharacterId = _session!.Character.CharacterId, FinsPacket = finsPacket}));
 
             await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);

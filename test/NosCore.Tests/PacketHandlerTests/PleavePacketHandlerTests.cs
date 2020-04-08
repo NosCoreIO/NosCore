@@ -45,13 +45,13 @@ namespace NosCore.Tests.PacketHandlerTests
         private PleavePacketHandler? _pLeavePacketHandler;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             Broadcaster.Reset();
             GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
             for (byte i = 0; i < (byte) (GroupType.Group + 1); i++)
             {
-                var session = TestHelpers.Instance.GenerateSession();
+                var session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
                 session.RegisterChannel(null);
                 _characters.Add(i, session.Character!);
                 session.Character.Group!.JoinGroup(session.Character);
@@ -64,7 +64,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Leave_Group_When_Not_Grouped()
+        public async Task Test_Leave_Group_When_Not_GroupedAsync()
         {
             await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _characters[0].Session).ConfigureAwait(false);
 
@@ -72,7 +72,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Leave_Group_When_Grouped()
+        public async Task Test_Leave_Group_When_GroupedAsync()
         {
             for (var i = 1; i < 3; i++)
             {
@@ -98,7 +98,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Leader_Change()
+        public async Task Test_Leader_ChangeAsync()
         {
             for (var i = 1; i < 3; i++)
             {
@@ -126,7 +126,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Leaving_Three_Person_Group()
+        public async Task Test_Leaving_Three_Person_GroupAsync()
         {
             for (var i = 1; i < 3; i++)
             {
@@ -154,7 +154,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Decline_Group_Join_Requested()
+        public async Task Test_Decline_Group_Join_RequestedAsync()
         {
             _characters[1].GroupRequestCharacterIds
                 .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
@@ -172,7 +172,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Leaving_Two_Person_Group()
+        public async Task Test_Leaving_Two_Person_GroupAsync()
         {
             _characters[1].GroupRequestCharacterIds
                 .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);

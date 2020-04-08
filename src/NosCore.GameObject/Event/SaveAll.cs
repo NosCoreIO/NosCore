@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Event
             try
             {
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SAVING_ALL));
-                Parallel.ForEach(Broadcaster.Instance.GetCharacters(), session => session.Save());
+                Parallel.ForEach(Broadcaster.Instance.GetCharacters(), session => session.SaveAsync());
             }
             catch (Exception e)
             {

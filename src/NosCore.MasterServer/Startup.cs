@@ -50,6 +50,8 @@ using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Dao;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations;
@@ -92,12 +94,16 @@ namespace NosCore.MasterServer
                 {
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                    var typepk = type.FindKey();
+                    var typepk = type.GetProperties()
+                        .Where(s => context.Model.FindEntityType(t)
+                            .FindPrimaryKey().Properties.Select(x => x.Name)
+                            .Contains(s.Name)
+                        ).ToArray()[0];
                     registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType)
                         .Invoke(null, new object?[] { containerBuilder });
                 });
 
-            containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
+            containerBuilder.RegisterType<ItemInstanceDao>().As<IDao<IItemInstanceDto, Guid>>().SingleInstance();
 
             containerBuilder.Register(c =>
                 {
@@ -105,12 +111,12 @@ namespace NosCore.MasterServer
                     {
                         {
                             typeof(I18NItemDto),
-                            c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key ?? "",
+                            c.Resolve<IDao<I18NItemDto, int>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key ?? "",
                                 x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         }
                     };
 
-                    var items = c.Resolve<IGenericDao<ItemDto>>().LoadAll().ToList();
+                    var items = c.Resolve<IDao<ItemDto, short>>().LoadAll().ToList();
                     var props = StaticDtoExtension.GetI18NProperties(typeof(ItemDto));
 
                     var regions = Enum.GetValues(typeof(RegionType));
@@ -140,9 +146,9 @@ namespace NosCore.MasterServer
                 .AutoActivate();
         }
 
-        public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder) where TDb : class
+        public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder) where TDb : class where TPk : struct
         {
-            containerBuilder.RegisterType<GenericDao<TDb, TDto, TPk>>().As<IGenericDao<TDto>>().SingleInstance();
+            containerBuilder.RegisterType<Dao<TDb, TDto, TPk>>().As<IDao<TDto, TPk>>().SingleInstance();
         }
 
         private ContainerBuilder InitializeContainer(IServiceCollection services)

@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Bazaar;
@@ -26,6 +27,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
@@ -43,12 +45,12 @@ namespace NosCore.PacketHandlers.Bazaar
     {
         private readonly IBazaarHttpClient _bazaarHttpClient;
         private readonly WorldConfiguration _configuration;
-        private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
+        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
 
         public CRegPacketHandler(WorldConfiguration configuration, IBazaarHttpClient bazaarHttpClient,
-            IGenericDao<IItemInstanceDto> itemInstanceDao,
-            IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao)
+            IDao<IItemInstanceDto, Guid> itemInstanceDao,
+            IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao)
         {
             _configuration = configuration;
             _bazaarHttpClient = bazaarHttpClient;
@@ -131,7 +133,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
             IItemInstanceDto bazaaritem = bazar.ItemInstance;
-            _itemInstanceDao.InsertOrUpdate(ref bazaaritem);
+            bazaaritem = await _itemInstanceDao.TryInsertOrUpdateAsync(bazaaritem).ConfigureAwait(false);
 
             var result = await _bazaarHttpClient.AddBazaarAsync(new BazaarRequest
             {
@@ -158,7 +160,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 case LanguageKey.OBJECT_IN_BAZAAR:
                     if (bazar.ItemInstance.Amount == cRegPacket.Amount)
                     {
-                        _inventoryItemInstanceDao.Delete(bazar.Id);
+                        await _inventoryItemInstanceDao.TryDeleteAsync(bazar.Id).ConfigureAwait(false);
                         clientSession.Character.InventoryService.DeleteById(bazar.ItemInstanceId);
                     }
                     else

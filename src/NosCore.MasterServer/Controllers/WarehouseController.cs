@@ -33,12 +33,12 @@ namespace NosCore.MasterServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class WarehouseController : Controller
     {
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
-        private readonly IGenericDao<WarehouseDto> _warehouseDao;
-        private readonly IGenericDao<WarehouseItemDto> _warehouseItemDao;
+        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
+        private readonly IDao<WarehouseDto> _warehouseDao;
+        private readonly IDao<WarehouseItemDto> _warehouseItemDao;
 
-        public WarehouseController(IGenericDao<WarehouseItemDto> warehouseItemDao,
-            IGenericDao<WarehouseDto> warehouseDao, IGenericDao<IItemInstanceDto> itemInstanceDao)
+        public WarehouseController(IDao<WarehouseItemDto> warehouseItemDao,
+            IDao<WarehouseDto> warehouseDao, IDao<IItemInstanceDto, Guid> itemInstanceDao)
         {
             _itemInstanceDao = itemInstanceDao;
             _warehouseItemDao = warehouseItemDao;
@@ -51,7 +51,7 @@ namespace NosCore.MasterServer.Controllers
             var list = new List<WarehouseLink>();
             if (id == null)
             {
-                var warehouse = _warehouseDao.FirstOrDefault(s
+                var warehouse = _warehouseDao.FirstOrDefaultAsync(s
                     => s.Type == warehouseType
                     && s.CharacterId == (warehouseType == WarehouseType.FamilyWareHouse ? null : ownerId)
                     && s.FamilyId == (warehouseType == WarehouseType.FamilyWareHouse ? ownerId : null));
@@ -77,7 +77,7 @@ namespace NosCore.MasterServer.Controllers
         [HttpDelete]
         public bool DeleteWarehouseItem(Guid id)
         {
-            var item = _warehouseItemDao.FirstOrDefault(s => s.Id == id);
+            var item = _warehouseItemDao.FirstOrDefaultAsync(s => s.Id == id);
             if (item == null)
             {
                 return false;

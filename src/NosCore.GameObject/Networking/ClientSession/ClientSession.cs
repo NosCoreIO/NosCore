@@ -201,9 +201,9 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                     await Character.LeaveGroupAsync().ConfigureAwait(false);
                     await Character.MapInstance.SendPacketAsync(Character.GenerateOut()).ConfigureAwait(false);
-                    Character.Save();
+                    Character.SaveAsync();
 
-                    _minilandProvider.DeleteMiniland(Character.CharacterId);
+                    _minilandProvider.DeleteMinilandAsync(Character.CharacterId);
                 }
 
                 Broadcaster.Instance.UnregisterSession(this);
@@ -337,7 +337,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 Parallel.ForEach(mapSessions, s =>
                 {
-                    SendPacketAsync(s.GenerateIn(s.Authority == AuthorityType.Moderator
+                    await SendPacketAsync(s.GenerateIn(s.Authority == AuthorityType.Moderator
                         ? $"[{GameLanguage.Instance.GetMessageFromKey(LanguageKey.SUPPORT, s.AccountLanguage)}]"
                         : string.Empty));
                     if (s.Shop == null)
@@ -345,8 +345,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                         return;
                     }
 
-                    SendPacketAsync(s.GeneratePFlag());
-                    SendPacketAsync(s.GenerateShop(Account.Language));
+                    await SendPacketAsync(s.GeneratePFlag());
+                    await SendPacketAsync(s.GenerateShop(Account.Language));
                 });
                 await Character.SendPacketsAsync(Character.Quests.Values.Where(q => q.Quest.TargetMap == Character.MapId)
                     .Select(qst => qst.Quest.GenerateTargetPacket())).ConfigureAwait(false);

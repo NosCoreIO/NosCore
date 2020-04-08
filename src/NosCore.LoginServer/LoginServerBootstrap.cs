@@ -46,6 +46,7 @@ using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
@@ -61,6 +62,7 @@ using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers.Login;
 using Serilog;
 using ILogger = Serilog.ILogger;
+using NosCore.Dao;
 
 namespace NosCore.LoginServer
 {
@@ -95,7 +97,7 @@ namespace NosCore.LoginServer
         {
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterInstance(_loginConfiguration!).As<LoginConfiguration>().As<ServerConfiguration>();
-            containerBuilder.RegisterType<GenericDao<Account, AccountDto, long>>().As<IGenericDao<AccountDto>>()
+            containerBuilder.RegisterType<Dao<Account, AccountDto, int>>().As<IDao<AccountDto, int>>()
                 .SingleInstance();
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
@@ -180,7 +182,7 @@ namespace NosCore.LoginServer
 
                     Task.Run(() => container.Resolve<LoginServer>().RunAsync());
                     TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
-                       .AfterMapping(dest => Task.Run(dest.Initialize));
+                       .AfterMapping(dest => Task.Run(dest.InitializeAsync));
                     TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
                 })

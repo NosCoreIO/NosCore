@@ -30,10 +30,10 @@ namespace NosCore.Parser.Parsers
     public class ShopItemParser
     {
         private readonly ILogger _logger;
-        private readonly IGenericDao<ShopDto> _shopDao;
-        private readonly IGenericDao<ShopItemDto> _shopItemDao;
+        private readonly IDao<ShopDto, int> _shopDao;
+        private readonly IDao<ShopItemDto, int> _shopItemDao;
 
-        public ShopItemParser(IGenericDao<ShopItemDto> shopItemDao, IGenericDao<ShopDto> shopDao, ILogger logger)
+        public ShopItemParser(IDao<ShopItemDto, int> shopItemDao, IDao<ShopDto, int> shopDao, ILogger logger)
         {
             _shopItemDao = shopItemDao;
             _shopDao = shopDao;

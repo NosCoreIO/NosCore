@@ -26,6 +26,7 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
@@ -41,26 +42,26 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class SelectPacketHandler : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
-        private readonly IGenericDao<CharacterDto> _characterDao;
-        private readonly IGenericDao<InventoryItemInstanceDto> _inventoryItemInstanceDao;
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IDao<CharacterDto, long> _characterDao;
+        private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
+        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
         private readonly IItemProvider _itemProvider;
         private readonly ILogger _logger;
         private readonly IMapInstanceProvider _mapInstanceProvider;
-        private readonly IGenericDao<QuicklistEntryDto> _quickListEntriesDao;
-        private readonly IGenericDao<StaticBonusDto> _staticBonusDao;
-        private readonly IGenericDao<TitleDto> _titleDao;
-        private readonly IGenericDao<CharacterQuestDto> _characterQuestDao;
-        private readonly IGenericDao<ScriptDto> _scriptDao;
+        private readonly IDao<QuicklistEntryDto, Guid> _quickListEntriesDao;
+        private readonly IDao<StaticBonusDto, long> _staticBonusDao;
+        private readonly IDao<TitleDto, Guid> _titleDao;
+        private readonly IDao<CharacterQuestDto, Guid> _characterQuestDao;
+        private readonly IDao<ScriptDto, Guid> _scriptDao;
         private readonly List<QuestObjectiveDto> _questObjectives;
         private readonly List<QuestDto> _quests;
 
-        public SelectPacketHandler(IGenericDao<CharacterDto> characterDao, ILogger logger,
+        public SelectPacketHandler(IDao<CharacterDto, long> characterDao, ILogger logger,
             IItemProvider itemProvider,
-            IMapInstanceProvider mapInstanceProvider, IGenericDao<IItemInstanceDto> itemInstanceDao,
-            IGenericDao<InventoryItemInstanceDto> inventoryItemInstanceDao, IGenericDao<StaticBonusDto> staticBonusDao,
-            IGenericDao<QuicklistEntryDto> quickListEntriesDao, IGenericDao<TitleDto> titleDao, IGenericDao<CharacterQuestDto> characterQuestDao,
-            IGenericDao<ScriptDto> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives)
+            IMapInstanceProvider mapInstanceProvider, IDao<IItemInstanceDto, Guid> itemInstanceDao,
+            IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<StaticBonusDto, long> staticBonusDao,
+            IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
+            IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives)
         {
             _characterDao = characterDao;
             _logger = logger;
@@ -77,22 +78,22 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _questObjectives = questObjectives;
         }
 
-        public override Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
+        public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
         {
             try
             {
                 if ((clientSession?.Account == null) || clientSession.HasSelectedCharacter)
                 {
-                    return Task.CompletedTask;
+                    return;
                 }
 
-                var characterDto =
-                    _characterDao.FirstOrDefault(s =>
+                var characterDto = await
+                    _characterDao.FirstOrDefaultAsync(s =>
                         (s.AccountId == clientSession.Account.AccountId) && (s.Slot == packet.Slot)
-                        && (s.State == CharacterState.Active));
+                        && (s.State == CharacterState.Active)).ConfigureAwait(false);
                 if (characterDto == null)
                 {
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 var character = characterDto.Adapt<Character>();
@@ -102,7 +103,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Direction = 2;
-                character.Script = character.CurrentScriptId != null ? _scriptDao.FirstOrDefault(s => s.Id == character.CurrentScriptId) : null;
+                character.Script = character.CurrentScriptId != null ? await _scriptDao.FirstOrDefaultAsync(s => s.Id == character.CurrentScriptId).ConfigureAwait(false) : null;
                 character.Group!.JoinGroup(character);
 
                 var inventories = _inventoryItemInstanceDao
@@ -116,9 +117,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 clientSession.SetCharacter(character);
 
 #pragma warning disable CS0618
-                clientSession.SendPacketsAsync(clientSession.Character.GenerateInv());
+                await clientSession.SendPacketsAsync(clientSession.Character.GenerateInv()).ConfigureAwait(false);
 #pragma warning restore CS0618
-                clientSession.SendPacketAsync(clientSession.Character.GenerateMlobjlst());
+                await clientSession.SendPacketAsync(clientSession.Character.GenerateMlobjlst()).ConfigureAwait(false);
                 if (clientSession.Character.Hp > clientSession.Character.HpLoad())
                 {
                     clientSession.Character.Hp = (int)clientSession.Character.HpLoad();
@@ -144,13 +145,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
                 clientSession.Character.Titles = _titleDao
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
-                clientSession.SendPacketAsync(new OkPacket());
+                await clientSession.SendPacketAsync(new OkPacket()).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 _logger.Error("Select character failed.", ex);
             }
-            return Task.CompletedTask;
         }
     }
 }

@@ -47,7 +47,7 @@ namespace NosCore.Tests.GuriHandlerTests
         private IItemProvider? _itemProvider;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             var items = new List<ItemDto>
             {
@@ -56,12 +56,12 @@ namespace NosCore.Tests.GuriHandlerTests
             _itemProvider = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            Session = TestHelpers.Instance.GenerateSession();
+            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             Handler = new TitleGuriHandler();
         }
 
         [TestMethod]
-        public async Task Test_TitleGuriHandler()
+        public async Task Test_TitleGuriHandlerAsync()
         {
             Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
             await ExecuteGuriEventHandlerAsync(new GuriPacket
@@ -76,7 +76,7 @@ namespace NosCore.Tests.GuriHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_TitleGuriHandlerWhenDuplicate()
+        public async Task Test_TitleGuriHandlerWhenDuplicateAsync()
         {
             Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
             Session.Character.Titles = new List<TitleDto> { new TitleDto { TitleType = 1 } };
@@ -91,7 +91,7 @@ namespace NosCore.Tests.GuriHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_TitleGuriHandlerWhenNoTitleItem()
+        public async Task Test_TitleGuriHandlerWhenNoTitleItemAsync()
         {
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {

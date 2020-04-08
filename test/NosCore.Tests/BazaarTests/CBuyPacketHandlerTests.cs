@@ -27,6 +27,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -49,18 +50,18 @@ namespace NosCore.Tests.BazaarTests
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CBuyPacketHandler? _cbuyPacketHandler;
-        private Mock<IGenericDao<IItemInstanceDto>>? _itemInstanceDao;
+        private Mock<IDao<IItemInstanceDto, Guid>>? _itemInstanceDao;
         private Mock<IItemProvider>? _itemProvider;
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             TestHelpers.Reset();
             Broadcaster.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
-            _itemInstanceDao = new Mock<IGenericDao<IItemInstanceDto>>();
+            _itemInstanceDao = new Mock<IDao<IItemInstanceDto, Guid>>();
             _itemProvider = new Mock<IItemProvider>();
             _cbuyPacketHandler = new CBuyPacketHandler(_bazaarHttpClient.Object, _itemProvider.Object, Logger,
                 _itemInstanceDao.Object);
@@ -91,7 +92,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task BuyWhenExchangeOrTrade()
+        public async Task BuyWhenExchangeOrTradeAsync()
         {
             _session!.Character.InShop = true;
             await _session!.HandlePacketsAsync(new[]
@@ -108,7 +109,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task BuyWhenNoItemFound()
+        public async Task BuyWhenNoItemFoundAsync()
         {
             await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
@@ -123,7 +124,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task BuyWhenSeller()
+        public async Task BuyWhenSellerAsync()
         {
             await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
@@ -138,7 +139,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task BuyWhenDifferentPrice()
+        public async Task BuyWhenDifferentPriceAsync()
         {
             await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
@@ -153,7 +154,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task BuyWhenCanNotAddItem()
+        public async Task BuyWhenCanNotAddItemAsync()
         {
             var guid1 = Guid.NewGuid();
             var guid2 = Guid.NewGuid();
@@ -180,7 +181,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task BuyMoreThanSelling()
+        public async Task BuyMoreThanSellingAsync()
         {
             _session!.Character.Gold = 5000;
             await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
@@ -196,7 +197,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task BuyPartialPackage()
+        public async Task BuyPartialPackageAsync()
         {
             _session!.Character.Gold = 5000;
             await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
@@ -210,7 +211,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task BuyPackage()
+        public async Task BuyPackageAsync()
         {
             _session!.Character.Gold = 5000;
             var item = new Item { Type = NoscorePocketType.Main };
@@ -229,7 +230,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task BuyNotEnoughMoney()
+        public async Task BuyNotEnoughMoneyAsync()
         {
             await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
@@ -244,7 +245,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task Buy()
+        public async Task BuyAsync()
         {
             _session!.Character.Gold = 5000;
             var item = new Item { Type = NoscorePocketType.Main };

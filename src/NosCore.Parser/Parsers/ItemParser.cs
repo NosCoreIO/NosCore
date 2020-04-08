@@ -21,9 +21,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -49,18 +51,18 @@ namespace NosCore.Parser.Parsers
         //#========================================================
         private readonly string ItemCardDto = $"{Path.DirectorySeparatorChar}Item.dat";
 
-        private readonly IGenericDao<ItemDto> _itemDao;
-        private readonly IGenericDao<BCardDto> _bcardDao;
+        private readonly IDao<ItemDto, short> _itemDao;
+        private readonly IDao<BCardDto, short> _bcardDao;
         private readonly ILogger _logger;
 
-        public ItemParser(IGenericDao<ItemDto> itemDao, IGenericDao<BCardDto> bCardDao, ILogger logger)
+        public ItemParser(IDao<ItemDto, short> itemDao, IDao<BCardDto, short> bCardDao, ILogger logger)
         {
             _itemDao = itemDao;
             _bcardDao = bCardDao;
             _logger = logger;
         }
 
-        public void Parse(string folder)
+        public async Task ParseAsync(string folder)
         {
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
@@ -166,8 +168,8 @@ namespace NosCore.Parser.Parsers
                 { 16, new List<(short, short)> { (5173, 2511) } },
             });
 
-            _itemDao.InsertOrUpdate(items);
-            _bcardDao.InsertOrUpdate(items.Where(s => s.BCards != null).SelectMany(s => s.BCards));
+            await _itemDao.TryInsertOrUpdateAsync(items).ConfigureAwait(false);
+            await _bcardDao.TryInsertOrUpdateAsync(items.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMS_PARSED), items.Count);
         }

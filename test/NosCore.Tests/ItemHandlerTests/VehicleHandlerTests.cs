@@ -47,9 +47,9 @@ namespace NosCore.Tests.ItemHandlerTests
         private ItemProvider? _itemProvider;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            Session = TestHelpers.Instance.GenerateSession();
+            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _logger = new Mock<ILogger>();
             Handler = new VehicleEventHandler(_logger.Object);
             var items = new List<ItemDto>
@@ -62,7 +62,7 @@ namespace NosCore.Tests.ItemHandlerTests
 
 
         [TestMethod]
-        public async Task Test_Can_Not_Vehicle_In_Shop()
+        public async Task Test_Can_Not_Vehicle_In_ShopAsync()
         {
             Session!.Character.InShop = true;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
@@ -71,7 +71,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Vehicle_GetDelayed()
+        public async Task Test_Vehicle_GetDelayedAsync()
         {
             UseItem.Mode = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
@@ -81,7 +81,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Vehicle()
+        public async Task Test_VehicleAsync()
         {
             UseItem.Mode = 2;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
@@ -90,7 +90,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Vehicle_Remove()
+        public async Task Test_Vehicle_RemoveAsync()
         {
             Session!.Character.IsVehicled = true;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);

@@ -41,18 +41,18 @@ namespace NosCore.Tests.BazaarTests
         private BazaarController? _bazaarController;
         private BazaarItemsHolder? _bazaarItemsHolder;
         private Guid _guid;
-        private Mock<IGenericDao<BazaarItemDto>>? _mockBzDao;
-        private Mock<IGenericDao<IItemInstanceDto>>? _mockItemDao;
+        private Mock<IDao<BazaarItemDto, long>>? _mockBzDao;
+        private Mock<IDao<IItemInstanceDto, Guid>>? _mockItemDao;
 
 
         [TestInitialize]
         public void Setup()
         {
             _guid = Guid.NewGuid();
-            _mockBzDao = new Mock<IGenericDao<BazaarItemDto>>();
-            _mockItemDao = new Mock<IGenericDao<IItemInstanceDto>>();
+            _mockBzDao = new Mock<IDao<BazaarItemDto, long>>();
+            _mockItemDao = new Mock<IDao<IItemInstanceDto, Guid>>();
 
-            var mockCharacterDao = new Mock<IGenericDao<CharacterDto>>();
+            var mockCharacterDao = new Mock<IDao<CharacterDto, long>>();
             _bazaarItemsHolder =
                 new BazaarItemsHolder(_mockBzDao.Object, _mockItemDao.Object, mockCharacterDao.Object);
             _bazaarController = new BazaarController(_bazaarItemsHolder, _mockBzDao.Object, _mockItemDao.Object);

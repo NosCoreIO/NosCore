@@ -285,7 +285,7 @@ namespace NosCore.Database
 
             modelBuilder.Entity<NpcTalk>()
                 .HasMany(e => e.MapNpc)
-                .WithOne(e => e.NpcTalk)
+                .WithOne(e => e.NpcTalk!)
                 .HasForeignKey(e => e.Dialog)
                 .OnDelete(DeleteBehavior.Restrict);
 

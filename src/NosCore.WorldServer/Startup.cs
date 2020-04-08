@@ -59,6 +59,7 @@ using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.DataAttributes;
@@ -91,6 +92,7 @@ using ILogger = Serilog.ILogger;
 using InventoryItemInstance = NosCore.GameObject.Providers.InventoryService.InventoryItemInstance;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Serializer = NosCore.Packets.Serializer;
+using NosCore.Dao;
 
 namespace NosCore.WorldServer
 {
@@ -113,9 +115,9 @@ namespace NosCore.WorldServer
         }
 
         public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
-        where TDb : class
+        where TDb : class where TPk : struct
         {
-            containerBuilder.RegisterType<GenericDao<TDb, TDto, TPk>>().As<IGenericDao<TDto>>().SingleInstance();
+            containerBuilder.RegisterType<Dao<TDb, TDto, TPk>>().As<IDao<TDto, TPk>>().SingleInstance();
             if (!isStatic)
             {
                 return;
@@ -125,7 +127,7 @@ namespace NosCore.WorldServer
             containerBuilder.Register(c =>
                 {
                     var dic = c.Resolve<IDictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>>();
-                    var items = c.Resolve<IGenericDao<TDto>>().LoadAll().ToList();
+                    var items = c.Resolve<IDao<TDto, TPk>>().LoadAll().ToList();
                     var props = StaticDtoExtension.GetI18NProperties(typeof(TDto));
                     if (props.Count > 0)
                     {
@@ -183,59 +185,59 @@ namespace NosCore.WorldServer
                     {
                         {
                             typeof(I18NActDescDto),
-                            c.Resolve<IGenericDao<I18NActDescDto>>().LoadAll().GroupBy(x => x.Key ?? "")
+                            c.Resolve<IDao<I18NActDescDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NBCardDto),
-                            c.Resolve<IGenericDao<I18NBCardDto>>().LoadAll().GroupBy(x => x.Key ?? "")
+                            c.Resolve<IDao<I18NBCardDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NCardDto),
-                            c.Resolve<IGenericDao<I18NCardDto>>().LoadAll().GroupBy(x => x.Key ?? "").ToDictionary(x => x.Key,
+                            c.Resolve<IDao<I18NCardDto, int>>().LoadAll().GroupBy(x => x.Key ?? "").ToDictionary(x => x.Key,
                                 x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NItemDto),
-                            c.Resolve<IGenericDao<I18NItemDto>>().LoadAll().GroupBy(x => x.Key ?? "").ToDictionary(x => x.Key,
+                            c.Resolve<IDao<I18NItemDto, int>>().LoadAll().GroupBy(x => x.Key ?? "").ToDictionary(x => x.Key,
                                 x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NMapIdDataDto),
-                            c.Resolve<IGenericDao<I18NMapIdDataDto>>().LoadAll().GroupBy(x => x.Key ?? "")
+                            c.Resolve<IDao<I18NMapIdDataDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NMapPointDataDto),
-                            c.Resolve<IGenericDao<I18NMapPointDataDto>>().LoadAll().GroupBy(x => x.Key ?? "")
+                            c.Resolve<IDao<I18NMapPointDataDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NNpcMonsterDto),
-                            c.Resolve<IGenericDao<I18NNpcMonsterDto>>().LoadAll().GroupBy(x => x.Key ?? "")
+                            c.Resolve<IDao<I18NNpcMonsterDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NNpcMonsterTalkDto),
-                            c.Resolve<IGenericDao<I18NNpcMonsterTalkDto>>().LoadAll().GroupBy(x => x.Key ?? "")
+                            c.Resolve<IDao<I18NNpcMonsterTalkDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NQuestDto),
-                            c.Resolve<IGenericDao<I18NQuestDto>>().LoadAll().GroupBy(x => x.Key ?? "")
+                            c.Resolve<IDao<I18NQuestDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         },
                         {
                             typeof(I18NSkillDto),
-                            c.Resolve<IGenericDao<I18NSkillDto>>().LoadAll().GroupBy(x => x.Key ?? "")
+                            c.Resolve<IDao<I18NSkillDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
                                 .ToDictionary(x => x.Key,
                                     x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
                         }
@@ -258,12 +260,16 @@ namespace NosCore.WorldServer
                 {
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                    var typepk = type.FindKey();
+                    var typepk = type.GetProperties()
+                        .Where(s => context.Model.FindEntityType(t)
+                            .FindPrimaryKey().Properties.Select(x => x.Name)
+                            .Contains(s.Name)
+                        ).ToArray()[0];
                     registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType).Invoke(null,
                         new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                 });
 
-            containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>().SingleInstance();
+            containerBuilder.RegisterType<ItemInstanceDao>().As<IDao<IItemInstanceDto, Guid>>().SingleInstance();
         }
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
@@ -460,7 +466,7 @@ namespace NosCore.WorldServer
                 .When(s => !s.SourceType.IsAssignableFrom(s.DestinationType) && typeof(IStaticDto).IsAssignableFrom(s.DestinationType))
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
-                .AfterMapping(dest => Task.Run(dest.Initialize));
+                .AfterMapping(dest => Task.Run(() => dest.InitializeAsync()));
             TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
             var containerBuilder = new ContainerBuilder();

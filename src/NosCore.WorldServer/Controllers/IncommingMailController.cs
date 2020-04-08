@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Parcel;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +37,7 @@ namespace NosCore.WorldServer.Controllers
     public class IncommingMailController : Controller
     {
         [HttpPost]
-        public IActionResult IncommingMail([FromBody] MailData data)
+        public async Task<IActionResult> IncommingMailAsync([FromBody] MailData data)
         {
             if (!ModelState.IsValid)
             {
@@ -52,17 +53,17 @@ namespace NosCore.WorldServer.Controllers
 
             if (data.ItemInstance != null)
             {
-                session.SendPacketAsync(session.GenerateSay(
+                await session.SendPacketAsync(session.GenerateSay(
                     string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_GIFTED, session.AccountLanguage),
-                        data.ItemInstance.Amount), SayColorType.Green));
+                        data.ItemInstance.Amount), SayColorType.Green)).ConfigureAwait(false);
             }
 
-            session.GenerateMailAsync(new[] {data});
+            await session.GenerateMailAsync(new[] {data}).ConfigureAwait(false);
             return Ok();
         }
 
         [HttpDelete]
-        public IActionResult DeleteMail(long id, short mailId, byte postType)
+        public async Task<IActionResult> DeleteMailAsync(long id, short mailId, byte postType)
         {
             if (!ModelState.IsValid)
             {
@@ -76,12 +77,12 @@ namespace NosCore.WorldServer.Controllers
                 throw new InvalidOperationException();
             }
 
-            session.SendPacketAsync(new PostPacket
+            await session.SendPacketAsync(new PostPacket
             {
                 Type = 2,
                 PostType = postType,
                 Id = mailId
-            });
+            }).ConfigureAwait(false);
             return Ok();
         }
     }
