@@ -59,20 +59,20 @@ namespace NosCore.Tests.PacketHandlerTests
         private ClientSession? _targetSession;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
                 .ConstructUsing(src => new MapNpc(null, null, null, null, Logger, new List<NpcTalkDto>()));
             Broadcaster.Reset();
             TestHelpers.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
-            _targetSession = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _minilandProvider = new Mock<IMinilandProvider>();
             _mjoinPacketHandler = new MJoinPacketHandler(_friendHttpClient.Object, _minilandProvider.Object);
         }
 
         [TestMethod]
-        public async Task JoinNonConnected()
+        public async Task JoinNonConnectedAsync()
         {
             var mjoinPacket = new MJoinPacket
             {
@@ -85,7 +85,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task JoinNonFriend()
+        public async Task JoinNonFriendAsync()
         {
             var mjoinPacket = new MJoinPacket
             {
@@ -99,7 +99,7 @@ namespace NosCore.Tests.PacketHandlerTests
 
 
         [TestMethod]
-        public async Task JoinClosed()
+        public async Task JoinClosedAsync()
         {
             var mjoinPacket = new MJoinPacket
             {
@@ -138,7 +138,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Join()
+        public async Task JoinAsync()
         {
             var mjoinPacket = new MJoinPacket
             {
@@ -173,7 +173,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task JoinPrivate()
+        public async Task JoinPrivateAsync()
         {
             var mjoinPacket = new MJoinPacket
             {
@@ -208,7 +208,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task JoinPrivateBlocked()
+        public async Task JoinPrivateBlockedAsync()
         {
             var mjoinPacket = new MJoinPacket
             {

@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -50,9 +51,9 @@ namespace NosCore.Tests.NRunTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _nRunHandler = new NrunPacketHandler(Logger, new NrunProvider(
                 new List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
@@ -63,16 +64,16 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Archer)]
         [DataRow(CharacterClassType.Magician)]
         [DataRow(CharacterClassType.Swordman)]
-        public void UserCantChangeClassLowLevel(CharacterClassType characterClass)
+        public async Task UserCantChangeClassLowLevelAsync(CharacterClassType characterClass)
         {
             _session!.Character.Level = 15;
-            _nRunHandler!.ExecuteAsync(new NrunPacket
+            await _nRunHandler!.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
                 Type = (byte) characterClass
-            }, _session);
+            }, _session).ConfigureAwait(false);
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
@@ -83,16 +84,16 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Archer)]
         [DataRow(CharacterClassType.Magician)]
         [DataRow(CharacterClassType.Swordman)]
-        public void UserCantChangeClassLowJobLevel(CharacterClassType characterClass)
+        public async Task UserCantChangeClassLowJobLevelAsync(CharacterClassType characterClass)
         {
             _session!.Character.JobLevel = 20;
-            _nRunHandler!.ExecuteAsync(new NrunPacket
+            await _nRunHandler!.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
                 Type = (byte) characterClass
-            }, _session);
+            }, _session).ConfigureAwait(false);
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
@@ -103,16 +104,16 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Archer)]
         [DataRow(CharacterClassType.Magician)]
         [DataRow(CharacterClassType.Swordman)]
-        public void UserCantChangeBadClass(CharacterClassType characterClass)
+        public async Task UserCantChangeBadClassAsync(CharacterClassType characterClass)
         {
             _session!.Character.Class = characterClass;
-            _nRunHandler!.ExecuteAsync(new NrunPacket
+            await _nRunHandler!.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
                 Type = (byte) CharacterClassType.Swordman
-            }, _session);
+            }, _session).ConfigureAwait(false);
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
@@ -122,17 +123,17 @@ namespace NosCore.Tests.NRunTests
         [DataTestMethod]
         [DataRow(CharacterClassType.MartialArtist)]
         [DataRow(CharacterClassType.Adventurer)]
-        public void UserCantChangeToBadClass(CharacterClassType characterClass)
+        public async Task UserCantChangeToBadClassAsync(CharacterClassType characterClass)
         {
             _session!.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _nRunHandler!.ExecuteAsync(new NrunPacket
+            await _nRunHandler!.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
                 Type = (byte) characterClass
-            }, _session);
+            }, _session).ConfigureAwait(false);
 
             Assert.IsTrue((_session.Character.Class == CharacterClassType.Adventurer) &&
                 (_session.Character.Level == 15) &&
@@ -143,17 +144,17 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Archer)]
         [DataRow(CharacterClassType.Magician)]
         [DataRow(CharacterClassType.Swordman)]
-        public void UserCanChangeClass(CharacterClassType characterClass)
+        public async Task UserCanChangeClassAsync(CharacterClassType characterClass)
         {
             _session!.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _nRunHandler!.ExecuteAsync(new NrunPacket
+            await _nRunHandler!.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
                 Type = (byte) characterClass
-            }, _session);
+            }, _session).ConfigureAwait(false);
 
             Assert.IsTrue((_session.Character.Class == characterClass) && (_session.Character.Level == 15) &&
                 (_session.Character.JobLevel == 1));
@@ -163,20 +164,20 @@ namespace NosCore.Tests.NRunTests
         [DataRow(CharacterClassType.Archer)]
         [DataRow(CharacterClassType.Magician)]
         [DataRow(CharacterClassType.Swordman)]
-        public void UserCanNotChangeClassWhenEquipment(CharacterClassType characterClass)
+        public async Task UserCanNotChangeClassWhenEquipmentAsync(CharacterClassType characterClass)
         {
             _session!.Character.Level = 15;
             _session.Character.JobLevel = 20;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
-            _nRunHandler!.ExecuteAsync(new NrunPacket
+            await _nRunHandler!.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
                 Type = (byte) characterClass
-            }, _session);
+            }, _session).ConfigureAwait(false);
 
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,

@@ -37,10 +37,10 @@ namespace NosCore.Parser.Parsers
         //script {ScriptId}	
         //{ScriptStepId}	{StepType} {Argument}
         private readonly string FileCardDat = $"{Path.DirectorySeparatorChar}tutorial.dat";
-        private readonly IGenericDao<ScriptDto> _scriptDao;
+        private readonly IDao<ScriptDto, Guid> _scriptDao;
         private readonly ILogger _logger;
 
-        public ScriptParser(IGenericDao<ScriptDto> scriptDao, ILogger logger)
+        public ScriptParser(IDao<ScriptDto, Guid> scriptDao, ILogger logger)
         {
             _logger = logger;
             _scriptDao = scriptDao;

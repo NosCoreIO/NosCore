@@ -48,16 +48,16 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             SystemTime.Freeze();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _biPacketHandler = new BiPacketHandler(Logger);
         }
 
         [TestMethod]
-        public async Task Test_Delete_FromSlot()
+        public async Task Test_Delete_FromSlotAsync()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 999), 0));
             await _biPacketHandler!.ExecuteAsync(new BiPacket
@@ -67,7 +67,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Delete_FromEquiment()
+        public async Task Test_Delete_FromEquimentAsync()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
             await _biPacketHandler!.ExecuteAsync(new BiPacket

@@ -19,7 +19,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 
@@ -28,16 +30,16 @@ namespace NosCore.Parser.Parsers
 {
     public class MapTypeMapParser
     {
-        private readonly IGenericDao<MapDto> _mapDao;
-        private readonly IGenericDao<MapTypeMapDto> _mapTypeMapDao;
+        private readonly IDao<MapDto, short> _mapDao;
+        private readonly IDao<MapTypeMapDto> _mapTypeMapDao;
 
-        public MapTypeMapParser(IGenericDao<MapTypeMapDto> mapTypeMapDao, IGenericDao<MapDto> mapDao)
+        public MapTypeMapParser(IDao<MapTypeMapDto> mapTypeMapDao, IDao<MapDto, short> mapDao)
         {
             _mapTypeMapDao = mapTypeMapDao;
             _mapDao = mapDao;
         }
 
-        internal void InsertMapTypeMaps()
+        internal Task InsertMapTypeMaps()
         {
             var maptypemaps = new List<MapTypeMapDto>();
             short mapTypeId = 1;

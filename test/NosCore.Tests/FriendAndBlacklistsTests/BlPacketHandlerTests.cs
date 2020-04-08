@@ -25,6 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.Database.DAL;
@@ -36,6 +37,7 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.Dao;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
 {
@@ -44,16 +46,16 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     {
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private BlPacketHandler? _blPacketHandler;
-        private IGenericDao<CharacterRelationDto>? _characterRelationDao;
+        private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            _characterRelationDao = new GenericDao<CharacterRelation, CharacterRelationDto, long>(Logger);
+            _characterRelationDao = new Dao<CharacterRelation, CharacterRelationDto, Guid>(Logger, TestHelpers.Instance.ContextBuilder);
             Broadcaster.Reset();
             TestHelpers.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
@@ -67,9 +69,9 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         }
 
         [TestMethod]
-        public async Task Test_Distant_Blacklist()
+        public async Task Test_Distant_BlacklistAsync()
         {
-            var targetSession = TestHelpers.Instance.GenerateSession();
+            var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             var blPacket = new BlPacket
             {
                 CharacterName = targetSession.Character.Name
@@ -84,7 +86,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             using var blacklist = new BlacklistController(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
                 _characterRelationDao!, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklistAsync(It.IsAny<BlacklistRequest>()))
-                .Returns(blacklist.AddBlacklist(new BlacklistRequest
+                .Returns(blacklist.AddBlacklistAsync(new BlacklistRequest
                 {
                     CharacterId = _session!.Character.CharacterId,
                     BlInsPacket = new BlInsPacket
@@ -93,10 +95,10 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                     }
                 }));
             await _blPacketHandler!.ExecuteAsync(blPacket, _session).ConfigureAwait(false);
-            Assert.IsTrue(_characterRelationDao!.FirstOrDefault(s =>
+            Assert.IsTrue(await _characterRelationDao!.FirstOrDefaultAsync(s =>
                 (s.CharacterId == _session.Character.CharacterId) &&
                 (s.RelatedCharacterId == targetSession.Character.CharacterId)
-                && (s.RelationType == CharacterRelationType.Blocked)) != null);
+                && (s.RelationType == CharacterRelationType.Blocked)).ConfigureAwait(false) != null);
         }
     }
 }

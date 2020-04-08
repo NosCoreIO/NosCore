@@ -51,18 +51,18 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             SystemTime.Freeze();
             TestHelpers.Reset();
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _getPacketHandler = new GetPacketHandler(Logger);
         }
 
 
         [TestMethod]
-        public async Task Test_Get()
+        public async Task Test_GetAsync()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
@@ -80,7 +80,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_GetInStack()
+        public async Task Test_GetInStackAsync()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
@@ -99,7 +99,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_GetFullInventory()
+        public async Task Test_GetFullInventoryAsync()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
@@ -120,7 +120,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Get_KeepRarity()
+        public async Task Test_Get_KeepRarityAsync()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
@@ -138,7 +138,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Get_NotYourObject()
+        public async Task Test_Get_NotYourObjectAsync()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
@@ -163,7 +163,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Get_NotYourObjectAfterDelay()
+        public async Task Test_Get_NotYourObjectAfterDelayAsync()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
@@ -186,7 +186,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_GetAway()
+        public async Task Test_GetAwayAsync()
         {
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;

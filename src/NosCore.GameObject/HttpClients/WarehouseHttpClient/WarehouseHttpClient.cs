@@ -26,6 +26,7 @@ using Mapster;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Miniland;
@@ -37,12 +38,12 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
 {
     public class WarehouseHttpClient : MasterServerHttpClient, IWarehouseHttpClient
     {
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
         private readonly IItemProvider _itemProvider;
 
         public WarehouseHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
             IChannelHttpClient channelHttpClient, IItemProvider itemProvider,
-            IGenericDao<IItemInstanceDto> itemInstanceDao)
+            IDao<IItemInstanceDto, Guid> itemInstanceDao)
             : base(httpClientFactory, channel, channelHttpClient)
         {
             ApiUrl = "api/warehouse";
@@ -71,7 +72,7 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
             foreach (var warehouselink in warehouselinks)
             {
                 var warehouseItem = warehouselink.Warehouse!.Adapt<WarehouseItem>();
-                var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == warehouselink.ItemInstance!.Id);
+                var itemInstance = await _itemInstanceDao.FirstOrDefaultAsync(s => s.Id == warehouselink.ItemInstance!.Id).ConfigureAwait(false);
                 warehouseItem.ItemInstance = _itemProvider.Convert(itemInstance!);
                 warehouseItems.Add(warehouseItem);
             }

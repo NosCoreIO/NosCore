@@ -21,8 +21,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using Serilog;
@@ -61,27 +63,27 @@ namespace NosCore.Parser.Parsers
     {
         private readonly string _fileQuestDat = $"{Path.DirectorySeparatorChar}act_desc.dat";
         private readonly ILogger _logger;
-        private readonly IGenericDao<ActDto> _actDao;
-        private readonly IGenericDao<ActPartDto> _actDescDao;
+        private readonly IDao<ActDto, byte> _actDao;
+        private readonly IDao<ActPartDto, byte> _actDescDao;
 
 
-        public ActParser(IGenericDao<ActDto> actDao, IGenericDao<ActPartDto> actDescDao, ILogger logger)
+        public ActParser(IDao<ActDto, byte> actDao, IDao<ActPartDto, byte> actDescDao, ILogger logger)
         {
             _logger = logger;
             _actDao = actDao;
             _actDescDao = actDescDao;
         }
 
-        public void ImportAct(string folder)
+        public async Task ImportActAsync(string folder)
         {
             var acts = new List<ActDto>();
             var actParts = new List<ActPartDto>();
             using (var stream = new StreamReader(folder + _fileQuestDat, Encoding.Default))
             {
                 string? line;
-                while ((line = stream.ReadLine()) != null)
+                while ((line = await stream.ReadLineAsync().ConfigureAwait(false)) != null)
                 {
-                    var splitted = line.Split(' ','\t');
+                    var splitted = line.Split(' ', '\t');
                     switch (splitted.Length)
                     {
                         case 3 when splitted[0] == "A":
@@ -105,8 +107,8 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            _actDao.InsertOrUpdate(acts);
-            _actDescDao.InsertOrUpdate(actParts);
+            await _actDao.TryInsertOrUpdateAsync(acts).ConfigureAwait(false);
+            await _actDescDao.TryInsertOrUpdateAsync(actParts).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACTS_PARTS_PARSED), actParts.Count);
         }
     }

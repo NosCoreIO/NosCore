@@ -47,11 +47,11 @@ namespace NosCore.Tests.BazaarTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             TestHelpers.Reset();
             Broadcaster.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
             var items = new List<ItemDto>
             {
@@ -61,7 +61,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task ListShouldReturnEmptyWhenNoItems()
+        public async Task ListShouldReturnEmptyWhenNoItemsAsync()
         {
             _bazaarHttpClient!.Setup(b =>
                 b.GetBazaarLinksAsync(
@@ -81,7 +81,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task ListShouldReturnTheItems()
+        public async Task ListShouldReturnTheItemsAsync()
         {
             _bazaarHttpClient!.Setup(b =>
                 b.GetBazaarLinksAsync(
@@ -110,7 +110,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task ListShouldReturnTheItemsNotValid()
+        public async Task ListShouldReturnTheItemsNotValidAsync()
         {
             _bazaarHttpClient!.Setup(b =>
                 b.GetBazaarLinksAsync(

@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using Mapster;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -44,12 +45,12 @@ namespace NosCore.GameObject
         private readonly IItemProvider? _itemProvider;
         private readonly ILogger _logger;
         private readonly List<NpcMonsterDto>? _npcMonsters;
-        private readonly IGenericDao<ShopItemDto>? _shopItems;
-        private readonly IGenericDao<ShopDto>? _shops;
+        private readonly IDao<ShopItemDto, int>? _shopItems;
+        private readonly IDao<ShopDto, int>? _shops;
         private readonly List<NpcTalkDto> _npcTalks;
         public new NpcMonsterDto NpcMonster { get; private set; } = null!;
-        public MapNpc(IItemProvider? itemProvider, IGenericDao<ShopDto>? shops,
-            IGenericDao<ShopItemDto>? shopItems,
+        public MapNpc(IItemProvider? itemProvider, IDao<ShopDto, int>? shops,
+            IDao<ShopItemDto, int>? shopItems,
             List<NpcMonsterDto>? npcMonsters, ILogger logger, List<NpcTalkDto> npcTalks)
         {
             _npcMonsters = npcMonsters;
@@ -63,7 +64,7 @@ namespace NosCore.GameObject
 
         public IDisposable? Life { get; private set; }
 
-        public void Initialize()
+        public async Task InitializeAsync()
         {
             NpcMonster = _npcMonsters!.Find(s => s.NpcMonsterVNum == VNum)!;
             Mp = NpcMonster?.MaxMp ?? 0;
@@ -73,7 +74,7 @@ namespace NosCore.GameObject
             PositionY = MapY;
             IsAlive = true;
             Requests.Subscribe(ShowDialog);
-            var shopObj = _shops!.FirstOrDefault(s => s.MapNpcId == MapNpcId);
+            var shopObj = await _shops!.FirstOrDefaultAsync(s => s.MapNpcId == MapNpcId).ConfigureAwait(false);
             if (shopObj == null)
             {
                 return;
@@ -127,9 +128,9 @@ namespace NosCore.GameObject
 
         public Subject<RequestData>? Requests { get; set; }
 
-        private void ShowDialog(RequestData requestData)
+        private Task ShowDialog(RequestData requestData)
         {
-            requestData.ClientSession.SendPacketAsync(this.GenerateNpcReq(Dialog ?? 0));
+            return requestData.ClientSession.SendPacketAsync(this.GenerateNpcReq(Dialog ?? 0));
         }
 
         internal void StopLife()

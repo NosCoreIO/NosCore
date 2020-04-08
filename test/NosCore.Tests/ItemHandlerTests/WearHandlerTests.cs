@@ -53,11 +53,11 @@ namespace NosCore.Tests.ItemHandlerTests
         private Mock<ILogger>? _logger;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             _logger = new Mock<ILogger>();
             TestHelpers.Instance.WorldConfiguration.BackpackSize = 40;
-            Session = TestHelpers.Instance.GenerateSession();
+            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             Handler = new WearEventHandler(_logger.Object);
             var items = new List<ItemDto>
             {
@@ -121,7 +121,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Can_Not_Use_WearEvent_In_Shop()
+        public async Task Test_Can_Not_Use_WearEvent_In_ShopAsync()
         {
             Session!.Character.InShop = true;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
@@ -130,7 +130,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_BoundCharacter_Question()
+        public async Task Test_BoundCharacter_QuestionAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
@@ -140,7 +140,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_BoundCharacter()
+        public async Task Test_BoundCharacterAsync()
         {
             UseItem.Mode = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
@@ -150,7 +150,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_BadEquipment()
+        public async Task Test_BadEquipmentAsync()
         {
             UseItem.Mode = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(5), Session!.Character.CharacterId);
@@ -161,7 +161,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_BadFairy()
+        public async Task Test_BadFairyAsync()
         {
             UseItem.Mode = 1;
             Session!.Character.UseSp = true;
@@ -176,7 +176,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_SpLoading()
+        public async Task Test_SpLoadingAsync()
         { 
             UseItem.Mode = 1;
             SystemTime.Freeze();
@@ -194,7 +194,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_UseSp()
+        public async Task Test_UseSpAsync()
         {
             UseItem.Mode = 1;
             Session!.Character.UseSp = true;
@@ -210,7 +210,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_UseDestroyedSp()
+        public async Task Test_UseDestroyedSpAsync()
         {
             UseItem.Mode = 1;
             SystemTime.Freeze();
@@ -224,7 +224,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Use_BadJobLevel()
+        public async Task Test_Use_BadJobLevelAsync()
         {
             UseItem.Mode = 1;
             SystemTime.Freeze();
@@ -237,7 +237,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Use_SP()
+        public async Task Test_Use_SPAsync()
         {
             UseItem.Mode = 1;
             SystemTime.Freeze();
@@ -249,7 +249,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Use_Fairy()
+        public async Task Test_Use_FairyAsync()
         {
             UseItem.Mode = 1;
             SystemTime.Freeze();
@@ -261,7 +261,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Use_Amulet()
+        public async Task Test_Use_AmuletAsync()
         {
             UseItem.Mode = 1;
             SystemTime.Freeze();

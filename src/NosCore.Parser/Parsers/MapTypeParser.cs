@@ -30,10 +30,10 @@ namespace NosCore.Parser.Parsers
 {
     public class MapTypeParser
     {
-        private readonly IGenericDao<MapTypeDto> _dropDao;
+        private readonly IDao<MapTypeDto> _dropDao;
         private readonly ILogger _logger;
 
-        public MapTypeParser(IGenericDao<MapTypeDto> dropDao, ILogger logger)
+        public MapTypeParser(IDao<MapTypeDto> dropDao, ILogger logger)
         {
             _dropDao = dropDao;
             _logger = logger;

@@ -30,6 +30,7 @@ using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.Networking;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
@@ -39,13 +40,13 @@ namespace NosCore.GameObject.Networking.LoginService
 {
     public class LoginService : ILoginService
     {
-        private readonly IGenericDao<AccountDto> _accountDao;
+        private readonly IDao<AccountDto, int> _accountDao;
         private readonly IAuthHttpClient _authHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly LoginConfiguration _loginConfiguration;
 
-        public LoginService(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao,
+        public LoginService(LoginConfiguration loginConfiguration, IDao<AccountDto, int> accountDao,
             IAuthHttpClient authHttpClient,
             IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
@@ -92,7 +93,7 @@ namespace NosCore.GameObject.Networking.LoginService
                     username = await _authHttpClient.GetAwaitingConnectionAsync(null, passwordToken, clientSession.SessionId).ConfigureAwait(false);
                 }
 
-                var acc = _accountDao.FirstOrDefault(s => s.Name.ToLower() == username!.ToLower());
+                var acc = await _accountDao.FirstOrDefaultAsync(s => s.Name.ToLower() == username!.ToLower()).ConfigureAwait(false);
 
                 if ((acc != null) && (acc.Name != username))
                 {
@@ -159,7 +160,8 @@ namespace NosCore.GameObject.Networking.LoginService
                         }
 
                         acc.Language = _loginConfiguration.UserLanguage;
-                        _accountDao.InsertOrUpdate(ref acc);
+                        
+                        acc = await _accountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
                         if (servers == null || servers.Count <= 0)
                         {
                             await clientSession.SendPacketAsync(new FailcPacket

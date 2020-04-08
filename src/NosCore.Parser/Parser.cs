@@ -23,6 +23,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Autofac;
 using AutofacSerilogIntegration;
 using Mapster;
@@ -31,6 +32,8 @@ using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -69,19 +72,19 @@ namespace NosCore.Parser
         }
 
         public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
-        where TDb : class
+        where TDb : class where TPk : struct
         {
-            containerBuilder.RegisterType<GenericDao<TDb, TDto, TPk>>().As<IGenericDao<TDto>>().SingleInstance();
+            containerBuilder.RegisterType<Dao<TDb, TDto, TPk>>().As<IDao<TDto, TPk>>().SingleInstance();
             if (isStatic)
             {
-                containerBuilder.Register(c => c.Resolve<IGenericDao<TDto>>().LoadAll().ToList())
+                containerBuilder.Register(c => c.Resolve<IDao<TDto, TPk>>().LoadAll().ToList())
                     .As<List<TDto>>()
                     .SingleInstance()
                     .AutoActivate();
             }
         }
 
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
             Logger.PrintHeader(ConsoleText);
@@ -135,38 +138,38 @@ namespace NosCore.Parser
                                 new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                         });
 
-                    containerBuilder.RegisterType<ItemInstanceDao>().As<IGenericDao<IItemInstanceDto>>()
+                    containerBuilder.RegisterType<ItemInstanceDao>().As<IDao<IItemInstanceDto, Guid>>()
                         .SingleInstance();
                     var container = containerBuilder.Build();
                     var factory = container.Resolve<ImportFactory>();
                     factory.SetFolder(folder);
-                    factory.ImportPackets();
+                    await factory.ImportPacketsAsync().ConfigureAwait(false);
 
                     if (key.KeyChar != 'n')
                     {
-                        factory.ImportAccounts();
-                        factory.ImportMaps();
-                        factory.ImportRespawnMapType();
-                        factory.ImportMapType();
-                        factory.ImportMapTypeMap();
-                        factory.ImportPortals();
-                        factory.ImportI18N();
+                        await factory.ImportAccountsAsync().ConfigureAwait(false);
+                        await factory.ImportMapsAsync().ConfigureAwait(false);
+                        await factory.ImportRespawnMapTypeAsync().ConfigureAwait(false);
+                        await factory.ImportMapTypeAsync().ConfigureAwait(false);
+                        await factory.ImportMapTypeMapAsync().ConfigureAwait(false);
+                        await factory.ImportPortalsAsync().ConfigureAwait(false);
+                        await factory.ImportI18NAsync().ConfigureAwait(false);
                         //factory.ImportScriptedInstances();
-                        factory.ImportItems();
-                        factory.ImportSkills();
-                        factory.ImportCards();
-                        factory.ImportNpcMonsters();
-                        factory.ImportDrops();
+                        await factory.ImportItemsAsync().ConfigureAwait(false);
+                        await factory.ImportSkillsAsync().ConfigureAwait(false);
+                        await factory.ImportCardsAsync().ConfigureAwait(false);
+                        await factory.ImportNpcMonstersAsync().ConfigureAwait(false);
+                        await factory.ImportDropsAsync().ConfigureAwait(false);
                         //factory.ImportNpcMonsterData();
-                        factory.ImportMapNpcs();
-                        factory.ImportMapMonsters();
-                        factory.ImportShops();
+                        await factory.ImportMapNpcsAsync().ConfigureAwait(false);
+                        await factory.ImportMapMonstersAsync().ConfigureAwait(false);
+                        await factory.ImportShopsAsync().ConfigureAwait(false);
                         //factory.ImportTeleporters();
-                        factory.ImportShopItems();
+                        await factory.ImportShopItemsAsync().ConfigureAwait(false);
                         //factory.ImportShopSkills();
                         //factory.ImportRecipe();
-                        factory.ImportScripts();
-                        factory.ImportQuests();
+                        await factory.ImportScriptsAsync().ConfigureAwait(false);
+                        await factory.ImportQuestsAsync().ConfigureAwait(false);
                     }
                     else
                     {
@@ -175,7 +178,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportMaps();
+                            await factory.ImportMapsAsync().ConfigureAwait(false);
                         }
 
                         _logger.Information(
@@ -183,9 +186,9 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportRespawnMapType();
-                            factory.ImportMapType();
-                            factory.ImportMapTypeMap();
+                            await factory.ImportRespawnMapTypeAsync().ConfigureAwait(false);
+                            await factory.ImportMapTypeAsync().ConfigureAwait(false);
+                            await factory.ImportMapTypeMapAsync().ConfigureAwait(false);
                         }
 
                         _logger.Information(
@@ -193,7 +196,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportAccounts();
+                            await factory.ImportAccountsAsync().ConfigureAwait(false);
                         }
 
                         _logger.Information(
@@ -201,7 +204,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportPortals();
+                            await factory.ImportPortalsAsync().ConfigureAwait(false);
                         }
 
                         _logger.Information(
@@ -209,7 +212,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportI18N();
+                            await factory.ImportI18NAsync().ConfigureAwait(false);
                         }
 
                         _logger.Information(
@@ -225,7 +228,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportItems();
+                            factory.ImportItemsAsync();
                         }
 
                         _logger.Information(
@@ -233,7 +236,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportNpcMonsters();
+                            factory.ImportNpcMonstersAsync();
                         }
 
                         _logger.Information(
@@ -241,7 +244,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportDrops();
+                            factory.ImportDropsAsync();
                         }
 
                         _logger.Information(
@@ -257,7 +260,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportCards();
+                            factory.ImportCardsAsync();
                         }
 
                         _logger.Information(
@@ -265,7 +268,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportSkills();
+                            factory.ImportSkillsAsync();
                         }
 
                         _logger.Information(
@@ -273,7 +276,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportMapNpcs();
+                            factory.ImportMapNpcsAsync();
                         }
 
                         _logger.Information(
@@ -281,7 +284,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportMapMonsters();
+                            factory.ImportMapMonstersAsync();
                         }
 
                         _logger.Information(
@@ -289,7 +292,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportShops();
+                            factory.ImportShopsAsync();
                         }
 
                         _logger.Information(
@@ -305,7 +308,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportShopItems();
+                            factory.ImportShopItemsAsync();
                         }
 
                         _logger.Information(
@@ -329,7 +332,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportScripts();
+                            factory.ImportScriptsAsync();
                         }
 
                         _logger.Information(
@@ -337,7 +340,7 @@ namespace NosCore.Parser
                         key = Console.ReadKey(true);
                         if (key.KeyChar != 'n')
                         {
-                            factory.ImportQuests();
+                            factory.ImportQuestsAsync();
                         }
                     }
 

@@ -17,10 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using Mapster;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
@@ -29,8 +31,8 @@ namespace NosCore.MasterServer.DataHolders
 {
     public class BazaarItemsHolder
     {
-        public BazaarItemsHolder(IGenericDao<BazaarItemDto> bazaarItemDao,
-            IGenericDao<IItemInstanceDto> itemInstanceDao, IGenericDao<CharacterDto> characterDao)
+        public BazaarItemsHolder(IDao<BazaarItemDto, long> bazaarItemDao,
+            IDao<IItemInstanceDto, Guid> itemInstanceDao, IDao<CharacterDto, long> characterDao)
         {
             var billist = bazaarItemDao.LoadAll().ToList();
             var bzItemInstanceIds = billist.Select(o => o.ItemInstanceId).ToList();

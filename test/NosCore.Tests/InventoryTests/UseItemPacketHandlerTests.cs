@@ -49,17 +49,17 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             SystemTime.Freeze();
             TestHelpers.Reset();
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _useItemPacketHandler = new UseItemPacketHandler();
         }
 
         [TestMethod]
-        public async Task Test_Binding()
+        public async Task Test_BindingAsync()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
             await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket {Slot = 0, Type = PocketType.Equipment, Mode = 1},
@@ -71,7 +71,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Increment_SpAdditionPoints()
+        public async Task Test_Increment_SpAdditionPointsAsync()
         {
             _session!.Character.SpAdditionPoint = 0;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
@@ -89,7 +89,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Overflow_SpAdditionPoints()
+        public async Task Test_Overflow_SpAdditionPointsAsync()
         {
             _session!.Character.SpAdditionPoint = _session.WorldConfiguration.MaxAdditionalSpPoints;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
@@ -110,7 +110,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_CloseToLimit_SpAdditionPoints()
+        public async Task Test_CloseToLimit_SpAdditionPointsAsync()
         {
             _session!.Character.SpAdditionPoint = _session.WorldConfiguration.MaxAdditionalSpPoints - 1;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));

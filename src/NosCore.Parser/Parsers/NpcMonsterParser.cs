@@ -21,8 +21,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
@@ -60,12 +62,12 @@ namespace NosCore.Parser.Parsers
     public class NpcMonsterParser
     {
         private readonly string FileNpcId = $"{Path.DirectorySeparatorChar}monster.dat";
-        private readonly IGenericDao<BCardDto> _bCardDao;
-        private readonly IGenericDao<DropDto> _dropDao;
+        private readonly IDao<BCardDto, short> _bCardDao;
+        private readonly IDao<DropDto, short> _dropDao;
         private readonly ILogger _logger;
-        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao;
-        private readonly IGenericDao<NpcMonsterSkillDto> _npcMonsterSkillDao;
-        private readonly IGenericDao<SkillDto> _skillDao;
+        private readonly IDao<NpcMonsterDto, short> _npcMonsterDao;
+        private readonly IDao<NpcMonsterSkillDto, long> _npcMonsterSkillDao;
+        private readonly IDao<SkillDto, short> _skillDao;
         private readonly int[] _basicHp = new int[100];
         private readonly int[] _basicPrimaryMp = new int[100];
         private readonly int[] _basicSecondaryMp = new int[100];
@@ -74,9 +76,9 @@ namespace NosCore.Parser.Parsers
         private Dictionary<short, SkillDto>? _skilldb;
         private Dictionary<short, List<DropDto>>? _dropdb;
 
-        public NpcMonsterParser(IGenericDao<SkillDto> skillDao, IGenericDao<BCardDto> bCardDao,
-            IGenericDao<DropDto> dropDao, IGenericDao<NpcMonsterSkillDto> npcMonsterSkillDao,
-            IGenericDao<NpcMonsterDto> npcMonsterDao, ILogger logger)
+        public NpcMonsterParser(IDao<SkillDto, short> skillDao, IDao<BCardDto, short> bCardDao,
+            IDao<DropDto, short> dropDao, IDao<NpcMonsterSkillDto, long> npcMonsterSkillDao,
+            IDao<NpcMonsterDto, short> npcMonsterDao, ILogger logger)
         {
             _skillDao = skillDao;
             _bCardDao = bCardDao;
@@ -88,7 +90,7 @@ namespace NosCore.Parser.Parsers
         }
 
 
-        public void InsertNpcMonsters(string folder)
+        public async Task InsertNpcMonstersAsync(string folder)
         {
             _skilldb = _skillDao.LoadAll().ToDictionary(x => x.SkillVNum, x => x);
             _dropdb = _dropDao.LoadAll().Where(x => x.MonsterVNum != null).GroupBy(x => x.MonsterVNum).ToDictionary(x => x.Key ?? 0, x => x.ToList());
@@ -149,10 +151,10 @@ namespace NosCore.Parser.Parsers
             var genericParser = new GenericParser<NpcMonsterDto>(folder + FileNpcId,
                 "#========================================================", 1, actionList, _logger);
             var monsters = genericParser.GetDtos().GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
-            _npcMonsterDao.InsertOrUpdate(monsters);
-            _bCardDao.InsertOrUpdate(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards));
-            _dropDao.InsertOrUpdate(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop));
-            _npcMonsterSkillDao.InsertOrUpdate(monsters.Where(s => s.NpcMonsterSkill != null).SelectMany(s => s.NpcMonsterSkill));
+            await _npcMonsterDao.TryInsertOrUpdateAsync(monsters).ConfigureAwait(false);
+            await _bCardDao.TryInsertOrUpdateAsync(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
+            await _dropDao.TryInsertOrUpdateAsync(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop)).ConfigureAwait(false);
+            await _npcMonsterSkillDao.TryInsertOrUpdateAsync(monsters.Where(s => s.NpcMonsterSkill != null).SelectMany(s => s.NpcMonsterSkill)).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCMONSTERS_PARSED), monsters.Count);
         }
 

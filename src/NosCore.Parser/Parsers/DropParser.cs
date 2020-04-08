@@ -25,8 +25,8 @@ namespace NosCore.Parser.Parsers
 {
     public class DropParser
     {
-        private readonly IGenericDao<DropDto> _dropDao; 
-        public DropParser(IGenericDao<DropDto> dropDao) { 
+        private readonly IDao<DropDto, short> _dropDao; 
+        public DropParser(IDao<DropDto, short> dropDao) { 
             _dropDao = dropDao; 
         }
         public DropDto GenerateDropDto(short vnum, int amount, short? monsterVNum, int dropChance, short mapTypeId) { 

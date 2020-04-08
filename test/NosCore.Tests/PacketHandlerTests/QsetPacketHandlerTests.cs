@@ -36,14 +36,14 @@ namespace NosCore.Tests.PacketHandlerTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _qsetPacketHandler = new QSetPacketHandler();
         }
 
         [TestMethod]
-        public async Task Test_Add_Quicklist()
+        public async Task Test_Add_QuicklistAsync()
         {
             await _qsetPacketHandler!.ExecuteAsync(new QsetPacket
             {
@@ -64,7 +64,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Delete_FromQuicklist()
+        public async Task Test_Delete_FromQuicklistAsync()
         {
             await _qsetPacketHandler!.ExecuteAsync(new QsetPacket
             {
@@ -85,7 +85,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Move_Quicklist()
+        public async Task Test_Move_QuicklistAsync()
         {
             await _qsetPacketHandler!.ExecuteAsync(new QsetPacket
             {
@@ -133,7 +133,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Move_ToEmpty()
+        public async Task Test_Move_ToEmptyAsync()
         {
            await _qsetPacketHandler!.ExecuteAsync(new QsetPacket
            {

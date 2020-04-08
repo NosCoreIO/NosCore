@@ -20,8 +20,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -32,11 +34,11 @@ namespace NosCore.Parser.Parsers
     public class MapNpcParser
     {
         private readonly ILogger _logger;
-        private readonly IGenericDao<MapNpcDto> _mapNpcDao;
-        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao;
-        private readonly IGenericDao<NpcTalkDto> _npcTalkDao;
+        private readonly IDao<MapNpcDto, int> _mapNpcDao;
+        private readonly IDao<NpcMonsterDto, short> _npcMonsterDao;
+        private readonly IDao<NpcTalkDto, short> _npcTalkDao;
 
-        public MapNpcParser(IGenericDao<MapNpcDto> mapNpcDao, IGenericDao<NpcMonsterDto> npcMonsterDao, IGenericDao<NpcTalkDto> npcTalkDao, ILogger logger)
+        public MapNpcParser(IDao<MapNpcDto, int> mapNpcDao, IDao<NpcMonsterDto, short> npcMonsterDao, IDao<NpcTalkDto, short> npcTalkDao, ILogger logger)
         {
             _mapNpcDao = mapNpcDao;
             _logger = logger;
@@ -44,7 +46,7 @@ namespace NosCore.Parser.Parsers
             _npcTalkDao = npcTalkDao;
         }
 
-        public void InsertMapNpcs(List<string[]> packetList)
+        public async Task InsertMapNpcsAsync(List<string[]> packetList)
         {
             var npcmonsterdb = _npcMonsterDao.LoadAll().ToList();
             var mapnpcdb = _mapNpcDao.LoadAll().ToList();
@@ -91,7 +93,7 @@ namespace NosCore.Parser.Parsers
                 npcCounter++;
             }
 
-            _mapNpcDao.InsertOrUpdate(npcs);
+            await _mapNpcDao.TryInsertOrUpdateAsync(npcs).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCS_PARSED), npcCounter);
         }
     }

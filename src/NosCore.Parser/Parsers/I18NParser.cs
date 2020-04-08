@@ -25,6 +25,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
@@ -32,11 +33,11 @@ using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
-    public class I18NParser<TDto> where TDto : II18NDto, new ()
+    public class I18NParser<TDto, TPk> where TDto : II18NDto, new () where TPk : struct
     {
         private readonly ILogger _logger;
-        private readonly IGenericDao<TDto> _dao;
-        public I18NParser(IGenericDao<TDto> dao, ILogger logger)
+        private readonly IDao<TDto, TPk> _dao;
+        public I18NParser(IDao<TDto, TPk> dao, ILogger logger)
         {
             _dao = dao;
             _logger = logger;
@@ -49,10 +50,11 @@ namespace NosCore.Parser.Parsers
             return string.Format(textfilename, regioncode);
         }
 
-        public void InsertI18N(string file, LogLanguageKey logLanguageKey)
+        public Task InsertI18N(string file, LogLanguageKey logLanguageKey)
         {
             var listoftext = _dao.LoadAll().ToDictionary(x=>(x.Key,x.RegionType), x=>x.Text);
-            Parallel.ForEach((RegionType[])Enum.GetValues(typeof(RegionType)), region =>
+
+            Parallel.ForEach((RegionType[])Enum.GetValues(typeof(RegionType)), async region =>
             {
                 var dtos = new Dictionary<string, TDto>();
                 try
@@ -61,7 +63,7 @@ namespace NosCore.Parser.Parsers
                         Encoding.Default);
                     while (!stream.EndOfStream)
                     {
-                        var line = stream.ReadLine();
+                        var line = await stream.ReadLineAsync().ConfigureAwait(false);
                         if(line == null)
                         {
                             continue;
@@ -78,7 +80,7 @@ namespace NosCore.Parser.Parsers
                             });
                         }
                     }
-                    _dao.InsertOrUpdate(dtos.Values.AsEnumerable());
+                    await _dao.TryInsertOrUpdateAsync(dtos.Values.AsEnumerable()).ConfigureAwait(false);
 
                     _logger.Information(string.Format(
                         LogLanguage.Instance.GetMessageFromKey(logLanguageKey),

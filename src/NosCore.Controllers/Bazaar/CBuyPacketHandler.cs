@@ -26,6 +26,7 @@ using NosCore.Packets.ServerPackets.Bazaar;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -41,12 +42,12 @@ namespace NosCore.PacketHandlers.Bazaar
     public class CBuyPacketHandler : PacketHandler<CBuyPacket>, IWorldPacketHandler
     {
         private readonly IBazaarHttpClient _bazaarHttpClient;
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
         private readonly IItemProvider _itemProvider;
         private readonly ILogger _logger;
 
         public CBuyPacketHandler(IBazaarHttpClient bazaarHttpClient, IItemProvider itemProvider, ILogger logger,
-            IGenericDao<IItemInstanceDto> itemInstanceDao)
+            IDao<IItemInstanceDto, Guid> itemInstanceDao)
         {
             _bazaarHttpClient = bazaarHttpClient;
             _itemProvider = itemProvider;
@@ -73,7 +74,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         clientSession.Character.Gold -= price;
                         await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
 
-                        var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == bz.ItemInstance.Id);
+                        var itemInstance = await _itemInstanceDao.FirstOrDefaultAsync(s => s.Id == bz.ItemInstance.Id).ConfigureAwait(false);
                         var item = _itemProvider.Convert(itemInstance!);
                         item.Id = Guid.NewGuid();
                         var newInv =

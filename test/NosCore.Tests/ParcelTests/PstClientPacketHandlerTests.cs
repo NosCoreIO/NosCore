@@ -39,7 +39,7 @@ namespace NosCore.Tests.ParcelTests
         //    //    return;
         //    //}
 
-        //    //var dest = _characterDao.FirstOrDefault(s => s.Name == pstClientPacket.ReceiverName);
+        //    //var dest = _characterDao.FirstOrDefaultAsync(s => s.Name == pstClientPacket.ReceiverName);
         //    //if (dest != null)
         //    //{
         //    //    _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
@@ -69,7 +69,7 @@ namespace NosCore.Tests.ParcelTests
         //    //    return;
         //    //}
 
-        //    //var dest = _characterDao.FirstOrDefault(s => s.Name == pstClientPacket.ReceiverName);
+        //    //var dest = _characterDao.FirstOrDefaultAsync(s => s.Name == pstClientPacket.ReceiverName);
         //    //if (dest != null)
         //    //{
         //    //    _mailHttpClient.SendMessage(clientSession.Character, dest.CharacterId, pstClientPacket.Title,

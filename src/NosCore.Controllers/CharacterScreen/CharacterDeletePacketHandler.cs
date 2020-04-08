@@ -22,6 +22,7 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
@@ -33,10 +34,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class CharacterDeletePacketHandler : PacketHandler<CharacterDeletePacket>, IWorldPacketHandler
     {
-        private readonly IGenericDao<AccountDto> _accountDao;
-        private readonly IGenericDao<CharacterDto> _characterDao;
+        private readonly IDao<AccountDto, int> _accountDao;
+        private readonly IDao<CharacterDto, long> _characterDao;
 
-        public CharacterDeletePacketHandler(IGenericDao<CharacterDto> characterDao, IGenericDao<AccountDto> accountDao)
+        public CharacterDeletePacketHandler(IDao<CharacterDto, long> characterDao, IDao<AccountDto, int> accountDao)
         {
             _characterDao = characterDao;
             _accountDao = accountDao;
@@ -49,8 +50,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            var account = _accountDao
-                .FirstOrDefault(s => s.AccountId.Equals(clientSession.Account.AccountId));
+            var account = await _accountDao
+                .FirstOrDefaultAsync(s => s.AccountId.Equals(clientSession.Account.AccountId)).ConfigureAwait(false);
             if (account == null)
             {
                 return;
@@ -58,16 +59,16 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             if ((account.Password!.ToLower() == packet.Password!.ToSha512()) || (account.Name == packet.Password))
             {
-                var character = _characterDao.FirstOrDefault(s =>
+                var character = await _characterDao.FirstOrDefaultAsync(s =>
                     (s.AccountId == account.AccountId) && (s.Slot == packet.Slot)
-                    && (s.State == CharacterState.Active));
+                    && (s.State == CharacterState.Active)).ConfigureAwait(false);
                 if (character == null)
                 {
                     return;
                 }
 
                 character.State = CharacterState.Inactive;
-                _characterDao.InsertOrUpdate(ref character);
+                character = await _characterDao.TryInsertOrUpdateAsync(character).ConfigureAwait(false);
 
                 await clientSession.HandlePacketsAsync(new[]
                 {

@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
@@ -39,17 +40,17 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
     {
         private readonly ILogger _logger;
         private readonly IMapItemProvider _mapItemProvider;
-        private readonly IGenericDao<MapMonsterDto> _mapMonsters;
-        private readonly IGenericDao<MapNpcDto> _mapNpcs;
+        private readonly IDao<MapMonsterDto, int> _mapMonsters;
+        private readonly IDao<MapNpcDto, int> _mapNpcs;
         private readonly List<MapDto> _maps;
-        private readonly IGenericDao<PortalDto> _portalDao;
+        private readonly IDao<PortalDto, int> _portalDao;
 
         private ConcurrentDictionary<Guid, MapInstance> MapInstances =
             new ConcurrentDictionary<Guid, MapInstance>();
 
         public MapInstanceProvider(List<MapDto> maps,
-            IMapItemProvider mapItemProvider, IGenericDao<MapNpcDto> mapNpcs,
-            IGenericDao<MapMonsterDto> mapMonsters, IGenericDao<PortalDto> portalDao, ILogger logger)
+            IMapItemProvider mapItemProvider, IDao<MapNpcDto, int> mapNpcs,
+            IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, ILogger logger)
         {
             _mapItemProvider = mapItemProvider;
             _mapMonsters = mapMonsters;

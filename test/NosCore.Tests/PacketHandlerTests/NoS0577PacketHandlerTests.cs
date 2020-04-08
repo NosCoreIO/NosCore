@@ -66,10 +66,10 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             TestHelpers.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration,
                 TestHelpers.Instance.AccountDao,
                 _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object));
@@ -83,7 +83,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task LoginBCrypt()
+        public async Task LoginBCryptAsync()
         {
             _loginConfiguration.MasterCommunication!.HashingType = HashingType.BCrypt;
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
@@ -103,7 +103,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task LoginPbkdf2()
+        public async Task LoginPbkdf2Async()
         {
             _loginConfiguration.MasterCommunication!.HashingType = HashingType.Pbkdf2;
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
@@ -121,7 +121,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task LoginOldClient()
+        public async Task LoginOldClientAsync()
         {
             _loginConfiguration.ClientVersion = new ClientVersionSubPacket { Major = 1 };
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
@@ -134,7 +134,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task LoginWrongToken()
+        public async Task LoginWrongTokenAsync()
         {
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
@@ -162,7 +162,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task LoginAlreadyConnected()
+        public async Task LoginAlreadyConnectedAsync()
         {
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
@@ -178,7 +178,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task LoginNoServer()
+        public async Task LoginNoServerAsync()
         {
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>());
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))

@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using Mapster;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Items;
@@ -42,12 +43,12 @@ namespace NosCore.GameObject.Providers.MinilandProvider
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly IFriendHttpClient _friendHttpClient;
         private readonly List<MapDto> _maps;
-        private readonly IGenericDao<MinilandDto> _minilandDao;
+        private readonly IDao<MinilandDto, Guid> _minilandDao;
         private readonly ConcurrentDictionary<long, Miniland> _minilandIds;
-        private readonly IGenericDao<MinilandObjectDto> _minilandObjectsDao;
+        private readonly IDao<MinilandObjectDto, Guid> _minilandObjectsDao;
 
         public MinilandProvider(IMapInstanceProvider mapInstanceProvider, IFriendHttpClient friendHttpClient, List<MapDto> maps,
-            IGenericDao<MinilandDto> minilandDao, IGenericDao<MinilandObjectDto> minilandObjectsDao)
+            IDao<MinilandDto, Guid> minilandDao, IDao<MinilandObjectDto, Guid> minilandObjectsDao)
         {
             _mapInstanceProvider = mapInstanceProvider;
             _friendHttpClient = friendHttpClient;
@@ -101,7 +102,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             throw new ArgumentException();
         }
 
-        public void DeleteMiniland(long characterId)
+        public async Task DeleteMinilandAsync(long characterId)
         {
             if (!_minilandIds.ContainsKey(characterId))
             {
@@ -111,8 +112,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             var miniland = _mapInstanceProvider.GetMapInstance(_minilandIds[characterId].MapInstanceId);
             foreach (var obj in miniland!.MapDesignObjects.Values)
             {
-                var dto = (MinilandObjectDto) obj;
-                _minilandObjectsDao.InsertOrUpdate(ref dto);
+                await _minilandObjectsDao.TryInsertOrUpdateAsync(obj).ConfigureAwait(false);
             }
 
             _mapInstanceProvider.RemoveMap(_minilandIds[characterId].MapInstanceId);
@@ -121,7 +121,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
 
         public Miniland Initialize(Character character)
         {
-            var minilandInfoDto = _minilandDao.FirstOrDefault(s => s.OwnerId == character.CharacterId);
+            var minilandInfoDto = _minilandDao.FirstOrDefaultAsync(s => s.OwnerId == character.CharacterId);
             if (minilandInfoDto == null)
             {
                 throw new ArgumentException();

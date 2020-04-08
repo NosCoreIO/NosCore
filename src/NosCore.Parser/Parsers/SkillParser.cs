@@ -21,8 +21,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
@@ -52,13 +54,13 @@ namespace NosCore.Parser.Parsers
 
         //#=========================================================
         private readonly string FileCardDat = $"{Path.DirectorySeparatorChar}Skill.dat";
-        private readonly IGenericDao<BCardDto> _bCardDao;
-        private readonly IGenericDao<ComboDto> _comboDao;
-        private readonly IGenericDao<SkillDto> _skillDao;
+        private readonly IDao<BCardDto, short> _bCardDao;
+        private readonly IDao<ComboDto, int> _comboDao;
+        private readonly IDao<SkillDto, short> _skillDao;
         private readonly ILogger _logger;
 
-        public SkillParser(IGenericDao<BCardDto> bCardDao, IGenericDao<ComboDto> comboDao,
-            IGenericDao<SkillDto> skillDao, ILogger logger)
+        public SkillParser(IDao<BCardDto, short> bCardDao, IDao<ComboDto, int> comboDao,
+            IDao<SkillDto, short> skillDao, ILogger logger)
         {
             _bCardDao = bCardDao;
             _comboDao = comboDao;
@@ -66,7 +68,7 @@ namespace NosCore.Parser.Parsers
             _logger = logger;
         }
 
-        public void InsertSkills(string folder)
+        public async Task InsertSkillsAsync(string folder)
         {
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
@@ -130,9 +132,9 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            _skillDao.InsertOrUpdate(skills);
-            _comboDao.InsertOrUpdate(skills.Where(s => s.Combo != null).SelectMany(s => s.Combo));
-            _bCardDao.InsertOrUpdate(skills.Where(s => s.BCards != null).SelectMany(s => s.BCards));
+            await _skillDao.TryInsertOrUpdateAsync(skills).ConfigureAwait(false);
+            await _comboDao.TryInsertOrUpdateAsync(skills.Where(s => s.Combo != null).SelectMany(s => s.Combo)).ConfigureAwait(false);
+            await _bCardDao.TryInsertOrUpdateAsync(skills.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SKILLS_PARSED), skills.Count);
         }

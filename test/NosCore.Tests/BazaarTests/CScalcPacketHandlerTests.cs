@@ -28,6 +28,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -50,19 +51,19 @@ namespace NosCore.Tests.BazaarTests
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CScalcPacketHandler? _cScalcPacketHandler;
-        private Mock<IGenericDao<IItemInstanceDto>>? _itemInstanceDao;
+        private Mock<IDao<IItemInstanceDto, Guid>>? _itemInstanceDao;
         private Mock<IItemProvider>? _itemProvider;
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             TestHelpers.Reset();
             Broadcaster.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
             _itemProvider = new Mock<IItemProvider>();
-            _itemInstanceDao = new Mock<IGenericDao<IItemInstanceDto>>();
+            _itemInstanceDao = new Mock<IDao<IItemInstanceDto, Guid>>();
             _cScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration,
                 _bazaarHttpClient.Object, _itemProvider.Object, Logger, _itemInstanceDao.Object);
 
@@ -87,7 +88,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RetrieveWhenInExchangeOrTrade()
+        public async Task RetrieveWhenInExchangeOrTradeAsync()
         {
             _session!.Character.InShop = true;
             await _session!.HandlePacketsAsync(new[]
@@ -104,7 +105,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RetrieveWhenNoItem()
+        public async Task RetrieveWhenNoItemAsync()
         {
             await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
             {
@@ -118,7 +119,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RetrieveWhenNotYourItem()
+        public async Task RetrieveWhenNotYourItemAsync()
         {
            await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
            {
@@ -132,7 +133,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RetrieveWhenNotEnoughPlace()
+        public async Task RetrieveWhenNotEnoughPlaceAsync()
         {
             var guid1 = Guid.NewGuid();
             var guid2 = Guid.NewGuid();
@@ -158,7 +159,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RetrieveWhenMaxGold()
+        public async Task RetrieveWhenMaxGoldAsync()
         {
             _session!.Character.Gold = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount;
             await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
@@ -175,10 +176,10 @@ namespace NosCore.Tests.BazaarTests
 
 
         [TestMethod]
-        public async Task Retrieve()
+        public async Task RetrieveAsync()
         {
-            _itemInstanceDao!.Setup(s=>s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto,bool>>>()))
-                .Returns(new ItemInstanceDto { ItemVNum = 1012, Amount = 0 });
+            _itemInstanceDao!.Setup(s=>s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto,bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto { ItemVNum = 1012, Amount = 0 });
             await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
             {
                 BazaarId = 0,

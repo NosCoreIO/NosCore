@@ -40,12 +40,12 @@ namespace NosCore.MasterServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class BazaarController : Controller
     {
-        private readonly IGenericDao<BazaarItemDto> _bazaarItemDao;
+        private readonly IDao<BazaarItemDto, long> _bazaarItemDao;
         private readonly BazaarItemsHolder _holder;
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
 
-        public BazaarController(BazaarItemsHolder holder, IGenericDao<BazaarItemDto> bazaarItemDao,
-            IGenericDao<IItemInstanceDto> itemInstanceDao)
+        public BazaarController(BazaarItemsHolder holder, IDao<BazaarItemDto, long> bazaarItemDao,
+            IDao<IItemInstanceDto, Guid> itemInstanceDao)
         {
             _bazaarItemDao = bazaarItemDao;
             _itemInstanceDao = itemInstanceDao;
@@ -218,7 +218,7 @@ namespace NosCore.MasterServer.Controllers
                 return LanguageKey.LIMIT_EXCEEDED;
             }
 
-            var item = _itemInstanceDao.FirstOrDefault(s => s.Id == bazaarRequest.ItemInstanceId);
+            var item = _itemInstanceDao.FirstOrDefaultAsync(s => s.Id == bazaarRequest.ItemInstanceId);
             if ((item == null) || (item.Amount < bazaarRequest.Amount) || (bazaarRequest.Amount < 0) ||
                 (bazaarRequest.Price < 0))
             {

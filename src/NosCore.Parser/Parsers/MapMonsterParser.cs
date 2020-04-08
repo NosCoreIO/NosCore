@@ -32,10 +32,10 @@ namespace NosCore.Parser.Parsers
     public class MapMonsterParser
     {
         private readonly ILogger _logger;
-        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao;
-        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao;
+        private readonly IDao<MapMonsterDto, int> _mapMonsterDao;
+        private readonly IDao<NpcMonsterDto, short> _npcMonsterDao;
 
-        public MapMonsterParser(IGenericDao<MapMonsterDto> mapMonsterDao, IGenericDao<NpcMonsterDto> npcMonsterDao,
+        public MapMonsterParser(IDao<MapMonsterDto, int> mapMonsterDao, IDao<NpcMonsterDto, short> npcMonsterDao,
             ILogger logger)
         {
             _mapMonsterDao = mapMonsterDao;

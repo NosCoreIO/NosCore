@@ -47,20 +47,20 @@ namespace NosCore.Tests
     public class MapperTests
     {
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Account, AccountDto, long>(Logger);
+        private readonly IDao<AccountDto, int> _accountDao =new Dao<Account, AccountDto, int>(Logger);
         private readonly MapsterMapper.Mapper _mapper = new MapsterMapper.Mapper();
 
-        private readonly IGenericDao<CharacterDto> _characterDao =
-            new GenericDao<Character, CharacterDto, long>(Logger);
+        private readonly IDao<CharacterDto, long> _characterDao =
+           new Dao<Character, CharacterDto, long>(Logger);
 
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(Logger);
+        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao = new ItemInstanceDao(Logger);
 
         [TestInitialize]
         public void Setup()
         {
             TypeAdapterConfig<CharacterDto, GameObject.Character>.NewConfig().ConstructUsing(src =>
-                new GameObject.Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, _characterDao, _itemInstanceDao, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, _accountDao, Logger,
-                    new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object, new Mock<IGenericDao<CharacterQuestDto>>().Object));
+                new GameObject.Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, _characterDao, _itemInstanceDao, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _accountDao, Logger,
+                    new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object));
             TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig()
                 .ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), Logger));
             new Mapper();
