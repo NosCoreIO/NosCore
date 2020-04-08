@@ -42,26 +42,26 @@ namespace NosCore.PacketHandlers.Shops
             _worldConfiguration = worldConfiguration;
         }
 
-        public override Task ExecuteAsync(SellPacket sellPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(SellPacket sellPacket, ClientSession clientSession)
         {
-            var type = (NoscorePocketType) sellPacket.Data;
+            var type = (NoscorePocketType)sellPacket.Data;
 
             var inv = clientSession.Character.InventoryService.LoadBySlotAndType(sellPacket.Slot, type);
             if ((inv == null) || (sellPacket.Amount > inv.ItemInstance!.Amount))
             {
                 //TODO log
-                return Task.CompletedTask;
+                return;
             }
 
             if (!inv.ItemInstance.Item!.IsSoldable)
             {
-                clientSession.SendPacketAsync(new SMemoPacket
+                await clientSession.SendPacketAsync(new SMemoPacket
                 {
                     Type = SMemoType.Error,
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE,
                         clientSession.Account.Language)
-                });
-                return Task.CompletedTask;
+                }).ConfigureAwait(false);
+                return;
             }
 
             var price = inv.ItemInstance.Item.ItemType == ItemType.Sell ? inv.ItemInstance.Item.Price
@@ -69,17 +69,17 @@ namespace NosCore.PacketHandlers.Shops
 
             if (clientSession.Character.Gold + price * sellPacket.Amount > _worldConfiguration.MaxGoldAmount)
             {
-                clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
                         clientSession.Account.Language),
                     Type = 0
-                });
-                return Task.CompletedTask;
+                }).ConfigureAwait(false);
+                return;
             }
 
             clientSession.Character.Gold += price * sellPacket.Amount;
-            clientSession.SendPacketAsync(new SMemoPacket
+            await clientSession.SendPacketAsync(new SMemoPacket
             {
                 Type = SMemoType.Success,
                 Message = string.Format(
@@ -88,12 +88,12 @@ namespace NosCore.PacketHandlers.Shops
                     inv.ItemInstance.Item.Name[clientSession.Account.Language],
                     sellPacket.Amount
                 )
-            });
+            }).ConfigureAwait(false);
 
             clientSession.Character.InventoryService.RemoveItemAmountFromInventory(sellPacket.Amount,
                 inv.ItemInstanceId);
-            clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
-            return Task.CompletedTask;
+            await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
+
         }
     }
 }

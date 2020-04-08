@@ -50,11 +50,11 @@ namespace NosCore.Parser.Parsers
             return string.Format(textfilename, regioncode);
         }
 
-        public Task InsertI18N(string file, LogLanguageKey logLanguageKey)
+        public Task InsertI18NAsync(string file, LogLanguageKey logLanguageKey)
         {
             var listoftext = _dao.LoadAll().ToDictionary(x=>(x.Key,x.RegionType), x=>x.Text);
 
-            Parallel.ForEach((RegionType[])Enum.GetValues(typeof(RegionType)), async region =>
+            return Task.WhenAll(((RegionType[])Enum.GetValues(typeof(RegionType))).Select(async region =>
             {
                 var dtos = new Dictionary<string, TDto>();
                 try
@@ -91,7 +91,7 @@ namespace NosCore.Parser.Parsers
                 {
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LANGUAGE_MISSING));
                 }
-            });
+            }));
         }
     }
 }

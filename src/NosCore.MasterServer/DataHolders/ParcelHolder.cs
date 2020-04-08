@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mapster;
+using Microsoft.VisualStudio.Threading;
 using NosCore.Core;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
@@ -47,7 +48,7 @@ namespace NosCore.MasterServer.DataHolders
             _items = items;
             _characterDao = characterDao;
             _itemInstanceDao = itemInstanceDao;
-            InitializeAsync();
+            InitializeAsync().Forget();
         }
 
         public new ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>> this[long characterId]

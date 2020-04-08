@@ -41,7 +41,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestInitialize]
         public async Task SetupAsync()
         {
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _minilandProvider = new Mock<IMinilandProvider>();
             _minilandProvider.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<Portal>());

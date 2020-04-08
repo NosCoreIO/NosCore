@@ -20,8 +20,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -43,7 +45,7 @@ namespace NosCore.Parser.Parsers
             _npcMonsterDao = npcMonsterDao;
         }
 
-        public void InsertMapMonster(List<string[]> packetList)
+        public async Task InsertMapMonsterAsync(List<string[]> packetList)
         {
             short map = 0;
             var mobMvPacketsList = packetList.Where(o => o[0].Equals("mv") && o[1].Equals("3"))
@@ -82,7 +84,7 @@ namespace NosCore.Parser.Parsers
                 monsters.Add(monster);
             }
 
-            _mapMonsterDao.InsertOrUpdate(monsters);
+            await _mapMonsterDao.TryInsertOrUpdateAsync(monsters).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MONSTERS_PARSED),
                 monsters.Count);
         }

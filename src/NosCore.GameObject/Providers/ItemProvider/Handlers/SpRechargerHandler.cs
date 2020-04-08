@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     itemInstance.ItemInstanceId);
                 await requestData.ClientSession.SendPacketAsync(
                     itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
-                requestData.ClientSession.Character.AddAdditionalSpPoints(itemInstance.ItemInstance!.Item!.EffectValue);
+                await requestData.ClientSession.Character.AddAdditionalSpPointsAsync(itemInstance.ItemInstance!.Item!.EffectValue).ConfigureAwait(false);
             }
             else
             {

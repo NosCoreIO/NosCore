@@ -19,8 +19,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using Serilog;
@@ -40,7 +42,7 @@ namespace NosCore.Parser.Parsers
             _logger = logger;
         }
 
-        public void InsertShopItems(List<string[]> packetList)
+        public async Task InsertShopItemsAsync(List<string[]> packetList)
         {
             var shopitems = new List<ShopItemDto>();
             var itemCounter = 0;
@@ -109,7 +111,7 @@ namespace NosCore.Parser.Parsers
                 shopListItemDtos.AddRange(shopItemDtos);
             }
 
-            _shopItemDao.InsertOrUpdate(shopListItemDtos);
+            await _shopItemDao.TryInsertOrUpdateAsync(shopListItemDtos).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPITEMS_PARSED),
                 itemCounter);
         }

@@ -54,7 +54,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         public async Task SetupAsync()
         {
             _characterRelationDao =new Dao<CharacterRelation, CharacterRelationDto, Guid>(Logger, TestHelpers.Instance.ContextBuilder);
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _flPacketHandler = new FlPacketHandler();

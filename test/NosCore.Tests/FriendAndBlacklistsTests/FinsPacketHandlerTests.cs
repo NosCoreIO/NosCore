@@ -70,7 +70,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
                 .ConstructUsing(src => new MapNpc(null, null, null, null, Logger, new List<NpcTalkDto>()));
             Broadcaster.Reset();
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _characterRelationDao =new Dao<CharacterRelation, CharacterRelationDto, Guid>(Logger, TestHelpers.Instance.ContextBuilder);

@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Account;
@@ -34,11 +35,11 @@ namespace NosCore.MasterServer.Controllers
     public class WarehouseController : Controller
     {
         private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
-        private readonly IDao<WarehouseDto> _warehouseDao;
-        private readonly IDao<WarehouseItemDto> _warehouseItemDao;
+        private readonly IDao<WarehouseDto, Guid> _warehouseDao;
+        private readonly IDao<WarehouseItemDto, Guid> _warehouseItemDao;
 
-        public WarehouseController(IDao<WarehouseItemDto> warehouseItemDao,
-            IDao<WarehouseDto> warehouseDao, IDao<IItemInstanceDto, Guid> itemInstanceDao)
+        public WarehouseController(IDao<WarehouseItemDto, Guid> warehouseItemDao,
+            IDao<WarehouseDto, Guid> warehouseDao, IDao<IItemInstanceDto, Guid> itemInstanceDao)
         {
             _itemInstanceDao = itemInstanceDao;
             _warehouseItemDao = warehouseItemDao;

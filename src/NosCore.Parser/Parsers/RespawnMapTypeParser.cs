@@ -42,7 +42,7 @@ namespace NosCore.Parser.Parsers
             _logger = logger;
         }
 
-        internal async Task InsertRespawnMapType()
+        internal async Task InsertRespawnMapTypeAsync()
         {
             var respawnmaptypemaps = new List<RespawnMapTypeDto>
             {

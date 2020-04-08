@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Account;
@@ -31,7 +32,7 @@ namespace NosCore.WorldServer.Controllers
     {
         // DELETE api/session
         [HttpDelete]
-        public IActionResult Disconnect(long id)
+        public async Task<IActionResult> DisconnectAsync(long id)
         {
             if (!ModelState.IsValid)
             {
@@ -44,7 +45,7 @@ namespace NosCore.WorldServer.Controllers
                 return Ok(); // TODO : Handle 404 in WebApi
             }
 
-            targetSession.Session.DisconnectAsync();
+            await targetSession.Session.DisconnectAsync().ConfigureAwait(false);
             return Ok();
         }
     }

@@ -54,7 +54,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task SetupAsync()
         {
             SystemTime.Freeze();
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _getPacketHandler = new GetPacketHandler(Logger);

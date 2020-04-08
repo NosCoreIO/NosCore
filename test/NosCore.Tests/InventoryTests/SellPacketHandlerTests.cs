@@ -51,9 +51,8 @@ namespace NosCore.Tests.InventoryTests
         [TestInitialize]
         public async Task SetupAsync()
         {
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
-            TestHelpers.Reset();
             _instanceProvider = TestHelpers.Instance.MapInstanceProvider;
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _sellPacketHandler = new SellPacketHandler(TestHelpers.Instance.WorldConfiguration);

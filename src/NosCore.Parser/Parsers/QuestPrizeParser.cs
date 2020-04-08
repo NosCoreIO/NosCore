@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
@@ -51,7 +52,7 @@ namespace NosCore.Parser.Parsers
             _questRewardDtoDao = questRewardDtoDao;
         }
 
-        public Task ImportQuestPrizes(string folder)
+        public async Task ImportQuestPrizesAsync(string folder)
         {
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
@@ -62,7 +63,7 @@ namespace NosCore.Parser.Parsers
             };
             var genericParser = new GenericParser<QuestRewardDto>(folder + _fileQuestPrizeDat, "END", 0, actionList, _logger);
             var questRewardDtos = genericParser.GetDtos();
-            _questRewardDtoDao.InsertOrUpdate(questRewardDtos);
+            await _questRewardDtoDao.TryInsertOrUpdateAsync(questRewardDtos).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUEST_PRIZES_PARSED), questRewardDtos.Count);
         }
 

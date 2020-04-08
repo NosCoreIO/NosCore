@@ -88,7 +88,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-                _portalDao.TryInsertOrUpdateAsync(minilandPortal);
+                await _portalDao.TryInsertOrUpdateAsync(minilandPortal).ConfigureAwait(false);
             }
 
             var weddingPortal = new PortalDto
