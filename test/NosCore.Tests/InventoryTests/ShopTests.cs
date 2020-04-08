@@ -67,7 +67,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task SetupAsync()
         {
             Broadcaster.Reset();
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _friendHttpClient = new Mock<IFriendHttpClient>().Object;
             TestHelpers.Instance.WorldConfiguration.BackpackSize = 3;
             _instanceProvider = TestHelpers.Instance.MapInstanceProvider;

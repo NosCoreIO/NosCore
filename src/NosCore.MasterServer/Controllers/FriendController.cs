@@ -148,6 +148,10 @@ namespace NosCore.MasterServer.Controllers
             var charList = new List<CharacterRelationStatus>();
             var list = _characterRelationDao
                 .Where(s => (s.CharacterId == id) && (s.RelationType != CharacterRelationType.Blocked));
+            if (list == null)
+            {
+                return charList;
+            }
             foreach (var rel in list)
             {
                 charList.Add(new CharacterRelationStatus

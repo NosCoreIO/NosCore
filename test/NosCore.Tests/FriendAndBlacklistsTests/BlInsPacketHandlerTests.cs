@@ -56,7 +56,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         public async Task SetupAsync()
         {
             Broadcaster.Reset();
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _blInsPacketHandler = new BlInsPackettHandler(TestHelpers.Instance.BlacklistHttpClient.Object);
             TestHelpers.Instance.ConnectedAccountHttpClient

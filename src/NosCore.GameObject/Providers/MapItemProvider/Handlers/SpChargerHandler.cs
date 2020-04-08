@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 
         public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
-            requestData.ClientSession.Character.AddSpPoints(requestData.Data.Item1.ItemInstance!.Item!.EffectValue);
+            await requestData.ClientSession.Character.AddSpPointsAsync(requestData.Data.Item1.ItemInstance!.Item!.EffectValue).ConfigureAwait(false);
 
             await requestData.ClientSession.SendPacketAsync(new MsgPacket
             {

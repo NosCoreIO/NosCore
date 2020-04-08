@@ -42,6 +42,7 @@ using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.VisualStudio.Threading;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Controllers;
@@ -73,6 +74,7 @@ namespace NosCore.MasterServer
         private const string Title = "NosCore - MasterServer";
         private const string ConsoleText = "MASTER SERVER - NosCoreIO";
         private static readonly MasterConfiguration _configuration = new MasterConfiguration();
+        private static DataAccessHelper _dataAccess = null!;
 
         public Startup(IConfiguration configuration)
         {
@@ -95,7 +97,7 @@ namespace NosCore.MasterServer
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                     var typepk = type.GetProperties()
-                        .Where(s => context.Model.FindEntityType(t)
+                        .Where(s => _dataAccess.CreateContext().Model.FindEntityType(t)
                             .FindPrimaryKey().Properties.Select(x => x.Name)
                             .Contains(s.Name)
                         ).ToArray()[0];
@@ -154,6 +156,7 @@ namespace NosCore.MasterServer
         private ContainerBuilder InitializeContainer(IServiceCollection services)
         {
             var containerBuilder = new ContainerBuilder();
+            containerBuilder.Register<IDbContextBuilder>(c => _dataAccess).AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
             containerBuilder.Register(c => new Channel
             {
@@ -184,7 +187,8 @@ namespace NosCore.MasterServer
             Logger.PrintHeader(ConsoleText);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
                 .UseNpgsql(_configuration.Database!.ConnectionString);
-            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
+            _dataAccess = new DataAccessHelper();
+            _dataAccess.Initialize(optionsBuilder.Options);
             LogLanguage.Language = _configuration.Language;
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
@@ -237,7 +241,7 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterInstance(_configuration).As<MasterConfiguration>();
             containerBuilder.RegisterInstance(_configuration.WebApi).As<WebApiConfiguration>();
             var container = containerBuilder.Build();
-            Task.Run(() => container.Resolve<MasterServer>().Run());
+            Task.Run(container.Resolve<MasterServer>().Run).Forget();
             return new AutofacServiceProvider(container);
         }
 

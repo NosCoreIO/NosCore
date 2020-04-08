@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Configuration;
@@ -47,7 +48,7 @@ namespace NosCore.WorldServer.Controllers
 
         // POST api/stat
         [HttpPost]
-        public IActionResult UpdateStats([FromBody] StatData data)
+        public async Task<IActionResult> UpdateStatsAsync([FromBody] StatData data)
         {
             if (!ModelState.IsValid)
             {
@@ -67,13 +68,13 @@ namespace NosCore.WorldServer.Controllers
                     session.SetLevel((byte) data.Data);
                     break;
                 case UpdateStatActionType.UpdateJobLevel:
-                    session.SetJobLevelAsync((byte) data.Data);
+                    await session.SetJobLevelAsync((byte) data.Data).ConfigureAwait(false);
                     break;
                 case UpdateStatActionType.UpdateHeroLevel:
-                    session.SetHeroLevelAsync((byte) data.Data);
+                    await session.SetHeroLevelAsync((byte) data.Data).ConfigureAwait(false);
                     break;
                 case UpdateStatActionType.UpdateReputation:
-                    session.SetReputationAsync(data.Data);
+                    await session.SetReputationAsync(data.Data).ConfigureAwait(false);
                     break;
                 case UpdateStatActionType.UpdateGold:
                     if (session.Gold + data.Data > _worldConfiguration.MaxGoldAmount)
@@ -81,10 +82,10 @@ namespace NosCore.WorldServer.Controllers
                         return BadRequest(); // MaxGold
                     }
 
-                    session.SetGoldAsync(data.Data);
+                    await session.SetGoldAsync(data.Data).ConfigureAwait(false);
                     break;
                 case UpdateStatActionType.UpdateClass:
-                    session.ChangeClassAsync((CharacterClassType) data.Data);
+                    await session.ChangeClassAsync((CharacterClassType) data.Data).ConfigureAwait(false);
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKWNOWN_RECEIVERTYPE));

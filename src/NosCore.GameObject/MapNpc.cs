@@ -73,7 +73,7 @@ namespace NosCore.GameObject
             PositionX = MapX;
             PositionY = MapY;
             IsAlive = true;
-            Requests.Subscribe(ShowDialog);
+            Requests.Subscribe(o => Observable.FromAsync(() => ShowDialogAsync(o)));
             var shopObj = await _shops!.FirstOrDefaultAsync(s => s.MapNpcId == MapNpcId).ConfigureAwait(false);
             if (shopObj == null)
             {
@@ -128,7 +128,7 @@ namespace NosCore.GameObject
 
         public Subject<RequestData>? Requests { get; set; }
 
-        private Task ShowDialog(RequestData requestData)
+        private Task ShowDialogAsync(RequestData requestData)
         {
             return requestData.ClientSession.SendPacketAsync(this.GenerateNpcReq(Dialog ?? 0));
         }
@@ -141,25 +141,25 @@ namespace NosCore.GameObject
 
         public void StartLife()
         {
-            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(_ =>
+            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(_ => Observable.FromAsync(async () =>
             {
                 try
                 {
                     if (!MapInstance.IsSleeping)
                     {
-                        MonsterLife();
+                        await MonsterLifeAsync().ConfigureAwait(false);
                     }
                 }
                 catch (Exception e)
                 {
                     _logger.Error(e.Message, e);
                 }
-            });
+            }));
         }
 
-        private void MonsterLife()
+        private Task MonsterLifeAsync()
         {
-            this.MoveAsync();
+            return this.MoveAsync();
         }
     }
 }

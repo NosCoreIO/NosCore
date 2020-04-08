@@ -22,8 +22,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -46,14 +48,14 @@ namespace NosCore.Parser.Parsers
             _scriptDao = scriptDao;
         }
 
-        public void InsertScripts(string folder)
+        public async Task InsertScriptsAsync(string folder)
         {
             var allScripts = _scriptDao.LoadAll().ToList();
             using var stream = new StreamReader(folder + FileCardDat, Encoding.Default);
             var scripts = new List<ScriptDto>();
             string? line;
             byte scriptId = 0;
-            while ((line = stream.ReadLine()) != null)
+            while ((line = await stream.ReadLineAsync().ConfigureAwait(false)) != null)
             {
                 var split = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                 if (line.StartsWith("#"))
@@ -82,7 +84,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            _scriptDao.InsertOrUpdate(scripts);
+            await _scriptDao.TryInsertOrUpdateAsync(scripts).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SCRIPTS_PARSED), scripts.Count);
         }
     }

@@ -39,6 +39,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Threading;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Encryption;
@@ -74,6 +75,7 @@ namespace NosCore.LoginServer
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private static readonly LoginConfiguration _loginConfiguration = new LoginConfiguration();
+        private static DataAccessHelper _dataAccess = null!;
 
         private static void InitializeConfiguration()
         {
@@ -88,13 +90,15 @@ namespace NosCore.LoginServer
 
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(_loginConfiguration.Database!.ConnectionString);
-            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
+            _dataAccess = new DataAccessHelper();
+            _dataAccess.Initialize(optionsBuilder.Options);
 
             LogLanguage.Language = _loginConfiguration.Language;
         }
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
+            containerBuilder.Register<IDbContextBuilder>(c => _dataAccess).AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterInstance(_loginConfiguration!).As<LoginConfiguration>().As<ServerConfiguration>();
             containerBuilder.RegisterType<Dao<Account, AccountDto, int>>().As<IDao<AccountDto, int>>()
@@ -103,6 +107,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<LoginServer>().PropertiesAutowired();
             containerBuilder.RegisterType<ClientSession>();
+
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
@@ -180,7 +185,7 @@ namespace NosCore.LoginServer
                     containerBuilder.Populate(services);
                     var container = containerBuilder.Build();
 
-                    Task.Run(() => container.Resolve<LoginServer>().RunAsync());
+                    Task.Run(container.Resolve<LoginServer>().RunAsync).Forget();
                     TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
                        .AfterMapping(dest => Task.Run(dest.InitializeAsync));
                     TypeAdapterConfig.GlobalSettings.EnableJsonMapping();

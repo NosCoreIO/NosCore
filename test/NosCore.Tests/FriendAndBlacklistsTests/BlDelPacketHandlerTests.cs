@@ -63,7 +63,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         {
             _characterRelationDao = new Dao<CharacterRelation, CharacterRelationDto, Guid>(Logger, TestHelpers.Instance.ContextBuilder);
             Broadcaster.Reset();
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
             _blackListHttpClient = TestHelpers.Instance.BlacklistHttpClient;

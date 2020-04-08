@@ -52,7 +52,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task SetupAsync()
         {
             SystemTime.Freeze();
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _useItemPacketHandler = new UseItemPacketHandler();

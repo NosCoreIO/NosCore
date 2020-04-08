@@ -266,15 +266,15 @@ namespace NosCore.GameObject
             JobLevelXp = 0;
             await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
             var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == MapInstance);
-            Parallel.ForEach(mapSessions, s =>
+            await Task.WhenAll(mapSessions.Select(s =>
             {
                 //if (s.VisualId != VisualId)
                 //{
                 //    TODO: Generate GIDX
                 //}
 
-                s.SendPacketAsync(this.GenerateEff(8));
-            });
+                return s.SendPacketAsync(this.GenerateEff(8));
+            })).ConfigureAwait(false);
             await SendPacketAsync(new MsgPacket
             {
                 Type = MessageType.White,
@@ -353,7 +353,7 @@ namespace NosCore.GameObject
                     .Where(i => InventoryService.Values.All(o => o.Id != i.Id)).ToList();
 
                 await _inventoryItemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.Id).ToArray()).ConfigureAwait(false);
-                await  _itemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.ItemInstanceId).ToArray()).ConfigureAwait(false);
+                await _itemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.ItemInstanceId).ToArray()).ConfigureAwait(false);
 
                 await _itemInstanceDao.TryInsertOrUpdateAsync(InventoryService.Values.Select(s => s.ItemInstance!).ToArray()).ConfigureAwait(false);
                 await _inventoryItemInstanceDao.TryInsertOrUpdateAsync(InventoryService.Values.ToArray()).ConfigureAwait(false);
@@ -361,7 +361,7 @@ namespace NosCore.GameObject
                 var staticBonusToDelete = _staticBonusDao
                     .Where(i => i.CharacterId == CharacterId).ToList()
                     .Where(i => StaticBonusList.All(o => o.StaticBonusId != i.StaticBonusId)).ToList();
-                await _staticBonusDao.TryDeleteAsync(staticBonusToDelete.Select(s=>s.StaticBonusId)).ConfigureAwait(false);
+                await _staticBonusDao.TryDeleteAsync(staticBonusToDelete.Select(s => s.StaticBonusId)).ConfigureAwait(false);
                 await _staticBonusDao.TryInsertOrUpdateAsync(StaticBonusList).ConfigureAwait(false);
 
                 await _titleDao.TryInsertOrUpdateAsync(Titles).ConfigureAwait(false);
@@ -372,7 +372,7 @@ namespace NosCore.GameObject
                 var questsToDelete = _characterQuestsDao
                     .Where(i => i.CharacterId == CharacterId).ToList()
                     .Where(i => Quests.Values.All(o => o.QuestId != i.QuestId)).ToList();
-                await _characterQuestsDao.TryDeleteAsync(questsToDelete.Select(s=>s.Id)).ConfigureAwait(false);
+                await _characterQuestsDao.TryDeleteAsync(questsToDelete.Select(s => s.Id)).ConfigureAwait(false);
                 await _characterQuestsDao.TryInsertOrUpdateAsync(Quests.Values).ConfigureAwait(false);
             }
             catch (Exception e)
@@ -791,7 +791,7 @@ namespace NosCore.GameObject
             await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
             var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == MapInstance);
 
-            Parallel.ForEach(mapSessions, async s =>
+            await Task.WhenAll(mapSessions.Select(async s =>
             {
                 if (s.VisualId != VisualId)
                 {
@@ -802,7 +802,7 @@ namespace NosCore.GameObject
 
                 await s.SendPacketAsync(this.GenerateEff(6)).ConfigureAwait(false);
                 await s.SendPacketAsync(this.GenerateEff(198)).ConfigureAwait(false);
-            });
+            })).ConfigureAwait(false);
 
             foreach (var member in Group!.Keys)
             {
@@ -1315,18 +1315,18 @@ namespace NosCore.GameObject
             };
         }
 
-        public void AddSpPoints(int spPointToAdd)
+        public Task AddSpPointsAsync(int spPointToAdd)
         {
             SpPoint = SpPoint + spPointToAdd > Session.WorldConfiguration.MaxSpPoints
                 ? Session.WorldConfiguration.MaxSpPoints : SpPoint + spPointToAdd;
-            SendPacketAsync(GenerateSpPoint());
+            return SendPacketAsync(GenerateSpPoint());
         }
 
-        public void AddAdditionalSpPoints(int spPointToAdd)
+        public Task AddAdditionalSpPointsAsync(int spPointToAdd)
         {
             SpAdditionPoint = SpAdditionPoint + spPointToAdd > Session.WorldConfiguration.MaxAdditionalSpPoints
                 ? Session.WorldConfiguration.MaxAdditionalSpPoints : SpAdditionPoint + spPointToAdd;
-            SendPacketAsync(GenerateSpPoint());
+            return SendPacketAsync(GenerateSpPoint());
         }
 
         public EquipPacket? GenerateEquipment()
@@ -1413,14 +1413,14 @@ namespace NosCore.GameObject
             }).ConfigureAwait(false);
             await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
 
-            Observable.Timer(TimeSpan.FromMilliseconds(SpCooldown * 1000)).Subscribe(o =>
+            Observable.Timer(TimeSpan.FromMilliseconds(SpCooldown * 1000)).Subscribe(o => Observable.FromAsync(async () =>
             {
-                SendPacketAsync(this.GenerateSay(
-                   string.Format(
-                       GameLanguage.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_DISAPPEAR, Session.Account.Language),
-                       SpCooldown), SayColorType.Purple));
-                SendPacketAsync(new SdPacket { Cooldown = 0 });
-            });
+                await SendPacketAsync(this.GenerateSay(
+                    string.Format(
+                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_DISAPPEAR, Session.Account.Language),
+                        SpCooldown), SayColorType.Purple)).ConfigureAwait(false);
+                await SendPacketAsync(new SdPacket { Cooldown = 0 }).ConfigureAwait(false);
+            }));
         }
 
         public async Task ChangeSpAsync()

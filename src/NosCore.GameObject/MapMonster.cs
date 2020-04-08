@@ -100,25 +100,25 @@ namespace NosCore.GameObject
 
         public void StartLife()
         {
-            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(_ =>
+            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(_ => Observable.FromAsync(async () =>
             {
                 try
                 {
                     if (!MapInstance.IsSleeping)
                     {
-                        MonsterLife();
+                        await MonsterLifeAsync().ConfigureAwait(false);
                     }
                 }
                 catch (Exception e)
                 {
                     _logger.Error(e.Message, e);
                 }
-            });
+            }));
         }
 
-        private void MonsterLife()
+        private Task MonsterLifeAsync()
         {
-            await this.MoveAsync().ConfigureAwait(false);
+            return this.MoveAsync();
         }
     }
 }

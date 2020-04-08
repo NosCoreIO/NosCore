@@ -21,8 +21,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
@@ -58,7 +60,7 @@ namespace NosCore.Parser.Parsers
             return genericParser.GetDtos(" ");
         }
 
-        public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
+        public async Task InsertOrUpdateMapsAsync(string folder, List<string[]> packetList)
         {
             var dictionaryId = ParseDat(folder);
             var folderMap = folder + _folderMap;
@@ -74,7 +76,7 @@ namespace NosCore.Parser.Parsers
                 ShopAllowed = short.Parse(file.Name) == 147
             }).ToList();
            
-            _mapDao.InsertOrUpdate(maps);
+            await _mapDao.TryInsertOrUpdateAsync(maps).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPS_PARSED), maps.Count);
         }
     }

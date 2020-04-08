@@ -62,7 +62,7 @@ namespace NosCore.Tests.BazaarTests
         [TestInitialize]
         public async Task SetupAsync()
         {
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _session.Character.StaticBonusList = new List<StaticBonusDto>();

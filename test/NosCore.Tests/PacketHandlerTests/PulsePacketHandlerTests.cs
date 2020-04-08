@@ -40,7 +40,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _pulsePacketHandler = new PulsePacketHandler();
             Broadcaster.Reset();
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
         }
 

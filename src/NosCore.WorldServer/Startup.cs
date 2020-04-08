@@ -51,6 +51,7 @@ using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.VisualStudio.Threading;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Controllers;
@@ -102,6 +103,7 @@ namespace NosCore.WorldServer
         private const string ConsoleText = "WORLD SERVER - NosCoreIO";
 
         private static readonly WorldConfiguration _worldConfiguration = new WorldConfiguration();
+        private static DataAccessHelper _dataAccess = null!;
 
         public Startup(IConfiguration configuration)
         {
@@ -261,7 +263,7 @@ namespace NosCore.WorldServer
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                     var typepk = type.GetProperties()
-                        .Where(s => context.Model.FindEntityType(t)
+                        .Where(s => _dataAccess.CreateContext().Model.FindEntityType(t)
                             .FindPrimaryKey().Properties.Select(x => x.Name)
                             .Contains(s.Name)
                         ).ToArray()[0];
@@ -274,6 +276,7 @@ namespace NosCore.WorldServer
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
+            containerBuilder.Register<IDbContextBuilder>(c => _dataAccess).AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces().PropertiesAutowired();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => (p.Namespace != "NosCore.Packets.ServerPackets.Login") && (p.Name != "NoS0575Packet")
@@ -409,7 +412,8 @@ namespace NosCore.WorldServer
             //PacketFactory.Initialize<NoS0575Packet>();
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
                 .UseNpgsql(_worldConfiguration.Database!.ConnectionString);
-            DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
+            _dataAccess = new DataAccessHelper();
+            _dataAccess.Initialize(optionsBuilder.Options);
             LogLanguage.Language = _worldConfiguration.Language;
 
             services.AddSwaggerGen(c =>
@@ -466,7 +470,7 @@ namespace NosCore.WorldServer
                 .When(s => !s.SourceType.IsAssignableFrom(s.DestinationType) && typeof(IStaticDto).IsAssignableFrom(s.DestinationType))
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
-                .AfterMapping(dest => Task.Run(() => dest.InitializeAsync()));
+                .AfterMapping(dest => Task.Run(dest.InitializeAsync));
             TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
             var containerBuilder = new ContainerBuilder();
@@ -476,7 +480,7 @@ namespace NosCore.WorldServer
             RegisterGo(container);
 
             container.Resolve<IMapInstanceProvider>().Initialize();
-            Task.Run(() => container.Resolve<WorldServer>().RunAsync());
+            Task.Run(container.Resolve<WorldServer>().RunAsync).Forget();
 
             return new AutofacServiceProvider(container);
         }
