@@ -38,13 +38,13 @@ using Serilog;
 
 namespace NosCore.Database
 {
-    public class ItemInstanceDao : Dao<ItemInstance, IItemInstanceDto, Guid>
+    public class ItemInstanceDao : IDao<IItemInstanceDto, Guid>
     {
         private readonly ILogger _logger;
         private readonly PropertyInfo[] _primaryKey;
         private readonly IDbContextBuilder _dbContextBuilder;
 
-        public ItemInstanceDao(ILogger logger, IDbContextBuilder dbContextBuilder) : base(logger, dbContextBuilder)
+        public ItemInstanceDao(ILogger logger, IDbContextBuilder dbContextBuilder)
         {
             _logger = logger;
             _dbContextBuilder = dbContextBuilder;
@@ -264,41 +264,41 @@ namespace NosCore.Database
             throw new NotImplementedException();
         }
 
-        //public IEnumerable<IItemInstanceDto> LoadAll()
-        //{
-        //    using var context = DataAccessHelper.Instance.CreateContext();
-        //    foreach (var t in context.Set<ItemInstance>())
-        //    {
-        //        yield return t is BoxInstance ? t.Adapt<BoxInstanceDto>() :
-        //            t is SpecialistInstance ? t.Adapt<SpecialistInstanceDto>() :
-        //            t is WearableInstance ? t.Adapt<WearableInstanceDto>() :
-        //            t is UsableInstance ? t.Adapt<UsableInstanceDto>() :
-        //            t.Adapt<ItemInstanceDto>();
-        //    }
-        //}
+        public IEnumerable<IItemInstanceDto> LoadAll()
+        {
+            using var context = _dbContextBuilder.CreateContext();
+            foreach (var t in context.Set<ItemInstance>())
+            {
+                yield return t is BoxInstance ? t.Adapt<BoxInstanceDto>() :
+                    t is SpecialistInstance ? t.Adapt<SpecialistInstanceDto>() :
+                    t is WearableInstance ? t.Adapt<WearableInstanceDto>() :
+                    t is UsableInstance ? t.Adapt<UsableInstanceDto>() :
+                    t.Adapt<ItemInstanceDto>();
+            }
+        }
 
-        //public IEnumerable<IItemInstanceDto> Where(Expression<Func<IItemInstanceDto, bool>> predicate)
-        //{
-        //    using var context = DataAccessHelper.Instance.CreateContext();
-        //    var dbset = context.Set<ItemInstance>();
-        //    var entities = Enumerable.Empty<ItemInstance>();
-        //    try
-        //    {
-        //        entities = dbset.Where(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>());
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.Error(e.Message, e);
-        //    }
+        public IEnumerable<IItemInstanceDto>? Where(Expression<Func<IItemInstanceDto, bool>> predicate)
+        {
+            using var context = _dbContextBuilder.CreateContext();
+            var dbset = context.Set<ItemInstance>();
+            var entities = Enumerable.Empty<ItemInstance>();
+            try
+            {
+                entities = dbset.Where(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>());
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message, e);
+            }
 
-        //    foreach (var t in entities)
-        //    {
-        //        yield return t is BoxInstance ? t.Adapt<BoxInstanceDto>() :
-        //            t is SpecialistInstance ? t.Adapt<SpecialistInstanceDto>() :
-        //            t is WearableInstance ? t.Adapt<WearableInstanceDto>() :
-        //            t is UsableInstance ? t.Adapt<UsableInstanceDto>() :
-        //            t.Adapt<ItemInstanceDto>();
-        //    }
-        //}
+            foreach (var t in entities)
+            {
+                yield return t is BoxInstance ? t.Adapt<BoxInstanceDto>() :
+                    t is SpecialistInstance ? t.Adapt<SpecialistInstanceDto>() :
+                    t is WearableInstance ? t.Adapt<WearableInstanceDto>() :
+                    t is UsableInstance ? t.Adapt<UsableInstanceDto>() :
+                    t.Adapt<ItemInstanceDto>();
+            }
+        }
     }
 }

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Dao.Interfaces;
@@ -76,25 +77,25 @@ namespace NosCore.MasterServer.Controllers
 
 
         [HttpDelete]
-        public bool DeleteWarehouseItem(Guid id)
+        public async Task<bool> DeleteWarehouseItemAsync(Guid id)
         {
-            var item = _warehouseItemDao.FirstOrDefaultAsync(s => s.Id == id);
+            var item = await _warehouseItemDao.FirstOrDefaultAsync(s => s.Id == id).ConfigureAwait(false);
             if (item == null)
             {
                 return false;
             }
-            _warehouseItemDao.Delete(item.Id);
-            _warehouseDao.Delete(item.WarehouseId);
-            _itemInstanceDao.Delete(item.ItemInstanceId);
+            await _warehouseItemDao.TryDeleteAsync(item.Id).ConfigureAwait(false);
+            await _warehouseDao.TryDeleteAsync(item.WarehouseId).ConfigureAwait(false);
+            await _itemInstanceDao.TryDeleteAsync(item.ItemInstanceId).ConfigureAwait(false);
             return true;
         }
 
         [HttpPost]
-        public bool AddWarehouseItem([FromBody] WareHouseDepositRequest depositRequest)
+        public async Task<bool> AddWarehouseItemAsync([FromBody] WareHouseDepositRequest depositRequest)
         {
             var item = depositRequest.ItemInstance as IItemInstanceDto;
             item!.Id = Guid.NewGuid();
-            _itemInstanceDao.InsertOrUpdate(ref item);
+            item = await _itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(true);
             var warehouse = new WarehouseDto
             {
                 CharacterId = depositRequest.WarehouseType == WarehouseType.FamilyWareHouse ? null
@@ -104,7 +105,7 @@ namespace NosCore.MasterServer.Controllers
                     ? (long?) depositRequest.OwnerId : null,
                 Type = depositRequest.WarehouseType,
             };
-            _warehouseDao.InsertOrUpdate(ref warehouse);
+            warehouse = await _warehouseDao.TryInsertOrUpdateAsync( warehouse).ConfigureAwait(true);
             var warehouseItem = new WarehouseItemDto
             {
                 Slot = depositRequest.Slot,
@@ -112,7 +113,7 @@ namespace NosCore.MasterServer.Controllers
                 ItemInstanceId = item.Id,
                 WarehouseId = warehouse.Id
             };
-            _warehouseItemDao.InsertOrUpdate(ref warehouseItem);
+            await _warehouseItemDao.TryInsertOrUpdateAsync(warehouseItem).ConfigureAwait(true);
             return true;
         }
     }

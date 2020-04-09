@@ -31,16 +31,15 @@ namespace NosCore.PacketHandlers.Inventory
 {
     public class MvePacketHandler : PacketHandler<MvePacket>, IWorldPacketHandler
     {
-        public override Task ExecuteAsync(MvePacket mvePacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(MvePacket mvePacket, ClientSession clientSession)
         {
             var inv = clientSession.Character.InventoryService.MoveInPocket(mvePacket.Slot,
                 (NoscorePocketType) mvePacket.InventoryType,
                 (NoscorePocketType) mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
-            clientSession.SendPacketAsync(inv.GeneratePocketChange(mvePacket.DestinationInventoryType,
-                mvePacket.DestinationSlot));
-            clientSession.SendPacketAsync(
-                ((InventoryItemInstance?) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
-            return Task.CompletedTask;
+            await clientSession.SendPacketAsync(inv.GeneratePocketChange(mvePacket.DestinationInventoryType,
+                mvePacket.DestinationSlot)).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(
+                ((InventoryItemInstance?) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot)).ConfigureAwait(false);
         }
     }
 }

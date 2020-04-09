@@ -49,20 +49,20 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             return (item.Effect == ItemEffectType.InventoryUpgrade || item.Effect == ItemEffectType.InventoryTicketUpgrade);
         }
 
-        public Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             var itemInstance = requestData.Data.Item1;
 
             if (itemInstance.ItemInstance!.Item!.Effect == ItemEffectType.InventoryUpgrade 
                 && requestData.ClientSession.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BackPack))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             if (itemInstance.ItemInstance.Item.Effect == ItemEffectType.InventoryTicketUpgrade
                 && requestData.ClientSession.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.InventoryTicketUpgrade))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto
@@ -72,19 +72,18 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.InventoryTicketUpgrade ? StaticBonusType.InventoryTicketUpgrade : StaticBonusType.BackPack
             });
 
-            requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSay(string.Format(
+            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSay(string.Format(
                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.EFFECT_ACTIVATED,
                         requestData.ClientSession.Account.Language),
                     itemInstance.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]),
-                SayColorType.Green));
-            requestData.ClientSession.SendPacketAsync(
-                itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+                SayColorType.Green)).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacketAsync(
+                itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
                 itemInstance.ItemInstanceId);
 
             requestData.ClientSession.Character.LoadExpensions();
-            requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateExts(_conf));
-            return Task.CompletedTask;
+            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateExts(_conf)).ConfigureAwait(false);
         }
     }
 }

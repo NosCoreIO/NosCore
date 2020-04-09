@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Command
             _worldConfiguration = worldConfiguration;
         }
 
-        public override Task ExecuteAsync(CreateItemPacket createItemPacket, ClientSession session)
+        public override async Task ExecuteAsync(CreateItemPacket createItemPacket, ClientSession session)
         {
             var vnum = createItemPacket.VNum;
             sbyte rare = 0;
@@ -63,18 +63,18 @@ namespace NosCore.PacketHandlers.Command
             short amount = 1;
             if (vnum == 1046)
             {
-                return Task.CompletedTask; // cannot create gold as item, use $Gold instead
+                return; // cannot create gold as item, use $Gold instead
             }
 
             var iteminfo = _items.Find(item => item.VNum == vnum);
             if (iteminfo == null)
             {
-                session.SendPacketAsync(new MsgPacket
+                await session.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, session.Account.Language),
                     Type = 0
-                });
-                return Task.CompletedTask;
+                }).ConfigureAwait(false);
+                return;
             }
 
             if (iteminfo.IsColored || (iteminfo.Effect == ItemEffectType.BoxEffect))
@@ -132,16 +132,16 @@ namespace NosCore.PacketHandlers.Command
 
             if (inv == null || inv.Count <= 0)
             {
-                session.SendPacketAsync(new MsgPacket
+                await session.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
                         session.Account.Language),
                     Type = 0
-                });
-                return Task.CompletedTask;
+                }).ConfigureAwait(false);
+                return;
             }
 
-            session.SendPacketAsync(inv.GeneratePocketChange());
+            await session.SendPacketAsync(inv.GeneratePocketChange()).ConfigureAwait(false);
             var firstItem = inv[0];
 
             if (session.Character.InventoryService.LoadBySlotAndType(firstItem.Slot,
@@ -168,10 +168,9 @@ namespace NosCore.PacketHandlers.Command
                 }
             }
 
-            session.SendPacketAsync(session.Character.GenerateSay(
+            await session.SendPacketAsync(session.Character.GenerateSay(
                 $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, session.Account.Language)}: {iteminfo.Name[session.Account.Language]} x {amount}",
-                SayColorType.Green));
-            return Task.CompletedTask;
+                SayColorType.Green)).ConfigureAwait(false);
         }
     }
 }

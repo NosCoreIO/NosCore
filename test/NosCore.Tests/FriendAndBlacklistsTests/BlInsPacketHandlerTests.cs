@@ -79,10 +79,10 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             };
 
             await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session!).ConfigureAwait(false);
-            Assert.IsNull(
+            Assert.IsNull(await
                 _characterRelationDao.FirstOrDefaultAsync(s =>
                     (_session!.Character.CharacterId == s.CharacterId) &&
-                    (s.RelationType == CharacterRelationType.Blocked)));
+                    (s.RelationType == CharacterRelationType.Blocked)).ConfigureAwait(false));
         }
 
         [TestMethod]

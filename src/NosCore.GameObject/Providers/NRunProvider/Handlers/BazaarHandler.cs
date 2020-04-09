@@ -47,13 +47,12 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             var medal = medalBonus != null ? medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold
                 ? (byte) MedalType.Gold : (byte) MedalType.Silver : (byte) 0;
             var time = medalBonus != null ? (int)(medalBonus.DateEnd == null ? 720 : ((TimeSpan)(medalBonus.DateEnd - SystemTime.Now())).TotalHours) : 0;
-            requestData.ClientSession.SendPacketAsync(new WopenPacket
+            return requestData.ClientSession.SendPacketAsync(new WopenPacket
             {
                 Type = WindowType.NosBazaar,
                 Unknown = medal,
                 Unknown2 = (byte) time
             });
-            return Task.CompletedTask;
         }
     }
 }

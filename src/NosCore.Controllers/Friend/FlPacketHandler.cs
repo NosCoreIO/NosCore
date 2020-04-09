@@ -31,19 +31,19 @@ namespace NosCore.PacketHandlers.Friend
 {
     public class FlPacketHandler : PacketHandler<FlPacket>, IWorldPacketHandler
     {
-        public override Task ExecuteAsync(FlPacket flPacket, ClientSession session)
+        public override async Task ExecuteAsync(FlPacket flPacket, ClientSession session)
         {
             var target =
                 Broadcaster.Instance.GetCharacter(s => s.Name == flPacket.CharacterName);
 
             if (target == null)
             {
-                session.SendPacketAsync(new InfoPacket
+                await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
-                });
-                return Task.CompletedTask;
+                }).ConfigureAwait(false);
+                return;
             }
 
             var fins = new FinsPacket
@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Friend
                 Type = FinsPacketType.Accepted
             };
 
-            return session.HandlePacketsAsync(new[] {fins});
+            await session.HandlePacketsAsync(new[] {fins}).ConfigureAwait(false);
         }
     }
 }

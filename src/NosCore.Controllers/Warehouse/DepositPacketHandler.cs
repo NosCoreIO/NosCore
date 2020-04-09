@@ -40,9 +40,8 @@ namespace NosCore.PacketHandlers.Warehouse
         {
             IItemInstance itemInstance = new ItemInstance();
             short slot = 0;
-            var warehouseItems = _warehouseHttpClient.DepositItemAsync(clientSession.Character.CharacterId,
+            return _warehouseHttpClient.DepositItemAsync(clientSession.Character.CharacterId,
                 WarehouseType.Warehouse, itemInstance, slot);
-            return Task.CompletedTask;
         }
     }
 }

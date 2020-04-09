@@ -40,37 +40,36 @@ namespace NosCore.PacketHandlers.Miniland
             _minilandProvider = minilandProvider;
         }
 
-        public override Task ExecuteAsync(RmvobjPacket rmvobjPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(RmvobjPacket rmvobjPacket, ClientSession clientSession)
         {
             var minilandobject =
                 clientSession.Character.InventoryService.LoadBySlotAndType(rmvobjPacket.Slot, NoscorePocketType.Miniland);
             if (minilandobject == null)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             if (_minilandProvider.GetMiniland(clientSession.Character.CharacterId).State != MinilandState.Lock)
             {
-                clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_NEED_LOCK,
                         clientSession.Account.Language)
-                });
-                return Task.CompletedTask;
+                }).ConfigureAwait(false);
+                return;
             }
 
             if (!clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             var minilandObject = clientSession.Character.MapInstance.MapDesignObjects[minilandobject.Id];
             clientSession.Character.MapInstance.MapDesignObjects.TryRemove(minilandobject.Id, out _);
-            clientSession.SendPacketAsync(minilandObject.GenerateEffect(true));
-            clientSession.SendPacketAsync(new MinilandPointPacket
-                {MinilandPoint = minilandobject.ItemInstance!.Item!.MinilandObjectPoint, Unknown = 100});
-            clientSession.SendPacketAsync(minilandObject.GenerateMapDesignObject(true));
-            return Task.CompletedTask;
+            await clientSession.SendPacketAsync(minilandObject.GenerateEffect(true)).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(new MinilandPointPacket
+                {MinilandPoint = minilandobject.ItemInstance!.Item!.MinilandObjectPoint, Unknown = 100}).ConfigureAwait(false);
+            await  clientSession.SendPacketAsync(minilandObject.GenerateMapDesignObject(true)).ConfigureAwait(false);
         }
     }
 }

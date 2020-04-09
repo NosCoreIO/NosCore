@@ -28,6 +28,7 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Movement
 {
@@ -42,7 +43,7 @@ namespace NosCore.PacketHandlers.Movement
 
         public override Task ExecuteAsync(SitPacket sitpacket, ClientSession clientSession)
         {
-            sitpacket.Users!.ForEach(u =>
+            return Task.WhenAll(sitpacket.Users!.Select(u =>
             {
                 IAliveEntity entity;
 
@@ -55,19 +56,18 @@ namespace NosCore.PacketHandlers.Movement
                             _logger.Error(
                                 LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DIRECT_ACCESS_OBJECT_DETECTED),
                                 clientSession.Character, sitpacket);
-                            return;
+                            return Task.CompletedTask;
                         }
 
                         break;
                     default:
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
                             u.VisualType);
-                        return;
+                        return Task.CompletedTask;
                 }
 
-                entity.RestAsync();
-            });
-            return Task.CompletedTask;
+                return entity.RestAsync();
+            }));
         }
     }
 }

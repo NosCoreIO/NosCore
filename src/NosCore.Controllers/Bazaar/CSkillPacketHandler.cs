@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Bazaar
 {
     public class CSkillPacketHandler : PacketHandler<CSkillPacket>, IWorldPacketHandler
     {
-        public override Task ExecuteAsync(CSkillPacket packet, ClientSession clientSession)
+        public override async Task ExecuteAsync(CSkillPacket packet, ClientSession clientSession)
         {
             var medalBonus = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
                 (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
@@ -44,28 +44,27 @@ namespace NosCore.PacketHandlers.Bazaar
                 var medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte) MedalType.Gold
                     : (byte) MedalType.Silver;
                 var time = (int)(medalBonus.DateEnd == null ? 720 : ((TimeSpan)(medalBonus.DateEnd - SystemTime.Now())).TotalHours);
-                clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR,
                         clientSession.Account.Language),
                     Type = MessageType.Whisper
-                });
-                clientSession.SendPacketAsync(new WopenPacket
+                }).ConfigureAwait(false);
+                await clientSession.SendPacketAsync(new WopenPacket
                 {
                     Type = WindowType.NosBazaar,
                     Unknown = medal,
                     Unknown2 = (byte) time
-                });
+                }).ConfigureAwait(false);
             }
             else
             {
-                clientSession.SendPacketAsync(new InfoPacket
+                await clientSession.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL,
                         clientSession.Account.Language)
-                });
+                }).ConfigureAwait(false);
             }
-            return Task.CompletedTask;
         }
     }
 }
