@@ -40,13 +40,13 @@ namespace NosCore.GameObject.Networking.LoginService
 {
     public class LoginService : ILoginService
     {
-        private readonly IDao<AccountDto, int> _accountDao;
+        private readonly IDao<AccountDto, long> _accountDao;
         private readonly IAuthHttpClient _authHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly LoginConfiguration _loginConfiguration;
 
-        public LoginService(LoginConfiguration loginConfiguration, IDao<AccountDto, int> accountDao,
+        public LoginService(LoginConfiguration loginConfiguration, IDao<AccountDto, long> accountDao,
             IAuthHttpClient authHttpClient,
             IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {

@@ -113,7 +113,7 @@ namespace NosCore.Tests.Helpers
 
         public static TestHelpers Instance => _lazy.Value;
 
-        public IDao<AccountDto, int> AccountDao { get; private set; } = null!;
+        public IDao<AccountDto, long> AccountDao { get; private set; } = null!;
         public IDao<CharacterDto, long> CharacterDao { get; private set; } = null!;
         public IDao<MinilandDto, Guid> MinilandDao { get; private set; } = null!;
         public MapItemProvider? MapItemProvider { get; set; }
@@ -214,7 +214,7 @@ namespace NosCore.Tests.Helpers
                 MapItemProvider,
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, _logger);
-            instanceAccessService.Initialize();
+            instanceAccessService.InitializeAsync();
             instanceAccessService.AddMapInstance(new MapInstance(miniland, MinilandId, false,
                 MapInstanceType.NormalInstance, MapItemProvider, _logger, new List<IMapInstanceEventHandler>()));
             return instanceAccessService;

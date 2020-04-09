@@ -48,13 +48,13 @@ namespace NosCore.MasterServer.Controllers
         private readonly IDao<CharacterDto, long> _characterDto;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IIncommingMailHttpClient _incommingMailHttpClient;
-        private readonly ItemInstanceDao _itemInstanceDao;
+        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly IItemProvider _itemProvider;
         private readonly List<ItemDto> _items;
         private readonly IDao<MailDto, long> _mailDao;
         private readonly ParcelHolder _parcelHolder;
 
-        public MailController(IDao<MailDto, long> mailDao, ItemInstanceDao itemInstanceDao,
+        public MailController(IDao<MailDto, long> mailDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IConnectedAccountHttpClient connectedAccountHttpClient,
             List<ItemDto> items, IItemProvider itemProvider, IIncommingMailHttpClient incommingMailHttpClient,
             ParcelHolder parcelHolder,

@@ -67,7 +67,7 @@ namespace NosCore.GameObject.Networking
             }
             finally
             {
-                Task.WaitAll(bossGroup.ShutdownGracefullyAsync(), workerGroup.ShutdownGracefullyAsync());
+                await Task.WhenAll(bossGroup.ShutdownGracefullyAsync(), workerGroup.ShutdownGracefullyAsync()).ConfigureAwait(false);
             }
         }
     }

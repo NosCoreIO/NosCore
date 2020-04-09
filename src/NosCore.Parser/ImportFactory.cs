@@ -35,7 +35,7 @@ namespace NosCore.Parser
 {
     public class ImportFactory
     {
-        private readonly IDao<AccountDto, int> _accountDao;
+        private readonly IDao<AccountDto, long> _accountDao;
 
         private readonly CardParser _cardParser;
         private readonly DropParser _dropParser;
@@ -78,7 +78,7 @@ namespace NosCore.Parser
             PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
             ShopItemParser shopItemParser, ShopParser shopParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
             QuestPrizeParser questPrizeParser, QuestParser questParser, ActParser actParser, ScriptParser scriptParser,
-            IDao<AccountDto, int> accountDao, IDao<I18NQuestDto, int> i18NQuestDao, IDao<I18NSkillDto, int> i18NSkillDao,
+            IDao<AccountDto, long> accountDao, IDao<I18NQuestDto, int> i18NQuestDao, IDao<I18NSkillDto, int> i18NSkillDao,
             IDao<I18NNpcMonsterTalkDto, int> i18NNpcMonsterTalkDao,
             IDao<I18NNpcMonsterDto, int> i18NNpcMonsterDao, IDao<I18NMapPointDataDto, int> i18NMapPointDataDao,
             IDao<I18NMapIdDataDto, int> i18NMapIdDataDao,
