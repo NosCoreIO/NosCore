@@ -86,15 +86,15 @@ namespace NosCore.Tests.Helpers
         private static Lazy<TestHelpers> _lazy =
             new Lazy<TestHelpers>(() => new TestHelpers());
 
-        private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
-        private readonly ItemInstanceDao _itemInstanceDao;
+        private IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao = null!;
+        private ItemInstanceDao _itemInstanceDao = null!;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IDao<MapMonsterDto, int> _mapMonsterDao;
-        private readonly IDao<MapNpcDto, int> _mapNpcDao;
-        private readonly IDao<PortalDto, int> _portalDao;
-        private readonly IDao<ShopDto, int> _shopDao;
-        private readonly IDao<ShopItemDto, int> _shopItemDao;
-        private readonly IDao<StaticBonusDto, long> _staticBonusDao;
+        private IDao<MapMonsterDto, int> _mapMonsterDao = null!;
+        private IDao<MapNpcDto, int> _mapNpcDao = null!;
+        private IDao<PortalDto, int> _portalDao = null!;
+        private IDao<ShopDto, int> _shopDao = null!;
+        private IDao<ShopItemDto, int> _shopItemDao = null!;
+        private IDao<StaticBonusDto, long> _staticBonusDao = null!;
         private int _lastId = 100;
         public Mock<IBlacklistHttpClient> BlacklistHttpClient = new Mock<IBlacklistHttpClient>();
         public Mock<IChannelHttpClient> ChannelHttpClient = new Mock<IChannelHttpClient>();
@@ -108,25 +108,14 @@ namespace NosCore.Tests.Helpers
                 .ReturnsAsync(new List<CharacterRelationStatus>());
             FriendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
-            AccountDao =new Dao<Account, AccountDto, int>(_logger, ContextBuilder);
-            _portalDao =new Dao<Portal, PortalDto, int>(_logger, ContextBuilder);
-            _mapMonsterDao =new Dao<MapMonster, MapMonsterDto, int>(_logger, ContextBuilder);
-            _mapNpcDao =new Dao<MapNpc, MapNpcDto, int>(_logger, ContextBuilder);
-            MinilandDao =new Dao<Miniland, MinilandDto, Guid>(_logger, ContextBuilder);
-            _shopDao =new Dao<Shop, ShopDto, int>(_logger, ContextBuilder);
-            _shopItemDao =new Dao<ShopItem, ShopItemDto, int>(_logger, ContextBuilder);
-            CharacterDao =new Dao<Character, CharacterDto, long>(_logger, ContextBuilder);
-            _itemInstanceDao = new ItemInstanceDao(_logger, ContextBuilder);
-            _inventoryItemInstanceDao =new Dao<InventoryItemInstance, InventoryItemInstanceDto, Guid>(_logger, ContextBuilder);
-            _staticBonusDao =new Dao<StaticBonus, StaticBonusDto, long>(_logger, ContextBuilder);
             InitDatabase();
         }
 
         public static TestHelpers Instance => _lazy.Value;
 
-        public IDao<AccountDto, int> AccountDao { get; }
-        public IDao<CharacterDto, long> CharacterDao { get; }
-        public IDao<MinilandDto, Guid> MinilandDao { get; }
+        public IDao<AccountDto, int> AccountDao { get; private set; } = null!;
+        public IDao<CharacterDto, long> CharacterDao { get; private set; } = null!;
+        public IDao<MinilandDto, Guid> MinilandDao { get; private set; } = null!;
         public MapItemProvider? MapItemProvider { get; set; }
         public Guid MinilandId { get; set; } = Guid.NewGuid();
 
@@ -243,8 +232,24 @@ namespace NosCore.Tests.Helpers
                 });
         }
 
-        private void InitDatabase()
-        {
+        public void InitDatabase()
+        {   var contextBuilder =
+                new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
+                    Guid.NewGuid().ToString());
+            var nosCorecontextBuilder = new DataAccessHelper();
+            nosCorecontextBuilder.InitializeForTest(contextBuilder.Options);
+            ContextBuilder = nosCorecontextBuilder;
+            AccountDao = new Dao<Account, AccountDto, int>(_logger, ContextBuilder);
+            _portalDao = new Dao<Portal, PortalDto, int>(_logger, ContextBuilder);
+            _mapMonsterDao = new Dao<MapMonster, MapMonsterDto, int>(_logger, ContextBuilder);
+            _mapNpcDao = new Dao<MapNpc, MapNpcDto, int>(_logger, ContextBuilder);
+            MinilandDao = new Dao<Miniland, MinilandDto, Guid>(_logger, ContextBuilder);
+            _shopDao = new Dao<Shop, ShopDto, int>(_logger, ContextBuilder);
+            _shopItemDao = new Dao<ShopItem, ShopItemDto, int>(_logger, ContextBuilder);
+            CharacterDao = new Dao<Character, CharacterDto, long>(_logger, ContextBuilder);
+            _itemInstanceDao = new ItemInstanceDao(_logger, ContextBuilder);
+            _inventoryItemInstanceDao = new Dao<InventoryItemInstance, InventoryItemInstanceDto, Guid>(_logger, ContextBuilder);
+            _staticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(_logger, ContextBuilder);
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
                 .AfterMapping(dest => Task.Run(dest.InitializeAsync));
@@ -254,12 +259,7 @@ namespace NosCore.Tests.Helpers
                     new List<NpcMonsterDto>(), _logger, new List<NpcTalkDto>()));
             TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig()
                 .ConstructUsing(src => new GameObject.MapMonster(new List<NpcMonsterDto>(), _logger));
-            var contextBuilder =
-                new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
-                    Guid.NewGuid().ToString());
-            var nosCorecontextBuilder = new DataAccessHelper();
-            nosCorecontextBuilder.InitializeForTest(contextBuilder.Options);
-            ContextBuilder = nosCorecontextBuilder;
+         
         }
 
         public async Task<ClientSession> GenerateSessionAsync()
@@ -312,7 +312,7 @@ namespace NosCore.Tests.Helpers
                 Titles = new List<TitleDto>()
             };
             var charaDto = chara.Adapt<CharacterDto>();
-            charaDto = await CharacterDao.TryInsertOrUpdateAsync(charaDto).ConfigureAwait(false);
+            await CharacterDao.TryInsertOrUpdateAsync(charaDto).ConfigureAwait(false);
             session.InitializeAccount(acc);
             session.SetCharacter(chara);
             session.Character.MapInstance = MapInstanceProvider.GetBaseMapById(0);
@@ -325,7 +325,7 @@ namespace NosCore.Tests.Helpers
         public static async Task ResetAsync()
         {
             _lazy = new Lazy<TestHelpers>(() => new TestHelpers());
-
+            Instance.InitDatabase();
             Instance.MapInstanceProvider = await Instance.GenerateMapInstanceProviderAsync().ConfigureAwait(false);
         }
     }

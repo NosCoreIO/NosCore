@@ -25,29 +25,20 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using Serilog;
 
 namespace NosCore.PacketHandlers.Inventory
 {
     public class MviPacketHandler : PacketHandler<MviPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-
-        public MviPacketHandler(ILogger logger)
-        {
-            _logger = logger;
-        }
-
-        public override Task ExecuteAsync(MviPacket mviPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(MviPacket mviPacket, ClientSession clientSession)
         {
             // actually move the item from source to destination
             clientSession.Character.InventoryService.TryMoveItem((NoscorePocketType) mviPacket.InventoryType, mviPacket.Slot,
                 mviPacket.Amount,
                 mviPacket.DestinationSlot, out var previousInventory, out var newInventory);
-            clientSession.SendPacketAsync(
-                newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot));
-            clientSession.SendPacketAsync(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
-            return Task.CompletedTask;
+            await clientSession.SendPacketAsync(
+                newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot)).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot)).ConfigureAwait(false);
         }
     }
 }

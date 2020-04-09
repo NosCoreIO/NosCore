@@ -53,8 +53,7 @@ namespace NosCore.PacketHandlers.Movement
                     return Task.CompletedTask;
             }
 
-            entity.ChangeDirAsync(dirpacket.Direction);
-            return Task.CompletedTask;
+            return entity.ChangeDirAsync(dirpacket.Direction);
         }
     }
 }

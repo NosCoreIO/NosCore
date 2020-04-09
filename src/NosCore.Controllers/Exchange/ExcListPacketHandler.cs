@@ -45,12 +45,12 @@ namespace NosCore.PacketHandlers.Exchange
             _logger = logger;
         }
 
-        public override Task ExecuteAsync(ExcListPacket packet, ClientSession clientSession)
+        public override async Task ExecuteAsync(ExcListPacket packet, ClientSession clientSession)
         {
             if ((packet.Gold > clientSession.Character.Gold) || (packet.BankGold > clientSession.Account.BankMoney))
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NOT_ENOUGH_GOLD));
-                return Task.CompletedTask;
+                return;
             }
 
             var subPacketList = new List<ServerExcListSubPacket?>();
@@ -65,27 +65,27 @@ namespace NosCore.PacketHandlers.Exchange
                 foreach (var value in packet.SubPackets)
                 {
                     var item = clientSession.Character.InventoryService.LoadBySlotAndType(value!.Slot,
-                        (NoscorePocketType) value.PocketType);
+                        (NoscorePocketType)value.PocketType);
 
                     if ((item == null) || (item.ItemInstance!.Amount < value.Amount))
                     {
                         var closeExchange =
                             _exchangeProvider.CloseExchange(clientSession.Character.VisualId,
                                 ExchangeResultType.Failure);
-                        clientSession.SendPacketAsync(closeExchange);
-                        target.SendPacketAsync(closeExchange);
+                        await clientSession.SendPacketAsync(closeExchange).ConfigureAwait(false);
+                        await target.SendPacketAsync(closeExchange).ConfigureAwait(false);
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE_LIST));
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     if (!item.ItemInstance.Item!.IsTradable)
                     {
-                        clientSession.SendPacketAsync(_exchangeProvider.CloseExchange(clientSession.Character.CharacterId,
-                            ExchangeResultType.Failure));
-                        target.SendPacketAsync(_exchangeProvider.CloseExchange(target.VisualId, ExchangeResultType.Failure));
+                        await clientSession.SendPacketAsync(_exchangeProvider.CloseExchange(clientSession.Character.CharacterId,
+                            ExchangeResultType.Failure)).ConfigureAwait(false);
+                        await target.SendPacketAsync(_exchangeProvider.CloseExchange(target.VisualId, ExchangeResultType.Failure)).ConfigureAwait(false);
                         _logger.Error(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM));
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     _exchangeProvider.AddItems(clientSession.Character.CharacterId, item, value.Amount);
@@ -106,13 +106,12 @@ namespace NosCore.PacketHandlers.Exchange
             }
             else
             {
-                subPacketList.Add(new ServerExcListSubPacket {ExchangeSlot = null});
+                subPacketList.Add(new ServerExcListSubPacket { ExchangeSlot = null });
             }
 
             _exchangeProvider.SetGold(clientSession.Character.CharacterId, packet.Gold, packet.BankGold);
-            target?.SendPacketAsync(
-                clientSession.Character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList));
-            return Task.CompletedTask;
+            await (target == null ? Task.CompletedTask : target.SendPacketAsync(
+                clientSession.Character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList))).ConfigureAwait(false);
         }
     }
 }

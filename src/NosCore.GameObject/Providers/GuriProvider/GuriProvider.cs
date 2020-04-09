@@ -37,19 +37,13 @@ namespace NosCore.GameObject.Providers.GuriProvider
         }
 
         public void GuriLaunch(ClientSession clientSession, GuriPacket data)
-        { 
+        {
             var handlersRequest = new Subject<RequestData<GuriPacket>>();
             _handlers.ForEach(handler =>
             {
                 if (handler.Condition(data))
                 {
-                    handlersRequest.Subscribe(async o =>
-                    {
-                        await Observable.FromAsync(async () =>
-                        {
-                            await handler.ExecuteAsync(o).ConfigureAwait(false);
-                        });
-                    });
+                    handlersRequest.Subscribe(o => Observable.FromAsync(() => handler.ExecuteAsync(o)));
                 }
             });
             handlersRequest.OnNext(new RequestData<GuriPacket>(clientSession, data));

@@ -48,17 +48,16 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
             var channel = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
             if (channel != null)
             {
-                SendPacketToChannel(packet, channel.WebApi!.ToString());
+                await SendPacketToChannelAsync(packet, channel.WebApi!.ToString()).ConfigureAwait(false);
             }
         }
 
         public async Task BroadcastPacketAsync(PostedPacket packet)
         {
-            foreach (var channel in (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
-                ?.Where(c => c.Type == ServerType.WorldServer) ?? new List<ChannelInfo>())
-            {
-                SendPacketToChannel(packet, channel.WebApi!.ToString());
-            }
+            var list = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
+                ?.Where(c => c.Type == ServerType.WorldServer) ?? new List<ChannelInfo>();
+            await Task.WhenAll(list.Select(channel => SendPacketToChannelAsync(packet, channel.WebApi!.ToString()))).ConfigureAwait(false);
+
         }
 
         public Task BroadcastPacketsAsync(List<PostedPacket> packets)
@@ -71,7 +70,7 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
             return Task.WhenAll(packets.Select(packet => BroadcastPacketAsync(packet, channelId)));
         }
 
-        private async void SendPacketToChannel(PostedPacket postedPacket, string channel)
+        private async Task SendPacketToChannelAsync(PostedPacket postedPacket, string channel)
         {
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(channel);

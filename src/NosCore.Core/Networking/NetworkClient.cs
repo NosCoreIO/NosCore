@@ -83,7 +83,9 @@ namespace NosCore.Core.Networking
             Channel = channel;
         }
 
-        public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
+#pragma warning disable VSTHRD100 // Avoid async void methods
+        public override async void ExceptionCaught(IChannelHandlerContext context, Exception exception)
+#pragma warning restore VSTHRD100 // Avoid async void methods
         {
             if ((exception == null) || (context == null))
             {
@@ -109,7 +111,8 @@ namespace NosCore.Core.Networking
                 _logger.Fatal(exception.StackTrace);
             }
 
-            context.CloseAsync();
+            // ReSharper disable once AsyncConverter.AsyncAwaitMayBeElidedHighlighting
+            await context.CloseAsync().ConfigureAwait(false);
         }
     }
 }

@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Game
             _logger = logger;
         }
 
-        public override Task ExecuteAsync(NcifPacket ncifPacket, ClientSession session)
+        public override async Task ExecuteAsync(NcifPacket ncifPacket, ClientSession session)
         {
             IAliveEntity? entity;
 
@@ -58,14 +58,13 @@ namespace NosCore.PacketHandlers.Game
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
                         ncifPacket.Type);
-                    return Task.CompletedTask;
+                    return;
             }
 
             if (entity != null)
             {
-                session.SendPacketAsync(entity.GenerateStatInfo());
+                await session.SendPacketAsync(entity.GenerateStatInfo()).ConfigureAwait(false);
             }
-            return Task.CompletedTask;
         }
     }
 }

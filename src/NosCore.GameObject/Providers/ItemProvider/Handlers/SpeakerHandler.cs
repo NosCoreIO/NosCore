@@ -33,16 +33,15 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
         public bool Condition(Item.Item item) =>
             item.ItemType == ItemType.Magical && item.Effect == ItemEffectType.Speaker;
 
-        public Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
-            requestData.ClientSession.SendPacketAsync(new GuriPacket
+            await requestData.ClientSession.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Effect,
                 Unknown = 3,
                 EntityId = requestData.Data.Item1.Slot,
                 Value = 1
-            });
-            return Task.CompletedTask;
+            }).ConfigureAwait(false);
         }
     }
 }

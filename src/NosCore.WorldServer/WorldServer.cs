@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Threading;
 using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
@@ -59,11 +60,11 @@ namespace NosCore.WorldServer
             }
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
-            _events.ForEach(e => { Observable.Interval(e.Delay).Subscribe(_ => e.Execution()); });
+            _events.ForEach(e => { Observable.Interval(e.Delay).Subscribe(_ => e.ExecutionAsync()); });
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
                 var eventSaveAll = new SaveAll();
-                eventSaveAll.Execution();
+                eventSaveAll.ExecutionAsync().Forget();
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHANNEL_WILL_EXIT));
                 Thread.Sleep(30000);
             };

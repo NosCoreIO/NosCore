@@ -112,13 +112,9 @@ namespace NosCore.GameObject.Providers.ItemProvider
             {
                 if (handler.Condition(itemInstance.Item!))
                 {
-                    handlersRequest.Subscribe(async o =>
-                    {
-                        await Observable.FromAsync(async () =>
-                        {
-                            await handler.ExecuteAsync(o).ConfigureAwait(false);
-                        });
-                    });
+                    handlersRequest.Subscribe(o => 
+                        Observable.FromAsync(() => handler.ExecuteAsync(o))
+                    );
                 }
             });
             itemInstance.Requests = handlersRequest;

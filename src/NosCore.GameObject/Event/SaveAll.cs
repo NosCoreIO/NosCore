@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Event
 
         public TimeSpan Delay { get; set; } = TimeSpan.FromMinutes(5);
 
-        public void Execution()
+        public Task ExecutionAsync()
         {
             try
             {
@@ -45,6 +45,7 @@ namespace NosCore.GameObject.Event
             {
                 _logger.Error(e.Message, e);
             }
+            return Task.CompletedTask;
         }
     }
 }

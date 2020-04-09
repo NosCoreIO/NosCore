@@ -40,12 +40,12 @@ namespace NosCore.PacketHandlers.Inventory
             _logger = logger;
         }
 
-        public override Task ExecuteAsync(BiPacket bIPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(BiPacket bIPacket, ClientSession clientSession)
         {
             switch (bIPacket.Option)
             {
                 case null:
-                    clientSession.SendPacketAsync(
+                    await clientSession.SendPacketAsync(
                         new DlgPacket
                         {
                             YesPacket = new BiPacket
@@ -62,11 +62,11 @@ namespace NosCore.PacketHandlers.Inventory
                             },
                             Question = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ASK_TO_DELETE,
                                 clientSession.Account.Language)
-                        });
+                        }).ConfigureAwait(false);
                     break;
 
                 case RequestDeletionType.Requested:
-                    clientSession.SendPacketAsync(
+                    await clientSession.SendPacketAsync(
                         new DlgPacket
                         {
                             YesPacket = new BiPacket
@@ -83,24 +83,23 @@ namespace NosCore.PacketHandlers.Inventory
                             },
                             Question = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SURE_TO_DELETE,
                                 clientSession.Account.Language)
-                        });
+                        }).ConfigureAwait(false);
                     break;
 
                 case RequestDeletionType.Confirmed:
                     if (clientSession.Character.InExchangeOrShop)
                     {
                         _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     var item = clientSession.Character.InventoryService.DeleteFromTypeAndSlot(
                         (NoscorePocketType) bIPacket.PocketType, bIPacket.Slot);
-                    clientSession.SendPacketAsync(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot));
+                    await clientSession.SendPacketAsync(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot)).ConfigureAwait(false);
                     break;
                 default:
-                    return Task.CompletedTask;
+                    return;
             }
-            return Task.CompletedTask;
         }
     }
 }

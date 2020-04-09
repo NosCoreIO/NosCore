@@ -69,7 +69,7 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 Name = name
             }, _session).ConfigureAwait(false);
-            Assert.IsNull(TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name));
+            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
         }
 
         [TestMethod]
@@ -80,7 +80,7 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 Name = name
             }, _session!).ConfigureAwait(false);
-            Assert.IsNotNull(TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name));
+            Assert.IsNotNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
         }
 
 
@@ -92,7 +92,7 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 Name = name
             }, _session!).ConfigureAwait(false);
-            Assert.IsNull(TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name));
+            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
         }
 
         [TestMethod]

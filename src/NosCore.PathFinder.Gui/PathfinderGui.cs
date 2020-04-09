@@ -106,7 +106,7 @@ namespace NosCore.PathFinder.Gui
                     new Thread(() =>
                     {
                         _guiWindow = new GuiWindow(map, 4, map.XLength, map.YLength, GraphicsMode.Default,
-                            $"NosCore Pathfinder GUI - Map {map.MapId}");
+                            $"NosCore Pathfinder GUI - Map {map.MapId}", _dbContextBuilder);
                         _guiWindow.Run(30);
                     }).Start();
                 }
