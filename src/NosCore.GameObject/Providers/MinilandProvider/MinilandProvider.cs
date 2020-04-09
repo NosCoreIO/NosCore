@@ -119,7 +119,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             _minilandIds.TryRemove(characterId, out _);
         }
 
-        public Miniland Initialize(Character character)
+        public async Task<Miniland> InitializeAsync(Character character)
         {
             var minilandInfoDto = _minilandDao.FirstOrDefaultAsync(s => s.OwnerId == character.CharacterId);
             if (minilandInfoDto == null)
@@ -136,7 +136,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
             minilandInfo.CharacterEntity = character;
 
             _minilandIds.TryAdd(character.CharacterId, minilandInfo);
-            _mapInstanceProvider.AddMapInstance(miniland);
+            await _mapInstanceProvider.AddMapInstanceAsync(miniland).ConfigureAwait(false);
             miniland.LoadHandlers();
 
             var listobjects = character.InventoryService.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();

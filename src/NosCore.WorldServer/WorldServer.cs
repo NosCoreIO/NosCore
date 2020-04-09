@@ -42,7 +42,7 @@ namespace NosCore.WorldServer
         private readonly ILogger _logger;
         private readonly NetworkManager _networkManager;
         private readonly WorldConfiguration _worldConfiguration;
-        private IMapInstanceProvider _mapInstanceProvider;
+        private readonly IMapInstanceProvider _mapInstanceProvider;
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager,
             IEnumerable<IGlobalEvent> events, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceProvider mapInstanceProvider)

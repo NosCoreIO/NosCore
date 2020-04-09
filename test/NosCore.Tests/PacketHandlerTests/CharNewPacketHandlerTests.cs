@@ -51,7 +51,7 @@ namespace NosCore.Tests.PacketHandlerTests
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _chara = _session.Character;
-            _session.SetCharacter(null);
+            await _session.SetCharacterAsync(null).ConfigureAwait(false);
             _charNewPacketHandler =
                 new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.MinilandDao);
         }
@@ -59,7 +59,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task CreateCharacterWhenInGame_Does_Not_Create_CharacterAsync()
         {
-            _session!.SetCharacter(_chara);
+            await _session!.SetCharacterAsync(_chara).ConfigureAwait(false);
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),

@@ -95,7 +95,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(QuestDto.QuestObjective), ImportQuestObjectives},
             };
             var genericParser = new GenericParser<QuestDto>(folder + _fileQuestDat, "END", 0, actionList, _logger);
-            var quests = genericParser.GetDtos();
+            var quests = await genericParser.GetDtosAsync().ConfigureAwait(false);
 
             await _questDao.TryInsertOrUpdateAsync(quests).ConfigureAwait(false);
             await _questQuestRewardDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward)).ConfigureAwait(false);

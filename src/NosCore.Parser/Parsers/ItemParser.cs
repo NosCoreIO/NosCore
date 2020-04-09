@@ -133,7 +133,7 @@ namespace NosCore.Parser.Parsers
 
             var genericParser = new GenericParser<ItemDto>(folder + ItemCardDto,
                 "END", 1, actionList, _logger);
-            var items = genericParser.GetDtos().GroupBy(p => p.VNum).Select(g => g.First()).ToList();
+            var items = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.VNum).Select(g => g.First()).ToList();
             foreach (var item in items)
             {
                 HardcodeItem(item);

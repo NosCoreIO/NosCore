@@ -49,7 +49,7 @@ namespace NosCore.Parser.Parsers
             _mapDao = mapDao;
         }
 
-        public List<MapDto> ParseDat(string folder)
+        public Task<List<MapDto>> ParseDatAsync(string folder)
         {
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
@@ -57,12 +57,12 @@ namespace NosCore.Parser.Parsers
                 {nameof(MapDto.NameI18NKey), chunk => chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0][4]}
             };
             var genericParser = new GenericParser<MapDto>(folder + _fileMapIdDat, "DATA 0", 0, actionList, _logger);
-            return genericParser.GetDtos(" ");
+            return genericParser.GetDtosAsync(" ");
         }
 
         public async Task InsertOrUpdateMapsAsync(string folder, List<string[]> packetList)
         {
-            var dictionaryId = ParseDat(folder);
+            var dictionaryId = await ParseDatAsync(folder).ConfigureAwait(false);
             var folderMap = folder + _folderMap;
             var dictionaryMusic = packetList.Where(o => o[0].Equals("at") && (o.Length > 7))
                 .GroupBy(x => x[2])

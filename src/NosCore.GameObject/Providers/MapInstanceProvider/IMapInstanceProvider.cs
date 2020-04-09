@@ -30,7 +30,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         Guid GetBaseMapInstanceIdByMapId(short mapId);
         MapInstance? GetMapInstance(Guid id);
         MapInstance? GetBaseMapById(short mapId);
-        void AddMapInstance(MapInstance mapInstance);
+        Task AddMapInstanceAsync(MapInstance mapInstance);
         Task InitializeAsync();
         void RemoveMap(Guid guid);
 

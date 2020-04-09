@@ -62,7 +62,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(QuestRewardDto.Amount), chunk => ImportAmount(chunk)},
             };
             var genericParser = new GenericParser<QuestRewardDto>(folder + _fileQuestPrizeDat, "END", 0, actionList, _logger);
-            var questRewardDtos = genericParser.GetDtos();
+            var questRewardDtos = await genericParser.GetDtosAsync().ConfigureAwait(false);
             await _questRewardDtoDao.TryInsertOrUpdateAsync(questRewardDtos).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUEST_PRIZES_PARSED), questRewardDtos.Count);
         }

@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.Core.I18N;
@@ -39,7 +40,7 @@ namespace NosCore.GameObject.Event
             try
             {
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SAVING_ALL));
-                Parallel.ForEach(Broadcaster.Instance.GetCharacters(), session => session.SaveAsync());
+                return Task.WhenAll(Broadcaster.Instance.GetCharacters().Select(session => session.SaveAsync()));
             }
             catch (Exception e)
             {

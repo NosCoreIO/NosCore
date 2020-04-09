@@ -113,9 +113,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var ids = inventories.Select(o => o.ItemInstanceId).ToArray();
                 var items = _itemInstanceDao.Where(s => ids.Contains(s!.Id)).ToList();
                 inventories.ForEach(k => character.InventoryService[k.ItemInstanceId] =
-                    InventoryItemInstance.Create(_itemProvider.Convert(items.First(s => s.Id == k.ItemInstanceId)),
+                    InventoryItemInstance.Create(_itemProvider.Convert(items.First(s => s!.Id == k.ItemInstanceId)!),
                         character.CharacterId, k));
-                clientSession.SetCharacter(character);
+                await clientSession.SetCharacterAsync(character).ConfigureAwait(false);
 
 #pragma warning disable CS0618
                 await clientSession.SendPacketsAsync(clientSession.Character.GenerateInv()).ConfigureAwait(false);
