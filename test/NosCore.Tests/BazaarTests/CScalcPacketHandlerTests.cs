@@ -33,6 +33,7 @@ using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -51,7 +52,7 @@ namespace NosCore.Tests.BazaarTests
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CScalcPacketHandler? _cScalcPacketHandler;
-        private Mock<IDao<IItemInstanceDto, Guid>>? _itemInstanceDao;
+        private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
         private Mock<IItemProvider>? _itemProvider;
         private ClientSession? _session;
 
@@ -63,7 +64,7 @@ namespace NosCore.Tests.BazaarTests
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
             _itemProvider = new Mock<IItemProvider>();
-            _itemInstanceDao = new Mock<IDao<IItemInstanceDto, Guid>>();
+            _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _cScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration,
                 _bazaarHttpClient.Object, _itemProvider.Object, Logger, _itemInstanceDao.Object);
 
@@ -178,7 +179,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task RetrieveAsync()
         {
-            _itemInstanceDao!.Setup(s=>s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto,bool>>>()))
+            _itemInstanceDao!.Setup(s=>s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?,bool>>>()))
                 .ReturnsAsync(new ItemInstanceDto { ItemVNum = 1012, Amount = 0 });
             await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
             {

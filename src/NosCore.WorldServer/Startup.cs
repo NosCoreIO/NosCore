@@ -271,7 +271,7 @@ namespace NosCore.WorldServer
                         new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                 });
 
-            containerBuilder.RegisterType<ItemInstanceDao>().As<IDao<IItemInstanceDto, Guid>>().SingleInstance();
+            containerBuilder.RegisterType<ItemInstanceDao>().As<ItemInstanceDao>().SingleInstance();
         }
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)

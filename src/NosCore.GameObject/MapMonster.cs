@@ -100,7 +100,7 @@ namespace NosCore.GameObject
 
         public void StartLife()
         {
-            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(_ => Observable.FromAsync(async () =>
+            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(async _ => await Observable.FromAsync(async () =>
             {
                 try
                 {

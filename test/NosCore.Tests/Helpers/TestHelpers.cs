@@ -297,7 +297,7 @@ namespace NosCore.Tests.Helpers
             };
 
             var chara = new GameObject.Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
-                new ExchangeProvider(new Mock<IItemProvider>().Object, WorldConfiguration, _logger), new Mock<IItemProvider>().Object, CharacterDao, new Mock<IDao<IItemInstanceDto, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, AccountDao,
+                new ExchangeProvider(new Mock<IItemProvider>().Object, WorldConfiguration, _logger), new Mock<IItemProvider>().Object, CharacterDao, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, AccountDao,
                 _logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, minilandProvider.Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object)
             {
                 CharacterId = _lastId,

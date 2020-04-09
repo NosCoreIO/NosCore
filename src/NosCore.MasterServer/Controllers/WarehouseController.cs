@@ -28,6 +28,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 
 namespace NosCore.MasterServer.Controllers
 {
@@ -35,12 +36,12 @@ namespace NosCore.MasterServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class WarehouseController : Controller
     {
-        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
+        private readonly ItemInstanceDao _itemInstanceDao;
         private readonly IDao<WarehouseDto, Guid> _warehouseDao;
         private readonly IDao<WarehouseItemDto, Guid> _warehouseItemDao;
 
         public WarehouseController(IDao<WarehouseItemDto, Guid> warehouseItemDao,
-            IDao<WarehouseDto, Guid> warehouseDao, IDao<IItemInstanceDto, Guid> itemInstanceDao)
+            IDao<WarehouseDto, Guid> warehouseDao, ItemInstanceDao itemInstanceDao)
         {
             _itemInstanceDao = itemInstanceDao;
             _warehouseItemDao = warehouseItemDao;
@@ -110,7 +111,7 @@ namespace NosCore.MasterServer.Controllers
             {
                 Slot = depositRequest.Slot,
                 Id = Guid.NewGuid(),
-                ItemInstanceId = item.Id,
+                ItemInstanceId = item!.Id,
                 WarehouseId = warehouse.Id
             };
             await _warehouseItemDao.TryInsertOrUpdateAsync(warehouseItem).ConfigureAwait(true);

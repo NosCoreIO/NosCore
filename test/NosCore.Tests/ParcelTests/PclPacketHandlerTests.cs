@@ -30,6 +30,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider;
@@ -45,7 +46,7 @@ namespace NosCore.Tests.ParcelTests
         private PclPacketHandler? _pclPacketHandler;
         private IItemProvider? _item;
         private ClientSession? _session;
-        private Mock<IDao<IItemInstanceDto, Guid>>? _itemInstanceDao;
+        private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -55,7 +56,7 @@ namespace NosCore.Tests.ParcelTests
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _mailHttpClient = new Mock<IMailHttpClient>();
-            _itemInstanceDao = new Mock<IDao<IItemInstanceDto, Guid>>();
+            _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _pclPacketHandler = new PclPacketHandler(_mailHttpClient.Object, _item, _itemInstanceDao.Object);
         }
 
@@ -97,7 +98,7 @@ namespace NosCore.Tests.ParcelTests
                     ItemInstanceId = item.Id
                 }
             };
-            _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+            _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync(item);
             _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync(mail);
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
@@ -122,7 +123,7 @@ namespace NosCore.Tests.ParcelTests
                     ItemInstanceId = item.Id
                 }
             };
-            _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
+            _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync(item);
             _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync(mail);
             await _pclPacketHandler!.ExecuteAsync(new PclPacket

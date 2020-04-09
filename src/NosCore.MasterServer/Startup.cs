@@ -105,7 +105,7 @@ namespace NosCore.MasterServer
                         .Invoke(null, new object?[] { containerBuilder });
                 });
 
-            containerBuilder.RegisterType<ItemInstanceDao>().As<IDao<IItemInstanceDto, Guid>>().SingleInstance();
+            containerBuilder.RegisterType<ItemInstanceDao>().As<ItemInstanceDao>().SingleInstance();
 
             containerBuilder.Register(c =>
                 {

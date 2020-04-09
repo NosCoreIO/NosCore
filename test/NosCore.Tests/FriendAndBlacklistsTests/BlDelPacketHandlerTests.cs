@@ -74,7 +74,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _blackListHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
                 .Returns((long id) => _blackListController.GetBlacklistedAsync(id));
             _blackListHttpClient.Setup(s => s.DeleteFromBlacklistAsync(It.IsAny<Guid>()))
-                .Callback((Guid id) => _blackListController.DeleteAsync(id));
+                .Callback((Guid id) => Task.FromResult(_blackListController.DeleteAsync(id)));
         }
 
         [TestMethod]

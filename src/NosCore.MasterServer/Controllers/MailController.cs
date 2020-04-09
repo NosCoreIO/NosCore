@@ -35,6 +35,7 @@ using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.MasterServer.DataHolders;
 
@@ -47,13 +48,13 @@ namespace NosCore.MasterServer.Controllers
         private readonly IDao<CharacterDto, long> _characterDto;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IIncommingMailHttpClient _incommingMailHttpClient;
-        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
+        private readonly ItemInstanceDao _itemInstanceDao;
         private readonly IItemProvider _itemProvider;
         private readonly List<ItemDto> _items;
         private readonly IDao<MailDto, long> _mailDao;
         private readonly ParcelHolder _parcelHolder;
 
-        public MailController(IDao<MailDto, long> mailDao, IDao<IItemInstanceDto, Guid> itemInstanceDao,
+        public MailController(IDao<MailDto, long> mailDao, ItemInstanceDao itemInstanceDao,
             IConnectedAccountHttpClient connectedAccountHttpClient,
             List<ItemDto> items, IItemProvider itemProvider, IIncommingMailHttpClient incommingMailHttpClient,
             ParcelHolder parcelHolder,
@@ -199,7 +200,7 @@ namespace NosCore.MasterServer.Controllers
                     mail.Upgrade ?? 0);
 
                 itemInstance = await _itemInstanceDao.TryInsertOrUpdateAsync(itemInstance).ConfigureAwait(false);
-                mailref.ItemInstanceId = itemInstance.Id;
+                mailref.ItemInstanceId = itemInstance?.Id;
             }
 
             var receiver = await _connectedAccountHttpClient.GetCharacterAsync(mailref.ReceiverId, null).ConfigureAwait(false);
@@ -223,9 +224,9 @@ namespace NosCore.MasterServer.Controllers
             mailref.MailId = 0;
             itemInstance.Id = new Guid();
             itemInstance = await _itemInstanceDao.TryInsertOrUpdateAsync(itemInstance).ConfigureAwait(false);
-            mailref.ItemInstanceId = itemInstance.Id;
+            mailref.ItemInstanceId = itemInstance?.Id;
             mailref = await _mailDao.TryInsertOrUpdateAsync(mailref).ConfigureAwait(false);
-            var mailDataCopy = await GenerateMailDataAsync(mailref, (short?)it?.ItemType ?? -1, itemInstance, receiverName).ConfigureAwait(false);
+            var mailDataCopy = await GenerateMailDataAsync(mailref, (short?)it?.ItemType ?? -1, itemInstance!, receiverName).ConfigureAwait(false);
             _parcelHolder[mailref.ReceiverId][mailDataCopy.MailDto.IsSenderCopy]
                 .TryAdd(mailDataCopy.MailId, mailDataCopy);
             await NotifyAsync(0, receiver, mailDataCopy).ConfigureAwait(false);

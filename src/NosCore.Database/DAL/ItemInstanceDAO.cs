@@ -26,6 +26,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 using NosCore.Core;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -38,7 +39,7 @@ using Serilog;
 
 namespace NosCore.Database
 {
-    public class ItemInstanceDao : IDao<IItemInstanceDto, Guid>
+    public class ItemInstanceDao : IDao<IItemInstanceDto?, Guid>
     {
         private readonly ILogger _logger;
         private readonly PropertyInfo[] _primaryKey;
@@ -54,214 +55,186 @@ namespace NosCore.Database
             _primaryKey = key.Any() ? key : throw new KeyNotFoundException();
         }
 
-        //public SaveResult Delete(object dtokey)
-        //{
-        //    using (var context = DataAccessHelper.Instance.CreateContext())
-        //    {
-        //        var dbset = context.Set<ItemInstance>();
-
-        //        if (dtokey is IEnumerable enumerable)
-        //        {
-        //            foreach (var dto in enumerable)
-        //            {
-        //                object? value;
-        //                try
-        //                {
-        //                    value = _primaryKey?.GetValue(dto, null);
-        //                }
-        //                catch
-        //                {
-        //                    value = dto;
-        //                }
-
-        //                ItemInstance? entityfound = value is object[] objects ? dbset.Find(objects) : dbset.Find(value);
-        //                if (entityfound == null)
-        //                {
-        //                    continue;
-        //                }
-
-        //                dbset.Remove(entityfound);
-        //                context.SaveChanges();
-        //            }
-        //        }
-        //        else
-        //        {
-        //            object? value;
-        //            try
-        //            {
-        //                value = _primaryKey?.GetValue(dtokey, null);
-        //            }
-        //            catch
-        //            {
-        //                value = dtokey;
-        //            }
-
-        //            var entityfound = dbset.Find(value);
-
-        //            if (entityfound != null)
-        //            {
-        //                dbset.Remove(entityfound);
-        //            }
-        //        }
-
-        //        context.SaveChanges();
-        //    }
-
-        //    return SaveResult.Saved;
-        //}
-
-        //[return: MaybeNull]
-        //public IItemInstanceDto FirstOrDefault(Expression<Func<IItemInstanceDto, bool>> predicate)
-        //{
-        //    try
-        //    {
-        //        if (predicate == null)
-        //        {
-        //            return default!;
-        //        }
-
-        //        ItemInstance ent;
-        //        using (var context = DataAccessHelper.Instance.CreateContext())
-        //        {
-        //            var dbset = context.Set<ItemInstance>();
-        //            ent = dbset.FirstOrDefault(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>());
-        //        }
-
-        //        return ent is BoxInstance ? ent.Adapt<BoxInstanceDto>() :
-        //            ent is SpecialistInstance ? ent.Adapt<SpecialistInstanceDto>() :
-        //            ent is WearableInstance ? ent.Adapt<WearableInstanceDto>() :
-        //            ent is UsableInstance ? ent.Adapt<UsableInstanceDto>() :
-        //            ent.Adapt<ItemInstanceDto>();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.Error(e.Message, e);
-        //        return default!;
-        //    }
-        //}
-
-        //public SaveResult InsertOrUpdate(ref IItemInstanceDto dto)
-        //{
-        //    try
-        //    {
-        //        using (var context = DataAccessHelper.Instance.CreateContext())
-        //        {
-        //            var entity = dto.GetType().Name == "BoxInstance" ? dto.Adapt<BoxInstance>()
-        //                : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
-        //                : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
-        //                : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
-        //                : dto.Adapt<ItemInstance>();
-
-        //            var dbset = context.Set<ItemInstance>();
-
-        //            var value = _primaryKey?.GetValue(dto, null);
-        //            ItemInstance entityfound = value is object[] objects ? dbset.Find(objects) : dbset.Find(value);
-        //            if (entityfound != null)
-        //            {
-        //                context.Entry(entityfound).CurrentValues.SetValues(entity);
-        //                context.SaveChanges();
-        //            }
-
-        //            if ((value == null) || (entityfound == null))
-        //            {
-        //                dbset.Add(entity);
-        //            }
-
-        //            context.SaveChanges();
-        //            dto = entity is BoxInstance ? entity.Adapt<BoxInstanceDto>() :
-        //                entity is SpecialistInstance ? entity.Adapt<SpecialistInstanceDto>() :
-        //                entity is WearableInstance ? entity.Adapt<WearableInstanceDto>() :
-        //                entity is UsableInstance ? entity.Adapt<UsableInstanceDto>() :
-        //                entity.Adapt<ItemInstanceDto>();
-        //        }
-
-        //        return SaveResult.Saved;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.Error(e.Message, e);
-        //        return SaveResult.Error;
-        //    }
-        //}
-
-        //public SaveResult InsertOrUpdate(IEnumerable<IItemInstanceDto> dtos)
-        //{
-        //    try
-        //    {
-        //        using (var context = DataAccessHelper.Instance.CreateContext())
-        //        {
-        //            context.ChangeTracker.AutoDetectChangesEnabled = false;
-
-        //            var dbset = context.Set<ItemInstance>();
-        //            var entitytoadd = new List<ItemInstance>();
-        //            var list = new List<Tuple<ItemInstance, Guid>>();
-
-        //            foreach (var dto in dtos)
-        //            {
-        //                list.Add(new Tuple<ItemInstance, Guid>(
-        //                    dto.GetType().Name == "BoxInstance" ? dto.Adapt<BoxInstance>()
-        //                        : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
-        //                            : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
-        //                                : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
-        //                                    : dto.Adapt<ItemInstance>(), (Guid) _primaryKey!.GetValue(dto, null)!));
-        //            }
-
-        //            var ids = list.Select(s => s.Item2).ToArray();
-        //            var dbkey = typeof(ItemInstance).GetProperty(_primaryKey!.Name);
-        //            var entityfounds = dbset.FindAllAsync(dbkey!, ids).ToList();
-
-        //            foreach (var dto in list)
-        //            {
-        //                var entity = dto.Item1;
-        //                var entityfound =
-        //                    entityfounds.FirstOrDefault(s => (dynamic?) dbkey?.GetValue(s, null) == (dynamic) dto.Item2);
-        //                if (entityfound != null)
-        //                {
-        //                    context.Entry(entityfound).CurrentValues.SetValues(entity);
-        //                    continue;
-        //                }
-
-        //                entitytoadd.Add(entity);
-        //            }
-
-        //            dbset.AddRange(entitytoadd);
-
-        //            context.ChangeTracker.AutoDetectChangesEnabled = true;
-        //            context.SaveChanges();
-        //        }
-
-        //        return SaveResult.Saved;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.Error(e.Message, e);
-        //        return SaveResult.Error;
-        //    }
-        //}
-
-        public Task<IItemInstanceDto> TryDeleteAsync(Guid dtokey)
+        public async Task<IItemInstanceDto?> TryDeleteAsync(Guid dtokey)
         {
-            throw new NotImplementedException();
+            await using var context = _dbContextBuilder.CreateContext();
+            var dbset = context.Set<ItemInstance>();
+            object? value;
+            try
+            {
+                value = _primaryKey.First()?.GetValue(dtokey, null);
+            }
+            catch
+            {
+                value = dtokey;
+            }
+
+            var entityfound = await dbset.FindAsync(value).ConfigureAwait(false);
+
+            if (entityfound != null)
+            {
+                dbset.Remove(entityfound);
+            }
+
+
+            context.SaveChanges();
+            return entityfound is BoxInstance ? entityfound.Adapt<BoxInstanceDto>() :
+                entityfound is SpecialistInstance ? entityfound.Adapt<SpecialistInstanceDto>() :
+                entityfound is WearableInstance ? entityfound.Adapt<WearableInstanceDto>() :
+                entityfound is UsableInstance ? entityfound.Adapt<UsableInstanceDto>() :
+                entityfound?.Adapt<ItemInstanceDto>();
         }
 
-        public Task<IEnumerable<IItemInstanceDto>?> TryDeleteAsync(IEnumerable<Guid> dtokeys)
+        public async Task<IEnumerable<IItemInstanceDto?>?> TryDeleteAsync(IEnumerable<Guid> dtokeys)
         {
-            throw new NotImplementedException();
+            using var context = _dbContextBuilder.CreateContext();
+            var dbset = context.Set<ItemInstance>();
+            var temp = new List<IItemInstanceDto?>();
+            foreach (var dto in dtokeys)
+            {
+                object? value = _primaryKey.First()?.GetValue(dto, null);
+
+                ItemInstance? entityfound = value is object[] objects ? await dbset.FindAsync(objects).ConfigureAwait(false) : await dbset.FindAsync(value).ConfigureAwait(false);
+                if (entityfound == null)
+                {
+                    continue;
+                }
+
+                dbset.Remove(entityfound);
+                context.SaveChanges();
+                temp.Add((entityfound is BoxInstance ? entityfound.Adapt<BoxInstanceDto>() :
+                    entityfound is SpecialistInstance ? entityfound.Adapt<SpecialistInstanceDto>() :
+                    entityfound is WearableInstance ? entityfound.Adapt<WearableInstanceDto>() :
+                    entityfound is UsableInstance ? entityfound.Adapt<UsableInstanceDto>() :
+                    entityfound.Adapt<ItemInstanceDto>()));
+            }
+
+            return temp;
         }
 
-        public Task<IItemInstanceDto> FirstOrDefaultAsync(Expression<Func<IItemInstanceDto, bool>> predicate)
+        public async Task<IItemInstanceDto?> FirstOrDefaultAsync(Expression<Func<IItemInstanceDto?, bool>> predicate)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (predicate == null)
+                {
+                    return default!;
+                }
+
+                ItemInstance ent;
+                await using var context = _dbContextBuilder.CreateContext();
+                {
+                    var dbset = context.Set<ItemInstance>();
+                    ent = await dbset.FirstOrDefaultAsync(predicate!.ReplaceParameter<IItemInstanceDto, ItemInstance>()).ConfigureAwait(false);
+                }
+
+                return ent is BoxInstance ? ent.Adapt<BoxInstanceDto>() :
+                    ent is SpecialistInstance ? ent.Adapt<SpecialistInstanceDto>() :
+                    ent is WearableInstance ? ent.Adapt<WearableInstanceDto>() :
+                    ent is UsableInstance ? ent.Adapt<UsableInstanceDto>() :
+                    ent.Adapt<ItemInstanceDto>();
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message, e);
+                return default!;
+            }
         }
 
-        public Task<IItemInstanceDto> TryInsertOrUpdateAsync(IItemInstanceDto dto)
+        public async Task<IItemInstanceDto?> TryInsertOrUpdateAsync(IItemInstanceDto? dto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await using var context = _dbContextBuilder.CreateContext();
+
+                var entity = dto!.GetType().Name == "BoxInstance" ? dto.Adapt<BoxInstance>()
+                    : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
+                    : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
+                    : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
+                    : dto.Adapt<ItemInstance>();
+
+                var dbset = context.Set<ItemInstance>();
+
+                var value = _primaryKey.First()?.GetValue(dto, null);
+                ItemInstance entityfound = value is object[] objects ? await dbset.FindAsync(objects).ConfigureAwait(false) : await dbset.FindAsync(value).ConfigureAwait(false);
+                if (entityfound != null)
+                {
+                    context.Entry(entityfound).CurrentValues.SetValues(entity);
+                    context.SaveChanges();
+                }
+
+                if ((value == null) || (entityfound == null))
+                {
+                    dbset.Add(entity);
+                }
+
+                context.SaveChanges();
+                dto = entity is BoxInstance ? entity.Adapt<BoxInstanceDto>() :
+                    entity is SpecialistInstance ? entity.Adapt<SpecialistInstanceDto>() :
+                    entity is WearableInstance ? entity.Adapt<WearableInstanceDto>() :
+                    entity is UsableInstance ? entity.Adapt<UsableInstanceDto>() :
+                    entity.Adapt<ItemInstanceDto>();
+                return dto;
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message, e);
+                return (IItemInstanceDto?)null;
+            }
         }
 
-        public Task<bool> TryInsertOrUpdateAsync(IEnumerable<IItemInstanceDto> dtos)
+        public Task<bool> TryInsertOrUpdateAsync(IEnumerable<IItemInstanceDto?> dtos)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using var context = _dbContextBuilder.CreateContext();
+
+                context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+                var dbset = context.Set<ItemInstance>();
+                var entitytoadd = new List<ItemInstance>();
+                var list = new List<Tuple<ItemInstance, Guid>>();
+
+                foreach (var dto in dtos)
+                {
+                    list.Add(new Tuple<ItemInstance, Guid>(
+                        dto!.GetType().Name == "BoxInstance" ? dto.Adapt<BoxInstance>()
+                            : dto.GetType().Name == "SpecialistInstance" ? dto.Adapt<SpecialistInstance>()
+                                : dto.GetType().Name == "WearableInstance" ? dto.Adapt<WearableInstance>()
+                                    : dto.GetType().Name == "UsableInstance" ? dto.Adapt<UsableInstance>()
+                                        : dto.Adapt<ItemInstance>(), (Guid)_primaryKey.First()!.GetValue(dto, null)!));
+                }
+
+                var ids = list.Select(s => s.Item2).ToArray();
+                var dbkey = typeof(ItemInstance).GetProperty(_primaryKey!.First().Name);
+                var entityfounds = dbset.FindAll(dbkey!, ids).ToList();
+
+                foreach (var dto in list)
+                {
+                    var entity = dto.Item1;
+                    var entityfound =
+                        entityfounds.FirstOrDefault(s => (dynamic?)dbkey?.GetValue(s, null) == (dynamic)dto.Item2);
+                    if (entityfound != null)
+                    {
+                        context.Entry(entityfound).CurrentValues.SetValues(entity);
+                        continue;
+                    }
+
+                    entitytoadd.Add(entity);
+                }
+
+                dbset.AddRange(entitytoadd);
+
+                context.ChangeTracker.AutoDetectChangesEnabled = true;
+                context.SaveChanges();
+
+                return Task.FromResult(true);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e.Message, e);
+                return Task.FromResult(false);
+            }
         }
 
         public IEnumerable<IItemInstanceDto> LoadAll()
@@ -277,14 +250,14 @@ namespace NosCore.Database
             }
         }
 
-        public IEnumerable<IItemInstanceDto>? Where(Expression<Func<IItemInstanceDto, bool>> predicate)
+        public IEnumerable<IItemInstanceDto>? Where(Expression<Func<IItemInstanceDto?, bool>> predicate)
         {
             using var context = _dbContextBuilder.CreateContext();
             var dbset = context.Set<ItemInstance>();
             var entities = Enumerable.Empty<ItemInstance>();
             try
             {
-                entities = dbset.Where(predicate.ReplaceParameter<IItemInstanceDto, ItemInstance>());
+                entities = dbset.Where(predicate!.ReplaceParameter<IItemInstanceDto, ItemInstance>());
             }
             catch (Exception e)
             {

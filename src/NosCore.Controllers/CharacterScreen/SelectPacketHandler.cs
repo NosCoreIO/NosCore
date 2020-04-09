@@ -31,6 +31,7 @@ using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
+using NosCore.Database;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
@@ -44,7 +45,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
     {
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
-        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
+        private readonly ItemInstanceDao _itemInstanceDao;
         private readonly IItemProvider _itemProvider;
         private readonly ILogger _logger;
         private readonly IMapInstanceProvider _mapInstanceProvider;
@@ -58,7 +59,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public SelectPacketHandler(IDao<CharacterDto, long> characterDao, ILogger logger,
             IItemProvider itemProvider,
-            IMapInstanceProvider mapInstanceProvider, IDao<IItemInstanceDto, Guid> itemInstanceDao,
+            IMapInstanceProvider mapInstanceProvider, ItemInstanceDao itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives)
@@ -110,7 +111,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .Where(s => s.CharacterId == character.CharacterId)
                     .ToList();
                 var ids = inventories.Select(o => o.ItemInstanceId).ToArray();
-                var items = _itemInstanceDao.Where(s => ids.Contains(s.Id)).ToList();
+                var items = _itemInstanceDao.Where(s => ids.Contains(s!.Id)).ToList();
                 inventories.ForEach(k => character.InventoryService[k.ItemInstanceId] =
                     InventoryItemInstance.Create(_itemProvider.Convert(items.First(s => s.Id == k.ItemInstanceId)),
                         character.CharacterId, k));

@@ -30,6 +30,7 @@ using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 
 namespace NosCore.MasterServer.DataHolders
 {
@@ -37,12 +38,12 @@ namespace NosCore.MasterServer.DataHolders
         ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>>
     {
         private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
+        private readonly ItemInstanceDao _itemInstanceDao;
         private readonly List<ItemDto> _items;
         private readonly IDao<MailDto, long> _mailDao;
 
         public ParcelHolder(IDao<CharacterDto, long> characterDao, IDao<MailDto, long> mailDao, List<ItemDto> items,
-            IDao<IItemInstanceDto, Guid> itemInstanceDao)
+            ItemInstanceDao itemInstanceDao)
         {
             _mailDao = mailDao;
             _items = items;
@@ -86,7 +87,7 @@ namespace NosCore.MasterServer.DataHolders
 
             foreach (var mail in mails)
             {
-                var itinst = await _itemInstanceDao.FirstOrDefaultAsync(s => s.Id == mail.ItemInstanceId).ConfigureAwait(false);
+                var itinst = await _itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == mail.ItemInstanceId).ConfigureAwait(false);
                 ItemDto? it = null;
                 if (itinst != null)
                 {

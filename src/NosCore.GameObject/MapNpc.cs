@@ -73,7 +73,10 @@ namespace NosCore.GameObject
             PositionX = MapX;
             PositionY = MapY;
             IsAlive = true;
-            Requests.Subscribe(o => Observable.FromAsync(() => ShowDialogAsync(o)));
+            Requests.Subscribe(async o => await Observable.FromAsync(async () =>
+            {
+                await ShowDialogAsync(o).ConfigureAwait(false);
+            }));
             var shopObj = await _shops!.FirstOrDefaultAsync(s => s.MapNpcId == MapNpcId).ConfigureAwait(false);
             if (shopObj == null)
             {
@@ -141,7 +144,7 @@ namespace NosCore.GameObject
 
         public void StartLife()
         {
-            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(_ => Observable.FromAsync(async () =>
+            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(async _ => await Observable.FromAsync(async () =>
             {
                 try
                 {
