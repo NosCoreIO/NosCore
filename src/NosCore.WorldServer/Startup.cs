@@ -263,7 +263,7 @@ namespace NosCore.WorldServer
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                     var typepk = type.GetProperties()
-                        .Where(s => _dataAccess.CreateContext().Model.FindEntityType(t)
+                        .Where(s => _dataAccess.CreateContext().Model.FindEntityType(type)
                             .FindPrimaryKey().Properties.Select(x => x.Name)
                             .Contains(s.Name)
                         ).ToArray()[0];
