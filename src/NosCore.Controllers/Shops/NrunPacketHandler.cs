@@ -73,7 +73,7 @@ namespace NosCore.PacketHandlers.Shops
             }
 
             _nRunProvider.NRunLaunch(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity!, nRunPacket));
-            return Task.CompletedTask;
+            return Task.Delay(10); //todo find a way to await on the observers without a async void
         }
     }
 }
