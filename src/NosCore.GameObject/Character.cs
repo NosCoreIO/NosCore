@@ -1414,14 +1414,16 @@ namespace NosCore.GameObject
             }).ConfigureAwait(false);
             await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
 
-            Observable.Timer(TimeSpan.FromMilliseconds(SpCooldown * 1000)).Subscribe(async o => await Observable.FromAsync(async () =>
+            async Task CoolDown()
             {
                 await SendPacketAsync(this.GenerateSay(
                     string.Format(
                         GameLanguage.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_DISAPPEAR, Session.Account.Language),
                         SpCooldown), SayColorType.Purple)).ConfigureAwait(false);
                 await SendPacketAsync(new SdPacket { Cooldown = 0 }).ConfigureAwait(false);
-            }));
+            }
+
+            Observable.Timer(TimeSpan.FromMilliseconds(SpCooldown * 1000)).Select(_ => CoolDown()).Subscribe();
         }
 
         public async Task ChangeSpAsync()

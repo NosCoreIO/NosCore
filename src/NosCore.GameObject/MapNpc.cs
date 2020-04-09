@@ -73,10 +73,12 @@ namespace NosCore.GameObject
             PositionX = MapX;
             PositionY = MapY;
             IsAlive = true;
-            Requests.Subscribe(async o => await Observable.FromAsync(async () =>
+
+            Task RequestExecAsync(RequestData request)
             {
-                await ShowDialogAsync(o).ConfigureAwait(false);
-            }));
+                return ShowDialogAsync(request);
+            }
+            Requests.Select(RequestExecAsync).Subscribe();
             var shopObj = await _shops!.FirstOrDefaultAsync(s => s.MapNpcId == MapNpcId).ConfigureAwait(false);
             if (shopObj == null)
             {
@@ -144,7 +146,7 @@ namespace NosCore.GameObject
 
         public Task StartLifeAsync()
         {
-            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(async _ => await Observable.FromAsync(async () =>
+            async Task LifeAsync()
             {
                 try
                 {
@@ -157,7 +159,8 @@ namespace NosCore.GameObject
                 {
                     _logger.Error(e.Message, e);
                 }
-            }));
+            }
+            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();
             return Task.CompletedTask;
         }
 
