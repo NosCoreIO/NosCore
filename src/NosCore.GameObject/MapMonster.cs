@@ -100,7 +100,7 @@ namespace NosCore.GameObject
 
         public Task StartLifeAsync()
         {
-            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(async _ => await Observable.FromAsync(async () =>
+            async Task LifeAsync()
             {
                 try
                 {
@@ -113,8 +113,10 @@ namespace NosCore.GameObject
                 {
                     _logger.Error(e.Message, e);
                 }
-            }));
-            return  Task.CompletedTask;
+
+            }
+            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();
+            return Task.CompletedTask;
         }
 
         private Task MonsterLifeAsync()

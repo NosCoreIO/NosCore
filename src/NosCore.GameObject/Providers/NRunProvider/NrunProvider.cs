@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
@@ -42,17 +43,19 @@ namespace NosCore.GameObject.Providers.NRunProvider
         public void NRunLaunch(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data)
         {
             var handlersRequest = new Subject<RequestData<Tuple<IAliveEntity, NrunPacket>>>();
+            static Task RequestExecAsync(IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>> handler, RequestData<Tuple<IAliveEntity, NrunPacket>> request)
+            {
+                return handler.ExecuteAsync(request);
+            }
             _handlers.ForEach(handler =>
             {
                 if (handler.Condition(data))
                 {
-                    handlersRequest.Subscribe(async o => await Observable.FromAsync(async () =>
-                    {
-                        await handler.ExecuteAsync(o).ConfigureAwait(false);
-                    }));
+                    handlersRequest.Select(request => RequestExecAsync(handler, request)).Subscribe();
                 }
             });
             handlersRequest.OnNext(new RequestData<Tuple<IAliveEntity, NrunPacket>>(clientSession, data));
         }
+
     }
 }

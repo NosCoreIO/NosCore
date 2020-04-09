@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
@@ -54,17 +55,19 @@ namespace NosCore.GameObject.Providers.MapItemProvider
         private void LoadHandlers(MapItem item)
         {
             var handlersRequest = new Subject<RequestData<Tuple<MapItem, GetPacket>>>();
+            static Task RequestExecAsync(IEventHandler<MapItem, Tuple<MapItem, GetPacket>> handler, RequestData<Tuple<MapItem, GetPacket>> request)
+            {
+                return handler.ExecuteAsync(request);
+            }
             _handlers.ForEach(handler =>
             {
                 if (handler.Condition(item))
                 {
-                    handlersRequest.Subscribe(async o => await Observable.FromAsync(async() =>
-                    {
-                        await handler.ExecuteAsync(o).ConfigureAwait(false);
-                    }));
+                    handlersRequest.Select(request => RequestExecAsync(handler, request)).Subscribe();
                 }
             });
             item.Requests = handlersRequest;
         }
+
     }
 }
