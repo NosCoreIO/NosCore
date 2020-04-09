@@ -63,7 +63,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         public void AddMapInstance(MapInstance mapInstance)
         {
             MapInstances.TryAdd(mapInstance.MapInstanceId, mapInstance);
-            LoadPortals(mapInstance, _portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId).ToList());
+            LoadPortalsAsync(mapInstance, _portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId).ToList());
         }
 
         public void RemoveMap(Guid mapInstanceId)
@@ -72,7 +72,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             mapInstance?.Kick();
         }
 
-        public void Initialize()
+        public Task InitializeAsync()
         {
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LOADING_MAPINSTANCES));
 
@@ -80,7 +80,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 .ToDictionary(group => group.Key, group => group.ToList());
             var npcs = _mapNpcs.LoadAll().Adapt<IEnumerable<MapNpc>>().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
-            var portals = _portalDao.LoadAll().ToList();
+            var portals = _portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
 
             var mapsdic = _maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
             MapInstances = new ConcurrentDictionary<Guid, MapInstance>(_maps.Adapt<List<Map.Map>>().ToDictionary(
@@ -104,9 +104,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                     return mapinstance;
                 }));
 
-            var mapInstancePartitioner =
-                Partitioner.Create(MapInstances.Values, EnumerablePartitionerOptions.NoBuffering);
-            Parallel.ForEach(mapInstancePartitioner, mapInstance => { LoadPortals(mapInstance, portals); });
+            return Task.WhenAll(MapInstances.Values.Select(mapInstance => portals.ContainsKey(mapInstance.Map.MapId) ? LoadPortalsAsync(mapInstance, portals[mapInstance.Map.MapId]) : Task.CompletedTask));
         }
 
         public Guid GetBaseMapInstanceIdByMapId(short mapId)
@@ -133,23 +131,20 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 mapInstanceEventHandler);
         }
 
-        private void LoadPortals(MapInstance mapInstance, List<PortalDto> portals)
+        private async Task LoadPortalsAsync(MapInstance mapInstance, List<PortalDto> portals)
         {
-            var partitioner = Partitioner.Create(
-                portals.Where(s => s.SourceMapId == mapInstance.Map.MapId).Adapt<List<Portal>>(),
-                EnumerablePartitionerOptions.None);
-            var portalList = new ConcurrentDictionary<int, Portal>();
-            Parallel.ForEach(partitioner, portal =>
-            {
-                portal.SourceMapInstanceId = mapInstance.MapInstanceId;
-                if (portal.DestinationMapInstanceId == default)
-                {
-                    portal.DestinationMapInstanceId = GetBaseMapInstanceIdByMapId(portal.DestinationMapId);
-                }
+            var portalList = await Task.WhenAll(portals.Adapt<List<Portal>>().Select(portal =>
+             {
+                 portal.SourceMapInstanceId = mapInstance.MapInstanceId;
+                 if (portal.DestinationMapInstanceId == default)
+                 {
+                     portal.DestinationMapInstanceId = GetBaseMapInstanceIdByMapId(portal.DestinationMapId);
+                 }
 
-                portalList[portal.PortalId] = portal;
-            });
-            mapInstance.Portals.AddRange(portalList.Select(s => s.Value));
+                 return Task.FromResult(portal);
+             })).ConfigureAwait(false);
+
+            mapInstance.Portals.AddRange(portalList);
         }
     }
 }

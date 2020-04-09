@@ -271,7 +271,7 @@ namespace NosCore.WorldServer
                         new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                 });
 
-            containerBuilder.RegisterType<ItemInstanceDao>().As<ItemInstanceDao>().SingleInstance();
+            containerBuilder.RegisterType<ItemInstanceDao>().As<IDao<IItemInstanceDto?, Guid>>().SingleInstance();
         }
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
@@ -479,7 +479,6 @@ namespace NosCore.WorldServer
             var container = containerBuilder.Build();
             RegisterGo(container);
 
-            container.Resolve<IMapInstanceProvider>().Initialize();
             Task.Run(container.Resolve<WorldServer>().RunAsync).Forget();
 
             return new AutofacServiceProvider(container);

@@ -38,12 +38,12 @@ namespace NosCore.MasterServer.DataHolders
         ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>>
     {
         private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly ItemInstanceDao _itemInstanceDao;
+        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly List<ItemDto> _items;
         private readonly IDao<MailDto, long> _mailDao;
 
         public ParcelHolder(IDao<CharacterDto, long> characterDao, IDao<MailDto, long> mailDao, List<ItemDto> items,
-            ItemInstanceDao itemInstanceDao)
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao)
         {
             _mailDao = mailDao;
             _items = items;

@@ -34,10 +34,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class CharacterDeletePacketHandler : PacketHandler<CharacterDeletePacket>, IWorldPacketHandler
     {
-        private readonly IDao<AccountDto, int> _accountDao;
+        private readonly IDao<AccountDto, long> _accountDao;
         private readonly IDao<CharacterDto, long> _characterDao;
 
-        public CharacterDeletePacketHandler(IDao<CharacterDto, long> characterDao, IDao<AccountDto, int> accountDao)
+        public CharacterDeletePacketHandler(IDao<CharacterDto, long> characterDao, IDao<AccountDto, long> accountDao)
         {
             _characterDao = characterDao;
             _accountDao = accountDao;

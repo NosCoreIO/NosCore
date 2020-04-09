@@ -39,12 +39,12 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
 {
     public class WarehouseHttpClient : MasterServerHttpClient, IWarehouseHttpClient
     {
-        private readonly ItemInstanceDao _itemInstanceDao;
+        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly IItemProvider _itemProvider;
 
         public WarehouseHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
             IChannelHttpClient channelHttpClient, IItemProvider itemProvider,
-            ItemInstanceDao itemInstanceDao)
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao)
             : base(httpClientFactory, channel, channelHttpClient)
         {
             ApiUrl = "api/warehouse";

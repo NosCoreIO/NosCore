@@ -71,7 +71,7 @@ namespace NosCore.GameObject
 {
     public class Character : CharacterDto, ICharacterEntity
     {
-        private readonly IDao<AccountDto, int> _accountDao;
+        private readonly IDao<AccountDto, long> _accountDao;
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
@@ -87,7 +87,7 @@ namespace NosCore.GameObject
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider,
             IDao<CharacterDto, long> characterDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<AccountDto, int> accountDao,
+            IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<AccountDto, long> accountDao,
             ILogger logger, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quicklistEntriesDao, IDao<MinilandDto, Guid> minilandDao,
             IMinilandProvider minilandProvider, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao)

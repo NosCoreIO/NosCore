@@ -44,11 +44,11 @@ namespace NosCore.Core.Controllers
     [Route("api/[controller]")]
     public class AuthController : Controller
     {
-        private readonly IDao<AccountDto, int> _accountDao;
+        private readonly IDao<AccountDto, long> _accountDao;
         private readonly WebApiConfiguration _apiConfiguration;
         private readonly ILogger _logger;
 
-        public AuthController(WebApiConfiguration apiConfiguration, IDao<AccountDto, int> accountDao, ILogger logger)
+        public AuthController(WebApiConfiguration apiConfiguration, IDao<AccountDto, long> accountDao, ILogger logger)
         {
             _apiConfiguration = apiConfiguration;
             _accountDao = accountDao;

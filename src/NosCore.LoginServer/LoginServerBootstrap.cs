@@ -101,7 +101,7 @@ namespace NosCore.LoginServer
             containerBuilder.Register<IDbContextBuilder>(c => _dataAccess).AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterInstance(_loginConfiguration!).As<LoginConfiguration>().As<ServerConfiguration>();
-            containerBuilder.RegisterType<Dao<Account, AccountDto, int>>().As<IDao<AccountDto, int>>()
+            containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>()
                 .SingleInstance();
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();

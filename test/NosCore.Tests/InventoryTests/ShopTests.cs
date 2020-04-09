@@ -277,7 +277,7 @@ namespace NosCore.Tests.InventoryTests
             session2.SessionId = 1;
 
             session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object,
-                new Mock<IDao<CharacterDto, long>>().Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new Mock<IDao<AccountDto, int>>().Object, Logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object)
+                new Mock<IDao<CharacterDto, long>>().Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new Mock<IDao<AccountDto, long>>().Object, Logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object)
             {
                 CharacterId = 1,
                 Name = "chara2",

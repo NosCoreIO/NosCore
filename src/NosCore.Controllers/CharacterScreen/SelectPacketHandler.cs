@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
     {
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
-        private readonly ItemInstanceDao _itemInstanceDao;
+        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly IItemProvider _itemProvider;
         private readonly ILogger _logger;
         private readonly IMapInstanceProvider _mapInstanceProvider;
@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public SelectPacketHandler(IDao<CharacterDto, long> characterDao, ILogger logger,
             IItemProvider itemProvider,
-            IMapInstanceProvider mapInstanceProvider, ItemInstanceDao itemInstanceDao,
+            IMapInstanceProvider mapInstanceProvider, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives)
