@@ -53,6 +53,7 @@ namespace NosCore.Tests.NRunTests
         [TestInitialize]
         public async Task SetupAsync()
         {
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _nRunHandler = new NrunPacketHandler(Logger, new NrunProvider(
@@ -72,10 +73,10 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte) characterClass
+                Type = (byte)characterClass
             }, _session).ConfigureAwait(false);
 
-            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
                 _session.Account.Language)) && (packet.Type == MessageType.White));
         }
@@ -92,10 +93,10 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte) characterClass
+                Type = (byte)characterClass
             }, _session).ConfigureAwait(false);
 
-            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
                 _session.Account.Language)) && (packet.Type == MessageType.White));
         }
@@ -112,10 +113,10 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte) CharacterClassType.Swordman
+                Type = (byte)CharacterClassType.Swordman
             }, _session).ConfigureAwait(false);
 
-            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
                 _session.Account.Language)) && (packet.Type == MessageType.White));
         }
@@ -132,7 +133,7 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte) characterClass
+                Type = (byte)characterClass
             }, _session).ConfigureAwait(false);
 
             Assert.IsTrue((_session.Character.Class == CharacterClassType.Adventurer) &&
@@ -153,7 +154,7 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte) characterClass
+                Type = (byte)characterClass
             }, _session).ConfigureAwait(false);
 
             Assert.IsTrue((_session.Character.Class == characterClass) && (_session.Character.Level == 15) &&
@@ -176,10 +177,10 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte) characterClass
+                Type = (byte)characterClass
             }, _session).ConfigureAwait(false);
 
-            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
                 _session.Account.Language)) && (packet.Type == MessageType.White));
         }

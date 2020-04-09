@@ -143,7 +143,7 @@ namespace NosCore.Parser
                                 new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                         });
 
-                    containerBuilder.RegisterType<ItemInstanceDao>().As<IDao<IItemInstanceDto, Guid>>()
+                    containerBuilder.RegisterType<ItemInstanceDao>().As<ItemInstanceDao>()
                         .SingleInstance();
                     var container = containerBuilder.Build();
                     var factory = container.Resolve<ImportFactory>();

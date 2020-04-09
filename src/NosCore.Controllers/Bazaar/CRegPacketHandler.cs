@@ -33,6 +33,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
@@ -46,10 +47,10 @@ namespace NosCore.PacketHandlers.Bazaar
         private readonly IBazaarHttpClient _bazaarHttpClient;
         private readonly WorldConfiguration _configuration;
         private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
-        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
+        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
 
         public CRegPacketHandler(WorldConfiguration configuration, IBazaarHttpClient bazaarHttpClient,
-            IDao<IItemInstanceDto, Guid> itemInstanceDao,
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao)
         {
             _configuration = configuration;
@@ -133,11 +134,11 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
             IItemInstanceDto bazaaritem = bazar.ItemInstance;
-            bazaaritem = await _itemInstanceDao.TryInsertOrUpdateAsync(bazaaritem).ConfigureAwait(false);
+            bazaaritem = (await _itemInstanceDao.TryInsertOrUpdateAsync(bazaaritem).ConfigureAwait(false))!;
 
             var result = await _bazaarHttpClient.AddBazaarAsync(new BazaarRequest
             {
-                ItemInstanceId = bazar.ItemInstance.Id,
+                ItemInstanceId = bazaaritem.Id,
                 CharacterId = clientSession.Character.CharacterId,
                 CharacterName = clientSession.Character.Name,
                 HasMedal = medal != null,

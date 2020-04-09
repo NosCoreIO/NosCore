@@ -51,6 +51,7 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Helper;
@@ -73,7 +74,7 @@ namespace NosCore.GameObject
         private readonly IDao<AccountDto, int> _accountDao;
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
-        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
+        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly ILogger _logger;
         private readonly IDao<MinilandDto, Guid> _minilandDao;
         private readonly IMinilandProvider _minilandProvider;
@@ -85,7 +86,7 @@ namespace NosCore.GameObject
         private readonly IDao<CharacterQuestDto, Guid> _characterQuestsDao;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider,
-            IDao<CharacterDto, long> characterDao, IDao<IItemInstanceDto, Guid> itemInstanceDao,
+            IDao<CharacterDto, long> characterDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<AccountDto, int> accountDao,
             ILogger logger, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quicklistEntriesDao, IDao<MinilandDto, Guid> minilandDao,
@@ -1413,7 +1414,7 @@ namespace NosCore.GameObject
             }).ConfigureAwait(false);
             await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
 
-            Observable.Timer(TimeSpan.FromMilliseconds(SpCooldown * 1000)).Subscribe(o => Observable.FromAsync(async () =>
+            Observable.Timer(TimeSpan.FromMilliseconds(SpCooldown * 1000)).Subscribe(async o => await Observable.FromAsync(async () =>
             {
                 await SendPacketAsync(this.GenerateSay(
                     string.Format(

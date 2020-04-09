@@ -34,6 +34,7 @@ using NosCore.Data.Enumerations.Bazaar;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 using NosCore.MasterServer.DataHolders;
 
 namespace NosCore.MasterServer.Controllers
@@ -44,10 +45,10 @@ namespace NosCore.MasterServer.Controllers
     {
         private readonly IDao<BazaarItemDto, long> _bazaarItemDao;
         private readonly BazaarItemsHolder _holder;
-        private readonly IDao<IItemInstanceDto, Guid> _itemInstanceDao;
+        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
 
         public BazaarController(BazaarItemsHolder holder, IDao<BazaarItemDto, long> bazaarItemDao,
-            IDao<IItemInstanceDto, Guid> itemInstanceDao)
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao)
         {
             _bazaarItemDao = bazaarItemDao;
             _itemInstanceDao = itemInstanceDao;
@@ -205,7 +206,7 @@ namespace NosCore.MasterServer.Controllers
             {
                 var item = (IItemInstanceDto) bzlink.ItemInstance!;
                 item.Amount -= count;
-                item = await _itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(false);
+                await _itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(false);
             }
 
             return true;
@@ -220,7 +221,7 @@ namespace NosCore.MasterServer.Controllers
                 return LanguageKey.LIMIT_EXCEEDED;
             }
 
-            var item = await _itemInstanceDao.FirstOrDefaultAsync(s => s.Id == bazaarRequest.ItemInstanceId).ConfigureAwait(true);
+            var item = await _itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == bazaarRequest.ItemInstanceId).ConfigureAwait(true);
             if ((item == null) || (item.Amount < bazaarRequest.Amount) || (bazaarRequest.Amount < 0) ||
                 (bazaarRequest.Price < 0))
             {
@@ -237,7 +238,7 @@ namespace NosCore.MasterServer.Controllers
                 itemId = item.Id;
                 item.Amount -= bazaarRequest.Amount;
                 item = await _itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(true);
-                item.Id = Guid.NewGuid();
+                item!.Id = Guid.NewGuid();
             }
 
             item = await _itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(true);
@@ -251,7 +252,7 @@ namespace NosCore.MasterServer.Controllers
                 MedalUsed = bazaarRequest.HasMedal,
                 Price = bazaarRequest.Price,
                 SellerId = bazaarRequest.CharacterId,
-                ItemInstanceId = item.Id
+                ItemInstanceId = item!.Id
             };
             bazaarItem = await _bazaarItemDao.TryInsertOrUpdateAsync(bazaarItem).ConfigureAwait(true);
             _holder.BazaarItems.TryAdd(bazaarItem.BazaarItemId,

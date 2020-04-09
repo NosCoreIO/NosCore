@@ -64,17 +64,17 @@ namespace NosCore.GameObject.Networking.LoginService
             {
                 clientSession.SessionId = clientSession.Channel?.Id != null
                     ? SessionFactory.Instance.Sessions[clientSession.Channel.Id.AsLongText()].SessionId : 0;
-/*
-                if (false) //TODO Maintenance
-                {
-                    await clientSession.SendPacket(new FailcPacket
-                    {
-                        Type = LoginFailType.Maintenance
-                    });
-                    await clientSession.Disconnect();
-                    return;
-                }
-*/
+                /*
+                                if (false) //TODO Maintenance
+                                {
+                                    await clientSession.SendPacket(new FailcPacket
+                                    {
+                                        Type = LoginFailType.Maintenance
+                                    });
+                                    await clientSession.Disconnect();
+                                    return;
+                                }
+                */
 
                 if (((_loginConfiguration.ClientVersion != null) &&
                         (clientVersion != _loginConfiguration.ClientVersion))
@@ -88,12 +88,12 @@ namespace NosCore.GameObject.Networking.LoginService
                     return;
                 }
 
-                if(useApiAuth)
+                if (useApiAuth)
                 {
                     username = await _authHttpClient.GetAwaitingConnectionAsync(null, passwordToken, clientSession.SessionId).ConfigureAwait(false);
                 }
 
-                var acc = await _accountDao.FirstOrDefaultAsync(s => s.Name.ToLower() == username!.ToLower()).ConfigureAwait(false);
+                var acc = await _accountDao.FirstOrDefaultAsync(s => s.Name.ToLower() == (username ?? "").ToLower()).ConfigureAwait(false);
 
                 if ((acc != null) && (acc.Name != username))
                 {
@@ -160,7 +160,7 @@ namespace NosCore.GameObject.Networking.LoginService
                         }
 
                         acc.Language = _loginConfiguration.UserLanguage;
-                        
+
                         acc = await _accountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
                         if (servers == null || servers.Count <= 0)
                         {
@@ -186,7 +186,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             }
 
                             var channelcolor =
-                                (int) Math.Round((double) connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
+                                (int)Math.Round((double)connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
                                 + 1;
                             subpacket.Add(new NsTeStSubPacket
                             {
@@ -214,7 +214,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             AccountName = username,
                             SubPacket = subpacket,
                             SessionId = clientSession.SessionId,
-                            Unknown = useApiAuth ? 2 : (int?) null
+                            Unknown = useApiAuth ? 2 : (int?)null
                         }).ConfigureAwait(false);
                         return;
                 }

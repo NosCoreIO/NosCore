@@ -163,7 +163,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             _mapInstanceEventHandler.ForEach(handler =>
             {
                 var type = handler.MapInstanceEventType;
-                Requests[type].Subscribe(o => Observable.FromAsync(() => handler.ExecuteAsync(o)));
+                Requests[type].Subscribe(async o => await Observable.FromAsync(() => handler.ExecuteAsync(o)));
             });
         }
 
