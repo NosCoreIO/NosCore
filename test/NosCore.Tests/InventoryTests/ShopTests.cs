@@ -266,7 +266,7 @@ namespace NosCore.Tests.InventoryTests
             Assert.IsTrue(_session.Character.Reput == 499002);
         }
 
-        private ClientSession PrepareSessionShop()
+        private async Task<ClientSession> PrepareSessionShopAsync()
         {
             var conf = new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999};
             var session2 = new ClientSession(conf, new Mock<IMapInstanceProvider>().Object, new Mock<IExchangeProvider>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object, new Mock<IMinilandProvider>().Object);
@@ -276,7 +276,7 @@ namespace NosCore.Tests.InventoryTests
             session2.InitializeAccount(account);
             session2.SessionId = 1;
 
-            session2.SetCharacter(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object,
+            await session2.SetCharacterAsync(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object,
                 new Mock<IDao<CharacterDto, long>>().Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new Mock<IDao<AccountDto, long>>().Object, Logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object)
             {
                 CharacterId = 1,
@@ -285,7 +285,7 @@ namespace NosCore.Tests.InventoryTests
                 AccountId = 1,
                 MapId = 1,
                 State = CharacterState.Active
-            });
+            }).ConfigureAwait(false);
             var mapinstance = _instanceProvider!.GetBaseMapById(0);
             session2.Account = account;
             session2.Character.MapInstance = _instanceProvider.GetBaseMapById(0);
@@ -322,7 +322,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanShopFromSessionAsync()
         {
-            var session2 = PrepareSessionShop();
+            var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
             await _session!.Character.BuyAsync(session2.Character.Shop!, 0, 999).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 999);
             Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 0);
@@ -331,7 +331,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanShopFromSessionPartialAsync()
         {
-            var session2 = PrepareSessionShop();
+            var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
             await _session!.Character.BuyAsync(session2.Character.Shop!, 0, 998).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 998);
             Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 1);
@@ -340,7 +340,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanNotShopMoreThanShopAsync()
         {
-            var session2 = PrepareSessionShop();
+            var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
             await _session!.Character.BuyAsync(session2.Character.Shop!, 1, 501).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 0);
             Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 999);
@@ -349,7 +349,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanShopFullAsync()
         {
-            var session2 = PrepareSessionShop();
+            var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
             await _session!.Character.BuyAsync(session2.Character.Shop!, 1, 500).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 500);
             Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 499);
@@ -358,7 +358,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task UserCanNotShopTooRichAsync()
         {
-            var session2 = PrepareSessionShop();
+            var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
             session2.Character.Gold = 999_999_999;
             await _session!.Character.BuyAsync(session2.Character.Shop!, 0, 999).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 999_999_999);

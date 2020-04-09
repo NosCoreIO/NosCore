@@ -60,10 +60,10 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             _logger = logger;
         }
 
-        public void AddMapInstance(MapInstance mapInstance)
+        public Task AddMapInstanceAsync(MapInstance mapInstance)
         {
             MapInstances.TryAdd(mapInstance.MapInstanceId, mapInstance);
-            LoadPortalsAsync(mapInstance, _portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId).ToList());
+            return LoadPortalsAsync(mapInstance, _portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId).ToList());
         }
 
         public void RemoveMap(Guid mapInstanceId)
@@ -72,7 +72,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             mapInstance?.Kick();
         }
 
-        public Task InitializeAsync()
+        public async Task InitializeAsync()
         {
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LOADING_MAPINSTANCES));
 
@@ -100,11 +100,11 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                         mapinstance.LoadNpcs(npcs[map.MapId]);
                     }
 
-                    mapinstance.StartLife();
                     return mapinstance;
                 }));
 
-            return Task.WhenAll(MapInstances.Values.Select(mapInstance => portals.ContainsKey(mapInstance.Map.MapId) ? LoadPortalsAsync(mapInstance, portals[mapInstance.Map.MapId]) : Task.CompletedTask));
+            await Task.WhenAll(MapInstances.Values.Select(s=>s.StartLifeAsync())).ConfigureAwait(false);
+            await Task.WhenAll(MapInstances.Values.Select(mapInstance => portals.ContainsKey(mapInstance.Map.MapId) ? LoadPortalsAsync(mapInstance, portals[mapInstance.Map.MapId]) : Task.CompletedTask)).ConfigureAwait(false);
         }
 
         public Guid GetBaseMapInstanceIdByMapId(short mapId)

@@ -214,9 +214,9 @@ namespace NosCore.Tests.Helpers
                 MapItemProvider,
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, _logger);
-            instanceAccessService.InitializeAsync();
-            instanceAccessService.AddMapInstance(new MapInstance(miniland, MinilandId, false,
-                MapInstanceType.NormalInstance, MapItemProvider, _logger, new List<IMapInstanceEventHandler>()));
+            await instanceAccessService.InitializeAsync().ConfigureAwait(false);
+            await instanceAccessService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
+                MapInstanceType.NormalInstance, MapItemProvider, _logger, new List<IMapInstanceEventHandler>())).ConfigureAwait(false);
             return instanceAccessService;
         }
 
@@ -239,7 +239,7 @@ namespace NosCore.Tests.Helpers
             var nosCorecontextBuilder = new DataAccessHelper();
             nosCorecontextBuilder.InitializeForTest(contextBuilder.Options);
             ContextBuilder = nosCorecontextBuilder;
-            AccountDao = new Dao<Account, AccountDto, int>(_logger, ContextBuilder);
+            AccountDao = new Dao<Account, AccountDto, long>(_logger, ContextBuilder);
             _portalDao = new Dao<Portal, PortalDto, int>(_logger, ContextBuilder);
             _mapMonsterDao = new Dao<MapMonster, MapMonsterDto, int>(_logger, ContextBuilder);
             _mapNpcDao = new Dao<MapNpc, MapNpcDto, int>(_logger, ContextBuilder);
@@ -314,7 +314,7 @@ namespace NosCore.Tests.Helpers
             var charaDto = chara.Adapt<CharacterDto>();
             await CharacterDao.TryInsertOrUpdateAsync(charaDto).ConfigureAwait(false);
             session.InitializeAccount(acc);
-            session.SetCharacter(chara);
+            await session.SetCharacterAsync(chara).ConfigureAwait(false);
             session.Character.MapInstance = MapInstanceProvider.GetBaseMapById(0);
             session.Account = acc;
             session.RegisterChannel(new Mock<IChannel>().Object);

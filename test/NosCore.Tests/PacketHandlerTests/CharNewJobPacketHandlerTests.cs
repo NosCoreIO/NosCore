@@ -43,7 +43,7 @@ namespace NosCore.Tests.PacketHandlerTests
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _chara = _session.Character;
-            _session.SetCharacter(null);
+            await _session.SetCharacterAsync(null).ConfigureAwait(false);
             _charNewJobPacketHandler = new CharNewJobPacketHandler(TestHelpers.Instance.CharacterDao);
         }
 

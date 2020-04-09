@@ -146,17 +146,17 @@ namespace NosCore.GameObject.Networking.ClientSession
             Broadcaster.Instance.RegisterSession(this);
         }
 
-        public void SetCharacter(Character? character)
+        public Task SetCharacterAsync(Character? character)
         {
             _character = character;
             HasSelectedCharacter = character != null;
             if (character == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             Character.Session = this;
-            _minilandProvider.Initialize(character);
+            return _minilandProvider.InitializeAsync(character);
         }
 
 #pragma warning disable VSTHRD100 // Avoid async void methods

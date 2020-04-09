@@ -105,7 +105,7 @@ namespace NosCore.Parser.Parsers
             };
             var genericParser = new GenericParser<SkillDto>(folder + FileCardDat,
                 "#=========================================================", 1, actionList, _logger);
-            var skills = genericParser.GetDtos();
+            var skills = await genericParser.GetDtosAsync().ConfigureAwait(false);
 
             foreach (var skill in skills.Where(s => s.Class > 31))
             {

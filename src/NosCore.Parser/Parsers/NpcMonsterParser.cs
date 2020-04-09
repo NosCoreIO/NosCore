@@ -150,7 +150,7 @@ namespace NosCore.Parser.Parsers
 
             var genericParser = new GenericParser<NpcMonsterDto>(folder + FileNpcId,
                 "#========================================================", 1, actionList, _logger);
-            var monsters = genericParser.GetDtos().GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
+            var monsters = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
             await _npcMonsterDao.TryInsertOrUpdateAsync(monsters).ConfigureAwait(false);
             await _bCardDao.TryInsertOrUpdateAsync(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
             await _dropDao.TryInsertOrUpdateAsync(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop)).ConfigureAwait(false);

@@ -116,8 +116,8 @@ namespace NosCore.PathFinder.Gui
                 mapNpc.IsAlive = true;
             }
 
-            Parallel.ForEach(_monsters.Where(s => s.Life == null), monster => monster.StartLife());
-            Parallel.ForEach(_npcs.Where(s => s.Life == null), npc => npc.StartLife());
+            Parallel.ForEach(_monsters.Where(s => s.Life == null), monster => monster.StartLifeAsync());
+            Parallel.ForEach(_npcs.Where(s => s.Life == null), npc => npc.StartLifeAsync());
             GetMap();
         }
 

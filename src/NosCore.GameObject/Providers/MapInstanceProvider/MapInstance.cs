@@ -301,9 +301,9 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             };
         }
 
-        public void StartLife()
+        public Task StartLifeAsync()
         {
-            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(_ =>
+            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(async _ => await Observable.FromAsync(async () =>
             {
                 try
                 {
@@ -312,14 +312,15 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                         return;
                     }
 
-                    Parallel.ForEach(Monsters.Where(s => s.Life == null), monster => monster.StartLife());
-                    Parallel.ForEach(Npcs.Where(s => s.Life == null), npc => npc.StartLife());
+                    await Task.WhenAll(Monsters.Where(s => s.Life == null).Select(monster => monster.StartLifeAsync())).ConfigureAwait(false);
+                    await Task.WhenAll(Npcs.Where(s => s.Life == null).Select(npc => npc.StartLifeAsync())).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
                     _logger.Error(e.Message, e);
                 }
-            });
+            }));
+            return Task.CompletedTask;
         }
 
         protected virtual void Dispose(bool disposing)

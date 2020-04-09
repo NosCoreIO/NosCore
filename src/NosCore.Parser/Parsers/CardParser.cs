@@ -79,7 +79,7 @@ namespace NosCore.Parser.Parsers
             };
             var genericParser = new GenericParser<CardDto>(folder + FileCardDat,
                 "END", 1, actionList, _logger);
-            var cards = genericParser.GetDtos().GroupBy(p => p.CardId).Select(g => g.First()).ToList();
+            var cards = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.CardId).Select(g => g.First()).ToList();
              await _cardDao.TryInsertOrUpdateAsync(cards).ConfigureAwait(false);
              await _bcardDao.TryInsertOrUpdateAsync(cards.Where(s=>s.BCards != null).SelectMany(s=>s.BCards)).ConfigureAwait(false);
 

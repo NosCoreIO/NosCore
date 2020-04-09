@@ -51,7 +51,7 @@ namespace NosCore.Tests
     public class MapperTests
     {
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IDao<AccountDto, long> _accountDao =new Dao<Account, AccountDto, int>(Logger, TestHelpers.Instance.ContextBuilder);
+        private readonly IDao<AccountDto, long> _accountDao =new Dao<Account, AccountDto, long>(Logger, TestHelpers.Instance.ContextBuilder);
         private readonly MapsterMapper.Mapper _mapper = new MapsterMapper.Mapper();
 
         private readonly IDao<CharacterDto, long> _characterDao =

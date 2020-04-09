@@ -46,7 +46,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task DeleteCharacter_Invalid_PasswordAsync()
         {
-            _session!.SetCharacter(null);
+            await _session!.SetCharacterAsync(null).ConfigureAwait(false);
             await _characterDeletePacketHandler!.ExecuteAsync(new CharacterDeletePacket
             {
                 Slot = 1,
@@ -75,7 +75,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task DeleteCharacterAsync()
         {
-            _session!.SetCharacter(null);
+            await _session!.SetCharacterAsync(null).ConfigureAwait(false);
             await _characterDeletePacketHandler!.ExecuteAsync(new CharacterDeletePacket
             {
                 Slot = 1,

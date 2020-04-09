@@ -71,7 +71,7 @@ namespace NosCore.Parser.Parsers
 
             var genericParser = new GenericParser<NpcTalkDto>(folder + _fileNpcTalkDat,
                 "%", 0, actionList, _logger);
-            var npcTalks = genericParser.GetDtos(" ").ToList();
+            var npcTalks = (await genericParser.GetDtosAsync(" ").ConfigureAwait(false)).ToList();
             npcTalks.Add(new NpcTalkDto { DialogId = 99, NameI18NKey = "" });
             await _npcTalkDao.TryInsertOrUpdateAsync(npcTalks).ConfigureAwait(false);
 
