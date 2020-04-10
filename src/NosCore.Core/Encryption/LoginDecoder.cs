@@ -67,7 +67,7 @@ namespace NosCore.Core.Encryption
                         mapper.SessionId);
                 }
 
-                foreach (var character in ((Span<byte>) message.Array).Slice(message.ArrayOffset, message.ReadableBytes)
+                foreach (var character in ((Span<byte>)message.Array).Slice(message.ArrayOffset, message.ReadableBytes)
                 )
                 {
                     decryptedPacket.Append(character > 14 ? Convert.ToChar((character - 15) ^ 195)
@@ -75,18 +75,13 @@ namespace NosCore.Core.Encryption
                 }
 
                 var des = _deserializer.Deserialize(decryptedPacket.ToString());
-                if ((des != null) && des.IsValid)
+                if (des.IsValid)
                 {
-                    output?.Add(new[] {des});
+                    output?.Add(new[] { des });
                 }
-                else if ((des != null) && !des.IsValid)
+                else if (!des.IsValid)
                 {
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET), des);
-                }
-                else
-                {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING,
-                        decryptedPacket.ToString()));
                 }
             }
 #pragma warning disable CA1031 // Do not catch general exception types

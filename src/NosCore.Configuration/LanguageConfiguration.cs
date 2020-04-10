@@ -19,6 +19,7 @@
 
 using System;
 using NosCore.Data.Enumerations;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.Configuration
 {

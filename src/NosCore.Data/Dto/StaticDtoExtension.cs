@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using FastMember;
 using NosCore.Data.Enumerations;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.Data.StaticEntities
 {
