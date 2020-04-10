@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
@@ -26,6 +27,6 @@ namespace NosCore.GameObject.Providers.NRunProvider
 {
     public interface INrunProvider
     {
-        void NRunLaunch(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data);
+        Task NRunLaunchAsync(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data);
     }
 }
