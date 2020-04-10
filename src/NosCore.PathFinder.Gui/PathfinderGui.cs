@@ -34,7 +34,6 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
-using NosCore.Database.DAL;
 using NosCore.Database.Entities;
 using NosCore.GameObject.Providers.ItemProvider;
 using OpenTK.Graphics;
