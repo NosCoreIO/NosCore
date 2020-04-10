@@ -65,6 +65,7 @@ using NosCore.Database.Entities;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
+using NosCore.Packets.Enumerations;
 using ILogger = Serilog.ILogger;
 
 namespace NosCore.MasterServer

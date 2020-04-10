@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Networking.LoginService
         }
 
         public async Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,
-            ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth)
+            ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language)
         {
             try
             {
@@ -159,7 +159,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             return;
                         }
 
-                        acc.Language = _loginConfiguration.UserLanguage;
+                        acc.Language = language;
 
                         acc = await _accountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
                         if (servers == null || servers.Count <= 0)
@@ -195,7 +195,7 @@ namespace NosCore.GameObject.Networking.LoginService
                                 Color = channelcolor,
                                 WorldCount = worldCount,
                                 WorldId = i,
-                                Name = server.Name
+                                Name = server.Name,
                             });
                             i++;
                         }
@@ -214,7 +214,8 @@ namespace NosCore.GameObject.Networking.LoginService
                             AccountName = username,
                             SubPacket = subpacket,
                             SessionId = clientSession.SessionId,
-                            Unknown = useApiAuth ? 2 : (int?)null
+                            Unknown = useApiAuth ? 2 : (int?)null,
+                            RegionType = language
                         }).ConfigureAwait(false);
                         return;
                 }

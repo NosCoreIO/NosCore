@@ -18,21 +18,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using NosCore.Core;
-using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations;
 using NosCore.Database.DAL;
 using NosCore.Database.Entities;
 using Serilog;

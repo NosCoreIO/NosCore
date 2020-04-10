@@ -23,12 +23,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Packets.Enumerations;
 using Serilog;
 
 namespace NosCore.Parser.Parsers

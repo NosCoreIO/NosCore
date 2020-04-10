@@ -19,9 +19,7 @@
 
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Core.I18N;
 using NosCore.Data;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;

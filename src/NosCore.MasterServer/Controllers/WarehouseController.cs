@@ -28,7 +28,6 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
-using NosCore.Database;
 
 namespace NosCore.MasterServer.Controllers
 {

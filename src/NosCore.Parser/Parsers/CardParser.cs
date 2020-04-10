@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Buff;

@@ -28,9 +28,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.MiniMap;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
-using JetBrains.Annotations;
 using NosCore.Core;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -39,6 +37,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
+using NosCore.Packets.Enumerations;
 using NosCore.PathFinder;
 using Serilog;
 

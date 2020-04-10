@@ -21,15 +21,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
-using NosCore.Packets.Enumerations;
 using NosCore.Parser.Parsers.Generic;
 using Serilog;
 

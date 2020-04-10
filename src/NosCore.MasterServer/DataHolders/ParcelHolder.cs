@@ -24,13 +24,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Mapster;
 using Microsoft.VisualStudio.Threading;
-using NosCore.Core;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.Database;
 
 namespace NosCore.MasterServer.DataHolders
 {
