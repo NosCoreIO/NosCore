@@ -29,7 +29,6 @@ using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NosCore.Configuration;
-using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;

@@ -22,7 +22,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Quest;
 using NosCore.Database.Entities.Base;
 using NosCore.Packets.Enumerations;
 

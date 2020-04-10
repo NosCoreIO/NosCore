@@ -20,7 +20,6 @@
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
-using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
@@ -39,7 +38,6 @@ using Microsoft.VisualStudio.Threading;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.GameObject.Providers.QuestProvider;
-using NosCore.Packets.ServerPackets.Quest;
 
 namespace NosCore.PacketHandlers.Game
 {

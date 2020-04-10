@@ -30,7 +30,6 @@ using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NosCore.Configuration;
-using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;

@@ -19,8 +19,6 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Packets.ClientPackets.Login;
-using NosCore.Data.Enumerations;
-using NosCore.Packets.Enumerations;
 
 namespace NosCore.Configuration
 {

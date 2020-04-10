@@ -24,7 +24,6 @@ using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
-using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;

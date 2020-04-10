@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mapster;
-using Microsoft.AspNetCore.Http;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;

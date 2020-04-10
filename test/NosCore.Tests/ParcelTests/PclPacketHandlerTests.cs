@@ -30,7 +30,6 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
-using NosCore.Database;
 using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider;
