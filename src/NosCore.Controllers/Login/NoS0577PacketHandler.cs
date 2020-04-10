@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.Login
         public override Task ExecuteAsync(NoS0577Packet packet, ClientSession clientSession)
         {
             return _loginService.LoginAsync(null, packet.Md5String!, packet.ClientVersion!, clientSession,
-                packet.AuthToken!, true);
+                packet.AuthToken!, true, packet.RegionType);
         }
     }
 }
