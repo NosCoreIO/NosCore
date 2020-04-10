@@ -19,6 +19,7 @@
 
 using System.Text;
 using NosCore.Data.Enumerations;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.Core.Extensions
 {

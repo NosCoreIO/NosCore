@@ -94,6 +94,7 @@ using InventoryItemInstance = NosCore.GameObject.Providers.InventoryService.Inve
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Serializer = NosCore.Packets.Serializer;
 using NosCore.Dao;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.WorldServer
 {

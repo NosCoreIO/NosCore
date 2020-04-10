@@ -38,7 +38,7 @@ namespace NosCore.Data.I18N
 
 	 	public string Key { get; set; }
 
-	 	public NosCore.Data.Enumerations.RegionType RegionType { get; set; }
+	 	public NosCore.Packets.Enumerations.RegionType RegionType { get; set; }
 
 	 	public string Text { get; set; }
 

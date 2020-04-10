@@ -6,7 +6,7 @@ MasterCommunication:
     Channel: api/channel
     ConnectedAccount: api/connectedAccount
 Host: 127.0.0.1
-Port: 4002
+Port: 4000
 Language: en
 UserLanguage: fr
 Database:

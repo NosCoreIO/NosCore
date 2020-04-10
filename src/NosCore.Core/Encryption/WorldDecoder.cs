@@ -31,6 +31,7 @@ using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Packets.Enumerations;
 using Serilog;
 
 namespace NosCore.Core.Encryption
