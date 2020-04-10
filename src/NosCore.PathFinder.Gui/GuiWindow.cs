@@ -29,7 +29,6 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-using NosCore.Database.DAL;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
 using NosCore.GameObject.Providers.MapInstanceProvider;
@@ -44,6 +43,7 @@ using Map = NosCore.GameObject.Map.Map;
 using MapMonster = NosCore.Database.Entities.MapMonster;
 using MapNpc = NosCore.Database.Entities.MapNpc;
 using NosCore.Dao;
+using NosCore.Database;
 
 namespace NosCore.PathFinder.Gui
 {

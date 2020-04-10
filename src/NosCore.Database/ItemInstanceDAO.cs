@@ -25,10 +25,10 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using NosCore.Dao.Extensions;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
-using NosCore.Database.DAL;
 using NosCore.Database.Entities;
 using Serilog;
 
@@ -202,7 +202,7 @@ namespace NosCore.Database
 
                 var ids = list.Select(s => s.Item2).ToArray();
                 var dbkey = typeof(ItemInstance).GetProperty(_primaryKey!.First().Name);
-                var entityfounds = dbset.FindAll(dbkey!, ids).ToList();
+                var entityfounds = dbset.FindAll(new[] { dbkey! }, ids).ToList();
 
                 foreach (var dto in list)
                 {
