@@ -18,6 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Data;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -28,6 +30,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
     public interface IItemInstance : IItemInstanceDto, IRequestableEntity<Tuple<InventoryItemInstance, UseItemPacket>>
     {
         Item? Item { get; set; }
+        List<Task> HandlerTasks { get; set; }
         object Clone();
     }
 }

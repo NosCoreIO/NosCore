@@ -18,7 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Entities;
@@ -71,6 +73,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider
         public short PositionY { get; set; }
         public MapInstance MapInstance { get; set; } = null!;
 
+        public List<Task> HandlerTasks { get; set; } = new List<Task>();
         public Subject<RequestData<Tuple<MapItem, GetPacket>>>? Requests { get; set; }
 
         public DropPacket GenerateDrop()
