@@ -118,6 +118,7 @@ namespace NosCore.Parser
 
                     var containerBuilder = new ContainerBuilder();
                     containerBuilder.RegisterLogger();
+                    containerBuilder.Register<IDbContextBuilder>(c => dataAccess).AsImplementedInterfaces().SingleInstance();
                     containerBuilder.RegisterAssemblyTypes(typeof(CardParser).Assembly)
                         .Where(t => t.Name.EndsWith("Parser") && !t.IsGenericType)
                         .AsSelf()
