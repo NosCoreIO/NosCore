@@ -22,7 +22,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Mapster;
+using Microsoft.AspNetCore.Razor.Language.CodeGeneration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -50,8 +52,8 @@ namespace NosCore.PathFinder.Gui
         private static GuiWindow? _guiWindow;
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private static readonly DataAccessHelper _dbContextBuilder = new DataAccessHelper();
-        private static readonly IDao<MapDto, short> _mapDao =new Dao<Map, MapDto, short>(Logger, _dbContextBuilder);
-        private static readonly IDao<NpcMonsterDto, short> _npcMonsterDao =new Dao<NpcMonster, NpcMonsterDto, short>(Logger, _dbContextBuilder);
+        private static IDao<MapDto, short> _mapDao = null!;
+        private static IDao<NpcMonsterDto, short> _npcMonsterDao = null!;
 
         private static void InitializeConfiguration()
         {
@@ -63,22 +65,25 @@ namespace NosCore.PathFinder.Gui
                 .Bind(DatabaseConfiguration);
         }
 
-        public static void Main()
+        public static async Task Main()
         {
             try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
             Core.I18N.Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
             TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
             LogLanguage.Language = DatabaseConfiguration.Language;
+
             try
             {
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
                 optionsBuilder.UseNpgsql(DatabaseConfiguration.Database!.ConnectionString);
                 _dbContextBuilder.Initialize(optionsBuilder.Options);
-
+                _mapDao = new Dao<Map, MapDto, short>(Logger, _dbContextBuilder);
+                _npcMonsterDao = new Dao<NpcMonster, NpcMonsterDto, short>(Logger, _dbContextBuilder);
                 var npcMonsters = _npcMonsterDao.LoadAll().ToList();
                 TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig().ConstructUsing(src => new GameObject.MapMonster(npcMonsters, Logger));
                 TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig().ConstructUsing(src => new GameObject.MapNpc(new Mock<IItemProvider>().Object, new Mock<IDao<ShopDto, int>>().Object, new Mock<IDao<ShopItemDto, int>>().Object, npcMonsters, Logger, new List<NpcTalkDto>()));
+
                 while (true)
                 {
                     Logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
@@ -89,7 +94,7 @@ namespace NosCore.PathFinder.Gui
                         continue;
                     }
 
-                    var map = _mapDao.FirstOrDefaultAsync(m => m.MapId == askMapId)?.Adapt<GameObject.Map.Map>();
+                    var map = (await _mapDao.FirstOrDefaultAsync(m => m.MapId == askMapId).ConfigureAwait(false))?.Adapt<GameObject.Map.Map>();
 
                     if ((!(map?.XLength > 0)) || (map.YLength <= 0))
                     {
