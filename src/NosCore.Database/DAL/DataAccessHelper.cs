@@ -20,28 +20,22 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
 
 namespace NosCore.Database.DAL
 {
-    public sealed class DataAccessHelper
+    public sealed class DataAccessHelper : IDbContextBuilder
     {
-        private static DataAccessHelper? _instance;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
         private DbContextOptions? _option;
 
-        private DataAccessHelper()
-        {
-        }
-
-        public static DataAccessHelper Instance => _instance ??= new DataAccessHelper();
-
         /// <summary>
         ///     Creates new instance of database context.
         /// </summary>
-        public NosCoreContext CreateContext()
+        public DbContext CreateContext()
         {
             return new NosCoreContext(_option);
         }

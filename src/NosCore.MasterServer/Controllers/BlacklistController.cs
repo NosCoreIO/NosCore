@@ -25,6 +25,7 @@ using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
@@ -36,12 +37,12 @@ namespace NosCore.MasterServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class BlacklistController : Controller
     {
-        private readonly IGenericDao<CharacterDto> _characterDao;
-        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
+        private readonly IDao<CharacterDto, long> _characterDao;
+        private readonly IDao<CharacterRelationDto, Guid> _characterRelationDao;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
 
         public BlacklistController(IConnectedAccountHttpClient connectedAccountHttpClient,
-            IGenericDao<CharacterRelationDto> characterRelationDao, IGenericDao<CharacterDto> characterDao)
+            IDao<CharacterRelationDto, Guid> characterRelationDao, IDao<CharacterDto, long> characterDao)
         {
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _characterRelationDao = characterRelationDao;
@@ -49,7 +50,7 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPost]
-        public async Task<LanguageKey> AddBlacklist([FromBody] BlacklistRequest blacklistRequest)
+        public async Task<LanguageKey> AddBlacklistAsync([FromBody] BlacklistRequest blacklistRequest)
         {
             var character = await _connectedAccountHttpClient.GetCharacterAsync(blacklistRequest.CharacterId, null).ConfigureAwait(false);
             var targetCharacter = await
@@ -82,22 +83,26 @@ namespace NosCore.MasterServer.Controllers
                 RelationType = CharacterRelationType.Blocked
             };
 
-            _characterRelationDao.InsertOrUpdate(ref data);
+            await _characterRelationDao.TryInsertOrUpdateAsync(data).ConfigureAwait(false);
             return LanguageKey.BLACKLIST_ADDED;
 
         }
 
         [HttpGet]
-        public async Task<List<CharacterRelationStatus>> GetBlacklisted(long id)
+        public async Task<List<CharacterRelationStatus>> GetBlacklistedAsync(long id)
         {
             var charList = new List<CharacterRelationStatus>();
             var list = _characterRelationDao
                 .Where(s => (s.CharacterId == id) && (s.RelationType == CharacterRelationType.Blocked));
+            if (list == null)
+            {
+                return charList;
+            }
             foreach (var rel in list)
             {
                 charList.Add(new CharacterRelationStatus
                 {
-                    CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId)?.Name ?? "",
+                    CharacterName = (await _characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId).ConfigureAwait(false))?.Name ?? "",
                     CharacterId = rel.RelatedCharacterId,
                     IsConnected = (await _connectedAccountHttpClient.GetCharacterAsync(rel.RelatedCharacterId, null).ConfigureAwait(false)).Item1 != null,
                     RelationType = rel.RelationType,
@@ -109,15 +114,15 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpDelete]
-        public IActionResult Delete(Guid id)
+        public async Task<IActionResult> DeleteAsync(Guid id)
         {
-            var rel = _characterRelationDao.FirstOrDefault(s =>
-                (s.CharacterRelationId == id) && (s.RelationType == CharacterRelationType.Blocked));
+            var rel = await _characterRelationDao.FirstOrDefaultAsync(s =>
+                (s.CharacterRelationId == id) && (s.RelationType == CharacterRelationType.Blocked)).ConfigureAwait(false);
             if (rel == null)
             {
                 return NotFound();
             }
-            _characterRelationDao.Delete(rel);
+            await _characterRelationDao.TryDeleteAsync(rel.CharacterRelationId).ConfigureAwait(false);
             return Ok();
         }
     }

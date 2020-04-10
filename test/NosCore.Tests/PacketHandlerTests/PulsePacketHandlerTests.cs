@@ -36,16 +36,16 @@ namespace NosCore.Tests.PacketHandlerTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             _pulsePacketHandler = new PulsePacketHandler();
             Broadcaster.Reset();
-            TestHelpers.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
         }
 
         [TestMethod]
-        public async Task Test_Pulse_Packet()
+        public async Task Test_Pulse_PacketAsync()
         {
             var pulsePacket = new PulsePacket
             {

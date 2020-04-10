@@ -48,7 +48,7 @@ namespace NosCore.WorldServer.Controllers
 
         // POST api/packet
         [HttpPost]
-        public async Task<IActionResult> PostPacket([FromBody] PostedPacket postedPacket)
+        public async Task<IActionResult> PostPacketAsync([FromBody] PostedPacket postedPacket)
         {
             if (!ModelState.IsValid)
             {

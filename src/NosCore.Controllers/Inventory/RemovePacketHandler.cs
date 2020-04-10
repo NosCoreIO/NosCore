@@ -28,19 +28,11 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using Serilog;
 
 namespace NosCore.PacketHandlers.Inventory
 {
     public class RemovePacketHandler : PacketHandler<RemovePacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-
-        public RemovePacketHandler(ILogger logger)
-        {
-            _logger = logger;
-        }
-
         public override async Task ExecuteAsync(RemovePacket removePacket, ClientSession clientSession)
         {
             var inventory =

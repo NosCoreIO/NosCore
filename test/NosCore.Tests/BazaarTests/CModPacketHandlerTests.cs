@@ -47,11 +47,11 @@ namespace NosCore.Tests.BazaarTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
             _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, Logger);
 
@@ -88,7 +88,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task ModifyWhenInExchange()
+        public async Task ModifyWhenInExchangeAsync()
         {
             _session!.Character.InShop = true;
             await _cmodPacketHandler!.ExecuteAsync(new CModPacket
@@ -102,7 +102,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task ModifyWhenNoItem()
+        public async Task ModifyWhenNoItemAsync()
         {
             await _cmodPacketHandler!.ExecuteAsync(new CModPacket
             {
@@ -116,7 +116,7 @@ namespace NosCore.Tests.BazaarTests
 
 
         [TestMethod]
-        public async Task ModifyWhenOtherSeller()
+        public async Task ModifyWhenOtherSellerAsync()
         {
             await _cmodPacketHandler!.ExecuteAsync(new CModPacket
             {
@@ -129,7 +129,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task ModifyWhenSold()
+        public async Task ModifyWhenSoldAsync()
         {
            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
            {
@@ -144,7 +144,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task ModifyWhenWrongAmount()
+        public async Task ModifyWhenWrongAmountAsync()
         {
             await _cmodPacketHandler!.ExecuteAsync(new CModPacket
             {
@@ -159,7 +159,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task ModifyWhenPriceSamePrice()
+        public async Task ModifyWhenPriceSamePriceAsync()
         {
            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
            {
@@ -172,7 +172,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task Modify()
+        public async Task ModifyAsync()
         {
             await _cmodPacketHandler!.ExecuteAsync(new CModPacket
             {

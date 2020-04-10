@@ -26,6 +26,7 @@ using NosCore.Packets.ClientPackets.Drops;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
@@ -43,6 +44,7 @@ using Serilog;
 using Map = NosCore.GameObject.Map.Map;
 using MapMonster = NosCore.Database.Entities.MapMonster;
 using MapNpc = NosCore.Database.Entities.MapNpc;
+using NosCore.Dao;
 
 namespace NosCore.PathFinder.Gui
 {
@@ -51,15 +53,13 @@ namespace NosCore.PathFinder.Gui
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private readonly byte _gridsize;
         private readonly Map _map;
+        private readonly DataAccessHelper _dbContextBuilder;
+        private readonly IDao<MapMonsterDto, int> _mapMonsterDao;
 
-        private readonly IGenericDao<MapMonsterDto> _mapMonsterDao =
-            new GenericDao<MapMonster, MapMonsterDto, long>(_logger);
-
-        private readonly IGenericDao<MapNpcDto> _mapNpcDao = new GenericDao<MapNpc, MapNpcDto, long>(_logger);
+        private readonly IDao<MapNpcDto, int> _mapNpcDao;
         private readonly List<GameObject.MapMonster> _monsters;
 
-        private readonly IGenericDao<NpcMonsterDto> _npcMonsterDao =
-            new GenericDao<NpcMonster, NpcMonsterDto, long>(_logger);
+        private readonly IDao<NpcMonsterDto, short> _npcMonsterDao;
 
         private readonly List<GameObject.MapNpc> _npcs;
         private readonly int _originalHeight;
@@ -68,9 +68,13 @@ namespace NosCore.PathFinder.Gui
         private double _gridsizeX;
         private double _gridsizeY;
 
-        public GuiWindow(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title) : base(
+        public GuiWindow(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title, DataAccessHelper dbContextBuilder) : base(
             width * gridsize, height * gridsize, mode, title)
         {
+            _dbContextBuilder = dbContextBuilder;
+            _mapMonsterDao = new Dao<MapMonster, MapMonsterDto, int>(_logger, _dbContextBuilder);
+            _mapNpcDao = new Dao<MapNpc, MapNpcDto, int>(_logger, _dbContextBuilder);
+            _npcMonsterDao = new Dao<NpcMonster, NpcMonsterDto, short>(_logger, _dbContextBuilder);
             _originalWidth = width * gridsize;
             _originalHeight = height * gridsize;
             _map = map;
@@ -78,7 +82,7 @@ namespace NosCore.PathFinder.Gui
             _gridsizeY = gridsize;
             _gridsize = gridsize;
             _monsters = _mapMonsterDao.Where(s => s.MapId == map.MapId)
-                .Adapt<List<GameObject.MapMonster>>();
+                ?.Adapt<List<GameObject.MapMonster>>() ?? new List<GameObject.MapMonster>();
             var npcMonsters = _npcMonsterDao.LoadAll().ToList();
             using var mapInstance =
                 new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance,
@@ -99,7 +103,7 @@ namespace NosCore.PathFinder.Gui
                 mapMonster.IsAlive = true;
             }
 
-            _npcs = _mapNpcDao.Where(s => s.MapId == map.MapId).Adapt<List<GameObject.MapNpc>>();
+            _npcs = _mapNpcDao.Where(s => s.MapId == map.MapId)?.Adapt<List<GameObject.MapNpc>>() ?? new List<GameObject.MapNpc>();
             foreach (var mapNpc in _npcs)
             {
                 mapNpc.PositionX = mapNpc.MapX;
@@ -112,8 +116,8 @@ namespace NosCore.PathFinder.Gui
                 mapNpc.IsAlive = true;
             }
 
-            Parallel.ForEach(_monsters.Where(s => s.Life == null), monster => monster.StartLife());
-            Parallel.ForEach(_npcs.Where(s => s.Life == null), npc => npc.StartLife());
+            Parallel.ForEach(_monsters.Where(s => s.Life == null), monster => monster.StartLifeAsync());
+            Parallel.ForEach(_npcs.Where(s => s.Life == null), npc => npc.StartLifeAsync());
             GetMap();
         }
 

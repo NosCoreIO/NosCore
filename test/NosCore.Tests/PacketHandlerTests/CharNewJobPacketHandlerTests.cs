@@ -38,53 +38,53 @@ namespace NosCore.Tests.PacketHandlerTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            TestHelpers.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _chara = _session.Character;
-            _session.SetCharacter(null);
+            await _session.SetCharacterAsync(null).ConfigureAwait(false);
             _charNewJobPacketHandler = new CharNewJobPacketHandler(TestHelpers.Instance.CharacterDao);
         }
 
         [TestMethod]
-        public async Task CreateMartialArtistWhenNoLevel80_Does_Not_Create_Character()
+        public async Task CreateMartialArtistWhenNoLevel80_Does_Not_Create_CharacterAsync()
         {
             const string name = "TestCharacter";
             await _charNewJobPacketHandler!.ExecuteAsync(new CharNewJobPacket
             {
                 Name = name
             }, _session!).ConfigureAwait(false);
-            Assert.IsNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
+            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
         }
 
         [TestMethod]
-        public async Task CreateMartialArtist_Works()
+        public async Task CreateMartialArtist_WorksAsync()
         {
             const string name = "TestCharacter";
             _chara!.Level = 80;
             CharacterDto character = _chara;
-            TestHelpers.Instance.CharacterDao.InsertOrUpdate(ref character);
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(character).ConfigureAwait(false);
             await _charNewJobPacketHandler!.ExecuteAsync(new CharNewJobPacket
             {
                 Name = name
             }, _session!).ConfigureAwait(false);
-            Assert.IsNotNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
+            Assert.IsNotNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
         }
 
         [TestMethod]
-        public async Task CreateMartialArtistWhenAlreadyOne_Does_Not_Create_Character()
+        public async Task CreateMartialArtistWhenAlreadyOne_Does_Not_Create_CharacterAsync()
         {
             const string name = "TestCharacter";
             _chara!.Class = CharacterClassType.MartialArtist;
             CharacterDto character = _chara;
             _chara.Level = 80;
-            TestHelpers.Instance.CharacterDao.InsertOrUpdate(ref character);
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(character).ConfigureAwait(false);
             await _charNewJobPacketHandler!.ExecuteAsync(new CharNewJobPacket
             {
                 Name = name
             }, _session!).ConfigureAwait(false);
-            Assert.IsNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
+            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
         }
     }
 }

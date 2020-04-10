@@ -146,20 +146,22 @@ namespace NosCore.GameObject.Networking.ClientSession
             Broadcaster.Instance.RegisterSession(this);
         }
 
-        public void SetCharacter(Character? character)
+        public Task SetCharacterAsync(Character? character)
         {
             _character = character;
             HasSelectedCharacter = character != null;
             if (character == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             Character.Session = this;
-            _minilandProvider.Initialize(character);
+            return _minilandProvider.InitializeAsync(character);
         }
 
+#pragma warning disable VSTHRD100 // Avoid async void methods
         public override async void ChannelRead(IChannelHandlerContext context, object message)
+#pragma warning restore VSTHRD100 // Avoid async void methods
         {
             if (!(message is IEnumerable<IPacket> buff))
             {
@@ -169,7 +171,9 @@ namespace NosCore.GameObject.Networking.ClientSession
             await HandlePacketsAsync(buff, context).ConfigureAwait(false);
         }
 
+#pragma warning disable VSTHRD100 // Avoid async void methods
         public override async void ChannelUnregistered(IChannelHandlerContext context)
+#pragma warning restore VSTHRD100 // Avoid async void methods
         {
             try
             {
@@ -201,9 +205,9 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                     await Character.LeaveGroupAsync().ConfigureAwait(false);
                     await Character.MapInstance.SendPacketAsync(Character.GenerateOut()).ConfigureAwait(false);
-                    Character.Save();
+                    await Character.SaveAsync().ConfigureAwait(false);
 
-                    _minilandProvider.DeleteMiniland(Character.CharacterId);
+                    await _minilandProvider.DeleteMinilandAsync(Character.CharacterId).ConfigureAwait(false);
                 }
 
                 Broadcaster.Instance.UnregisterSession(this);
@@ -335,19 +339,19 @@ namespace NosCore.GameObject.Networking.ClientSession
                 var mapSessions = Broadcaster.Instance.GetCharacters(s =>
                     (s != Character) && (s.MapInstance.MapInstanceId == Character.MapInstanceId));
 
-                Parallel.ForEach(mapSessions, s =>
+                await Task.WhenAll(mapSessions.Select(async s =>
                 {
-                    SendPacketAsync(s.GenerateIn(s.Authority == AuthorityType.Moderator
+                    await SendPacketAsync(s.GenerateIn(s.Authority == AuthorityType.Moderator
                         ? $"[{GameLanguage.Instance.GetMessageFromKey(LanguageKey.SUPPORT, s.AccountLanguage)}]"
-                        : string.Empty));
+                        : string.Empty)).ConfigureAwait(false);
                     if (s.Shop == null)
                     {
                         return;
                     }
 
-                    SendPacketAsync(s.GeneratePFlag());
-                    SendPacketAsync(s.GenerateShop(Account.Language));
-                });
+                    await SendPacketAsync(s.GeneratePFlag()).ConfigureAwait(false);
+                    await SendPacketAsync(s.GenerateShop(Account.Language)).ConfigureAwait(false);
+                })).ConfigureAwait(false);
                 await Character.SendPacketsAsync(Character.Quests.Values.Where(q => q.Quest.TargetMap == Character.MapId)
                     .Select(qst => qst.Quest.GenerateTargetPacket())).ConfigureAwait(false);
                 await Character.MapInstance.SendPacketAsync(Character.GenerateTitInfo()).ConfigureAwait(false);

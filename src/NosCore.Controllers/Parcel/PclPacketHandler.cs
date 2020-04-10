@@ -26,8 +26,10 @@ using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Database;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.MailHttpClient;
@@ -39,12 +41,12 @@ namespace NosCore.PacketHandlers.Parcel
 {
     public class PclPacketHandler : PacketHandler<PclPacket>, IWorldPacketHandler
     {
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly IItemProvider _itemProvider;
         private readonly IMailHttpClient _mailHttpClient;
 
         public PclPacketHandler(IMailHttpClient mailHttpClient, IItemProvider itemProvider,
-            IGenericDao<IItemInstanceDto> itemInstanceDao)
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao)
         {
             _mailHttpClient = mailHttpClient;
             _itemProvider = itemProvider;
@@ -62,7 +64,7 @@ namespace NosCore.PacketHandlers.Parcel
 
             if ((getGiftPacket.Type == 4) && (mail.ItemInstance != null))
             {
-                var itemInstance = _itemInstanceDao.FirstOrDefault(s => s.Id == mail.ItemInstance.Id);
+                var itemInstance = await _itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == mail.ItemInstance.Id).ConfigureAwait(false);
                 var item = _itemProvider.Convert(itemInstance!);
                 item.Id = Guid.NewGuid();
                 var newInv = clientSession.Character.InventoryService

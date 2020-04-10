@@ -48,7 +48,7 @@ namespace NosCore.Tests.GuriHandlerTests
         private Mock<ILogger>? _logger;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             var items = new List<ItemDto>
             {
@@ -57,7 +57,7 @@ namespace NosCore.Tests.GuriHandlerTests
             _itemProvider = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
 
-            Session = TestHelpers.Instance.GenerateSession();
+            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _logger = new Mock<ILogger>();
             Handler = new SpeakerGuriHandler(_logger.Object);
             Broadcaster.Instance.LastPackets.Clear();
@@ -83,7 +83,7 @@ namespace NosCore.Tests.GuriHandlerTests
 
 
         [TestMethod]
-        public async Task Test_SpeakerWithItemDoesNotExist()
+        public async Task Test_SpeakerWithItemDoesNotExistAsync()
         {
             Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
             await ExecuteGuriEventHandlerAsync(new GuriPacket
@@ -102,7 +102,7 @@ namespace NosCore.Tests.GuriHandlerTests
 
 
         [TestMethod]
-        public async Task Test_SpeakerWithoutItem()
+        public async Task Test_SpeakerWithoutItemAsync()
         {
             Session!.Character.InventoryService!.AddItemToPocket(
                 InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
@@ -119,7 +119,7 @@ namespace NosCore.Tests.GuriHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_SpeakerWithNoSpeaker()
+        public async Task Test_SpeakerWithNoSpeakerAsync()
         {
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {

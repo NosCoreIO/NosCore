@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Shops
             _logger = logger;
         }
 
-        public override Task ExecuteAsync(ShoppingPacket shoppingPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(ShoppingPacket shoppingPacket, ClientSession clientSession)
         {
             var shopRate = new Tuple<double, byte>(0, 0);
             IAliveEntity? aliveEntity;
@@ -59,18 +59,17 @@ namespace NosCore.PacketHandlers.Shops
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
                         shoppingPacket.VisualType);
-                    return Task.CompletedTask;
+                    return;
             }
 
             if (aliveEntity == null)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
-                return Task.CompletedTask;
+                return;
             }
 
 
-            clientSession.SendPacketAsync(aliveEntity.GenerateNInv(shopRate.Item1, shoppingPacket.ShopType, shopRate.Item2));
-            return Task.CompletedTask;
+            await clientSession.SendPacketAsync(aliveEntity.GenerateNInv(shopRate.Item1, shoppingPacket.ShopType, shopRate.Item2)).ConfigureAwait(false);
         }
     }
 }

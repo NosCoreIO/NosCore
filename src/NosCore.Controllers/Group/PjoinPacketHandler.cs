@@ -170,9 +170,9 @@ namespace NosCore.PacketHandlers.Group
                             clientSession.Account.Language)
                     }).ConfigureAwait(false);
 
-                    clientSession.Character.Group.Values
+                    await Task.WhenAll(clientSession.Character.Group.Values
                         .Where(s => s.Item2.VisualId != clientSession.Character.CharacterId)
-                        .ToList().ForEach(s =>
+                        .Select(s =>
                         {
                             var session =
                                 Broadcaster.Instance.GetCharacter(v =>
@@ -180,11 +180,11 @@ namespace NosCore.PacketHandlers.Group
 
                             if (session == null)
                             {
-                                return;
+                                return Task.CompletedTask;
                             }
 
                             session.GroupRequestCharacterIds.TryAdd(s.Item2.VisualId, s.Item2.VisualId);
-                            session.SendPacketAsync(new DlgPacket
+                            return session.SendPacketAsync(new DlgPacket
                             {
                                 Question = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVITED_GROUP_SHARE,
                                     clientSession.Account.Language),
@@ -199,7 +199,7 @@ namespace NosCore.PacketHandlers.Group
                                     RequestType = GroupRequestType.DeclinedShare
                                 }
                             });
-                        });
+                        })).ConfigureAwait(false);
 
                     break;
                 case GroupRequestType.Accepted:

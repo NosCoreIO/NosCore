@@ -59,12 +59,12 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             SystemTime.Freeze();
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _wearPacketHandler = new WearPacketHandler();
         }
 
@@ -86,7 +86,7 @@ namespace NosCore.Tests.InventoryTests
         [DataRow(EquipmentType.CostumeHat)]
         [DataRow(EquipmentType.WeaponSkin)]
         [DataRow(EquipmentType.WingSkin)]
-        public async Task Test_Wear_Put_Item_CorrectSlot(EquipmentType type)
+        public async Task Test_Wear_Put_Item_CorrectSlotAsync(EquipmentType type)
         {
             var items = new List<ItemDto>
             {
@@ -113,7 +113,7 @@ namespace NosCore.Tests.InventoryTests
         [DataRow(CharacterClassType.Magician)]
         [DataRow(CharacterClassType.MartialArtist)]
         [DataRow(CharacterClassType.Swordman)]
-        public async Task Test_Wear_Put_Item_BadClass(CharacterClassType classToTest)
+        public async Task Test_Wear_Put_Item_BadClassAsync(CharacterClassType classToTest)
         {
             _session!.Character.Class = classToTest;
             var items = new List<ItemDto>
@@ -152,7 +152,7 @@ namespace NosCore.Tests.InventoryTests
         [DataTestMethod]
         [DataRow(GenderType.Female)]
         [DataRow(GenderType.Male)]
-        public async Task Test_Wear_Put_Item_BadGender(GenderType genderToTest)
+        public async Task Test_Wear_Put_Item_BadGenderAsync(GenderType genderToTest)
         {
             _session!.Character.Gender = genderToTest;
             var items = new List<ItemDto>
@@ -213,7 +213,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Wear_GoodJobLevel()
+        public async Task Test_Wear_GoodJobLevelAsync()
         {
             _session!.Character.JobLevel = 3;
             var items = new List<ItemDto>
@@ -235,7 +235,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Wear_BadLevel()
+        public async Task Test_Wear_BadLevelAsync()
         {
             _session!.Character.Level = 1;
             var items = new List<ItemDto>
@@ -260,7 +260,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Wear_GoodLevel()
+        public async Task Test_Wear_GoodLevelAsync()
         {
             _session!.Character.Level = 3;
             var items = new List<ItemDto>
@@ -282,7 +282,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Wear_BadHeroLevel()
+        public async Task Test_Wear_BadHeroLevelAsync()
         {
             _session!.Character.HeroLevel = 1;
             var items = new List<ItemDto>
@@ -331,7 +331,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Wear_DestroyedSp()
+        public async Task Test_Wear_DestroyedSpAsync()
         {
             _session!.Character.HeroLevel = 1;
             var items = new List<ItemDto>
@@ -356,7 +356,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Wear_SpInUse()
+        public async Task Test_Wear_SpInUseAsync()
         {
             _session!.Character.HeroLevel = 1;
             var items = new List<ItemDto>
@@ -426,7 +426,7 @@ namespace NosCore.Tests.InventoryTests
 
 
         [TestMethod]
-        public async Task Test_Wear_WearFairy_SpUseBadElement()
+        public async Task Test_Wear_WearFairy_SpUseBadElementAsync()
         {
             var items = new List<ItemDto>
             {
@@ -461,7 +461,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Wear_WearFairy_SpUseGoodElement()
+        public async Task Test_Wear_WearFairy_SpUseGoodElementAsync()
         {
             var items = new List<ItemDto>
             {
@@ -494,7 +494,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Wear_WearFairy_SpUseGoodSecondElement()
+        public async Task Test_Wear_WearFairy_SpUseGoodSecondElementAsync()
         {
             var items = new List<ItemDto>
             {
@@ -527,7 +527,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Binding_Required()
+        public async Task Test_Binding_RequiredAsync()
         {
             var items = new List<ItemDto>
             {

@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Command
             _packetHttpClient = packetHttpClient;
         }
 
-        public override Task ExecuteAsync(ShoutPacket shoutPacket, ClientSession session)
+        public override async Task ExecuteAsync(ShoutPacket shoutPacket, ClientSession session)
         {
             var message =
                 $"({GameLanguage.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, session.Account.Language)}) {shoutPacket.Message}";
@@ -81,8 +81,7 @@ namespace NosCore.PacketHandlers.Command
                 ReceiverType = ReceiverType.All
             };
 
-            _packetHttpClient.BroadcastPacketsAsync(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket}));
-            return Task.CompletedTask;
+            await _packetHttpClient.BroadcastPacketsAsync(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket})).ConfigureAwait(false);
         }
     }
 }

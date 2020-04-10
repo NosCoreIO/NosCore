@@ -28,7 +28,7 @@ namespace NosCore.Database.DAL
 {
     public static class DbContextFindAllExtensions
     {
-        public static IQueryable<T> FindAllAsync<T, TKey>(this DbSet<T> dbSet, PropertyInfo keyProperty,
+        public static IQueryable<T> FindAll<T, TKey>(this DbSet<T> dbSet, PropertyInfo keyProperty,
             params TKey[] keyValues)
         where T : class
         {

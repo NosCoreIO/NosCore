@@ -23,6 +23,7 @@ using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -34,10 +35,10 @@ namespace NosCore.PacketHandlers.Parcel
 {
     public class PstClientPacketHandler : PacketHandler<PstClientPacket>, IWorldPacketHandler
     {
-        private readonly IGenericDao<CharacterDto> _characterDao;
+        private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IMailHttpClient _mailHttpClient;
 
-        public PstClientPacketHandler(IMailHttpClient mailHttpClient, IGenericDao<CharacterDto> characterDao)
+        public PstClientPacketHandler(IMailHttpClient mailHttpClient, IDao<CharacterDto, long> characterDao)
         {
             _mailHttpClient = mailHttpClient;
             _characterDao = characterDao;
@@ -79,7 +80,7 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    var dest = _characterDao.FirstOrDefault(s => s.Name == pstClientPacket.ReceiverName);
+                    var dest = await _characterDao.FirstOrDefaultAsync(s => s.Name == pstClientPacket.ReceiverName).ConfigureAwait(false);
                     if (dest != null)
                     {
                         await _mailHttpClient.SendMessageAsync(clientSession.Character, dest.CharacterId, pstClientPacket.Title,

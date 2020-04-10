@@ -23,12 +23,14 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Threading;
 using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using Serilog;
 
 namespace NosCore.WorldServer
@@ -40,15 +42,17 @@ namespace NosCore.WorldServer
         private readonly ILogger _logger;
         private readonly NetworkManager _networkManager;
         private readonly WorldConfiguration _worldConfiguration;
+        private readonly IMapInstanceProvider _mapInstanceProvider;
 
         public WorldServer(WorldConfiguration worldConfiguration, NetworkManager networkManager,
-            IEnumerable<IGlobalEvent> events, ILogger logger, IChannelHttpClient channelHttpClient)
+            IEnumerable<IGlobalEvent> events, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceProvider mapInstanceProvider)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
             _events = events.ToList();
             _logger = logger;
             _channelHttpClient = channelHttpClient;
+            _mapInstanceProvider = mapInstanceProvider;
         }
 
         public async Task RunAsync()
@@ -58,12 +62,13 @@ namespace NosCore.WorldServer
                 return;
             }
 
+            await _mapInstanceProvider.InitializeAsync().ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
-            _events.ForEach(e => { Observable.Interval(e.Delay).Subscribe(_ => e.Execution()); });
+            _events.ForEach(e => { Observable.Interval(e.Delay).Subscribe(_ => e.ExecutionAsync()); });
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
                 var eventSaveAll = new SaveAll();
-                eventSaveAll.Execution();
+                eventSaveAll.ExecutionAsync().Forget();
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHANNEL_WILL_EXIT));
                 Thread.Sleep(30000);
             };

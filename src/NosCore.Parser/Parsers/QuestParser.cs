@@ -21,8 +21,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
@@ -51,14 +53,14 @@ namespace NosCore.Parser.Parsers
     {
         private readonly string _fileQuestDat = $"{Path.DirectorySeparatorChar}quest.dat";
         private readonly ILogger _logger;
-        private readonly IGenericDao<QuestDto> _questDao;
-        private readonly IGenericDao<QuestObjectiveDto> _questObjectiveDao;
-        private readonly IGenericDao<QuestQuestRewardDto> _questQuestRewardDao;
-        private readonly IGenericDao<QuestRewardDto> _questRewardDao;
+        private readonly IDao<QuestDto, short> _questDao;
+        private readonly IDao<QuestObjectiveDto, Guid> _questObjectiveDao;
+        private readonly IDao<QuestQuestRewardDto, Guid> _questQuestRewardDao;
+        private readonly IDao<QuestRewardDto, short> _questRewardDao;
         private Dictionary<short, QuestRewardDto>? _questRewards;
 
-        public QuestParser(IGenericDao<QuestDto> questDao, IGenericDao<QuestObjectiveDto> questObjectiveDao,
-            IGenericDao<QuestRewardDto> questRewardDao, IGenericDao<QuestQuestRewardDto> questQuestRewardDao, ILogger logger)
+        public QuestParser(IDao<QuestDto, short> questDao, IDao<QuestObjectiveDto, Guid> questObjectiveDao,
+            IDao<QuestRewardDto, short> questRewardDao, IDao<QuestQuestRewardDto, Guid> questQuestRewardDao, ILogger logger)
         {
             _logger = logger;
             _questDao = questDao;
@@ -67,7 +69,7 @@ namespace NosCore.Parser.Parsers
             _questRewardDao = questRewardDao;
         }
 
-        public void ImportQuests(string folder)
+        public async Task ImportQuestsAsync(string folder)
         {
             _questRewards = _questRewardDao.LoadAll().ToDictionary(x => x.QuestRewardId, x => x);
 
@@ -93,11 +95,11 @@ namespace NosCore.Parser.Parsers
                 {nameof(QuestDto.QuestObjective), ImportQuestObjectives},
             };
             var genericParser = new GenericParser<QuestDto>(folder + _fileQuestDat, "END", 0, actionList, _logger);
-            var quests = genericParser.GetDtos();
+            var quests = await genericParser.GetDtosAsync().ConfigureAwait(false);
 
-            _questDao.InsertOrUpdate(quests);
-            _questQuestRewardDao.InsertOrUpdate(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward));
-            _questObjectiveDao.InsertOrUpdate(quests.Where(s => s.QuestObjective != null).SelectMany(s => s.QuestObjective));
+            await _questDao.TryInsertOrUpdateAsync(quests).ConfigureAwait(false);
+            await _questQuestRewardDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward)).ConfigureAwait(false);
+            await _questObjectiveDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestObjective != null).SelectMany(s => s.QuestObjective)).ConfigureAwait(false);
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUESTS_PARSED), quests.Count);
         }

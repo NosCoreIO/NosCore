@@ -41,17 +41,17 @@ namespace NosCore.Tests.BazaarTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _session.Character.StaticBonusList = new List<StaticBonusDto>();
             _cskillPacketHandler = new CSkillPacketHandler();
         }
 
         [TestMethod]
-        public async Task OpenWhenInShop()
+        public async Task OpenWhenInShopAsync()
         {
             _session!.Character.InShop = true;
             await _session!.HandlePacketsAsync(new[]
@@ -63,7 +63,7 @@ namespace NosCore.Tests.BazaarTests
 
 
         [TestMethod]
-        public async Task OpenWhenNoMedal()
+        public async Task OpenWhenNoMedalAsync()
         {
             await _cskillPacketHandler!.ExecuteAsync(new CSkillPacket(), _session!).ConfigureAwait(false);
             var lastpacket = (InfoPacket?) _session!.LastPackets.FirstOrDefault(s => s is InfoPacket);
@@ -72,7 +72,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task Open()
+        public async Task OpenAsync()
         {
             _session!.Character.StaticBonusList.Add(new StaticBonusDto
             {

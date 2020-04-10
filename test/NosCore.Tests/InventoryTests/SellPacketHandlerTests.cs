@@ -49,19 +49,18 @@ namespace NosCore.Tests.InventoryTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
-            TestHelpers.Reset();
             _instanceProvider = TestHelpers.Instance.MapInstanceProvider;
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _sellPacketHandler = new SellPacketHandler(TestHelpers.Instance.WorldConfiguration);
         }
 
 
         [TestMethod]
-        public async Task UserCanNotSellInExchange()
+        public async Task UserCanNotSellInExchangeAsync()
         {
             _session!.Character.InShop = true;
             var items = new List<ItemDto>
@@ -86,7 +85,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task UserCanNotSellNotSoldable()
+        public async Task UserCanNotSellNotSoldableAsync()
         {
             var items = new List<ItemDto>
             {
@@ -113,7 +112,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task UserCanSell()
+        public async Task UserCanSellAsync()
         {
             var items = new List<ItemDto>
             {

@@ -18,15 +18,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 namespace NosCore.Parser.Parsers
 {
     public class DropParser
     {
-        private readonly IGenericDao<DropDto> _dropDao; 
-        public DropParser(IGenericDao<DropDto> dropDao) { 
+        private readonly IDao<DropDto, short> _dropDao; 
+        public DropParser(IDao<DropDto, short> dropDao) { 
             _dropDao = dropDao; 
         }
         public DropDto GenerateDropDto(short vnum, int amount, short? monsterVNum, int dropChance, short mapTypeId) { 
@@ -39,7 +41,7 @@ namespace NosCore.Parser.Parsers
             };
         }
 
-        public void InsertDrop()
+        public Task InsertDropAsync()
         {
             var drops = new List<DropDto> {
                 // Act 1 
@@ -548,7 +550,7 @@ namespace NosCore.Parser.Parsers
                 GenerateDropDto(5119, 1, null, 100, (short)MapTypeType.LandOfTheDead )
             };
             IEnumerable<DropDto> dropDtos = drops;
-            _dropDao.InsertOrUpdate(dropDtos);
+            return _dropDao.TryInsertOrUpdateAsync(dropDtos);
         }
     }
 }

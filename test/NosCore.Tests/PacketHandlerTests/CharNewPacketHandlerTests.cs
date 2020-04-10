@@ -46,20 +46,20 @@ namespace NosCore.Tests.PacketHandlerTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            TestHelpers.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _chara = _session.Character;
-            _session.SetCharacter(null);
+            await _session.SetCharacterAsync(null).ConfigureAwait(false);
             _charNewPacketHandler =
                 new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.MinilandDao);
         }
 
         [TestMethod]
-        public async Task CreateCharacterWhenInGame_Does_Not_Create_Character()
+        public async Task CreateCharacterWhenInGame_Does_Not_Create_CharacterAsync()
         {
-            _session!.SetCharacter(_chara);
+            await _session!.SetCharacterAsync(_chara).ConfigureAwait(false);
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
@@ -69,34 +69,34 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 Name = name
             }, _session).ConfigureAwait(false);
-            Assert.IsNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
+            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
         }
 
         [TestMethod]
-        public async Task CreateCharacter()
+        public async Task CreateCharacterAsync()
         {
             const string name = "TestCharacter";
             await _charNewPacketHandler!.ExecuteAsync(new CharNewPacket
             {
                 Name = name
             }, _session!).ConfigureAwait(false);
-            Assert.IsNotNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
+            Assert.IsNotNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
         }
 
 
         [TestMethod]
-        public async Task InvalidName_Does_Not_Create_Character()
+        public async Task InvalidName_Does_Not_Create_CharacterAsync()
         {
             const string name = "Test Character";
             await _charNewPacketHandler!.ExecuteAsync(new CharNewPacket
             {
                 Name = name
             }, _session!).ConfigureAwait(false);
-            Assert.IsNull(TestHelpers.Instance.CharacterDao.FirstOrDefault(s => s.Name == name));
+            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
         }
 
         [TestMethod]
-        public async Task ExistingName_Does_Not_Create_Character()
+        public async Task ExistingName_Does_Not_Create_CharacterAsync()
         {
             const string name = "TestExistingCharacter";
             await _charNewPacketHandler!.ExecuteAsync(new CharNewPacket
@@ -107,7 +107,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task NotEmptySlot_Does_Not_Create_Character()
+        public async Task NotEmptySlot_Does_Not_Create_CharacterAsync()
         {
             const string name = "TestCharacter";
             await _charNewPacketHandler!.ExecuteAsync(new CharNewPacket

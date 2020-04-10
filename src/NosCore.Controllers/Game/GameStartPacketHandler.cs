@@ -187,7 +187,7 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.Character.LastPVPRevive = SystemTime.Now;
 
-            //            long? familyId = _familyCharacterDAO.FirstOrDefault(s => s.CharacterId == Session.Character.CharacterId)?.FamilyId;
+            //            long? familyId = _familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == Session.Character.CharacterId)?.FamilyId;
             //            if (familyId != null)
             //            {
             //                Session.Character.Family = ServerManager.Instance.FamilyList.FirstOrDefault(s => s.FamilyId == familyId.Value);

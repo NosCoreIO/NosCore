@@ -29,6 +29,7 @@ namespace NosCore.Tests.Helpers
         [AssemblyInitialize]
         public static void AssemblyInit(TestContext _)
         {
+            TestHelpers.Instance.InitDatabase();
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
         }

@@ -20,8 +20,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Quest;
 using NosCore.Data.StaticEntities;
@@ -41,16 +43,16 @@ namespace NosCore.Parser.Parsers
     {
         private readonly string _fileQuestPrizeDat = $"{Path.DirectorySeparatorChar}qstprize.dat";
         private readonly ILogger _logger;
-        private readonly IGenericDao<QuestRewardDto> _questRewardDtoDao;
+        private readonly IDao<QuestRewardDto, short> _questRewardDtoDao;
 
 
-        public QuestPrizeParser(IGenericDao<QuestRewardDto> questRewardDtoDao, ILogger logger)
+        public QuestPrizeParser(IDao<QuestRewardDto, short> questRewardDtoDao, ILogger logger)
         {
             _logger = logger;
             _questRewardDtoDao = questRewardDtoDao;
         }
 
-        public void ImportQuestPrizes(string folder)
+        public async Task ImportQuestPrizesAsync(string folder)
         {
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
@@ -60,8 +62,8 @@ namespace NosCore.Parser.Parsers
                 {nameof(QuestRewardDto.Amount), chunk => ImportAmount(chunk)},
             };
             var genericParser = new GenericParser<QuestRewardDto>(folder + _fileQuestPrizeDat, "END", 0, actionList, _logger);
-            var questRewardDtos = genericParser.GetDtos();
-            _questRewardDtoDao.InsertOrUpdate(questRewardDtos);
+            var questRewardDtos = await genericParser.GetDtosAsync().ConfigureAwait(false);
+            await _questRewardDtoDao.TryInsertOrUpdateAsync(questRewardDtos).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUEST_PRIZES_PARSED), questRewardDtos.Count);
         }
 

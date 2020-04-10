@@ -19,8 +19,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
@@ -32,15 +34,15 @@ namespace NosCore.Parser.Parsers
     {
         private readonly ILogger _logger;
 
-        private readonly IGenericDao<RespawnMapTypeDto> _respawnMapTypeDao;
+        private readonly IDao<RespawnMapTypeDto, long> _respawnMapTypeDao;
 
-        public RespawnMapTypeParser(IGenericDao<RespawnMapTypeDto> respawnMapTypeDao, ILogger logger)
+        public RespawnMapTypeParser(IDao<RespawnMapTypeDto, long> respawnMapTypeDao, ILogger logger)
         {
             _respawnMapTypeDao = respawnMapTypeDao;
             _logger = logger;
         }
 
-        internal void InsertRespawnMapType()
+        internal async Task InsertRespawnMapTypeAsync()
         {
             var respawnmaptypemaps = new List<RespawnMapTypeDto>
             {
@@ -101,7 +103,7 @@ namespace NosCore.Parser.Parsers
                     Name = "DefaultOasis"
                 }
             };
-            _respawnMapTypeDao.InsertOrUpdate(respawnmaptypemaps);
+            await _respawnMapTypeDao.TryInsertOrUpdateAsync(respawnmaptypemaps).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.RESPAWNTYPE_PARSED),
                 respawnmaptypemaps.Count());
         }

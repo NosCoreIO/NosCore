@@ -18,16 +18,21 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection.Metadata.Ecma335;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
 
@@ -41,34 +46,38 @@ namespace NosCore.Tests.BazaarTests
         private BazaarController? _bazaarController;
         private BazaarItemsHolder? _bazaarItemsHolder;
         private Guid _guid;
-        private Mock<IGenericDao<BazaarItemDto>>? _mockBzDao;
-        private Mock<IGenericDao<IItemInstanceDto>>? _mockItemDao;
+        private Mock<IDao<BazaarItemDto, long>>? _mockBzDao;
+        private Mock<IDao<IItemInstanceDto?, Guid>>? _mockItemDao;
 
 
         [TestInitialize]
         public void Setup()
         {
             _guid = Guid.NewGuid();
-            _mockBzDao = new Mock<IGenericDao<BazaarItemDto>>();
-            _mockItemDao = new Mock<IGenericDao<IItemInstanceDto>>();
+            _mockBzDao = new Mock<IDao<BazaarItemDto, long>>();
+            _mockItemDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
 
-            var mockCharacterDao = new Mock<IGenericDao<CharacterDto>>();
+            var mockCharacterDao = new Mock<IDao<CharacterDto, long>>();
             _bazaarItemsHolder =
                 new BazaarItemsHolder(_mockBzDao.Object, _mockItemDao.Object, mockCharacterDao.Object);
             _bazaarController = new BazaarController(_bazaarItemsHolder, _mockBzDao.Object, _mockItemDao.Object);
+            _mockItemDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?> ()))
+                .Returns<IItemInstanceDto?>(Task.FromResult);
+            _mockBzDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<BazaarItemDto>()))
+                .Returns<BazaarItemDto>(Task.FromResult);
         }
 
         [TestMethod]
-        public void AddToBazaarAllStack()
+        public async Task AddToBazaarAllStackAsync()
         {
             _mockItemDao!
-                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                .Returns(new ItemInstanceDto
+                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto
                 {
                     Id = _guid,
                     Amount = 99
                 });
-            var add = _bazaarController!.AddBazaar(
+            var add = await _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 99,
@@ -79,23 +88,23 @@ namespace NosCore.Tests.BazaarTests
                     IsPackage = false,
                     ItemInstanceId = _guid,
                     Price = 50
-                });
+                }).ConfigureAwait(false);
             Assert.AreEqual(_guid, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.ItemInstanceId);
             Assert.AreEqual(99, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.Amount ?? 0);
             Assert.AreEqual(LanguageKey.OBJECT_IN_BAZAAR, add);
         }
 
         [TestMethod]
-        public void AddToBazaarPartialStack()
+        public async Task AddToBazaarPartialStackAsync()
         {
             _mockItemDao!
-                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                .Returns(new ItemInstanceDto
+                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto
                 {
                     Id = _guid,
                     Amount = 99
                 });
-            var add = _bazaarController!.AddBazaar(
+            var add = await _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 50,
@@ -106,23 +115,23 @@ namespace NosCore.Tests.BazaarTests
                     IsPackage = false,
                     ItemInstanceId = _guid,
                     Price = 50
-                });
+                }).ConfigureAwait(false);
             Assert.AreNotEqual(_guid, _bazaarItemsHolder!.BazaarItems[0].BazaarItem?.ItemInstanceId);
             Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Amount ?? 0);
             Assert.AreEqual(LanguageKey.OBJECT_IN_BAZAAR, add);
         }
 
         [TestMethod]
-        public void AddToBazaarNegativeAmount()
+        public async Task AddToBazaarNegativeAmountAsync()
         {
             _mockItemDao!
-                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                .Returns(new ItemInstanceDto
+                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto
                 {
                     Id = _guid,
                     Amount = 99
                 });
-            Assert.ThrowsException<ArgumentException>(() => _bazaarController!.AddBazaar(
+            await Assert.ThrowsExceptionAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = -50,
@@ -133,20 +142,20 @@ namespace NosCore.Tests.BazaarTests
                     IsPackage = false,
                     ItemInstanceId = _guid,
                     Price = 50
-                }));
+                })).ConfigureAwait(false);
         }
 
         [TestMethod]
-        public void AddToBazaarNegativePrice()
+        public async Task AddToBazaarNegativePriceAsync()
         {
             _mockItemDao!
-                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                .Returns(new ItemInstanceDto
+                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto
                 {
                     Id = _guid,
                     Amount = 99
                 });
-            Assert.ThrowsException<ArgumentException>(() => _bazaarController!.AddBazaar(
+            await Assert.ThrowsExceptionAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 50,
@@ -157,20 +166,20 @@ namespace NosCore.Tests.BazaarTests
                     IsPackage = false,
                     ItemInstanceId = _guid,
                     Price = -50
-                }));
+                })).ConfigureAwait(false);
         }
 
         [TestMethod]
-        public void AddToBazaarMoreThanItem()
+        public async Task AddToBazaarMoreThanItemAsync()
         {
             _mockItemDao!
-                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                .Returns(new ItemInstanceDto
+                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto
                 {
                     Id = _guid,
                     Amount = 99
                 });
-            Assert.ThrowsException<ArgumentException>(() => _bazaarController!.AddBazaar(
+            await Assert.ThrowsExceptionAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 100,
@@ -181,13 +190,13 @@ namespace NosCore.Tests.BazaarTests
                     IsPackage = false,
                     ItemInstanceId = _guid,
                     Price = 100
-                }));
+                })).ConfigureAwait(false);
         }
 
         [TestMethod]
-        public void AddToBazaarNullItem()
+        public async Task AddToBazaarNullItemAsync()
         {
-            Assert.ThrowsException<ArgumentException>(() => _bazaarController!.AddBazaar(
+            await Assert.ThrowsExceptionAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 50,
@@ -198,32 +207,34 @@ namespace NosCore.Tests.BazaarTests
                     IsPackage = false,
                     ItemInstanceId = _guid,
                     Price = 100
-                }));
+                })).ConfigureAwait(false);
         }
 
         [TestMethod]
-        public void AddMoreThanLimit()
+        public async Task AddMoreThanLimitAsync()
         {
             var rand = new Random();
-            _mockBzDao!.Setup(m => m.InsertOrUpdate(ref It.Ref<BazaarItemDto>.IsAny))
-                .Returns((DelegateInsert)((ref BazaarItemDto y) =>
+            _mockBzDao!.Setup(m => m.TryInsertOrUpdateAsync(It.IsAny<BazaarItemDto>()))
+                .Returns((BazaarItemDto y) =>
                {
                    y.BazaarItemId = rand.Next(0, 9999999);
-                   return SaveResult.Saved;
-               }));
+                   return Task.FromResult(y);
+               });
             LanguageKey? add = null;
             for (var i = 0; i < 12; i++)
             {
                 var guid = Guid.NewGuid();
                 _mockItemDao.Reset();
+                _mockItemDao!.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
+                    .Returns<IItemInstanceDto?>(Task.FromResult);
                 _mockItemDao!
-                    .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                    .Returns(new ItemInstanceDto
+                    .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                    .ReturnsAsync(new ItemInstanceDto
                     {
                         Id = guid,
                         Amount = 99
                     });
-                add = _bazaarController!.AddBazaar(
+                add = await _bazaarController!.AddBazaarAsync(
                     new BazaarRequest
                     {
                         Amount = 99,
@@ -234,7 +245,7 @@ namespace NosCore.Tests.BazaarTests
                         IsPackage = false,
                         ItemInstanceId = guid,
                         Price = 50
-                    });
+                    }).ConfigureAwait(false);
             }
 
             Assert.AreEqual(10, _bazaarItemsHolder!.BazaarItems.Count);
@@ -242,16 +253,16 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public void DeleteFromBazaarNegativeCount()
+        public async Task DeleteFromBazaarNegativeCountAsync()
         {
             _mockItemDao!
-                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                .Returns(new ItemInstanceDto
+                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto
                 {
                     Id = _guid,
                     Amount = 99
                 });
-            var add = _bazaarController!.AddBazaar(
+            await _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 99,
@@ -262,21 +273,21 @@ namespace NosCore.Tests.BazaarTests
                     IsPackage = false,
                     ItemInstanceId = _guid,
                     Price = 50
-                });
-            Assert.AreEqual(false, _bazaarController.DeleteBazaar(0, -1, "test"));
+                }).ConfigureAwait(false);
+            Assert.AreEqual(false, await _bazaarController.DeleteBazaarAsync(0, -1, "test").ConfigureAwait(false));
         }
 
         [TestMethod]
-        public void DeleteFromBazaarMoreThanRegistered()
+        public async Task DeleteFromBazaarMoreThanRegisteredAsync()
         {
             _mockItemDao!
-                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                .Returns(new ItemInstanceDto
+                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto
                 {
                     Id = _guid,
                     Amount = 99
                 });
-            var add = _bazaarController!.AddBazaar(
+           await _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 99,
@@ -287,21 +298,21 @@ namespace NosCore.Tests.BazaarTests
                     IsPackage = false,
                     ItemInstanceId = _guid,
                     Price = 50
-                });
-            Assert.AreEqual(false, _bazaarController.DeleteBazaar(0, 100, "test"));
+                }).ConfigureAwait(false);
+            Assert.AreEqual(false, await _bazaarController.DeleteBazaarAsync(0, 100, "test").ConfigureAwait(false));
         }
 
         [TestMethod]
-        public void DeleteFromBazaarSomeoneElse()
+        public async Task DeleteFromBazaarSomeoneElseAsync()
         {
             _mockItemDao!
-                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                .Returns(new ItemInstanceDto
+                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto
                 {
                     Id = _guid,
                     Amount = 99
                 });
-            var add = _bazaarController!.AddBazaar(
+             await _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 99,
@@ -312,24 +323,24 @@ namespace NosCore.Tests.BazaarTests
                     IsPackage = false,
                     ItemInstanceId = _guid,
                     Price = 50
-                });
-            Assert.AreEqual(true, _bazaarController.DeleteBazaar(0, 99, "test2"));
+                }).ConfigureAwait(false);
+            Assert.AreEqual(true, await _bazaarController.DeleteBazaarAsync(0, 99, "test2").ConfigureAwait(false));
             Assert.AreEqual(1, _bazaarItemsHolder!.BazaarItems.Values.Count);
             Assert.AreEqual(0, _bazaarItemsHolder.BazaarItems[0].ItemInstance?.Amount ?? 0);
             Assert.AreEqual(99, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Amount ?? 0);
         }
 
         [TestMethod]
-        public void DeleteFromUserBazaar()
+        public async Task DeleteFromUserBazaarAsync()
         {
             _mockItemDao!
-                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                .Returns(new ItemInstanceDto
+                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto
                 {
                     Id = _guid,
                     Amount = 99
                 });
-            var add = _bazaarController!.AddBazaar(
+            await _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 99,
@@ -340,36 +351,36 @@ namespace NosCore.Tests.BazaarTests
                     IsPackage = false,
                     ItemInstanceId = _guid,
                     Price = 50
-                });
-            Assert.AreEqual(true, _bazaarController.DeleteBazaar(0, 99, "test"));
+                }).ConfigureAwait(false);
+            Assert.AreEqual(true, await _bazaarController.DeleteBazaarAsync(0, 99, "test").ConfigureAwait(false));
             Assert.AreEqual(0, _bazaarItemsHolder!.BazaarItems.Values.Count);
         }
 
         [TestMethod]
-        public void DeleteFromBazaarNotRegistered()
+        public async Task DeleteFromBazaarNotRegisteredAsync()
         {
-            Assert.ThrowsException<ArgumentException>(() => _bazaarController!.DeleteBazaar(0, 99, "test"));
+            await Assert.ThrowsExceptionAsync<ArgumentException>(() => _bazaarController!.DeleteBazaarAsync(0, 99, "test")).ConfigureAwait(false);
         }
 
         [TestMethod]
-        public void ModifyBazaarNotRegistered()
+        public async Task ModifyBazaarNotRegisteredAsync()
         {
             var patch = new JsonPatchDocument<BazaarLink>();
             patch.Replace(link => link.BazaarItem!.Price, 50);
-            Assert.IsNull(_bazaarController!.ModifyBazaar(0, patch));
+            Assert.IsNull(await _bazaarController!.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
         }
 
         [TestMethod]
-        public void ModifyBazaar()
+        public async Task ModifyBazaarAsync()
         {
             _mockItemDao!
-                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                .Returns(new ItemInstanceDto
+                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto
                 {
                     Id = _guid,
                     Amount = 99
                 });
-            var add = _bazaarController!.AddBazaar(
+            await _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 99,
@@ -380,24 +391,24 @@ namespace NosCore.Tests.BazaarTests
                     IsPackage = false,
                     ItemInstanceId = _guid,
                     Price = 80
-                });
+                }).ConfigureAwait(false);
             var patch = new JsonPatchDocument<BazaarLink>();
             patch.Replace(link => link.BazaarItem!.Price, 50);
-            Assert.IsNotNull(_bazaarController.ModifyBazaar(0, patch));
+            Assert.IsNotNull(await _bazaarController.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
             Assert.AreEqual(50, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.Price);
         }
 
         [TestMethod]
-        public void ModifyBazaarAlreadySold()
+        public async Task ModifyBazaarAlreadySoldAsync()
         {
             _mockItemDao!
-                .Setup(s => s.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                .Returns(new ItemInstanceDto
+                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto
                 {
                     Id = _guid,
                     Amount = 99
                 });
-            var add = _bazaarController!.AddBazaar(
+            var add = await _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 99,
@@ -408,11 +419,11 @@ namespace NosCore.Tests.BazaarTests
                     IsPackage = false,
                     ItemInstanceId = _guid,
                     Price = 50
-                });
+                }).ConfigureAwait(false);
             _bazaarItemsHolder!.BazaarItems[0].ItemInstance!.Amount--;
             var patch = new JsonPatchDocument<BazaarLink>();
             patch.Replace(link => link.BazaarItem!.Price, 10);
-            Assert.IsNull(_bazaarController.ModifyBazaar(0, patch));
+            Assert.IsNull(await _bazaarController.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
             Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Price);
         }
     }

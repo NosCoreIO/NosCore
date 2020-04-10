@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 
@@ -29,8 +30,8 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         Guid GetBaseMapInstanceIdByMapId(short mapId);
         MapInstance? GetMapInstance(Guid id);
         MapInstance? GetBaseMapById(short mapId);
-        void AddMapInstance(MapInstance mapInstance);
-        void Initialize();
+        Task AddMapInstanceAsync(MapInstance mapInstance);
+        Task InitializeAsync();
         void RemoveMap(Guid guid);
 
         MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance,

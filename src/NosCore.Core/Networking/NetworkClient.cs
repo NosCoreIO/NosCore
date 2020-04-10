@@ -60,22 +60,25 @@ namespace NosCore.Core.Networking
 
         public Task SendPacketAsync(IPacket? packet)
         {
-            return SendPacketsAsync(new[] {packet});
+            return SendPacketsAsync(new[] { packet });
         }
 
-        public Task SendPacketsAsync(IEnumerable<IPacket?> packets)
+        public async Task SendPacketsAsync(IEnumerable<IPacket?> packets)
         {
             var packetlist = packets.ToList();
             var packetDefinitions = (packets as IPacket?[] ?? packetlist.ToArray()).Where(c => c != null);
             if (!packetDefinitions.Any())
             {
-                return Task.CompletedTask;
+                return;
             }
 
-            Parallel.ForEach(packetlist, packet => LastPackets.Enqueue(packet));
+            await Task.WhenAll(packetlist.Select(packet => Task.Run(() => LastPackets.Enqueue(packet)))).ConfigureAwait(false);
             Parallel.For(0, LastPackets.Count - MaxPacketsBuffer, (_, __) => LastPackets.TryDequeue(out var ___));
-            return Channel == null ? Task.CompletedTask : Channel.WriteAndFlushAsync(packetDefinitions);
-
+            if (Channel == null)
+            {
+                return;
+            }
+            await Channel.WriteAndFlushAsync(packetDefinitions).ConfigureAwait(false);
         }
 
         public void RegisterChannel(IChannel? channel)
@@ -83,7 +86,9 @@ namespace NosCore.Core.Networking
             Channel = channel;
         }
 
-        public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
+#pragma warning disable VSTHRD100 // Avoid async void methods
+        public override async void ExceptionCaught(IChannelHandlerContext context, Exception exception)
+#pragma warning restore VSTHRD100 // Avoid async void methods
         {
             if ((exception == null) || (context == null))
             {
@@ -109,7 +114,8 @@ namespace NosCore.Core.Networking
                 _logger.Fatal(exception.StackTrace);
             }
 
-            context.CloseAsync();
+            // ReSharper disable once AsyncConverter.AsyncAwaitMayBeElidedHighlighting
+            await context.CloseAsync().ConfigureAwait(false);
         }
     }
 }

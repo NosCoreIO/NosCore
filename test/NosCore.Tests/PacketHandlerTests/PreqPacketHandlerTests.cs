@@ -39,10 +39,10 @@ namespace NosCore.Tests.PacketHandlerTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            TestHelpers.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _minilandProvider = new Mock<IMinilandProvider>();
             _minilandProvider.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<Portal>());
             _preqPacketHandler =
@@ -63,7 +63,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task UserCanUsePortal()
+        public async Task UserCanUsePortalAsync()
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
@@ -73,7 +73,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task UserCanTUsePortalIfTooFar()
+        public async Task UserCanTUsePortalIfTooFarAsync()
         {
             _session!.Character.PositionX = 8;
             _session.Character.PositionY = 8;
@@ -83,7 +83,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task UserFromInstanceGoesBackToOriginePlace()
+        public async Task UserFromInstanceGoesBackToOriginePlaceAsync()
         {
             _session!.Character.MapX = 5;
             _session.Character.MapY = 5;

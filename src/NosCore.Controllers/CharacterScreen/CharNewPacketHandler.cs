@@ -24,6 +24,7 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
@@ -36,10 +37,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class CharNewPacketHandler : PacketHandler<CharNewPacket>, IWorldPacketHandler
     {
-        private readonly IGenericDao<CharacterDto> _characterDao;
-        private readonly IGenericDao<MinilandDto> _minilandDao;
+        private readonly IDao<CharacterDto, long> _characterDao;
+        private readonly IDao<MinilandDto, Guid> _minilandDao;
 
-        public CharNewPacketHandler(IGenericDao<CharacterDto> characterDao, IGenericDao<MinilandDto> minilandDao)
+        public CharNewPacketHandler(IDao<CharacterDto, long> characterDao, IDao<MinilandDto, Guid> minilandDao)
         {
             _characterDao = characterDao;
             _minilandDao = minilandDao;
@@ -56,8 +57,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
             var accountId = clientSession.Account.AccountId;
             var slot = packet.Slot;
             var characterName = packet.Name;
-            if (_characterDao.FirstOrDefault(s =>
-                (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active)) != null)
+            if (await _characterDao.FirstOrDefaultAsync(s =>
+                (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active)).ConfigureAwait(false) != null)
             {
                 return;
             }
@@ -66,9 +67,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 @"^[\u0021-\u007E\u00A1-\u00AC\u00AE-\u00FF\u4E00-\u9FA5\u0E01-\u0E3A\u0E3F-\u0E5B\u002E]*$");
             if (rg.Matches(characterName).Count == 1)
             {
-                var character =
-                    _characterDao.FirstOrDefault(s =>
-                        (s.Name == characterName) && (s.State == CharacterState.Active));
+                var character = await
+                    _characterDao.FirstOrDefaultAsync(s =>
+                        (s.Name == characterName) && (s.State == CharacterState.Active)).ConfigureAwait(false);
                 if (character == null)
                 {
                     var chara = new CharacterDto
@@ -93,7 +94,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         AccountId = accountId,
                         State = CharacterState.Active
                     };
-                    _characterDao.InsertOrUpdate(ref chara);
+                    await _characterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
 
                     var miniland = new MinilandDto
                     {
@@ -103,7 +104,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         OwnerId = chara.CharacterId,
                         WelcomeMusicInfo = "Spring^Melody"
                     };
-                    _minilandDao.InsertOrUpdate(ref miniland);
+                    await _minilandDao.TryInsertOrUpdateAsync(miniland).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(new SuccessPacket()).ConfigureAwait(false);
                     await clientSession.HandlePacketsAsync(new[] { new EntryPointPacket() }).ConfigureAwait(false);
                 }

@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using JetBrains.Annotations;
@@ -37,19 +38,21 @@ namespace NosCore.GameObject.Event
 
         public TimeSpan Delay { get; set; } = TimeSpan.FromMinutes(5);
 
-        public void Execution()
+        public async Task ExecutionAsync()
         {
             try
             {
-                Parallel.ForEach(Broadcaster.Instance.GetCharacters(), session =>
+                await Task.WhenAll(Broadcaster.Instance.GetCharacters().Select(session =>
                 {
                     if (session.StaticBonusList.RemoveAll(s => s.DateEnd!= null && s.DateEnd < SystemTime.Now()) > 0)
                     {
-                        session.SendPacketAsync(session.GenerateSay(
+                        return session.SendPacketAsync(session.GenerateSay(
                             GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_TIMEOUT, session.AccountLanguage),
                             SayColorType.Yellow));
                     }
-                });
+
+                    return Task.CompletedTask;
+                })).ConfigureAwait(false);
             }
             catch (Exception e)
             {

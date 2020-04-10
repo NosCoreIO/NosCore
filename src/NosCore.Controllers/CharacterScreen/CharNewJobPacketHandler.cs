@@ -22,6 +22,7 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using Mapster;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject;
@@ -31,36 +32,36 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class CharNewJobPacketHandler : PacketHandler<CharNewJobPacket>, IWorldPacketHandler
     {
-        private readonly IGenericDao<CharacterDto> _characterDao;
+        private readonly IDao<CharacterDto, long> _characterDao;
 
-        public CharNewJobPacketHandler(IGenericDao<CharacterDto> characterDao)
+        public CharNewJobPacketHandler(IDao<CharacterDto, long> characterDao)
         {
             _characterDao = characterDao;
         }
 
-        public override Task ExecuteAsync(CharNewJobPacket packet, ClientSession clientSession)
+        public override async Task ExecuteAsync(CharNewJobPacket packet, ClientSession clientSession)
         {
             //TODO add a flag on Account
-            if (_characterDao.FirstOrDefault(s =>
+            if (await _characterDao.FirstOrDefaultAsync(s =>
                 (s.Level >= 80) && (s.AccountId == clientSession.Account.AccountId) &&
-                (s.State == CharacterState.Active)) == null)
+                (s.State == CharacterState.Active)).ConfigureAwait(false) == null)
             {
                 //Needs at least a level 80 to create a martial artist
                 //TODO log
-                return Task.CompletedTask;
+                return;
             }
 
-            if (_characterDao.FirstOrDefault(s =>
+            if (await _characterDao.FirstOrDefaultAsync(s =>
                 (s.AccountId == clientSession.Account.AccountId) &&
-                (s.Class == CharacterClassType.MartialArtist) && (s.State == CharacterState.Active)) != null)
+                (s.Class == CharacterClassType.MartialArtist) && (s.State == CharacterState.Active)).ConfigureAwait(false) != null)
             {
                 //If already a martial artist, can't create another
                 //TODO log
-                return Task.CompletedTask;
+                return;
             }
             //todo add cooldown for recreate 30days
 
-            return clientSession.HandlePacketsAsync(new[] {packet.Adapt<CharNewPacket>()});
+            await clientSession.HandlePacketsAsync(new[] {packet.Adapt<CharNewPacket>()}).ConfigureAwait(false);
         }
     }
 }

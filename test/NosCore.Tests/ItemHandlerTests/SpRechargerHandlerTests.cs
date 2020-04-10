@@ -44,9 +44,9 @@ namespace NosCore.Tests.ItemHandlerTests
         private ItemProvider? _itemProvider;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            Session = TestHelpers.Instance.GenerateSession();
+            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             Handler = new SpRechargerEventHandler(new WorldConfiguration {MaxAdditionalSpPoints = 1});
             var items = new List<ItemDto>
             {
@@ -56,7 +56,7 @@ namespace NosCore.Tests.ItemHandlerTests
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
         }
         [TestMethod]
-        public async Task Test_SpRecharger_When_Max()
+        public async Task Test_SpRecharger_When_MaxAsync()
         {
             Session!.Character.SpAdditionPoint = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
@@ -69,7 +69,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_SpRecharger()
+        public async Task Test_SpRechargerAsync()
         {
             Session!.Character.SpAdditionPoint = 0;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);

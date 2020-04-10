@@ -50,14 +50,14 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             SystemTime.Freeze();
             Broadcaster.Reset();
             GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
             for (byte i = 0; i < (byte) (GroupType.Group + 1); i++)
             {
-                var session = TestHelpers.Instance.GenerateSession();
+                var session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
                 session.RegisterChannel(null);
                 _characters.Add(i, session.Character);
                 session.Character.Group!.JoinGroup(session.Character);
@@ -68,7 +68,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Accept_Group_Join_Requested()
+        public async Task Test_Accept_Group_Join_RequestedAsync()
         {
             _characters[1].GroupRequestCharacterIds
                 .TryAdd(_characters[0].CharacterId, _characters[0].CharacterId);
@@ -87,7 +87,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Join_Full_Group()
+        public async Task Test_Join_Full_GroupAsync()
         {
             PjoinPacket pjoinPacket;
 
@@ -123,7 +123,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Accept_Not_Requested_Group()
+        public async Task Test_Accept_Not_Requested_GroupAsync()
         {
             var pjoinPacket = new PjoinPacket
             {
@@ -137,7 +137,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Decline_Not_Requested_Group()
+        public async Task Test_Decline_Not_Requested_GroupAsync()
         {
             var pjoinPacket = new PjoinPacket
             {
@@ -151,7 +151,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Last_Request_Not_Null_After_One()
+        public async Task Test_Last_Request_Not_Null_After_OneAsync()
         {
             for (var i = 1; i < 3; i++)
             {
@@ -167,7 +167,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Two_Request_Less_5_Sec_Delay()
+        public async Task Test_Two_Request_Less_5_Sec_DelayAsync()
         {
             SystemTime.Freeze(SystemTime.Now());
             for (var i = 1; i < 3; i++)
@@ -186,7 +186,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Two_Request_More_5_Sec_Delay()
+        public async Task Test_Two_Request_More_5_Sec_DelayAsync()
         {
             for (var i = 1; i < 3; i++)
             {
