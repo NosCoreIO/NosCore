@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -213,8 +214,11 @@ namespace NosCore.Parser
             var filePacket = $"{_folder}{Path.DirectorySeparatorChar}packet.txt";
             using var packetTxtStream =
                 new StreamReader(filePacket, Encoding.Default);
-            string? line;
-            while ((line = await packetTxtStream.ReadLineAsync().ConfigureAwait(false)) != null)
+            var lines = (await packetTxtStream.ReadToEndAsync().ConfigureAwait(false)).Split(
+                new[] { "\r\n", "\r", "\n" },
+                StringSplitOptions.None
+            );
+            foreach (var line in lines)
             {
                 var linesave = line.Split(' ');
                 _packetList.Add(linesave);
