@@ -24,9 +24,9 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
 
-namespace NosCore.Database.DAL
+namespace NosCore.Database
 {
-    public sealed class DataAccessHelper : IDbContextBuilder
+    public class DataAccessHelper : IDbContextBuilder
     {
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 

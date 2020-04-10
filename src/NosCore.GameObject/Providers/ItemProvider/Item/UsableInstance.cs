@@ -18,7 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Networking.ClientSession;
@@ -40,7 +42,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
 
         public new Item? Item { get; set; }
         public Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>>? Requests { get; set; }
-
+        public List<Task> HandlerTasks { get; set; } = new List<Task>();
         public object Clone()
         {
             return (UsableInstance) MemberwiseClone();

@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
@@ -84,7 +85,8 @@ namespace NosCore.PacketHandlers.Inventory
 
             mapItem.Requests!.OnNext(new RequestData<Tuple<MapItem, GetPacket>>(clientSession,
                 new Tuple<MapItem, GetPacket>(mapItem, getPacket)));
-            await Task.Delay(10).ConfigureAwait(false); //todo find a way to await on the observers without a async void
+
+            await Task.WhenAll(mapItem.HandlerTasks).ConfigureAwait(false);
         }
     }
 }

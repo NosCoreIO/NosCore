@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Shops
             _nRunProvider = nRunProvider;
         }
 
-        public override Task ExecuteAsync(NrunPacket nRunPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(NrunPacket nRunPacket, ClientSession clientSession)
         {
             var forceNull = false;
             IAliveEntity? aliveEntity;
@@ -63,17 +63,16 @@ namespace NosCore.PacketHandlers.Shops
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
                         nRunPacket.Type);
-                    return Task.CompletedTask;
+                    return;
             }
 
             if ((aliveEntity == null) && !forceNull)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
-                return Task.CompletedTask;
+                return;
             }
 
-            _nRunProvider.NRunLaunch(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity!, nRunPacket));
-            return Task.Delay(10); //todo find a way to await on the observers without a async void
+            await _nRunProvider.NRunLaunchAsync(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity!, nRunPacket)).ConfigureAwait(false);
         }
     }
 }
