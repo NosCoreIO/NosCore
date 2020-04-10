@@ -20,8 +20,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -40,22 +42,29 @@ namespace NosCore.GameObject.Providers.NRunProvider
             _handlers = handlers.ToList();
         }
 
-        public void NRunLaunch(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data)
+        public Task NRunLaunchAsync(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data)
         {
             var handlersRequest = new Subject<RequestData<Tuple<IAliveEntity, NrunPacket>>>();
             static Task RequestExecAsync(IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>> handler, RequestData<Tuple<IAliveEntity, NrunPacket>> request)
             {
                 return handler.ExecuteAsync(request);
             }
+
+            var taskList = new List<Task>();
             _handlers.ForEach(handler =>
             {
                 if (handler.Condition(data))
                 {
-                    handlersRequest.Select(request => RequestExecAsync(handler, request)).Subscribe();
+                    handlersRequest.Select(request =>
+                    {
+                        var task = RequestExecAsync(handler, request);
+                        taskList.Add(task);
+                        return task;
+                    }).Subscribe();
                 }
             });
             handlersRequest.OnNext(new RequestData<Tuple<IAliveEntity, NrunPacket>>(clientSession, data));
+            return Task.WhenAll(taskList);
         }
-
     }
 }

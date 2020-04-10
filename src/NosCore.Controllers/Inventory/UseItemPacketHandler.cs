@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.Inventory
             inv?.ItemInstance?.Requests?.OnNext(new RequestData<Tuple<InventoryItemInstance, UseItemPacket>>(clientSession,
                 new Tuple<InventoryItemInstance, UseItemPacket>(inv, useItemPacket)));
 
-            return Task.Delay(10); //todo find a way to await on the observers without a async void
+            return inv?.ItemInstance?.Requests == null ? Task.CompletedTask : Task.WhenAll(inv.ItemInstance.HandlerTasks);
         }
     }
 }

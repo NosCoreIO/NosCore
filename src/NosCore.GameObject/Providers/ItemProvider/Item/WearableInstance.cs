@@ -18,7 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Core;
@@ -52,7 +54,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
             && (Item?.ItemType != ItemType.Weapon);
 
         public new Item? Item { get; set; }
-
+        public List<Task> HandlerTasks { get; set; } = new List<Task>();
         public object Clone()
         {
             return (WearableInstance) MemberwiseClone();

@@ -118,7 +118,12 @@ namespace NosCore.GameObject.Providers.ItemProvider
             {
                 if (handler.Condition(itemInstance.Item!))
                 {
-                    handlersRequest.Select(request => RequestExecAsync(handler, request)).Subscribe();
+                    handlersRequest.Select(request =>
+                    {
+                        var task = RequestExecAsync(handler, request);
+                        itemInstance.HandlerTasks.Add(task);
+                        return task;
+                    }).Subscribe();
                 }
             });
             itemInstance.Requests = handlersRequest;
