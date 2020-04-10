@@ -26,7 +26,6 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
@@ -36,7 +35,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.Database;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking;
@@ -45,7 +43,6 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.Bazaar;
-using NosCore.Packets.Interfaces;
 using NosCore.Tests.Helpers;
 
 namespace NosCore.Tests.BazaarTests

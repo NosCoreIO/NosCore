@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
-using NosCore.Data.Enumerations;
 using NosCore.Database.Entities.Base;
 using NosCore.Packets.Enumerations;
 

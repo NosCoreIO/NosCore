@@ -21,12 +21,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using Mapster;
-using NosCore.Core;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
-using NosCore.Database;
 
 namespace NosCore.MasterServer.DataHolders
 {

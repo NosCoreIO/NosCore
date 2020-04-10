@@ -47,7 +47,6 @@ using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
-using NosCore.Packets.ServerPackets.Quest;
 using Serilog;
 
 namespace NosCore.GameObject.Networking.ClientSession

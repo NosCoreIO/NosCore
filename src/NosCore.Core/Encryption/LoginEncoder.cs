@@ -25,9 +25,9 @@ using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
 using JetBrains.Annotations;
-using NosCore.Configuration;
 using NosCore.Core.Extensions;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
 
@@ -36,12 +36,10 @@ namespace NosCore.Core.Encryption
     public class LoginEncoder : MessageToMessageEncoder<IEnumerable<IPacket>>
     {
         private readonly ILogger _logger;
-        private readonly LoginConfiguration _loginServerConfiguration;
         private readonly ISerializer _serializer;
 
-        public LoginEncoder(LoginConfiguration loginServerConfiguration, ILogger logger, ISerializer serializer)
+        public LoginEncoder(ILogger logger, ISerializer serializer)
         {
-            _loginServerConfiguration = loginServerConfiguration;
             _logger = logger;
             _serializer = serializer;
         }
@@ -59,7 +57,7 @@ namespace NosCore.Core.Encryption
                 output.Add(Unpooled.WrappedBuffer(message.SelectMany(packet =>
                 {
                     var packetString = _serializer.Serialize(packet);
-                    var tmp = _loginServerConfiguration.UserLanguage.GetEncoding()!.GetBytes($"{packetString} ");
+                    var tmp = SessionFactory.Instance.Sessions[context.Channel.Id.AsLongText()].RegionType.GetEncoding()!.GetBytes($"{packetString} ");
                     for (var i = 0; i < packetString.Length; i++)
                     {
                         tmp[i] = Convert.ToByte(tmp[i] + 15);

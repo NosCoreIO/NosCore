@@ -34,7 +34,6 @@ using NosCore.Data.Enumerations.Bazaar;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
-using NosCore.Database;
 using NosCore.MasterServer.DataHolders;
 
 namespace NosCore.MasterServer.Controllers
