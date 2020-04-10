@@ -83,7 +83,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PacketHandlers.Login;
 using NosCore.WorldServer.Controllers;
@@ -94,6 +93,7 @@ using InventoryItemInstance = NosCore.GameObject.Providers.InventoryService.Inve
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Serializer = NosCore.Packets.Serializer;
 using NosCore.Dao;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.WorldServer
 {

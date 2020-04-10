@@ -20,6 +20,7 @@
 using System;
 using NosCore.Configuration;
 using NosCore.Data.Enumerations;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.Core
 {

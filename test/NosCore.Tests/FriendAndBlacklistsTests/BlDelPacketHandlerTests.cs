@@ -27,13 +27,12 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core;
+using NosCore.Configuration;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Database.DAL;
 using NosCore.Database.Entities;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
@@ -43,6 +42,8 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
 using NosCore.Dao;
+using NosCore.Data.WebApi;
+using Character = NosCore.Database.Entities.Character;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
 {
@@ -66,6 +67,10 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
+            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(It.IsAny<long?>(), It.IsAny<string?>()))
+                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
+                    new ConnectedAccount
+                        { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
             _blackListHttpClient = TestHelpers.Instance.BlacklistHttpClient;
             _blDelPacketHandler = new BlDelPacketHandler(_blackListHttpClient.Object);
             _characterDao = new Mock<IDao<CharacterDto, long>>();

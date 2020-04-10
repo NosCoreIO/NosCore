@@ -28,8 +28,8 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.Tests
 {

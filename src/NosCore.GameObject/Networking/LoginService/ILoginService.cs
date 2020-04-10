@@ -19,12 +19,13 @@
 
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Login;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Networking.LoginService
 {
     public interface ILoginService
     {
         Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,
-            ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth);
+            ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language);
     }
 }

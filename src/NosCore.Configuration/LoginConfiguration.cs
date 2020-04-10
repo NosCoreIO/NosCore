@@ -19,7 +19,6 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Packets.ClientPackets.Login;
-using NosCore.Data.Enumerations;
 
 namespace NosCore.Configuration
 {
@@ -30,8 +29,6 @@ namespace NosCore.Configuration
 
         [Required]
         public SqlConnectionConfiguration? Database { get; set; }
-
-        public RegionType UserLanguage { get; set; }
 
         public ClientVersionSubPacket? ClientVersion { get; set; }
         public string? Md5String { get; set; }

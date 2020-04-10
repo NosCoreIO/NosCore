@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Login
             {
                 return _loginService.LoginAsync(packet.Username, packet.Md5String!, packet.ClientVersion!, clientSession,
                     packet.Password!,
-                    false);
+                    false, packet.RegionType);
             }
 
             _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TRY_OLD_AUTH), packet.Username);
