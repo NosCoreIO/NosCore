@@ -19,8 +19,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using Serilog;
@@ -30,17 +32,17 @@ namespace NosCore.Parser.Parsers
     public class ShopItemParser
     {
         private readonly ILogger _logger;
-        private readonly IGenericDao<ShopDto> _shopDao;
-        private readonly IGenericDao<ShopItemDto> _shopItemDao;
+        private readonly IDao<ShopDto, int> _shopDao;
+        private readonly IDao<ShopItemDto, int> _shopItemDao;
 
-        public ShopItemParser(IGenericDao<ShopItemDto> shopItemDao, IGenericDao<ShopDto> shopDao, ILogger logger)
+        public ShopItemParser(IDao<ShopItemDto, int> shopItemDao, IDao<ShopDto, int> shopDao, ILogger logger)
         {
             _shopItemDao = shopItemDao;
             _shopDao = shopDao;
             _logger = logger;
         }
 
-        public void InsertShopItems(List<string[]> packetList)
+        public async Task InsertShopItemsAsync(List<string[]> packetList)
         {
             var shopitems = new List<ShopItemDto>();
             var itemCounter = 0;
@@ -109,7 +111,7 @@ namespace NosCore.Parser.Parsers
                 shopListItemDtos.AddRange(shopItemDtos);
             }
 
-            _shopItemDao.InsertOrUpdate(shopListItemDtos);
+            await _shopItemDao.TryInsertOrUpdateAsync(shopListItemDtos).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPITEMS_PARSED),
                 itemCounter);
         }

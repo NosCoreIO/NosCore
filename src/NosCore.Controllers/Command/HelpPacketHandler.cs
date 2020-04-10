@@ -31,10 +31,10 @@ namespace NosCore.PacketHandlers.Command
 {
     public class HelpPacketHandler : PacketHandler<HelpPacket>, IWorldPacketHandler
     {
-        public override Task ExecuteAsync(HelpPacket helpPacket, ClientSession session)
+        public override async Task ExecuteAsync(HelpPacket helpPacket, ClientSession session)
         {
-            session.SendPacketAsync(session.Character.GenerateSay("-------------Help command-------------",
-                SayColorType.Purple));
+            await session.SendPacketAsync(session.Character.GenerateSay("-------------Help command-------------",
+                SayColorType.Purple)).ConfigureAwait(false);
             var classes = helpPacket.GetType().Assembly.GetTypes().Where(t =>
                     typeof(ICommandPacket).IsAssignableFrom(t)
                     && (t.GetCustomAttribute<CommandPacketHeaderAttribute>()?.Authority <= session.Account.Authority))
@@ -51,10 +51,9 @@ namespace NosCore.PacketHandlers.Command
                 var message = method.Invoke(classInstance, null)?.ToString();
                 if (!string.IsNullOrEmpty(message))
                 {
-                    session.SendPacketAsync(session.Character.GenerateSay(message, SayColorType.Green));
+                    await session.SendPacketAsync(session.Character.GenerateSay(message, SayColorType.Green)).ConfigureAwait(false);
                 }
             }
-            return Task.CompletedTask;
         }
     }
 }

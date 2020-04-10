@@ -39,15 +39,12 @@ namespace NosCore.Parser.Parsers.Generic
             var i = 0;
             return content.Split(_endPattern).Select(s => $"{(i++ == 0 ? "" : _endPattern)}{s}");
         }
-        public List<T> GetDtos() => GetDtos("\t");
-        public List<T> GetDtos(string splitter)
+        public Task<List<T>> GetDtosAsync() => GetDtosAsync("\t");
+        public async Task<List<T>> GetDtosAsync(string splitter)
         {
             var items = ParseTextFromFile();
             ConcurrentBag<T> resultCollection = new ConcurrentBag<T>();
-            Parallel.ForEach(items, new ParallelOptions
-            {
-                MaxDegreeOfParallelism = System.Diagnostics.Debugger.IsAttached ? 1 : -1
-            }, item =>
+            await Task.WhenAll(items.Select(item => Task.Run(() =>
             {
                 var lines = item.Split(
                         new[] { "\r\n", "\r", "\n" },
@@ -82,7 +79,7 @@ namespace NosCore.Parser.Parsers.Generic
                 {
                     _logger.Verbose(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHUNK_FORMAT_INVALID), lines, ex);
                 }
-            });
+            }))).ConfigureAwait(false);
             return resultCollection.ToList();
         }
     }

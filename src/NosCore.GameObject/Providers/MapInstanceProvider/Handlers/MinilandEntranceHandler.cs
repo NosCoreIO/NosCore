@@ -25,6 +25,7 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MinilandProvider;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider.Handlers
 {
@@ -39,34 +40,34 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider.Handlers
 
         public MapInstanceEventType MapInstanceEventType => MapInstanceEventType.Entrance;
 
-        public void Execute(RequestData<MapInstance> requestData)
+        public async Task ExecuteAsync(RequestData<MapInstance> requestData)
         {
             var miniland = _minilandProvider.GetMinilandFromMapInstanceId(requestData.Data.MapInstanceId);
             if (miniland.CharacterEntity!.VisualId != requestData.ClientSession.Character.CharacterId)
             {
-                requestData.ClientSession.SendPacketAsync(new MsgPacket
+                await requestData.ClientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = miniland.MinilandMessage!.Replace(' ', '^')
-                });
+                }).ConfigureAwait(false);
 
                 miniland.DailyVisitCount++;
                 miniland.VisitCount++;
-                requestData.ClientSession.SendPacketAsync(miniland.GenerateMlinfobr());
+                await requestData.ClientSession.SendPacketAsync(miniland.GenerateMlinfobr()).ConfigureAwait(false);
             }
             else
             {
-                requestData.ClientSession.SendPacketAsync(miniland.GenerateMlinfo());
-                requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateMlobjlst());
+                await requestData.ClientSession.SendPacketAsync(miniland.GenerateMlinfo()).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateMlobjlst()).ConfigureAwait(false);
             }
 
             //TODO add pets
-            requestData.ClientSession.SendPacketAsync(
+            await requestData.ClientSession.SendPacketAsync(
                 requestData.ClientSession.Character.GenerateSay(
                     string.Format(
                         GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_VISITOR,
                             requestData.ClientSession.Account.Language), miniland.VisitCount, miniland.DailyVisitCount),
                     SayColorType.Yellow)
-            );
+            ).ConfigureAwait(false);
         }
     }
 }

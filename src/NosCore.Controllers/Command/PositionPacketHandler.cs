@@ -30,11 +30,10 @@ namespace NosCore.PacketHandlers.Command
     {
         public override Task ExecuteAsync(PositionPacket _, ClientSession session)
         {
-            session.SendPacketAsync(session.Character.GenerateSay(
+            return session.SendPacketAsync(session.Character.GenerateSay(
                 $"Map:{session.Character.MapInstance.Map.MapId} - X:{session.Character.PositionX} - Y:{session.Character.PositionY} - " +
                 $"Dir:{session.Character.Direction} - Cell:{session.Character.MapInstance.Map[session.Character.PositionX, session.Character.PositionY]}",
                 SayColorType.Green));
-            return Task.CompletedTask;
         }
     }
 }

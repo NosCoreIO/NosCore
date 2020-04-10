@@ -48,10 +48,10 @@ namespace NosCore.Tests.ItemHandlerTests
         private Mock<IMinilandProvider>? _minilandProvider;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             _minilandProvider = new Mock<IMinilandProvider>();
-            Session = TestHelpers.Instance.GenerateSession();
+            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _minilandProvider.Setup(s => s.GetMiniland(Session.Character.CharacterId))
                 .Returns(new Miniland { MapInstanceId = TestHelpers.Instance.MinilandId });
             Handler = new MinilandBellHandler(_minilandProvider.Object);
@@ -64,7 +64,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Miniland_On_Instance()
+        public async Task Test_Miniland_On_InstanceAsync()
         {
             Session!.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetMapInstance(TestHelpers.Instance.MinilandId)!;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
@@ -76,7 +76,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Miniland_On_Vehicle()
+        public async Task Test_Miniland_On_VehicleAsync()
         {
             Session!.Character.IsVehicled = true;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
@@ -88,7 +88,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Miniland_Delay()
+        public async Task Test_Miniland_DelayAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
@@ -99,7 +99,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Miniland()
+        public async Task Test_MinilandAsync()
         {
             UseItem.Mode = 2;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);

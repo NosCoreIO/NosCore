@@ -29,8 +29,8 @@ namespace NosCore.GameObject.Providers.MinilandProvider
     public interface IMinilandProvider
     {
         Miniland GetMiniland(long character);
-        void DeleteMiniland(long characterId);
-        Miniland Initialize(Character character);
+        Task DeleteMinilandAsync(long characterId);
+        Task<Miniland> InitializeAsync(Character character);
         List<Portal> GetMinilandPortals(long characterId);
         Miniland GetMinilandFromMapInstanceId(Guid mapInstanceId);
         void AddMinilandObject(MapDesignObject mapObject, long characterId, InventoryItemInstance minilandobject);

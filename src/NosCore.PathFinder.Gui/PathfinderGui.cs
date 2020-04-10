@@ -29,6 +29,8 @@ using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -49,8 +51,9 @@ namespace NosCore.PathFinder.Gui
         private static readonly PathfinderGuiConfiguration DatabaseConfiguration = new PathfinderGuiConfiguration();
         private static GuiWindow? _guiWindow;
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
-        private static readonly IGenericDao<MapDto> _mapDao = new GenericDao<Map, MapDto, short>(Logger);
-        private static readonly IGenericDao<NpcMonsterDto> _npcMonsterDao = new GenericDao<NpcMonster, NpcMonsterDto, long>(Logger);
+        private static readonly DataAccessHelper _dbContextBuilder = new DataAccessHelper();
+        private static readonly IDao<MapDto, short> _mapDao =new Dao<Map, MapDto, short>(Logger, _dbContextBuilder);
+        private static readonly IDao<NpcMonsterDto, short> _npcMonsterDao =new Dao<NpcMonster, NpcMonsterDto, short>(Logger, _dbContextBuilder);
 
         private static void InitializeConfiguration()
         {
@@ -73,11 +76,11 @@ namespace NosCore.PathFinder.Gui
             {
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
                 optionsBuilder.UseNpgsql(DatabaseConfiguration.Database!.ConnectionString);
-                DataAccessHelper.Instance.Initialize(optionsBuilder.Options);
+                _dbContextBuilder.Initialize(optionsBuilder.Options);
 
                 var npcMonsters = _npcMonsterDao.LoadAll().ToList();
                 TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig().ConstructUsing(src => new GameObject.MapMonster(npcMonsters, Logger));
-                TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig().ConstructUsing(src => new GameObject.MapNpc(new Mock<IItemProvider>().Object, new Mock<IGenericDao<ShopDto>>().Object, new Mock<IGenericDao<ShopItemDto>>().Object, npcMonsters, Logger, new List<NpcTalkDto>()));
+                TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig().ConstructUsing(src => new GameObject.MapNpc(new Mock<IItemProvider>().Object, new Mock<IDao<ShopDto, int>>().Object, new Mock<IDao<ShopItemDto, int>>().Object, npcMonsters, Logger, new List<NpcTalkDto>()));
                 while (true)
                 {
                     Logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
@@ -88,7 +91,7 @@ namespace NosCore.PathFinder.Gui
                         continue;
                     }
 
-                    var map = _mapDao.FirstOrDefault(m => m.MapId == askMapId)?.Adapt<GameObject.Map.Map>();
+                    var map = _mapDao.FirstOrDefaultAsync(m => m.MapId == askMapId)?.Adapt<GameObject.Map.Map>();
 
                     if ((!(map?.XLength > 0)) || (map.YLength <= 0))
                     {
@@ -103,7 +106,7 @@ namespace NosCore.PathFinder.Gui
                     new Thread(() =>
                     {
                         _guiWindow = new GuiWindow(map, 4, map.XLength, map.YLength, GraphicsMode.Default,
-                            $"NosCore Pathfinder GUI - Map {map.MapId}");
+                            $"NosCore Pathfinder GUI - Map {map.MapId}", _dbContextBuilder);
                         _guiWindow.Run(30);
                     }).Start();
                 }

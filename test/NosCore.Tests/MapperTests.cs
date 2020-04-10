@@ -17,11 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
+using NosCore.Dao;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -33,6 +36,7 @@ using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.Tests.Helpers;
 using Serilog;
 using BoxInstance = NosCore.GameObject.Providers.ItemProvider.Item.BoxInstance;
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
@@ -47,20 +51,20 @@ namespace NosCore.Tests
     public class MapperTests
     {
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
-        private readonly IGenericDao<AccountDto> _accountDao = new GenericDao<Account, AccountDto, long>(Logger);
+        private readonly IDao<AccountDto, long> _accountDao =new Dao<Account, AccountDto, long>(Logger, TestHelpers.Instance.ContextBuilder);
         private readonly MapsterMapper.Mapper _mapper = new MapsterMapper.Mapper();
 
-        private readonly IGenericDao<CharacterDto> _characterDao =
-            new GenericDao<Character, CharacterDto, long>(Logger);
+        private readonly IDao<CharacterDto, long> _characterDao =
+           new Dao<Character, CharacterDto, long>(Logger, TestHelpers.Instance.ContextBuilder);
 
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao = new ItemInstanceDao(Logger);
+        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao = new ItemInstanceDao(Logger, TestHelpers.Instance.ContextBuilder);
 
         [TestInitialize]
         public void Setup()
         {
             TypeAdapterConfig<CharacterDto, GameObject.Character>.NewConfig().ConstructUsing(src =>
-                new GameObject.Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, _characterDao, _itemInstanceDao, new Mock<IGenericDao<InventoryItemInstanceDto>>().Object, _accountDao, Logger,
-                    new Mock<IGenericDao<StaticBonusDto>>().Object, new Mock<IGenericDao<QuicklistEntryDto>>().Object, new Mock<IGenericDao<MinilandDto>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IGenericDao<TitleDto>>().Object, new Mock<IGenericDao<CharacterQuestDto>>().Object));
+                new GameObject.Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, _characterDao, _itemInstanceDao, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _accountDao, Logger,
+                    new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object));
             TypeAdapterConfig<MapMonsterDto, MapMonster>.NewConfig()
                 .ConstructUsing(src => new MapMonster(new List<NpcMonsterDto>(), Logger));
             new Mapper();

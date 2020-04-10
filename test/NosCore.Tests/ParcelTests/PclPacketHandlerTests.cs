@@ -26,9 +26,11 @@ using NosCore.Packets.ServerPackets.Parcel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider;
@@ -44,21 +46,22 @@ namespace NosCore.Tests.ParcelTests
         private PclPacketHandler? _pclPacketHandler;
         private IItemProvider? _item;
         private ClientSession? _session;
-        private Mock<IGenericDao<IItemInstanceDto>>? _itemInstanceDao;
+        private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             SystemTime.Freeze();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _mailHttpClient = new Mock<IMailHttpClient>();
-            _itemInstanceDao = new Mock<IGenericDao<IItemInstanceDto>>();
+            _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _pclPacketHandler = new PclPacketHandler(_mailHttpClient.Object, _item, _itemInstanceDao.Object);
         }
 
         [TestMethod]
-        public async Task Test_GiftNotFound()
+        public async Task Test_GiftNotFoundAsync()
         {
             _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync((MailData?)null);
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
@@ -71,7 +74,7 @@ namespace NosCore.Tests.ParcelTests
         }
 
         [TestMethod]
-        public async Task Test_DeleteGift()
+        public async Task Test_DeleteGiftAsync()
         {
             _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync(new MailData());
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
@@ -84,7 +87,7 @@ namespace NosCore.Tests.ParcelTests
         }
 
         [TestMethod]
-        public async Task Test_ReceiveGift()
+        public async Task Test_ReceiveGiftAsync()
         {
             var item = _item!.Create(1);
             var mail = new MailData
@@ -95,8 +98,8 @@ namespace NosCore.Tests.ParcelTests
                     ItemInstanceId = item.Id
                 }
             };
-            _itemInstanceDao!.Setup(o => o.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                .Returns(item);
+            _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(item);
             _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync(mail);
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
@@ -108,7 +111,7 @@ namespace NosCore.Tests.ParcelTests
         }
 
         [TestMethod]
-        public async Task Test_ReceiveGiftNoPlace()
+        public async Task Test_ReceiveGiftNoPlaceAsync()
         {
             TestHelpers.Instance.WorldConfiguration.BackpackSize = 0;
             var item = _item!.Create(1);
@@ -120,8 +123,8 @@ namespace NosCore.Tests.ParcelTests
                     ItemInstanceId = item.Id
                 }
             };
-            _itemInstanceDao!.Setup(o => o.FirstOrDefault(It.IsAny<Expression<Func<IItemInstanceDto, bool>>>()))
-                .Returns(item);
+            _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(item);
             _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync(mail);
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {

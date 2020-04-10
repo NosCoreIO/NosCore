@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
@@ -39,14 +40,14 @@ namespace NosCore.MasterServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class FriendController : Controller
     {
-        private readonly IGenericDao<CharacterDto> _characterDao;
-        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao;
+        private readonly IDao<CharacterDto, long> _characterDao;
+        private readonly IDao<CharacterRelationDto, Guid> _characterRelationDao;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly FriendRequestHolder _friendRequestHolder;
         private readonly ILogger _logger;
 
-        public FriendController(ILogger logger, IGenericDao<CharacterRelationDto> characterRelationDao,
-            IGenericDao<CharacterDto> characterDao, FriendRequestHolder friendRequestHolder,
+        public FriendController(ILogger logger, IDao<CharacterRelationDto, Guid> characterRelationDao,
+            IDao<CharacterDto, long> characterDao, FriendRequestHolder friendRequestHolder,
             IConnectedAccountHttpClient connectedAccountHttpClient)
         {
             _logger = logger;
@@ -58,7 +59,7 @@ namespace NosCore.MasterServer.Controllers
 
 
         [HttpPost]
-        public async Task<LanguageKey> AddFriend([FromBody] FriendShipRequest friendPacket)
+        public async Task<LanguageKey> AddFriendAsync([FromBody] FriendShipRequest friendPacket)
         {
             var character = await _connectedAccountHttpClient.GetCharacterAsync(friendPacket.CharacterId, null).ConfigureAwait(false);
             var targetCharacter = await _connectedAccountHttpClient.GetCharacterAsync(friendPacket.FinsPacket?.CharacterId, null).ConfigureAwait(false);
@@ -116,7 +117,7 @@ namespace NosCore.MasterServer.Controllers
                             RelationType = CharacterRelationType.Friend
                         };
 
-                        _characterRelationDao.InsertOrUpdate(ref data);
+                        await _characterRelationDao.TryInsertOrUpdateAsync(data).ConfigureAwait(false);
                         var data2 = new CharacterRelationDto
                         {
                             CharacterId = targetCharacter.Item2.ConnectedCharacter.Id,
@@ -124,7 +125,7 @@ namespace NosCore.MasterServer.Controllers
                             RelationType = CharacterRelationType.Friend
                         };
 
-                        _characterRelationDao.InsertOrUpdate(ref data2);
+                        await _characterRelationDao.TryInsertOrUpdateAsync(data2).ConfigureAwait(false);
                         _friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
                         return LanguageKey.FRIEND_ADDED;
                     case FinsPacketType.Rejected:
@@ -142,16 +143,20 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpGet]
-        public async Task<List<CharacterRelationStatus>> GetFriends(long id)
+        public async Task<List<CharacterRelationStatus>> GetFriendsAsync(long id)
         {
             var charList = new List<CharacterRelationStatus>();
             var list = _characterRelationDao
                 .Where(s => (s.CharacterId == id) && (s.RelationType != CharacterRelationType.Blocked));
+            if (list == null)
+            {
+                return charList;
+            }
             foreach (var rel in list)
             {
                 charList.Add(new CharacterRelationStatus
                 {
-                    CharacterName = _characterDao.FirstOrDefault(s => s.CharacterId == rel.RelatedCharacterId)?.Name,
+                    CharacterName = (await _characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId).ConfigureAwait(false))?.Name,
                     CharacterId = rel.RelatedCharacterId,
                     IsConnected = (await _connectedAccountHttpClient.GetCharacterAsync(rel.RelatedCharacterId, null).ConfigureAwait(false)).Item1 != null,
                     RelationType = rel.RelationType,
@@ -163,23 +168,23 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpDelete]
-        public IActionResult Delete(Guid id)
+        public async Task<IActionResult> DeleteAsync(Guid id)
         {
-            var rel = _characterRelationDao.FirstOrDefault(s =>
-                (s.CharacterRelationId == id) && (s.RelationType == CharacterRelationType.Friend));
+            var rel = await _characterRelationDao.FirstOrDefaultAsync(s =>
+                (s.CharacterRelationId == id) && (s.RelationType == CharacterRelationType.Friend)).ConfigureAwait(false);
             if (rel == null)
             {
                 return NotFound();
             }
-            var rel2 = _characterRelationDao.FirstOrDefault(s =>
+            var rel2 = await _characterRelationDao.FirstOrDefaultAsync(s =>
                 (s.CharacterId == rel.RelatedCharacterId) && (s.RelatedCharacterId == rel.CharacterId) &&
-                (s.RelationType == CharacterRelationType.Friend));
+                (s.RelationType == CharacterRelationType.Friend)).ConfigureAwait(false);
             if (rel2 == null)
             {
                 return NotFound();
             }
-            _characterRelationDao.Delete(rel);
-            _characterRelationDao.Delete(rel2);
+            await _characterRelationDao.TryDeleteAsync(rel.CharacterRelationId).ConfigureAwait(false);
+            await _characterRelationDao.TryDeleteAsync(rel2.CharacterRelationId).ConfigureAwait(false);
             return Ok();
         }
     }

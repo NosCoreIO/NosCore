@@ -18,8 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
@@ -30,16 +32,16 @@ namespace NosCore.Parser.Parsers
 {
     public class MapTypeParser
     {
-        private readonly IGenericDao<MapTypeDto> _dropDao;
+        private readonly IDao<MapTypeDto, short> _dropDao;
         private readonly ILogger _logger;
 
-        public MapTypeParser(IGenericDao<MapTypeDto> dropDao, ILogger logger)
+        public MapTypeParser(IDao<MapTypeDto, short> dropDao, ILogger logger)
         {
             _dropDao = dropDao;
             _logger = logger;
         }
 
-        internal void InsertMapTypes()
+        internal async Task InsertMapTypesAsync()
         {
             var mts = new List<MapTypeDto> { new MapTypeDto
                 {
@@ -228,7 +230,7 @@ namespace NosCore.Parser.Parsers
                     PotionDelay = 5000
                 }
             };
-            _dropDao.InsertOrUpdate(mts);
+            await _dropDao.TryInsertOrUpdateAsync(mts).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPTYPES_PARSED));
         }
     }

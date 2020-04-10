@@ -30,16 +30,14 @@ namespace NosCore.PacketHandlers.Command
     {
         public override Task ExecuteAsync(SpeedPacket speedPacket, ClientSession session)
         {
-            if ((speedPacket.Speed > 0) && (speedPacket.Speed < 60))
+            if ((speedPacket.Speed <= 0) || (speedPacket.Speed >= 60))
             {
-                session.Character.Speed = speedPacket.Speed >= 60 ? (byte) 59 : speedPacket.Speed;
-                session.SendPacketAsync(session.Character.GenerateCond());
+                return session.SendPacketAsync(session.Character.GenerateSay(speedPacket.Help(), SayColorType.Yellow));
             }
-            else
-            {
-                session.SendPacketAsync(session.Character.GenerateSay(speedPacket.Help(), SayColorType.Yellow));
-            }
-            return Task.CompletedTask;
+
+            session.Character.Speed = speedPacket.Speed >= 60 ? (byte) 59 : speedPacket.Speed;
+            return session.SendPacketAsync(session.Character.GenerateCond());
+
         }
     }
 }

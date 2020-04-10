@@ -26,14 +26,13 @@ namespace NosCore.PacketHandlers.Game
 {
     public class PulsePacketHandler : PacketHandler<PulsePacket>, IWorldPacketHandler
     {
-        public override Task ExecuteAsync(PulsePacket pulsePacket, ClientSession session)
+        public override async Task ExecuteAsync(PulsePacket pulsePacket, ClientSession session)
         {
             session.LastPulse += 60;
             if (pulsePacket.Tick != session.LastPulse)
             {
-                session.DisconnectAsync();
+                await session.DisconnectAsync().ConfigureAwait(false);
             }
-            return Task.CompletedTask;
         }
     }
 }

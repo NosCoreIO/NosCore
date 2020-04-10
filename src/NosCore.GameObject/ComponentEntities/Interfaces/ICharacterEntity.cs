@@ -97,7 +97,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         void JoinGroup(Group group);
 
-        void Save();
+        Task SaveAsync();
 
         Task SetJobLevelAsync(byte level);
 

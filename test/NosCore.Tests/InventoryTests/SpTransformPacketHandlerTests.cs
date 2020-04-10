@@ -49,18 +49,18 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             SystemTime.Freeze();
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _spTransformPacketHandler = new SpTransformPacketHandler();
         }
 
 
         [TestMethod]
-        public async Task Test_Transform_NoSp()
+        public async Task Test_Transform_NoSpAsync()
         {
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSp }, _session!).ConfigureAwait(false);
             var packet = (MsgPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgPacket);
@@ -69,7 +69,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Transform_Vehicle()
+        public async Task Test_Transform_VehicleAsync()
         {
             _session!.Character.IsVehicled = true;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
@@ -85,7 +85,7 @@ namespace NosCore.Tests.InventoryTests
 
 
         [TestMethod]
-        public async Task Test_Transform_Sitted()
+        public async Task Test_Transform_SittedAsync()
         {
             _session!.Character.IsSitting = true;
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSp }, _session).ConfigureAwait(false);
@@ -93,7 +93,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_RemoveSp()
+        public async Task Test_RemoveSpAsync()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
@@ -106,7 +106,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Transform()
+        public async Task Test_TransformAsync()
         {
             _session!.Character.SpPoint = 1;
             _session.Character.Reput = 5000000;
@@ -120,7 +120,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Transform_BadFairy()
+        public async Task Test_Transform_BadFairyAsync()
         {
             _session!.Character.SpPoint = 1;
             _session.Character.Reput = 5000000;
@@ -142,7 +142,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Transform_BadReput()
+        public async Task Test_Transform_BadReputAsync()
         {
             _session!.Character.SpPoint = 1;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
@@ -158,7 +158,7 @@ namespace NosCore.Tests.InventoryTests
 
 
         [TestMethod]
-        public async Task Test_TransformBefore_Cooldown()
+        public async Task Test_TransformBefore_CooldownAsync()
         {
             _session!.Character.SpPoint = 1;
             _session.Character.LastSp = SystemTime.Now();
@@ -176,7 +176,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Transform_OutOfSpPoint()
+        public async Task Test_Transform_OutOfSpPointAsync()
         {
             _session!.Character.LastSp = SystemTime.Now();
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
@@ -191,7 +191,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_Transform_Delay()
+        public async Task Test_Transform_DelayAsync()
         {
             _session!.Character.SpPoint = 1;
             _session.Character.LastSp = SystemTime.Now();

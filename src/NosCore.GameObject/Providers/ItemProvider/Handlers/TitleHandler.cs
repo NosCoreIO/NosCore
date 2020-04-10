@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
         public Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
-            requestData.ClientSession.SendPacketAsync(new QnaPacket
+            return requestData.ClientSession.SendPacketAsync(new QnaPacket
             {
                 YesPacket = new GuriPacket
                 {
@@ -45,9 +45,8 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     EntityId = requestData.Data.Item1.Slot
                 },
                 Question = GameLanguage.Instance.GetMessageFromKey(LanguageKey.WANT_ENABLE_TITLE,
-                    requestData.ClientSession.Account.Language)
+                     requestData.ClientSession.Account.Language)
             });
-            return Task.CompletedTask;
         }
     }
 }

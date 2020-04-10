@@ -31,6 +31,7 @@ using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -45,17 +46,17 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class EntryPointPacketHandler : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {
-        private readonly IGenericDao<AccountDto> _accountDao;
+        private readonly IDao<AccountDto, long> _accountDao;
         private readonly IAuthHttpClient _authHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IGenericDao<CharacterDto> _characterDao;
+        private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly ILogger _logger;
-        private readonly IGenericDao<MateDto> _mateDao;
+        private readonly IDao<MateDto, long> _mateDao;
 
-        public EntryPointPacketHandler(IGenericDao<CharacterDto> characterDao,
-            IGenericDao<AccountDto> accountDao,
-            IGenericDao<MateDto> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
+        public EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
+            IDao<AccountDto, long> accountDao,
+            IDao<MateDto, long> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient,
             IChannelHttpClient channelHttpClient)
         {
@@ -99,7 +100,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     return;
                 }
 
-                var account = _accountDao.FirstOrDefault(s => s.Name == name);
+                var account = await _accountDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false);
 
                 if (account != null)
                 {

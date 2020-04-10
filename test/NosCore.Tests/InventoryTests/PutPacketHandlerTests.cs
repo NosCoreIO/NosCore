@@ -48,17 +48,17 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             SystemTime.Freeze();
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _putPacketHandler = new PutPacketHandler(_session.WorldConfiguration);
         }
 
         [TestMethod]
-        public async Task Test_PutPartialSlot()
+        public async Task Test_PutPartialSlotAsync()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 999), 0));
             await _putPacketHandler!.ExecuteAsync(new PutPacket
@@ -72,7 +72,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_PutNotDroppable()
+        public async Task Test_PutNotDroppableAsync()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1013, 1), 0));
             await _putPacketHandler!.ExecuteAsync(new PutPacket
@@ -89,7 +89,7 @@ namespace NosCore.Tests.InventoryTests
 
 
         [TestMethod]
-        public async Task Test_Put()
+        public async Task Test_PutAsync()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 1), 0));
             await _putPacketHandler!.ExecuteAsync(new PutPacket
@@ -102,7 +102,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_PutBadPlace()
+        public async Task Test_PutBadPlaceAsync()
         {
             _session!.Character.PositionX = 2;
             _session.Character.PositionY = 2;
@@ -120,7 +120,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task Test_PutOutOfBounds()
+        public async Task Test_PutOutOfBoundsAsync()
         {
             _session!.Character.PositionX = -1;
             _session.Character.PositionY = -1;

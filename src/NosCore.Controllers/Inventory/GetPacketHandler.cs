@@ -84,6 +84,7 @@ namespace NosCore.PacketHandlers.Inventory
 
             mapItem.Requests!.OnNext(new RequestData<Tuple<MapItem, GetPacket>>(clientSession,
                 new Tuple<MapItem, GetPacket>(mapItem, getPacket)));
+            await Task.Delay(10).ConfigureAwait(false); //todo find a way to await on the observers without a async void
         }
     }
 }

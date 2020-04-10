@@ -25,6 +25,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
@@ -32,11 +33,11 @@ using Serilog;
 
 namespace NosCore.Parser.Parsers
 {
-    public class I18NParser<TDto> where TDto : II18NDto, new ()
+    public class I18NParser<TDto, TPk> where TDto : II18NDto, new() where TPk : struct
     {
         private readonly ILogger _logger;
-        private readonly IGenericDao<TDto> _dao;
-        public I18NParser(IGenericDao<TDto> dao, ILogger logger)
+        private readonly IDao<TDto, TPk> _dao;
+        public I18NParser(IDao<TDto, TPk> dao, ILogger logger)
         {
             _dao = dao;
             _logger = logger;
@@ -49,25 +50,25 @@ namespace NosCore.Parser.Parsers
             return string.Format(textfilename, regioncode);
         }
 
-        public void InsertI18N(string file, LogLanguageKey logLanguageKey)
+        public Task InsertI18NAsync(string file, LogLanguageKey logLanguageKey)
         {
-            var listoftext = _dao.LoadAll().ToDictionary(x=>(x.Key,x.RegionType), x=>x.Text);
-            Parallel.ForEach((RegionType[])Enum.GetValues(typeof(RegionType)), region =>
+            var listoftext = _dao.LoadAll().ToDictionary(x => (x.Key, x.RegionType), x => x.Text);
+
+            return Task.WhenAll(((RegionType[])Enum.GetValues(typeof(RegionType))).Select(async region =>
             {
                 var dtos = new Dictionary<string, TDto>();
                 try
                 {
                     using var stream = new StreamReader(I18NTextFileName(file, region),
                         Encoding.Default);
-                    while (!stream.EndOfStream)
+                    var lines = (await stream.ReadToEndAsync().ConfigureAwait(false)).Split(
+                        new[] { "\r\n", "\r", "\n" },
+                        StringSplitOptions.None
+                    );
+                    foreach (var line in lines)
                     {
-                        var line = stream.ReadLine();
-                        if(line == null)
-                        {
-                            continue;
-                        }
                         var currentLine = line.Split('\t');
-                        if (currentLine.Length > 1 && !listoftext.ContainsKey((currentLine[0], region))  &&
+                        if (currentLine.Length > 1 && !listoftext.ContainsKey((currentLine[0], region)) &&
                             !dtos.ContainsKey(currentLine[0]))
                         {
                             dtos.Add(currentLine[0], new TDto()
@@ -78,7 +79,7 @@ namespace NosCore.Parser.Parsers
                             });
                         }
                     }
-                    _dao.InsertOrUpdate(dtos.Values.AsEnumerable());
+                    await _dao.TryInsertOrUpdateAsync(dtos.Values).ConfigureAwait(false);
 
                     _logger.Information(string.Format(
                         LogLanguage.Instance.GetMessageFromKey(logLanguageKey),
@@ -89,7 +90,7 @@ namespace NosCore.Parser.Parsers
                 {
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LANGUAGE_MISSING));
                 }
-            });
+            }));
         }
     }
 }

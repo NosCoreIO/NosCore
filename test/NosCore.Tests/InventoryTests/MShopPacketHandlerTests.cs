@@ -64,12 +64,12 @@ namespace NosCore.Tests.InventoryTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
 
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _session.Character.MapInstance.Portals = new List<Portal>
             {
                 new Portal
@@ -90,7 +90,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task UserCanNotCreateShopCloseToPortal()
+        public async Task UserCanNotCreateShopCloseToPortalAsync()
         {
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session!).ConfigureAwait(false);
             var packet = (MsgPacket?)_session?.LastPackets.FirstOrDefault(s => s is MsgPacket);
@@ -100,7 +100,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task UserCanNotCreateShopInTeam()
+        public async Task UserCanNotCreateShopInTeamAsync()
         {
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
@@ -113,7 +113,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task UserCanCreateShopInGroup()
+        public async Task UserCanCreateShopInGroupAsync()
         {
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
@@ -125,7 +125,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task UserCanNotCreateShopInNotShopAllowedMaps()
+        public async Task UserCanNotCreateShopInNotShopAllowedMapsAsync()
         {
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
@@ -139,7 +139,7 @@ namespace NosCore.Tests.InventoryTests
 
 
         [TestMethod]
-        public async Task UserCanNotCreateShopWithMissingItem()
+        public async Task UserCanNotCreateShopWithMissingItemAsync()
         {
             var items = new List<ItemDto>
             {
@@ -156,7 +156,7 @@ namespace NosCore.Tests.InventoryTests
 
 
         [TestMethod]
-        public async Task UserCanNotCreateShopWithMissingAmountItem()
+        public async Task UserCanNotCreateShopWithMissingAmountItemAsync()
         {
             var items = new List<ItemDto>
             {
@@ -181,7 +181,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task UserCanCreateShop()
+        public async Task UserCanCreateShopAsync()
         {
             var items = new List<ItemDto>
             {
@@ -203,7 +203,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task UserCanNotCreateShopInExchange()
+        public async Task UserCanNotCreateShopInExchangeAsync()
         {
             _session!.Character.InShop = true;
             var items = new List<ItemDto>
@@ -226,7 +226,7 @@ namespace NosCore.Tests.InventoryTests
         }
 
         [TestMethod]
-        public async Task UserCanNotCreateEmptyShop()
+        public async Task UserCanNotCreateEmptyShopAsync()
         {
             _session!.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
 

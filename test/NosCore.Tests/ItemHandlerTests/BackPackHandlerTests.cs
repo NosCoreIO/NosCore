@@ -45,9 +45,9 @@ namespace NosCore.Tests.ItemHandlerTests
         private ItemProvider? _itemProvider;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            Session = TestHelpers.Instance.GenerateSession();
+            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             Handler = new BackPackHandler(new WorldConfiguration { MaxAdditionalSpPoints = 1 });
             var items = new List<ItemDto>
             {
@@ -58,7 +58,7 @@ namespace NosCore.Tests.ItemHandlerTests
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
         }
         [TestMethod]
-        public async Task Test_Can_Not_Stack()
+        public async Task Test_Can_Not_StackAsync()
         {
             Session!.Character.StaticBonusList.Add(new StaticBonusDto
             {
@@ -75,7 +75,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_BackPack()
+        public async Task Test_BackPackAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
@@ -90,7 +90,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_Can_Not_StackTicket()
+        public async Task Test_Can_Not_StackTicketAsync()
         {
             Session!.Character.StaticBonusList.Add(new StaticBonusDto
             {
@@ -107,7 +107,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_BackPackTicket()
+        public async Task Test_BackPackTicketAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);

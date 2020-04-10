@@ -42,9 +42,9 @@ namespace NosCore.Tests.ItemHandlerTests
         private ItemProvider? _itemProvider;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            Session = TestHelpers.Instance.GenerateSession();
+            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             Handler = new BazaarMedalsHandler();
             var items = new List<ItemDto>
             {
@@ -55,7 +55,7 @@ namespace NosCore.Tests.ItemHandlerTests
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
         }
         [TestMethod]
-        public async Task Test_AddMedal_AlreadyOneDifferent()
+        public async Task Test_AddMedal_AlreadyOneDifferentAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session!.Character.CharacterId);
             Session.Character.StaticBonusList.Add(new StaticBonusDto
@@ -70,7 +70,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_AddMedal_AlreadyOne()
+        public async Task Test_AddMedal_AlreadyOneAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.StaticBonusList.Add(new StaticBonusDto
@@ -85,7 +85,7 @@ namespace NosCore.Tests.ItemHandlerTests
         }
 
         [TestMethod]
-        public async Task Test_AddMedal()
+        public async Task Test_AddMedalAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);

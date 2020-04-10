@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -44,7 +45,7 @@ namespace NosCore.GameObject
 
         public IDisposable? Life { get; private set; }
 
-        public void Initialize()
+        public Task InitializeAsync()
         {
             NpcMonster = _npcMonsters.Find(s => s.NpcMonsterVNum == VNum)!;
             Mp = NpcMonster?.MaxMp ?? 0;
@@ -53,6 +54,7 @@ namespace NosCore.GameObject
             PositionX = MapX;
             PositionY = MapY;
             IsAlive = true;
+            return Task.CompletedTask;
         }
 
         public bool IsSitting { get; set; }
@@ -96,27 +98,30 @@ namespace NosCore.GameObject
             Life = null;
         }
 
-        public void StartLife()
+        public Task StartLifeAsync()
         {
-            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(_ =>
+            async Task LifeAsync()
             {
                 try
                 {
                     if (!MapInstance.IsSleeping)
                     {
-                        MonsterLife();
+                        await MonsterLifeAsync().ConfigureAwait(false);
                     }
                 }
                 catch (Exception e)
                 {
                     _logger.Error(e.Message, e);
                 }
-            });
+
+            }
+            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();
+            return Task.CompletedTask;
         }
 
-        private void MonsterLife()
+        private Task MonsterLifeAsync()
         {
-            this.MoveAsync();
+            return this.MoveAsync();
         }
     }
 }

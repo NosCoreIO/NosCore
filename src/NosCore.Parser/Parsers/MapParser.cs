@@ -21,8 +21,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
@@ -38,16 +40,16 @@ namespace NosCore.Parser.Parsers
         private readonly string _fileMapIdDat = $"{Path.DirectorySeparatorChar}MapIDData.dat";
         private readonly string _folderMap = $"{Path.DirectorySeparatorChar}map";
         private readonly ILogger _logger;
-        private readonly IGenericDao<MapDto> _mapDao;
+        private readonly IDao<MapDto, short> _mapDao;
 
 
-        public MapParser(IGenericDao<MapDto> mapDao, ILogger logger)
+        public MapParser(IDao<MapDto, short> mapDao, ILogger logger)
         {
             _logger = logger;
             _mapDao = mapDao;
         }
 
-        public List<MapDto> ParseDat(string folder)
+        public Task<List<MapDto>> ParseDatAsync(string folder)
         {
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
@@ -55,12 +57,12 @@ namespace NosCore.Parser.Parsers
                 {nameof(MapDto.NameI18NKey), chunk => chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0][4]}
             };
             var genericParser = new GenericParser<MapDto>(folder + _fileMapIdDat, "DATA 0", 0, actionList, _logger);
-            return genericParser.GetDtos(" ");
+            return genericParser.GetDtosAsync(" ");
         }
 
-        public void InsertOrUpdateMaps(string folder, List<string[]> packetList)
+        public async Task InsertOrUpdateMapsAsync(string folder, List<string[]> packetList)
         {
-            var dictionaryId = ParseDat(folder);
+            var dictionaryId = await ParseDatAsync(folder).ConfigureAwait(false);
             var folderMap = folder + _folderMap;
             var dictionaryMusic = packetList.Where(o => o[0].Equals("at") && (o.Length > 7))
                 .GroupBy(x => x[2])
@@ -74,7 +76,7 @@ namespace NosCore.Parser.Parsers
                 ShopAllowed = short.Parse(file.Name) == 147
             }).ToList();
            
-            _mapDao.InsertOrUpdate(maps);
+            await _mapDao.TryInsertOrUpdateAsync(maps).ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MAPS_PARSED), maps.Count);
         }
     }

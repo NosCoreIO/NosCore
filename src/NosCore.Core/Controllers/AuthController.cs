@@ -23,6 +23,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -30,6 +31,7 @@ using NosCore.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
@@ -42,11 +44,11 @@ namespace NosCore.Core.Controllers
     [Route("api/[controller]")]
     public class AuthController : Controller
     {
-        private readonly IGenericDao<AccountDto> _accountDao;
+        private readonly IDao<AccountDto, long> _accountDao;
         private readonly WebApiConfiguration _apiConfiguration;
         private readonly ILogger _logger;
 
-        public AuthController(WebApiConfiguration apiConfiguration, IGenericDao<AccountDto> accountDao, ILogger logger)
+        public AuthController(WebApiConfiguration apiConfiguration, IDao<AccountDto, long> accountDao, ILogger logger)
         {
             _apiConfiguration = apiConfiguration;
             _accountDao = accountDao;
@@ -55,14 +57,14 @@ namespace NosCore.Core.Controllers
 
         [AllowAnonymous]
         [HttpPost("sessions")]
-        public IActionResult ConnectUser(ApiSession session)
+        public async Task<IActionResult> ConnectUserAsync(ApiSession session)
         {
             if (!ModelState.IsValid || session == null)
             {
                 return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
             }
 
-            var account = _accountDao.FirstOrDefault(s => s.Name == session.Identity);
+            var account = await _accountDao.FirstOrDefaultAsync(s => s.Name == session.Identity).ConfigureAwait(false);
             if (account == null)
             {
                 return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
@@ -99,7 +101,8 @@ namespace NosCore.Core.Controllers
             }
 
             account.Language = Enum.Parse<RegionType>(session.GfLang?.ToUpper(CultureInfo.CurrentCulture) ?? "");
-            _accountDao.InsertOrUpdate(ref account);
+            
+            account = await _accountDao.TryInsertOrUpdateAsync(account).ConfigureAwait(false);
             var platformGameAccountId = Guid.NewGuid();
             var claims = new ClaimsIdentity(new[]
             {

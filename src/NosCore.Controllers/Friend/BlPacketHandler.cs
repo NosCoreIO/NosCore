@@ -37,12 +37,11 @@ namespace NosCore.PacketHandlers.Friend
 
             if (target == null)
             {
-                session.SendPacketAsync(new InfoPacket
+                return session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 });
-                return Task.CompletedTask;
             }
 
             var blinsPacket = new BlInsPacket

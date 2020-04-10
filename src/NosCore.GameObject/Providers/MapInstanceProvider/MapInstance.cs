@@ -28,6 +28,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.MiniMap;
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
+using JetBrains.Annotations;
 using NosCore.Core;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Map;
@@ -160,10 +161,14 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public void LoadHandlers()
         {
+            static Task RequestExecAsync(IMapInstanceEventHandler handler, RequestData<MapInstance> request)
+            {
+                return handler.ExecuteAsync(request);
+            }
             _mapInstanceEventHandler.ForEach(handler =>
             {
                 var type = handler.MapInstanceEventType;
-                Requests[type].Subscribe(handler.Execute);
+                Requests[type].Select(request => RequestExecAsync(handler, request)).Subscribe();
             });
         }
 
@@ -189,7 +194,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             {
                 for (short y = -1; y < 2; y++)
                 {
-                    possibilities.Add(new MapCell {X = x, Y = y});
+                    possibilities.Add(new MapCell { X = x, Y = y });
                 }
             }
 
@@ -199,8 +204,8 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             var orderedPossibilities = possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()).ToList();
             for (var i = 0; (i < orderedPossibilities.Count) && !niceSpot; i++)
             {
-                mapX = (short) (session.Character.PositionX + orderedPossibilities[i].X);
-                mapY = (short) (session.Character.PositionY + orderedPossibilities[i].Y);
+                mapX = (short)(session.Character.PositionX + orderedPossibilities[i].X);
+                mapY = (short)(session.Character.PositionY + orderedPossibilities[i].Y);
                 if (Map.IsBlockedZone(session.Character.PositionX, session.Character.PositionY, mapX, mapY))
                 {
                     continue;
@@ -219,7 +224,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                 return null;
             }
 
-            var newItemInstance = (IItemInstance) inv.Clone();
+            var newItemInstance = (IItemInstance)inv.Clone();
             newItemInstance.Id = random2;
             newItemInstance.Amount = amount;
             droppedItem = _mapItemProvider.Create(this, newItemInstance, mapX, mapY);
@@ -301,9 +306,9 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             };
         }
 
-        public void StartLife()
+        public Task StartLifeAsync()
         {
-            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Subscribe(_ =>
+            async Task LifeAsync()
             {
                 try
                 {
@@ -312,14 +317,16 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                         return;
                     }
 
-                    Parallel.ForEach(Monsters.Where(s => s.Life == null), monster => monster.StartLife());
-                    Parallel.ForEach(Npcs.Where(s => s.Life == null), npc => npc.StartLife());
+                    await Task.WhenAll(Monsters.Where(s => s.Life == null).Select(monster => monster.StartLifeAsync())).ConfigureAwait(false);
+                    await Task.WhenAll(Npcs.Where(s => s.Life == null).Select(npc => npc.StartLifeAsync())).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
                     _logger.Error(e.Message, e);
                 }
-            });
+            }
+            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();
+            return Task.CompletedTask;
         }
 
         protected virtual void Dispose(bool disposing)

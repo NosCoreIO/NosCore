@@ -28,6 +28,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
@@ -35,6 +36,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking;
@@ -53,21 +55,21 @@ namespace NosCore.Tests.BazaarTests
     {
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CRegPacketHandler? _cregPacketHandler;
-        private Mock<IGenericDao<InventoryItemInstanceDto>>? _inventoryItemInstanceDao;
-        private Mock<IGenericDao<IItemInstanceDto>>? _itemInstanceDao;
+        private Mock<IDao<InventoryItemInstanceDto, Guid>>? _inventoryItemInstanceDao;
+        private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
         private ItemProvider? _itemProvider;
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            TestHelpers.Reset();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _session.Character.StaticBonusList = new List<StaticBonusDto>();
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
-            _inventoryItemInstanceDao = new Mock<IGenericDao<InventoryItemInstanceDto>>();
-            _itemInstanceDao = new Mock<IGenericDao<IItemInstanceDto>>();
+            _inventoryItemInstanceDao = new Mock<IDao<InventoryItemInstanceDto, Guid>>();
+            _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _bazaarHttpClient.Setup(s => s.AddBazaarAsync(It.IsAny<BazaarRequest>())).ReturnsAsync(LanguageKey.OBJECT_IN_BAZAAR);
             var items = new List<ItemDto>
             {
@@ -82,10 +84,12 @@ namespace NosCore.Tests.BazaarTests
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
             _cregPacketHandler = new CRegPacketHandler(TestHelpers.Instance.WorldConfiguration,
                 _bazaarHttpClient.Object, _itemInstanceDao.Object, _inventoryItemInstanceDao.Object);
+            _itemInstanceDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
+                .Returns<IItemInstanceDto?>(Task.FromResult);
         }
 
         [TestMethod]
-        public async Task RegisterWhenInExchangeOrTrade()
+        public async Task RegisterWhenInExchangeOrTradeAsync()
         {
             _session!.Character.InShop = true;
             await _session!.HandlePacketsAsync(new[]{new CRegPacket
@@ -105,7 +109,7 @@ namespace NosCore.Tests.BazaarTests
 
 
         [TestMethod]
-        public async Task RegisterTaxWhenMedalMoreThanGold()
+        public async Task RegisterTaxWhenMedalMoreThanGoldAsync()
         {
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -125,7 +129,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RegisterNegativeAmount()
+        public async Task RegisterNegativeAmountAsync()
         {
             _session!.Character.Gold = 500000;
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
@@ -143,7 +147,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RegisterNotExistingItem()
+        public async Task RegisterNotExistingItemAsync()
         {
             _session!.Character.Gold = 500000;
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
@@ -161,7 +165,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RegisterTooExpensiveWhenNoMedal()
+        public async Task RegisterTooExpensiveWhenNoMedalAsync()
         {
             _session!.Character.Gold = 500000;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))
@@ -184,7 +188,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RegisterHasSmallerTaxWhenMedal()
+        public async Task RegisterHasSmallerTaxWhenMedalAsync()
         {
             _session!.Character.Gold = 100000;
             _session.Character.StaticBonusList.Add(new StaticBonusDto
@@ -212,7 +216,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RegisterTooExpensive()
+        public async Task RegisterTooExpensiveAsync()
         {
             _session!.Character.Gold = 5000000;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))
@@ -235,7 +239,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RegisterTooLongWhenNoMedal()
+        public async Task RegisterTooLongWhenNoMedalAsync()
         {
             _session!.Character.Gold = 5000000;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))
@@ -257,7 +261,7 @@ namespace NosCore.Tests.BazaarTests
 
 
         [TestMethod]
-        public async Task RegisterUnvalidTime()
+        public async Task RegisterUnvalidTimeAsync()
         {
             _session!.Character.Gold = 5000000;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))
@@ -278,7 +282,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RegisterLimitExceeded()
+        public async Task RegisterLimitExceededAsync()
         {
             _session!.Character.Gold = 5000000;
             _session.Character.InventoryService!
@@ -304,7 +308,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RegisterAllSlot()
+        public async Task RegisterAllSlotAsync()
         {
             _session!.Character.Gold = 5000000;
             _session.Character.InventoryService!
@@ -328,7 +332,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RegisterLessThanInInventory()
+        public async Task RegisterLessThanInInventoryAsync()
         {
             _session!.Character.Gold = 5000000;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))
@@ -349,7 +353,7 @@ namespace NosCore.Tests.BazaarTests
         }
 
         [TestMethod]
-        public async Task RegisterPartialSlot()
+        public async Task RegisterPartialSlotAsync()
         {
             _session!.Character.Gold = 5000000;
             _session.Character.InventoryService!

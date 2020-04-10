@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.GameObject.Networking.ClientSession;
 
@@ -37,19 +38,18 @@ namespace NosCore.GameObject.Providers.GuriProvider
         }
 
         public void GuriLaunch(ClientSession clientSession, GuriPacket data)
-        { 
+        {
             var handlersRequest = new Subject<RequestData<GuriPacket>>();
+
+            static Task RequestExecAsync(IEventHandler<GuriPacket, GuriPacket> handler, RequestData<GuriPacket> request)
+            {
+                return handler.ExecuteAsync(request);
+            }
             _handlers.ForEach(handler =>
             {
                 if (handler.Condition(data))
                 {
-                    handlersRequest.Subscribe(async o =>
-                    {
-                        await Observable.FromAsync(async () =>
-                        {
-                            await handler.ExecuteAsync(o).ConfigureAwait(false);
-                        });
-                    });
+                    handlersRequest.Select(request => RequestExecAsync(handler, request)).Subscribe();
                 }
             });
             handlersRequest.OnNext(new RequestData<GuriPacket>(clientSession, data));

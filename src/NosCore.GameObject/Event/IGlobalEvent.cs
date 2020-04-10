@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Event
 {
@@ -25,6 +26,6 @@ namespace NosCore.GameObject.Event
     {
         TimeSpan Delay { get; set; }
 
-        void Execution();
+        Task ExecutionAsync();
     }
 }

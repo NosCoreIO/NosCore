@@ -19,13 +19,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 
 namespace NosCore.MasterServer.Controllers
 {
@@ -33,12 +36,12 @@ namespace NosCore.MasterServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class WarehouseController : Controller
     {
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
-        private readonly IGenericDao<WarehouseDto> _warehouseDao;
-        private readonly IGenericDao<WarehouseItemDto> _warehouseItemDao;
+        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
+        private readonly IDao<WarehouseDto, Guid> _warehouseDao;
+        private readonly IDao<WarehouseItemDto, Guid> _warehouseItemDao;
 
-        public WarehouseController(IGenericDao<WarehouseItemDto> warehouseItemDao,
-            IGenericDao<WarehouseDto> warehouseDao, IGenericDao<IItemInstanceDto> itemInstanceDao)
+        public WarehouseController(IDao<WarehouseItemDto, Guid> warehouseItemDao,
+            IDao<WarehouseDto, Guid> warehouseDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao)
         {
             _itemInstanceDao = itemInstanceDao;
             _warehouseItemDao = warehouseItemDao;
@@ -51,7 +54,7 @@ namespace NosCore.MasterServer.Controllers
             var list = new List<WarehouseLink>();
             if (id == null)
             {
-                var warehouse = _warehouseDao.FirstOrDefault(s
+                var warehouse = _warehouseDao.FirstOrDefaultAsync(s
                     => s.Type == warehouseType
                     && s.CharacterId == (warehouseType == WarehouseType.FamilyWareHouse ? null : ownerId)
                     && s.FamilyId == (warehouseType == WarehouseType.FamilyWareHouse ? ownerId : null));
@@ -75,25 +78,25 @@ namespace NosCore.MasterServer.Controllers
 
 
         [HttpDelete]
-        public bool DeleteWarehouseItem(Guid id)
+        public async Task<bool> DeleteWarehouseItemAsync(Guid id)
         {
-            var item = _warehouseItemDao.FirstOrDefault(s => s.Id == id);
+            var item = await _warehouseItemDao.FirstOrDefaultAsync(s => s.Id == id).ConfigureAwait(false);
             if (item == null)
             {
                 return false;
             }
-            _warehouseItemDao.Delete(item.Id);
-            _warehouseDao.Delete(item.WarehouseId);
-            _itemInstanceDao.Delete(item.ItemInstanceId);
+            await _warehouseItemDao.TryDeleteAsync(item.Id).ConfigureAwait(false);
+            await _warehouseDao.TryDeleteAsync(item.WarehouseId).ConfigureAwait(false);
+            await _itemInstanceDao.TryDeleteAsync(item.ItemInstanceId).ConfigureAwait(false);
             return true;
         }
 
         [HttpPost]
-        public bool AddWarehouseItem([FromBody] WareHouseDepositRequest depositRequest)
+        public async Task<bool> AddWarehouseItemAsync([FromBody] WareHouseDepositRequest depositRequest)
         {
             var item = depositRequest.ItemInstance as IItemInstanceDto;
             item!.Id = Guid.NewGuid();
-            _itemInstanceDao.InsertOrUpdate(ref item);
+            item = await _itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(true);
             var warehouse = new WarehouseDto
             {
                 CharacterId = depositRequest.WarehouseType == WarehouseType.FamilyWareHouse ? null
@@ -103,15 +106,15 @@ namespace NosCore.MasterServer.Controllers
                     ? (long?) depositRequest.OwnerId : null,
                 Type = depositRequest.WarehouseType,
             };
-            _warehouseDao.InsertOrUpdate(ref warehouse);
+            warehouse = await _warehouseDao.TryInsertOrUpdateAsync( warehouse).ConfigureAwait(true);
             var warehouseItem = new WarehouseItemDto
             {
                 Slot = depositRequest.Slot,
                 Id = Guid.NewGuid(),
-                ItemInstanceId = item.Id,
+                ItemInstanceId = item!.Id,
                 WarehouseId = warehouse.Id
             };
-            _warehouseItemDao.InsertOrUpdate(ref warehouseItem);
+            await _warehouseItemDao.TryInsertOrUpdateAsync(warehouseItem).ConfigureAwait(true);
             return true;
         }
     }

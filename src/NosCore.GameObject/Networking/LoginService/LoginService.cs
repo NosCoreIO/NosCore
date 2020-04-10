@@ -30,6 +30,7 @@ using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.Networking;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
@@ -39,13 +40,13 @@ namespace NosCore.GameObject.Networking.LoginService
 {
     public class LoginService : ILoginService
     {
-        private readonly IGenericDao<AccountDto> _accountDao;
+        private readonly IDao<AccountDto, long> _accountDao;
         private readonly IAuthHttpClient _authHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly LoginConfiguration _loginConfiguration;
 
-        public LoginService(LoginConfiguration loginConfiguration, IGenericDao<AccountDto> accountDao,
+        public LoginService(LoginConfiguration loginConfiguration, IDao<AccountDto, long> accountDao,
             IAuthHttpClient authHttpClient,
             IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
@@ -63,17 +64,17 @@ namespace NosCore.GameObject.Networking.LoginService
             {
                 clientSession.SessionId = clientSession.Channel?.Id != null
                     ? SessionFactory.Instance.Sessions[clientSession.Channel.Id.AsLongText()].SessionId : 0;
-/*
-                if (false) //TODO Maintenance
-                {
-                    await clientSession.SendPacket(new FailcPacket
-                    {
-                        Type = LoginFailType.Maintenance
-                    });
-                    await clientSession.Disconnect();
-                    return;
-                }
-*/
+                /*
+                                if (false) //TODO Maintenance
+                                {
+                                    await clientSession.SendPacket(new FailcPacket
+                                    {
+                                        Type = LoginFailType.Maintenance
+                                    });
+                                    await clientSession.Disconnect();
+                                    return;
+                                }
+                */
 
                 if (((_loginConfiguration.ClientVersion != null) &&
                         (clientVersion != _loginConfiguration.ClientVersion))
@@ -87,12 +88,12 @@ namespace NosCore.GameObject.Networking.LoginService
                     return;
                 }
 
-                if(useApiAuth)
+                if (useApiAuth)
                 {
                     username = await _authHttpClient.GetAwaitingConnectionAsync(null, passwordToken, clientSession.SessionId).ConfigureAwait(false);
                 }
 
-                var acc = _accountDao.FirstOrDefault(s => s.Name.ToLower() == username!.ToLower());
+                var acc = await _accountDao.FirstOrDefaultAsync(s => s.Name.ToLower() == (username ?? "").ToLower()).ConfigureAwait(false);
 
                 if ((acc != null) && (acc.Name != username))
                 {
@@ -159,7 +160,8 @@ namespace NosCore.GameObject.Networking.LoginService
                         }
 
                         acc.Language = _loginConfiguration.UserLanguage;
-                        _accountDao.InsertOrUpdate(ref acc);
+
+                        acc = await _accountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
                         if (servers == null || servers.Count <= 0)
                         {
                             await clientSession.SendPacketAsync(new FailcPacket
@@ -184,7 +186,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             }
 
                             var channelcolor =
-                                (int) Math.Round((double) connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
+                                (int)Math.Round((double)connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
                                 + 1;
                             subpacket.Add(new NsTeStSubPacket
                             {
@@ -212,7 +214,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             AccountName = username,
                             SubPacket = subpacket,
                             SessionId = clientSession.SessionId,
-                            Unknown = useApiAuth ? 2 : (int?) null
+                            Unknown = useApiAuth ? 2 : (int?)null
                         }).ConfigureAwait(false);
                         return;
                 }

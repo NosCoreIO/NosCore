@@ -22,8 +22,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
@@ -50,16 +52,16 @@ namespace NosCore.Parser.Parsers
     {
         private readonly string _fileNpcTalkDat = $"{Path.DirectorySeparatorChar}npctalk.dat";
         private readonly ILogger _logger;
-        private readonly IGenericDao<NpcTalkDto> _npcTalkDao;
+        private readonly IDao<NpcTalkDto, short> _npcTalkDao;
 
-        public NpcTalkParser(IGenericDao<NpcTalkDto> npcTalkDao, ILogger logger)
+        public NpcTalkParser(IDao<NpcTalkDto, short> npcTalkDao, ILogger logger)
         {
             _logger = logger;
             _npcTalkDao = npcTalkDao;
         }
 
 
-        public void Parse(string folder)
+        public async Task ParseAsync(string folder)
         {
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
             {
@@ -69,9 +71,9 @@ namespace NosCore.Parser.Parsers
 
             var genericParser = new GenericParser<NpcTalkDto>(folder + _fileNpcTalkDat,
                 "%", 0, actionList, _logger);
-            var npcTalks = genericParser.GetDtos(" ").ToList();
+            var npcTalks = (await genericParser.GetDtosAsync(" ").ConfigureAwait(false)).ToList();
             npcTalks.Add(new NpcTalkDto { DialogId = 99, NameI18NKey = "" });
-            _npcTalkDao.InsertOrUpdate(npcTalks);
+            await _npcTalkDao.TryInsertOrUpdateAsync(npcTalks).ConfigureAwait(false);
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCTALKS_PARSED), npcTalks.Count);
         }

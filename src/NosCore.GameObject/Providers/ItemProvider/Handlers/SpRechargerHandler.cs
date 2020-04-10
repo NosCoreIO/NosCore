@@ -48,27 +48,26 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 (item.Effect <= ItemEffectType.CraftedSpRecharger);
         }
 
-        public Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
             if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.MaxAdditionalSpPoints)
             {
                 var itemInstance = requestData.Data.Item1;
                 requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
                     itemInstance.ItemInstanceId);
-                requestData.ClientSession.SendPacketAsync(
-                    itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot));
-                requestData.ClientSession.Character.AddAdditionalSpPoints(itemInstance.ItemInstance!.Item!.EffectValue);
+                await requestData.ClientSession.SendPacketAsync(
+                    itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
+                await requestData.ClientSession.Character.AddAdditionalSpPointsAsync(itemInstance.ItemInstance!.Item!.EffectValue).ConfigureAwait(false);
             }
             else
             {
-                requestData.ClientSession.Character.SendPacketAsync(new MsgPacket
+                await requestData.ClientSession.Character.SendPacketAsync(new MsgPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
                         requestData.ClientSession.Account.Language),
                     Type = MessageType.White
-                });
+                }).ConfigureAwait(false);
             }
-            return Task.CompletedTask;
         }
     }
 }

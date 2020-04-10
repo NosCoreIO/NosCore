@@ -28,12 +28,14 @@ using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.HttpClients.IncommingMailHttpClients;
+using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
+using NosCore.Database;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.MasterServer.DataHolders;
 
@@ -43,20 +45,20 @@ namespace NosCore.MasterServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class MailController : Controller
     {
-        private readonly IGenericDao<CharacterDto> _characterDto;
+        private readonly IDao<CharacterDto, long> _characterDto;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IIncommingMailHttpClient _incommingMailHttpClient;
-        private readonly IGenericDao<IItemInstanceDto> _itemInstanceDao;
+        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly IItemProvider _itemProvider;
         private readonly List<ItemDto> _items;
-        private readonly IGenericDao<MailDto> _mailDao;
+        private readonly IDao<MailDto, long> _mailDao;
         private readonly ParcelHolder _parcelHolder;
 
-        public MailController(IGenericDao<MailDto> mailDao, IGenericDao<IItemInstanceDto> itemInstanceDao,
+        public MailController(IDao<MailDto, long> mailDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IConnectedAccountHttpClient connectedAccountHttpClient,
             List<ItemDto> items, IItemProvider itemProvider, IIncommingMailHttpClient incommingMailHttpClient,
             ParcelHolder parcelHolder,
-            IGenericDao<CharacterDto> characterDto)
+            IDao<CharacterDto, long> characterDto)
         {
             _mailDao = mailDao;
             _itemInstanceDao = itemInstanceDao;
@@ -91,13 +93,13 @@ namespace NosCore.MasterServer.Controllers
 
 
         [HttpDelete]
-        public async Task<bool> DeleteMail(long id, long characterId, bool senderCopy)
+        public async Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy)
         {
             var mail = _parcelHolder[characterId][senderCopy][id];
-            _mailDao.Delete(mail.MailDto.MailId);
+            await _mailDao.TryDeleteAsync(mail.MailDto.MailId).ConfigureAwait(false);
             if (mail.ItemInstance != null)
             {
-                _itemInstanceDao.Delete(mail.ItemInstance.Id);
+                await _itemInstanceDao.TryDeleteAsync(mail.ItemInstance.Id).ConfigureAwait(false);
             }
 
             _parcelHolder[characterId][senderCopy].TryRemove(id, out var maildata);
@@ -106,14 +108,14 @@ namespace NosCore.MasterServer.Controllers
                 return false;
             }
             var receiver = await _connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
-            Notify(1, receiver, maildata);
+            await NotifyAsync(1, receiver, maildata).ConfigureAwait(false);
             return true;
         }
 
         [HttpPatch]
-        public MailData? ViewMail(long id, [FromBody] JsonPatchDocument<MailDto> mailData)
+        public async Task<MailData?> ViewMailAsync(long id, [FromBody] JsonPatchDocument<MailDto> mailData)
         {
-            var mail = _mailDao.FirstOrDefault(s => s.MailId == id);
+            var mail = await _mailDao.FirstOrDefaultAsync(s => s.MailId == id).ConfigureAwait(false);
             if (mail == null)
             {
                 return null;
@@ -122,7 +124,7 @@ namespace NosCore.MasterServer.Controllers
 
             mailData.ApplyTo(mail);
             var bz = mail;
-            _mailDao.InsertOrUpdate(ref bz);
+            await _mailDao.TryInsertOrUpdateAsync(bz).ConfigureAwait(false);
             var savedData =
                 _parcelHolder[mail.IsSenderCopy ? (long)mail.SenderId! : mail.ReceiverId][mail.IsSenderCopy]
                     .FirstOrDefault(s => s.Value.MailDto.MailId == id);
@@ -130,8 +132,8 @@ namespace NosCore.MasterServer.Controllers
             {
                 return null;
             }
-            var maildata = GenerateMailData(mail, savedData.Value.ItemType, savedData.Value.ItemInstance,
-                savedData.Value.ReceiverName);
+            var maildata = await GenerateMailDataAsync(mail, savedData.Value.ItemType, savedData.Value.ItemInstance,
+                savedData.Value.ReceiverName).ConfigureAwait(false);
             maildata.MailId = savedData.Value.MailId;
             _parcelHolder[mail.IsSenderCopy ? mail.SenderId ?? 0 : mail.ReceiverId][mail.IsSenderCopy][
                 savedData.Key] = maildata;
@@ -140,14 +142,14 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPost]
-        public async Task<bool> SendMail([FromBody] MailRequest mail)
+        public async Task<bool> SendMailAsync([FromBody] MailRequest mail)
         {
             if (!ModelState.IsValid)
             {
                 return false;
             }
             var mailref = mail.Mail!;
-            var receivdto = _characterDto.FirstOrDefault(s => s.CharacterId == mailref.ReceiverId);
+            var receivdto = await _characterDto.FirstOrDefaultAsync(s => s.CharacterId == mailref.ReceiverId).ConfigureAwait(false);
             if (receivdto == null)
             {
                 return false;
@@ -197,46 +199,48 @@ namespace NosCore.MasterServer.Controllers
                 itemInstance = _itemProvider.Create((short)mail.VNum, mail.Amount ?? 1, mail.Rare ?? 0,
                     mail.Upgrade ?? 0);
 
-                _itemInstanceDao.InsertOrUpdate(ref itemInstance);
-                mailref.ItemInstanceId = itemInstance.Id;
+                itemInstance = await _itemInstanceDao.TryInsertOrUpdateAsync(itemInstance).ConfigureAwait(false);
+                mailref.ItemInstanceId = itemInstance?.Id;
             }
 
             var receiver = await _connectedAccountHttpClient.GetCharacterAsync(mailref.ReceiverId, null).ConfigureAwait(false);
             var sender = await _connectedAccountHttpClient.GetCharacterAsync(mailref.SenderId, null).ConfigureAwait(false);
 
-            _mailDao.InsertOrUpdate(ref mailref);
+            mailref = await _mailDao.TryInsertOrUpdateAsync(mailref).ConfigureAwait(false);
             if (itemInstance == null)
             {
                 return false;
             }
-            var mailData = GenerateMailData(mailref, (short?)it?.ItemType ?? -1, itemInstance, receiverName);
+            var mailData = await GenerateMailDataAsync(mailref, (short?)it?.ItemType ?? -1, itemInstance, receiverName).ConfigureAwait(false);
             _parcelHolder[mailref.ReceiverId][mailData.MailDto.IsSenderCopy].TryAdd(mailData.MailId, mailData);
-            Notify(0, receiver, mailData);
+            await NotifyAsync(0, receiver, mailData).ConfigureAwait(false);
 
-            if (mailref.SenderId != null)
+            if (mailref.SenderId == null)
             {
-                mailref.IsSenderCopy = true;
-                mailref.MailId = 0;
-                itemInstance.Id = new Guid();
-                _itemInstanceDao.InsertOrUpdate(ref itemInstance);
-                mailref.ItemInstanceId = itemInstance.Id;
-                _mailDao.InsertOrUpdate(ref mailref);
-                var mailDataCopy = GenerateMailData(mailref, (short?)it?.ItemType ?? -1, itemInstance, receiverName);
-                _parcelHolder[mailref.ReceiverId][mailDataCopy.MailDto.IsSenderCopy]
-                    .TryAdd(mailDataCopy.MailId, mailDataCopy);
-                Notify(0, receiver, mailDataCopy);
+                return true;
             }
+
+            mailref.IsSenderCopy = true;
+            mailref.MailId = 0;
+            itemInstance.Id = new Guid();
+            itemInstance = await _itemInstanceDao.TryInsertOrUpdateAsync(itemInstance).ConfigureAwait(false);
+            mailref.ItemInstanceId = itemInstance?.Id;
+            mailref = await _mailDao.TryInsertOrUpdateAsync(mailref).ConfigureAwait(false);
+            var mailDataCopy = await GenerateMailDataAsync(mailref, (short?)it?.ItemType ?? -1, itemInstance!, receiverName).ConfigureAwait(false);
+            _parcelHolder[mailref.ReceiverId][mailDataCopy.MailDto.IsSenderCopy]
+                .TryAdd(mailDataCopy.MailId, mailDataCopy);
+            await NotifyAsync(0, receiver, mailDataCopy).ConfigureAwait(false);
 
             return true;
         }
 
-        private MailData GenerateMailData(MailDto mailref, short itemType, IItemInstanceDto itemInstance,
+        private async Task<MailData> GenerateMailDataAsync(MailDto mailref, short itemType, IItemInstanceDto itemInstance,
             string receiverName)
         {
             var count = _parcelHolder[mailref.ReceiverId][mailref.IsSenderCopy].Select(s => s.Key).DefaultIfEmpty(-1)
                 .Max();
             var sender = mailref.SenderId != null
-                ? _characterDto.FirstOrDefault(s => s.CharacterId == mailref.SenderId)?.Name : "NOSMALL";
+                ? (await _characterDto.FirstOrDefaultAsync(s => s.CharacterId == mailref.SenderId).ConfigureAwait(false))?.Name : "NOSMALL";
             return new MailData
             {
                 ReceiverName = receiverName,
@@ -248,7 +252,7 @@ namespace NosCore.MasterServer.Controllers
             };
         }
 
-        private void Notify(byte notifyType, Tuple<ServerConfiguration?, ConnectedAccount?> receiver, MailData mailData)
+        private async Task NotifyAsync(byte notifyType, Tuple<ServerConfiguration?, ConnectedAccount?> receiver, MailData mailData)
         {
             var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver.Item2?.Name)
                 ? mailData.ItemInstance != null ? (byte)0 : (byte)1 : (byte)2;
@@ -261,11 +265,11 @@ namespace NosCore.MasterServer.Controllers
             switch (notifyType)
             {
                 case 0:
-                    _incommingMailHttpClient.NotifyIncommingMailAsync(receiver.Item2.ChannelId, mailData);
+                    await _incommingMailHttpClient.NotifyIncommingMailAsync(receiver.Item2.ChannelId, mailData).ConfigureAwait(false);
                     break;
                 case 1:
-                    _incommingMailHttpClient.DeleteIncommingMailAsync(receiver.Item2.ChannelId,
-                        receiver.Item2.ConnectedCharacter!.Id, (short)mailData.MailId, type);
+                    await _incommingMailHttpClient.DeleteIncommingMailAsync(receiver.Item2.ChannelId,
+                        receiver.Item2.ConnectedCharacter!.Id, (short)mailData.MailId, type).ConfigureAwait(false);
                     break;
             }
         }

@@ -25,6 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Configuration;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.Database.DAL;
@@ -36,6 +37,7 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.Dao;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
 {
@@ -44,18 +46,18 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     {
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
 
-        private readonly IGenericDao<CharacterRelationDto> _characterRelationDao =
-            new GenericDao<CharacterRelation, CharacterRelationDto, Guid>(Logger);
+        private readonly IDao<CharacterRelationDto, Guid> _characterRelationDao =
+           new Dao<CharacterRelation, CharacterRelationDto, Guid>(Logger, TestHelpers.Instance.ContextBuilder);
 
         private BlInsPackettHandler? _blInsPacketHandler;
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
             Broadcaster.Reset();
-            TestHelpers.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _blInsPacketHandler = new BlInsPackettHandler(TestHelpers.Instance.BlacklistHttpClient.Object);
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
@@ -69,7 +71,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         }
 
         [TestMethod]
-        public async Task Test_Blacklist_When_Disconnected()
+        public async Task Test_Blacklist_When_DisconnectedAsync()
         {
             var blinsPacket = new BlInsPacket
             {
@@ -77,16 +79,16 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             };
 
             await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session!).ConfigureAwait(false);
-            Assert.IsNull(
-                _characterRelationDao.FirstOrDefault(s =>
+            Assert.IsNull(await
+                _characterRelationDao.FirstOrDefaultAsync(s =>
                     (_session!.Character.CharacterId == s.CharacterId) &&
-                    (s.RelationType == CharacterRelationType.Blocked)));
+                    (s.RelationType == CharacterRelationType.Blocked)).ConfigureAwait(false));
         }
 
         [TestMethod]
-        public async Task Test_Blacklist_Character()
+        public async Task Test_Blacklist_CharacterAsync()
         {
-            var targetSession = TestHelpers.Instance.GenerateSession();
+            var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacterAsync(targetSession.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
@@ -97,7 +99,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             using var blacklist = new BlacklistController(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
                 _characterRelationDao, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklistAsync(It.IsAny<BlacklistRequest>()))
-                .Returns(blacklist.AddBlacklist(new BlacklistRequest
+                .Returns(blacklist.AddBlacklistAsync(new BlacklistRequest
                 {
                     CharacterId = _session!.Character.CharacterId,
                     BlInsPacket = new BlInsPacket
@@ -112,7 +114,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
 
            await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session).ConfigureAwait(false);
             Assert.IsNotNull(
-                _characterRelationDao.FirstOrDefault(s => (_session.Character.CharacterId == s.CharacterId)
+                _characterRelationDao.FirstOrDefaultAsync(s => (_session.Character.CharacterId == s.CharacterId)
                     && (targetSession.Character.CharacterId == s.RelatedCharacterId) &&
                     (s.RelationType == CharacterRelationType.Blocked)));
         }

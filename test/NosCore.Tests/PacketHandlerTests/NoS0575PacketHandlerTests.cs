@@ -53,10 +53,10 @@ namespace NosCore.Tests.PacketHandlerTests
         private ClientSession? _session;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            TestHelpers.Reset();
-            _session = TestHelpers.Instance.GenerateSession();
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _authHttpClient = new Mock<IAuthHttpClient>();
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
@@ -68,7 +68,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task LoginOldClient()
+        public async Task LoginOldClientAsync()
         {
             _loginConfiguration!.ClientVersion = new ClientVersionSubPacket {Major = 1};
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
@@ -82,7 +82,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task LoginOldAuthWithNewAuthEnforced()
+        public async Task LoginOldAuthWithNewAuthEnforcedAsync()
         {
             _loginConfiguration!.EnforceNewAuth = true;
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
@@ -95,7 +95,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task LoginNoAccount()
+        public async Task LoginNoAccountAsync()
         {
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
@@ -108,7 +108,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task LoginWrongCaps()
+        public async Task LoginWrongCapsAsync()
         {
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
@@ -121,7 +121,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task LoginWrongPAssword()
+        public async Task LoginWrongPAsswordAsync()
         {
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
@@ -134,7 +134,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task Login()
+        public async Task LoginAsync()
         {
             _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> {new ChannelInfo()});
             _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
@@ -149,7 +149,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task LoginAlreadyConnected()
+        public async Task LoginAlreadyConnectedAsync()
         {
             _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> {new ChannelInfo()});
             _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>())).ReturnsAsync(
@@ -165,7 +165,7 @@ namespace NosCore.Tests.PacketHandlerTests
         }
 
         [TestMethod]
-        public async Task LoginNoServer()
+        public async Task LoginNoServerAsync()
         {
             _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>());
             _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
