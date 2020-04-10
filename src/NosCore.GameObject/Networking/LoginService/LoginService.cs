@@ -195,7 +195,7 @@ namespace NosCore.GameObject.Networking.LoginService
                                 Color = channelcolor,
                                 WorldCount = worldCount,
                                 WorldId = i,
-                                Name = server.Name
+                                Name = server.Name,
                             });
                             i++;
                         }
@@ -214,7 +214,8 @@ namespace NosCore.GameObject.Networking.LoginService
                             AccountName = username,
                             SubPacket = subpacket,
                             SessionId = clientSession.SessionId,
-                            Unknown = useApiAuth ? 2 : (int?)null
+                            Unknown = useApiAuth ? 2 : (int?)null,
+                            RegionType = language
                         }).ConfigureAwait(false);
                         return;
                 }
