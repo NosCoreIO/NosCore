@@ -45,7 +45,7 @@ namespace NosCore.Parser.Parsers
         private string I18NTextFileName(string textfilename, RegionType region)
         {
             var regioncode = region.ToString().ToLower();
-            regioncode = regioncode == "en" ? "uk" : regioncode;
+            regioncode = regioncode == "en" ? "uk" : regioncode == "cs" ? "cz" : regioncode;
             return string.Format(textfilename, regioncode);
         }
 
