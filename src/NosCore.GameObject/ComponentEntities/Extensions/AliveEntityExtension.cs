@@ -39,6 +39,7 @@ using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PathFinder;
+using NosCore.PathFinder.Interfaces;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -117,7 +118,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static Task MoveAsync(this INonPlayableEntity nonPlayableEntity)
+        public static Task MoveAsync(this INonPlayableEntity nonPlayableEntity, IDistanceCalculator distanceCalculator)
         {
             if (!nonPlayableEntity.IsAlive)
             {
@@ -139,14 +140,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             var mapX = nonPlayableEntity.MapX;
             var mapY = nonPlayableEntity.MapY;
             if (!nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
-                (byte) RandomFactory.Instance.RandomNumber(0, 3),
-                (byte) RandomFactory.Instance.RandomNumber(0, 3)))
+                (byte)RandomFactory.Instance.RandomNumber(0, 3),
+                (byte)RandomFactory.Instance.RandomNumber(0, 3)))
             {
                 return Task.CompletedTask;
             }
 
-            var distance = (int)Heuristic.Octile(Math.Abs(nonPlayableEntity.PositionX - mapX),
-                Math.Abs(nonPlayableEntity.PositionY - mapY));
+            var distance = (int)distanceCalculator.GetDistance(new MapCell { X = nonPlayableEntity.PositionX, Y = nonPlayableEntity.PositionY }, new MapCell { X = mapX, Y = mapY });
             var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
             Observable.Timer(TimeSpan.FromMilliseconds(value))
                 .Subscribe(

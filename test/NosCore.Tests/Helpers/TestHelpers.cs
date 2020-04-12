@@ -76,6 +76,8 @@ using Shop = NosCore.Database.Entities.Shop;
 using ShopItem = NosCore.Database.Entities.ShopItem;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
+using NosCore.PathFinder;
+using NosCore.PathFinder.Interfaces;
 
 namespace NosCore.Tests.Helpers
 {
@@ -151,6 +153,7 @@ namespace NosCore.Tests.Helpers
 
         public MapInstanceProvider MapInstanceProvider { get; set; } = null!;
         public IDbContextBuilder ContextBuilder { get; set; } = new DataAccessHelper();
+        public IDistanceCalculator DistanceCalculator { get; set; } = new OctileDistanceCalculator();
 
         private async Task<MapInstanceProvider> GenerateMapInstanceProviderAsync()
         {
@@ -254,9 +257,9 @@ namespace NosCore.Tests.Helpers
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig()
                 .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _shopDao, _shopItemDao,
-                    new List<NpcMonsterDto>(), _logger, new List<NpcTalkDto>()));
+                    new List<NpcMonsterDto>(), _logger, new List<NpcTalkDto>(), TestHelpers.Instance.DistanceCalculator));
             TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig()
-                .ConstructUsing(src => new GameObject.MapMonster(new List<NpcMonsterDto>(), _logger));
+                .ConstructUsing(src => new GameObject.MapMonster(new List<NpcMonsterDto>(), _logger, TestHelpers.Instance.DistanceCalculator));
          
         }
 

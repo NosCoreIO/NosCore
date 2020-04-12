@@ -33,6 +33,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.PathFinder;
+using NosCore.PathFinder.Interfaces;
 
 namespace NosCore.PacketHandlers.Movement
 {
@@ -40,11 +41,13 @@ namespace NosCore.PacketHandlers.Movement
     {
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly IMinilandProvider _minilandProvider;
+        private readonly IDistanceCalculator _distanceCalculator;
 
-        public PreqPacketHandler(IMapInstanceProvider mapInstanceProvider, IMinilandProvider minilandProvider)
+        public PreqPacketHandler(IMapInstanceProvider mapInstanceProvider, IMinilandProvider minilandProvider, IDistanceCalculator distanceCalculator)
         {
             _mapInstanceProvider = mapInstanceProvider;
             _minilandProvider = minilandProvider;
+            _distanceCalculator = distanceCalculator;
         }
 
         public override async Task ExecuteAsync(PreqPacket _, ClientSession session)
@@ -64,8 +67,16 @@ namespace NosCore.PacketHandlers.Movement
                 .GetMinilandPortals(session.Character.CharacterId)
                 .Where(s => s.SourceMapInstanceId == session.Character.MapInstanceId));
             var portal = portals.Find(port =>
-                Heuristic.Octile(Math.Abs(session.Character.PositionX - port.SourceX),
-                    Math.Abs(session.Character.PositionY - port.SourceY)) <= 2);
+                _distanceCalculator.GetDistance(new MapCell
+                {
+                    X = session.Character.PositionX,
+                    Y = session.Character.PositionY
+                }, new MapCell
+                {
+                    X = port.SourceX,
+                    Y = port.SourceY
+                })
+                  <= 2);
             if (portal == null)
             {
                 return;
