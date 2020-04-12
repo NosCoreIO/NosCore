@@ -834,9 +834,6 @@
   <data name="QUEST_PRIZES_PARSED" xml:space="preserve">
     <value>{0} Görev ödülleri işlendi!</value>		
   </data>
-  <data name="BAZAAR_PRICE_CHANGED" xml:space="preserve">
-    <value>Satış fiyatı değiştirildi.</value>		
-  </data>  
   <data name="STATE_CHANGED_BAZAAR" xml:space="preserve">
     <value>Satış durumu değiştirildi.</value>		
   </data>  
@@ -864,12 +861,6 @@
   <data name="ALREADY_THIS_MINILANDOBJECT" xml:space="preserve">
     <value>Bu obje zaten yerleştirilmiş.</value>		
   </data>  
-  <data name="MINILAND_VISITOR" xml:space="preserve">
-    <value>Mini Ülke ziyaretçileri:</value>		
-  </data>  
-  <data name="REFILL_MINIGAME" xml:space="preserve">
-    <value>Mini oyunu doldur!</value>		
-  </data>  
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
     <value>Kullanılabilir yeterli nokta yok.</value>		
   </data>  
@@ -881,9 +872,6 @@
   </data>  
   <data name="GIFT_SENT" xml:space="preserve">
     <value>Hediyen gönderildi.</value>		
-  </data>  
-  <data name="ITEM_RECEIVED" xml:space="preserve">
-    <value>{0} Eşya alındı.</value>		
   </data>  
   <data name="USER_NOT_FOUND" xml:space="preserve">
     <value>Kullanıcı bulunamadı.</value>		
@@ -917,12 +905,6 @@
   </data>  
   <data name="LOGIN_MEDAL" xml:space="preserve">
     <value>Giriş madalyası</value>		
-  </data>  
-  <data name="GIFTED" xml:space="preserve">
-    <value>Hediye edildi.</value>		
-  </data>  
-  <data name="NEW_MAIL" xml:space="preserve">
-    <value>Yeni Postan Var</value>		
   </data>  
   <data name="SPEAKER" xml:space="preserve">
     <value>Hoparlör</value>		
