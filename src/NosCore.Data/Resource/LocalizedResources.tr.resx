@@ -118,262 +118,694 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
-    <value> {0} SessionId'li kullanici sunucuya giris yapti.</value>
+    <value>{0} ID'li kullanıcı giriş yaptı.</value>
   </data>
   <data name="ADMINISTRATOR" xml:space="preserve">
-    <value>Yetkili</value>
+    <value>Admin</value>
   </data>
   <data name="ADVENTURER" xml:space="preserve">
-    <value>Maceraci</value>
+    <value>Maceracı</value>
+  </data>
+  <data name="ALREADY_BLACKLISTED" xml:space="preserve">
+    <value>Zaten karalistede!</value>
+  </data>
+  <data name="ALREADY_FRIEND" xml:space="preserve">
+    <value>Zaten arkadaşsınız.</value>
+  </data>
+  <data name="ALREADY_IN_GROUP" xml:space="preserve">
+    <value>Zaten bir gruptasın.</value>
   </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
-    <value>Bu kullanici adi zaten kullaniliyor!</value>
+    <value>Bu isim kullanılıyor.</value>
   </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Okçu</value>
   </data>
+  <data name="ASK_BIND" xml:space="preserve">
+    <value>Bu eşyayı bağlamak istiyor musun?</value>
+  </data>
+  <data name="ASK_TO_DELETE" xml:space="preserve">
+    <value>Silmek istiyor musun?</value>
+  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
-    <value>Gerekli olan dosyalar eksik , lütfen kontrol edin.</value>
+    <value>Bir veya daha fazla gerekli dosya eksik, tüm dosyaları tamamladıktan sonra tekrar deneyiniz.</value>
   </data>
   <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Kimlik Doğrulama Başarısız!</value>
-    <comment>check</comment>
+    <value>Kimlik doğrulama başarılamadı.</value>
   </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
-    <value>Kimlik Doğrulama Başarılı!</value>
-    <comment>check</comment>
+    <value>İstemci : {1} başarıyla doğrulandı.</value>
   </data>
   <data name="AUTH_ERROR" xml:space="preserve">
-    <value>Hata! Kimlik Yanlış</value>
+    <value>Kimlik doğrulama başarısız.</value>
   </data>
   <data name="AUTH_INCORRECT" xml:space="preserve">
-    <value>Kimliğiniz Eşleşmiyor !</value>
+    <value>Geçersiz kimlik bilgileri.</value>
+  </data>
+  <data name="BAD_DROP_AMOUNT" xml:space="preserve">
+    <value>Bu eşya düşürülemez.</value>
+  </data>
+  <data name="BAD_EQUIPMENT" xml:space="preserve">
+    <value>Karakterin bu eşyayı giymek için gereksinimleri karşılamıyor.</value>
+  </data>
+  <data name="BAD_FAIRY" xml:space="preserve">
+    <value>Uzmanlık kartın ile perinin elementi uyuşmuyor.</value>
   </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
-    <value>Yanlış şifre!</value>
+    <value>Parola hatalı.</value>
+  </data>
+  <data name="BLACKLIST_ADDED" xml:space="preserve">
+    <value>Karakter karalisteye eklendi!</value>
+  </data>
+  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
+    <value>Bu kullanıcı seni blokladı!</value>
+  </data>
+  <data name="BUY_ITEM_VALID" xml:space="preserve">
+    <value>Bir eşya satın aldın.</value>
+  </data>
+  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
+    <value>Arkadaşını bloklayamazsın!</value>
+  </data>
+  <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
+    <value>Zaten aynı meslektesin!</value>
+  </data>
+  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
+    <value>Bu UK'nın ruhu yokedilmiş. Yokedilmiş UK'ları kullanamazsın!</value>
+  </data>
+  <data name="CANT_FIND_CHARACTER" xml:space="preserve">
+    <value>Kullanıcı bulunamadı.</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
-    <value>{0} Kart çözümlendi!</value>
+    <value>{0} Kart işlendi.</value>
   </data>
   <data name="CHANNEL" xml:space="preserve">
     <value>Kanal</value>
   </data>
+  <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
+    <value>Bu kanal bir kaç saniye içinde kapatılacak.</value>
+  </data>
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
-    <value>Karakter Yüklenmedi.</value>
-    <comment>check</comment>
+    <value>Karakter yüklenmedi.</value>
   </data>
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
-    <value>Kullanıcı Aktif Değil !</value>
+    <value>Karakter çevrimdışı</value>
+  </data>
+  <data name="CLASS_CHANGED" xml:space="preserve">
+    <value>Başarıyla meslek değiştirdin!</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
-    <value>Client bağlandı, SessionId: {0}</value>
+    <value>İstemci bağlandı, ID {0}</value>
   </data>
   <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>Yeni bir client bağlandı. ClientId = {0}</value>
+    <value>Yeni bir istemci bağlandı. Id = {0}</value>
   </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
+    <value>İstemci bağlantısı koptu. tId = {0}</value>
+  </data>
+  <data name="CONNECTION_LOST" xml:space="preserve">
     <value>Bağlantı koptu.</value>
   </data>
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
-    <value>Hata! Lütfen tekrar deneyin {0}</value>
+    <value>{0} Id'li İstemci hatalı şekilde devam ediyor.</value>
   </data>
   <data name="CORRUPT_PACKET" xml:space="preserve">
-    <value>Paket başlığı {0} Bozuk veya geçersiz. İçerik: {1}</value>
+    <value> {0} Bu paket hatalı veya paketin konumu geçersiz. İçerik: {1}</value>
   </data>
   <data name="DATABASE_INITIALIZED" xml:space="preserve">
-    <value>Database başarıyla yüklendi.</value>
+    <value>Veritabanı başarıyla yüklendi.</value>
   </data>
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
-    <value>Databaseniz güncellenmemiş gibi görünüyor. Lütfen databasenizi güncelleyin.</value>
+    <value>Veritabanı güncel olmayabilir. Lütfen sağlayıcıyla konuşun.</value>
   </data>
   <data name="DONE" xml:space="preserve">
-    <value>Çözümleme Bitti!</value>
+    <value>Birleştirme işlemi bitti.</value>
+  </data>
+  <data name="DROP_MAP_FULL" xml:space="preserve">
+    <value>Bu haritada çok fazla eşya var. Lütfen daha sonra tekrar deneyiniz.</value>
+  </data>
+  <data name="ENCODE_ERROR" xml:space="preserve">
+    <value>Birleştirme hatası: {0}</value>
   </data>
   <data name="ENTER_PATH" xml:space="preserve">
-    <value>Lütfen Parserinizin dosya yolunu buraya giriniz</value>
+    <value>Lütfen parse etmek (işlemek) istediğiniz dosyaların konumunu giriniz.</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
-    <value>Bir Karakter harita değiştirirken sorun meydana geldi. Sakın komutları kötüye kullanma ! {0}</value>
+    <value>Harita değiştirilirken karakter de değişti. Komutları kötüye kullanmayınız. {0}</value>
+  </data>
+  <data name="ERROR_DECODING" xml:space="preserve">
+    <value>Decode (ayrıştırma/çözümleme) hatası: {0}</value>
+  </data>
+  <data name="EQ_NOT_EMPTY" xml:space="preserve">
+    <value>Sınıf değiştirmek için tüm ekipmanlarını çıkarmalısın.</value>
+  </data>
+  <data name="EXCEPTION" xml:space="preserve">
+    <value>Bir istisna atıldı. {0}</value>
   </data>
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
-    <value>Zorunlu Client Kapatma {0}, çok fazla bağlantıdan dolayı.</value>
+    <value>{0} id'li istemcinin bağlantısı zorla koptu.</value>
+  </data>
+  <data name="FRIENDLIST_FULL" xml:space="preserve">
+    <value>Arkadaş listen dolu!</value>
+  </data>
+  <data name="FRIEND_ADDED" xml:space="preserve">
+    <value>Arkadaşlık isteği kabul edildi.</value>
+  </data>
+  <data name="FRIEND_DELETED" xml:space="preserve">
+    <value>Arkadaşlıktan çıkarıldı.</value>
+  </data>
+  <data name="FRIEND_OFFLINE" xml:space="preserve">
+    <value>Arkadaşın çevrimdışı.</value>
+  </data>
+  <data name="FRIEND_REJECTED" xml:space="preserve">
+    <value>Arkadaşlık isteği reddedildi.</value>
+  </data>
+  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
+    <value>Arkadaşlık isteği bloklandı.</value>
+  </data>
+  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
+    <value>Arkadaşlık isteği gönderildi.</value>
+  </data>
+  <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
+    <value>Bilinmeyen grup daveti türü.</value>
+  </data>
+  <data name="GROUP_ADMIN" xml:space="preserve">
+    <value>Bu grubun yöneticisisin.</value>
+  </data>
+  <data name="GROUP_BLOCKED" xml:space="preserve">
+    <value>Bu kullanıcı grup davetlerini bloklamış.</value>
+  </data>
+  <data name="GROUP_CLOSED" xml:space="preserve">
+    <value>Grup dağıtıldı.</value>
+  </data>
+  <data name="GROUP_FULL" xml:space="preserve">
+    <value>Grup dolu!</value>
+  </data>
+  <data name="GROUP_LEFT" xml:space="preserve">
+    <value>Gruptan ayrıldın.</value>
+  </data>
+  <data name="GROUP_SHARE_INFO" xml:space="preserve">
+    <value>Geri dönüş noktanı paylaşma isteği yolladın.</value>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
-    <value> Handler uygulaması bulunamadı. Paket Başlığı {0}</value>
+    <value>{0} paketi için işleyici bulunamadı.</value>
+  </data>
+  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
+    <value>Kahramanlık seviyen yükseldi!</value>
   </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
-    <value>{0} I18N ActDescs Çözümlendi! Bölge: {1}</value>
+    <value>{0} I18N Act dosyaları işlendi! Bölge: {1}</value>
   </data>
   <data name="I18N_BCARD_PARSED" xml:space="preserve">
-    <value>{0} I18N BCards Çözümlendi! Bölge: {1}</value>
+    <value>{0} I18N BKartları işlendi! Bölge: {1}</value>
   </data>
   <data name="I18N_CARD_PARSED" xml:space="preserve">
-    <value>{0} I18N Cards Çözümlendi! Bölge: {1}</value>
+    <value>{0} I18N Kart işlendi! Bölge: {1}</value>
   </data>
   <data name="I18N_ITEM_PARSED" xml:space="preserve">
-    <value>{0} I18N Items Çözümlendi! Bölge: {1}</value>
+    <value>{0} I18N Eşya işlendi! Bölge: {1}</value>
   </data>
   <data name="I18N_MAPIDDATA_PARSED" xml:space="preserve">
-    <value>{0} I18N MapIdDatas Çözümlendi! Bölge: {1}</value>
+    <value>{0} I18N Harita bilgisi işlendi! Bölge: {1}</value>
   </data>
   <data name="I18N_MAPPOINTDATA_PARSED" xml:space="preserve">
-    <value>{0} I18N MapPointDatas Çözümlendi! Bölge: {1}</value>
+    <value>{0} I18N Harita noktası işlendi! Bölge: {1}</value>
   </data>
   <data name="I18N_MPCMONSTER_PARSED" xml:space="preserve">
-    <value>{0} I18N NpcMonsters Çözümlendi! Bölge: {1}</value>
+    <value>{0} I18N NPC/Canavar işlendi! Bölge: {1}</value>
   </data>
   <data name="I18N_NPCMONSTERTALK_PARSED" xml:space="preserve">
-    <value>{0} I18N NpcMonsterTalk Çözümlendi! Bölge: {1}</value>
+    <value>{0} I18N NPC/Canavar diyaloğu işlendi! Bölge: {1}</value>
   </data>
   <data name="I18N_QUEST_PARSED" xml:space="preserve">
-    <value>{0} I18N Quests Çözümlendi! Bölge: {1}</value>
+    <value>{0} I18N Görev işlendi! Bölge: {1}</value>
   </data>
   <data name="I18N_SKILL_PARSED" xml:space="preserve">
-    <value>{0} I18N Skills Çözümlendi! Bölge: {1}</value>
+    <value>{0} I18N Büyü/Beceri işlendi! Bölge: {1}</value>
   </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
-    <value>Yanlış Kullanıcı Adi!</value>
+    <value>Hatalı kullanıcı adı!</value>
   </data>
   <data name="INVALID_CHARNAME" xml:space="preserve">
-    <value>Uygunsuz kullanıcı adı!</value>
+    <value>İsminde geçersiz karakterler var!</value>
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
-    <value>Hatalı Şifre!</value>
+    <value>Parola hatalı!</value>
+  </data>
+  <data name="INVENTORY_FULL" xml:space="preserve">
+    <value>Envanterin dolu!</value>
+  </data>
+  <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
+    <value>Bilinmeyen davet türü.</value>
+  </data>
+  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
+    <value>Bu eşya satılamaz!</value>
+  </data>
+  <data name="ITEMS_LOADED" xml:space="preserve">
+    <value>{0} Eşya yüklendi.</value>
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
-    <value>{0} items Çözümlendi!</value>
+    <value>{0} Eşya işlendi.</value>
+  </data>
+  <data name="ITEM_ACQUIRED" xml:space="preserve">
+    <value>Alındı.</value>
+  </data>
+  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
+    <value>Bu eşyayı düşüremezsin!</value>
+  </data>
+  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
+    <value>Bu eşyayı burada düşüremezsin!</value>
+  </data>
+  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
+    <value>Bu eşyayla değiş tokuş yapılamaz!</value>
+  </data>
+  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
+    <value>Meslek seviyen yükseldi!</value>
+  </data>
+  <data name="JOINED_GROUP" xml:space="preserve">
+    <value>Gruba katıldın!</value>
+  </data>
+  <data name="LANGUAGE_MISSING" xml:space="preserve">
+    <value>Eksik dil dosyaları var: {0}</value>
+  </data>
+  <data name="LEVEL_CHANGED" xml:space="preserve">
+    <value>Seviyen yükseldi!</value>
   </data>
   <data name="LISTENING_PORT" xml:space="preserve">
-    <value>Kullanılan Port {0}</value>
+    <value>{0} Portu Dinleniyor</value>
+  </data>
+  <data name="LOW_JOB_LVL" xml:space="preserve">
+    <value>Meslek seviyen uzmanlık kartını giymek için yeterli değil.</value>
+  </data>
+  <data name="LOW_REP" xml:space="preserve">
+    <value>İtibarın uzmanlık kartını giymek için yeterli değil.</value>
   </data>
   <data name="MAGICIAN" xml:space="preserve">
     <value>Büyücü</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
-    <value>{0} MapMonsters Başarıyla Yüklendi!</value>
+    <value>{0} Harita canavarları yüklendi!</value>
   </data>
   <data name="MAPNPCS_LOADED" xml:space="preserve">
-    <value>Map Npcleri Yüklendi!</value>
+    <value>{0} Harita NPC'leri yüklendi!</value>
   </data>
   <data name="MAPS_LOADED" xml:space="preserve">
-    <value>{0} Maps Başarıyla Yüklendi!</value>
+    <value>{0} Harita yüklendi!</value>
   </data>
   <data name="MAPS_PARSED" xml:space="preserve">
-    <value>{0} Map Başarıyla Yüklendi!</value>
+    <value>{0} Harita işlendi!</value>
   </data>
   <data name="MAPTYPES_PARSED" xml:space="preserve">
-    <value>MapTypeleri Çözümlendi.</value>
+    <value>{0} Harita türü işlendi!</value>
+  </data>
+  <data name="MAP_DONT_EXIST" xml:space="preserve">
+    <value>Böyle bir harita yok!</value>
+  </data>
+  <data name="MARTIALARTIST" xml:space="preserve">
+    <value>Dövüş Üstadı</value>
+  </data>
+  <data name="MASTER_SERVER_PING" xml:space="preserve">
+    <value>Ana Sunucu'ya ping gönder.</value>
+  </data>
+  <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
+    <value>Ping gönderme işlemi başarısız.</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
-    <value>MasterServer'a bağlanılamıyor , lütfen 5 saniye sonra tekrar dene..</value>
+    <value>Ana Sunucu'ya bağlanılamadı. {0} saniye içerisinde tekrar denenecek.</value>
+  </data>
+  <data name="MAX_GOLD" xml:space="preserve">
+    <value>Maksimum altın sınırına ulaştın!</value>
   </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
-    <value>Canavarlar Çözümlendi.</value>
+    <value>{0} Harita canavarları işlendi!</value>
+  </data>
+  <data name="NEW_LEADER" xml:space="preserve">
+    <value>Yeni grup başkanı sensin!</value>
+  </data>
+  <data name="NOT_ADVENTURER" xml:space="preserve">
+    <value>Maceracı değilsin!</value>
+  </data>
+  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
+    <value>Bu eşyayı satın almak için yeterince altının yok!</value>
+  </data>
+  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
+    <value>Envanterinde yer yok!</value>
+  </data>
+  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
+    <value>Bu eşyayı satın almak için yeterince itibarın yok!</value>
+  </data>
+  <data name="NOT_IN_BLACKLIST" xml:space="preserve">
+    <value>Bu kullanıcı karalistende değil!</value>
+  </data>
+  <data name="NOT_YOUR_ITEM" xml:space="preserve">
+    <value>Bu eşya bir başkasına bağlı! </value>
+  </data>
+  <data name="NO_ITEM" xml:space="preserve">
+    <value>Eşya bulunamadı!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
-    <value>HATA! Serverde bir tane bile Map Yok! En azından NosVille Olsun!!</value>
+    <value>Harita yok. Sunucunun çalışması için en azından NosVille olmalı!</value>
+  </data>
+  <data name="NO_SP" xml:space="preserve">
+    <value>Kuşanılmış uzmanlık kartı yok!</value>
+  </data>
+  <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
+    <value>Giyilebilir özellik yok!</value>
+  </data>
+  <data name="NPCMONSTERS_LOADED" xml:space="preserve">
+    <value>{0} Harita canavarları yüklendi!</value>
   </data>
   <data name="NPCMONSTERS_PARSED" xml:space="preserve">
-    <value>NpcMonsterları Çözümlendi.</value>
+    <value>{0} Harita canavarları işlendi!</value>
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
-    <value>Npcler Çözümlendi.</value>
+    <value>{0} Harita NPC'leri işlendi</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
-    <value>Hesapları Çözümlemek istiyormusun?</value>
+    <value>Hesapları işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_ALL" xml:space="preserve">
-    <value>Bütün Herşeyi Çözümlemek istiyormusun?</value>
+    <value>Herşeyi işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_CARDS" xml:space="preserve">
-    <value>Kartları Çözümlemek istiyormusun?</value>
+    <value>Kartları işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_DROPS" xml:space="preserve">
-    <value>Droplar Çözümlendi.</value>
+    <value>Dropları işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_I18N" xml:space="preserve">
-    <value>I18N Bilgilerini Çözümlemek istiyormusun?</value>
+    <value>I18N'leri işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_ITEMS" xml:space="preserve">
-    <value>Itemleri Çözümlemek istiyormusun?</value>
+    <value>Eşyaları işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_MAPNPCS" xml:space="preserve">
-    <value>MapNpc Çözümlemek istiyormusun?</value>
+    <value>Harita NPC'lerini işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_MAPS" xml:space="preserve">
-    <value>Haritalari Çözümlemek istiyormusun?</value>
+    <value>Haritaları işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_MAPTYPES" xml:space="preserve">
-    <value>MapTypelerini çözümlemek istiyormusun? Bizim görüşümüz MapTypelerini çözümlemenizden yanadır.</value>
+    <value>Harita türlerini işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_MONSTERS" xml:space="preserve">
-    <value>NpcMonsterlerini Çözümlemek istiyormusun?</value>
+    <value>Canavarları işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_NPCMONSTERDATA" xml:space="preserve">
-    <value>NpcMonsterDatalarını çözümlemek istiyormusun?</value>
+    <value>NPC/Canavar bilgilerini işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_NPCMONSTERS" xml:space="preserve">
-    <value>Npcleri çözümlemek istiyormusun?</value>
+    <value>NPC'leri işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_PORTALS" xml:space="preserve">
-    <value>Portalları çözümlemek istiyormusun?</value>
+    <value>Portalları işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_QUESTS" xml:space="preserve">
-    <value>Görevleri Çözümlemek istiyormusun</value>
+    <value>Görevleri işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_RECIPES" xml:space="preserve">
-    <value>Üretimleri(Npclerden,Parşomenlerden) çözümlemek istiyormusun?</value>
+    <value>Üretim ve Tarifleri işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_SHOPITEMS" xml:space="preserve">
-    <value>Market eşyalarını çözümlemek istiyormusun?</value>
+    <value>Market eşyalarını işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_SHOPS" xml:space="preserve">
-    <value>Marketleri Çözümlemek istiyormusun?</value>
+    <value>Marketleri işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_SHOPSKILLS" xml:space="preserve">
-    <value>MarketBecerilerini Çözümlemek istiyormusun?</value>
+    <value>Market büyülerini (Calvin vb.) işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_SKILLS" xml:space="preserve">
-    <value>Becerileri Çözümlemek istiyormusun?</value>
+    <value>Büyüleri işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_TELEPORTERS" xml:space="preserve">
-    <value>Işınlayıcıları Çözümlemek istiyormusun?</value>
+    <value>Işınlayıcıları işlemek (aktarmak) istiyor musun?</value>
   </data>
   <data name="PARSE_TIMESPACES" xml:space="preserve">
-    <value>Uzay Zaman Taşlarını Çözümlemek istiyormusun?</value>
+    <value>Uzay-Zaman taşlarını işlemek (aktarmak) istiyor musun?</value>
+  </data>
+  <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
+    <value>Bilinmeyen cep türü.</value>
   </data>
   <data name="PORTALS_PARSED" xml:space="preserve">
-    <value>{0} Portal Çözümlendi!</value>
+    <value>{0} Portal işlendi!</value>
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
-    <value>MasterServer'e Başarıyla Bağlandı..</value>
-    <comment>check</comment>
+    <value>Ana Sunucu'ya bağlanıldı.</value>
+  </data>
+  <data name="REMOVE_VEHICLE" xml:space="preserve">
+    <value>Taşıt kullanırken sadece YP/BP iksiri kullanabilirsin.</value>
+  </data>
+  <data name="REPUT_DECREASED" xml:space="preserve">
+    <value>İtibarın azaldı.</value>
+  </data>
+  <data name="REPUTATION_CHANGED" xml:space="preserve">
+    <value>İtibarın değişti!</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
-    <value>RespawnTypeleri Çözümlendi.</value>
+    <value>{0} RespawnTypes Parsed!</value>
   </data>
   <data name="SAVING_ALL" xml:space="preserve">
-    <value>Dünya Kaydediliyor !</value>
+    <value>Tüm bilgiler kaydediliyor!</value>
   </data>
   <data name="SELECT_MAPID" xml:space="preserve">
-    <value>Lütfen, Birtane seçin  MapId:</value>
+    <value>Lütfen bir harita kodu gir:</value>
   </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Fısıldama</value>
+  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
+    <value> {0} eşya satıldı. {1}</value>
+  </data>
+  <data name="SHARED_REFUSED" xml:space="preserve">
+    <value>Grup üyeleriyle geri dönüş noktası paylaşma isteğini reddettin.</value>
+  </data>
+  <data name="SHOP_EMPTY" xml:space="preserve">
+    <value>Boş bir market oluşturamazsın.</value>
+  </data>
+  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
+    <value>Portal ve geçit yakınlarında market oluşturamazsın.</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
+    <value>Bu haritada market oluşturamazsın.</value>
+  </data>
+  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
+    <value>Akın esnasında market oluşturamazsın.</value>
+  </data>
+  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
+    <value>Sadece izin verilen eşyaları satabilirsin. Lütfen satmak istediğin eşyaları kontrol et!</value>
+  </data>
+  <data name="SHOP_OPEN" xml:space="preserve">
+    <value>Bir market açtın!</value>
+  </data>
+  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
+    <value>Marketi düzenlerken açmak istiyor musun?</value>
+  </data>
+  <data name="SHOPITEMS_LOADED" xml:space="preserve">
+    <value>{0} Market eşyaları yüklendi!</value>
+  </data>
+  <data name="SHOPITEMS_PARSED" xml:space="preserve">
+    <value>{0} Market eşyaları işlendi!</value>
+  </data>
+  <data name="SHOPS_LOADED" xml:space="preserve">
+    <value>{0} Market yüklendi!</value>
+  </data>
+  <data name="SHOPS_PARSED" xml:space="preserve">
+    <value>{0} Market işlendi!</value>
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
-    <value>Beceriler Çözümlendi.</value>
+    <value>{0} Büyü işlendi!</value>
+  </data>
+  <data name="SP_BLOCKED" xml:space="preserve">
+    <value>Zaten bir uzmanlık kartına dönüşmüş bulunmaktasın!</value>
+  </data>
+  <data name="SP_INLOADING" xml:space="preserve">
+    <value>Uzmanlık kartını tekrar giymek için {0} saniye beklemelisin.</value>
+  </data>
+  <data name="SP_NOPOINTS" xml:space="preserve">
+    <value>Dönüşüm için yeterli uzmanlık puanın yok.</value>
+  </data>
+  <data name="STAY_TIME" xml:space="preserve">
+    <value>Efektin dolmasına {0} saniye var.</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
-    <value>Başarıyla Yüklendi!</value>
+    <value>Başarıyla yüklendi!</value>
+  </data>
+  <data name="SURE_TO_DELETE" xml:space="preserve">
+    <value>Bu eşyayı silmek istediğine emin misin?</value>
+  </data>
+  <data name="SWORDMAN" xml:space="preserve">
+    <value>Kılıç Eri</value>
+  </data>
+  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
+    <value>İkinci efektler bitti. {0}</value>
+  </data>
+  <data name="TOO_LOW_LEVEL" xml:space="preserve">
+    <value>Sınıf değiştirmek için Seviyen 15, Meslek Seviyen 20 olmalıdır.</value>
+  </data>
+  <data name="TOO_RICH_SELLER" xml:space="preserve">
+    <value>Satıcı iade işlemi için yeterli alana sahip değil.</value>
+  </data>
+  <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
+    <value>Grup daveti gönderilemedi!</value>
+  </data>
+  <data name="UNKNOWN_EQUIPMENTTYPE" xml:space="preserve">
+    <value>Bilinmeyen ekipman türü: {0}</value>
+  </data>
+  <data name="UNKNOWN_PICKERTYPE" xml:space="preserve">
+    <value>Bilinmiyor!</value>
+  </data>
+  <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
+    <value>Bilinmeyen üretme türü.</value>
+  </data>
+  <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve">
+    <value>Geçersiz Uzmanlık Kartı!</value>
+  </data>
+  <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
+    <value>Kullanıcı arkadaşın değil!</value>
+  </data>
+  <data name="USER_NOT_CONNECTED" xml:space="preserve">
+    <value>Kullanıcı aktif değil!</value>
+  </data>
+  <data name="VISUALENTITY_DOES_NOT_EXIST" xml:space="preserve">
+    <value>Sanal değer geçersiz! {0}</value>
+  </data>
+  <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
+    <value>Bilinmeyen sanal tip! {0}</value>
+  </data>
+  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
+    <value>Hatalı Harita Kodu!</value>
+  </data>
+  <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
+    <value>Maksimum eklenebilir Uzmanlık Puanına ulaştın!</value>
+  </data>
+  <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
+    <value>Bu eşyayı değiştiremezsin!</value>
+  </data>
+  <data name="LOADING_MAPINSTANCES" xml:space="preserve">
+    <value>Harita durumları yükleniyor.</value>
+  </data>
+  <data name="SP_POINTSADDED" xml:space="preserve">
+    <value>Uzmanlık puanları arttırıldı. {0}!</value>
+    <comment>Check</comment>
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Destek</value>
   </data>
-  <data name="SWORDMAN" xml:space="preserve">
-    <value>Savaşcı</value>
+  <data name="FRIEND_ADD" xml:space="preserve">
+    <value>[{0}] Sana bir arkadaşlık isteği gönderdi. Arkadaşlığa kabul ediyor musun?</value>
   </data>
-  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
-    <value>Hatalı MapId!</value>
+  <data name="GROUP_INVITE" xml:space="preserve">
+    <value>Davet gönderildi.</value>
+  </data>
+  <data name="GROUP_REFUSED" xml:space="preserve">
+    <value>Grup davetin reddedildi.</value>
+  </data>
+  <data name="INVITED_YOU_GROUP" xml:space="preserve">
+    <value>[{0}] Seni gruba davet etti. Onaylıyor musun?</value>
+  </data>
+  <data name="LEAVE_GROUP" xml:space="preserve">
+    <value>[{0}] gruptan ayrıldı!</value>
+  </data>
+  <data name="UPDATE_GOLD" xml:space="preserve">
+    <value>Altının güncellendi!</value>
+  </data>
+  <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
+    <value>{0} Paketi karakter olmadan kullanılmaya çalışılıyor!</value>
+  </data>
+  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
+    <value>Takas için istek gönderdin: {0}.</value>
+  </data>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>Geri dönüş noktaları paylaşıldı!</value>
+  </data>
+  <data name="ALREADY_EXCHANGE" xml:space="preserve">
+    <value>Kullanıcı zaten şuanda ticaret yapıyor!</value>
+  </data>
+  <data name="BANK_FULL" xml:space="preserve">
+    <value>Banka hesabın dolu!</value>
+  </data>
+  <data name="BUY_ITEM_FROM" xml:space="preserve">
+    <value>Eşya satın alındı. {0} {1} {2}!</value>
+  </data>
+  <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
+    <value>Marketteki eşyaları hareket ettiremezsin.</value>
+  </data>
+  <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
+    <value>Marketteki eşyaları kullanamazsın.</value>
+  </data>
+  <data name="EFFECT_ACTIVATED" xml:space="preserve">
+    <value>{0} Efekti aktive edildi.</value>
+  </data>
+  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
+    <value>Takas bloklandı.</value>
+  </data>
+  <data name="EXCHANGE_REFUSED" xml:space="preserve">
+    <value>Takas isteği reddedildi.</value>
+  </data>
+  <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
+    <value>Arkadaşlık isteğin gönderilemedi. Kullanıcı çevrimdışı.</value>
+  </data>
+  <data name="HAS_SHOP_OPENED" xml:space="preserve">
+    <value>mağaza açmış olan kişilerle takas yapamazsın.</value>
+  </data>
+  <data name="INCOMING_EXCHANGE" xml:space="preserve">
+    <value>{0} seninle takasta bulunmak istiyor.</value>
+  </data>
+  <data name="INFO_BAZAAR" xml:space="preserve">
+    <value>NosTüccar madalyası ile, istediğin zaman tüm haritalarda NosPazar'ı kullanabilirsin.</value>
+  </data>
+  <data name="INVALID_EXCHANGE" xml:space="preserve">
+    <value>Sadece değiştirilebilir eşyaları takas edebilirsin.</value>
+  </data>
+  <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
+    <value>Geçersiz takas listesi.</value>
+  </data>
+  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
+    <value>Geri dönüş noktası olarak ayarlamak istiyor musun?</value>
+  </data>
+  <data name="IN_WAITING_FOR" xml:space="preserve">
+    <value>Beklemede: {0}.</value>
+  </data>
+  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
+    <value> {0} LoD eşyası alındı.</value>
+  </data>
+  <data name="ITEM_TIMEOUT" xml:space="preserve">
+    <value>Eşyanın süresi doldu.</value>
+  </data>
+  <data name="LIMIT_EXCEEDED" xml:space="preserve">
+    <value>Limit doldu! NosPazar'a daha fazla eşya ekleyemezsin.</value>
+  </data>
+  <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
+    <value>Yeterli altının yok!</value>
+  </data>
+  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
+    <value>NosTüccar madalyasına sahip değilsin.</value>
+  </data>
+  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
+    <value>Eşyan başarıyla Nosmağaza'a eklendi!</value>
+  </data>
+  <data name="PLAYER_IN_SHOP" xml:space="preserve">
+    <value>{0} isimli kullanıcı alışverişte.</value>
+  </data>
+  <data name="PORTAL_DELAY" xml:space="preserve">
+    <value>Lütfen ışınlanmadan önce birkaç saniye bekle.</value>
+  </data>
+  <data name="PRICE_EXCEEDED" xml:space="preserve">
+    <value>Fiyat limiti aşıyor!</value>
+  </data>
+  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
+    <value>Satış başarılı. Kazanılan altın: {0}.</value>
+  </data>
+  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
+    <value>Mesaj gönderildi!</value>
+  </data>
+  <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
+    <value>Kullanıcı takasta değil!</value>
+  </data>
+  <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
+    <value>Şu anda davet gönderemezsin. Lütfen {0} saniye içerisinde tekrar dene.</value>
+  </data>
+  <data name="PLATFORM_UNSUPORTED_CONSOLE_TITLE" xml:space="preserve">
+    <value>Bu platform konsol başlığını desteklemiyor.</value>
+  </data>
+  <data name="QUESTS_PARSED" xml:space="preserve">
+    <value>{0} Görev işlendi!</value>
   </data>
 </root>
