@@ -933,9 +933,6 @@
   <data name="QUEST_NOT_FOUND" xml:space="preserve">
     <value>Görev bulunamadı.</value>		
   </data>  
-  <data name="NPCMONSTERSTALKS_LOADED" xml:space="preserve">
-    <value>{0} NPC-Canavar diyaloğu yüklendi!</value>		
-  </data>  
   <data name="TOO_HIGH_LEVEL" xml:space="preserve">
     <value>Seviyesi çok yüksek!</value>		
   </data>  
