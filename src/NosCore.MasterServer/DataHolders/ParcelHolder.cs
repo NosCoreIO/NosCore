@@ -98,7 +98,7 @@ namespace NosCore.MasterServer.DataHolders
                 this[mail.IsSenderCopy ? mail.SenderId ?? 0 : mail.ReceiverId][mail.IsSenderCopy].TryAdd(mailId,
                     new MailData
                     {
-                        ItemInstance = itinst?.Adapt<ItemInstanceDto>(),
+                        ItemInstance = (ItemInstanceDto?)itinst,
                         SenderName = senderName,
                         ReceiverName = receiverName,
                         MailId = mailId,

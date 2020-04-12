@@ -261,7 +261,7 @@ namespace NosCore.GameObject.Providers.QuestProvider
                 QuestId = quest.QuestId
             });
             await character.SendPacketAsync(character.GenerateQuestPacket()).ConfigureAwait(false);
-            if (quest.TargetMap == character.MapId)
+            if (quest.TargetMap != null)
             {
                 await character.SendPacketAsync(quest.GenerateTargetPacket()).ConfigureAwait(false);
             }

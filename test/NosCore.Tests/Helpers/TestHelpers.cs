@@ -85,7 +85,7 @@ namespace NosCore.Tests.Helpers
             new Lazy<TestHelpers>(() => new TestHelpers());
 
         private IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao = null!;
-        private ItemInstanceDao _itemInstanceDao = null!;
+        private IDao<IItemInstanceDto?, Guid> _itemInstanceDao = null!;
         private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
         private IDao<MapMonsterDto, int> _mapMonsterDao = null!;
         private IDao<MapNpcDto, int> _mapNpcDao = null!;
@@ -245,7 +245,7 @@ namespace NosCore.Tests.Helpers
             _shopDao = new Dao<Shop, ShopDto, int>(_logger, ContextBuilder);
             _shopItemDao = new Dao<ShopItem, ShopItemDto, int>(_logger, ContextBuilder);
             CharacterDao = new Dao<Character, CharacterDto, long>(_logger, ContextBuilder);
-            _itemInstanceDao = new ItemInstanceDao(_logger, ContextBuilder);
+            _itemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(_logger, ContextBuilder);
             _inventoryItemInstanceDao = new Dao<InventoryItemInstance, InventoryItemInstanceDto, Guid>(_logger, ContextBuilder);
             _staticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(_logger, ContextBuilder);
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
@@ -309,8 +309,7 @@ namespace NosCore.Tests.Helpers
                 StaticBonusList = new List<StaticBonusDto>(),
                 Titles = new List<TitleDto>()
             };
-            var charaDto = chara.Adapt<CharacterDto>();
-            await CharacterDao.TryInsertOrUpdateAsync(charaDto).ConfigureAwait(false);
+            await CharacterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
             session.InitializeAccount(acc);
             await session.SetCharacterAsync(chara).ConfigureAwait(false);
             session.Character.MapInstance = MapInstanceProvider.GetBaseMapById(0);
