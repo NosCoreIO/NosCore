@@ -81,8 +81,9 @@ namespace NosCore.PathFinder.Gui
                 _mapDao = new Dao<Map, MapDto, short>(Logger, _dbContextBuilder);
                 _npcMonsterDao = new Dao<NpcMonster, NpcMonsterDto, short>(Logger, _dbContextBuilder);
                 var npcMonsters = _npcMonsterDao.LoadAll().ToList();
-                TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig().ConstructUsing(src => new GameObject.MapMonster(npcMonsters, Logger));
-                TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig().ConstructUsing(src => new GameObject.MapNpc(new Mock<IItemProvider>().Object, new Mock<IDao<ShopDto, int>>().Object, new Mock<IDao<ShopItemDto, int>>().Object, npcMonsters, Logger, new List<NpcTalkDto>()));
+                var distanceCalculator = new OctileDistanceCalculator();
+                TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig().ConstructUsing(src => new GameObject.MapMonster(npcMonsters, Logger, distanceCalculator));
+                TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig().ConstructUsing(src => new GameObject.MapNpc(new Mock<IItemProvider>().Object, new Mock<IDao<ShopDto, int>>().Object, new Mock<IDao<ShopItemDto, int>>().Object, npcMonsters, Logger, new List<NpcTalkDto>(), distanceCalculator));
 
                 while (true)
                 {

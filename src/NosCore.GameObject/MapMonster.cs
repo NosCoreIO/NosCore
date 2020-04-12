@@ -27,6 +27,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.PathFinder.Interfaces;
 using Serilog;
 
 namespace NosCore.GameObject
@@ -36,11 +37,13 @@ namespace NosCore.GameObject
         private readonly ILogger _logger;
 
         private readonly List<NpcMonsterDto> _npcMonsters;
+        private readonly IDistanceCalculator _distanceCalculator;
         public new NpcMonsterDto NpcMonster { get; private set; } = null!;
-        public MapMonster(List<NpcMonsterDto> npcMonsters, ILogger logger)
+        public MapMonster(List<NpcMonsterDto> npcMonsters, ILogger logger, IDistanceCalculator distanceCalculator)
         {
             _npcMonsters = npcMonsters;
             _logger = logger;
+            _distanceCalculator = distanceCalculator;
         }
 
         public IDisposable? Life { get; private set; }
@@ -121,7 +124,7 @@ namespace NosCore.GameObject
 
         private Task MonsterLifeAsync()
         {
-            return this.MoveAsync();
+            return this.MoveAsync(_distanceCalculator);
         }
     }
 }
