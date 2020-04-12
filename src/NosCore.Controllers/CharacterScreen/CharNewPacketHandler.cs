@@ -94,7 +94,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         AccountId = accountId,
                         State = CharacterState.Active
                     };
-                    await _characterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
+                    chara = await _characterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
 
                     var miniland = new MinilandDto
                     {

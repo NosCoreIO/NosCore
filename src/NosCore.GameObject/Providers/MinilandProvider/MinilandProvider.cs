@@ -120,13 +120,13 @@ namespace NosCore.GameObject.Providers.MinilandProvider
 
         public async Task<Miniland> InitializeAsync(Character character)
         {
-            var minilandInfoDto = _minilandDao.FirstOrDefaultAsync(s => s.OwnerId == character.CharacterId);
+            var minilandInfoDto = await _minilandDao.FirstOrDefaultAsync(s => s.OwnerId == character.CharacterId).ConfigureAwait(false);
             if (minilandInfoDto == null)
             {
                 throw new ArgumentException();
             }
 
-            var map = _maps.FirstOrDefault(s => s.MapId == 20001);
+            var map = _maps.First(s => s.MapId == 20001);
             var miniland = _mapInstanceProvider.CreateMapInstance(map.Adapt<Map.Map>(), Guid.NewGuid(), map.ShopAllowed,
                 MapInstanceType.NormalInstance, new List<IMapInstanceEventHandler> {new MinilandEntranceHandler(this)});
 

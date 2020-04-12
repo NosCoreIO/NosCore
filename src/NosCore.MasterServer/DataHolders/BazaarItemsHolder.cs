@@ -42,7 +42,7 @@ namespace NosCore.MasterServer.DataHolders
             BazaarItems = new ConcurrentDictionary<long, BazaarLink>(billist.ToDictionary(x => x.BazaarItemId,
                 x => new BazaarLink
                 {
-                    ItemInstance = itemInstancelist.First(s => s!.Id == x.ItemInstanceId)?.Adapt<ItemInstanceDto>(),
+                    ItemInstance = (ItemInstanceDto?)itemInstancelist.First(s => s!.Id == x.ItemInstanceId),
                     BazaarItem = x, SellerName = characterList.First(s => s.CharacterId == x.SellerId).Name!
                 }));
         }

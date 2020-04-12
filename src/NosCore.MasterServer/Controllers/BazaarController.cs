@@ -258,7 +258,7 @@ namespace NosCore.MasterServer.Controllers
                 new BazaarLink
                 {
                     BazaarItem = bazaarItem, SellerName = bazaarRequest.CharacterName,
-                    ItemInstance = item.Adapt<ItemInstanceDto>()
+                    ItemInstance = (ItemInstanceDto)item
                 });
 
             return LanguageKey.OBJECT_IN_BAZAAR;

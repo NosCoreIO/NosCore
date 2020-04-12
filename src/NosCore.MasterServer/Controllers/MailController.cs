@@ -245,7 +245,7 @@ namespace NosCore.MasterServer.Controllers
                 ReceiverName = receiverName,
                 MailId = (short)++count,
                 MailDto = mailref,
-                ItemInstance = itemInstance.Adapt<ItemInstanceDto>(),
+                ItemInstance = (ItemInstanceDto)itemInstance,
                 ItemType = itemType,
                 SenderName = sender
             };

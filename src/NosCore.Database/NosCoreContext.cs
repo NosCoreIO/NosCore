@@ -349,9 +349,6 @@ namespace NosCore.Database
                 .HasForeignKey(e => e.OwnerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Miniland>()
-                .HasOne(e => e.Owner);
-
             modelBuilder.Entity<Character>()
                 .HasMany(e => e.Mail1)
                 .WithOne(e => e.Receiver)
