@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations.Character;
-using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Tests.Helpers;
@@ -37,7 +36,6 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestInitialize]
         public async Task SetupAsync()
         {
-            new Mapper();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _characterDeletePacketHandler =
                 new CharacterDeletePacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao);

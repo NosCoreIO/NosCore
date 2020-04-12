@@ -80,10 +80,10 @@ namespace NosCore.Parser.Parsers
                     }
                     await _dao.TryInsertOrUpdateAsync(dtos.Values).ConfigureAwait(false);
 
-                    _logger.Information(string.Format(
+                    _logger.Information(
                         LogLanguage.Instance.GetMessageFromKey(logLanguageKey),
                         dtos.Count,
-                        region));
+                        region);
                 }
                 catch (FileNotFoundException)
                 {

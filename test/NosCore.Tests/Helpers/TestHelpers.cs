@@ -309,8 +309,7 @@ namespace NosCore.Tests.Helpers
                 StaticBonusList = new List<StaticBonusDto>(),
                 Titles = new List<TitleDto>()
             };
-            var charaDto = chara.Adapt<CharacterDto>();
-            await CharacterDao.TryInsertOrUpdateAsync(charaDto).ConfigureAwait(false);
+            await CharacterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
             session.InitializeAccount(acc);
             await session.SetCharacterAsync(chara).ConfigureAwait(false);
             session.Character.MapInstance = MapInstanceProvider.GetBaseMapById(0);
