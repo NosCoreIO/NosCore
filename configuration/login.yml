@@ -5,13 +5,13 @@ MasterCommunication:
   Routes:
     Channel: api/channel
     ConnectedAccount: api/connectedAccount
-Host: 127.0.0.1
-Port: 4002
-Language: en
-UserLanguage: fr
+Host: 192.168.1.2
+Port: 4008
+Language: tr
+UserLanguage: tr
 Database:
   Host: localhost
   Port: 5432
   Database: postgres
   Username: postgres
-  Password: password
+  Password: 2051749
