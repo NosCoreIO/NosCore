@@ -366,7 +366,7 @@ namespace NosCore.GameObject
                 await _titleDao.TryInsertOrUpdateAsync(Titles).ConfigureAwait(false);
 
                 var minilandDto = (MinilandDto)_minilandProvider.GetMiniland(CharacterId);
-                minilandDto = await _minilandDao.TryInsertOrUpdateAsync(minilandDto).ConfigureAwait(false);
+                await _minilandDao.TryInsertOrUpdateAsync(minilandDto).ConfigureAwait(false);
 
                 var questsToDelete = _characterQuestsDao
                     .Where(i => i.CharacterId == CharacterId).ToList()
