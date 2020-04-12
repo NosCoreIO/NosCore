@@ -47,11 +47,11 @@ namespace NosCore.GameObject
         private readonly IDao<ShopItemDto, int>? _shopItems;
         private readonly IDao<ShopDto, int>? _shops;
         private readonly List<NpcTalkDto> _npcTalks;
-        private readonly IDistance _distanceHelper;
+        private readonly IDistanceCalculator _distanceCalculator;
         public new NpcMonsterDto NpcMonster { get; private set; } = null!;
         public MapNpc(IItemProvider? itemProvider, IDao<ShopDto, int>? shops,
             IDao<ShopItemDto, int>? shopItems,
-            List<NpcMonsterDto>? npcMonsters, ILogger logger, List<NpcTalkDto> npcTalks, IDistance distanceHelper)
+            List<NpcMonsterDto>? npcMonsters, ILogger logger, List<NpcTalkDto> npcTalks, IDistanceCalculator distanceCalculator)
         {
             _npcMonsters = npcMonsters;
             _npcTalks = npcTalks;
@@ -60,7 +60,7 @@ namespace NosCore.GameObject
             _itemProvider = itemProvider;
             _logger = logger;
             Requests = new Subject<RequestData>();
-            _distanceHelper = distanceHelper;
+            _distanceCalculator = distanceCalculator;
         }
 
         public IDisposable? Life { get; private set; }
@@ -167,7 +167,7 @@ namespace NosCore.GameObject
 
         private Task MonsterLifeAsync()
         {
-            return this.MoveAsync(_distanceHelper);
+            return this.MoveAsync(_distanceCalculator);
         }
     }
 }

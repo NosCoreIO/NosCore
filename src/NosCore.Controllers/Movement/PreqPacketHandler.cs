@@ -41,13 +41,13 @@ namespace NosCore.PacketHandlers.Movement
     {
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly IMinilandProvider _minilandProvider;
-        private readonly IDistance _distanceHelper;
+        private readonly IDistanceCalculator _distanceCalculator;
 
-        public PreqPacketHandler(IMapInstanceProvider mapInstanceProvider, IMinilandProvider minilandProvider, IDistance distanceHelper)
+        public PreqPacketHandler(IMapInstanceProvider mapInstanceProvider, IMinilandProvider minilandProvider, IDistanceCalculator distanceCalculator)
         {
             _mapInstanceProvider = mapInstanceProvider;
             _minilandProvider = minilandProvider;
-            _distanceHelper = distanceHelper;
+            _distanceCalculator = distanceCalculator;
         }
 
         public override async Task ExecuteAsync(PreqPacket _, ClientSession session)
@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Movement
                 .GetMinilandPortals(session.Character.CharacterId)
                 .Where(s => s.SourceMapInstanceId == session.Character.MapInstanceId));
             var portal = portals.Find(port =>
-                _distanceHelper.GetDistance(new MapCell
+                _distanceCalculator.GetDistance(new MapCell
                 {
                     X = session.Character.PositionX,
                     Y = session.Character.PositionY

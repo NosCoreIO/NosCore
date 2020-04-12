@@ -92,6 +92,7 @@ using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Serializer = NosCore.Packets.Serializer;
 using NosCore.Dao;
 using NosCore.Packets.Enumerations;
+using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
 
@@ -351,7 +352,7 @@ namespace NosCore.WorldServer
             TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             containerBuilder.RegisterType<ClientSession>();
-            containerBuilder.RegisterType<IDistance>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<OctileDistanceCalculator>().AsImplementedInterfaces();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
             containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly)

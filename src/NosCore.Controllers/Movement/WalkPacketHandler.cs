@@ -34,15 +34,15 @@ namespace NosCore.PacketHandlers.Movement
 {
     public class WalkPacketHandler : PacketHandler<WalkPacket>, IWorldPacketHandler
     {
-        private readonly IDistance _distanceHelper;
+        private readonly IDistanceCalculator _distanceCalculator;
 
-        public WalkPacketHandler(IDistance distanceHelper)
+        public WalkPacketHandler(IDistanceCalculator distanceCalculator)
         {
-            _distanceHelper = distanceHelper;
+            _distanceCalculator = distanceCalculator;
         }
         public override async Task ExecuteAsync(WalkPacket walkPacket, ClientSession session)
         {
-            var distance = (int)_distanceHelper.GetDistance(new MapCell { X = session.Character.PositionX, Y = session.Character.PositionY }, new MapCell { X = walkPacket.XCoordinate, Y = walkPacket.YCoordinate });
+            var distance = (int)_distanceCalculator.GetDistance(new MapCell { X = session.Character.PositionX, Y = session.Character.PositionY }, new MapCell { X = walkPacket.XCoordinate, Y = walkPacket.YCoordinate });
 
             if (((session.Character.Speed < walkPacket.Speed)
                 && (session.Character.LastSpeedChange.AddSeconds(5) <= SystemTime.Now())) || (distance > 60))

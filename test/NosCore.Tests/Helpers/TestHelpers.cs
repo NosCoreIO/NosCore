@@ -153,7 +153,7 @@ namespace NosCore.Tests.Helpers
 
         public MapInstanceProvider MapInstanceProvider { get; set; } = null!;
         public IDbContextBuilder ContextBuilder { get; set; } = new DataAccessHelper();
-        public IDistance DistanceHelper { get; set; } = new OctileDistance();
+        public IDistanceCalculator DistanceCalculator { get; set; } = new OctileDistanceCalculator();
 
         private async Task<MapInstanceProvider> GenerateMapInstanceProviderAsync()
         {
@@ -257,9 +257,9 @@ namespace NosCore.Tests.Helpers
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig()
                 .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _shopDao, _shopItemDao,
-                    new List<NpcMonsterDto>(), _logger, new List<NpcTalkDto>(), TestHelpers.Instance.DistanceHelper));
+                    new List<NpcMonsterDto>(), _logger, new List<NpcTalkDto>(), TestHelpers.Instance.DistanceCalculator));
             TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig()
-                .ConstructUsing(src => new GameObject.MapMonster(new List<NpcMonsterDto>(), _logger, TestHelpers.Instance.DistanceHelper));
+                .ConstructUsing(src => new GameObject.MapMonster(new List<NpcMonsterDto>(), _logger, TestHelpers.Instance.DistanceCalculator));
          
         }
 

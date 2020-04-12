@@ -38,12 +38,12 @@ namespace NosCore.PacketHandlers.Inventory
     public class GetPacketHandler : PacketHandler<GetPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        private readonly IDistance _distanceHelper;
+        private readonly IDistanceCalculator _distanceCalculator;
 
-        public GetPacketHandler(ILogger logger, IDistance distanceHelper)
+        public GetPacketHandler(ILogger logger, IDistanceCalculator distanceCalculator)
         {
             _logger = logger;
-            _distanceHelper = distanceHelper;
+            _distanceCalculator = distanceCalculator;
         }
 
         public override async Task ExecuteAsync(GetPacket getPacket, ClientSession clientSession)
@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Inventory
             switch (getPacket.PickerType)
             {
                 case VisualType.Player:
-                    canpick = _distanceHelper.GetDistance(new MapCell { X = clientSession.Character.PositionX, Y = clientSession.Character.PositionY },
+                    canpick = _distanceCalculator.GetDistance(new MapCell { X = clientSession.Character.PositionX, Y = clientSession.Character.PositionY },
                         new MapCell { X = mapItem.PositionX, Y = mapItem.PositionY }) < 8;
                     break;
 

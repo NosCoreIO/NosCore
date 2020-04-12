@@ -37,13 +37,13 @@ namespace NosCore.GameObject
         private readonly ILogger _logger;
 
         private readonly List<NpcMonsterDto> _npcMonsters;
-        private readonly IDistance _distanceHelper;
+        private readonly IDistanceCalculator _distanceCalculator;
         public new NpcMonsterDto NpcMonster { get; private set; } = null!;
-        public MapMonster(List<NpcMonsterDto> npcMonsters, ILogger logger, IDistance distanceHelper)
+        public MapMonster(List<NpcMonsterDto> npcMonsters, ILogger logger, IDistanceCalculator distanceCalculator)
         {
             _npcMonsters = npcMonsters;
             _logger = logger;
-            _distanceHelper = distanceHelper;
+            _distanceCalculator = distanceCalculator;
         }
 
         public IDisposable? Life { get; private set; }
@@ -124,7 +124,7 @@ namespace NosCore.GameObject
 
         private Task MonsterLifeAsync()
         {
-            return this.MoveAsync(_distanceHelper);
+            return this.MoveAsync(_distanceCalculator);
         }
     }
 }
