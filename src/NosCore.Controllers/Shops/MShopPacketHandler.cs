@@ -34,16 +34,22 @@ using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.PathFinder;
+using NosCore.PathFinder.Interfaces;
 
 namespace NosCore.PacketHandlers.Shops
 {
     public class MShopPacketHandler : PacketHandler<MShopPacket>, IWorldPacketHandler
     {
+        private readonly IDistance _distanceHelper;
+
+        public MShopPacketHandler(IDistance distanceHelper)
+        {
+            _distanceHelper = distanceHelper;
+        }
         public override async Task ExecuteAsync(MShopPacket mShopPacket, ClientSession clientSession)
         {
             var portal = clientSession.Character.MapInstance.Portals.Find(port =>
-                Heuristic.Octile(Math.Abs(clientSession.Character.PositionX - port.SourceX),
-                    Math.Abs(clientSession.Character.PositionY - port.SourceY)) <= 6);
+                _distanceHelper.GetDistance(new MapCell { X = clientSession.Character.PositionX, Y = clientSession.Character.PositionY }, new MapCell { X = port.SourceX, Y = port.SourceY }) <= 6);
             if (portal != null)
             {
                 await clientSession.SendPacketAsync(new MsgPacket

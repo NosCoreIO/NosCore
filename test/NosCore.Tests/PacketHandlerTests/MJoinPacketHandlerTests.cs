@@ -62,7 +62,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task SetupAsync()
         {
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
-                .ConstructUsing(src => new MapNpc(null, null, null, null, Logger, new List<NpcTalkDto>()));
+                .ConstructUsing(src => new MapNpc(null, null, null, null, Logger, new List<NpcTalkDto>(), TestHelpers.Instance.DistanceHelper));
             Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);

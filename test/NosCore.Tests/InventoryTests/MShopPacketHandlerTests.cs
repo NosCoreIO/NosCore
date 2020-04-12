@@ -85,7 +85,7 @@ namespace NosCore.Tests.InventoryTests
                     SourceY = 0
                 }
             };
-            _mShopPacketHandler = new MShopPacketHandler();
+            _mShopPacketHandler = new MShopPacketHandler(TestHelpers.Instance.DistanceHelper);
         }
 
         [TestMethod]

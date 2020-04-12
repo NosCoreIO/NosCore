@@ -30,6 +30,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PathFinder;
+using NosCore.PathFinder.Interfaces;
 using Serilog;
 
 namespace NosCore.PacketHandlers.Inventory
@@ -37,10 +38,12 @@ namespace NosCore.PacketHandlers.Inventory
     public class GetPacketHandler : PacketHandler<GetPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
+        private readonly IDistance _distanceHelper;
 
-        public GetPacketHandler(ILogger logger)
+        public GetPacketHandler(ILogger logger, IDistance distanceHelper)
         {
             _logger = logger;
+            _distanceHelper = distanceHelper;
         }
 
         public override async Task ExecuteAsync(GetPacket getPacket, ClientSession clientSession)
@@ -56,8 +59,8 @@ namespace NosCore.PacketHandlers.Inventory
             switch (getPacket.PickerType)
             {
                 case VisualType.Player:
-                    canpick = Heuristic.Octile(Math.Abs(clientSession.Character.PositionX - mapItem.PositionX),
-                        Math.Abs(clientSession.Character.PositionY - mapItem.PositionY)) < 8;
+                    canpick = _distanceHelper.GetDistance(new MapCell { X = clientSession.Character.PositionX, Y = clientSession.Character.PositionY },
+                        new MapCell { X = mapItem.PositionX, Y = mapItem.PositionY }) < 8;
                     break;
 
                 case VisualType.Npc:
@@ -65,7 +68,7 @@ namespace NosCore.PacketHandlers.Inventory
 
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKNOWN_PICKERTYPE));
-                    return ;
+                    return;
             }
 
             if (!canpick)
