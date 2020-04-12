@@ -93,6 +93,7 @@ using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Serializer = NosCore.Packets.Serializer;
 using NosCore.Dao;
 using NosCore.Packets.Enumerations;
+using ItemInstance = NosCore.Database.Entities.ItemInstance;
 
 namespace NosCore.WorldServer
 {
@@ -270,7 +271,7 @@ namespace NosCore.WorldServer
                         new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                 });
 
-            containerBuilder.RegisterType<ItemInstanceDao>().As<IDao<IItemInstanceDto?, Guid>>().SingleInstance();
+            containerBuilder.RegisterType<Dao<ItemInstance, IItemInstanceDto?, Guid>>().As<IDao<IItemInstanceDto?, Guid>>().SingleInstance();
         }
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)

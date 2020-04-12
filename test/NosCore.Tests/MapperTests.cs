@@ -55,7 +55,7 @@ namespace NosCore.Tests
         private readonly IDao<CharacterDto, long> _characterDao =
            new Dao<Character, CharacterDto, long>(Logger, TestHelpers.Instance.ContextBuilder);
 
-        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao = new ItemInstanceDao(Logger, TestHelpers.Instance.ContextBuilder);
+        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(Logger, TestHelpers.Instance.ContextBuilder);
 
         [TestInitialize]
         public void Setup()
