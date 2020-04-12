@@ -40,16 +40,16 @@ namespace NosCore.PacketHandlers.Shops
 {
     public class MShopPacketHandler : PacketHandler<MShopPacket>, IWorldPacketHandler
     {
-        private readonly IDistance _distanceHelper;
+        private readonly IDistanceCalculator _distanceCalculator;
 
-        public MShopPacketHandler(IDistance distanceHelper)
+        public MShopPacketHandler(IDistanceCalculator distanceCalculator)
         {
-            _distanceHelper = distanceHelper;
+            _distanceCalculator = distanceCalculator;
         }
         public override async Task ExecuteAsync(MShopPacket mShopPacket, ClientSession clientSession)
         {
             var portal = clientSession.Character.MapInstance.Portals.Find(port =>
-                _distanceHelper.GetDistance(new MapCell { X = clientSession.Character.PositionX, Y = clientSession.Character.PositionY }, new MapCell { X = port.SourceX, Y = port.SourceY }) <= 6);
+                _distanceCalculator.GetDistance(new MapCell { X = clientSession.Character.PositionX, Y = clientSession.Character.PositionY }, new MapCell { X = port.SourceX, Y = port.SourceY }) <= 6);
             if (portal != null)
             {
                 await clientSession.SendPacketAsync(new MsgPacket

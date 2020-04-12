@@ -118,7 +118,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static Task MoveAsync(this INonPlayableEntity nonPlayableEntity, IDistance distanceHelper)
+        public static Task MoveAsync(this INonPlayableEntity nonPlayableEntity, IDistanceCalculator distanceCalculator)
         {
             if (!nonPlayableEntity.IsAlive)
             {
@@ -146,7 +146,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return Task.CompletedTask;
             }
 
-            var distance = (int)distanceHelper.GetDistance(new MapCell { X = nonPlayableEntity.PositionX, Y = nonPlayableEntity.PositionY }, new MapCell { X = mapX, Y = mapY });
+            var distance = (int)distanceCalculator.GetDistance(new MapCell { X = nonPlayableEntity.PositionX, Y = nonPlayableEntity.PositionY }, new MapCell { X = mapX, Y = mapY });
             var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
             Observable.Timer(TimeSpan.FromMilliseconds(value))
                 .Subscribe(

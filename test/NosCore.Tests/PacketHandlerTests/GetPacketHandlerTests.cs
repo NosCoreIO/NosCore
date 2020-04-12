@@ -57,7 +57,7 @@ namespace NosCore.Tests.PacketHandlerTests
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _getPacketHandler = new GetPacketHandler(Logger, TestHelpers.Instance.DistanceHelper);
+            _getPacketHandler = new GetPacketHandler(Logger, TestHelpers.Instance.DistanceCalculator);
         }
 
 
