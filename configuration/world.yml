@@ -12,7 +12,7 @@ MasterCommunication:
     Friend: api/friend
     Blacklist: api/blacklist
 ServerName: S1-NosCore
-Host: 192.168.1.2
+Host: 127.0.0.1
 Port: 1337
 ConnectedAccountLimit: 100
 SceneOnCreate: false
