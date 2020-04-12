@@ -76,7 +76,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
-using NosCore.GameObject.Mapping;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ExchangeProvider;
@@ -347,7 +346,9 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
 
             //NosCore.GameObject
-            containerBuilder.RegisterType<Mapper>().PropertiesAutowired();
+            TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
+            TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
