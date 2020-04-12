@@ -23,7 +23,6 @@
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
     <ProjectReference Include="..\NosCore.GameObject\NosCore.GameObject.csproj" />
-    <ProjectReference Include="..\NosCore.PathFinder\NosCore.PathFinder.csproj" />
   </ItemGroup>
 
 </Project>

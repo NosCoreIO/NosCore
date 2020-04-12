@@ -28,15 +28,21 @@ using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.PathFinder;
+using NosCore.PathFinder.Interfaces;
 
 namespace NosCore.PacketHandlers.Movement
 {
     public class WalkPacketHandler : PacketHandler<WalkPacket>, IWorldPacketHandler
     {
+        private readonly IDistance _distanceHelper;
+
+        public WalkPacketHandler(IDistance distanceHelper)
+        {
+            _distanceHelper = distanceHelper;
+        }
         public override async Task ExecuteAsync(WalkPacket walkPacket, ClientSession session)
         {
-            var distance = (int) Heuristic.Octile(Math.Abs(session.Character.PositionX - walkPacket.XCoordinate),
-                Math.Abs(session.Character.PositionY - walkPacket.YCoordinate));
+            var distance = (int)_distanceHelper.GetDistance(new MapCell { X = session.Character.PositionX, Y = session.Character.PositionY }, new MapCell { X = walkPacket.XCoordinate, Y = walkPacket.YCoordinate });
 
             if (((session.Character.Speed < walkPacket.Speed)
                 && (session.Character.LastSpeedChange.AddSeconds(5) <= SystemTime.Now())) || (distance > 60))

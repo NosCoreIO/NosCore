@@ -46,7 +46,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _minilandProvider = new Mock<IMinilandProvider>();
             _minilandProvider.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<Portal>());
             _preqPacketHandler =
-                new PreqPacketHandler(TestHelpers.Instance.MapInstanceProvider, _minilandProvider.Object);
+                new PreqPacketHandler(TestHelpers.Instance.MapInstanceProvider, _minilandProvider.Object, TestHelpers.Instance.DistanceHelper);
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(0);
 
             _session.Character.MapInstance.Portals = new List<Portal>
