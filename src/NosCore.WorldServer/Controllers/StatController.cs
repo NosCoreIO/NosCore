@@ -20,7 +20,6 @@
 using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.Mvc;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
@@ -28,6 +27,7 @@ using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Configuration;
 using NosCore.GameObject.Networking;
 using Serilog;
 

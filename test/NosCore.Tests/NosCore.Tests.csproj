@@ -34,6 +34,7 @@
     <ProjectReference Include="..\..\src\NosCore.Database\NosCore.Database.csproj" />
     <ProjectReference Include="..\..\src\NosCore.Data\NosCore.Data.csproj" />
     <ProjectReference Include="..\..\src\NosCore.MasterServer\NosCore.MasterServer.csproj" />
+    <ProjectReference Include="..\..\src\NosCore.WorldServer\NosCore.WorldServer.csproj" />
   </ItemGroup>
 
 </Project>

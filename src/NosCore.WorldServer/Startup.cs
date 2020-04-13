@@ -52,7 +52,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.VisualStudio.Threading;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
@@ -91,9 +90,12 @@ using InventoryItemInstance = NosCore.GameObject.Providers.InventoryService.Inve
 using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Serializer = NosCore.Packets.Serializer;
 using NosCore.Dao;
+using NosCore.Data.Dto;
+using NosCore.GameObject.Configuration;
 using NosCore.Packets.Enumerations;
 using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.Configuration;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
 
 namespace NosCore.WorldServer

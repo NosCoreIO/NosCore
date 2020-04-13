@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
-using NosCore.Configuration;
+using NosCore.Shared.Configuration;
 using Serilog;
 
 namespace NosCore.GameObject.Networking

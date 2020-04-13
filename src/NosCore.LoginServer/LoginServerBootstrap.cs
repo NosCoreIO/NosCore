@@ -40,7 +40,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
@@ -63,6 +62,8 @@ using NosCore.PacketHandlers.Login;
 using Serilog;
 using ILogger = Serilog.ILogger;
 using NosCore.Dao;
+using NosCore.GameObject.Configuration;
+using NosCore.Shared.Configuration;
 
 namespace NosCore.LoginServer
 {

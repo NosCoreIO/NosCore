@@ -34,31 +34,27 @@ using NosCore.GameObject;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Input;
 using Serilog;
 using Map = NosCore.GameObject.Map.Map;
 using MapMonster = NosCore.Database.Entities.MapMonster;
 using MapNpc = NosCore.Database.Entities.MapNpc;
 using NosCore.Dao;
 using NosCore.Database;
+using OpenToolkit.Mathematics;
+using OpenToolkit.Windowing.Desktop;
+using OpenToolkit.Windowing.Common;
+using OpenToolkit.Windowing.Common.Input;
+using OpenToolkit.Graphics.OpenGL;
 
 namespace NosCore.PathFinder.Gui
 {
     public class GuiWindow : GameWindow
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private readonly byte _gridsize;
         private readonly Map _map;
-        private readonly DataAccessHelper _dbContextBuilder;
-        private readonly IDao<MapMonsterDto, int> _mapMonsterDao;
 
-        private readonly IDao<MapNpcDto, int> _mapNpcDao;
         private readonly List<GameObject.MapMonster> _monsters;
-
-        private readonly IDao<NpcMonsterDto, short> _npcMonsterDao;
 
         private readonly List<GameObject.MapNpc> _npcs;
         private readonly int _originalHeight;
@@ -67,26 +63,38 @@ namespace NosCore.PathFinder.Gui
         private double _gridsizeX;
         private double _gridsizeY;
 
-        public GuiWindow(Map map, byte gridsize, int width, int height, GraphicsMode mode, string title, DataAccessHelper dbContextBuilder) : base(
-            width * gridsize, height * gridsize, mode, title)
+        public GuiWindow(Map map, byte gridsize, int width, int height, string title, DataAccessHelper dbContextBuilder) : base(
+                new GameWindowSettings
+                {
+                    IsMultiThreaded = true,
+                    RenderFrequency = 30,
+                    UpdateFrequency = 30
+                },
+                new NativeWindowSettings
+                {
+                    Size = new Vector2i(width * gridsize, height * gridsize),
+                    Title = title,
+                    API = ContextAPI.OpenGL,
+                    APIVersion = new Version(3,3)
+                })
         {
-            _dbContextBuilder = dbContextBuilder;
-            _mapMonsterDao = new Dao<MapMonster, MapMonsterDto, int>(_logger, _dbContextBuilder);
-            _mapNpcDao = new Dao<MapNpc, MapNpcDto, int>(_logger, _dbContextBuilder);
-            _npcMonsterDao = new Dao<NpcMonster, NpcMonsterDto, short>(_logger, _dbContextBuilder);
+            var dbContextBuilder1 = dbContextBuilder;
+            IDao<MapMonsterDto, int> mapMonsterDao = new Dao<MapMonster, MapMonsterDto, int>(Logger, dbContextBuilder1);
+            IDao<MapNpcDto, int> mapNpcDao = new Dao<MapNpc, MapNpcDto, int>(Logger, dbContextBuilder1);
+            IDao<NpcMonsterDto, short> npcMonsterDao = new Dao<NpcMonster, NpcMonsterDto, short>(Logger, dbContextBuilder1);
             _originalWidth = width * gridsize;
             _originalHeight = height * gridsize;
             _map = map;
             _gridsizeX = gridsize;
             _gridsizeY = gridsize;
             _gridsize = gridsize;
-            _monsters = _mapMonsterDao.Where(s => s.MapId == map.MapId)
+            _monsters = mapMonsterDao.Where(s => s.MapId == map.MapId)
                 ?.Adapt<List<GameObject.MapMonster>>() ?? new List<GameObject.MapMonster>();
-            var npcMonsters = _npcMonsterDao.LoadAll().ToList();
+            var npcMonsters = npcMonsterDao.LoadAll().ToList();
             using var mapInstance =
                 new MapInstance(map, new Guid(), false, MapInstanceType.BaseMapInstance,
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    _logger, new List<IMapInstanceEventHandler>())
+                    Logger, new List<IMapInstanceEventHandler>())
                 {
                     IsSleeping = false
                 };
@@ -102,7 +110,7 @@ namespace NosCore.PathFinder.Gui
                 mapMonster.IsAlive = true;
             }
 
-            _npcs = _mapNpcDao.Where(s => s.MapId == map.MapId)?.Adapt<List<GameObject.MapNpc>>() ?? new List<GameObject.MapNpc>();
+            _npcs = mapNpcDao.Where(s => s.MapId == map.MapId)?.Adapt<List<GameObject.MapNpc>>() ?? new List<GameObject.MapNpc>();
             foreach (var mapNpc in _npcs)
             {
                 mapNpc.PositionX = mapNpc.MapX;
@@ -133,25 +141,18 @@ namespace NosCore.PathFinder.Gui
 
             if (KeyPress(Key.Escape))
             {
-                Exit();
+                Close();
             }
-        }
-
-
-
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.ClearColor(Color.LightSkyBlue);
-            _gridsizeX = _gridsize * (ClientRectangle.Width / (double)_originalWidth);
-            _gridsizeY = _gridsize * (ClientRectangle.Height / (double)_originalHeight);
-            var world = Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Width, ClientRectangle.Height, 0, 0, 1);
+            GL.ClearColor(Color.LightSkyBlue.A, Color.LightSkyBlue.R, Color.LightSkyBlue.G, Color.LightSkyBlue.B);
+            _gridsizeX = _gridsize * (ClientRectangle.Size.X / (double)_originalWidth);
+            _gridsizeY = _gridsize * (ClientRectangle.Size.Y / (double)_originalHeight);
+            var world = Matrix4.CreateOrthographicOffCenter(0, ClientRectangle.Size.X, ClientRectangle.Size.Y, 0, 0, 1);
             GL.LoadMatrix(ref world);
             foreach (var wall in _walls)
             {

@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using NosCore.Data;
+using NosCore.Data.Enumerations;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject.Providers.InventoryService

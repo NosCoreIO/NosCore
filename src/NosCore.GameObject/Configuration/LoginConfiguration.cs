@@ -17,9 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Configuration
+using System.ComponentModel.DataAnnotations;
+using NosCore.Core;
+using NosCore.Packets.ClientPackets.Login;
+using NosCore.Shared.Configuration;
+
+namespace NosCore.GameObject.Configuration
 {
-    public enum FeatureFlag
+    public class LoginConfiguration : ServerConfiguration
     {
+        [Required]
+        public WebApiConfiguration? MasterCommunication { get; set; }
+
+        [Required]
+        public SqlConnectionConfiguration? Database { get; set; }
+
+        public ClientVersionSubPacket? ClientVersion { get; set; }
+        public string? Md5String { get; set; }
+        public bool EnforceNewAuth { get; set; }
     }
 }
