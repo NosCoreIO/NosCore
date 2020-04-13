@@ -58,7 +58,7 @@ namespace NosCore.Tests.InventoryTests
     [TestClass]
     public class ShopTests
     {
-        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private IFriendHttpClient? _friendHttpClient;
         private MapInstanceProvider? _instanceProvider;
         private ClientSession? _session;

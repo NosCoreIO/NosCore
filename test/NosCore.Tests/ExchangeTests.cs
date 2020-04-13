@@ -39,7 +39,7 @@ namespace NosCore.Tests
     [TestClass]
     public class ExchangeTests
     {
-        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private ExchangeProvider? _exchangeProvider;
 
         private ItemProvider? _itemProvider;

@@ -66,6 +66,7 @@ using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
 using NosCore.Packets.Enumerations;
 using ILogger = Serilog.ILogger;
+using NosCore.Shared.I18N;
 
 namespace NosCore.MasterServer
 {

@@ -79,6 +79,7 @@ using NosCore.Data.Enumerations;
 using NosCore.GameObject.Configuration;
 using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Tests.Helpers
 {

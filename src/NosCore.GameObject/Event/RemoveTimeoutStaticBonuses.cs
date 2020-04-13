@@ -28,6 +28,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using Serilog;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Event
 {
