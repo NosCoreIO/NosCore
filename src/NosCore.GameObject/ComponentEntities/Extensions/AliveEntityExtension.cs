@@ -34,6 +34,7 @@ using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Core;
 using NosCore.Data;
+using NosCore.Data.Enumerations;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.InventoryService;

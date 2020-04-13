@@ -17,20 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Data.Enumerations;
+using NosCore.Core;
+using NosCore.Shared.Configuration;
 
-namespace NosCore.Configuration
+namespace NosCore.MasterServer
 {
-    [Serializable]
-    public class WebApiConfiguration : ServerConfiguration
+    public class MasterConfiguration : LanguageConfiguration
     {
         [Required]
-        public string? Password { get; set; }
+        public WebApiConfiguration? WebApi { get; set; }
 
-        public HashingType HashingType { get; set; }
-
-        public string? Salt { get; set; }
+        [Required]
+        public SqlConnectionConfiguration? Database { get; set; }
     }
 }

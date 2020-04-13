@@ -19,7 +19,7 @@
 
 using System;
 
-namespace NosCore.Data.StaticEntities
+namespace NosCore.Data.Dto
 {
     public class I18NFromAttribute : Attribute
     {

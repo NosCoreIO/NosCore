@@ -28,16 +28,17 @@ using NosCore.Packets.ServerPackets.UI;
 using DotNetty.Transport.Channels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
+using NosCore.GameObject.Configuration;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
@@ -57,7 +58,7 @@ namespace NosCore.Tests.InventoryTests
     [TestClass]
     public class ShopTests
     {
-        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private IFriendHttpClient? _friendHttpClient;
         private MapInstanceProvider? _instanceProvider;
         private ClientSession? _session;

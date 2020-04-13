@@ -20,7 +20,7 @@
 using System.Globalization;
 using System.Resources;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Core.I18N
 {

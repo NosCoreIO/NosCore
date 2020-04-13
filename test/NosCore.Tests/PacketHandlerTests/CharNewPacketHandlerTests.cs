@@ -40,7 +40,7 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class CharNewPacketHandlerTests
     {
-        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private Character? _chara;
         private CharNewPacketHandler? _charNewPacketHandler;
         private ClientSession? _session;

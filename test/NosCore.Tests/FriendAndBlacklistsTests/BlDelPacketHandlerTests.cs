@@ -27,7 +27,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Configuration;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
@@ -43,6 +42,7 @@ using NosCore.Tests.Helpers;
 using Serilog;
 using NosCore.Dao;
 using NosCore.Data.WebApi;
+using NosCore.Shared.Configuration;
 using Character = NosCore.Database.Entities.Character;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
@@ -50,7 +50,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class BDelPacketHandlerTests
     {
-        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private BlacklistController? _blackListController;
         private Mock<IBlacklistHttpClient>? _blackListHttpClient;
         private BlDelPacketHandler? _blDelPacketHandler;

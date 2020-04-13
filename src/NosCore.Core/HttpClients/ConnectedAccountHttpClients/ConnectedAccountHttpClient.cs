@@ -24,10 +24,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
-using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
+using NosCore.Shared.Configuration;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 {

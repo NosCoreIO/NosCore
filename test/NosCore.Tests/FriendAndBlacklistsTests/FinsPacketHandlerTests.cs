@@ -26,7 +26,6 @@ using NosCore.Packets.Enumerations;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.Dto;
@@ -45,13 +44,14 @@ using Character = NosCore.Data.WebApi.Character;
 using CharacterRelation = NosCore.Database.Entities.CharacterRelation;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
+using NosCore.Shared.Configuration;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
 {
     [TestClass]
     public class FinsPacketHandlerTests
     {
-        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
         private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;

@@ -21,6 +21,7 @@ using System.Globalization;
 using System.Resources;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Core.I18N
 {

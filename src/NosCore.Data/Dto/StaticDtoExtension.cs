@@ -24,7 +24,7 @@ using System.Reflection;
 using FastMember;
 using NosCore.Packets.Enumerations;
 
-namespace NosCore.Data.StaticEntities
+namespace NosCore.Data.Dto
 {
     public static class StaticDtoExtension
     {

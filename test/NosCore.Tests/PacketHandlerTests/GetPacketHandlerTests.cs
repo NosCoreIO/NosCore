@@ -39,7 +39,7 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class GetPacketHandlerTests
     {
-        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private GetPacketHandler? _getPacketHandler;
         private IItemProvider? _item;
         private ClientSession? _session;

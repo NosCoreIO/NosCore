@@ -24,19 +24,20 @@ using System.Threading.Tasks;
 using Mapster;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.MasterServer.DataHolders;
+using NosCore.Shared.Configuration;
 
 namespace NosCore.MasterServer.Controllers
 {

@@ -22,9 +22,10 @@ using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels.Sockets;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Networking;
+using NosCore.Packets.Enumerations;
+using NosCore.Shared.Configuration;
 
 namespace NosCore.GameObject.Networking
 {
@@ -50,7 +51,7 @@ namespace NosCore.GameObject.Networking
         public void CreatePipeline()
         {
             SessionFactory.Instance.Sessions[_channel.Id.AsLongText()] =
-                new RegionTypeMapping(0, _configuration.Language);
+                new RegionTypeMapping(0, (RegionType)_configuration.Language);
             var pipeline = _channel.Pipeline;
             pipeline.AddLast(_decoder);
             _clientSession.RegisterChannel(_channel);
