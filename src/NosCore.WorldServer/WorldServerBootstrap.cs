@@ -34,6 +34,7 @@ namespace NosCore.WorldServer
 {
     public static class WorldServerBootstrap
     {
+        private const string ConsoleText = "WORLD SERVER - NosCoreIO";
         private const string ConfigurationPath = "../../../configuration";
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
 
@@ -51,6 +52,11 @@ namespace NosCore.WorldServer
 
         private static IWebHost BuildWebHost(string[] args)
         {
+            Logger.Initialize(new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                .AddYamlFile("logger.yml", false)
+                .Build());
+            Logger.PrintHeader(ConsoleText);
             var conf = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
                 .AddYamlFile("world.yml", false)
