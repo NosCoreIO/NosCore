@@ -34,12 +34,13 @@ namespace NosCore.PacketHandlers.Friend
 {
     public class BlInsPackettHandler : PacketHandler<BlInsPacket>, IWorldPacketHandler
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
         private readonly IBlacklistHttpClient _blacklistHttpClient;
 
-        public BlInsPackettHandler(IBlacklistHttpClient blacklistHttpClient)
+        public BlInsPackettHandler(IBlacklistHttpClient blacklistHttpClient, ILogger logger)
         {
             _blacklistHttpClient = blacklistHttpClient;
+            _logger = logger;
         }
 
         public override async Task ExecuteAsync(BlInsPacket blinsPacket, ClientSession session)

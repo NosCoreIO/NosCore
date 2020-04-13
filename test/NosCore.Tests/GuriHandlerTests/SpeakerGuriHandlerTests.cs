@@ -55,11 +55,12 @@ namespace NosCore.Tests.GuriHandlerTests
             {
                 new Item {VNum = 1, ItemType = ItemType.Magical, Type =  NoscorePocketType.Etc, Effect = ItemEffectType.Speaker},
             };
+            _logger = new Mock<ILogger>();
             _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger.Object);
 
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _logger = new Mock<ILogger>();
+
             Handler = new SpeakerGuriHandler(_logger.Object);
             Broadcaster.Instance.LastPackets.Clear();
         }

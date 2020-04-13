@@ -43,7 +43,7 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class NoS0575PacketHandlerTests
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private readonly string _password = "test".ToSha512();
         private Mock<IAuthHttpClient>? _authHttpClient;
         private Mock<IChannelHttpClient>? _channelHttpClient;

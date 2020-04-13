@@ -813,7 +813,7 @@
   <data name="QUESTS_LOADED" xml:space="preserve">
     <value>{0} Görev yüklendi!</value>
   </data>	
-  <data name="NPCMONSTERTALKS_LOADED" xml:space="preserve">
+  <data name="NPCMONSTERSTALKS_LOADED" xml:space="preserve">
     <value>{0} NPC-Canavar diyaloğu yüklendi!</value>	
   </data>	
   <data name="NPCTALKS_PARSED" xml:space="preserve">

@@ -42,7 +42,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class BlInsPacketHandlerTests
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
 
         private readonly IDao<CharacterRelationDto, Guid> _characterRelationDao =
            new Dao<CharacterRelation, CharacterRelationDto, Guid>(Logger, TestHelpers.Instance.ContextBuilder);
@@ -56,7 +56,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _blInsPacketHandler = new BlInsPackettHandler(TestHelpers.Instance.BlacklistHttpClient.Object);
+            _blInsPacketHandler = new BlInsPackettHandler(TestHelpers.Instance.BlacklistHttpClient.Object, Logger);
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),

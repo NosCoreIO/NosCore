@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.Inventory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -37,6 +38,7 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Tests.Helpers;
+using Serilog;
 
 namespace NosCore.Tests.ItemHandlerTests
 {
@@ -44,6 +46,7 @@ namespace NosCore.Tests.ItemHandlerTests
     public class BackPackHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider? _itemProvider;
+        private readonly ILogger Logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -56,7 +59,7 @@ namespace NosCore.Tests.ItemHandlerTests
                 new Item {VNum = 2, ItemType = ItemType.Special, Effect = ItemEffectType.InventoryUpgrade, EffectValue = 0},
             };
             _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
         }
         [TestMethod]
         public async Task Test_Can_Not_StackAsync()

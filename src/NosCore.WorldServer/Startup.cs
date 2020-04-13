@@ -418,7 +418,7 @@ namespace NosCore.WorldServer
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
                 .UseNpgsql(_worldConfiguration.Database!.ConnectionString);
             _dataAccess = new DataAccessHelper();
-            _dataAccess.Initialize(optionsBuilder.Options);
+            _dataAccess.Initialize(optionsBuilder.Options, Logger.GetLoggerConfiguration().CreateLogger());
             LogLanguage.Language = _worldConfiguration.Language;
 
             services.AddSwaggerGen(c =>
