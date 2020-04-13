@@ -92,7 +92,7 @@ namespace NosCore.LoginServer
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(_loginConfiguration.Database!.ConnectionString);
             _dataAccess = new DataAccessHelper();
-            _dataAccess.Initialize(optionsBuilder.Options);
+            _dataAccess.Initialize(optionsBuilder.Options, _logger);
 
             LogLanguage.Language = _loginConfiguration.Language;
         }
@@ -174,6 +174,10 @@ namespace NosCore.LoginServer
                 .ConfigureServices((hostContext, services) =>
                 {
                     try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
+                    Logger.Initialize(new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                        .AddYamlFile("logger.yml", false)
+                        .Build());
                     Logger.PrintHeader(ConsoleText);
                     InitializeConfiguration();
 

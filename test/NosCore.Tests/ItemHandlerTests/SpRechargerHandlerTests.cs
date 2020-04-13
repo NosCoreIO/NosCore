@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -35,6 +36,7 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Tests.Helpers;
+using Serilog;
 
 namespace NosCore.Tests.ItemHandlerTests
 {
@@ -42,6 +44,7 @@ namespace NosCore.Tests.ItemHandlerTests
     public class SpRechargerEventHandlerTests : UseItemEventHandlerTestsBase
     {
         private ItemProvider? _itemProvider;
+        private readonly ILogger _logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -53,7 +56,7 @@ namespace NosCore.Tests.ItemHandlerTests
                 new Item {VNum = 1, ItemType = ItemType.Special, EffectValue = 1},
             };
             _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger);
         }
         [TestMethod]
         public async Task Test_SpRecharger_When_MaxAsync()

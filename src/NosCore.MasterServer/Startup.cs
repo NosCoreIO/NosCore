@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -73,7 +74,6 @@ namespace NosCore.MasterServer
     public class Startup
     {
         private const string Title = "NosCore - MasterServer";
-        private const string ConsoleText = "MASTER SERVER - NosCoreIO";
         private static readonly MasterConfiguration _configuration = new MasterConfiguration();
         private static DataAccessHelper _dataAccess = null!;
 
@@ -185,11 +185,10 @@ namespace NosCore.MasterServer
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
-            Logger.PrintHeader(ConsoleText);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
                 .UseNpgsql(_configuration.Database!.ConnectionString);
             _dataAccess = new DataAccessHelper();
-            _dataAccess.Initialize(optionsBuilder.Options);
+            _dataAccess.Initialize(optionsBuilder.Options, Logger.GetLoggerConfiguration().CreateLogger());
             LogLanguage.Language = _configuration.Language;
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));

@@ -25,6 +25,7 @@ using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
@@ -45,7 +46,7 @@ namespace NosCore.Tests.NRunTests
     [TestClass]
     public class ChangeClassTests
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
 
         private IItemProvider? _item;
         private NrunPacketHandler? _nRunHandler;

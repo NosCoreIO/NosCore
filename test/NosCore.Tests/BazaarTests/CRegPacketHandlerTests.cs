@@ -45,6 +45,7 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.Tests.Helpers;
+using Serilog;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -57,6 +58,7 @@ namespace NosCore.Tests.BazaarTests
         private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
         private ItemProvider? _itemProvider;
         private ClientSession? _session;
+        private readonly ILogger _logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -79,7 +81,7 @@ namespace NosCore.Tests.BazaarTests
                 new Item {Type = NoscorePocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
             _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger);
             _cregPacketHandler = new CRegPacketHandler(TestHelpers.Instance.WorldConfiguration,
                 _bazaarHttpClient.Object, _itemInstanceDao.Object, _inventoryItemInstanceDao.Object);
             _itemInstanceDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))

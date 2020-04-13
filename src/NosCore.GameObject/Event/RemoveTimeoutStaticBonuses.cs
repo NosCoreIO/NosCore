@@ -35,7 +35,12 @@ namespace NosCore.GameObject.Event
     [UsedImplicitly]
     public class RemoveTimeoutStaticBonuses : IGlobalEvent
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+
+        public RemoveTimeoutStaticBonuses(ILogger logger)
+        {
+            _logger = logger;
+        }
 
         public TimeSpan Delay { get; set; } = TimeSpan.FromMinutes(5);
 

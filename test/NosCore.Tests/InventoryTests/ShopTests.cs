@@ -58,7 +58,7 @@ namespace NosCore.Tests.InventoryTests
     [TestClass]
     public class ShopTests
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private IFriendHttpClient? _friendHttpClient;
         private MapInstanceProvider? _instanceProvider;
         private ClientSession? _session;
@@ -84,7 +84,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
             };
             var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -105,7 +105,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
             };
             var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0, Amount = 98});
@@ -126,7 +126,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
             };
             var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -150,7 +150,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000}
             };
             var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -175,7 +175,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
             };
             var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -209,7 +209,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
             };
             var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -242,7 +242,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1}
             };
             var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1), Type = 0});
@@ -296,7 +296,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
             };
             var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             var it = itemBuilder.Create(1, 999);

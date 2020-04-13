@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
@@ -104,7 +105,6 @@ namespace NosCore.WorldServer
     public class Startup
     {
         private const string Title = "NosCore - WorldServer";
-        private const string ConsoleText = "WORLD SERVER - NosCoreIO";
 
         private static readonly WorldConfiguration _worldConfiguration = new WorldConfiguration();
         private static DataAccessHelper _dataAccess = null!;
@@ -415,12 +415,10 @@ namespace NosCore.WorldServer
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
-            Logger.PrintHeader(ConsoleText);
-            //PacketFactory.Initialize<NoS0575Packet>();
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
                 .UseNpgsql(_worldConfiguration.Database!.ConnectionString);
             _dataAccess = new DataAccessHelper();
-            _dataAccess.Initialize(optionsBuilder.Options);
+            _dataAccess.Initialize(optionsBuilder.Options, Logger.GetLoggerConfiguration().CreateLogger());
             LogLanguage.Language = _worldConfiguration.Language;
 
             services.AddSwaggerGen(c =>

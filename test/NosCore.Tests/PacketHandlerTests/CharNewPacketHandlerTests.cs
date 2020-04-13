@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Drops;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
@@ -40,7 +41,7 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class CharNewPacketHandlerTests
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private Character? _chara;
         private CharNewPacketHandler? _charNewPacketHandler;
         private ClientSession? _session;

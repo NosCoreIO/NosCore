@@ -42,7 +42,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class BlPacketHandlerTests
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private BlPacketHandler? _blPacketHandler;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
         private ClientSession? _session;

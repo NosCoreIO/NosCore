@@ -49,7 +49,7 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class MJoinPacketHandlerTests
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
         private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
         private Mock<IMinilandProvider>? _minilandProvider;

@@ -33,6 +33,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using Serilog;
 
 namespace NosCore.GameObject.Providers.ItemProvider
 {
@@ -40,12 +41,14 @@ namespace NosCore.GameObject.Providers.ItemProvider
     {
         private readonly List<IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>> _handlers;
         private readonly List<ItemDto> _items;
+        private readonly ILogger _logger;
 
         public ItemProvider(List<ItemDto> items,
-            IEnumerable<IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>> handlers)
+            IEnumerable<IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>> handlers, ILogger logger)
         {
             _items = items;
             _handlers = handlers.ToList();
+            _logger = logger;
         }
 
         public IItemInstance Convert(IItemInstanceDto k)
@@ -162,7 +165,7 @@ namespace NosCore.GameObject.Providers.ItemProvider
                                 Design = design
                             };
                         default:
-                            var wear = new WearableInstance(itemToCreate)
+                            var wear = new WearableInstance(itemToCreate, _logger)
                             {
                                 Amount = amount,
                                 Rare = rare,

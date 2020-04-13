@@ -52,7 +52,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class FDelPacketHandlerTests
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private Mock<IChannelHttpClient>? _channelHttpClient;
         private Mock<IDao<CharacterDto, long>>? _characterDao;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;

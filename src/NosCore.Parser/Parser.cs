@@ -86,7 +86,11 @@ namespace NosCore.Parser
         public static async Task Main(string[] args)
         {
             try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
-            NosCore.Shared.I18N.Logger.PrintHeader(ConsoleText);
+            Logger.Initialize(new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                .AddYamlFile("logger.yml", false)
+                .Build());
+            Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
             TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
             TypeAdapterConfig.GlobalSettings.Default
@@ -97,7 +101,7 @@ namespace NosCore.Parser
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
                 optionsBuilder.UseNpgsql(ParserConfiguration.Database!.ConnectionString);
                 var dataAccess = new DataAccessHelper();
-                dataAccess.Initialize(optionsBuilder.Options);
+                dataAccess.Initialize(optionsBuilder.Options, _logger);
                 try
                 {
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ENTER_PATH));

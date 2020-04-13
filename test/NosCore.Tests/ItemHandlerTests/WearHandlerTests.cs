@@ -118,7 +118,7 @@ namespace NosCore.Tests.ItemHandlerTests
                 }
             };
             _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger.Object);
         }
 
         [TestMethod]
