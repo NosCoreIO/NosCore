@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Microsoft.EntityFrameworkCore;
+using NosCore.Dao.Extensions;
 using NosCore.Database.Entities;
 
 namespace NosCore.Database
