@@ -32,6 +32,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Shared.Helpers;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -83,8 +84,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         JobLevel = 1,
                         Level = (byte)(packet.IsMartialArtist ? 81 : 1),
                         MapId = 1,
-                        MapX = (short)RandomFactory.Instance.RandomNumber(78, 81),
-                        MapY = (short)RandomFactory.Instance.RandomNumber(114, 118),
+                        MapX = (short)RandomHelper.Instance.RandomNumber(78, 81),
+                        MapY = (short)RandomHelper.Instance.RandomNumber(114, 118),
                         Mp = packet.IsMartialArtist ? 2369 : 221,
                         MaxMateCount = 10,
                         SpPoint = 10000,
