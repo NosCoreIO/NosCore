@@ -37,8 +37,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Controllers\NosCore.PacketHandlers.csproj" />
-    <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
-    <ProjectReference Include="..\NosCore.GameObject\NosCore.GameObject.csproj" />
   </ItemGroup>
 
 </Project>
