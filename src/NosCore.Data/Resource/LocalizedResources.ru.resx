@@ -824,9 +824,6 @@
   <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
     <value>Токен безопасности обновлен.</value>
   </data>
-  <data name="SELECT_MAPID" xml:space="preserve">
-    <value>Пожалуйста, выберите ID локации:</value>
-  </data>
   <data name="SELL_ITEM_VALIDE" xml:space="preserve">
     <value>Продано: {0} х{1}</value>
   </data>
@@ -981,9 +978,6 @@
   </data>
   <data name="WEAR_NEW_TITLE" xml:space="preserve">
     <value>Активирован новый титул</value>
-  </data>
-  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
-    <value>Некорректный MapId!</value>
   </data>
   <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
     <value>Запрошен обмен у {0}.</value>

@@ -631,9 +631,6 @@
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Ukládání všeho!</value>
   </data>
-  <data name="SELECT_MAPID" xml:space="preserve">
-    <value>Prosím vybere ID Mapy</value>
-  </data>
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
     <value>Zpráva poslána hráči.</value>
   </data>
@@ -726,9 +723,6 @@
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý VisualType</value>
-  </data>
-  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
-    <value>Špatně vybrané ID Mapy</value>
   </data>
   <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
     <value>Zeptal ses na výměnu hráče: {0}.</value>
