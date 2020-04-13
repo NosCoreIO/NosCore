@@ -123,6 +123,9 @@
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>L'account con il SessionId {0} ha loggato.</value>
   </data>
+  <data name="ACTS_PARTS_PARSED" xml:space="preserve">
+    <value>{0} Parti degli atti aggiunti !</value>
+  </data>
   <data name="ADMINISTRATOR" xml:space="preserve">
     <value>Amministratore</value>
   </data>
@@ -144,6 +147,9 @@
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Questo nome è già in uso !</value>
   </data>
+  <data name="ALREADY_THIS_MINILANDOBJECT" xml:space="preserve">
+    <value>Questo elemento è già stato inserito nella mini-land.</value>
+  </data>
   <data name="ARCHER" xml:space="preserve">
     <value>Arciere</value>
   </data>
@@ -161,6 +167,9 @@
   </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Autentificazione avvennuta con successo!</value>
+  </data>
+  <data name="AUTH_API_SUCCESS" xml:space="preserve">
+    <value>Autorizzazione API riuscita.</value>
   </data>
   <data name="AUTH_ERROR" xml:space="preserve">
     <value>Auth Error</value>
@@ -182,6 +191,15 @@
   </data>
   <data name="BANK_FULL" xml:space="preserve">
     <value>Il tuo conto corrente è pieno.</value>
+  </data>
+  <data name="BAZAAR_BUY_ERROR" xml:space="preserve">
+    <value>Errore durante l'acquisto nel NosBazaar.</value>
+  </data>
+  <data name="BAZAAR_DELETE_ERROR" xml:space="preserve">
+    <value>Errore durante la rimozione nel NosBazaar.</value>
+  </data>
+  <data name="BAZAAR_MOD_ERROR" xml:space="preserve">
+    <value>Errore durante la modifica nel NosBazaar.</value>
   </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Personaggio aggiunto alla lista nera</value>
@@ -213,8 +231,17 @@
   <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Non puoi muovere gli oggetto!</value>
   </data>
+  <data name="CANT_USE" xml:space="preserve">
+    <value>Non posso usarlo qui.</value>
+  </data>
+  <data name="CANT_USE_IN_VEHICLE" xml:space="preserve">
+    <value>Quando sei su una cavalcatura, puoi usare solo pozioni HP e MP.</value>
+  </data>
   <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Non puoi usare nessun oggetto nella bottega.</value>
+  </data>
+  <data name="CAN_NOT_MODIFY_SOLD_ITEMS" xml:space="preserve">
+    <value>Non puoi modificare il prezzo perché hai già venduto questi articoli. Sostituisci i tuoi articoli per modificarne il prezzo.</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>{0} Bcard Sincronizzate!</value>
@@ -231,6 +258,9 @@
   </data>
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
     <value>Il Personaggio è offline</value>
+  </data>
+  <data name="CHUNK_FORMAT_INVALID" xml:space="preserve">
+    <value>Formato blocco non valido.</value>
   </data>
   <data name="CLASS_CHANGED" xml:space="preserve">
     <value>Hai cambiato la classe con successo!</value>
@@ -262,6 +292,9 @@
   <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
     <value>Non puoi inviare altre richieste. Aspetta {0} secondi.</value>
   </data>
+  <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
+    <value>È stato rilevato l'accesso diretto all'oggetto: {0} - {1}.</value>
+  </data>
   <data name="DONE" xml:space="preserve">
     <value>Parsing Completato!</value>
   </data>
@@ -285,6 +318,9 @@
   </data>
   <data name="ERROR_DECODING" xml:space="preserve">
     <value>Errore di decodifica</value>
+  </data>
+  <data name="ERROR_SESSIONID" xml:space="preserve">
+    <value>Errore SessionId</value>
   </data>
   <data name="EXCEPTION" xml:space="preserve">
     <value>È stata generato un errore: {0}</value>
@@ -324,6 +360,12 @@
   </data>
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Richiesta di amicizia inviata</value>
+  </data>
+  <data name="GIFTED" xml:space="preserve">
+    <value>Hai ricevuto {0} pacchi.</value>
+  </data>
+  <data name="GIFT_SENT" xml:space="preserve">
+    <value>Item inviato.</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Tipo di richiesta gruppo sconosciuto</value>
@@ -441,17 +483,26 @@
   <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
     <value>Hai ricevuto {0} dalla Terra della Morte.</value>
   </data>
+  <data name="ITEM_GIFTED" xml:space="preserve">
+    <value>Hai invitato {0} item.</value>
+  </data>
   <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
     <value>Non puoi gettare questo oggetto.</value>
   </data>
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Non puoi gettare quest'oggetto in questa mappa!</value>
   </data>
+  <data name="ITEM_NOT_FOUND" xml:space="preserve">
+    <value>Non è stato trovato alcun item.</value>
+  </data>
   <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
     <value>Questo oggetto non può essere venduto.</value>
   </data>
   <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
     <value>Questo oggetto non può essere commerciato.</value>
+  </data>
+  <data name="ITEM_RECEIVED" xml:space="preserve">
+    <value>Hai ricevuto {0} x {1}</value>
   </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Questo oggetto non è più valido.</value>
@@ -481,6 +532,9 @@
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Caricamento MapInstances...</value>
   </data>
+  <data name="LOGIN_MEDAL" xml:space="preserve">
+    <value>Medaglia di NosBazaar attivata.</value>
+  </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Questo specialista richiede un livello lavoro più alto.</value>
   </data>
@@ -489,6 +543,12 @@
   </data>
   <data name="MAGICIAN" xml:space="preserve">
     <value>Mago</value>
+  </data>
+  <data name="MAILED" xml:space="preserve">
+    <value>Email inviata.</value>
+  </data>
+  <data name="MAIL_DELETED" xml:space="preserve">
+    <value>Email cancellata.</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MappeMostri caricate!</value>
@@ -523,17 +583,47 @@
   <data name="MAX_GOLD" xml:space="preserve">
     <value>Hai raggiunto la quantità massima di oro!</value>
   </data>
+  <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
+    <value>La Mini-land del tuo amico è chiusa</value>
+  </data>
+  <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
+    <value>Informazioni mini-land aggiornate.</value>
+  </data>
+  <data name="MINILAND_LOCK" xml:space="preserve">
+    <value>La mini-land è ora chiusa.</value>
+  </data>
+  <data name="MINILAND_NEED_LOCK" xml:space="preserve">
+    <value>La costruzione è possibile solo con la mini-land chiusa.</value>
+  </data>
+  <data name="MINILAND_PRIVATE" xml:space="preserve">
+    <value>Da ora in poi, il mini-land è accessibile solo agli amici.</value>
+  </data>
+  <data name="MINILAND_PUBLIC" xml:space="preserve">
+    <value>Il mini-landè ora aperta a tutti.</value>
+  </data>
+  <data name="MINILAND_VISITOR" xml:space="preserve">
+    <value>Numero totale di visitatori: {0} visitatori di oggi: {1}</value>
+  </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters Sincronizzati!</value>
   </data>
   <data name="NEW_LEADER" xml:space="preserve">
     <value>Sei il nuovo leader del gruppo!</value>
   </data>
+  <data name="NEW_MAIL" xml:space="preserve">
+    <value>Nuove email: {0}</value>
+  </data>
   <data name="NOT_ADVENTURER" xml:space="preserve">
     <value>Non sei un avventuriero.</value>
   </data>
+  <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
+    <value>I punti durabilità sono insufficienti.</value>
+  </data>
   <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
     <value>Non hai abbastanza oro.</value>
+  </data>
+  <data name="NOT_ENOUGH_MINILAND_POINT" xml:space="preserve">
+    <value>Non abbastanza punti di produzione.</value>
   </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Non hai abbastanza oro per comprare questo oggetto.</value>
@@ -546,6 +636,9 @@
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Questo giocatore non è nella tua lista nera!</value>
+  </data>
+  <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
+    <value>L'utente non è nella lista degli amici.</value>
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>L'oggetto non ti appartiene!</value>
@@ -565,6 +658,9 @@
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Nessuna proprietà speciale indossabile</value>
   </data>
+  <data name="NPCMONSTERSTALKS_LOADED" xml:space="preserve">
+    <value>{0} Dialoghi deigli NpcMonster caricati !</value>
+  </data>
   <data name="NPCMONSTERS_LOADED" xml:space="preserve">
     <value>{0} NpcMonsters Caricati.</value>
   </data>
@@ -573,6 +669,9 @@
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>{0} MapNpcs Sincronizzati!</value>
+  </data>
+  <data name="NPCTALKS_PARSED" xml:space="preserve">
+    <value>{0} Dialoghi degli NpcMonster caricati !</value>
   </data>
   <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
     <value>L'oggetto è stato aggiunto al NosBazar!</value>
@@ -625,6 +724,9 @@
   <data name="PARSE_RECIPES" xml:space="preserve">
     <value>Vuoi sincronizzare le Ricette?</value>
   </data>
+  <data name="PARSE_SCRIPTS" xml:space="preserve">
+    <value>Vuoi aggiungere gli scripts?</value>
+  </data>
   <data name="PARSE_SHOPITEMS" xml:space="preserve">
     <value>Vuoi sincronizzare ShopItems?</value>
   </data>
@@ -662,8 +764,32 @@
   <data name="PRICE_EXCEEDED" xml:space="preserve">
     <value>Il prezzo ha superato il limite.</value>
   </data>
+  <data name="QUESTOBJECTIVES_LOADED" xml:space="preserve">
+    <value>{0} Obbiettivi delle Quest caricati !</value>
+  </data>
+  <data name="QUESTREWARDS_LOADED" xml:space="preserve">
+    <value>{0} Ricompense delle Quest caricate !</value>
+  </data>
+  <data name="QUESTS_LOADED" xml:space="preserve">
+    <value>{0} Quest caricate !</value>
+  </data>
   <data name="QUESTS_PARSED" xml:space="preserve">
     <value>{0} Quests sincronizzate!</value>
+  </data>
+  <data name="QUEST_ALREADY_DONE" xml:space="preserve">
+    <value>Hai già completato questa Quest.</value>
+  </data>
+  <data name="QUEST_FINISHED" xml:space="preserve">
+    <value>Quest completata.</value>
+  </data>
+  <data name="QUEST_NOT_FOUND" xml:space="preserve">
+    <value>Impossibile trovare la Quest.</value>
+  </data>
+  <data name="QUEST_PRIZES_PARSED" xml:space="preserve">
+    <value>{0} Premi delle Quest aggiunti !</value>
+  </data>
+  <data name="REFILL_MINIGAME" xml:space="preserve">
+    <value>Ricarica il Minigame</value>
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrato sul MasterServer</value>
@@ -687,6 +813,15 @@
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Sto salvando i dati!</value>
   </data>
+  <data name="SCRIPTS_LOADED" xml:space="preserve">
+    <value>{0} Script caricati !</value>
+  </data>
+  <data name="SCRIPTS_PARSED" xml:space="preserve">
+    <value>{0} Script aggiunti !</value>
+  </data>
+  <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
+    <value>Token di sicurezza aggiornato.</value>
+  </data>
   <data name="SELL_ITEM_VALIDE" xml:space="preserve">
     <value>Il tuo oggetto {0} è stato venduto! {1}</value>
   </data>
@@ -701,6 +836,9 @@
   </data>
   <data name="SHOPITEMS_PARSED" xml:space="preserve">
     <value>{0} ShopItems caricati!</value>
+  </data>
+  <data name="SHOPSKILLS_LOADED" xml:space="preserve">
+    <value>{0} ShopSkills caricate !</value>
   </data>
   <data name="SHOPS_LOADED" xml:space="preserve">
     <value>{0} Shops caricati!</value>
@@ -732,6 +870,9 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Sincronizzate!</value>
   </data>
+  <data name="SPEAKER" xml:space="preserve">
+    <value>Altoparlante</value>
+  </data>
   <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
     <value>Hai raggiunto il massimo dei punto SP aggiuntivi!</value>
   </data>
@@ -762,6 +903,18 @@
   <data name="SWORDMAN" xml:space="preserve">
     <value>Spadaccino</value>
   </data>
+  <data name="TITLE_EFFECT_CHANGED" xml:space="preserve">
+    <value>L'effetto del titolo è cambiato.</value>
+  </data>
+  <data name="TITLE_VISIBILITY_CHANGED" xml:space="preserve">
+    <value>La visibilità del titolo è cambiata.</value>
+  </data>
+  <data name="TOKEN_UPDATED" xml:space="preserve">
+    <value>Token aggiornato.</value>
+  </data>
+  <data name="TOO_HIGH_LEVEL" xml:space="preserve">
+    <value>Il livello è troppo alto!</value>
+  </data>
   <data name="TOO_LOW_LEVEL" xml:space="preserve">
     <value>Per cambiare classe devi essere minimo Livello 15 e Livello lavoro 20.</value>
   </data>
@@ -771,8 +924,17 @@
   <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
     <value>L'effetto secondario è terminato. {0}</value>
   </data>
+  <data name="TRY_OLD_AUTH" xml:space="preserve">
+    <value>Ha provato ad utilizzare il vecchio metodo di autorizzazione {0}.</value>
+  </data>
+  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
+    <value>Lo scambio {0} contenente {1} non è riuscito.</value>
+  </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Impossibile richiedere il gruppo</value>
+  </data>
+  <data name="UNKNOWN" xml:space="preserve">
+    <value>Sconosciuto</value>
   </data>
   <data name="UNKNOWN_EQUIPMENTTYPE" xml:space="preserve">
     <value>Tipo di equipaggiamento sconosciuto: {0}</value>
@@ -794,6 +956,9 @@
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>L'utente non è connesso</value>
   </data>
+  <data name="USER_NOT_FOUND" xml:space="preserve">
+    <value>Utente non trovato.</value>
+  </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>L'utente non sta commerciando.</value>
   </data>
@@ -805,6 +970,12 @@
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>VisualType sconosciuto: {0}</value>
+  </data>
+  <data name="WANT_ENABLE_TITLE" xml:space="preserve">
+    <value>Vuoi attivare il titolo?</value>
+  </data>
+  <data name="WEAR_NEW_TITLE" xml:space="preserve">
+    <value>Nuovo titolo attivato.</value>
   </data>
   <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
     <value>Hai richiesto il commercio a {0}</value>
