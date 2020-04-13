@@ -23,6 +23,7 @@ using System.Linq;
 using NosCore.Core;
 using NosCore.Data.StaticEntities;
 using NosCore.PathFinder;
+using NosCore.Shared.Helpers;
 
 namespace NosCore.GameObject.Map
 {
@@ -80,7 +81,7 @@ namespace NosCore.GameObject.Map
                 }
             }
 
-            foreach (var cell in cells.OrderBy(_ => RandomFactory.Instance.RandomNumber(0, int.MaxValue)))
+            foreach (var cell in cells.OrderBy(_ => RandomHelper.Instance.RandomNumber(0, int.MaxValue)))
             {
                 if (IsBlockedZone(firstX, firstY, cell.X, cell.Y))
                 {
