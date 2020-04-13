@@ -789,7 +789,7 @@
     <value>{0} Premi delle Quest aggiunti !</value>
   </data>
   <data name="REFILL_MINIGAME" xml:space="preserve">
-    <value>Ricarica il Minigame</value>
+    <value>Ricarica il Minigame {0}</value>
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrato sul MasterServer</value>
