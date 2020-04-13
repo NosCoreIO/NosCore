@@ -49,7 +49,7 @@ namespace NosCore.Tests.PacketHandlerTests
     public class NoS0577PacketHandlerTests
     {
         private readonly string _tokenGuid = Guid.NewGuid().ToString();
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private readonly Mock<IAuthHttpClient> _authHttpClient = new Mock<IAuthHttpClient>();
         private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
         private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;

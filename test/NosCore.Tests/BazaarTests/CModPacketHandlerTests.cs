@@ -41,7 +41,7 @@ namespace NosCore.Tests.BazaarTests
     [TestClass]
     public class CModPacketHandlerTest
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CModPacketHandler? _cmodPacketHandler;
         private ClientSession? _session;

@@ -48,7 +48,7 @@ namespace NosCore.Tests.BazaarTests
     [TestClass]
     public class CScalcPacketHandlerTest
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CScalcPacketHandler? _cScalcPacketHandler;
         private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;

@@ -23,21 +23,12 @@
         "NosCore.MasterServer": {}
       }
     },
-    "World + Login + Master + Parser": {
-      "Projects": {
-        "NosCore.WorldServer": {},
-        "NosCore.LoginServer": {},
-        "NosCore.MasterServer": {},
-        "NosCore.Parser": {}
-      }
-    },
     "All": {
       "Projects": {
         "NosCore.WorldServer": {},
         "NosCore.LoginServer": {},
         "NosCore.MasterServer": {},
-        "NosCore.Parser": {},
-        "NosCore.PathFinder.Gui": {}
+        "NosCore.Parser": {}
       }
     },
     "LoginServer": {

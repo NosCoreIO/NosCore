@@ -26,6 +26,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data;
@@ -47,7 +48,7 @@ namespace NosCore.Tests.InventoryTests
     [TestClass]
     public class WearPacketHandlerTests
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private IItemProvider? _item;
 
         private ClientSession? _session;
@@ -99,7 +100,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
@@ -127,7 +128,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
 
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
@@ -166,7 +167,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
 
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
@@ -203,7 +204,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
@@ -228,7 +229,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
@@ -250,7 +251,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
@@ -275,7 +276,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
@@ -298,7 +299,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
@@ -324,7 +325,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
@@ -345,7 +346,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1, -2),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
@@ -375,7 +376,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1),
@@ -409,7 +410,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1),
@@ -445,7 +446,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
@@ -480,7 +481,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
@@ -513,7 +514,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
@@ -536,7 +537,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _item = new ItemProvider(items,
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
-                    {new WearEventHandler(Logger)});
+                    {new WearEventHandler(Logger)}, Logger);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));

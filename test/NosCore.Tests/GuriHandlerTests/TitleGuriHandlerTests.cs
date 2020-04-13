@@ -25,6 +25,7 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Dto;
@@ -38,6 +39,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Tests.Helpers;
+using Serilog;
 using GuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
 
 namespace NosCore.Tests.GuriHandlerTests
@@ -46,6 +48,7 @@ namespace NosCore.Tests.GuriHandlerTests
     public class TitleGuriHandlerTests : GuriEventHandlerTestsBase
     {
         private IItemProvider? _itemProvider;
+        private readonly ILogger _logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -55,7 +58,7 @@ namespace NosCore.Tests.GuriHandlerTests
                 new Item {VNum = 1, ItemType = ItemType.Title, EffectValue = 0, Type =  NoscorePocketType.Main},
             };
             _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger);
 
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             Handler = new TitleGuriHandler();

@@ -37,13 +37,14 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
 {
     public class WearableInstance : WearableInstanceDto, IItemInstance
     {
-        private readonly ILogger _logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger = null!;
 
-        public WearableInstance(Item item)
+        public WearableInstance(Item item, ILogger logger)
         {
             Id = Guid.NewGuid();
             Item = item;
             ItemVNum = item.VNum;
+            _logger = logger;
         }
 
         public WearableInstance()

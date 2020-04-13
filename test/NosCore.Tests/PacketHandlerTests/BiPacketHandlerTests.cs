@@ -23,6 +23,7 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Inventory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Core;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
@@ -36,7 +37,7 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class BiPacketHandlerTests
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private BiPacketHandler? _biPacketHandler;
         private IItemProvider? _item;
         private ClientSession? _session;
@@ -51,6 +52,7 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task SetupAsync()
         {
             SystemTime.Freeze();
+            TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _biPacketHandler = new BiPacketHandler(Logger);

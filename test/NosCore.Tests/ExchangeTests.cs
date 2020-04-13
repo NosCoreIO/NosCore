@@ -23,6 +23,7 @@ using System.Linq;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
@@ -39,7 +40,7 @@ namespace NosCore.Tests
     [TestClass]
     public class ExchangeTests
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private ExchangeProvider? _exchangeProvider;
 
         private ItemProvider? _itemProvider;
@@ -64,7 +65,7 @@ namespace NosCore.Tests
             };
 
             _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
             _exchangeProvider = new ExchangeProvider(_itemProvider, _worldConfiguration, Logger);
         }
 

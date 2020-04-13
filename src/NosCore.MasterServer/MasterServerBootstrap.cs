@@ -34,6 +34,7 @@ namespace NosCore.MasterServer
     public static class MasterServerBootstrap
     {
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private const string ConsoleText = "MASTER SERVER - NosCoreIO";
         private const string ConfigurationPath = "../../../configuration";
 
         public static void Main()
@@ -50,6 +51,11 @@ namespace NosCore.MasterServer
 
         private static IWebHost BuildWebHost(string[] args)
         {
+            NosCore.Shared.I18N.Logger.Initialize(new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                .AddYamlFile("logger.yml", false)
+                .Build());
+            Logger.PrintHeader(ConsoleText);
             var conf = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
                 .AddYamlFile("master.yml", false)

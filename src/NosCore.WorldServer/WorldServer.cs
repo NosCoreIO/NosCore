@@ -67,7 +67,7 @@ namespace NosCore.WorldServer
             _events.ForEach(e => { Observable.Interval(e.Delay).Subscribe(_ => e.ExecutionAsync()); });
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
-                var eventSaveAll = new SaveAll();
+                var eventSaveAll = new SaveAll(_logger);
                 eventSaveAll.ExecutionAsync().Forget();
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHANNEL_WILL_EXIT));
                 Thread.Sleep(30000);

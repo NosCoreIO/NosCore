@@ -38,6 +38,7 @@ using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.Tests.Helpers;
+using Serilog;
 
 namespace NosCore.Tests.ItemHandlerTests
 {
@@ -46,6 +47,7 @@ namespace NosCore.Tests.ItemHandlerTests
     {
         private ItemProvider? _itemProvider;
         private Mock<IMinilandProvider>? _minilandProvider;
+        private readonly ILogger _logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -60,7 +62,7 @@ namespace NosCore.Tests.ItemHandlerTests
                 new Item {VNum = 1, Effect = ItemEffectType.Teleport, EffectValue = 2},
             };
             _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger);
         }
 
         [TestMethod]
