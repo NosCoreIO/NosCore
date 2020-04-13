@@ -20,7 +20,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace NosCore.Data
+namespace NosCore.Data.Dto
 {
     public interface IItemInstanceDto : IDto
     {

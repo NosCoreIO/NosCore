@@ -24,6 +24,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using Mapster;
+using NosCore.Data.Enumerations;
 
 namespace NosCore.Data.StaticEntities
 {
@@ -199,7 +200,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public byte SpType { get; set; }
 
-	 	public NosCore.Data.NoscorePocketType Type { get; set; }
+	 	public NoscorePocketType Type { get; set; }
 
 	 	[Key]
 		public short VNum { get; set; }

@@ -28,7 +28,6 @@ using DotNetty.Transport.Channels;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using NosCore.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
@@ -76,6 +75,8 @@ using Shop = NosCore.Database.Entities.Shop;
 using ShopItem = NosCore.Database.Entities.ShopItem;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
+using NosCore.Data.Enumerations;
+using NosCore.GameObject.Configuration;
 using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
 

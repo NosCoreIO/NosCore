@@ -19,7 +19,7 @@
 
 using NosCore.Packets.Enumerations;
 
-namespace NosCore.Data
+namespace NosCore.Data.Enumerations
 {
     public enum NoscorePocketType : byte
     {

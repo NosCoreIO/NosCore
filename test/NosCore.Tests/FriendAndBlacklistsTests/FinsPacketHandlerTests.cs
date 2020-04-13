@@ -26,7 +26,6 @@ using NosCore.Packets.Enumerations;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.Dto;
@@ -45,6 +44,7 @@ using Character = NosCore.Data.WebApi.Character;
 using CharacterRelation = NosCore.Database.Entities.CharacterRelation;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
+using NosCore.Shared.Configuration;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
 {

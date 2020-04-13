@@ -20,7 +20,7 @@
 using System.Collections.Generic;
 using NosCore.Packets.Enumerations;
 
-namespace NosCore.Data
+namespace NosCore.Data.Dto
 {
     public class I18NString : Dictionary<RegionType, string>
     {

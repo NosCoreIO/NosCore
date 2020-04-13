@@ -26,6 +26,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;

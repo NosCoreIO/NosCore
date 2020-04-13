@@ -18,10 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
+using NosCore.Shared.Configuration;
 
-namespace NosCore.Configuration
+namespace NosCore.Parser
 {
-    public class PathfinderGuiConfiguration : LanguageConfiguration
+    public class ParserConfiguration : LanguageConfiguration
     {
         [Required]
         public SqlConnectionConfiguration? Database { get; set; }
