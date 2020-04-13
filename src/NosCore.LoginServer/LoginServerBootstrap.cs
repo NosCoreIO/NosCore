@@ -174,6 +174,10 @@ namespace NosCore.LoginServer
                 .ConfigureServices((hostContext, services) =>
                 {
                     try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
+                    Logger.Initialize(new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                        .AddYamlFile("logger.yml", false)
+                        .Build());
                     Logger.PrintHeader(ConsoleText);
                     InitializeConfiguration();
 
