@@ -89,8 +89,6 @@ namespace NosCore.Data.Enumerations.I18N
         MAPMONSTERS_LOADED,
         CORRUPT_PACKET,
         HANDLER_NOT_FOUND,
-        SELECT_MAPID,
-        WRONG_SELECTED_MAPID,
         PARSE_I18N,
         NPCMONSTERS_PARSED,
         PARSE_DROPS,
