@@ -36,7 +36,7 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class BiPacketHandlerTests
     {
-        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private BiPacketHandler? _biPacketHandler;
         private IItemProvider? _item;
         private ClientSession? _session;

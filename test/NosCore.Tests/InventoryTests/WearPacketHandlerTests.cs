@@ -47,7 +47,7 @@ namespace NosCore.Tests.InventoryTests
     [TestClass]
     public class WearPacketHandlerTests
     {
-        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private IItemProvider? _item;
 
         private ClientSession? _session;

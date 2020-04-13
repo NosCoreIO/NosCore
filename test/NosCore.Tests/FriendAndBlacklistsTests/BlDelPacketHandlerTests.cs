@@ -50,7 +50,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class BDelPacketHandlerTests
     {
-        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private BlacklistController? _blackListController;
         private Mock<IBlacklistHttpClient>? _blackListHttpClient;
         private BlDelPacketHandler? _blDelPacketHandler;

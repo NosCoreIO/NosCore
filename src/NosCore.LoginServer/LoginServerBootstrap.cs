@@ -64,6 +64,7 @@ using ILogger = Serilog.ILogger;
 using NosCore.Dao;
 using NosCore.GameObject.Configuration;
 using NosCore.Shared.Configuration;
+using NosCore.Shared.I18N;
 
 namespace NosCore.LoginServer
 {

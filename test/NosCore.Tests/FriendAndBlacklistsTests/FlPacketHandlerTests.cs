@@ -43,7 +43,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     [TestClass]
     public class FlPacketHandlerTests
     {
-        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
         private FlPacketHandler? _flPacketHandler;
         private ClientSession? _session;

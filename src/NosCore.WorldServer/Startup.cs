@@ -97,6 +97,7 @@ using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Configuration;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
+using NosCore.Shared.I18N;
 
 namespace NosCore.WorldServer
 {

@@ -27,6 +27,7 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
 using ILogger = Serilog.ILogger;
+using NosCore.Shared.I18N;
 
 namespace NosCore.MasterServer
 {

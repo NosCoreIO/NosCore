@@ -23,6 +23,7 @@ using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Database
 {
