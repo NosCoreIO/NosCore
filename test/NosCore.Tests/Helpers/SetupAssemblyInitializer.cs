@@ -20,6 +20,7 @@
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data;
+using NosCore.Data.Dto;
 
 namespace NosCore.Tests.Helpers
 {

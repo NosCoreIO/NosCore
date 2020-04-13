@@ -17,12 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
+using System;
+using System.ComponentModel.DataAnnotations;
+using NosCore.Data.Enumerations;
+using NosCore.Shared.Configuration;
 
-namespace NosCore.Configuration
+namespace NosCore.Core
 {
-    public class FeatureFlags : Dictionary<FeatureFlag, bool>
+    [Serializable]
+    public class WebApiConfiguration : ServerConfiguration
     {
-        public new bool this[FeatureFlag key] => TryGetValue(key, out var value) && value;
+        [Required]
+        public string? Password { get; set; }
+
+        public HashingType HashingType { get; set; }
+
+        public string? Salt { get; set; }
     }
 }

@@ -24,7 +24,6 @@ using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -35,6 +34,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Configuration;
 
 namespace NosCore.GameObject.Networking.LoginService
 {

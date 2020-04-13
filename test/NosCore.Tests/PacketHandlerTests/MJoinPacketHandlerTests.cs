@@ -27,7 +27,6 @@ using NosCore.Packets.ServerPackets.UI;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Configuration;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
@@ -40,6 +39,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.PacketHandlers.Friend;
+using NosCore.Shared.Configuration;
 using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
@@ -49,7 +49,7 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class MJoinPacketHandlerTests
     {
-        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
         private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
         private Mock<IMinilandProvider>? _minilandProvider;

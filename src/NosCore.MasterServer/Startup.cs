@@ -43,7 +43,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.VisualStudio.Threading;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
@@ -55,6 +54,7 @@ using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
 using NosCore.Data.DataAttributes;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.I18N;
@@ -66,6 +66,7 @@ using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
 using NosCore.Packets.Enumerations;
 using ILogger = Serilog.ILogger;
+using NosCore.Shared.I18N;
 
 namespace NosCore.MasterServer
 {

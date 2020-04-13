@@ -14,12 +14,8 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.Win32.SystemEvents" Version="4.7.0" />
     <PackageReference Include="Moq" Version="4.13.1" />
-    <PackageReference Include="OpenTK" Version="3.2.0" />
-    <PackageReference Include="OpenTK.GLControl" Version="3.1.0" />
-    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
-    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="OpenTK" Version="4.0.0-pre6" />
     <PackageReference Include="System.Reactive" Version="4.4.1" />
   </ItemGroup>
 

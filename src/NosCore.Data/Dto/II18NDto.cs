@@ -19,7 +19,7 @@
 
 using NosCore.Packets.Enumerations;
 
-namespace NosCore.Data
+namespace NosCore.Data.Dto
 {
     public interface II18NDto : IDto
     {

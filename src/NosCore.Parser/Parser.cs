@@ -29,11 +29,11 @@ using AutofacSerilogIntegration;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using NosCore.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
@@ -41,6 +41,7 @@ using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
 using NosCore.Parser.Parsers;
 using Serilog;
+using NosCore.Shared.I18N;
 
 // ReSharper disable LocalizableElement
 
@@ -85,7 +86,7 @@ namespace NosCore.Parser
         public static async Task Main(string[] args)
         {
             try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
-            Logger.PrintHeader(ConsoleText);
+            NosCore.Shared.I18N.Logger.PrintHeader(ConsoleText);
             InitializeConfiguration();
             TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
             TypeAdapterConfig.GlobalSettings.Default

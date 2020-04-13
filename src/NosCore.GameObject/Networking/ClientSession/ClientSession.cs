@@ -27,18 +27,19 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Map;
 using DotNetty.Transport.Channels;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Configuration;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ChannelMatcher;
@@ -47,6 +48,7 @@ using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.Shared.Configuration;
 using Serilog;
 
 namespace NosCore.GameObject.Networking.ClientSession

@@ -27,7 +27,6 @@ using NosCore.Packets.ServerPackets.Login;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Configuration;
 using NosCore.Core;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
@@ -37,6 +36,7 @@ using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Configuration;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers.Login;
@@ -49,7 +49,7 @@ namespace NosCore.Tests.PacketHandlerTests
     public class NoS0577PacketHandlerTests
     {
         private readonly string _tokenGuid = Guid.NewGuid().ToString();
-        private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private readonly Mock<IAuthHttpClient> _authHttpClient = new Mock<IAuthHttpClient>();
         private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
         private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;

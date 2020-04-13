@@ -21,7 +21,7 @@ using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using NosCore.Configuration;
+using NosCore.Shared.Configuration;
 
 namespace NosCore.Database
 {

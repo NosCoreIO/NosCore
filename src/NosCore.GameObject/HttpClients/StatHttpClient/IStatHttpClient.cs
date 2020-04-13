@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
-using NosCore.Configuration;
 using NosCore.Data.WebApi;
+using NosCore.Shared.Configuration;
 
 namespace NosCore.GameObject.HttpClients.StatHttpClient
 {

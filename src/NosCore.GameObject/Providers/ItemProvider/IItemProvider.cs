@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data;
+using NosCore.Data.Dto;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.GameObject.Providers.ItemProvider

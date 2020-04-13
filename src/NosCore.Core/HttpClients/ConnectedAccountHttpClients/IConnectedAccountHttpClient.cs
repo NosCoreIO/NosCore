@@ -20,8 +20,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NosCore.Configuration;
 using NosCore.Data.WebApi;
+using NosCore.Shared.Configuration;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 {

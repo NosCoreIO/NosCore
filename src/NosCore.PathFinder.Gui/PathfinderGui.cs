@@ -27,6 +27,7 @@ using Mapster;
 using Microsoft.AspNetCore.Razor.Language.CodeGeneration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.VisualStudio.Threading;
 using Moq;
 using NosCore.Configuration;
 using NosCore.Core.I18N;
@@ -38,7 +39,9 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject.Providers.ItemProvider;
-using OpenTK.Graphics;
+using OpenToolkit.Graphics.OpenGL;
+using OpenToolkit.Windowing.GraphicsLibraryFramework;
+using Polly.Utilities;
 using Serilog;
 
 namespace NosCore.PathFinder.Gui
@@ -49,7 +52,7 @@ namespace NosCore.PathFinder.Gui
         private const string Title = "NosCore - Pathfinder GUI";
         private const string ConsoleText = "PATHFINDER GUI - NosCoreIO";
         private static readonly PathfinderGuiConfiguration DatabaseConfiguration = new PathfinderGuiConfiguration();
-        private static GuiWindow? _guiWindow;
+        private static Dictionary<short, GuiWindow?> _guiWindows = new Dictionary<short, GuiWindow?>();
         private static readonly ILogger Logger = Core.I18N.Logger.GetLoggerConfiguration().CreateLogger();
         private static readonly DataAccessHelper _dbContextBuilder = new DataAccessHelper();
         private static IDao<MapDto, short> _mapDao = null!;
@@ -72,52 +75,44 @@ namespace NosCore.PathFinder.Gui
             InitializeConfiguration();
             TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
             LogLanguage.Language = DatabaseConfiguration.Language;
+            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
+            optionsBuilder.UseNpgsql(DatabaseConfiguration.Database!.ConnectionString);
+            _dbContextBuilder.Initialize(optionsBuilder.Options);
+            _mapDao = new Dao<Map, MapDto, short>(Logger, _dbContextBuilder);
+            _npcMonsterDao = new Dao<NpcMonster, NpcMonsterDto, short>(Logger, _dbContextBuilder);
+            var npcMonsters = _npcMonsterDao.LoadAll().ToList();
+            var distanceCalculator = new OctileDistanceCalculator();
+            TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig().ConstructUsing(src => new GameObject.MapMonster(npcMonsters, Logger, distanceCalculator));
+            TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig().ConstructUsing(src => new GameObject.MapNpc(new Mock<IItemProvider>().Object, new Mock<IDao<ShopDto, int>>().Object, new Mock<IDao<ShopItemDto, int>>().Object, npcMonsters, Logger, new List<NpcTalkDto>(), distanceCalculator));
 
-            try
+
+            while (true)
             {
-                var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-                optionsBuilder.UseNpgsql(DatabaseConfiguration.Database!.ConnectionString);
-                _dbContextBuilder.Initialize(optionsBuilder.Options);
-                _mapDao = new Dao<Map, MapDto, short>(Logger, _dbContextBuilder);
-                _npcMonsterDao = new Dao<NpcMonster, NpcMonsterDto, short>(Logger, _dbContextBuilder);
-                var npcMonsters = _npcMonsterDao.LoadAll().ToList();
-                var distanceCalculator = new OctileDistanceCalculator();
-                TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig().ConstructUsing(src => new GameObject.MapMonster(npcMonsters, Logger, distanceCalculator));
-                TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig().ConstructUsing(src => new GameObject.MapNpc(new Mock<IItemProvider>().Object, new Mock<IDao<ShopDto, int>>().Object, new Mock<IDao<ShopItemDto, int>>().Object, npcMonsters, Logger, new List<NpcTalkDto>(), distanceCalculator));
-
-                while (true)
+                Logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
+                var input = Console.ReadLine();
+                if ((input == null) || !int.TryParse(input, out var askMapId))
                 {
-                    Logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SELECT_MAPID));
-                    var input = Console.ReadLine();
-                    if ((input == null) || !int.TryParse(input, out var askMapId))
-                    {
-                        Logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.WRONG_SELECTED_MAPID));
-                        continue;
-                    }
-
-                    var map = (await _mapDao.FirstOrDefaultAsync(m => m.MapId == askMapId).ConfigureAwait(false))?.Adapt<GameObject.Map.Map>();
-
-                    if ((!(map?.XLength > 0)) || (map.YLength <= 0))
-                    {
-                        continue;
-                    }
-
-                    if (_guiWindow?.Exists ?? false)
-                    {
-                        _guiWindow.Exit();
-                    }
-
-                    new Thread(() =>
-                    {
-                        _guiWindow = new GuiWindow(map, 4, map.XLength, map.YLength, GraphicsMode.Default,
-                            $"NosCore Pathfinder GUI - Map {map.MapId}", _dbContextBuilder);
-                        _guiWindow.Run(30);
-                    }).Start();
+                    Logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.WRONG_SELECTED_MAPID));
+                    continue;
                 }
-            }
-            catch
-            {
-                Console.ReadKey();
+
+                var map = (await _mapDao.FirstOrDefaultAsync(m => m.MapId == askMapId).ConfigureAwait(false))
+                    ?.Adapt<GameObject.Map.Map>();
+
+                if ((!(map?.XLength > 0)) || (map.YLength <= 0))
+                {
+                    continue;
+                }
+
+                if (_guiWindows.ContainsKey(map.MapId) && _guiWindows[map.MapId]!.Exists)
+                {
+                    _guiWindows[map.MapId]!.Close();
+                }
+
+                GL.LoadBindings(new GLFWBindingsContext());
+                _guiWindows[map.MapId] = new GuiWindow(map, 4, map.XLength, map.YLength,
+                    $"NosCore Pathfinder GUI - Map {map.MapId}", _dbContextBuilder);
+                _guiWindows[map.MapId]!.Run();
             }
         }
     }

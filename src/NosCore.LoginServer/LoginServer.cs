@@ -19,10 +19,10 @@
 
 using System;
 using System.Threading.Tasks;
-using NosCore.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.Configuration;
 using NosCore.GameObject.Networking;
 using Serilog;
 
