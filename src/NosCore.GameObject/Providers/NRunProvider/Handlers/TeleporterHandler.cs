@@ -27,6 +27,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Shared.Helpers;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {
@@ -57,8 +58,8 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             {
                 await clientSession.Character.RemoveGoldAsync(GoldToPay).ConfigureAwait(false);
                 await clientSession.ChangeMapAsync(
-                    mapId, (short) RandomFactory.Instance.RandomNumber(x1, x2),
-                    (short) RandomFactory.Instance.RandomNumber(y1, y2)).ConfigureAwait(false);
+                    mapId, (short) RandomHelper.Instance.RandomNumber(x1, x2),
+                    (short) RandomHelper.Instance.RandomNumber(y1, y2)).ConfigureAwait(false);
                 return;
             }
 

@@ -31,6 +31,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
+using NosCore.Shared.Helpers;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item
@@ -80,7 +81,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
                     {
                         for (var i = 0; i < point; i++)
                         {
-                            var rndn = RandomFactory.Instance.RandomNumber(0, 3);
+                            var rndn = RandomHelper.Instance.RandomNumber(0, 3);
                             if (rndn == 0)
                             {
                                 Concentrate++;
@@ -127,7 +128,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
 
                     for (var i = 0; i < point; i++)
                     {
-                        var rndn = RandomFactory.Instance.RandomNumber(0, 3);
+                        var rndn = RandomHelper.Instance.RandomNumber(0, 3);
                         if (rndn == 0)
                         {
                             DefenceDodge++;
