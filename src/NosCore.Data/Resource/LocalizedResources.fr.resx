@@ -258,12 +258,6 @@
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Gestionnaire introuvable.</value>
   </data>
-  <data name="SELECT_MAPID" xml:space="preserve">
-    <value>Veuillez séléctionner un MapID.</value>
-  </data>
-  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
-    <value>Mauvais MapID.</value>
-  </data>
   <data name="MAPS_LOADED" xml:space="preserve">
     <value>Les maps ont été chargées avec succès !</value>
   </data>

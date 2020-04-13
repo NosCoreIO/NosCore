@@ -567,9 +567,6 @@
   <data name="SAVING_ALL" xml:space="preserve">
     <value>¡Guardando todos los datos!</value>
   </data>
-  <data name="SELECT_MAPID" xml:space="preserve">
-    <value>Por favor, seleccione una MapId:</value>
-  </data>
   <data name="SELL_ITEM_VALIDE" xml:space="preserve">
     <value>¡Tu objeto {0} ha sido vendido! {1}</value>
   </data>
@@ -669,9 +666,6 @@
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>VisualType desconocido: {0}</value>
-  </data>
-  <data name="WRONG_SELECTED_MAPID" xml:space="preserve">
-    <value>¡La Id del Mapa (IdMap) es incorrecta!</value>
   </data>
   <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
     <value>¡Has alcanzado la máxima cantidad de puntos adicionales!</value>
