@@ -39,6 +39,7 @@ using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Packets.Enumerations;
 using NosCore.PathFinder;
+using NosCore.Shared.Helpers;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
@@ -200,7 +201,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             short mapX = 0;
             short mapY = 0;
             var niceSpot = false;
-            var orderedPossibilities = possibilities.OrderBy(_ => RandomFactory.Instance.RandomNumber()).ToList();
+            var orderedPossibilities = possibilities.OrderBy(_ => RandomHelper.Instance.RandomNumber()).ToList();
             for (var i = 0; (i < orderedPossibilities.Count) && !niceSpot; i++)
             {
                 mapX = (short)(session.Character.PositionX + orderedPossibilities[i].X);

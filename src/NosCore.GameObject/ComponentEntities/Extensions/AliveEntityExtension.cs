@@ -41,6 +41,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.Helpers;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -133,7 +134,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 
             var time = (SystemTime.Now() - nonPlayableEntity.LastMove).TotalMilliseconds;
 
-            if (!(time > RandomFactory.Instance.RandomNumber(400, 3200)))
+            if (!(time > RandomHelper.Instance.RandomNumber(400, 3200)))
             {
                 return Task.CompletedTask;
             }
@@ -141,8 +142,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             var mapX = nonPlayableEntity.MapX;
             var mapY = nonPlayableEntity.MapY;
             if (!nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
-                (byte)RandomFactory.Instance.RandomNumber(0, 3),
-                (byte)RandomFactory.Instance.RandomNumber(0, 3)))
+                (byte)RandomHelper.Instance.RandomNumber(0, 3),
+                (byte)RandomHelper.Instance.RandomNumber(0, 3)))
             {
                 return Task.CompletedTask;
             }
