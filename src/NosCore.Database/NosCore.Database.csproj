@@ -39,7 +39,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
-    <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
   </ItemGroup>
 
 </Project>
