@@ -41,7 +41,7 @@ namespace NosCore.Tests
     [TestClass]
     public class GroupTests
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private Group? _group;
 
         [TestInitialize]

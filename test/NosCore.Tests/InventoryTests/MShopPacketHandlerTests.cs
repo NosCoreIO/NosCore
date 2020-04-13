@@ -27,6 +27,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Core.I18N;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
@@ -41,12 +42,14 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Tests.Helpers;
+using Serilog;
 
 namespace NosCore.Tests.InventoryTests
 {
     [TestClass]
     public class MShopPacketHandlerTests
     {
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private readonly MShopPacket _shopPacket = new MShopPacket
         {
             Type = CreateShopPacketType.Open,
@@ -146,7 +149,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1}
             };
             var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0));
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(1);
@@ -163,7 +166,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1}
             };
             var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
@@ -188,7 +191,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true}
             };
             var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
@@ -211,7 +214,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true}
             };
             var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>());
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
 
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);

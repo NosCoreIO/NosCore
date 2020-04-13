@@ -92,7 +92,7 @@ namespace NosCore.LoginServer
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(_loginConfiguration.Database!.ConnectionString);
             _dataAccess = new DataAccessHelper();
-            _dataAccess.Initialize(optionsBuilder.Options);
+            _dataAccess.Initialize(optionsBuilder.Options, _logger);
 
             LogLanguage.Language = _loginConfiguration.Language;
         }

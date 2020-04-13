@@ -29,9 +29,8 @@ namespace NosCore.Database
 {
     public class DataAccessHelper : IDbContextBuilder
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
         private DbContextOptions? _option;
+        private ILogger _logger = null!;
 
         /// <summary>
         ///     Creates new instance of database context.
@@ -41,13 +40,15 @@ namespace NosCore.Database
             return new NosCoreContext(_option);
         }
 
-        public void InitializeForTest(DbContextOptions option)
+        internal void InitializeForTest(DbContextOptions option, ILogger logger)
         {
             _option = option;
+            _logger = logger;
         }
 
-        public void Initialize(DbContextOptions option)
+        public void Initialize(DbContextOptions option, ILogger logger)
         {
+            _logger = logger;
             _option = option;
             using var context = CreateContext();
             try

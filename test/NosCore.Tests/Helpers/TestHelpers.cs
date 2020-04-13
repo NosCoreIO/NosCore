@@ -90,7 +90,7 @@ namespace NosCore.Tests.Helpers
 
         private IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao = null!;
         private IDao<IItemInstanceDto?, Guid> _itemInstanceDao = null!;
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger = new Mock<ILogger>().Object;
         private IDao<MapMonsterDto, int> _mapMonsterDao = null!;
         private IDao<MapNpcDto, int> _mapNpcDao = null!;
         private IDao<PortalDto, int> _portalDao = null!;
@@ -232,7 +232,7 @@ namespace NosCore.Tests.Helpers
                     new SpRechargerEventHandler(WorldConfiguration),
                     new VehicleEventHandler(_logger),
                     new WearEventHandler(_logger)
-                });
+                }, _logger);
         }
 
         public void InitDatabase()
@@ -240,7 +240,7 @@ namespace NosCore.Tests.Helpers
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     Guid.NewGuid().ToString());
             var nosCorecontextBuilder = new DataAccessHelper();
-            nosCorecontextBuilder.InitializeForTest(contextBuilder.Options);
+            nosCorecontextBuilder.InitializeForTest(contextBuilder.Options, _logger);
             ContextBuilder = nosCorecontextBuilder;
             AccountDao = new Dao<Account, AccountDto, long>(_logger, ContextBuilder);
             _portalDao = new Dao<Portal, PortalDto, int>(_logger, ContextBuilder);
@@ -279,7 +279,7 @@ namespace NosCore.Tests.Helpers
                 new List<IPacketHandler>
                 {
                     new CharNewPacketHandler(CharacterDao, MinilandDao),
-                    new BlInsPackettHandler(BlacklistHttpClient.Object),
+                    new BlInsPackettHandler(BlacklistHttpClient.Object, _logger),
                     new UseItemPacketHandler(),
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
                         ConnectedAccountHttpClient.Object),

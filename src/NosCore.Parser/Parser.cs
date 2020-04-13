@@ -101,7 +101,7 @@ namespace NosCore.Parser
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
                 optionsBuilder.UseNpgsql(ParserConfiguration.Database!.ConnectionString);
                 var dataAccess = new DataAccessHelper();
-                dataAccess.Initialize(optionsBuilder.Options);
+                dataAccess.Initialize(optionsBuilder.Options, _logger);
                 try
                 {
                     _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ENTER_PATH));

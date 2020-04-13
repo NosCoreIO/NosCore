@@ -32,7 +32,12 @@ namespace NosCore.GameObject.Event
     [UsedImplicitly]
     public class SaveAll : IGlobalEvent
     {
-        private readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private readonly ILogger _logger;
+
+        public SaveAll(ILogger logger)
+        {
+            _logger = logger;
+        }
 
         public TimeSpan Delay { get; set; } = TimeSpan.FromMinutes(5);
 

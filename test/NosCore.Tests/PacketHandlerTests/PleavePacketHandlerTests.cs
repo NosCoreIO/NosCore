@@ -39,7 +39,7 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class PleavePacketHandlerTests
     {
-        private static readonly ILogger Logger = NosCore.Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private readonly Dictionary<int, Character> _characters = new Dictionary<int, Character>();
         private PjoinPacketHandler? _pJoinPacketHandler;
         private PleavePacketHandler? _pLeavePacketHandler;

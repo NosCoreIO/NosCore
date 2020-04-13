@@ -63,7 +63,12 @@ namespace NosCore.GameObject.Providers.MapItemProvider
             {
                 if (handler.Condition(item))
                 {
-                    handlersRequest.Select(request => RequestExecAsync(handler, request)).Subscribe();
+                    handlersRequest.Select(request =>
+                    {
+                        var task = RequestExecAsync(handler, request);
+                        item.HandlerTasks.Add(task);
+                        return task;
+                    }).Subscribe();
                 }
             });
             item.Requests = handlersRequest;
