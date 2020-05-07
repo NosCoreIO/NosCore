@@ -1,2 +1,2 @@
-cd ..\build\netcoreapp3.1\
+cd ..\build\netcoreapp5.0\
 start /d "." dotnet NosCore.PathFinder.Gui.dll

@@ -47,16 +47,19 @@ We recommend usage of :
 
 # Building the code #
 
-## 1. Install or Configure PostgreSQL ##
+## 1. Install .Net 5 ##
+- https://dotnet.microsoft.com/download/dotnet/5.0
+
+## 2. Install or Configure PostgreSQL ##
 - PostgreSQL: https://www.postgresql.org/
 - Use update-database
 - Parse all
 
-## 2. Use the NuGet Package Manager to Update the Database ##
+## 3. Use the NuGet Package Manager to Update the Database ##
 - Go to Tools -> NuGet Package Manager -> Package Manager Console
 - Choose Project NosCore.Database
 - Type 'update-database' and update the Database
 
-## 3. Start services ##
+## 4. Start services ##
 - script to start services are in .\scripts 
 
