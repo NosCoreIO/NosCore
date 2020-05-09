@@ -41,6 +41,7 @@ using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 using NosCore.Core;
+using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -80,15 +81,12 @@ namespace NosCore.LoginServer
 
         private static void InitializeConfiguration()
         {
-            new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("login.yml", false)
-                .Build()
-                .Bind(_loginConfiguration);
+            var conf = new ConfigurationBuilder()
+                 .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
+                 .AddYamlFile("login.yml", false)
+                 .Build();
 
-            Validator.ValidateObject(_loginConfiguration, new ValidationContext(_loginConfiguration),
-                true);
-
+            Configurator.Configure(conf, _loginConfiguration);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(_loginConfiguration.Database!.ConnectionString);
             _dataAccess = new DataAccessHelper();

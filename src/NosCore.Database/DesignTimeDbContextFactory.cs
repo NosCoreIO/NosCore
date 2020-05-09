@@ -21,6 +21,7 @@ using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using NosCore.Core.Configuration;
 using NosCore.Shared.Configuration;
 
 namespace NosCore.Database
@@ -32,12 +33,11 @@ namespace NosCore.Database
         public NosCoreContext CreateDbContext(string[] args)
         {
             var databaseConfiguration = new SqlConnectionConfiguration();
-            var builder = new ConfigurationBuilder();
-            builder
+            var conf = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
                 .AddYamlFile("database.yml", false)
-                .Build()
-                .Bind(databaseConfiguration);
+                .Build();
+            Configurator.Configure(conf, databaseConfiguration);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(databaseConfiguration.ConnectionString);
             return new NosCoreContext(optionsBuilder.Options);
