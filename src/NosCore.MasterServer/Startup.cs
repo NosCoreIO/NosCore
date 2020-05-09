@@ -45,6 +45,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.VisualStudio.Threading;
 using NosCore.Core;
+using NosCore.Core.Configuration;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -79,8 +80,7 @@ namespace NosCore.MasterServer
 
         public Startup(IConfiguration configuration)
         {
-            configuration.Bind(_configuration);
-            Validator.ValidateObject(_configuration, new ValidationContext(_configuration), true);
+            Configurator.Configure(configuration, _configuration);
         }
 
         private static void RegisterDto(ContainerBuilder containerBuilder)
