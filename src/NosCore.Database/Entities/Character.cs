@@ -97,6 +97,8 @@ namespace NosCore.Database.Entities
 
         public bool ExchangeBlocked { get; set; }
 
+        public bool ShouldRename { get; set; }
+
         public byte Faction { get; set; }
 
         public virtual ICollection<FamilyCharacter> FamilyCharacter { get; set; }
