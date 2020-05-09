@@ -19,6 +19,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Core;
+using NosCore.Core.Configuration;
 using NosCore.Shared.Configuration;
 
 namespace NosCore.GameObject.Configuration

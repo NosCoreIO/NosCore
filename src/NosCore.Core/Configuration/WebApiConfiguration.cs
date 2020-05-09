@@ -22,7 +22,7 @@ using System.ComponentModel.DataAnnotations;
 using NosCore.Data.Enumerations;
 using NosCore.Shared.Configuration;
 
-namespace NosCore.Core
+namespace NosCore.Core.Configuration
 {
     [Serializable]
     public class WebApiConfiguration : ServerConfiguration
