@@ -26,7 +26,6 @@ using NosCore.Packets.ServerPackets.Auction;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
-using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;

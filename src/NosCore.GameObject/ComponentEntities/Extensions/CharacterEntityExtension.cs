@@ -32,7 +32,6 @@ using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Interaction;

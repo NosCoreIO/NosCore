@@ -31,8 +31,6 @@ using Moq;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Core.I18N;
-using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Items;
@@ -79,7 +77,6 @@ using NosCore.Data.Enumerations;
 using NosCore.GameObject.Configuration;
 using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
-using NosCore.Shared.I18N;
 
 namespace NosCore.Tests.Helpers
 {

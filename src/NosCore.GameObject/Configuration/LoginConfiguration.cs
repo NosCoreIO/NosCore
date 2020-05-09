@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
-using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Shared.Configuration;

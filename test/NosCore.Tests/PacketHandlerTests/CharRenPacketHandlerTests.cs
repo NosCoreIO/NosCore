@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Drops;
