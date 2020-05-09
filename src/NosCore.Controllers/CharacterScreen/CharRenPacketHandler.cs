@@ -39,12 +39,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
     public class CharRenPacketHandler : PacketHandler<CharRenamePacket>, IWorldPacketHandler
     {
         private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IDao<MinilandDto, Guid> _minilandDao;
 
-        public CharRenPacketHandler(IDao<CharacterDto, long> characterDao, IDao<MinilandDto, Guid> minilandDao)
+        public CharRenPacketHandler(IDao<CharacterDto, long> characterDao)
         {
             _characterDao = characterDao;
-            _minilandDao = minilandDao;
         }
 
         public override async Task ExecuteAsync(CharRenamePacket packet, ClientSession clientSession)
