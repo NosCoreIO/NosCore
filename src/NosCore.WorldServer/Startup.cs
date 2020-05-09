@@ -26,6 +26,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -54,6 +55,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.VisualStudio.Threading;
 using NosCore.Core;
+using NosCore.Core.Configuration;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
@@ -111,8 +113,7 @@ namespace NosCore.WorldServer
 
         public Startup(IConfiguration configuration)
         {
-            configuration.Bind(_worldConfiguration);
-            Validator.ValidateObject(_worldConfiguration, new ValidationContext(_worldConfiguration), true);
+            Configurator.Configure(configuration, _worldConfiguration);
         }
 
         public static void RegisterMapper<TGameObject, TDto>(IContainer container) where TGameObject : notnull
