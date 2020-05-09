@@ -49,6 +49,8 @@ We recommend usage of :
 
 ## 1. Install .Net 5 ##
 - https://dotnet.microsoft.com/download/dotnet/5.0
+- Visual Studio > Tools > Options > Preview Features > Use previews of the .NET CORE SDK
+- Restart
 
 ## 2. Install or Configure PostgreSQL ##
 - PostgreSQL: https://www.postgresql.org/

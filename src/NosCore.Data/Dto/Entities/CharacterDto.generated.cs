@@ -81,6 +81,8 @@ namespace NosCore.Data.Dto
 
 	 	public bool ExchangeBlocked { get; set; }
 
+	 	public bool ShouldRename { get; set; }
+
 	 	public byte Faction { get; set; }
 
 	 	public System.Collections.Generic.ICollection<FamilyCharacterDto> FamilyCharacter { get; set; }

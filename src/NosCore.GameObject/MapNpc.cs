@@ -89,7 +89,7 @@ namespace NosCore.GameObject
 
             var shopItemsDto = _shopItems!.Where(s => s.ShopId == shopObj.ShopId);
             var shopItemsList = new ConcurrentDictionary<int, ShopItem>();
-            Parallel.ForEach(shopItemsDto, shopItemGrouping =>
+            Parallel.ForEach(shopItemsDto!, shopItemGrouping =>
             {
                 var shopItem = shopItemGrouping.Adapt<ShopItem>();
                 shopItem.ItemInstance = _itemProvider!.Create(shopItemGrouping.ItemVNum, -1);
