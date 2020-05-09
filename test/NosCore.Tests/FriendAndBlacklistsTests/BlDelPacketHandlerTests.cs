@@ -43,7 +43,6 @@ using Serilog;
 using NosCore.Dao;
 using NosCore.Data.WebApi;
 using NosCore.Shared.Configuration;
-using Character = NosCore.Database.Entities.Character;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
 {
