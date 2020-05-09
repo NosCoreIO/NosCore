@@ -36,20 +36,16 @@ using NosCore.Shared.Helpers;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
-    public class CharNewPacketHandler : PacketHandler<CharNewPacket>, IWorldPacketHandler
+    public class CharRenPacketHandler : PacketHandler<CharRenamePacket>, IWorldPacketHandler
     {
         private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IDao<MinilandDto, Guid> _minilandDao;
 
-        public const string Nameregex =
-            @"^[\u0021-\u007E\u00A1-\u00AC\u00AE-\u00FF\u4E00-\u9FA5\u0E01-\u0E3A\u0E3F-\u0E5B\u002E]*$";
-        public CharNewPacketHandler(IDao<CharacterDto, long> characterDao, IDao<MinilandDto, Guid> minilandDao)
+        public CharRenPacketHandler(IDao<CharacterDto, long> characterDao)
         {
             _characterDao = characterDao;
-            _minilandDao = minilandDao;
         }
 
-        public override async Task ExecuteAsync(CharNewPacket packet, ClientSession clientSession)
+        public override async Task ExecuteAsync(CharRenamePacket packet, ClientSession clientSession)
         {
             if (clientSession.HasSelectedCharacter)
             {
@@ -60,13 +56,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
             var accountId = clientSession.Account.AccountId;
             var slot = packet.Slot;
             var characterName = packet.Name;
-            if (await _characterDao.FirstOrDefaultAsync(s =>
-                (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active)).ConfigureAwait(false) != null)
+            var chara = await _characterDao.FirstOrDefaultAsync(s =>
+                    (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active))
+                .ConfigureAwait(false);
+            if (chara == null)
             {
                 return;
             }
 
-            var rg = new Regex(Nameregex);
+            var rg = new Regex(CharNewPacketHandler.Nameregex);
             if (rg.Matches(characterName!).Count == 1)
             {
                 var character = await
@@ -74,39 +72,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         (s.Name == characterName) && (s.State == CharacterState.Active)).ConfigureAwait(false);
                 if (character == null)
                 {
-                    var chara = new CharacterDto
-                    {
-                        Class = packet.IsMartialArtist ? CharacterClassType.MartialArtist
-                            : CharacterClassType.Adventurer,
-                        Gender = packet.Gender,
-                        HairColor = packet.HairColor,
-                        HairStyle = packet.HairStyle,
-                        Hp = packet.IsMartialArtist ? 12965 : 221,
-                        JobLevel = 1,
-                        Level = (byte)(packet.IsMartialArtist ? 81 : 1),
-                        MapId = 1,
-                        MapX = (short)RandomHelper.Instance.RandomNumber(78, 81),
-                        MapY = (short)RandomHelper.Instance.RandomNumber(114, 118),
-                        Mp = packet.IsMartialArtist ? 2369 : 221,
-                        MaxMateCount = 10,
-                        SpPoint = 10000,
-                        SpAdditionPoint = 0,
-                        Name = characterName,
-                        Slot = slot,
-                        AccountId = accountId,
-                        State = CharacterState.Active
-                    };
-                    chara = await _characterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
-
-                    var miniland = new MinilandDto
-                    {
-                        MinilandId = Guid.NewGuid(),
-                        State = MinilandState.Open,
-                        MinilandMessage = "Welcome",
-                        OwnerId = chara.CharacterId,
-                        WelcomeMusicInfo = "Spring^Melody"
-                    };
-                    await _minilandDao.TryInsertOrUpdateAsync(miniland).ConfigureAwait(false);
+                    chara.Name = characterName;
+                    await _characterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(new SuccessPacket()).ConfigureAwait(false);
                     await clientSession.HandlePacketsAsync(new[] { new EntryPointPacket() }).ConfigureAwait(false);
                 }

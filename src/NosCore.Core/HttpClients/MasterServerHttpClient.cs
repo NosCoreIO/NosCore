@@ -89,11 +89,11 @@ namespace NosCore.Core.HttpClients
             var response = await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync().ConfigureAwait(false),
+                return JsonSerializer.Deserialize<T>(await response.Content!.ReadAsStringAsync().ConfigureAwait(false),
                     new JsonSerializerOptions
                     {
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
+                    }) ?? throw new InvalidOperationException();
             }
 
             throw new WebException();
@@ -108,10 +108,10 @@ namespace NosCore.Core.HttpClients
             var response = await client.PatchAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}"), content).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
+                return JsonSerializer.Deserialize<T>(await response.Content!.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
+                }) ?? throw new InvalidOperationException();
             }
 
             throw new WebException();
@@ -138,10 +138,10 @@ namespace NosCore.Core.HttpClients
             var response = await client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}{(id != null ? $"?id={id}" : "")}")).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
+                return JsonSerializer.Deserialize<T>(await response.Content!.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
+                }) ?? throw new InvalidOperationException();
             }
 
             throw new WebException();

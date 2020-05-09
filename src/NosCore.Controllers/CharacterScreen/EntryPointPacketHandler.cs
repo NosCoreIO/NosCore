@@ -144,7 +144,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             // load characterlist packet for each character in Character
             await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 }).ConfigureAwait(false);
-            foreach (var character in characters.Select(characterDto => characterDto.Adapt<Character>()))
+            foreach (var character in characters!.Select(characterDto => characterDto.Adapt<Character>()))
             {
                 var equipment = new WearableInstance?[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = _iteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
@@ -159,7 +159,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                  }
                     */
                 var petlist = new List<short?>();
-                var mates = _mateDao.Where(s => s.CharacterId == character.CharacterId)
+                var mates = _mateDao.Where(s => s.CharacterId == character.CharacterId)!
                     .ToList();
                 for (var i = 0; i < 26; i++)
                 {
@@ -205,7 +205,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     Pets = petlist,
                     Design = equipment[(byte)EquipmentType.Hat]?.Item?.IsColored ?? false
                         ? equipment[(byte)EquipmentType.Hat]?.Design ?? 0 : 0,
-                    Rename = false
+                    Rename = character.ShouldRename
                 }).ConfigureAwait(false);
             }
 

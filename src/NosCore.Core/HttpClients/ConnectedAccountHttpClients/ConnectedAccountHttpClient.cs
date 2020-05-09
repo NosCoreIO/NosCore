@@ -81,10 +81,10 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
             if (response.IsSuccessStatusCode)
             {
                 return JsonSerializer.Deserialize<List<ConnectedAccount>>(
-                    await response.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
+                    await response.Content!.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                     {
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
+                    })!;
             }
 
             return new List<ConnectedAccount>();
