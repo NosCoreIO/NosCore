@@ -29,6 +29,7 @@ using AutofacSerilogIntegration;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -57,13 +58,12 @@ namespace NosCore.Parser
 
         private static void InitializeConfiguration()
         {
-            var builder = new ConfigurationBuilder();
-            builder
+            var conf = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
                 .AddYamlFile("parser.yml", false)
-                .Build()
-                .Bind(ParserConfiguration);
+                .Build();
 
+            Configurator.Configure(conf, ParserConfiguration);
             Validator.ValidateObject(ParserConfiguration, new ValidationContext(ParserConfiguration),
                 true);
             LogLanguage.Language = ParserConfiguration.Language;
