@@ -19,8 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -54,7 +52,6 @@ using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
-using NosCore.Data;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
