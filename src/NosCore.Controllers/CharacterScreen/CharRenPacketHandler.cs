@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             var chara = await _characterDao.FirstOrDefaultAsync(s =>
                     (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active))
                 .ConfigureAwait(false);
-            if (chara == null)
+            if ((chara == null) || (chara.ShouldRename == false))
             {
                 return;
             }
@@ -69,6 +69,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 if (character == null)
                 {
                     chara.Name = characterName;
+                    chara.ShouldRename = false;
                     await _characterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(new SuccessPacket()).ConfigureAwait(false);
                     await clientSession.HandlePacketsAsync(new[] { new EntryPointPacket() }).ConfigureAwait(false);
