@@ -51,6 +51,7 @@ namespace NosCore.Tests.PacketHandlerTests
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _chara = _session.Character;
+            _chara.ShouldRename = true;
             await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_session.Character);
             await _session.SetCharacterAsync(null).ConfigureAwait(false);
             _charRenPacketHandler =
@@ -83,7 +84,23 @@ namespace NosCore.Tests.PacketHandlerTests
                 Name = name,
                 Slot = 1
             }, _session!).ConfigureAwait(false);
-            Assert.IsNotNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
+            var character = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name)
+                .ConfigureAwait(false);
+            Assert.IsNotNull(character);
+            Assert.IsFalse(character.ShouldRename);
+        }
+
+        [TestMethod]
+        public async Task RenameUnflaggedCharacterAsync()
+        {
+            const string name = "TestCharacter2";
+            await _charRenPacketHandler!.ExecuteAsync(new CharRenamePacket
+            {
+                Name = name,
+                Slot = 1
+            }, _session!).ConfigureAwait(false);
+            _chara!.ShouldRename = false;
+            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
         }
 
         [TestMethod]
