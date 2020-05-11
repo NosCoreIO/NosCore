@@ -4,7 +4,7 @@ WebApi:
   Password: NosCorePassword
 Language: en
 Database:
-  Host: localhost
+  Host: ${DB_HOST,localhost}
   Port: 5432
   Database: postgres
   Username: postgres
