@@ -1,6 +1,6 @@
 MasterCommunication:
   Password: NosCorePassword
-  Host: http://localhost
+  Host: ${MASTER_HOST,http://localhost)
   Port: 5000
   Routes:
     ConnectedAccount: api/connectedAccount
@@ -12,8 +12,8 @@ MasterCommunication:
     Friend: api/friend
     Blacklist: api/blacklist
 ServerName: S1-NosCore
-Host: 127.0.0.1
-Port: 1337
+Host: ${HOST,127.0.0.1}
+Port: ${WORLD_PORT,1337}
 ConnectedAccountLimit: 100
 SceneOnCreate: false
 ServerGroup: 0
@@ -24,7 +24,7 @@ WebApi:
   Password: NosCorePassword
 Language: en
 Database:
-  Host: localhost
+  Host: ${DB_HOST,localhost}
   Port: 5432
   Database: postgres
   Username: postgres
