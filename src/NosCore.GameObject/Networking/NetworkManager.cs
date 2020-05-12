@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
@@ -41,6 +42,7 @@ namespace NosCore.GameObject.Networking
             _logger = logger;
         }
 
+        private static readonly AutoResetEvent _closingEvent = new AutoResetEvent(false);
         public async Task RunServerAsync()
         {
             var bossGroup = new MultithreadEventLoopGroup(1);
@@ -56,8 +58,11 @@ namespace NosCore.GameObject.Networking
                         _pipelineFactory(channel).CreatePipeline()));
 
                 var bootstrapChannel = await bootstrap.BindAsync(_configuration.Port).ConfigureAwait(false);
-
-                Console.ReadLine();
+                Console.CancelKeyPress += ((s, a) =>
+                {
+                    _closingEvent.Set();
+                });
+                _closingEvent.WaitOne();
 
                 await bootstrapChannel.CloseAsync().ConfigureAwait(false);
             }
