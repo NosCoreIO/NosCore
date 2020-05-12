@@ -19,8 +19,8 @@ services:
   master:
     container_name: noscore-master
     environment:
-      - PORT:${MASTER_PORT}
-      - DB_HOST:${DB_HOST}
+      - PORT=${MASTER_PORT}
+      - DB_HOST=${DB_HOST}
     build:
       context: ./
       dockerfile: deploy/Dockerfile-master
@@ -39,11 +39,11 @@ services:
   world:
     container_name: noscore-world
     environment:
-      - WEBAPI_PORT:${WORLD_WEBAPI_PORT}
-      - PORT:${WORLD_PORT}
-      - MASTER_HOST:${MASTER_HOST}
-      - DB_HOST:${DB_HOST}
-      - HOST:${HOST}
+      - WEBAPI_PORT=${WORLD_WEBAPI_PORT}
+      - WORLD_PORT=${WORLD_PORT}
+      - MASTER_HOST=master
+      - DB_HOST=${DB_HOST}
+      - HOST=${HOST}
     build:
       context: ./
       dockerfile: deploy/Dockerfile-world
@@ -62,10 +62,10 @@ services:
   login:
     container_name: noscore-login
     environment:
-      - PORT:${LOGIN_PORT}
-      - MASTER_HOST:${MASTER_HOST}
-      - DB_HOST:${DB_HOST}
-      - HOST:${HOST}
+      - LOGIN_PORT=${LOGIN_PORT}
+      - MASTER_HOST=master
+      - DB_HOST=${DB_HOST}
+      - HOST=${HOST}
     build:
       context: ./
       dockerfile: deploy/Dockerfile-login
