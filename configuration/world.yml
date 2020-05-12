@@ -1,6 +1,6 @@
 MasterCommunication:
   Password: NosCorePassword
-  Host: ${MASTER_HOST,http://localhost)
+  Host: ${MASTER_HOST,http://localhost}
   Port: 5000
   Routes:
     ConnectedAccount: api/connectedAccount
@@ -19,7 +19,7 @@ SceneOnCreate: false
 ServerGroup: 0
 WorldInformation: true
 WebApi:
-  Host: http://localhost
+  Host: ${WEBAPI_HOST,http://localhost}
   Port: 5001
   Password: NosCorePassword
 Language: en
