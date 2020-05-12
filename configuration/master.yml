@@ -1,5 +1,5 @@
 WebApi:
-  Host: http://localhost
+  Host: ${WEBAPI_HOST,http://localhost}
   Port: 5000
   Password: NosCorePassword
 Language: en

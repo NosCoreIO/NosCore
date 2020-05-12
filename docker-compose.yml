@@ -19,14 +19,15 @@ services:
   master:
     container_name: noscore-master
     environment:
-      - PORT=${MASTER_PORT}
-      - DB_HOST=${DB_HOST}
+      - PORT=5000
+      - DB_HOST=host.docker.internal
+      - WEBAPI_HOST=http://0.0.0.0
     build:
       context: ./
       dockerfile: deploy/Dockerfile-master
     restart: unless-stopped
     ports:
-      - ${MASTER_PORT}:${MASTER_PORT}
+      - 5000:5000
     expose:
       - 5432
     networks: 
@@ -35,22 +36,22 @@ services:
       - ./build/netcoreapp5.0/linux-x64:/app/build/bin
       - ./configuration/:/app/configuration
 
-
   world:
     container_name: noscore-world
     environment:
-      - WEBAPI_PORT=${WORLD_WEBAPI_PORT}
-      - WORLD_PORT=${WORLD_PORT}
-      - MASTER_HOST=master
-      - DB_HOST=${DB_HOST}
-      - HOST=${HOST}
+      - WEBAPI_PORT=5001
+      - WEBAPI_HOST=http://0.0.0.0
+      - WORLD_PORT=1337
+      - MASTER_HOST=http://master
+      - DB_HOST=host.docker.internal
+      - HOST=127.0.0.1
     build:
       context: ./
       dockerfile: deploy/Dockerfile-world
     restart: unless-stopped
     ports:
-      - ${WORLD_WEBAPI_PORT}:${WORLD_WEBAPI_PORT}
-      - ${WORLD_PORT}:${WORLD_PORT}
+      - 5001:5001
+      - 1337:1337
     expose:
       - 5432
     networks: 
@@ -62,16 +63,16 @@ services:
   login:
     container_name: noscore-login
     environment:
-      - LOGIN_PORT=${LOGIN_PORT}
-      - MASTER_HOST=master
-      - DB_HOST=${DB_HOST}
-      - HOST=${HOST}
+      - LOGIN_PORT=4000
+      - MASTER_HOST=http://master
+      - DB_HOST=host.docker.internal
+      - HOST=127.0.0.1
     build:
       context: ./
       dockerfile: deploy/Dockerfile-login
     restart: unless-stopped
     ports:
-      - ${LOGIN_PORT}:${LOGIN_PORT}
+      - 4000:4000
     expose:
       - 5432
     networks: 

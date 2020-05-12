@@ -1,6 +1,6 @@
 MasterCommunication:
   Password: NosCorePassword
-  Host: ${MASTER_HOST,http://localhost)
+  Host: ${MASTER_HOST,http://localhost}
   Port: 5000
   Routes:
     Channel: api/channel
