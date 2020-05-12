@@ -21,7 +21,7 @@ services:
     environment:
       - PORT=5000
       - DB_HOST=host.docker.internal
-      - WEBAPI_HOST=http://0.0.0.0
+      - WEBAPI_HOST=http://master
     build:
       context: ./
       dockerfile: deploy/Dockerfile-master
@@ -40,7 +40,7 @@ services:
     container_name: noscore-world
     environment:
       - WEBAPI_PORT=5001
-      - WEBAPI_HOST=http://0.0.0.0
+      - WEBAPI_HOST=http://world
       - WORLD_PORT=1337
       - MASTER_HOST=http://master
       - DB_HOST=host.docker.internal
