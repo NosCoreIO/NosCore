@@ -1,5 +1,3 @@
-set MASTER_PORT=5000
-
 cd ..
 
 dotnet build --runtime linux-x64 --nologo

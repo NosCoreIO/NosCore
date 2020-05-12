@@ -1,15 +1,15 @@
 MasterCommunication:
   Password: NosCorePassword
-  Host: http://localhost
+  Host: ${MASTER_HOST,http://localhost}
   Port: 5000
   Routes:
     Channel: api/channel
     ConnectedAccount: api/connectedAccount
-Host: 127.0.0.1
-Port: 4000
+Host: ${HOST,127.0.0.1}
+Port: ${LOGIN_PORT,4000}
 Language: en
 Database:
-  Host: localhost
+  Host: ${DB_HOST,localhost}
   Port: 5432
   Database: postgres
   Username: postgres

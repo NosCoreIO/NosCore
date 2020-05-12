@@ -19,52 +19,66 @@ services:
   master:
     container_name: noscore-master
     environment:
-      - PORT:${MASTER_PORT}
+      - PORT=5000
+      - DB_HOST=host.docker.internal
+      - WEBAPI_HOST=http://master
     build:
       context: ./
       dockerfile: deploy/Dockerfile-master
     restart: unless-stopped
     ports:
-      - ${MASTER_PORT}:${MASTER_PORT}
+      - 5000:5000
+    expose:
+      - 5432
     networks: 
       - noscore-network
     volumes:
-      - ./build/netcoreapp3.1/linux-x64:/app/build/bin
+      - ./build/netcoreapp5.0/linux-x64:/app/build/bin
       - ./configuration/:/app/configuration
-
 
   world:
     container_name: noscore-world
     environment:
-      - WEBAPI_PORT:${WORLD_WEBAPI_PORT}
-      - PORT:${WORLD_PORT}
+      - WEBAPI_PORT=5001
+      - WEBAPI_HOST=http://world
+      - WORLD_PORT=1337
+      - MASTER_HOST=http://master
+      - DB_HOST=host.docker.internal
+      - HOST=127.0.0.1
     build:
       context: ./
       dockerfile: deploy/Dockerfile-world
     restart: unless-stopped
     ports:
-      - ${WORLD_WEBAPI_PORT}:${WORLD_WEBAPI_PORT}
-      - ${WORLD_PORT}:${WORLD_PORT}
+      - 5001:5001
+      - 1337:1337
+    expose:
+      - 5432
     networks: 
       - noscore-network
     volumes:
-      - ./build/netcoreapp3.1/linux-x64:/app/build/bin
+      - ./build/netcoreapp5.0/linux-x64:/app/build/bin
       - ./configuration/:/app/configuration
       
   login:
     container_name: noscore-login
     environment:
-      - PORT:${LOGIN_PORT}
+      - LOGIN_PORT=4000
+      - MASTER_HOST=http://master
+      - DB_HOST=host.docker.internal
+      - HOST=127.0.0.1
     build:
       context: ./
       dockerfile: deploy/Dockerfile-login
     restart: unless-stopped
     ports:
-      - ${LOGIN_PORT}:${LOGIN_PORT}
+      - 4000:4000
+    expose:
+      - 5432
     networks: 
       - noscore-network
     volumes:
-      - ./build/netcoreapp3.1/linux-x64:/app/build/bin
+      - ./build/netcoreapp5.0/linux-x64:/app/build/bin
       - ./configuration/:/app/configuration
 
 networks:
