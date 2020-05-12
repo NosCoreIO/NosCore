@@ -100,6 +100,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Slot = 1
             }, _session!).ConfigureAwait(false);
             _chara!.ShouldRename = false;
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_chara);
             Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
         }
 
