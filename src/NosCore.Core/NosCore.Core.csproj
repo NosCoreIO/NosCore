@@ -47,7 +47,7 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.2-dev-00824" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
     <PackageReference Include="System.Text.Json" Version="4.7.1" />
   </ItemGroup>
 
