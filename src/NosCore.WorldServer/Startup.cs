@@ -51,6 +51,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.VisualStudio.Threading;
+using NosCore.Algorithm.ExperienceService;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Controllers;
@@ -353,7 +354,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<OctileDistanceCalculator>().AsImplementedInterfaces();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
-            containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly)
+            containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
