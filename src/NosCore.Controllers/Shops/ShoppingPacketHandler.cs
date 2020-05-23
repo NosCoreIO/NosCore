@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Threading.Tasks;
+using NosCore.Algorithm.DignityService;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
@@ -28,6 +28,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Shared.Enumerations;
 using Serilog;
 
 namespace NosCore.PacketHandlers.Shops
@@ -35,15 +36,17 @@ namespace NosCore.PacketHandlers.Shops
     public class ShoppingPacketHandler : PacketHandler<ShoppingPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
+        private readonly IDignityService _dignityService;
 
-        public ShoppingPacketHandler(ILogger logger)
+        public ShoppingPacketHandler(ILogger logger, IDignityService dignityService)
         {
             _logger = logger;
+            _dignityService = dignityService;
         }
 
         public override async Task ExecuteAsync(ShoppingPacket shoppingPacket, ClientSession clientSession)
         {
-            var shopRate = new Tuple<double, byte>(0, 0);
+            var percent = 0d;
             IAliveEntity? aliveEntity;
             switch (shoppingPacket.VisualType)
             {
@@ -51,7 +54,15 @@ namespace NosCore.PacketHandlers.Shops
                     aliveEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == shoppingPacket.VisualId);
                     break;
                 case VisualType.Npc:
-                    shopRate = clientSession.Character.GenerateShopRates();
+
+                    percent = (_dignityService.GetLevelFromDignity(clientSession.Character.Dignity)) switch
+                    {
+                        DignityType.Dreadful => 1.1,
+                        DignityType.Unqualified => 1.2,
+                        DignityType.Failed => 1.5,
+                        DignityType.Useless => 1.5,
+                        _ => 1.0,
+                    };
                     aliveEntity =
                         clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == shoppingPacket.VisualId);
                     break;
@@ -69,7 +80,7 @@ namespace NosCore.PacketHandlers.Shops
             }
 
 
-            await clientSession.SendPacketAsync(aliveEntity.GenerateNInv(shopRate.Item1, shoppingPacket.ShopType, shopRate.Item2)).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(aliveEntity.GenerateNInv(percent, shoppingPacket.ShopType)).ConfigureAwait(false);
         }
     }
 }

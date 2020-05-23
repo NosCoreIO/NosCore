@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Database.Entities.Base;
 

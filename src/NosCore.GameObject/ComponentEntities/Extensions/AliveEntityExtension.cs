@@ -40,6 +40,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
@@ -341,8 +342,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             experiencedEntity.Mp = experiencedEntity.MaxMp;
         }
 
-        public static NInvPacket GenerateNInv(this IAliveEntity aliveEntity, double percent, short typeshop,
-            byte shopKind)
+        public static NInvPacket GenerateNInv(this IAliveEntity aliveEntity, double percent, short typeshop)
         {
             var shopItemList = new List<NInvItemSubPacket?>();
             var list = aliveEntity.Shop!.ShopItems.Values.Where(s => s.Type == typeshop).ToList();
@@ -376,7 +376,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             {
                 VisualType = aliveEntity.VisualType,
                 VisualId = aliveEntity.VisualId,
-                ShopKind = shopKind,
+                ShopKind = (byte)(percent * 100),
                 Unknown = 0,
                 Items = shopItemList
             };

@@ -31,6 +31,8 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Providers.InventoryService;
 using System;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
@@ -52,9 +54,9 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         InEquipmentSubPacket Equipment { get; }
 
-        int ReputIcon { get; }
+        ReputationType ReputIcon { get; }
 
-        int DignityIcon { get; }
+        DignityType DignityIcon { get; }
 
         bool Camouflage { get; }
 
@@ -85,6 +87,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         ScriptDto? Script { get; set; }
         Guid? CurrentScriptId { get; set; }
         ConcurrentDictionary<Guid, CharacterQuest> Quests { get; set; }
+        short Compliment { get; }
 
         Task GenerateMailAsync(IEnumerable<MailData> data);
 
@@ -117,5 +120,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         Task ChangeClassAsync(CharacterClassType classType);
 
         Task ChangeMapAsync(short mapId, short mapX, short mapY);
+        string GetMessageFromKey(LanguageKey support);
     }
 }

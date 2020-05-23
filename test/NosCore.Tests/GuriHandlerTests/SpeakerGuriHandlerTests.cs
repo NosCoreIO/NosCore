@@ -26,7 +26,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
@@ -77,9 +76,9 @@ namespace NosCore.Tests.GuriHandlerTests
                 Data = 999,
                 Value = "2 0 {test}"
             }).ConfigureAwait(false);
-            var sayitempacket = (SayItemPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNotNull(sayitempacket);
-            var saypacket = (SayPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNull(saypacket);
         }
 
@@ -96,9 +95,9 @@ namespace NosCore.Tests.GuriHandlerTests
                 Data = 999,
                 Value = "2 1 {test}"
             }).ConfigureAwait(false);
-            var sayitempacket = (SayItemPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
-            var saypacket = (SayPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNull(saypacket);
         }
 
@@ -114,9 +113,9 @@ namespace NosCore.Tests.GuriHandlerTests
                 Argument = 3,
                 VisualId = 0,
             }).ConfigureAwait(false);
-            var sayitempacket = (SayItemPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
-            var saypacket = (SayPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNotNull(saypacket);
         }
 
@@ -129,9 +128,9 @@ namespace NosCore.Tests.GuriHandlerTests
                 Argument = 3,
                 VisualId = 0
             }).ConfigureAwait(false);
-            var sayitempacket = (SayItemPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
-            var saypacket = (SayPacket)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNull(saypacket);
         }
     }

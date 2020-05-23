@@ -69,11 +69,11 @@ namespace NosCore.Data.Dto
 
 	 	public System.Collections.Generic.ICollection<CharacterSkillDto> CharacterSkill { get; set; }
 
-	 	public NosCore.Packets.Enumerations.CharacterClassType Class { get; set; }
+	 	public NosCore.Shared.Enumerations.CharacterClassType Class { get; set; }
 
 	 	public short Compliment { get; set; }
 
-	 	public float Dignity { get; set; }
+	 	public short Dignity { get; set; }
 
 	 	public int Elo { get; set; }
 

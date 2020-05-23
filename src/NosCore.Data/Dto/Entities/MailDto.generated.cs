@@ -76,7 +76,7 @@ namespace NosCore.Data.Dto
 
 	 	public long? SenderId { get; set; }
 
-	 	public NosCore.Packets.Enumerations.CharacterClassType? SenderCharacterClass { get; set; }
+	 	public NosCore.Shared.Enumerations.CharacterClassType? SenderCharacterClass { get; set; }
 
 	 	public NosCore.Packets.Enumerations.GenderType? SenderGender { get; set; }
 

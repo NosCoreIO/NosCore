@@ -51,6 +51,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.VisualStudio.Threading;
+using NosCore.Algorithm.ExperienceService;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Controllers;
@@ -90,11 +91,11 @@ using Serializer = NosCore.Packets.Serializer;
 using NosCore.Dao;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Configuration;
-using NosCore.Packets.Enumerations;
 using NosCore.PathFinder;
 using NosCore.Shared.Configuration;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
 using NosCore.Shared.I18N;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.WorldServer
 {
@@ -353,7 +354,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<OctileDistanceCalculator>().AsImplementedInterfaces();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
-            containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly)
+            containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
