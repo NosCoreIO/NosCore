@@ -39,6 +39,7 @@ using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.Packets.Enumerations;
 using NosCore.PathFinder;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
 using Serilog;
 

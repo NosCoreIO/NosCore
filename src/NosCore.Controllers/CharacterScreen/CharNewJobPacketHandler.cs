@@ -26,6 +26,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {

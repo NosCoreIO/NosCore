@@ -40,6 +40,7 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.Inventory;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Helpers;
 using Serilog;
 

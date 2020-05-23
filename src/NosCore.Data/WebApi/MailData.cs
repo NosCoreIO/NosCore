@@ -23,6 +23,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Data.Dto;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Data.WebApi
 {

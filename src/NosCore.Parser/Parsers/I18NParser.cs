@@ -29,6 +29,7 @@ using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 using Serilog;
 
 namespace NosCore.Parser.Parsers
