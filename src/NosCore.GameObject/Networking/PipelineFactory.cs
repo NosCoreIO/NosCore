@@ -26,6 +26,7 @@ using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Networking
 {
@@ -51,7 +52,7 @@ namespace NosCore.GameObject.Networking
         public void CreatePipeline()
         {
             SessionFactory.Instance.Sessions[_channel.Id.AsLongText()] =
-                new RegionTypeMapping(0, (RegionType)_configuration.Language);
+                new RegionTypeMapping(0, _configuration.Language);
             var pipeline = _channel.Pipeline;
             pipeline.AddLast(_decoder);
             _clientSession.RegisterChannel(_channel);

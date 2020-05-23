@@ -31,6 +31,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
 
 namespace NosCore.PacketHandlers.CharacterScreen

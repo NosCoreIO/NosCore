@@ -25,6 +25,7 @@ using NosCore.Data.Dto;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Helpers;
 
 namespace NosCore.Tests.PacketHandlerTests

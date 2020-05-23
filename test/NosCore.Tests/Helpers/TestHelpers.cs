@@ -28,6 +28,14 @@ using DotNetty.Transport.Channels;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using NosCore.Algorithm.DignityService;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.HpService;
+using NosCore.Algorithm.JobExperienceService;
+using NosCore.Algorithm.MpService;
+using NosCore.Algorithm.ReputationService;
+using NosCore.Algorithm.SpeedService;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
@@ -298,7 +306,8 @@ namespace NosCore.Tests.Helpers
 
             var chara = new GameObject.Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
                 new ExchangeProvider(new Mock<IItemProvider>().Object, WorldConfiguration, _logger), new Mock<IItemProvider>().Object, CharacterDao, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, AccountDao,
-                _logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, minilandProvider.Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object)
+                _logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, minilandProvider.Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
+                , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService())
             {
                 CharacterId = _lastId,
                 Name = "TestExistingCharacter" + _lastId,

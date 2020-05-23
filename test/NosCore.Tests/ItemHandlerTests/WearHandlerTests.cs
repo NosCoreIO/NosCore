@@ -257,7 +257,7 @@ namespace NosCore.Tests.ItemHandlerTests
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
-            var lastpacket = (PairyPacket)Session.Character.MapInstance.LastPackets.FirstOrDefault(s => s is PairyPacket);
+            var lastpacket = (PairyPacket?)Session.Character.MapInstance.LastPackets.FirstOrDefault(s => s is PairyPacket);
             Assert.IsNotNull(lastpacket);
         }
 

@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Data.Dto
 {

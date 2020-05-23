@@ -39,11 +39,13 @@ using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
 using DotNetty.Transport.Channels;
+using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.MpService;
+using NosCore.Algorithm.SpeedService;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
@@ -68,7 +70,9 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.Shared.Enumerations;
 using Serilog;
+using NosCore.Algorithm.ReputationService;
 
 namespace NosCore.GameObject
 {
@@ -82,16 +86,17 @@ namespace NosCore.GameObject
         private readonly IDao<MinilandDto, Guid> _minilandDao;
         private readonly IMinilandProvider _minilandProvider;
         private readonly IDao<QuicklistEntryDto, Guid> _quicklistEntriesDao;
-
         private readonly IDao<StaticBonusDto, long> _staticBonusDao;
         private readonly IDao<TitleDto, Guid> _titleDao;
-        private byte _speed;
         private readonly IDao<CharacterQuestDto, Guid> _characterQuestsDao;
-        private IHpService _hpService;
-        private IMpService _mpService;
-        private IExperienceService _experienceService;
-        private IJobExperienceService _jobExperienceService;
-        private IHeroExperienceService _heroExperienceService;
+        private readonly IHpService _hpService;
+        private readonly IMpService _mpService;
+        private readonly ISpeedService _speedService;
+        private readonly IExperienceService _experienceService;
+        private readonly IJobExperienceService _jobExperienceService;
+        private readonly IHeroExperienceService _heroExperienceService;
+        private readonly IReputationService _reputationService;
+        private readonly IDignityService _dignityService;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider,
             IDao<CharacterDto, long> characterDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
@@ -99,7 +104,8 @@ namespace NosCore.GameObject
             ILogger logger, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quicklistEntriesDao, IDao<MinilandDto, Guid> minilandDao,
             IMinilandProvider minilandProvider, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
-            IHpService hpService, IMpService mpService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+            IHpService hpService, IMpService mpService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpeedService speedService,
+            IReputationService reputationService, IDignityService dignityService)
         {
             InventoryService = inventory;
             ExchangeProvider = exchangeProvider;
@@ -124,7 +130,12 @@ namespace NosCore.GameObject
             _experienceService = experienceService;
             _jobExperienceService = jobExperienceService;
             _heroExperienceService = heroExperienceService;
+            _speedService = speedService;
+            _reputationService = reputationService;
+            _dignityService = dignityService;
         }
+
+        private byte _speed;
 
         public new ScriptDto? Script { get; set; }
 
@@ -137,13 +148,17 @@ namespace NosCore.GameObject
         public DateTime LastSpeedChange { get; set; }
 
         public DateTime LastMove { get; set; }
+
         public IItemProvider ItemProvider { get; set; }
 
         public bool UseSp { get; set; }
 
         public DateTime LastSp { get; set; } = SystemTime.Now();
+
         public short SpCooldown { get; set; }
+
         public bool IsVehicled { get; set; }
+
         public byte? VehicleSpeed { get; set; }
 
         public IExchangeProvider ExchangeProvider { get; }
@@ -153,6 +168,7 @@ namespace NosCore.GameObject
         public bool InExchange => ExchangeProvider!.CheckExchange(VisualId);
 
         public bool InShop { get; set; }
+
         public List<QuicklistEntryDto> QuicklistEntries { get; set; }
 
         public long BankGold => Session.Account.BankMoney;
@@ -160,10 +176,13 @@ namespace NosCore.GameObject
         public RegionType AccountLanguage => Session.Account.Language;
 
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
+
         public ConcurrentDictionary<Guid, CharacterQuest> Quests { get; set; } = null!;
+
         public Subject<RequestData>? Requests { get; set; }
 
         public short Race => (byte)Class;
+
         public Shop? Shop { get; set; }
 
         public bool Camouflage { get; set; }
@@ -174,26 +193,13 @@ namespace NosCore.GameObject
 
         public Group? Group { get; set; }
 
-        /// <summary>
-        /// Date of last group request sent
-        /// </summary>
         public DateTime? LastGroupRequest { get; set; } = null;
 
-        public int ReputIcon => GetReputIco();
+        public ReputationType ReputIcon => _reputationService.GetLevelFromReputation(Reput);
 
-        public int DignityIcon => GetDignityIco();
+        public DignityType DignityIcon => _dignityService.GetLevelFromDignity(Dignity);
 
         public IChannel? Channel => Session?.Channel;
-
-        public Task SendPacketAsync(IPacket? packetDefinition)
-        {
-            return Session.SendPacketAsync(packetDefinition);
-        }
-
-        public Task SendPacketsAsync(IEnumerable<IPacket?> packetDefinitions)
-        {
-            return Session.SendPacketsAsync(packetDefinitions);
-        }
 
         public MapInstance MapInstance { get; set; } = null!;
 
@@ -248,10 +254,13 @@ namespace NosCore.GameObject
         public short MorphDesign { get; set; }
 
         public byte MorphBonus { get; set; }
+
         public bool NoAttack { get; set; }
 
         public bool NoMove { get; set; }
+
         public bool IsSitting { get; set; }
+
         public Guid MapInstanceId { get; set; }
 
         public AuthorityType Authority => Session.Account.Authority;
@@ -261,6 +270,16 @@ namespace NosCore.GameObject
         public int MaxHp => (int)HpLoad();
 
         public int MaxMp => (int)MpLoad();
+
+        public Task SendPacketAsync(IPacket? packetDefinition)
+        {
+            return Session.SendPacketAsync(packetDefinition);
+        }
+
+        public Task SendPacketsAsync(IEnumerable<IPacket?> packetDefinitions)
+        {
+            return Session.SendPacketsAsync(packetDefinitions);
+        }
 
         public async Task SetHeroLevelAsync(byte level)
         {
@@ -599,45 +618,6 @@ namespace NosCore.GameObject
             await MapInstance.SendPacketAsync(this.GenerateRest()).ConfigureAwait(false);
         }
 
-        public RsfiPacket GenerateRsfi()
-        {
-            return new RsfiPacket
-            {
-                Act = 1,
-                ActPart = 1,
-                Unknown1 = 0,
-                Unknown2 = 9,
-                Ts = 0,
-                TsMax = 9
-            };
-        }
-
-        public Tuple<double, byte> GenerateShopRates()
-        {
-            byte shopKind = 100;
-            var percent = 1.0;
-            switch (GetDignityIco())
-            {
-                case 3:
-                    percent = 1.1;
-                    shopKind = 110;
-                    break;
-
-                case 4:
-                    percent = 1.2;
-                    shopKind = 120;
-                    break;
-
-                case 5:
-                case 6:
-                    percent = 1.5;
-                    shopKind = 150;
-                    break;
-            }
-
-            return new Tuple<double, byte>(percent, shopKind);
-        }
-
         public async Task BuyAsync(Shop shop, short slot, short amount)
         {
             var item = shop.ShopItems.Values.FirstOrDefault(it => it.Slot == slot);
@@ -648,8 +628,14 @@ namespace NosCore.GameObject
 
             var price = item.Price ?? item.ItemInstance!.Item!.Price * amount;
             var reputprice = item.Price == null ? item.ItemInstance!.Item!.ReputPrice * amount : 0;
-            var percent = GenerateShopRates().Item1;
-
+            var percent = DignityIcon switch
+            {
+                DignityType.Dreadful => 1.1,
+                DignityType.Unqualified => 1.2,
+                DignityType.Failed => 1.5,
+                DignityType.Useless => 1.5,
+                _ => 1.0,
+            };
             if (amount > item.Amount)
             {
                 //todo LOG
@@ -681,7 +667,7 @@ namespace NosCore.GameObject
             if (shop.Session == null)
             {
                 inv = InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                    ItemProvider.Create(item.ItemInstance!.ItemVNum, amount), Session.Character.CharacterId));
+                    ItemProvider.Create(item.ItemInstance!.ItemVNum, amount), CharacterId));
             }
             else
             {
@@ -698,12 +684,12 @@ namespace NosCore.GameObject
                 if (amount == item.ItemInstance?.Amount)
                 {
                     inv = InventoryService.AddItemToPocket(InventoryItemInstance.Create(item.ItemInstance,
-                        Session.Character.CharacterId));
+                        CharacterId));
                 }
                 else
                 {
                     inv = InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                        ItemProvider.Create(item.ItemInstance?.ItemVNum ?? 0, amount), Session.Character.CharacterId));
+                        ItemProvider.Create(item.ItemInstance?.ItemVNum ?? 0, amount), CharacterId));
                 }
             }
 
@@ -790,7 +776,7 @@ namespace NosCore.GameObject
 
             if (Shop.ShopItems.Count != 0)
             {
-                return this.GenerateNInv(1, 0, 0);
+                return this.GenerateNInv(1, 0);
             }
 
             await CloseShopAsync().ConfigureAwait(false);
@@ -855,7 +841,7 @@ namespace NosCore.GameObject
                 SkillCp = 0,
                 HeroXp = HeroXp,
                 HeroLevel = HeroLevel,
-                HeroXpLoad = _heroExperienceService.GetHeroExperience(HeroLevel)
+                HeroXpLoad = HeroLevel == 0 ? 0 : _heroExperienceService.GetHeroExperience(HeroLevel)
             };
         }
 
@@ -893,42 +879,10 @@ namespace NosCore.GameObject
             return new FdPacket
             {
                 Reput = Reput,
-                Dignity = (int)Dignity,
-                ReputIcon = GetReputIco(),
-                DignityIcon = Math.Abs(GetDignityIco())
+                Dignity = Dignity,
+                ReputIcon = (int)ReputIcon, //todo change packet type
+                DignityIcon = (int)DignityIcon //todo change packet type
             };
-        }
-
-        public int GetDignityIco()
-        {
-            var icoDignity = 1;
-
-            if (Dignity <= -100)
-            {
-                icoDignity = 2;
-            }
-
-            if (Dignity <= -200)
-            {
-                icoDignity = 3;
-            }
-
-            if (Dignity <= -400)
-            {
-                icoDignity = 4;
-            }
-
-            if (Dignity <= -600)
-            {
-                icoDignity = 5;
-            }
-
-            if (Dignity <= -800)
-            {
-                icoDignity = 6;
-            }
-
-            return icoDignity;
         }
 
         public int IsReputHero()
@@ -1088,164 +1042,16 @@ namespace NosCore.GameObject
             return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7 };
         }
 
-        public int GetReputIco()
-        {
-            if (Reput <= 50)
-            {
-                return 1;
-            }
-
-            if (Reput <= 150)
-            {
-                return 2;
-            }
-
-            if (Reput <= 250)
-            {
-                return 3;
-            }
-
-            if (Reput <= 500)
-            {
-                return 4;
-            }
-
-            if (Reput <= 750)
-            {
-                return 5;
-            }
-
-            if (Reput <= 1000)
-            {
-                return 6;
-            }
-
-            if (Reput <= 2250)
-            {
-                return 7;
-            }
-
-            if (Reput <= 3500)
-            {
-                return 8;
-            }
-
-            if (Reput <= 5000)
-            {
-                return 9;
-            }
-
-            if (Reput <= 9500)
-            {
-                return 10;
-            }
-
-            if (Reput <= 19000)
-            {
-                return 11;
-            }
-
-            if (Reput <= 25000)
-            {
-                return 12;
-            }
-
-            if (Reput <= 40000)
-            {
-                return 13;
-            }
-
-            if (Reput <= 60000)
-            {
-                return 14;
-            }
-
-            if (Reput <= 85000)
-            {
-                return 15;
-            }
-
-            if (Reput <= 115000)
-            {
-                return 16;
-            }
-
-            if (Reput <= 150000)
-            {
-                return 17;
-            }
-
-            if (Reput <= 190000)
-            {
-                return 18;
-            }
-
-            if (Reput <= 235000)
-            {
-                return 19;
-            }
-
-            if (Reput <= 285000)
-            {
-                return 20;
-            }
-
-            if (Reput <= 350000)
-            {
-                return 21;
-            }
-
-            if (Reput <= 500000)
-            {
-                return 22;
-            }
-
-            if (Reput <= 1500000)
-            {
-                return 23;
-            }
-
-            if (Reput <= 2500000)
-            {
-                return 24;
-            }
-
-            if (Reput <= 3750000)
-            {
-                return 25;
-            }
-
-            if (Reput <= 5000000)
-            {
-                return 26;
-            }
-
-            if (Reput >= 5000001)
-            {
-                return (IsReputHero()) switch
-                {
-                    1 => 28,
-                    2 => 29,
-                    3 => 30,
-                    4 => 31,
-                    5 => 32,
-                    _ => 27,
-                };
-            }
-
-            return 0;
-        }
-
         public void LoadSpeed()
         {
-            Speed = CharacterHelper.Instance.SpeedData![(byte)Class];
+            Speed = _speedService.GetSpeed(Class);
         }
 
         public double MpLoad()
         {
             const int mp = 0;
             const double multiplicator = 1.0;
-            return (int)((CharacterHelper.Instance.MpData![(byte)Class][Level] + mp) * multiplicator);
+            return (int)((_mpService.GetMp(Class, Level) + mp) * multiplicator);
         }
 
         public double HpLoad()
@@ -1253,7 +1059,7 @@ namespace NosCore.GameObject
             const double multiplicator = 1.0;
             const int hp = 0;
 
-            return (int)((CharacterHelper.Instance.HpData![(byte)Class][Level] + hp) * multiplicator);
+            return (int)((_hpService.GetHp(Class, Level) + hp) * multiplicator);
         }
 
         public AtPacket GenerateAt()
@@ -1279,32 +1085,6 @@ namespace NosCore.GameObject
                 ClassType = Session.GetMessageFromKey((LanguageKey)Enum.Parse(typeof(LanguageKey),
                     Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString()!.ToUpperInvariant())),
                 Name = Name
-            };
-        }
-
-        public CInfoPacket GenerateCInfo()
-        {
-            return new CInfoPacket
-            {
-                Name = Session.Account.Authority == AuthorityType.Moderator
-                    ? $"[{Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" + Name : Name,
-                Unknown1 = null,
-                GroupId = -1,
-                FamilyId = -1,
-                FamilyName = null,
-                CharacterId = CharacterId,
-                Authority = (AuthorityUIType)(int)Session.Account.Authority,
-                Gender = Gender,
-                HairStyle = HairStyle,
-                HairColor = HairColor,
-                Class = Class,
-                Icon = (byte)(GetDignityIco() == 1 ? GetReputIco() : -GetDignityIco()),
-                Compliment = (short)(Session.Account.Authority == AuthorityType.Moderator ? 500 : Compliment),
-                Morph = 0,
-                Invisible = false,
-                FamilyLevel = 0,
-                MorphUpgrade = 0,
-                ArenaWinner = false
             };
         }
 
@@ -1449,7 +1229,7 @@ namespace NosCore.GameObject
                 return;
             }
 
-            if (GetReputIco() < sp.Item!.ReputationMinimum)
+            if ((byte)ReputIcon < sp.Item!.ReputationMinimum)
             {
                 await SendPacketAsync(new MsgPacket
                 {
@@ -1520,37 +1300,5 @@ namespace NosCore.GameObject
             await MapInstance.SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
         }
 
-        public MlobjlstPacket GenerateMlobjlst()
-        {
-            var mlobj = new List<MlobjlstSubPacket?>();
-            foreach (var item in InventoryService.Where(s => s.Value.Type == NoscorePocketType.Miniland)
-                .OrderBy(s => s.Value.Slot).Select(s => s.Value))
-            {
-                var used = Session.Character.MapInstance.MapDesignObjects.ContainsKey(item.Id);
-                var mp = used ? Session.Character.MapInstance.MapDesignObjects[item.Id] : null;
-
-                mlobj.Add(new MlobjlstSubPacket
-                {
-                    InUse = used,
-                    Slot = item.Slot,
-                    MlObjSubPacket = new MlobjSubPacket
-                    {
-                        MapX = used ? mp!.MapX : (short)0,
-                        MapY = used ? mp!.MapY : (short)0,
-                        Width = item.ItemInstance!.Item!.Width != 0 ? item.ItemInstance.Item.Width : (byte)1,
-                        Height = item.ItemInstance.Item.Height != 0 ? item.ItemInstance.Item.Height : (byte)1,
-                        DurabilityPoint = used ? item.ItemInstance.DurabilityPoint : 0,
-                        Unknown = 100,
-                        Unknown2 = false,
-                        IsWarehouse = item.ItemInstance.Item.IsWarehouse
-                    }
-                });
-            }
-
-            return new MlobjlstPacket
-            {
-                MlobjlstSubPacket = mlobj
-            };
-        }
     }
 }

@@ -30,6 +30,7 @@ using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.HttpClients.MailHttpClient
 {
