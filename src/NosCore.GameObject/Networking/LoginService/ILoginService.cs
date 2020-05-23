@@ -19,7 +19,6 @@
 
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Login;
-using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Networking.LoginService

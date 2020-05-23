@@ -19,7 +19,6 @@
 
 using System.ComponentModel.DataAnnotations;
 using NosCore.Database.Entities.Base;
-using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.Database.Entities

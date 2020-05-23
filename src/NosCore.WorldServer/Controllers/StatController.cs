@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
-using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.I18N;

@@ -19,7 +19,6 @@
 
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
-using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
 using NosCore.GameObject;

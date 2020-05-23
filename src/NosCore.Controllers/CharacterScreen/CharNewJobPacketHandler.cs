@@ -19,7 +19,6 @@
 
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
-using NosCore.Packets.Enumerations;
 using Mapster;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;

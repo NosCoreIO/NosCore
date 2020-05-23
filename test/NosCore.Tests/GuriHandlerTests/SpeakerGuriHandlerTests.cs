@@ -26,7 +26,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;

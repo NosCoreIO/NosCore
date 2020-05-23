@@ -27,7 +27,6 @@ using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
-using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.Shared.Helpers;

@@ -22,7 +22,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;

@@ -91,7 +91,6 @@ using Serializer = NosCore.Packets.Serializer;
 using NosCore.Dao;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Configuration;
-using NosCore.Packets.Enumerations;
 using NosCore.PathFinder;
 using NosCore.Shared.Configuration;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;

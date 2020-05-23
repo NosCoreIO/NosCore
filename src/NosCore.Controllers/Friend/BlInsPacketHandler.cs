@@ -28,7 +28,6 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
-using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Friend
 {

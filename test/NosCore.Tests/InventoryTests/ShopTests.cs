@@ -39,7 +39,6 @@ using NosCore.Algorithm.SpeedService;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
-using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;

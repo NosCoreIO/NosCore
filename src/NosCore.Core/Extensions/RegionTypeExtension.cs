@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Text;
-using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.Core.Extensions

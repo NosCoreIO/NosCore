@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using FastMember;
-using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.Data.Dto
