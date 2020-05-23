@@ -26,7 +26,6 @@ using NosCore.Packets.ServerPackets.Bazaar;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
-using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;

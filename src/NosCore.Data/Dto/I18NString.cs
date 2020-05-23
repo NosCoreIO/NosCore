@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.Data.Dto

@@ -25,7 +25,6 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Inventory;
 using Mapster;
-using NosCore.Data;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;

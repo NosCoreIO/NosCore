@@ -35,7 +35,6 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using Serilog;
 

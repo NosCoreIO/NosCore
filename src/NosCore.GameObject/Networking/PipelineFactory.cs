@@ -24,9 +24,7 @@ using DotNetty.Codecs;
 using DotNetty.Transport.Channels.Sockets;
 using NosCore.Core;
 using NosCore.Core.Networking;
-using NosCore.Packets.Enumerations;
 using NosCore.Shared.Configuration;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Networking
 {
