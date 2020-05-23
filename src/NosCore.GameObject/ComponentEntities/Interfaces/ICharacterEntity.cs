@@ -32,6 +32,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.Providers.InventoryService;
 using System;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.Providers.QuestProvider;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces

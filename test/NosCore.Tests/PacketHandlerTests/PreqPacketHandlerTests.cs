@@ -17,11 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Movement;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
@@ -71,6 +73,46 @@ namespace NosCore.Tests.PacketHandlerTests
             Assert.IsTrue((_session.Character.PositionY == 5) && (_session.Character.PositionX == 5) &&
                 (_session.Character.MapInstance.Map.MapId == 1));
         }
+
+        [TestMethod]
+        public async Task UserLastPortalSetOnUsageAsync()
+        {
+            _session!.Character.PositionX = 0;
+            _session.Character.PositionY = 0;
+
+            var time = SystemTime.Now();
+            SystemTime.Freeze(time);
+            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
+            Assert.IsTrue(_session.Character.LastPortal == time);
+        }
+
+        [TestMethod]
+        public async Task UserCanTUsePortalIfRecentlyMovedAsync()
+        {
+            _session!.Character.PositionX = 0;
+            _session.Character.PositionY = 0;
+            var time = SystemTime.Now();
+            SystemTime.Freeze(time);
+            _session.Character.LastPortal = time.AddMinutes(1);
+            _session.Character.LastMove = time;
+            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
+            Assert.IsTrue((_session.Character.PositionY == 0) && (_session.Character.PositionX == 0) &&
+                (_session.Character.MapInstance.Map.MapId == 0));
+        }
+
+        [TestMethod]
+        public async Task UserCanTUsePortalIfRecentlyUsedAsync()
+        {
+            _session!.Character.PositionX = 0;
+            _session.Character.PositionY = 0;
+            var time = SystemTime.Now();
+            SystemTime.Freeze(time);
+            _session.Character.LastPortal = time;
+            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
+            Assert.IsTrue((_session.Character.PositionY == 0) && (_session.Character.PositionX == 0) &&
+                (_session.Character.MapInstance.Map.MapId == 0));
+        }
+
 
         [TestMethod]
         public async Task UserCanTUsePortalIfTooFarAsync()

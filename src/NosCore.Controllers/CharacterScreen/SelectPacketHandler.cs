@@ -35,6 +35,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.QuestProvider;
 using Serilog;
 
 namespace NosCore.PacketHandlers.CharacterScreen
@@ -133,7 +134,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToDictionary(x => x.Id, x =>
                     {
                         var charquest = x.Adapt<CharacterQuest>();
-                        charquest.Quest = _quests.First(s => s.QuestId == charquest.QuestId).Adapt<GameObject.Quest>();
+                        charquest.Quest = _quests.First(s => s.QuestId == charquest.QuestId).Adapt<GameObject.Providers.QuestProvider.Quest>();
                         charquest.Quest.QuestObjectives =
                             _questObjectives.Where(s => s.QuestId == charquest.QuestId).ToList();
                         return charquest;
