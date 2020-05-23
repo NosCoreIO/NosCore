@@ -19,12 +19,12 @@
 
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
-using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Helpers;
 
 namespace NosCore.Tests.PacketHandlerTests

@@ -25,7 +25,6 @@ using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
@@ -126,10 +125,10 @@ namespace NosCore.Tests.InventoryTests
             _session!.Character.SpPoint = 1;
             _session.Character.Reput = 5000000;
             var item = _session.Character.InventoryService!
-                .AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1), _session.Character.CharacterId))
+                .AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1), _session.Character.CharacterId))!
                 .First();
             var fairy = _session.Character.InventoryService
-                .AddItemToPocket(InventoryItemInstance.Create(_item!.Create(2, 1), _session.Character.CharacterId))
+                .AddItemToPocket(InventoryItemInstance.Create(_item!.Create(2, 1), _session.Character.CharacterId))!
                 .First();
 
             item.Type = NoscorePocketType.Wear;

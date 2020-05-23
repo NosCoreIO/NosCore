@@ -23,6 +23,7 @@ using System.ComponentModel.DataAnnotations;
 using NosCore.Packets.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Database.Entities.Base;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Database.Entities
 {
@@ -89,7 +90,7 @@ namespace NosCore.Database.Entities
 
         public short Compliment { get; set; }
 
-        public float Dignity { get; set; }
+        public short Dignity { get; set; }
 
         public int Elo { get; set; }
 

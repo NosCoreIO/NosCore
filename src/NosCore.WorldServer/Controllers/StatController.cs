@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
-using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -30,6 +29,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Configuration;
 using NosCore.GameObject.Networking;
 using Serilog;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.WorldServer.Controllers
 {

@@ -62,7 +62,7 @@ namespace NosCore.Data.Dto
 	 	#nullable enable
 		public string? VerificationToken { get; set; } = "";
 		#nullable disable
-	 	public NosCore.Packets.Enumerations.RegionType Language { get; set; }
+	 	public NosCore.Shared.Enumerations.RegionType Language { get; set; }
 
 	 	public long BankMoney { get; set; }
 

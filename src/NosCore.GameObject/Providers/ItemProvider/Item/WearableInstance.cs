@@ -27,7 +27,6 @@ using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
-using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.Shared.Helpers;
@@ -70,8 +69,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
                 case EquipmentType.MainWeapon:
                 case EquipmentType.SecondaryWeapon:
                 {
-                    var point = CharacterHelper.Instance.RarityPoint(Rare,
-                        Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
+                    var point = 0; //todo CharacterHelper.Instance.RarityPoint(Rare, Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
                     Concentrate = 0;
                     HitRate = 0;
                     DamageMinimum = 0;
@@ -106,8 +104,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
 
                 case EquipmentType.Armor:
                 {
-                    var point = CharacterHelper.Instance.RarityPoint(Rare,
-                        Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
+                    var point = 0; //todo CharacterHelper.Instance.RarityPoint(Rare, Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
                     DefenceDodge = 0;
                     DistanceDefenceDodge = 0;
                     DistanceDefence = 0;

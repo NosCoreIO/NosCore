@@ -35,6 +35,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Configuration;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Networking.LoginService
 {

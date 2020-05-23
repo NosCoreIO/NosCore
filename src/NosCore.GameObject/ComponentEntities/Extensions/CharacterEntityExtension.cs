@@ -34,6 +34,7 @@ using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -41,7 +42,10 @@ using NosCore.GameObject.Configuration;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
+using NosCore.Packets.ClientPackets.Player;
+using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.Quest;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -50,6 +54,52 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static GoldPacket GenerateGold(this ICharacterEntity characterEntity)
         {
             return new GoldPacket { Gold = characterEntity.Gold };
+        }
+
+        public static RsfiPacket GenerateRsfi(this ICharacterEntity characterEntity)
+        {
+            return new RsfiPacket
+            {
+                Act = 1,
+                ActPart = 1,
+                Unknown1 = 0,
+                Unknown2 = 9,
+                Ts = 0,
+                TsMax = 9
+            };
+        }
+
+        public static MlobjlstPacket GenerateMlobjlst(this ICharacterEntity characterEntity)
+        {
+            var mlobj = new List<MlobjlstSubPacket?>();
+            foreach (var item in characterEntity.InventoryService.Where(s => s.Value.Type == NoscorePocketType.Miniland)
+                .OrderBy(s => s.Value.Slot).Select(s => s.Value))
+            {
+                var used = characterEntity.MapInstance.MapDesignObjects.ContainsKey(item.Id);
+                var mp = used ? characterEntity.MapInstance.MapDesignObjects[item.Id] : null;
+
+                mlobj.Add(new MlobjlstSubPacket
+                {
+                    InUse = used,
+                    Slot = item.Slot,
+                    MlObjSubPacket = new MlobjSubPacket
+                    {
+                        MapX = used ? mp!.MapX : (short)0,
+                        MapY = used ? mp!.MapY : (short)0,
+                        Width = item.ItemInstance!.Item!.Width != 0 ? item.ItemInstance.Item.Width : (byte)1,
+                        Height = item.ItemInstance.Item.Height != 0 ? item.ItemInstance.Item.Height : (byte)1,
+                        DurabilityPoint = used ? item.ItemInstance.DurabilityPoint : 0,
+                        Unknown = 100,
+                        Unknown2 = false,
+                        IsWarehouse = item.ItemInstance.Item.IsWarehouse
+                    }
+                });
+            }
+
+            return new MlobjlstPacket
+            {
+                MlobjlstSubPacket = mlobj
+            };
         }
 
         public static ServerExcListPacket GenerateServerExcListPacket(this ICharacterEntity aliveEntity, long? gold,
@@ -235,13 +285,6 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        //in 9 {vnum} {id} {x} {y} {amount} {IsQuestRelative} 0 {owner}
-        //in 3 {Effect} {IsSitting} {GroupId} {SecondName} 0 -1 0 0 0 0 0 0 0 0
-        //in 2 {Effect} {IsSitting} {GroupId} {SecondName} 0 -1 0 0 0 0 0 0 0 0
-        //in 1 {IsSitting} {GroupId} {HaveFairy} {FairyElement} 0 {FairyMorph} 0 {Morph} {EqRare} {FamilyId} {SecondName} {Reput} {Invisible} {MorphUpgrade} {faction} {MorphUpgrade2} {Level} {FamilyLevel} {ArenaWinner} {Compliment} {Size} {HeroLevel}
-        //in 1 Carlosta - 754816 71 105 2 0 1 0 14 3 340.4855.4867.4864.4846.802.4150.4142 100 37 0 -1 4 3 0 0 0 7 86 86 2340 ~Luna~(Membre) -2 0 5 0 0 88 10 0 0 10 1
-
-        //Character in packet
         public static InPacket GenerateIn(this ICharacterEntity visualEntity, string prefix)
         {
             return new InPacket
@@ -278,8 +321,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     ArmorUpgradeRareSubPacket = visualEntity.ArmorUpgradeRareSubPacket,
                     FamilyId = -1,
                     FamilyName = null,
-                    ReputIco = (short)(visualEntity.DignityIcon == 1 ? visualEntity.ReputIcon
-                        : -visualEntity.DignityIcon),
+                    ReputIco = (byte)(visualEntity.DignityIcon == DignityType.Default ? (byte)visualEntity.ReputIcon
+                        : -(byte)visualEntity.DignityIcon),//TODO replace type by a byte
                     Invisible = false,
                     MorphUpgrade = 0,
                     Faction = 0,
@@ -288,10 +331,36 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     FamilyLevel = 0,
                     FamilyIcons = new List<bool> { false, false, false },
                     ArenaWinner = false,
-                    Compliment = (short)(visualEntity.Authority == AuthorityType.Moderator ? 500 : 0),
+                    Compliment = (short)(visualEntity.Authority == AuthorityType.Moderator ? 500 : visualEntity.Compliment),
                     Size = visualEntity.Size,
                     HeroLevel = visualEntity.HeroLevel
                 }
+            };
+        }
+
+        public static CInfoPacket GenerateCInfo(this ICharacterEntity visualEntity)
+        {
+            return new CInfoPacket
+            {
+                Name = visualEntity.Authority == AuthorityType.Moderator
+                    ? $"[{visualEntity.GetMessageFromKey(LanguageKey.SUPPORT)}]" + visualEntity.Name : visualEntity.Name,
+                Unknown1 = null,
+                GroupId = -1,
+                FamilyId = -1,
+                FamilyName = null,
+                CharacterId = visualEntity.VisualId,
+                Authority = (AuthorityUIType)(int)visualEntity.Authority,
+                Gender = visualEntity.Gender,
+                HairStyle = visualEntity.HairStyle,
+                HairColor = visualEntity.HairColor,
+                Class = visualEntity.Class,
+                Icon = (byte)(visualEntity.DignityIcon == DignityType.Default ? (byte)visualEntity.ReputIcon : -(byte)visualEntity.DignityIcon),
+                Compliment = (short)(visualEntity.Authority == AuthorityType.Moderator ? 500 : visualEntity.Compliment),
+                Morph = 0,
+                Invisible = false,
+                FamilyLevel = 0,
+                MorphUpgrade = 0,
+                ArenaWinner = false
             };
         }
     }

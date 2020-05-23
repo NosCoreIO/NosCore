@@ -22,6 +22,7 @@ using System.ComponentModel.DataAnnotations;
 using NosCore.Packets.Enumerations;
 using JetBrains.Annotations;
 using NosCore.Database.Entities.Base;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Database.Entities
 {

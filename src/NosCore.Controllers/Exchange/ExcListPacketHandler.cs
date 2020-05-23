@@ -23,7 +23,6 @@ using NosCore.Packets.ClientPackets.Exchanges;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.Core.I18N;
-using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
