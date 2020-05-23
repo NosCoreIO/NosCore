@@ -39,6 +39,11 @@ using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
 using DotNetty.Transport.Channels;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.HpService;
+using NosCore.Algorithm.JobExperienceService;
+using NosCore.Algorithm.MpService;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
@@ -82,13 +87,19 @@ namespace NosCore.GameObject
         private readonly IDao<TitleDto, Guid> _titleDao;
         private byte _speed;
         private readonly IDao<CharacterQuestDto, Guid> _characterQuestsDao;
+        private IHpService _hpService;
+        private IMpService _mpService;
+        private IExperienceService _experienceService;
+        private IJobExperienceService _jobExperienceService;
+        private IHeroExperienceService _heroExperienceService;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider,
             IDao<CharacterDto, long> characterDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<AccountDto, long> accountDao,
             ILogger logger, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quicklistEntriesDao, IDao<MinilandDto, Guid> minilandDao,
-            IMinilandProvider minilandProvider, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao)
+            IMinilandProvider minilandProvider, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
+            IHpService hpService, IMpService mpService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
         {
             InventoryService = inventory;
             ExchangeProvider = exchangeProvider;
@@ -108,6 +119,11 @@ namespace NosCore.GameObject
             _characterQuestsDao = characterQuestDao;
             _minilandDao = minilandDao;
             _minilandProvider = minilandProvider;
+            _hpService = hpService;
+            _mpService = mpService;
+            _experienceService = experienceService;
+            _jobExperienceService = jobExperienceService;
+            _heroExperienceService = heroExperienceService;
         }
 
         public new ScriptDto? Script { get; set; }
@@ -833,13 +849,13 @@ namespace NosCore.GameObject
                 LevelXp = LevelXp,
                 JobLevel = JobLevel,
                 JobLevelXp = JobLevelXp,
-                XpLoad = (int)CharacterHelper.Instance.XpLoad(Level),
-                JobXpLoad = (int)CharacterHelper.Instance.JobXpLoad(JobLevel, Class),
+                XpLoad = _experienceService.GetExperience(Level),
+                JobXpLoad = _jobExperienceService.GetJobExperience(Class, JobLevel),
                 Reputation = Reput,
                 SkillCp = 0,
                 HeroXp = HeroXp,
                 HeroLevel = HeroLevel,
-                HeroXpLoad = (int)CharacterHelper.Instance.HeroXpLoad(HeroLevel)
+                HeroXpLoad = _heroExperienceService.GetHeroExperience(HeroLevel)
             };
         }
 
