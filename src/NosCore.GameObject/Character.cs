@@ -413,56 +413,6 @@ namespace NosCore.GameObject
             }
         }
 
-        public InEquipmentSubPacket Equipment => new InEquipmentSubPacket
-        {
-            Armor = InventoryService.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear)?.ItemInstance?
-                .ItemVNum,
-            CostumeHat = InventoryService.LoadBySlotAndType((short)EquipmentType.CostumeHat, NoscorePocketType.Wear)
-                ?.ItemInstance?.ItemVNum,
-            CostumeSuit = InventoryService.LoadBySlotAndType((short)EquipmentType.CostumeSuit, NoscorePocketType.Wear)
-                ?.ItemInstance?.ItemVNum,
-            Fairy = InventoryService.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance?
-                .ItemVNum,
-            Hat = InventoryService.LoadBySlotAndType((short)EquipmentType.Hat, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
-            MainWeapon = InventoryService.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear)
-                ?.ItemInstance?.ItemVNum,
-            Mask = InventoryService.LoadBySlotAndType((short)EquipmentType.Mask, NoscorePocketType.Wear)?.ItemInstance?
-                .ItemVNum,
-            SecondaryWeapon = InventoryService
-                .LoadBySlotAndType((short)EquipmentType.SecondaryWeapon, NoscorePocketType.Wear)?.ItemInstance?
-                .ItemVNum,
-            WeaponSkin = InventoryService.LoadBySlotAndType((short)EquipmentType.WeaponSkin, NoscorePocketType.Wear)
-                ?.ItemInstance?.ItemVNum,
-            WingSkin = InventoryService.LoadBySlotAndType((short)EquipmentType.WingSkin, NoscorePocketType.Wear)
-                ?.ItemInstance?.ItemVNum
-        };
-
-        public UpgradeRareSubPacket WeaponUpgradeRareSubPacket
-        {
-            get
-            {
-                var weapon =
-                    InventoryService.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear);
-                return new UpgradeRareSubPacket
-                {
-                    Upgrade = weapon?.ItemInstance?.Upgrade ?? 0,
-                    Rare = (sbyte)(weapon?.ItemInstance?.Rare ?? 0)
-                };
-            }
-        }
-
-        public UpgradeRareSubPacket ArmorUpgradeRareSubPacket
-        {
-            get
-            {
-                var armor = InventoryService.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear);
-                return new UpgradeRareSubPacket
-                {
-                    Upgrade = armor?.ItemInstance?.Upgrade ?? 0,
-                    Rare = (sbyte)(armor?.ItemInstance?.Rare ?? 0)
-                };
-            }
-        }
 
         public List<StaticBonusDto> StaticBonusList { get; set; } = new List<StaticBonusDto>();
         public List<TitleDto> Titles { get; set; } = new List<TitleDto>();
@@ -492,9 +442,9 @@ namespace NosCore.GameObject
             Class = classType;
             Hp = MaxHp;
             Mp = MaxMp;
-            await SendPacketAsync(GenerateTit()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateTit()).ConfigureAwait(false);
             await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
-            await MapInstance.SendPacketAsync(GenerateEq()).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateEq()).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(this.GenerateEff(8)).ConfigureAwait(false);
             //TODO: Faction
             await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
@@ -559,7 +509,7 @@ namespace NosCore.GameObject
         public async Task SetReputationAsync(long reput)
         {
             Reput = reput;
-            await SendPacketAsync(GenerateFd()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateFd()).ConfigureAwait(false);
             await SendPacketAsync(this.GenerateSay(
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language),
                 SayColorType.Purple)).ConfigureAwait(false);
@@ -715,7 +665,7 @@ namespace NosCore.GameObject
                 else
                 {
                     Reput -= reputprice;
-                    await SendPacketAsync(GenerateFd()).ConfigureAwait(false);
+                    await SendPacketAsync(this.GenerateFd()).ConfigureAwait(false);
                     await SendPacketAsync(this.GenerateSay(
                         GameLanguage.Instance.GetMessageFromKey(LanguageKey.REPUT_DECREASED, Session.Account.Language),
                         SayColorType.Purple)).ConfigureAwait(false);
@@ -872,60 +822,6 @@ namespace NosCore.GameObject
             return pktQs;
         }
 
-        public FdPacket GenerateFd()
-        {
-            return new FdPacket
-            {
-                Reput = Reput,
-                Dignity = Dignity,
-                ReputIcon = (int)ReputIcon, //todo change packet type
-                DignityIcon = (int)DignityIcon //todo change packet type
-            };
-        }
-
-        public int IsReputHero()
-        {
-            //const int i = 0;
-            //foreach (CharacterDTO characterDto in Broadcaster.Instance.TopReputation)
-            //{
-            //    Character character = (Character)characterDto;
-            //    i++;
-            //    if (character.CharacterId != CharacterId)
-            //    {
-            //        continue;
-            //    }
-            //    switch (i)
-            //    {
-            //        case 1:
-            //            return 5;
-            //        case 2:
-            //            return 4;
-            //        case 3:
-            //            return 3;
-            //    }
-            //    if (i <= 13)
-            //    {
-            //        return 2;
-            //    }
-            //    if (i <= 43)
-            //    {
-            //        return 1;
-            //    }
-            //}
-            return 0;
-        }
-
-        public SpPacket GenerateSpPoint()
-        {
-            return new SpPacket
-            {
-                AdditionalPoint = SpAdditionPoint,
-                MaxAdditionalPoint = Session.WorldConfiguration.MaxAdditionalSpPoints,
-                SpPoint = SpPoint,
-                MaxSpPoint = Session.WorldConfiguration.MaxSpPoints
-            };
-        }
-
         [Obsolete(
             "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
         public IEnumerable<IPacket> GenerateInv()
@@ -1039,6 +935,35 @@ namespace NosCore.GameObject
 
             return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7 };
         }
+        public SpPacket GenerateSpPoint()
+        {
+            return new SpPacket
+            {
+                AdditionalPoint = SpAdditionPoint,
+                MaxAdditionalPoint = Session.WorldConfiguration.MaxAdditionalSpPoints,
+                SpPoint = SpPoint,
+                MaxSpPoint = Session.WorldConfiguration.MaxSpPoints
+            };
+        }
+
+        public StatPacket GenerateStat()
+        {
+            return new StatPacket
+            {
+                Hp = Hp,
+                HpMaximum = HpLoad(),
+                Mp = Mp,
+                MpMaximum = MpLoad(),
+                Unknown = 0,
+                Option = 0
+            };
+        }
+        public Task AddSpPointsAsync(int spPointToAdd)
+        {
+            SpPoint = SpPoint + spPointToAdd > Session.WorldConfiguration.MaxSpPoints
+                ? Session.WorldConfiguration.MaxSpPoints : SpPoint + spPointToAdd;
+            return SendPacketAsync(this.GenerateSpPoint());
+        }
 
         public void LoadSpeed()
         {
@@ -1060,61 +985,6 @@ namespace NosCore.GameObject
             return (int)((_hpService.GetHp(Class, Level) + hp) * multiplicator);
         }
 
-        public AtPacket GenerateAt()
-        {
-            return new AtPacket
-            {
-                CharacterId = CharacterId,
-                MapId = MapInstance.Map.MapId,
-                PositionX = PositionX,
-                PositionY = PositionY,
-                Direction = Direction,
-                Unknown1 = 0,
-                Music = MapInstance.Map.Music,
-                Unknown2 = 0,
-                Unknown3 = -1
-            };
-        }
-
-        public TitPacket GenerateTit()
-        {
-            return new TitPacket
-            {
-                ClassType = Session.GetMessageFromKey((LanguageKey)Enum.Parse(typeof(LanguageKey),
-                    Enum.Parse(typeof(CharacterClassType), Class.ToString()).ToString()!.ToUpperInvariant())),
-                Name = Name
-            };
-        }
-
-        public StatPacket GenerateStat()
-        {
-            return new StatPacket
-            {
-                Hp = Hp,
-                HpMaximum = HpLoad(),
-                Mp = Mp,
-                MpMaximum = MpLoad(),
-                Unknown = 0,
-                Option = 0
-            };
-        }
-
-        public TalkPacket GenerateTalk(string message)
-        {
-            return new TalkPacket
-            {
-                CharacterId = CharacterId,
-                Message = message
-            };
-        }
-
-        public Task AddSpPointsAsync(int spPointToAdd)
-        {
-            SpPoint = SpPoint + spPointToAdd > Session.WorldConfiguration.MaxSpPoints
-                ? Session.WorldConfiguration.MaxSpPoints : SpPoint + spPointToAdd;
-            return SendPacketAsync(GenerateSpPoint());
-        }
-
         public Task AddAdditionalSpPointsAsync(int spPointToAdd)
         {
             SpAdditionPoint = SpAdditionPoint + spPointToAdd > Session.WorldConfiguration.MaxAdditionalSpPoints
@@ -1122,66 +992,6 @@ namespace NosCore.GameObject
             return SendPacketAsync(GenerateSpPoint());
         }
 
-        public EquipPacket? GenerateEquipment()
-        {
-            EquipmentSubPacket? GenerateEquipmentSubPacket(EquipmentType eqType)
-            {
-                var eq = InventoryService.LoadBySlotAndType((short)eqType, NoscorePocketType.Wear);
-                if (eq == null)
-                {
-                    return null;
-                }
-
-                return new EquipmentSubPacket
-                {
-                    EquipmentType = eqType,
-                    VNum = eq.ItemInstance!.ItemVNum,
-                    Rare = eq.ItemInstance.Rare,
-                    Upgrade = (eq.ItemInstance!.Item!.IsColored ? eq.ItemInstance?.Design
-                        : eq.ItemInstance.Upgrade) ?? 0,
-                    Unknown = 0
-                };
-            }
-
-            return new EquipPacket
-            {
-                WeaponUpgradeRareSubPacket = WeaponUpgradeRareSubPacket,
-                ArmorUpgradeRareSubPacket = ArmorUpgradeRareSubPacket,
-                Armor = GenerateEquipmentSubPacket(EquipmentType.Armor),
-                WeaponSkin = GenerateEquipmentSubPacket(EquipmentType.WeaponSkin),
-                SecondaryWeapon = GenerateEquipmentSubPacket(EquipmentType.SecondaryWeapon),
-                Sp = GenerateEquipmentSubPacket(EquipmentType.Sp),
-                Amulet = GenerateEquipmentSubPacket(EquipmentType.Amulet),
-                Boots = GenerateEquipmentSubPacket(EquipmentType.Boots),
-                CostumeHat = GenerateEquipmentSubPacket(EquipmentType.CostumeHat),
-                CostumeSuit = GenerateEquipmentSubPacket(EquipmentType.CostumeSuit),
-                Fairy = GenerateEquipmentSubPacket(EquipmentType.Fairy),
-                Gloves = GenerateEquipmentSubPacket(EquipmentType.Gloves),
-                Hat = GenerateEquipmentSubPacket(EquipmentType.Hat),
-                MainWeapon = GenerateEquipmentSubPacket(EquipmentType.MainWeapon),
-                Mask = GenerateEquipmentSubPacket(EquipmentType.Mask),
-                Necklace = GenerateEquipmentSubPacket(EquipmentType.Necklace),
-                Ring = GenerateEquipmentSubPacket(EquipmentType.Ring),
-                Bracelet = GenerateEquipmentSubPacket(EquipmentType.Bracelet),
-                WingSkin = GenerateEquipmentSubPacket(EquipmentType.WingSkin)
-            };
-        }
-
-        public EqPacket GenerateEq()
-        {
-            return new EqPacket
-            {
-                VisualId = VisualId,
-                Visibility = (byte)(Authority < AuthorityType.GameMaster ? 0 : 2),
-                Gender = Gender,
-                HairStyle = HairStyle,
-                Haircolor = HairColor,
-                ClassType = Class,
-                EqSubPacket = Equipment,
-                WeaponUpgradeRarePacket = WeaponUpgradeRareSubPacket,
-                ArmorUpgradeRarePacket = ArmorUpgradeRareSubPacket
-            };
-        }
 
         public async Task RemoveSpAsync()
         {
@@ -1204,7 +1014,7 @@ namespace NosCore.GameObject
                 Value = 1,
                 EntityId = CharacterId
             }).ConfigureAwait(false);
-            await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateStat()).ConfigureAwait(false);
 
             async Task CoolDown()
             {
