@@ -1,13 +1,17 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Core.Configuration
 {
     public static class Configurator
     {
+        private const string ConfigurationPath = "../../../configuration";
+
         private static IConfiguration ReplaceEnvironment(IConfiguration configuration, object strongTypedConfiguration)
         {
             var ses = configuration.GetChildren().ToList();
@@ -35,7 +39,8 @@ namespace NosCore.Core.Configuration
 
             return configuration;
         }
-        public static void Configure(IConfiguration configuration, object strongTypedConfiguration)
+
+        private static void Configure(IConfiguration configuration, object strongTypedConfiguration)
         {
             if (configuration != null)
             {
@@ -43,6 +48,21 @@ namespace NosCore.Core.Configuration
             }
 
             Validator.ValidateObject(strongTypedConfiguration, new ValidationContext(strongTypedConfiguration), true);
+        }
+
+        public static void InitializeConfiguration(string[] args, string[] fileNames, object strongTypedConfiguration)
+        {
+            var conf = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
+            foreach (var fileName in fileNames ?? Array.Empty<string>())
+            {
+                conf.AddYamlFile(fileName, false);
+            }
+            var confBuild = conf.Build();;
+            Logger.Initialize(confBuild);
+            Configure(confBuild, strongTypedConfiguration);
+            Validator.ValidateObject(strongTypedConfiguration, new ValidationContext(strongTypedConfiguration),
+                true);
         }
     }
 }

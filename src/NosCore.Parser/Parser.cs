@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -28,7 +27,6 @@ using Autofac;
 using AutofacSerilogIntegration;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Dao;
@@ -48,25 +46,10 @@ namespace NosCore.Parser
 {
     public static class Parser
     {
-        private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - Parser";
         private const string ConsoleText = "PARSER - NosCoreIO";
         private static readonly ParserConfiguration ParserConfiguration = new ParserConfiguration();
         private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-
-        private static void InitializeConfiguration()
-        {
-            var conf = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("parser.yml", false)
-                .Build();
-
-            Configurator.Configure(conf, ParserConfiguration);
-            Validator.ValidateObject(ParserConfiguration, new ValidationContext(ParserConfiguration),
-                true);
-            LogLanguage.Language = ParserConfiguration.Language;
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
-        }
 
         public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
         where TDb : class where TPk : struct
@@ -84,15 +67,13 @@ namespace NosCore.Parser
         public static async Task Main(string[] args)
         {
             try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
-            Logger.Initialize(new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("logger.yml", false)
-                .Build());
+            Configurator.InitializeConfiguration(args, new[] { "logger.yml", "parser.yml" }, ParserConfiguration);
             Logger.PrintHeader(ConsoleText);
-            InitializeConfiguration();
+            LogLanguage.Language = ParserConfiguration.Language;
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
             TypeAdapterConfig.GlobalSettings.Default
-                .IgnoreMember((member, side) => side == MemberSide.Destination && member.Type.GetInterfaces().Contains(typeof(IEntity)) 
+                .IgnoreMember((member, side) => side == MemberSide.Destination && member.Type.GetInterfaces().Contains(typeof(IEntity))
                     || (member.Type.GetGenericArguments().Any() && member.Type.GetGenericArguments()[0].GetInterfaces().Contains(typeof(IEntity))));
             try
             {
