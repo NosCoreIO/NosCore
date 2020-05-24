@@ -42,10 +42,16 @@ using NosCore.GameObject.Configuration;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Packets.ClientPackets.Player;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Miniland;
+using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Quest;
+using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Shared.Enumerations;
+using System;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -303,7 +309,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     HairStyle = visualEntity.HairStyle,
                     HairColor = visualEntity.HairColor,
                     Class = visualEntity.Class,
-                    Equipment = visualEntity.Equipment,
+                    Equipment = visualEntity.GetEquipmentSubPacket(),
                     InAliveSubPacket = new InAliveSubPacket
                     {
                         Hp = (int)(visualEntity.Hp / (float)visualEntity.MaxHp * 100),
@@ -317,8 +323,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Morph = 0,
                     Unknown2 = 0,
                     Unknown3 = 0,
-                    WeaponUpgradeRareSubPacket = visualEntity.WeaponUpgradeRareSubPacket,
-                    ArmorUpgradeRareSubPacket = visualEntity.ArmorUpgradeRareSubPacket,
+                    WeaponUpgradeRareSubPacket = visualEntity.GetWeaponUpgradeRareSubPacket(),
+                    ArmorUpgradeRareSubPacket = visualEntity.GetArmorUpgradeRareSubPacket(),
                     FamilyId = -1,
                     FamilyName = null,
                     ReputIco = (byte)(visualEntity.DignityIcon == DignityType.Default ? (byte)visualEntity.ReputIcon
@@ -337,6 +343,161 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 }
             };
         }
+
+
+        public static InEquipmentSubPacket GetEquipmentSubPacket(this ICharacterEntity visualEntity) => new InEquipmentSubPacket
+        {
+            Armor = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear)?.ItemInstance?
+                .ItemVNum,
+            CostumeHat = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.CostumeHat, NoscorePocketType.Wear)
+                ?.ItemInstance?.ItemVNum,
+            CostumeSuit = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.CostumeSuit, NoscorePocketType.Wear)
+                ?.ItemInstance?.ItemVNum,
+            Fairy = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance?
+                .ItemVNum,
+            Hat = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.Hat, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
+            MainWeapon = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear)
+                ?.ItemInstance?.ItemVNum,
+            Mask = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.Mask, NoscorePocketType.Wear)?.ItemInstance?
+                .ItemVNum,
+            SecondaryWeapon = visualEntity.InventoryService
+                .LoadBySlotAndType((short)EquipmentType.SecondaryWeapon, NoscorePocketType.Wear)?.ItemInstance?
+                .ItemVNum,
+            WeaponSkin = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.WeaponSkin, NoscorePocketType.Wear)
+                ?.ItemInstance?.ItemVNum,
+            WingSkin = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.WingSkin, NoscorePocketType.Wear)
+                ?.ItemInstance?.ItemVNum
+        };
+
+        public static UpgradeRareSubPacket GetWeaponUpgradeRareSubPacket(this ICharacterEntity visualEntity)
+        {
+            var weapon =
+                visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear);
+            return new UpgradeRareSubPacket
+            {
+                Upgrade = weapon?.ItemInstance?.Upgrade ?? 0,
+                Rare = (sbyte)(weapon?.ItemInstance?.Rare ?? 0)
+            };
+        }
+
+        public static UpgradeRareSubPacket GetArmorUpgradeRareSubPacket(this ICharacterEntity visualEntity)
+        {
+            var armor = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear);
+            return new UpgradeRareSubPacket
+            {
+                Upgrade = armor?.ItemInstance?.Upgrade ?? 0,
+                Rare = (sbyte)(armor?.ItemInstance?.Rare ?? 0)
+            };
+
+        }
+        public static FdPacket GenerateFd(this ICharacterEntity visualEntity)
+        {
+            return new FdPacket
+            {
+                Reput = visualEntity.Reput,
+                Dignity = visualEntity.Dignity,
+                ReputIcon = (int)visualEntity.ReputIcon, //todo change packet type
+                DignityIcon = (int)visualEntity.DignityIcon //todo change packet type
+            };
+        }
+
+        public static AtPacket GenerateAt(this ICharacterEntity visualEntity)
+        {
+            return new AtPacket
+            {
+                CharacterId = visualEntity.VisualId,
+                MapId = visualEntity.MapInstance.Map.MapId,
+                PositionX = visualEntity.PositionX,
+                PositionY = visualEntity.PositionY,
+                Direction = visualEntity.Direction,
+                Unknown1 = 0,
+                Music = visualEntity.MapInstance.Map.Music,
+                Unknown2 = 0,
+                Unknown3 = -1
+            };
+        }
+
+        public static TitPacket GenerateTit(this ICharacterEntity visualEntity)
+        {
+            return new TitPacket
+            {
+                ClassType = visualEntity.GetMessageFromKey((LanguageKey)Enum.Parse(typeof(LanguageKey),
+                    Enum.Parse(typeof(CharacterClassType), visualEntity.Class.ToString()).ToString()!.ToUpperInvariant())),
+                Name = visualEntity.Name
+            };
+        }
+
+        public static TalkPacket GenerateTalk(this ICharacterEntity visualEntity, string message)
+        {
+            return new TalkPacket
+            {
+                CharacterId = visualEntity.VisualId,
+                Message = message
+            };
+        }
+
+
+        public static EquipPacket? GenerateEquipment(this ICharacterEntity visualEntity)
+        {
+            EquipmentSubPacket? GenerateEquipmentSubPacket(EquipmentType eqType)
+            {
+                var eq = visualEntity.InventoryService.LoadBySlotAndType((short)eqType, NoscorePocketType.Wear);
+                if (eq == null)
+                {
+                    return null;
+                }
+
+                return new EquipmentSubPacket
+                {
+                    EquipmentType = eqType,
+                    VNum = eq.ItemInstance!.ItemVNum,
+                    Rare = eq.ItemInstance.Rare,
+                    Upgrade = (eq.ItemInstance!.Item!.IsColored ? eq.ItemInstance?.Design
+                        : eq.ItemInstance.Upgrade) ?? 0,
+                    Unknown = 0
+                };
+            }
+
+            return new EquipPacket
+            {
+                WeaponUpgradeRareSubPacket = visualEntity.GetWeaponUpgradeRareSubPacket(),
+                ArmorUpgradeRareSubPacket = visualEntity.GetArmorUpgradeRareSubPacket(),
+                Armor = GenerateEquipmentSubPacket(EquipmentType.Armor),
+                WeaponSkin = GenerateEquipmentSubPacket(EquipmentType.WeaponSkin),
+                SecondaryWeapon = GenerateEquipmentSubPacket(EquipmentType.SecondaryWeapon),
+                Sp = GenerateEquipmentSubPacket(EquipmentType.Sp),
+                Amulet = GenerateEquipmentSubPacket(EquipmentType.Amulet),
+                Boots = GenerateEquipmentSubPacket(EquipmentType.Boots),
+                CostumeHat = GenerateEquipmentSubPacket(EquipmentType.CostumeHat),
+                CostumeSuit = GenerateEquipmentSubPacket(EquipmentType.CostumeSuit),
+                Fairy = GenerateEquipmentSubPacket(EquipmentType.Fairy),
+                Gloves = GenerateEquipmentSubPacket(EquipmentType.Gloves),
+                Hat = GenerateEquipmentSubPacket(EquipmentType.Hat),
+                MainWeapon = GenerateEquipmentSubPacket(EquipmentType.MainWeapon),
+                Mask = GenerateEquipmentSubPacket(EquipmentType.Mask),
+                Necklace = GenerateEquipmentSubPacket(EquipmentType.Necklace),
+                Ring = GenerateEquipmentSubPacket(EquipmentType.Ring),
+                Bracelet = GenerateEquipmentSubPacket(EquipmentType.Bracelet),
+                WingSkin = GenerateEquipmentSubPacket(EquipmentType.WingSkin)
+            };
+        }
+
+        public static EqPacket GenerateEq(this ICharacterEntity visualEntity)
+        {
+            return new EqPacket
+            {
+                VisualId = visualEntity.VisualId,
+                Visibility = (byte)(visualEntity.Authority < AuthorityType.GameMaster ? 0 : 2),
+                Gender = visualEntity.Gender,
+                HairStyle = visualEntity.HairStyle,
+                Haircolor = visualEntity.HairColor,
+                ClassType = visualEntity.Class,
+                EqSubPacket = visualEntity.GetEquipmentSubPacket(),
+                WeaponUpgradeRarePacket = visualEntity.GetWeaponUpgradeRareSubPacket(),
+                ArmorUpgradeRarePacket = visualEntity.GetArmorUpgradeRareSubPacket()
+            };
+        }
+
 
         public static CInfoPacket GenerateCInfo(this ICharacterEntity visualEntity)
         {

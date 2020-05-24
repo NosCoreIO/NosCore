@@ -28,6 +28,7 @@ using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Shared.Enumerations;
 
@@ -88,6 +89,7 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
             short? vnum, short? amount, sbyte? rare,
             byte? upgrade, bool isNosmall, string? title, string? text)
         {
+            var equipment = isNosmall ? null : characterEntity.GetEquipmentSubPacket();
             var mail = new MailDto
             {
                 IsOpened = false,
@@ -97,25 +99,25 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
                 ItemInstanceId = itemInstance?.Id,
                 Title = isNosmall ? "NOSMALL" : title ?? characterEntity.Name,
                 Message = text,
-                SenderId = isNosmall ? (long?) null : characterEntity.VisualId,
-                SenderCharacterClass = isNosmall ? (CharacterClassType?) null : characterEntity.Class,
-                SenderGender = isNosmall ? (GenderType?) null : characterEntity.Gender,
-                SenderHairColor = isNosmall ? (HairColorType?) null : characterEntity.HairColor,
-                SenderHairStyle = isNosmall ? (HairStyleType?) null : characterEntity.HairStyle,
-                Hat = isNosmall ? null : characterEntity.Equipment.Hat,
-                Armor = isNosmall ? null : characterEntity.Equipment.Armor,
-                MainWeapon = isNosmall ? null : characterEntity.Equipment.MainWeapon,
-                SecondaryWeapon = isNosmall ? null : characterEntity.Equipment.SecondaryWeapon,
-                Mask = isNosmall ? null : characterEntity.Equipment.Mask,
-                Fairy = isNosmall ? null : characterEntity.Equipment.Fairy,
-                CostumeSuit = isNosmall ? null : characterEntity.Equipment.CostumeSuit,
-                CostumeHat = isNosmall ? null : characterEntity.Equipment.CostumeHat,
-                WeaponSkin = isNosmall ? null : characterEntity.Equipment.WeaponSkin,
-                WingSkin = isNosmall ? null : characterEntity.Equipment.WingSkin,
-                SenderMorphId = isNosmall ? (short?) null : characterEntity.Morph == 0 ? (short) -1
+                SenderId = isNosmall ? (long?)null : characterEntity.VisualId,
+                SenderCharacterClass = isNosmall ? (CharacterClassType?)null : characterEntity.Class,
+                SenderGender = isNosmall ? (GenderType?)null : characterEntity.Gender,
+                SenderHairColor = isNosmall ? (HairColorType?)null : characterEntity.HairColor,
+                SenderHairStyle = isNosmall ? (HairStyleType?)null : characterEntity.HairStyle,
+                Hat = equipment?.Hat,
+                Armor = equipment?.Armor,
+                MainWeapon = equipment?.MainWeapon,
+                SecondaryWeapon = equipment?.SecondaryWeapon,
+                Mask = equipment?.Mask,
+                Fairy = equipment?.Fairy,
+                CostumeSuit = equipment?.CostumeSuit,
+                CostumeHat = equipment?.CostumeHat,
+                WeaponSkin = equipment?.WeaponSkin,
+                WingSkin = equipment?.WingSkin,
+                SenderMorphId = isNosmall ? (short?)null : characterEntity.Morph == 0 ? (short)-1
                     : characterEntity.Morph
             };
-            return new MailRequest {Mail = mail, VNum = vnum, Amount = amount, Rare = rare, Upgrade = upgrade};
+            return new MailRequest { Mail = mail, VNum = vnum, Amount = amount, Rare = rare, Upgrade = upgrade };
         }
     }
 }
