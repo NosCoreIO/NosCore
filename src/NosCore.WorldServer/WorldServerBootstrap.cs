@@ -18,14 +18,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.Configuration;
 using Serilog;
 using ILogger = Serilog.ILogger;
 using NosCore.Shared.I18N;
@@ -34,42 +35,32 @@ namespace NosCore.WorldServer
 {
     public static class WorldServerBootstrap
     {
-        private const string ConsoleText = "WORLD SERVER - NosCoreIO";
-        private const string ConfigurationPath = "../../../configuration";
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
 
-        public static async Task Main()
+        public static async Task Main(string[] args)
         {
             try
             {
-                await BuildWebHost(new string[0]).RunAsync().ConfigureAwait(false);
+                await BuildWebHost(args).RunAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
+                Logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
             }
         }
 
         private static IWebHost BuildWebHost(string[] args)
         {
-            Logger.Initialize(new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("logger.yml", false)
-                .Build());
-            Logger.PrintHeader(ConsoleText);
-            var conf = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("world.yml", false)
-                .Build();
-            var webapi = conf.GetSection("WebApi");
+            var conf = new WorldConfiguration();
+            Configurator.InitializeConfiguration(args, new[] { "logger.yml", "world.yml" }, conf);
             return WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
                     logging.AddSerilog();
                 })
-                .UseConfiguration(conf)
-                .UseUrls($"{webapi.GetValue<string>("Host")}:{webapi.GetValue<string>("Port")}")
+                .ConfigureServices((hostContext, services) => services.AddSingleton(conf))
+                .UseUrls(conf.WebApi!.ToString())
                 .UseStartup<Startup>()
                 .PreferHostingUrls(true)
                 .SuppressStatusMessages(true)
