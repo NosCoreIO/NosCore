@@ -29,6 +29,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;

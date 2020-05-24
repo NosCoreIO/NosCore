@@ -53,8 +53,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         CharacterClassType Class { get; }
 
-        InEquipmentSubPacket Equipment { get; }
-
         ReputationType ReputIcon { get; }
 
         DignityType DignityIcon { get; }
@@ -68,9 +66,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         bool GroupRequestBlocked { get; }
 
         ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
-        UpgradeRareSubPacket WeaponUpgradeRareSubPacket { get; }
-
-        UpgradeRareSubPacket ArmorUpgradeRareSubPacket { get; }
 
         long Gold { get; }
 
@@ -89,6 +84,8 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         Guid? CurrentScriptId { get; set; }
         ConcurrentDictionary<Guid, CharacterQuest> Quests { get; set; }
         short Compliment { get; }
+        long Reput { get; set; }
+        short Dignity { get; set; }
 
         Task GenerateMailAsync(IEnumerable<MailData> data);
 
