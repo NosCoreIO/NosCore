@@ -52,8 +52,14 @@ namespace NosCore.Core.Configuration
 
         public static void InitializeConfiguration(string[] args, string[] fileNames, object strongTypedConfiguration)
         {
+            var pathIndex = Array.IndexOf(args!, "--config");
+            string? path = null;
+            if (pathIndex > -1 && args?.Length > pathIndex + 1)
+            {
+                path = Path.IsPathRooted(args![pathIndex + 1]) ? args[pathIndex + 1] : Directory.GetCurrentDirectory() + args[pathIndex + 1];
+            }
             var conf = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath);
+                .SetBasePath(path ?? Directory.GetCurrentDirectory() + ConfigurationPath);
             foreach (var fileName in fileNames ?? Array.Empty<string>())
             {
                 conf.AddYamlFile(fileName, false);

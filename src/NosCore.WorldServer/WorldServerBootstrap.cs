@@ -37,11 +37,11 @@ namespace NosCore.WorldServer
     {
         private static readonly ILogger Logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
 
-        public static async Task Main()
+        public static async Task Main(string[] args)
         {
             try
             {
-                await BuildWebHost(new string[0]).RunAsync().ConfigureAwait(false);
+                await BuildWebHost(args).RunAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
