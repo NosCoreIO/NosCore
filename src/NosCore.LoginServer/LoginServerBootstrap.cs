@@ -139,11 +139,11 @@ namespace NosCore.LoginServer
                 .SingleInstance();
         }
 
-        public static async Task Main()
+        public static async Task Main(string[] args)
         {
             try
             {
-                await BuildHost(new string[0]).RunAsync().ConfigureAwait(false);
+                await BuildHost(args).RunAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
