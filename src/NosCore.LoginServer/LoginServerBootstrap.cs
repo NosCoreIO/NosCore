@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
@@ -32,7 +31,6 @@ using DotNetty.Codecs;
 using FastExpressionCompiler;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -64,33 +62,28 @@ using ILogger = Serilog.ILogger;
 using NosCore.Dao;
 using NosCore.GameObject.Configuration;
 using NosCore.Shared.Configuration;
-using NosCore.Shared.I18N;
 
 namespace NosCore.LoginServer
 {
     public static class LoginServerBootstrap
     {
-        private const string ConfigurationPath = "../../../configuration";
         private const string Title = "NosCore - LoginServer";
         private const string ConsoleText = "LOGIN SERVER - NosCoreIO";
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
+        private static readonly ILogger Logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
 
-        private static readonly LoginConfiguration _loginConfiguration = new LoginConfiguration();
+        private static LoginConfiguration _loginConfiguration = null!;
         private static DataAccessHelper _dataAccess = null!;
 
-        private static void InitializeConfiguration()
+        private static void InitializeConfiguration(string[] args)
         {
-            var conf = new ConfigurationBuilder()
-                 .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                 .AddYamlFile("login.yml", false)
-                 .Build();
-
-            Configurator.Configure(conf, _loginConfiguration);
+            var conf = new LoginConfiguration();
+            Configurator.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" }, conf);
+            _loginConfiguration = conf;
+            Shared.I18N.Logger.PrintHeader(ConsoleText);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(_loginConfiguration.Database!.ConnectionString);
             _dataAccess = new DataAccessHelper();
-            _dataAccess.Initialize(optionsBuilder.Options, _logger);
-
+            _dataAccess.Initialize(optionsBuilder.Options, Logger);
             LogLanguage.Language = _loginConfiguration.Language;
         }
 
@@ -146,19 +139,19 @@ namespace NosCore.LoginServer
                 .SingleInstance();
         }
 
-        public static async Task Main()
+        public static async Task Main(string[] args)
         {
             try
             {
-                await BuildHost(new string[0]).RunAsync().ConfigureAwait(false);
+                await BuildHost(args).RunAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
+                Logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
             }
         }
 
-        private static IHost BuildHost(string[] _)
+        private static IHost BuildHost(string[] args)
         {
             return new HostBuilder()
                 .ConfigureLogging(logging =>
@@ -171,12 +164,7 @@ namespace NosCore.LoginServer
                 .ConfigureServices((hostContext, services) =>
                 {
                     try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
-                    Logger.Initialize(new ConfigurationBuilder()
-                        .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                        .AddYamlFile("logger.yml", false)
-                        .Build());
-                    Logger.PrintHeader(ConsoleText);
-                    InitializeConfiguration();
+                    InitializeConfiguration(args);
 
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
                     services.AddHttpClient();

@@ -22,7 +22,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.ServerPackets.Quest;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.Providers.QuestProvider
 {
     public class CharacterQuest : CharacterQuestDto
     {

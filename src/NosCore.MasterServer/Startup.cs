@@ -34,7 +34,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
@@ -72,12 +71,13 @@ namespace NosCore.MasterServer
     public class Startup
     {
         private const string Title = "NosCore - MasterServer";
-        private static readonly MasterConfiguration _configuration = new MasterConfiguration();
+        private const string ConsoleText = "MASTER SERVER - NosCoreIO";
+        private readonly MasterConfiguration _configuration;
         private static DataAccessHelper _dataAccess = null!;
 
-        public Startup(IConfiguration configuration)
+        public Startup(MasterConfiguration configuration)
         {
-            Configurator.Configure(configuration, _configuration);
+            _configuration = configuration;
         }
 
         private static void RegisterDto(ContainerBuilder containerBuilder)
@@ -182,6 +182,7 @@ namespace NosCore.MasterServer
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
+            Logger.PrintHeader(ConsoleText);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
                 .UseNpgsql(_configuration.Database!.ConnectionString);
             _dataAccess = new DataAccessHelper();
@@ -235,7 +236,6 @@ namespace NosCore.MasterServer
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
 
             var containerBuilder = InitializeContainer(services);
-            containerBuilder.RegisterInstance(_configuration).As<MasterConfiguration>();
             containerBuilder.RegisterInstance(_configuration.WebApi).As<WebApiConfiguration>();
             var container = containerBuilder.Build();
             Task.Run(container.Resolve<MasterServer>().Run).Forget();

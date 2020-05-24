@@ -28,16 +28,10 @@ namespace NosCore.Database
 {
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<NosCoreContext>
     {
-        private const string ConfigurationPath = "../../../configuration";
-
         public NosCoreContext CreateDbContext(string[] args)
         {
             var databaseConfiguration = new SqlConnectionConfiguration();
-            var conf = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("database.yml", false)
-                .Build();
-            Configurator.Configure(conf, databaseConfiguration);
+            Configurator.InitializeConfiguration(args, new[] { "database.yml" }, databaseConfiguration);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(databaseConfiguration.ConnectionString);
             return new NosCoreContext(optionsBuilder.Options);

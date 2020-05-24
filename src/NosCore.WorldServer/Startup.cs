@@ -43,7 +43,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
@@ -102,13 +101,13 @@ namespace NosCore.WorldServer
     public class Startup
     {
         private const string Title = "NosCore - WorldServer";
-
-        private static readonly WorldConfiguration _worldConfiguration = new WorldConfiguration();
+        private const string ConsoleText = "WORLD SERVER - NosCoreIO";
+        private readonly WorldConfiguration _worldConfiguration;
         private static DataAccessHelper _dataAccess = null!;
 
-        public Startup(IConfiguration configuration)
+        public Startup(WorldConfiguration configuration)
         {
-            Configurator.Configure(configuration, _worldConfiguration);
+            _worldConfiguration = configuration;
         }
 
         public static void RegisterMapper<TGameObject, TDto>(IContainer container) where TGameObject : notnull
@@ -274,7 +273,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<Dao<ItemInstance, IItemInstanceDto?, Guid>>().As<IDao<IItemInstanceDto?, Guid>>().SingleInstance();
         }
 
-        private static void InitializeContainer(ContainerBuilder containerBuilder)
+        private void InitializeContainer(ContainerBuilder containerBuilder)
         {
             containerBuilder.Register<IDbContextBuilder>(c => _dataAccess).AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces().PropertiesAutowired();
@@ -291,7 +290,7 @@ namespace NosCore.WorldServer
                 .SingleInstance();
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterInstance(_worldConfiguration!).As<WorldConfiguration>().As<ServerConfiguration>();
+            containerBuilder.RegisterInstance(_worldConfiguration!).As<ServerConfiguration>();
             containerBuilder.RegisterInstance(_worldConfiguration!.MasterCommunication!).As<WebApiConfiguration>();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
@@ -411,6 +410,7 @@ namespace NosCore.WorldServer
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
+            Logger.PrintHeader(ConsoleText);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
                 .UseNpgsql(_worldConfiguration.Database!.ConnectionString);
             _dataAccess = new DataAccessHelper();

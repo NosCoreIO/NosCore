@@ -18,24 +18,21 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.IO;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
 using ILogger = Serilog.ILogger;
-using NosCore.Shared.I18N;
 
 namespace NosCore.MasterServer
 {
     public static class MasterServerBootstrap
     {
-        private static readonly ILogger _logger = Logger.GetLoggerConfiguration().CreateLogger();
-        private const string ConsoleText = "MASTER SERVER - NosCoreIO";
-        private const string ConfigurationPath = "../../../configuration";
+        private static readonly ILogger Logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
 
         public static void Main()
         {
@@ -45,30 +42,22 @@ namespace NosCore.MasterServer
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
+                Logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
             }
         }
 
         private static IWebHost BuildWebHost(string[] args)
         {
-            NosCore.Shared.I18N.Logger.Initialize(new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("logger.yml", false)
-                .Build());
-            Logger.PrintHeader(ConsoleText);
-            var conf = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory() + ConfigurationPath)
-                .AddYamlFile("master.yml", false)
-                .Build();
-            var webapi = conf.GetSection("WebApi");
+            var conf = new MasterConfiguration();
+            Configurator.InitializeConfiguration(args, new[] { "logger.yml", "master.yml" }, conf);
             return WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
                     logging.AddSerilog();
                 })
-                .UseConfiguration(conf)
-                .UseUrls($"{webapi.GetValue<string>("Host")}:{webapi.GetValue<string>("Port")}")
+                .ConfigureServices((hostContext, services) => services.AddSingleton(conf))
+                .UseUrls(conf.WebApi!.ToString())
                 .UseStartup<Startup>()
                 .PreferHostingUrls(true)
                 .SuppressStatusMessages(true)
