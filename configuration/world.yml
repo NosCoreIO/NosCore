@@ -14,6 +14,8 @@ MasterCommunication:
 ServerName: S1-NosCore
 Host: ${HOST,127.0.0.1}
 Port: ${WORLD_PORT,1337}
+DisplayHost: 127.0.0.1
+DisplayPort: 4000
 ConnectedAccountLimit: 100
 SceneOnCreate: false
 ServerGroup: 0
