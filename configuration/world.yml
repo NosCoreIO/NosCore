@@ -18,6 +18,7 @@ DisplayHost: 127.0.0.1
 DisplayPort: 4000
 ConnectedAccountLimit: 100
 SceneOnCreate: false
+StartInMaintenance: false
 ServerGroup: 0
 WorldInformation: true
 WebApi:
