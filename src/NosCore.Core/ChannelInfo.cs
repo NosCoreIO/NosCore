@@ -29,7 +29,8 @@ namespace NosCore.Core
         public string? Name { get; set; }
         public string? Host { get; set; }
         public int Port { get; set; }
-
+        public string? DisplayHost { get; set; }
+        public int? DisplayPort { get; set; }
         public int ConnectedAccountLimit { get; set; }
 
         public ServerConfiguration? WebApi { get; set; }
@@ -38,5 +39,6 @@ namespace NosCore.Core
 
         public ServerType Type { get; set; }
         public string? Token { get; set; }
+        public bool IsMaintenance { get; set; }
     }
 }

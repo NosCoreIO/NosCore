@@ -65,17 +65,7 @@ namespace NosCore.GameObject.Networking.LoginService
             {
                 clientSession.SessionId = clientSession.Channel?.Id != null
                     ? SessionFactory.Instance.Sessions[clientSession.Channel.Id.AsLongText()].SessionId : 0;
-                /*
-                                if (false) //TODO Maintenance
-                                {
-                                    await clientSession.SendPacket(new FailcPacket
-                                    {
-                                        Type = LoginFailType.Maintenance
-                                    });
-                                    await clientSession.Disconnect();
-                                    return;
-                                }
-                */
+
 
                 if (((_loginConfiguration.ClientVersion != null) &&
                         (clientVersion != _loginConfiguration.ClientVersion))
@@ -173,6 +163,16 @@ namespace NosCore.GameObject.Networking.LoginService
                             return;
                         }
 
+                        if (servers.Count(s => !s.IsMaintenance) == 0 && acc.Authority < AuthorityType.GameMaster)
+                        {
+                            await clientSession.SendPacketAsync(new FailcPacket
+                            {
+                                Type = LoginFailType.Maintenance
+                            });
+                            await clientSession.DisconnectAsync();
+                            return;
+                        }
+
                         var subpacket = new List<NsTeStSubPacket?>();
                         i = 1;
                         var servergroup = string.Empty;
@@ -191,8 +191,8 @@ namespace NosCore.GameObject.Networking.LoginService
                                 + 1;
                             subpacket.Add(new NsTeStSubPacket
                             {
-                                Host = server.Host,
-                                Port = server.Port,
+                                Host = server.DisplayHost ?? server.Host,
+                                Port = server.DisplayPort ?? server.Port,
                                 Color = channelcolor,
                                 WorldCount = worldCount,
                                 WorldId = i,
