@@ -17,19 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
+using NosCore.Packets.Attributes;
+using NosCore.Data.Enumerations.Account;
 
-namespace NosCore.Core.HttpClients.ChannelHttpClients
+namespace NosCore.Data.CommandPackets
 {
-    public interface IChannelHttpClient
+    [CommandPacketHeader("$SetMaintenance", AuthorityType.GameMaster)]
+    public class SetMaintenancePacket : CommandPacket
     {
-        Task ConnectAsync();
-        Task<HttpStatusCode> PingAsync();
-        Task<string?> GetOrRefreshTokenAsync();
-        Task<List<ChannelInfo>> GetChannelsAsync();
-        Task<ChannelInfo> GetChannelAsync(int channelId);
-        Task<HttpStatusCode> SetMaintenanceAsync(int channelId, bool maintenanceMode);
+        [PacketIndex(0)]
+        public bool IsGlobal { get; set; }
+
+        [PacketIndex(1)]
+        public bool MaintenanceMode { get; set; }
+
+        public override string Help()
+        {
+            return "$SetMaintenance IsGlobal MaintenanceMode";
+        }
     }
 }
