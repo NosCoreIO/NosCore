@@ -37,6 +37,7 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
 using NosCore.Parser.Parsers;
+using NosCore.Shared.Configuration;
 using Serilog;
 using NosCore.Shared.I18N;
 

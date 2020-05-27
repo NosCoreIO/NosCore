@@ -61,6 +61,7 @@ using Serilog;
 using ILogger = Serilog.ILogger;
 using NosCore.Dao;
 using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.LoginServer
 {

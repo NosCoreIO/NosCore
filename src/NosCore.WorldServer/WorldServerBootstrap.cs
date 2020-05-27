@@ -26,6 +26,7 @@ using Microsoft.Extensions.Logging;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.Configuration;
 using Serilog;
 using ILogger = Serilog.ILogger;
 using NosCore.Shared.I18N;
