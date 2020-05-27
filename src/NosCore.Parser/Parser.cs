@@ -37,6 +37,7 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
 using NosCore.Parser.Parsers;
+using NosCore.Shared.Configuration;
 using Serilog;
 using NosCore.Shared.I18N;
 
@@ -67,7 +68,7 @@ namespace NosCore.Parser
         {
             try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
             var parserConfiguration = new ParserConfiguration();
-            Configurator.InitializeConfiguration(args, new[] { "logger.yml", "parser.yml" }, parserConfiguration);
+            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "parser.yml" }, parserConfiguration);
             Shared.I18N.Logger.PrintHeader(ConsoleText);
             LogLanguage.Language = parserConfiguration.Language;
             Logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));

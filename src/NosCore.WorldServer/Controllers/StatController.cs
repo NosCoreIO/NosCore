@@ -20,13 +20,13 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
+using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Configuration;
 using NosCore.GameObject.Networking;
 using Serilog;
 using NosCore.Shared.Enumerations;

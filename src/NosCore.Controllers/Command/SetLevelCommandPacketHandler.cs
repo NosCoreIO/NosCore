@@ -34,6 +34,7 @@ using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using Character = NosCore.Data.WebApi.Character;
 using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.PacketHandlers.Command
 {

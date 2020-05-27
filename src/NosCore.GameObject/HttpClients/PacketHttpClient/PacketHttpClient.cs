@@ -29,6 +29,7 @@ using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.HttpClients.PacketHttpClient
 {

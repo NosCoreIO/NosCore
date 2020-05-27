@@ -25,6 +25,7 @@ using Microsoft.Extensions.Logging;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.Configuration;
 using Serilog;
 using ILogger = Serilog.ILogger;
 
@@ -49,7 +50,7 @@ namespace NosCore.MasterServer
         private static IWebHost BuildWebHost(string[] args)
         {
             var conf = new MasterConfiguration();
-            Configurator.InitializeConfiguration(args, new[] { "logger.yml", "master.yml" }, conf);
+            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "master.yml" }, conf);
             return WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {
