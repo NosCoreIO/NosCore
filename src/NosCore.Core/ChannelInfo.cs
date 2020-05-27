@@ -20,6 +20,7 @@
 using System;
 using NosCore.Data.Enumerations;
 using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Core
 {

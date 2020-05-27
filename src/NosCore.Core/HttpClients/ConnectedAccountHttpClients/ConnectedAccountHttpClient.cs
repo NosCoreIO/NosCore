@@ -28,6 +28,7 @@ using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
 using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 {

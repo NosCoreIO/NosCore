@@ -38,7 +38,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Configuration;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
@@ -52,6 +51,7 @@ using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Shared.Enumerations;
 using System;
+using NosCore.Core.Configuration;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

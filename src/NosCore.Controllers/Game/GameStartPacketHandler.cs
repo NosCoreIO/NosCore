@@ -34,9 +34,9 @@ using NosCore.GameObject.Networking.ClientSession;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
+using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.GameObject.Configuration;
 using NosCore.GameObject.Providers.QuestProvider;
 
 namespace NosCore.PacketHandlers.Game

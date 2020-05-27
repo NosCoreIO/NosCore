@@ -39,6 +39,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.Shared.Enumerations;
 using Serilog;
 
 namespace NosCore.PacketHandlers.CharacterScreen

@@ -18,10 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.ComponentModel.DataAnnotations;
-using NosCore.Core.Configuration;
 using NosCore.Shared.Configuration;
 
-namespace NosCore.GameObject.Configuration
+namespace NosCore.Core.Configuration
 {
     public class WorldConfiguration : ServerConfiguration
     {
