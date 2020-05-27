@@ -43,6 +43,12 @@ namespace NosCore.GameObject.Configuration
 
         public bool SceneOnCreate { get; set; }
 
+        public string? DisplayHost { get; set; }
+
+        public int? DisplayPort { get; set; }
+
+        public bool StartInMaintenance { get; set; }
+
         [Required]
         public string? ServerName { get; set; }
 

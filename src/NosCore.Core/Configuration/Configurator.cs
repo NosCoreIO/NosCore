@@ -67,8 +67,6 @@ namespace NosCore.Core.Configuration
             var confBuild = conf.Build();;
             Logger.Initialize(confBuild);
             Configure(confBuild, strongTypedConfiguration);
-            Validator.ValidateObject(strongTypedConfiguration, new ValidationContext(strongTypedConfiguration),
-                true);
         }
     }
 }

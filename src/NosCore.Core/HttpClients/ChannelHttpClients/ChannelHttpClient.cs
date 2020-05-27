@@ -28,6 +28,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
@@ -216,6 +217,29 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             }
 
             return channels.FirstOrDefault(s => s.Id == channelId);
+        }
+
+        public async Task<HttpStatusCode> SetMaintenanceAsync(int channelId, bool maintenanceMode)
+        {
+            var patch = new JsonPatchDocument<ChannelInfo>();
+            patch.Replace(link => link.IsMaintenance, maintenanceMode);
+            using var content = new StringContent(JsonSerializer.Serialize(patch), Encoding.Default,
+                "application/json");
+            using var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));
+
+            var postResponse = await client
+                .PatchAsync(new Uri($"{client.BaseAddress}api/channel?id={channelId}"), content).ConfigureAwait(false);
+            if (postResponse.IsSuccessStatusCode)
+            {
+                return JsonSerializer.Deserialize<HttpStatusCode>(await postResponse.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+            }
+
+            throw new HttpRequestException(postResponse.Headers.ToString());
         }
     }
 }

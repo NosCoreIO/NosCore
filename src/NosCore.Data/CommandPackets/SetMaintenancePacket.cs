@@ -17,28 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using NosCore.Data.Enumerations;
-using NosCore.Shared.Configuration;
+using NosCore.Packets.Attributes;
+using NosCore.Data.Enumerations.Account;
 
-namespace NosCore.Core
+namespace NosCore.Data.CommandPackets
 {
-    public class ChannelInfo
+    [CommandPacketHeader("$SetMaintenance", AuthorityType.GameMaster)]
+    public class SetMaintenancePacket : CommandPacket
     {
-        public int Id { get; set; }
-        public string? Name { get; set; }
-        public string? Host { get; set; }
-        public int Port { get; set; }
-        public string? DisplayHost { get; set; }
-        public int? DisplayPort { get; set; }
-        public int ConnectedAccountLimit { get; set; }
+        [PacketIndex(0)]
+        public bool IsGlobal { get; set; }
 
-        public ServerConfiguration? WebApi { get; set; }
+        [PacketIndex(1)]
+        public bool MaintenanceMode { get; set; }
 
-        public DateTime LastPing { get; set; }
-
-        public ServerType Type { get; set; }
-        public string? Token { get; set; }
-        public bool IsMaintenance { get; set; }
+        public override string Help()
+        {
+            return "$SetMaintenance IsGlobal MaintenanceMode";
+        }
     }
 }

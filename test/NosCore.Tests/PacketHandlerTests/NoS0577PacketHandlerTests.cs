@@ -36,6 +36,7 @@ using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Configuration;
 using NosCore.GameObject.Networking.ClientSession;
@@ -205,16 +206,37 @@ namespace NosCore.Tests.PacketHandlerTests
         //    Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.Banned);
         //}
 
-        //[TestMethod]
-        //public async Task LoginMaintenance()
-        //{
-        //    _handler.VerifyLogin(new NoS0575Packet
-        //    {
-        //        Password ="test".Sha512(),
-        //        Name = Name,
-        //    });
-        //    Assert.IsTrue(_session.LastPacket is FailcPacket);
-        //    Assert.IsTrue(((FailcPacket)_session.LastPacket.FirstOrDefault(s => s is FailcPacket)).Type == LoginFailType.Maintenance);
-        //}
+        [TestMethod]
+        public async Task LoginMaintenanceAsync()
+        {
+            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo { IsMaintenance = true } });
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
+                .ReturnsAsync(new List<ConnectedAccount>());
+            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
+            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
+            {
+                AuthToken = GuidToToken(_tokenGuid),
+            }, _session).ConfigureAwait(false);
+
+            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+                LoginFailType.Maintenance);
+        }
+
+        [TestMethod]
+        public async Task LoginMaintenanceGameMasterAsync()
+        {
+            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo { IsMaintenance = true } });
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
+                .ReturnsAsync(new List<ConnectedAccount>());
+            _session!.Account.Authority = AuthorityType.GameMaster;
+            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session!.Account);
+            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
+            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
+            {
+                AuthToken = GuidToToken(_tokenGuid),
+            }, _session).ConfigureAwait(false);
+
+            Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
+        }
     }
 }
