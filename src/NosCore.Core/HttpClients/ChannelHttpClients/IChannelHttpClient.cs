@@ -30,5 +30,6 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
         Task<string?> GetOrRefreshTokenAsync();
         Task<List<ChannelInfo>> GetChannelsAsync();
         Task<ChannelInfo> GetChannelAsync(int channelId);
+        Task<HttpStatusCode> SetMaintenanceAsync(int channelId, bool maintenanceMode);
     }
 }

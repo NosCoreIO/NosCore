@@ -45,6 +45,12 @@ namespace NosCore.Core
 
         public int ChannelId { get; set; }
 
+        public string? DisplayHost { get; set; }
+
+        public int? DisplayPort { get; set; }
+
+        public bool StartInMaintenance { get; set; }
+
         public string Host { get; set; } = "";
 
         public int ConnectedAccountLimit { get; set; }

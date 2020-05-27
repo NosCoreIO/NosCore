@@ -321,7 +321,10 @@ namespace NosCore.WorldServer
                 ClientType = ServerType.WorldServer,
                 ConnectedAccountLimit = _worldConfiguration.ConnectedAccountLimit,
                 Port = _worldConfiguration.Port,
+                DisplayPort = _worldConfiguration.DisplayPort,
+                DisplayHost = _worldConfiguration.DisplayHost,
                 ServerGroup = _worldConfiguration.ServerGroup,
+                StartInMaintenance = _worldConfiguration.StartInMaintenance,
                 Host = _worldConfiguration.Host!,
                 WebApi = _worldConfiguration.WebApi,
                 Token = handler.WriteToken(securityToken)
