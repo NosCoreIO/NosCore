@@ -26,7 +26,6 @@ using Microsoft.Extensions.Logging;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Configuration;
 using Serilog;
 using ILogger = Serilog.ILogger;
 using NosCore.Shared.I18N;
@@ -52,7 +51,7 @@ namespace NosCore.WorldServer
         private static IWebHost BuildWebHost(string[] args)
         {
             var conf = new WorldConfiguration();
-            Configurator.InitializeConfiguration(args, new[] { "logger.yml", "world.yml" }, conf);
+            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "world.yml" }, conf);
             return WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {

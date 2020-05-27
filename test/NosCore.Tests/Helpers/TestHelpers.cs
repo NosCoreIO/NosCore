@@ -36,6 +36,7 @@ using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.MpService;
 using NosCore.Algorithm.ReputationService;
 using NosCore.Algorithm.SpeedService;
+using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
@@ -82,7 +83,6 @@ using ShopItem = NosCore.Database.Entities.ShopItem;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations;
-using NosCore.GameObject.Configuration;
 using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
 

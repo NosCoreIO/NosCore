@@ -21,10 +21,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Core.Configuration;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Configuration;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
 

@@ -60,7 +60,6 @@ using NosCore.PacketHandlers.Login;
 using Serilog;
 using ILogger = Serilog.ILogger;
 using NosCore.Dao;
-using NosCore.GameObject.Configuration;
 using NosCore.Shared.Configuration;
 
 namespace NosCore.LoginServer
@@ -77,7 +76,7 @@ namespace NosCore.LoginServer
         private static void InitializeConfiguration(string[] args)
         {
             var conf = new LoginConfiguration();
-            Configurator.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" }, conf);
+            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" }, conf);
             _loginConfiguration = conf;
             Shared.I18N.Logger.PrintHeader(ConsoleText);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();

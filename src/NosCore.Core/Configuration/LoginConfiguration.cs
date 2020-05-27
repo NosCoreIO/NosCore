@@ -17,12 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Data.Enumerations
+using System.ComponentModel.DataAnnotations;
+using NosCore.Packets.ClientPackets.Login;
+using NosCore.Shared.Configuration;
+
+namespace NosCore.Core.Configuration
 {
-    public enum ServerType
+    public class LoginConfiguration : ServerConfiguration
     {
-        WorldServer,
-        LoginServer,
-        MasterServer
+        [Required]
+        public WebApiConfiguration? MasterCommunication { get; set; }
+
+        [Required]
+        public SqlConnectionConfiguration? Database { get; set; }
+
+        public ClientVersionSubPacket? ClientVersion { get; set; }
+        public string? Md5String { get; set; }
+        public bool EnforceNewAuth { get; set; }
     }
 }
