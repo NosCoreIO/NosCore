@@ -10,9 +10,10 @@ RUN wget -O aspnetcore.tar.gz https://dotnetcli.azureedge.net/dotnet/aspnetcore/
     && tar -ozxf aspnetcore.tar.gz -C /usr/share/dotnet ./shared/Microsoft.AspNetCore.App \
     && rm aspnetcore.tar.gz
 
-COPY . /app
+COPY ./build/netcoreapp5.0/linux-musl-x64 /app/build/netcoreapp5.0
+COPY ./configuration /app/configuration
 
-WORKDIR /app/build/bin
+WORKDIR /app/build/netcoreapp5.0
 
 EXPOSE 1337 5001
 

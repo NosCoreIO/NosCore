@@ -16,6 +16,19 @@ services:
     networks:
       - noscore-network
 
+  reverse-proxy:
+    container_name: noscore-reverse-proxy
+    image: noscoreio/noscore.reverseproxy:latest
+    restart: unless-stopped
+    ports:
+      - 4000:4000
+      - 1337:1337
+    expose:
+      - 4000
+      - 1337
+    networks:
+      - noscore-network
+ 
   master:
     container_name: noscore-master
     environment:
@@ -33,8 +46,8 @@ services:
     networks: 
       - noscore-network
     volumes:
-      - ./build/netcoreapp5.0/linux-musl-x64:/app/build/bin
-      - ./configuration/:/app/configuration
+      - ./build/netcoreapp5.0/linux-musl-x64:/app/build/netcoreapp5.0/linux-musl-x64
+      - ./configuration/:/app/build/configuration   
 
   world:
     container_name: noscore-world
@@ -57,8 +70,8 @@ services:
     networks: 
       - noscore-network
     volumes:
-      - ./build/netcoreapp5.0/linux-musl-x64:/app/build/bin
-      - ./configuration/:/app/configuration
+      - ./build/netcoreapp5.0/linux-musl-x64:/app/build/netcoreapp5.0/linux-musl-x64
+      - ./configuration/:/app/build/configuration   
       
   login:
     container_name: noscore-login
@@ -78,8 +91,8 @@ services:
     networks: 
       - noscore-network
     volumes:
-      - ./build/netcoreapp5.0/linux-musl-x64:/app/build/bin
-      - ./configuration/:/app/configuration
+      - ./build/netcoreapp5.0/linux-musl-x64:/app/build/netcoreapp5.0/linux-musl-x64
+      - ./configuration/:/app/build/configuration   
 
 networks:
   noscore-network:
