@@ -1,5 +1,5 @@
 cd ..
 
 dotnet build --runtime linux-musl-x64 --nologo
-docker-compose up -d login master world
+docker-compose up --force-recreate --build login master world
 PAUSE
