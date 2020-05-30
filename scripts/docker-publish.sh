@@ -14,14 +14,14 @@ case "$TRAVIS_BRANCH" in
     ;;  
 esac
 
-docker build -f ./deploy/Dockerfile -t noscore.worldserver:$DOCKER_TAG --no-cache .
+docker build -f ./deploy/Dockerfile-world -t noscore.worldserver:$DOCKER_TAG --no-cache .
 docker tag noscore.worldserver:$DOCKER_TAG noscoreio/noscore.worldserver:$DOCKER_TAG
 docker push noscoreio/noscore.worldserver:$DOCKER_TAG
 
-docker build -f ./deploy/Dockerfile -t noscore.loginserver:$DOCKER_TAG --no-cache .
+docker build -f ./deploy/Dockerfile-login -t noscore.loginserver:$DOCKER_TAG --no-cache .
 docker tag noscore.loginserver:$DOCKER_TAG noscoreio/noscore.loginserver:$DOCKER_TAG
 docker push noscoreio/noscore.loginserver:$DOCKER_TAG
 
-docker build -f ./deploy/Dockerfile -t noscore.masterserver:$DOCKER_TAG --no-cache .
+docker build -f ./deploy/Dockerfile-master -t noscore.masterserver:$DOCKER_TAG --no-cache .
 docker tag noscore.masterserver:$DOCKER_TAG noscoreio/noscore.masterserver:$DOCKER_TAG
 docker push noscoreio/noscore.masterserver:$DOCKER_TAG
