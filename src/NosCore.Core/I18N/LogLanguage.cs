@@ -60,11 +60,6 @@ namespace NosCore.Core.I18N
             return !string.IsNullOrEmpty(resourceMessage) ? resourceMessage : $"#<{messageKey}>";
         }
 
-        public ResourceSet? GetRessourceSet()
-        {
-            return GetRessourceSet(null);
-        }
-
         public ResourceSet? GetRessourceSet(string? culture)
         {
             return _manager.GetResourceSet(culture != null ? new CultureInfo(culture) : _resourceCulture, true, true);
