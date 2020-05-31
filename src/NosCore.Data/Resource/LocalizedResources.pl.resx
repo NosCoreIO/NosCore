@@ -162,9 +162,6 @@
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Twoja postać nie spełnia wymagań niezbędnych do noszenia tego przedmiotu.</value>
   </data>
-  <data name="BAD_FAIRY" xml:space="preserve">
-    <value>Twoja Karta Specjalisty nie pasuje do elementu wróżki.</value>
-  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Błędne hasło!</value>
   </data>
@@ -285,9 +282,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Zostałeś liderem grupy!</value>
-  </data>
-  <data name="GROUP_BLOCKED" xml:space="preserve">
-    <value>Ten użytkownik blokuje zaproszenia grupowe!</value>
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Grupa rozwiązana</value>
@@ -541,9 +535,6 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Zarejestrowano na MasterServer</value>
   </data>
-  <data name="REMOVE_VEHICLE" xml:space="preserve">
-    <value>Zejdź z pojazdu, aby się przetransformować.</value>
-  </data>
   <data name="REPUT_DECREASED" xml:space="preserve">
     <value>Twoja reputacja została zmniejszona!</value>
   </data>
@@ -564,12 +555,6 @@
   </data>
   <data name="SHOP_EMPTY" xml:space="preserve">
     <value>Nie możesz otworzyć pustego sklepu!</value>
-  </data>
-  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
-    <value>Otwórz sklep z dala od portalu!</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
-    <value>Nie możesz otworzyć sklepu na tej mapie.</value>
   </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Nie możesz otworzyć sklepu podczas rajdu.</value>
@@ -618,9 +603,6 @@
   </data>
   <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
     <value>Efekty uboczne zakończyły się. {0}</value>
-  </data>
-  <data name="TOO_LOW_LEVEL" xml:space="preserve">
-    <value>Aby zmienić klasę, potrzebujesz przynajmniej 15 poziomu i 20 profesji.</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Sprzedający nie ma wystarczającej ilości miejsca do trzymania Twoich pieniędzy.</value>

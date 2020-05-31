@@ -26,7 +26,7 @@ namespace NosCore.GameObject.Helper
     public sealed class MinilandHelper
     {
         private static MinilandHelper? _instance;
-        private readonly Dictionary<short, Gift[][]> gifts = new Dictionary<short, Gift[][]>
+        private readonly Dictionary<short, Gift[][]> _gifts = new Dictionary<short, Gift[][]>
             {
                 {
                     3117,
@@ -258,7 +258,7 @@ namespace NosCore.GameObject.Helper
         public Gift GetMinilandGift(short game, int point)
         {
             var rand = new Random();
-            return gifts[game][point].OrderBy(s => rand.Next()).FirstOrDefault();
+            return _gifts[game][point].OrderBy(s => rand.Next()).FirstOrDefault();
         }
     }
 }

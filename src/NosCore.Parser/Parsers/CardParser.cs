@@ -48,7 +48,7 @@ namespace NosCore.Parser.Parsers
         //
         //  END
         //#========================================================
-        private readonly string FileCardDat = $"{Path.DirectorySeparatorChar}Card.dat";
+        private readonly string _fileCardDat = $"{Path.DirectorySeparatorChar}Card.dat";
 
         private readonly IDao<CardDto, short> _cardDao;
         private readonly IDao<BCardDto, short> _bcardDao;
@@ -76,7 +76,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(CardDto.TimeoutBuff), chunk => Convert.ToInt16(chunk["LAST"][0][2])},
                 {nameof(CardDto.TimeoutBuffChance), chunk => Convert.ToByte(chunk["LAST"][0][3])}
             };
-            var genericParser = new GenericParser<CardDto>(folder + FileCardDat,
+            var genericParser = new GenericParser<CardDto>(folder + _fileCardDat,
                 "END", 1, actionList, _logger);
             var cards = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.CardId).Select(g => g.First()).ToList();
              await _cardDao.TryInsertOrUpdateAsync(cards).ConfigureAwait(false);

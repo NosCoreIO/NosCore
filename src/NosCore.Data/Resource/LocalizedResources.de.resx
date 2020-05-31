@@ -144,9 +144,6 @@
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Dieser Name ist bereits belegt.</value>
   </data>
-  <data name="ALREADY_THIS_MINILANDOBJECT" xml:space="preserve">
-    <value>Es ist bereits ein gleiches Objekt im Miniland vorhanden.</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Möchtest du dieses Item an dich binden?</value>
   </data>
@@ -178,9 +175,6 @@
   </data>
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Dein Charakter erfüllt nicht die Anforderungen um dieses Item zu tragen!</value>
-  </data>
-  <data name="BAD_FAIRY" xml:space="preserve">
-    <value>Deine Spezialisierung stimmt mit dem Element der Fee nicht überein.</value>
   </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Falsches Passwort!</value>
@@ -375,9 +369,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Du bist nun der Gruppen-Admin</value>
-  </data>
-  <data name="GROUP_BLOCKED" xml:space="preserve">
-    <value>Benutzer blockt Gruppeneinladungen</value>
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Gruppe qurde aufgelöst</value>
@@ -586,17 +577,8 @@
   <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
     <value>Miniland Beschreibung geändert!</value>
   </data>
-  <data name="MINILAND_LOCK" xml:space="preserve">
-    <value>Miniland wurde gesperrt!</value>
-  </data>
   <data name="MINILAND_NEED_LOCK" xml:space="preserve">
     <value>Dein Miniland muss geschlossen sein.</value>
-  </data>
-  <data name="MINILAND_PRIVATE" xml:space="preserve">
-    <value>Dein Miniland ist nun Privat.</value>
-  </data>
-  <data name="MINILAND_PUBLIC" xml:space="preserve">
-    <value>Dein Miniland ist nun Öffentlich.</value>
   </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Miniland Besucher: {0}, Tägliche Besucher: {1}</value>
@@ -770,9 +752,6 @@
   <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
     <value>Möchtest du {0} vom Bazar entfernen?</value>
   </data>
-  <data name="REMOVE_VEHICLE" xml:space="preserve">
-    <value>Um dich zu transformieren, steige bitte von deinem Fahrzeug ab!</value>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Dein Ruf hat sich geändert!</value>
   </data>
@@ -814,12 +793,6 @@
   </data>
   <data name="SHOP_EMPTY" xml:space="preserve">
     <value>Du kannst keinen leeren Shop eröffnen!</value>
-  </data>
-  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
-    <value>Öffne deinen Shop weiter weg vom Portal!</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
-    <value>Du kannst auf dieser Karte keinen Shop öffnen!</value>
   </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Du kannst in einem Raid keinen Shop öffnen!</value>
@@ -878,9 +851,6 @@
   </data>
   <data name="TOKEN_UPDATED" xml:space="preserve">
     <value>Token aktualisiert.</value>
-  </data>
-  <data name="TOO_LOW_LEVEL" xml:space="preserve">
-    <value>Dein Level ist zu niedrig!</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Der Verkäufer besitzt zu viel Gold!</value>

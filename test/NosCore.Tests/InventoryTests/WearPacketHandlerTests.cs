@@ -457,9 +457,8 @@ namespace NosCore.Tests.InventoryTests
             await _wearPacketHandler.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance!.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Equipment)));
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
-                _session.Account.Language));
+            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Message == Game18NConstString.SpecialistAndFairyDifferentElement);
         }
 
         [TestMethod]

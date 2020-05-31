@@ -145,9 +145,6 @@
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Данное имя занято!</value>
   </data>
-  <data name="ALREADY_THIS_MINILANDOBJECT" xml:space="preserve">
-    <value>Эта постройка уже возведена</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Ты хочешь привязать этот предмет?</value>
     <comment>О чем идет речь? Пока не ясно. Уточним.</comment>
@@ -181,9 +178,6 @@
   </data>
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Твой персонаж не соответствует требованиям для использования данного предмета.</value>
-  </data>
-  <data name="BAD_FAIRY" xml:space="preserve">
-    <value>Карта специалиста не соответствует элементу феи.</value>
   </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Неверный пароль!</value>
@@ -385,9 +379,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Ты лидер группы!</value>
-  </data>
-  <data name="GROUP_BLOCKED" xml:space="preserve">
-    <value>Игрок блокирует приглашения в группу!</value>
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Группа распущена</value>
@@ -610,17 +601,8 @@
   <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
     <value>Информация о Мини-стране обновлена</value>
   </data>
-  <data name="MINILAND_LOCK" xml:space="preserve">
-    <value>Мини-страна закрыта</value>
-  </data>
   <data name="MINILAND_NEED_LOCK" xml:space="preserve">
     <value>Строительство возможно только в закрытой Мини-стране</value>
-  </data>
-  <data name="MINILAND_PRIVATE" xml:space="preserve">
-    <value>Теперь Мини-страна открыта только для друзей</value>
-  </data>
-  <data name="MINILAND_PUBLIC" xml:space="preserve">
-    <value>Теперь Мини-страна открыта для всех</value>
   </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Всего посетителей: {0} Посетителей за сегодня: {1}</value>
@@ -793,10 +775,6 @@
   <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
     <value>Продажа завершена. Получено золота: {0}</value>
   </data>
-  <data name="REMOVE_VEHICLE" xml:space="preserve">
-    <value>Для трансформации необходимо спешиться</value>
-    <comment>Not used in the official</comment>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Твоя репутация изменилась!</value>
   </data>
@@ -838,12 +816,6 @@
   </data>
   <data name="SHOP_EMPTY" xml:space="preserve">
     <value>Ты не можешь открыть пустой магазин!</value>
-  </data>
-  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
-    <value>Твой магазин расположен слишком близко к порталу.</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
-    <value>Нельзя открыть магазин на этой карте.</value>
   </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Нельзя открыть магазин в рейде.</value>
@@ -900,9 +872,6 @@
   </data>
   <data name="TOKEN_UPDATED" xml:space="preserve">
     <value>Токен обновлен.</value>
-  </data>
-  <data name="TOO_LOW_LEVEL" xml:space="preserve">
-    <value>Тебе необходим как минимум 15-й основной и 20-й рабочий уровень для смены класса.</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>У продавца слишком много денег.</value>

@@ -39,6 +39,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.Bazaar;
+using NosCore.Packets.Enumerations;
 using NosCore.Tests.Helpers;
 using Serilog;
 
@@ -168,9 +169,8 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012
             }, _session).ConfigureAwait(false);
-            var lastpacket = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
-                _session.Account.Language), lastpacket?.Message);
+            var lastpacket = (MsgiPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.AreEqual(Game18NConstString.MaxGoldReached, lastpacket?.Message);
         }
 
 

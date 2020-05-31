@@ -85,7 +85,7 @@ namespace NosCore.Tests.InventoryTests
                 Mode = 0,
                 Parameter = 0
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue((_session.Character.SpAdditionPoint != 0) && !_session.LastPackets.Any(s => s is MsgPacket));
+            Assert.IsTrue((_session.Character.SpAdditionPoint != 0) && !_session.LastPackets.Any(s => s is MsgiPacket));
         }
 
         [TestMethod]
@@ -125,7 +125,7 @@ namespace NosCore.Tests.InventoryTests
                 Parameter = 0
             }, _session).ConfigureAwait(false);
             Assert.IsTrue((_session.Character.SpAdditionPoint == _session.WorldConfiguration.MaxAdditionalSpPoints) &&
-                !_session.LastPackets.Any(s => s is MsgPacket));
+                !_session.LastPackets.Any(s => s is MsgiPacket));
         }
     }
 }

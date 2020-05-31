@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Networking
             _logger = logger;
         }
 
-        private static readonly AutoResetEvent _closingEvent = new AutoResetEvent(false);
+        private static readonly AutoResetEvent ClosingEvent = new AutoResetEvent(false);
         public async Task RunServerAsync()
         {
             var bossGroup = new MultithreadEventLoopGroup(1);
@@ -60,9 +60,9 @@ namespace NosCore.GameObject.Networking
                 var bootstrapChannel = await bootstrap.BindAsync(_configuration.Port).ConfigureAwait(false);
                 Console.CancelKeyPress += ((s, a) =>
                 {
-                    _closingEvent.Set();
+                    ClosingEvent.Set();
                 });
-                _closingEvent.WaitOne();
+                ClosingEvent.WaitOne();
 
                 await bootstrapChannel.CloseAsync().ConfigureAwait(false);
             }

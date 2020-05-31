@@ -35,7 +35,7 @@ namespace NosCore.Parser.Parsers
     {
         //script {ScriptId}	
         //{ScriptStepId}	{StepType} {Argument}
-        private readonly string FileCardDat = $"{Path.DirectorySeparatorChar}tutorial.dat";
+        private readonly string _fileCardDat = $"{Path.DirectorySeparatorChar}tutorial.dat";
         private readonly IDao<ScriptDto, Guid> _scriptDao;
         private readonly ILogger _logger;
 
@@ -48,7 +48,7 @@ namespace NosCore.Parser.Parsers
         public async Task InsertScriptsAsync(string folder)
         {
             var allScripts = _scriptDao.LoadAll().ToList();
-            using var stream = new StreamReader(folder + FileCardDat, Encoding.Default);
+            using var stream = new StreamReader(folder + _fileCardDat, Encoding.Default);
             var scripts = new List<ScriptDto>();
             string? line;
             byte scriptId = 0;

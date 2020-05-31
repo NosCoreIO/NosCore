@@ -52,10 +52,9 @@ namespace NosCore.PacketHandlers.Shops
                 _distanceCalculator.GetDistance(new MapCell { X = clientSession.Character.PositionX, Y = clientSession.Character.PositionY }, new MapCell { X = port.SourceX, Y = port.SourceY }) <= 6);
             if (portal != null)
             {
-                await clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL,
-                        clientSession.Account.Language),
+                    Message = Game18NConstString.ShopIsNotAllowedHere,
                     Type = 0
                 }).ConfigureAwait(false);
                 return;
@@ -74,10 +73,9 @@ namespace NosCore.PacketHandlers.Shops
 
             if (!clientSession.Character.MapInstance.ShopAllowed)
             {
-                await clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED,
-                        clientSession.Account.Language),
+                    Message = Game18NConstString.UseCommercialMapToShop,
                     Type = MessageType.White
                 }).ConfigureAwait(false);
                 return;

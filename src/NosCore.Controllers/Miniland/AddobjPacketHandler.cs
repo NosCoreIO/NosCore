@@ -55,10 +55,9 @@ namespace NosCore.PacketHandlers.Miniland
 
             if (clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
             {
-                await clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_THIS_MINILANDOBJECT,
-                        clientSession.Account.Language)
+                    Message = Game18NConstString.YouAlreadyHaveThisMinilandObject
                 }).ConfigureAwait(false);
                 return;
             }

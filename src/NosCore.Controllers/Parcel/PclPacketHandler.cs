@@ -82,10 +82,9 @@ namespace NosCore.PacketHandlers.Parcel
                 else
                 {
                     await clientSession.SendPacketAsync(new ParcelPacket {Type = 5, Unknown = 1, Id = 0}).ConfigureAwait(false);
-                    await clientSession.SendPacketAsync(new MsgPacket
+                    await clientSession.SendPacketAsync(new MsgiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                            clientSession.Account.Language),
+                        Message = Game18NConstString.NotEnoughSpace,
                         Type = 0
                     }).ConfigureAwait(false);
                 }

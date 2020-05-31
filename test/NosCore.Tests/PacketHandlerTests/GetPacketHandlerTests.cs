@@ -114,9 +114,8 @@ namespace NosCore.Tests.PacketHandlerTests
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                _session.Account.Language)) && (packet.Type == 0));
+            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Message == Game18NConstString.NotEnoughSpace && packet.Type == 0);
             Assert.IsTrue(_session.Character.InventoryService.Count == 2);
         }
 
