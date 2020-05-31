@@ -68,7 +68,7 @@ namespace NosCore.Parser
         private readonly IDao<I18NQuestDto, int> _i18NQuestDao;
         private readonly IDao<I18NSkillDto, int> _i18NSkillDao;
         private readonly ILogger _logger;
-        private readonly string password = "test".ToSha512();
+        private readonly string _password = "test".ToSha512();
         private string _folder = "";
 
         public ImportFactory(CardParser cardParser, DropParser dropParser, ItemParser itemParser,
@@ -124,7 +124,7 @@ namespace NosCore.Parser
             {
                 Authority = AuthorityType.GameMaster,
                 Name = "admin",
-                Password = password
+                Password = _password
             };
 
             if (await _accountDao.FirstOrDefaultAsync(s => s.Name == acc1.Name).ConfigureAwait(false) == null)
@@ -136,7 +136,7 @@ namespace NosCore.Parser
             {
                 Authority = AuthorityType.User,
                 Name = "test",
-                Password = password
+                Password = _password
             };
 
             if (await _accountDao.FirstOrDefaultAsync(s => s.Name == acc1.Name).ConfigureAwait(false) == null)

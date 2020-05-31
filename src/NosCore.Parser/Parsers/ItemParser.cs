@@ -48,7 +48,7 @@ namespace NosCore.Parser.Parsers
         //{Desc}
         //    END
         //#========================================================
-        private readonly string ItemCardDto = $"{Path.DirectorySeparatorChar}Item.dat";
+        private readonly string _itemCardDto = $"{Path.DirectorySeparatorChar}Item.dat";
 
         private readonly IDao<ItemDto, short> _itemDao;
         private readonly IDao<BCardDto, short> _bcardDao;
@@ -130,7 +130,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(ItemDto.DamageMinimum), chunk => ImportDamageMinimum(chunk)},
             };
 
-            var genericParser = new GenericParser<ItemDto>(folder + ItemCardDto,
+            var genericParser = new GenericParser<ItemDto>(folder + _itemCardDto,
                 "END", 1, actionList, _logger);
             var items = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.VNum).Select(g => g.First()).ToList();
             foreach (var item in items)

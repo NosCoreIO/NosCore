@@ -24,7 +24,7 @@ namespace NosCore.Core.Networking
 {
     public sealed class SessionFactory
     {
-        private static readonly Lazy<SessionFactory> lazy = new Lazy<SessionFactory>(() => new SessionFactory());
+        private static readonly Lazy<SessionFactory> Lazy = new Lazy<SessionFactory>(() => new SessionFactory());
         private int _sessionCounter;
 
         private SessionFactory()
@@ -34,7 +34,7 @@ namespace NosCore.Core.Networking
             ReadyForAuth = new ConcurrentDictionary<string, long>();
         }
 
-        public static SessionFactory Instance => lazy.Value;
+        public static SessionFactory Instance => Lazy.Value;
 
         public ConcurrentDictionary<string, RegionTypeMapping> Sessions { get; }
 

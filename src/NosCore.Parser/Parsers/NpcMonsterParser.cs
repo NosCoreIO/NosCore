@@ -60,7 +60,7 @@ namespace NosCore.Parser.Parsers
 
     public class NpcMonsterParser
     {
-        private readonly string FileNpcId = $"{Path.DirectorySeparatorChar}monster.dat";
+        private readonly string _fileNpcId = $"{Path.DirectorySeparatorChar}monster.dat";
         private readonly IDao<BCardDto, short> _bCardDao;
         private readonly IDao<DropDto, short> _dropDao;
         private readonly ILogger _logger;
@@ -147,7 +147,7 @@ namespace NosCore.Parser.Parsers
                 }
             };
 
-            var genericParser = new GenericParser<NpcMonsterDto>(folder + FileNpcId,
+            var genericParser = new GenericParser<NpcMonsterDto>(folder + _fileNpcId,
                 "#========================================================", 1, actionList, _logger);
             var monsters = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
             await _npcMonsterDao.TryInsertOrUpdateAsync(monsters).ConfigureAwait(false);

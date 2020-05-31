@@ -52,7 +52,7 @@ namespace NosCore.Parser.Parsers
         //	Z_DESC	0
 
         //#=========================================================
-        private readonly string FileCardDat = $"{Path.DirectorySeparatorChar}Skill.dat";
+        private readonly string _fileCardDat = $"{Path.DirectorySeparatorChar}Skill.dat";
         private readonly IDao<BCardDto, short> _bCardDao;
         private readonly IDao<ComboDto, int> _comboDao;
         private readonly IDao<SkillDto, short> _skillDao;
@@ -102,7 +102,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(SkillDto.MinimumMagicianLevel), chunk => chunk["LEVEL"][0][6] != "-1" ? byte.Parse(chunk["LEVEL"][0][6]) : (byte)0},
                 {nameof(SkillDto.LevelMinimum), chunk => chunk["LEVEL"][0][2] != "-1" ? byte.Parse(chunk["LEVEL"][0][2]) : (byte)0 },
             };
-            var genericParser = new GenericParser<SkillDto>(folder + FileCardDat,
+            var genericParser = new GenericParser<SkillDto>(folder + _fileCardDat,
                 "#=========================================================", 1, actionList, _logger);
             var skills = await genericParser.GetDtosAsync().ConfigureAwait(false);
 

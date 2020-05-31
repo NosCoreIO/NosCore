@@ -48,7 +48,7 @@ namespace NosCore.Parser.Parsers
         public async Task InsertPortalsAsync(List<string[]> packetList)
         {
             var portalsdb = _portalDao.LoadAll().ToList();
-            var _maps = _mapDao.LoadAll().ToList();
+            var maps = _mapDao.LoadAll().ToList();
             short map = 0;
             var portalCounter = 0;
             var lodPortal = new PortalDto
@@ -156,8 +156,8 @@ namespace NosCore.Parser.Parsers
                 if (_listPortals1.Any(s =>
                         (s.SourceMapId == map) && (s.SourceX == portal.SourceX) && (s.SourceY == portal.SourceY)
                         && (s.DestinationMapId == portal.DestinationMapId))
-                    || _maps.All(s => s.MapId != portal.SourceMapId)
-                    || _maps.All(s => s.MapId != portal.DestinationMapId))
+                    || maps.All(s => s.MapId != portal.SourceMapId)
+                    || maps.All(s => s.MapId != portal.DestinationMapId))
                 {
                     // Portal already in list
                     continue;
