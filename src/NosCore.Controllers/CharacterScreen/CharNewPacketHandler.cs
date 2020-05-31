@@ -102,9 +102,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     {
                         MinilandId = Guid.NewGuid(),
                         State = MinilandState.Open,
-                        MinilandMessage = "Welcome",
+                        MinilandMessage = ((short)Game18NConstString.Welcome).ToString(),
                         OwnerId = chara.CharacterId,
-                        WelcomeMusicInfo = "Spring^Melody"
+                        WelcomeMusicInfo = 3800
                     };
                     await _minilandDao.TryInsertOrUpdateAsync(miniland).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(new SuccessPacket()).ConfigureAwait(false);
