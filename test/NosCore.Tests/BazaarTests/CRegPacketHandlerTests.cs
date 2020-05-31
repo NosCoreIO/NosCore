@@ -43,6 +43,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.Bazaar;
+using NosCore.Packets.Enumerations;
 using NosCore.Tests.Helpers;
 using Serilog;
 
@@ -122,9 +123,8 @@ namespace NosCore.Tests.BazaarTests
                 MedalUsed = 0
             }, _session!).ConfigureAwait(false);
 
-            var lastpacket = (MsgPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(lastpacket?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
+            var lastpacket = (MsgiPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(lastpacket?.Message == Game18NConstString.NotEnoughGold);
         }
 
         [TestMethod]

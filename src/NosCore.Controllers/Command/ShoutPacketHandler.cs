@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Command
                 Message = message
             };
 
-            var msgPacket = new MsgPacket
+            var MsgiPacket = new MsgPacket
             {
                 Type = MessageType.Shout,
                 Message = message
@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.Command
 
             var msgPostedPacket = new PostedPacket
             {
-                Packet = _packetSerializer.Serialize(new[] {msgPacket}),
+                Packet = _packetSerializer.Serialize(new[] {MsgiPacket}),
                 ReceiverType = ReceiverType.All
             };
 

@@ -96,9 +96,8 @@ namespace NosCore.Tests.InventoryTests
         public async Task UserCanNotCreateShopCloseToPortalAsync()
         {
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session!).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session?.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NEAR_PORTAL, _session?.Account.Language ?? RegionType.EN));
+            var packet = (MsgiPacket?)_session?.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Message == Game18NConstString.ShopIsNotAllowedHere);
             Assert.IsNull(_session?.Character.Shop);
         }
 
@@ -133,10 +132,9 @@ namespace NosCore.Tests.InventoryTests
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
 
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED, _session.Account.Language));
+            Assert.IsTrue(packet?.Message == Game18NConstString.UseCommercialMapToShop);
             Assert.IsNull(_session.Character.Shop);
         }
 

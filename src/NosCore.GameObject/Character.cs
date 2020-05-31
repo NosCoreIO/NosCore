@@ -673,10 +673,9 @@ namespace NosCore.GameObject
             }
             else
             {
-                await SendPacketAsync(new MsgPacket
+                await SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                        Session.Account.Language),
+                    Message = Game18NConstString.NotEnoughSpace,
                     Type = 0
                 }).ConfigureAwait(false);
             }
@@ -1052,10 +1051,9 @@ namespace NosCore.GameObject
                 && (sp.Item.Element != 0) && (fairy.Item!.Element != sp.Item.Element)
                 && (fairy.Item.Element != sp.Item.SecondaryElement))
             {
-                await SendPacketAsync(new MsgPacket
+                await SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
-                        Session.Account.Language)
+                    Message = Game18NConstString.SpecialistAndFairyDifferentElement
                 }).ConfigureAwait(false);
                 return;
             }

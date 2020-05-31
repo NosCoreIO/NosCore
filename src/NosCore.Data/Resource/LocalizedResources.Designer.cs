@@ -214,15 +214,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your specialist does not match with the fairy element..
-        /// </summary>
-        public static string BAD_FAIRY {
-            get {
-                return ResourceManager.GetString("BAD_FAIRY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Wrong password!.
         /// </summary>
         public static string BAD_PASSWORD {
@@ -669,15 +660,6 @@ namespace NosCore.Data.Resource {
         public static string GROUP_ADMIN {
             get {
                 return ResourceManager.GetString("GROUP_ADMIN", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to This user has blocked the group invitations!.
-        /// </summary>
-        public static string GROUP_BLOCKED {
-            get {
-                return ResourceManager.GetString("GROUP_BLOCKED", resourceCulture);
             }
         }
         
@@ -1672,15 +1654,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to To transform dismount the vehicle..
-        /// </summary>
-        public static string REMOVE_VEHICLE {
-            get {
-                return ResourceManager.GetString("REMOVE_VEHICLE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Your reputation has decreased!.
         /// </summary>
         public static string REPUT_DECREASED {
@@ -1749,24 +1722,6 @@ namespace NosCore.Data.Resource {
         public static string SHOP_EMPTY {
             get {
                 return ResourceManager.GetString("SHOP_EMPTY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Open a shop away from the portal please..
-        /// </summary>
-        public static string SHOP_NEAR_PORTAL {
-            get {
-                return ResourceManager.GetString("SHOP_NEAR_PORTAL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You can not open a shop in this map..
-        /// </summary>
-        public static string SHOP_NOT_ALLOWED {
-            get {
-                return ResourceManager.GetString("SHOP_NOT_ALLOWED", resourceCulture);
             }
         }
         
@@ -1929,15 +1884,6 @@ namespace NosCore.Data.Resource {
         public static string SURE_TO_DELETE {
             get {
                 return ResourceManager.GetString("SURE_TO_DELETE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You need at least &quot;Level 15&quot; and &quot;Job Level 20&quot; to change your class..
-        /// </summary>
-        public static string TOO_LOW_LEVEL {
-            get {
-                return ResourceManager.GetString("TOO_LOW_LEVEL", resourceCulture);
             }
         }
         

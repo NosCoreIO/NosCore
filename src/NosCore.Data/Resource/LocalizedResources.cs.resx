@@ -170,9 +170,6 @@
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Tvá postava nesplňuje požadavky pro nošení tohoto vybavení.</value>
   </data>
-  <data name="BAD_FAIRY" xml:space="preserve">
-    <value>Pro tuto SP potřebuješ jinou vílu!</value>
-  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Špatné Heslo</value>
   </data>
@@ -302,9 +299,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Jsi vedoucí skupiny!</value>
-  </data>
-  <data name="GROUP_BLOCKED" xml:space="preserve">
-    <value>Uživatel blokuje pozvání do skupiny</value>
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Skupina rozpuštěna</value>
@@ -604,9 +598,6 @@
   <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
     <value>Prodej skončil obdržel si: {0} zlata.</value>
   </data>
-  <data name="REMOVE_VEHICLE" xml:space="preserve">
-    <value>Pro transformaci sesedni z vozidla.</value>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Tvá pověst byla změněna!</value>
   </data>
@@ -627,12 +618,6 @@
   </data>
   <data name="SHOP_EMPTY" xml:space="preserve">
     <value>Nemůžeš otevřít prázdný obchod!</value>
-  </data>
-  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
-    <value>Nemůžeš otevřít obchod poblíž portálu!</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
-    <value>Nemůžeš otevřít obchod na této mapě!</value>
   </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Nemůžeš otevřít obchod v nájezdu!</value>
@@ -675,9 +660,6 @@
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Opravdu chcete tento item smazat?</value>
-  </data>
-  <data name="TOO_LOW_LEVEL" xml:space="preserve">
-    <value>Pro změnu povolaní potřebuješ mít "Úroveň 15" a "Úroveň práce 20"</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Obchodník má příliš mnoho zlata pro to aby mohl vzít další od tebe-</value>

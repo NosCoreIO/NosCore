@@ -105,10 +105,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                     (itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.Element) &&
                     (itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.SecondaryElement))
                 {
-                    await requestData.ClientSession.SendPacketAsync(new MsgPacket
+                    await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY,
-                            requestData.ClientSession.Account.Language)
+                        Message = Game18NConstString.SpecialistAndFairyDifferentElement
                     }).ConfigureAwait(false);
                     return;
                 }

@@ -48,10 +48,9 @@ namespace NosCore.PacketHandlers.Inventory
 
             if (inv == null)
             {
-                await clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                        clientSession.Account.Language),
+                    Message = Game18NConstString.NotEnoughSpace,
                     Type = 0
                 }).ConfigureAwait(false);
                 return;
