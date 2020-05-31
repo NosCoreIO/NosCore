@@ -162,9 +162,6 @@
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Karakterin bu eşyayı giymek için gereksinimleri karşılamıyor.</value>
   </data>
-  <data name="BAD_FAIRY" xml:space="preserve">
-    <value>Uzmanlık kartın ile perinin elementi uyuşmuyor.</value>
-  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Parola hatalı.</value>
   </data>

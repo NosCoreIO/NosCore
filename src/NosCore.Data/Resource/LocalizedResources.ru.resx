@@ -179,9 +179,6 @@
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Твой персонаж не соответствует требованиям для использования данного предмета.</value>
   </data>
-  <data name="BAD_FAIRY" xml:space="preserve">
-    <value>Карта специалиста не соответствует элементу феи.</value>
-  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Неверный пароль!</value>
   </data>
