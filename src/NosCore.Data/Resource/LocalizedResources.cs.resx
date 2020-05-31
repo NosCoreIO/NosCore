@@ -126,9 +126,6 @@
   <data name="ADMINISTRATOR" xml:space="preserve">
     <value>Administrátor</value>
   </data>
-  <data name="ADVENTURER" xml:space="preserve">
-    <value>Dobrodruh</value>
-  </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Již je na Černé Listině!</value>
   </data>
@@ -143,9 +140,6 @@
   </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Tohle jméno je obsazené!</value>
-  </data>
-  <data name="ARCHER" xml:space="preserve">
-    <value>Lukostřelec</value>
   </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Chceš spojit tyto položky</value>
@@ -453,9 +447,6 @@
   <data name="LOW_REP" xml:space="preserve">
     <value>Nemáš potřebnou pověst pro tuto SP.</value>
   </data>
-  <data name="MAGICIAN" xml:space="preserve">
-    <value>Mág</value>
-  </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MAPMONSTERS načteny</value>
   </data>
@@ -473,9 +464,6 @@
   </data>
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>Mapa neexistuje</value>
-  </data>
-  <data name="MARTIALARTIST" xml:space="preserve">
-    <value>Mistr Boje</value>
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Znovu připojení k Master Serveru</value>
@@ -687,9 +675,6 @@
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Opravdu chcete tento item smazat?</value>
-  </data>
-  <data name="SWORDMAN" xml:space="preserve">
-    <value>Bojovník s Mečem</value>
   </data>
   <data name="TOO_LOW_LEVEL" xml:space="preserve">
     <value>Pro změnu povolaní potřebuješ mít "Úroveň 15" a "Úroveň práce 20"</value>

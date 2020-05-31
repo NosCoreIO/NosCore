@@ -169,11 +169,6 @@ namespace NosCore.Data.Enumerations.I18N
         INVALID_CHARNAME,
         BAD_PASSWORD,
         SUPPORT,
-        [UsedImplicitly] ADVENTURER, //keep LanguageKey.ADVENTURER
-        [UsedImplicitly] SWORDMAN, //keep LanguageKey.SWORDMAN
-        [UsedImplicitly] ARCHER, //keep LanguageKey.ARCHER
-        [UsedImplicitly] MAGICIAN, //keep LanguageKey.MAGICIAN
-        [UsedImplicitly] MARTIALARTIST, //keep LanguageKey.MARTIALARTIST
         CHANNEL,
         ADMINISTRATOR,
         CHARACTER_OFFLINE,

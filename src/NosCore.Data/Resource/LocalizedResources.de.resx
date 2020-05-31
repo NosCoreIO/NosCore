@@ -129,9 +129,6 @@
   <data name="ADMINISTRATOR" xml:space="preserve">
     <value>Administrator</value>
   </data>
-  <data name="ADVENTURER" xml:space="preserve">
-    <value>Abenteurer</value>
-  </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Bereits in der Blacklist.</value>
   </data>
@@ -149,9 +146,6 @@
   </data>
   <data name="ALREADY_THIS_MINILANDOBJECT" xml:space="preserve">
     <value>Es ist bereits ein gleiches Objekt im Miniland vorhanden.</value>
-  </data>
-  <data name="ARCHER" xml:space="preserve">
-    <value>Bogenschütze</value>
   </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Möchtest du dieses Item an dich binden?</value>
@@ -550,9 +544,6 @@
   <data name="LOW_REP" xml:space="preserve">
     <value>Dieser Spezialist erfordert mehr Ruf um ihn zu benutzen!</value>
   </data>
-  <data name="MAGICIAN" xml:space="preserve">
-    <value>Magier</value>
-  </data>
   <data name="MAILED" xml:space="preserve">
     <value>Nachricht verschickt!</value>
   </data>
@@ -576,9 +567,6 @@
   </data>
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>Die Map existiert nicht!</value>
-  </data>
-  <data name="MARTIALARTIST" xml:space="preserve">
-    <value>Kampfkünstler</value>
   </data>
   <data name="MASTER_SERVER_PING" xml:space="preserve">
     <value>Ping zum Master Server</value>
@@ -881,9 +869,6 @@
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Bist du dir sicher, dass du das Item löschen möchtest?</value>
-  </data>
-  <data name="SWORDMAN" xml:space="preserve">
-    <value>Schwertkämpfer</value>
   </data>
   <data name="TITLE_EFFECT_CHANGED" xml:space="preserve">
     <value>Titel Effekt wurde geändert.</value>

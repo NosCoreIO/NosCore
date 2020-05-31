@@ -123,9 +123,6 @@
   <data name="ADMINISTRATOR" xml:space="preserve">
     <value>Administrador</value>
   </data>
-  <data name="ADVENTURER" xml:space="preserve">
-    <value>Aventurero</value>
-  </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Ya está en lista negra.</value>
   </data>
@@ -137,9 +134,6 @@
   </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>¡Este nombre ya lo tiene otro usuario!</value>
-  </data>
-  <data name="ARCHER" xml:space="preserve">
-    <value>Arquero</value>
   </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>¿Deseas vincular este objeto?</value>
@@ -398,9 +392,6 @@
   <data name="LOW_REP" xml:space="preserve">
     <value>Esta SP require de más Reputación para usarla.</value>
   </data>
-  <data name="MAGICIAN" xml:space="preserve">
-    <value>Mago</value>
-  </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>¡{0} MapMonsters (Monstruos de los Mapas) Cargados!</value>
   </data>
@@ -418,9 +409,6 @@
   </data>
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>¡Este mapa no existe!</value>
-  </data>
-  <data name="MARTIALARTIST" xml:space="preserve">
-    <value>Artista Marcial</value>
   </data>
   <data name="MASTER_SERVER_PING" xml:space="preserve">
     <value>Comprobando el estado del Servidor Maestro...</value>
@@ -626,9 +614,6 @@
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>¿Estas seguro que deseas eliminar este objeto?</value>
-  </data>
-  <data name="SWORDMAN" xml:space="preserve">
-    <value>Espadachín</value>
   </data>
   <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
     <value>Los efectos secundarios de la transformación han terminado. {0}</value>

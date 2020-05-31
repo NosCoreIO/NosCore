@@ -123,9 +123,6 @@
   <data name="ADMINISTRATOR" xml:space="preserve">
     <value>Administrator</value>
   </data>
-  <data name="ADVENTURER" xml:space="preserve">
-    <value>Poszukiwacz Przygód</value>
-  </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Już na czarnej liście!</value>
   </data>
@@ -137,9 +134,6 @@
   </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Ta nazwa jest niedostępna!</value>
-  </data>
-  <data name="ARCHER" xml:space="preserve">
-    <value>Łucznik</value>
   </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Czy chcesz powiązać z tym przedmiotem?</value>
@@ -400,9 +394,6 @@
   <data name="LOW_REP" xml:space="preserve">
     <value>Twoja reputacja jest zbyt niska, aby założyć tą Kartę Specjalisty!</value>
   </data>
-  <data name="MAGICIAN" xml:space="preserve">
-    <value>Mag</value>
-  </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>Załadowano: {0} MapMonsters!</value>
   </data>
@@ -420,9 +411,6 @@
   </data>
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>Ta mapa nie istnieje!</value>
-  </data>
-  <data name="MARTIALARTIST" xml:space="preserve">
-    <value>Mistrz Sztuk Walki</value>
   </data>
   <data name="MASTER_SERVER_PING" xml:space="preserve">
     <value>Ping do Master Server</value>
@@ -627,9 +615,6 @@
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Czy na pewno chcesz usunąć ten przedmiot?</value>
-  </data>
-  <data name="SWORDMAN" xml:space="preserve">
-    <value>Wojownik</value>
   </data>
   <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
     <value>Efekty uboczne zakończyły się. {0}</value>
