@@ -88,15 +88,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Adventurer.
-        /// </summary>
-        public static string ADVENTURER {
-            get {
-                return ResourceManager.GetString("ADVENTURER", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Already in blacklist!.
         /// </summary>
         public static string ALREADY_BLACKLISTED {
@@ -138,15 +129,6 @@ namespace NosCore.Data.Resource {
         public static string ALREADY_TAKEN {
             get {
                 return ResourceManager.GetString("ALREADY_TAKEN", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Archer.
-        /// </summary>
-        public static string ARCHER {
-            get {
-                return ResourceManager.GetString("ARCHER", resourceCulture);
             }
         }
         
@@ -1159,15 +1141,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Magician.
-        /// </summary>
-        public static string MAGICIAN {
-            get {
-                return ResourceManager.GetString("MAGICIAN", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to This map does not exist!.
         /// </summary>
         public static string MAP_DONT_EXIST {
@@ -1218,15 +1191,6 @@ namespace NosCore.Data.Resource {
         public static string MAPTYPES_PARSED {
             get {
                 return ResourceManager.GetString("MAPTYPES_PARSED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Martial Artist.
-        /// </summary>
-        public static string MARTIALARTIST {
-            get {
-                return ResourceManager.GetString("MARTIALARTIST", resourceCulture);
             }
         }
         
@@ -1965,15 +1929,6 @@ namespace NosCore.Data.Resource {
         public static string SURE_TO_DELETE {
             get {
                 return ResourceManager.GetString("SURE_TO_DELETE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Swordman.
-        /// </summary>
-        public static string SWORDMAN {
-            get {
-                return ResourceManager.GetString("SWORDMAN", resourceCulture);
             }
         }
         

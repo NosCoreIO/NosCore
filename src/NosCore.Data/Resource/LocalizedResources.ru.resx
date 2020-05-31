@@ -130,9 +130,6 @@
   <data name="ADMINISTRATOR" xml:space="preserve">
     <value>Администратор</value>
   </data>
-  <data name="ADVENTURER" xml:space="preserve">
-    <value>Искатель приключений</value>
-  </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Уже в черном списке!</value>
   </data>
@@ -150,9 +147,6 @@
   </data>
   <data name="ALREADY_THIS_MINILANDOBJECT" xml:space="preserve">
     <value>Эта постройка уже возведена</value>
-  </data>
-  <data name="ARCHER" xml:space="preserve">
-    <value>Лучник</value>
   </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Ты хочешь привязать этот предмет?</value>
@@ -572,9 +566,6 @@
     <value>Недостаточно репутации для использования данной Карты специалиста.</value>
     <comment>Возможно нужно перефразировать</comment>
   </data>
-  <data name="MAGICIAN" xml:space="preserve">
-    <value>Маг</value>
-  </data>
   <data name="MAILED" xml:space="preserve">
     <value>Письмо отправлено.</value>
   </data>
@@ -599,9 +590,6 @@
   </data>
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>Локация не существует!</value>
-  </data>
-  <data name="MARTIALARTIST" xml:space="preserve">
-    <value>Мастер боевых искусств</value>
   </data>
   <data name="MASTER_SERVER_PING" xml:space="preserve">
     <value>Отправляем пинг-запрос на Master сервер</value>
@@ -903,9 +891,6 @@
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Ты уверен(-а), что хочешь удалить этот предмет?</value>
-  </data>
-  <data name="SWORDMAN" xml:space="preserve">
-    <value>Мечник</value>
   </data>
   <data name="TITLE_EFFECT_CHANGED" xml:space="preserve">
     <value>Эффект титула изменен</value>

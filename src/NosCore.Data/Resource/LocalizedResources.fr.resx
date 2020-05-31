@@ -267,12 +267,6 @@
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Ce pseudo est déjà utilisé.</value>
   </data>
-  <data name="ADVENTURER" xml:space="preserve">
-    <value>Aventurier</value>
-  </data>
-  <data name="ARCHER" xml:space="preserve">
-    <value>Archer</value>
-  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Mauvais mot de passe.</value>
   </data>
@@ -309,9 +303,6 @@
   <data name="INVALID_CHARNAME" xml:space="preserve">
     <value>Le nom du personnage est invalide.</value>
   </data>
-  <data name="MAGICIAN" xml:space="preserve">
-    <value>Magicien</value>
-  </data>
   <data name="MAPS_PARSED" xml:space="preserve">
     <value>{0} Maps ont été analysées avec succès !</value>
   </data>
@@ -323,9 +314,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Support</value>
-  </data>
-  <data name="SWORDMAN" xml:space="preserve">
-    <value>Escrimeur</value>
   </data>
   <data name="MAPTYPES_PARSED" xml:space="preserve">
     <value>{0} MapsType ont été analysées avec succès !</value>
@@ -524,9 +512,6 @@
   </data>
   <data name="LEVEL_CHANGED" xml:space="preserve">
     <value>Votre niveau a augmenté.</value>
-  </data>
-  <data name="MARTIALARTIST" xml:space="preserve">
-    <value>Artiste Martial</value>
   </data>
   <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
     <value>Fermeture du serveur dans {0} secondes.</value>
