@@ -112,9 +112,9 @@ namespace NosCore.Tests.InventoryTests
         [DataTestMethod]
         [DataRow(CharacterClassType.Adventurer)]
         [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Magician)]
+        [DataRow(CharacterClassType.Mage)]
         [DataRow(CharacterClassType.MartialArtist)]
-        [DataRow(CharacterClassType.Swordman)]
+        [DataRow(CharacterClassType.Swordsman)]
         public async Task Test_Wear_Put_Item_BadClassAsync(CharacterClassType classToTest)
         {
             _session!.Character.Class = classToTest;

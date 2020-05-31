@@ -123,9 +123,6 @@
   <data name="ADMINISTRATOR" xml:space="preserve">
     <value>Yetkili</value>
   </data>
-  <data name="ADVENTURER" xml:space="preserve">
-    <value>Maceracı</value>
-  </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Zaten karalistede!</value>
   </data>
@@ -137,9 +134,6 @@
   </data>
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Bu isim zaten kullanılıyor.</value>
-  </data>
-  <data name="ARCHER" xml:space="preserve">
-    <value>Okçu</value>
   </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Bu eşyayı bağlamak istiyor musun?</value>
@@ -399,9 +393,6 @@
   <data name="LOW_REP" xml:space="preserve">
     <value>İtibarın uzmanlık kartını giymek için yeterli değil.</value>
   </data>
-  <data name="MAGICIAN" xml:space="preserve">
-    <value>Büyücü</value>
-  </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} Harita canavarları yüklendi!</value>
   </data>
@@ -419,9 +410,6 @@
   </data>
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>Böyle bir harita yok!</value>
-  </data>
-  <data name="MARTIALARTIST" xml:space="preserve">
-    <value>Dövüş Üstadı</value>
   </data>
   <data name="MASTER_SERVER_PING" xml:space="preserve">
     <value>Ana Sunucu'ya ping gönder.</value>
@@ -627,9 +615,6 @@
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Bu eşyayı silmek istediğine emin misin?</value>
   </data>
-  <data name="SWORDMAN" xml:space="preserve">
-    <value>Kılıç Eri</value>
-  </data>
   <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
     <value>İkinci efektler bitti. {0}</value>
   </data>
@@ -806,128 +791,128 @@
   </data>
   <data name="QUESTREWARDS_LOADED" xml:space="preserve">
     <value>{0} Görev ödülü yüklendi!</value>
-  </data>	
+  </data>
   <data name="QUESTOBJECTIVES_LOADED" xml:space="preserve">
     <value>{0} Görev hedefi yüklendi!</value>
-  </data>	
+  </data>
   <data name="QUESTS_LOADED" xml:space="preserve">
     <value>{0} Görev yüklendi!</value>
-  </data>	
+  </data>
   <data name="NPCMONSTERSTALKS_LOADED" xml:space="preserve">
-    <value>{0} NPC-Canavar diyaloğu yüklendi!</value>	
-  </data>	
+    <value>{0} NPC-Canavar diyaloğu yüklendi!</value>
+  </data>
   <data name="NPCTALKS_PARSED" xml:space="preserve">
     <value>{0} NPC diyaloğu işlendi!</value>
-  </data>	
+  </data>
   <data name="SCRIPTS_PARSED" xml:space="preserve">
     <value>{0} Script işlendi!</value>
-  </data>	
+  </data>
   <data name="ACTS_PARTS_PARSED" xml:space="preserve">
-    <value>{0} Act bölümleri işlendi!</value>	
-  </data>	
+    <value>{0} Act bölümleri işlendi!</value>
+  </data>
   <data name="QUEST_PRIZES_PARSED" xml:space="preserve">
-    <value>{0} Görev ödülleri işlendi!</value>		
+    <value>{0} Görev ödülleri işlendi!</value>
   </data>
   <data name="STATE_CHANGED_BAZAAR" xml:space="preserve">
-    <value>Satış durumu değiştirildi.</value>		
-  </data>  
+    <value>Satış durumu değiştirildi.</value>
+  </data>
   <data name="CAN_NOT_MODIFY_SOLD_ITEMS" xml:space="preserve">
-    <value>Satılmış olan bir eşyayı düzenleyemezsin!</value>		
-  </data>  
+    <value>Satılmış olan bir eşyayı düzenleyemezsin!</value>
+  </data>
   <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
-    <value>Arkadaşının Mini Ülkesi kapalı durumda.</value>		
-  </data>  
+    <value>Arkadaşının Mini Ülkesi kapalı durumda.</value>
+  </data>
   <data name="MINILAND_PRIVATE" xml:space="preserve">
-    <value>Mini Ülke artık özel.</value>		
-  </data>  
+    <value>Mini Ülke artık özel.</value>
+  </data>
   <data name="MINILAND_PUBLIC" xml:space="preserve">
-    <value>Mini Ülke artık herkese açık.</value>		
-  </data>  
+    <value>Mini Ülke artık herkese açık.</value>
+  </data>
   <data name="MINILAND_LOCK" xml:space="preserve">
-    <value>Mini Ülke kilitlendi.</value>		
-  </data>  
+    <value>Mini Ülke kilitlendi.</value>
+  </data>
   <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
-    <value>Mini Ülke bilgisi düzenlendi.</value>		
-  </data>  
+    <value>Mini Ülke bilgisi düzenlendi.</value>
+  </data>
   <data name="MINILAND_NEED_LOCK" xml:space="preserve">
-    <value>Mini Ülkeni kilitlemelisin!</value>		
-  </data>  
+    <value>Mini Ülkeni kilitlemelisin!</value>
+  </data>
   <data name="ALREADY_THIS_MINILANDOBJECT" xml:space="preserve">
-    <value>Bu obje zaten yerleştirilmiş.</value>		
-  </data>  
+    <value>Bu obje zaten yerleştirilmiş.</value>
+  </data>
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
-    <value>Kullanılabilir yeterli nokta yok.</value>		
-  </data>  
+    <value>Kullanılabilir yeterli nokta yok.</value>
+  </data>
   <data name="NOT_ENOUGH_MINILAND_POINT" xml:space="preserve">
-    <value>Yeterli Mini Ülke noktası yok.</value>		
-  </data>  
+    <value>Yeterli Mini Ülke noktası yok.</value>
+  </data>
   <data name="ITEM_GIFTED" xml:space="preserve">
-    <value>{0} Hediye edildi.</value>		
-  </data>  
+    <value>{0} Hediye edildi.</value>
+  </data>
   <data name="GIFT_SENT" xml:space="preserve">
-    <value>Hediyen gönderildi.</value>		
-  </data>  
+    <value>Hediyen gönderildi.</value>
+  </data>
   <data name="USER_NOT_FOUND" xml:space="preserve">
-    <value>Kullanıcı bulunamadı.</value>		
-  </data>  
+    <value>Kullanıcı bulunamadı.</value>
+  </data>
   <data name="MAIL_DELETED" xml:space="preserve">
-    <value>Posta silindi.</value>		
-  </data>  
+    <value>Posta silindi.</value>
+  </data>
   <data name="MAILED" xml:space="preserve">
-    <value>Posta gönderildi.</value>		
-  </data>  
+    <value>Posta gönderildi.</value>
+  </data>
   <data name="CANT_USE" xml:space="preserve">
-    <value>Kullanılamıyor!</value>		
-  </data>  
+    <value>Kullanılamıyor!</value>
+  </data>
   <data name="CANT_USE_IN_VEHICLE" xml:space="preserve">
-    <value>Taşıt giyerken kullanılamıyor!</value>		
-  </data>  
+    <value>Taşıt giyerken kullanılamıyor!</value>
+  </data>
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
-    <value>Arkadaşın değil.</value>		
-  </data>  
+    <value>Arkadaşın değil.</value>
+  </data>
   <data name="WANT_ENABLE_TITLE" xml:space="preserve">
-    <value>Unvan'ı etkinleştirmek istiyor musun?</value>		
-  </data>  
+    <value>Unvan'ı etkinleştirmek istiyor musun?</value>
+  </data>
   <data name="WEAR_NEW_TITLE" xml:space="preserve">
-    <value>Yeni unvanı giymek istiyor musun.</value>		
-  </data>  
+    <value>Yeni unvanı giymek istiyor musun.</value>
+  </data>
   <data name="TITLE_VISIBILITY_CHANGED" xml:space="preserve">
-    <value>Unvan görünürlüğü değiştirildi.</value>		
-  </data>  
+    <value>Unvan görünürlüğü değiştirildi.</value>
+  </data>
   <data name="TITLE_EFFECT_CHANGED" xml:space="preserve">
-    <value>Unvan etkisinin aktifliği değiştirildi.</value>		
-  </data>  
+    <value>Unvan etkisinin aktifliği değiştirildi.</value>
+  </data>
   <data name="LOGIN_MEDAL" xml:space="preserve">
-    <value>Giriş madalyası</value>		
-  </data>  
+    <value>Giriş madalyası</value>
+  </data>
   <data name="SPEAKER" xml:space="preserve">
-    <value>Hoparlör</value>		
-  </data>  
+    <value>Hoparlör</value>
+  </data>
   <data name="QUEST_ALREADY_DONE" xml:space="preserve">
-    <value>Görev zaten tamamlandı.</value>		
-  </data>  
+    <value>Görev zaten tamamlandı.</value>
+  </data>
   <data name="QUEST_FINISHED" xml:space="preserve">
-    <value>Görev tamamlandı.</value>		
-  </data>  
+    <value>Görev tamamlandı.</value>
+  </data>
   <data name="UNKNOWN" xml:space="preserve">
-    <value>Bilinmiyor</value>		
-  </data>  
+    <value>Bilinmiyor</value>
+  </data>
   <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>Silme işlemi gerçekleştirilemedi.</value>		
-  </data>  
+    <value>Silme işlemi gerçekleştirilemedi.</value>
+  </data>
   <data name="SHOPSKILLS_LOADED" xml:space="preserve">
-    <value>{0} Market becerileri yüklendi!</value>		
-  </data>  
+    <value>{0} Market becerileri yüklendi!</value>
+  </data>
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
-    <value>Eşya bulunamadı.</value>		
-  </data>  
+    <value>Eşya bulunamadı.</value>
+  </data>
   <data name="PARSE_SCRIPTS" xml:space="preserve">
-    <value>Scriptleri işlemek (aktarmak)istiyor musun?</value>		
-  </data>  
+    <value>Scriptleri işlemek (aktarmak)istiyor musun?</value>
+  </data>
   <data name="QUEST_NOT_FOUND" xml:space="preserve">
-    <value>Görev bulunamadı.</value>		
-  </data>  
+    <value>Görev bulunamadı.</value>
+  </data>
   <data name="TOO_HIGH_LEVEL" xml:space="preserve">
-    <value>Seviyesi çok yüksek!</value>		
-  </data>  
+    <value>Seviyesi çok yüksek!</value>
+  </data>
 </root>

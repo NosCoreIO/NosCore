@@ -65,8 +65,8 @@ namespace NosCore.Tests.NRunTests
 
         [DataTestMethod]
         [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Magician)]
-        [DataRow(CharacterClassType.Swordman)]
+        [DataRow(CharacterClassType.Mage)]
+        [DataRow(CharacterClassType.Swordsman)]
         public async Task UserCantChangeClassLowLevelAsync(CharacterClassType characterClass)
         {
             _session!.Character.Level = 15;
@@ -85,8 +85,8 @@ namespace NosCore.Tests.NRunTests
 
         [DataTestMethod]
         [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Magician)]
-        [DataRow(CharacterClassType.Swordman)]
+        [DataRow(CharacterClassType.Mage)]
+        [DataRow(CharacterClassType.Swordsman)]
         public async Task UserCantChangeClassLowJobLevelAsync(CharacterClassType characterClass)
         {
             _session!.Character.JobLevel = 20;
@@ -105,8 +105,8 @@ namespace NosCore.Tests.NRunTests
 
         [DataTestMethod]
         [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Magician)]
-        [DataRow(CharacterClassType.Swordman)]
+        [DataRow(CharacterClassType.Mage)]
+        [DataRow(CharacterClassType.Swordsman)]
         public async Task UserCantChangeBadClassAsync(CharacterClassType characterClass)
         {
             _session!.Character.Class = characterClass;
@@ -115,7 +115,7 @@ namespace NosCore.Tests.NRunTests
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
-                Type = (byte)CharacterClassType.Swordman
+                Type = (byte)CharacterClassType.Swordsman
             }, _session).ConfigureAwait(false);
 
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
@@ -145,8 +145,8 @@ namespace NosCore.Tests.NRunTests
 
         [DataTestMethod]
         [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Magician)]
-        [DataRow(CharacterClassType.Swordman)]
+        [DataRow(CharacterClassType.Mage)]
+        [DataRow(CharacterClassType.Swordsman)]
         public async Task UserCanChangeClassAsync(CharacterClassType characterClass)
         {
             _session!.Character.Level = 15;
@@ -165,8 +165,8 @@ namespace NosCore.Tests.NRunTests
 
         [DataTestMethod]
         [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Magician)]
-        [DataRow(CharacterClassType.Swordman)]
+        [DataRow(CharacterClassType.Mage)]
+        [DataRow(CharacterClassType.Swordsman)]
         public async Task UserCanNotChangeClassWhenEquipmentAsync(CharacterClassType characterClass)
         {
             _session!.Character.Level = 15;
