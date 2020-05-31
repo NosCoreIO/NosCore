@@ -52,6 +52,7 @@ using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Shared.Enumerations;
 using System;
 using NosCore.Core.Configuration;
+using NosCore.Core.I18N;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -421,8 +422,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         {
             return new TitPacket
             {
-                ClassType = visualEntity.GetMessageFromKey((LanguageKey)Enum.Parse(typeof(LanguageKey),
-                    Enum.Parse(typeof(CharacterClassType), visualEntity.Class.ToString()).ToString()!.ToUpperInvariant())),
+                ClassType = (Game18NConstString)Enum.Parse(typeof(Game18NConstString), visualEntity.Class.ToString()),
                 Name = visualEntity.Name
             };
         }
