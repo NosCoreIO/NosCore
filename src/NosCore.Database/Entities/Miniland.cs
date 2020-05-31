@@ -27,7 +27,7 @@ namespace NosCore.Database.Entities
     public class Miniland : IEntity
     {
         [MaxLength(255)]
-        public string? MinilandMessage { get; set; }
+        public string? MinilandMessage { get; set; } = ((short)Game18NConstString.Welcome).ToString();
 
         public long MinilandPoint { get; set; }
 
@@ -44,7 +44,6 @@ namespace NosCore.Database.Entities
 
         public int VisitCount { get; set; }
 
-        [Required]
-        public string WelcomeMusicInfo { get; set; } = "";
+        public short WelcomeMusicInfo { get; set; } = 3800;
     }
 }
