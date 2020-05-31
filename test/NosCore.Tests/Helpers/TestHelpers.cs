@@ -123,6 +123,7 @@ namespace NosCore.Tests.Helpers
         public IDao<AccountDto, long> AccountDao { get; private set; } = null!;
         public IDao<CharacterDto, long> CharacterDao { get; private set; } = null!;
         public IDao<MinilandDto, Guid> MinilandDao { get; private set; } = null!;
+        public IDao<MinilandObjectDto, Guid> MinilandObjectDao { get; private set; } = null!;
         public MapItemProvider? MapItemProvider { get; set; }
         public Guid MinilandId { get; set; } = Guid.NewGuid();
 
@@ -252,6 +253,7 @@ namespace NosCore.Tests.Helpers
             _mapMonsterDao = new Dao<MapMonster, MapMonsterDto, int>(_logger, ContextBuilder);
             _mapNpcDao = new Dao<MapNpc, MapNpcDto, int>(_logger, ContextBuilder);
             MinilandDao = new Dao<Miniland, MinilandDto, Guid>(_logger, ContextBuilder);
+            MinilandObjectDao = new Dao<MinilandObject, MinilandObjectDto, Guid>(_logger, ContextBuilder);
             _shopDao = new Dao<Shop, ShopDto, int>(_logger, ContextBuilder);
             _shopItemDao = new Dao<ShopItem, ShopItemDto, int>(_logger, ContextBuilder);
             CharacterDao = new Dao<Character, CharacterDto, long>(_logger, ContextBuilder);

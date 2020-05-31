@@ -21,9 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Miniland;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -39,12 +36,15 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.PacketHandlers.Friend;
+using NosCore.Packets.ClientPackets.Miniland;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Configuration;
 using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
 
-namespace NosCore.Tests.PacketHandlerTests
+namespace NosCore.Tests.MinilandTests
 {
     [TestClass]
     public class MJoinPacketHandlerTests
