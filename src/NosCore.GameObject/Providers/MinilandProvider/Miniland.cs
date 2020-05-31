@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
         {
             return new MlInfoBrPacket
             {
-                Unknown1 = 3800,
+                MinilandMusicId = 3800,
                 Name = CharacterEntity?.Name,
                 MinilandMessage = MinilandMessage,
                 DailyVisitCount = DailyVisitCount,
@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
         {
             return new MlinfoPacket
             {
-                Unknown1 = 3800,
+                WelcomeMusicInfo = WelcomeMusicInfo,
                 DailyVisitCount = DailyVisitCount,
                 VisitCount = VisitCount,
                 Unknown2 = 0,
@@ -56,7 +56,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                 MinilandPoint = MinilandPoint,
                 MinilandState = State,
                 MinilandWelcomeMessage = MinilandMessage,
-                WelcomeMusicInfo = WelcomeMusicInfo
+                WelcomeMusicInfo2 = WelcomeMusicInfo
             };
         }
     }
