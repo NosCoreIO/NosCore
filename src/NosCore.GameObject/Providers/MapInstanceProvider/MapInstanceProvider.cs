@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         private readonly List<MapDto> _maps;
         private readonly IDao<PortalDto, int> _portalDao;
 
-        private ConcurrentDictionary<Guid, MapInstance> MapInstances =
+        private ConcurrentDictionary<Guid, MapInstance> _mapInstances =
             new ConcurrentDictionary<Guid, MapInstance>();
 
         public MapInstanceProvider(List<MapDto> maps,
@@ -61,13 +61,13 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public Task AddMapInstanceAsync(MapInstance mapInstance)
         {
-            MapInstances.TryAdd(mapInstance.MapInstanceId, mapInstance);
+            _mapInstances.TryAdd(mapInstance.MapInstanceId, mapInstance);
             return LoadPortalsAsync(mapInstance, _portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId).ToList());
         }
 
         public void RemoveMap(Guid mapInstanceId)
         {
-            MapInstances.TryRemove(mapInstanceId, out var mapInstance);
+            _mapInstances.TryRemove(mapInstanceId, out var mapInstance);
             mapInstance?.Kick();
         }
 
@@ -82,7 +82,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             var portals = _portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
 
             var mapsdic = _maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
-            MapInstances = new ConcurrentDictionary<Guid, MapInstance>(_maps.Adapt<List<Map.Map>>().ToDictionary(
+            _mapInstances = new ConcurrentDictionary<Guid, MapInstance>(_maps.Adapt<List<Map.Map>>().ToDictionary(
                 map => mapsdic[map.MapId],
                 map =>
                 {
@@ -102,24 +102,24 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                     return mapinstance;
                 }));
 
-            await Task.WhenAll(MapInstances.Values.Select(s=>s.StartLifeAsync())).ConfigureAwait(false);
-            await Task.WhenAll(MapInstances.Values.Select(mapInstance => portals.ContainsKey(mapInstance.Map.MapId) ? LoadPortalsAsync(mapInstance, portals[mapInstance.Map.MapId]) : Task.CompletedTask)).ConfigureAwait(false);
+            await Task.WhenAll(_mapInstances.Values.Select(s=>s.StartLifeAsync())).ConfigureAwait(false);
+            await Task.WhenAll(_mapInstances.Values.Select(mapInstance => portals.ContainsKey(mapInstance.Map.MapId) ? LoadPortalsAsync(mapInstance, portals[mapInstance.Map.MapId]) : Task.CompletedTask)).ConfigureAwait(false);
         }
 
         public Guid GetBaseMapInstanceIdByMapId(short mapId)
         {
-            return MapInstances.FirstOrDefault(s =>
+            return _mapInstances.FirstOrDefault(s =>
                 (s.Value?.Map.MapId == mapId) && (s.Value.MapInstanceType == MapInstanceType.BaseMapInstance)).Key;
         }
 
         public MapInstance? GetMapInstance(Guid id)
         {
-            return MapInstances.ContainsKey(id) ? MapInstances[id] : null;
+            return _mapInstances.ContainsKey(id) ? _mapInstances[id] : null;
         }
 
         public MapInstance GetBaseMapById(short mapId)
         {
-            return MapInstances.FirstOrDefault(s =>
+            return _mapInstances.FirstOrDefault(s =>
                 (s.Value?.Map.MapId == mapId) && (s.Value.MapInstanceType == MapInstanceType.BaseMapInstance)).Value;
         }
 

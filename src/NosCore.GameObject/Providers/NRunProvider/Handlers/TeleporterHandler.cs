@@ -50,12 +50,12 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
             };
         }
 
-        private async Task RemoveGoldAndTeleportAsync(ClientSession clientSession, short mapId, long GoldToPay, short x1, short x2,
+        private async Task RemoveGoldAndTeleportAsync(ClientSession clientSession, short mapId, long goldToPay, short x1, short x2,
             short y1, short y2)
         {
-            if (clientSession.Character.Gold >= GoldToPay)
+            if (clientSession.Character.Gold >= goldToPay)
             {
-                await clientSession.Character.RemoveGoldAsync(GoldToPay).ConfigureAwait(false);
+                await clientSession.Character.RemoveGoldAsync(goldToPay).ConfigureAwait(false);
                 await clientSession.ChangeMapAsync(
                     mapId, (short) RandomHelper.Instance.RandomNumber(x1, x2),
                     (short) RandomHelper.Instance.RandomNumber(y1, y2)).ConfigureAwait(false);

@@ -104,10 +104,9 @@ namespace NosCore.PacketHandlers.Group
 
                     if (targetSession.GroupRequestBlocked)
                     {
-                        await clientSession.SendPacketAsync(new MsgPacket
+                        await clientSession.SendPacketAsync(new MsgiPacket
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_BLOCKED,
-                                clientSession.Account.Language)
+                            Message = Game18NConstString.GroupBlocked
                         }).ConfigureAwait(false);
                         return;
                     }

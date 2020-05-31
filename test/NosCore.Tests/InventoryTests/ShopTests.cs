@@ -56,6 +56,7 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Tests.Helpers;
 using Serilog;
@@ -201,9 +202,8 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Etc, 2);
 
             await _session.Character.BuyAsync(shop, 0, 999).ConfigureAwait(false);
-            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, _session.Account.Language));
+            var packet = (MsgiPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Message == Game18NConstString.NotEnoughSpace);
         }
 
         [TestMethod]

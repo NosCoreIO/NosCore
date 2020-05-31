@@ -107,10 +107,9 @@ namespace NosCore.PacketHandlers.Bazaar
                     }
                     else
                     {
-                        await clientSession.SendPacketAsync(new MsgPacket
+                        await clientSession.SendPacketAsync(new MsgiPacket
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
-                                clientSession.Account.Language),
+                            Message = Game18NConstString.MaxGoldReached,
                             Type = MessageType.Whisper
                         }).ConfigureAwait(false);
                     }

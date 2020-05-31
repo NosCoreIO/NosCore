@@ -25,7 +25,7 @@ using DotNetty.Transport.Channels.Groups;
 
 namespace NosCore.GameObject.Networking.Group
 {
-    public static class IBroadcastableExtension
+    public static class BroadcastableExtension
     {
         public static Task SendPacketAsync(this IBroadcastable channelGroup, IPacket packet)
         {

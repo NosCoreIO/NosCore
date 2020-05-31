@@ -164,9 +164,6 @@
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Your character does not fulfil the requirements needed to wear this item.</value>
   </data>
-  <data name="BAD_FAIRY" xml:space="preserve">
-    <value>Your specialist does not match with the fairy element.</value>
-  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Wrong password!</value>
   </data>
@@ -289,9 +286,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>You are the group admin!</value>
-  </data>
-  <data name="GROUP_BLOCKED" xml:space="preserve">
-    <value>This user has blocked the group invitations!</value>
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Group disbanded</value>
@@ -548,10 +542,6 @@
     <value>Registered on MasterServer</value>
     <comment>check</comment>
   </data>
-  <data name="REMOVE_VEHICLE" xml:space="preserve">
-    <value>To transform dismount the vehicle.</value>
-    <comment>Not used in the official</comment>
-  </data>
   <data name="REPUT_DECREASED" xml:space="preserve">
     <value>Your reputation has decreased!</value>
   </data>
@@ -572,12 +562,6 @@
   </data>
   <data name="SHOP_EMPTY" xml:space="preserve">
     <value>You can not open an empty shop!</value>
-  </data>
-  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
-    <value>Open a shop away from the portal please.</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
-    <value>You can not open a shop in this map.</value>
   </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>You can not open a shop in a raid.</value>
@@ -626,9 +610,6 @@
   </data>
   <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
     <value>The secondary effects have finished. {0}</value>
-  </data>
-  <data name="TOO_LOW_LEVEL" xml:space="preserve">
-    <value>You need at least "Level 15" and "Job Level 20" to change your class.</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>The seller does not have sufficient space to handle your money.</value>

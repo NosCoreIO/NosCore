@@ -58,28 +58,25 @@ namespace NosCore.PacketHandlers.Miniland
                     switch (mlEditPacket.Parameter)
                     {
                         case MinilandState.Private:
-                            await clientSession.SendPacketAsync(new MsgPacket
+                            await clientSession.SendPacketAsync(new MsgiPacket
                             {
-                                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_PRIVATE,
-                                    clientSession.Account.Language)
+                                Message = Game18NConstString.MinilandPrivate
                             }).ConfigureAwait(false);
                             await _minilandProvider.SetStateAsync(clientSession.Character.CharacterId, MinilandState.Private).ConfigureAwait(false);
                             break;
 
                         case MinilandState.Lock:
-                            await clientSession.SendPacketAsync(new MsgPacket
+                            await clientSession.SendPacketAsync(new MsgiPacket
                             {
-                                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_LOCK,
-                                    clientSession.Account.Language)
+                                Message = Game18NConstString.MinilandLocked
                             }).ConfigureAwait(false);
                             await _minilandProvider.SetStateAsync(clientSession.Character.CharacterId, MinilandState.Lock).ConfigureAwait(false);
                             break;
 
                         case MinilandState.Open:
-                            await clientSession.SendPacketAsync(new MsgPacket
+                            await clientSession.SendPacketAsync(new MsgiPacket
                             {
-                                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_PUBLIC,
-                                    clientSession.Account.Language)
+                                Message = Game18NConstString.MinilandPublic
                             }).ConfigureAwait(false);
                             await _minilandProvider.SetStateAsync(clientSession.Character.CharacterId, MinilandState.Open).ConfigureAwait(false);
                             break;

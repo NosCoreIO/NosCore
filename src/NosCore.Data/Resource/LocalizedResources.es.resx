@@ -162,9 +162,6 @@
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Tu personaje no cumple con los requisitos necesarios para llevar este objeto.</value>
   </data>
-  <data name="BAD_FAIRY" xml:space="preserve">
-    <value>Tu especialista no es compatible con el elemento de la hada.</value>
-  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>¡Contraseña incorrecta!</value>
   </data>
@@ -287,9 +284,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>¡Ahora eres el administrador del grupo!</value>
-  </data>
-  <data name="GROUP_BLOCKED" xml:space="preserve">
-    <value>Este jugador ha bloqueado las peticiones de grupo.</value>
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Se ha disuelto el grupo.</value>
@@ -539,10 +533,6 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrado en el Servidor Maestro.</value>
   </data>
-  <data name="REMOVE_VEHICLE" xml:space="preserve">
-    <value>Para transformarte desactiva la montura.</value>
-    <comment>Not used in the official</comment>
-  </data>
   <data name="REPUT_DECREASED" xml:space="preserve">
     <value>¡Tu reputación ha disminuido!</value>
   </data>
@@ -563,12 +553,6 @@
   </data>
   <data name="SHOP_EMPTY" xml:space="preserve">
     <value>¡No puedes abrir una tienda vacia!</value>
-  </data>
-  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
-    <value>Abre una tienda lejos del portal.</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
-    <value>No puedes abrir una tienda en este mapa.</value>
   </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>No puedes abrir una tienda en un raid.</value>
@@ -617,9 +601,6 @@
   </data>
   <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
     <value>Los efectos secundarios de la transformación han terminado. {0}</value>
-  </data>
-  <data name="TOO_LOW_LEVEL" xml:space="preserve">
-    <value>Necesitas como minimo "Nivel 15" y "Nivel de Profesión 20" para cambiar de clase.</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>El vendedor no tiene suficiente espacio para recibir tus oros.</value>

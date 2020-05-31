@@ -162,9 +162,6 @@
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Karakterin bu eşyayı giymek için gereksinimleri karşılamıyor.</value>
   </data>
-  <data name="BAD_FAIRY" xml:space="preserve">
-    <value>Uzmanlık kartın ile perinin elementi uyuşmuyor.</value>
-  </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Parola hatalı.</value>
   </data>
@@ -284,9 +281,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Bu grubun yöneticisisin.</value>
-  </data>
-  <data name="GROUP_BLOCKED" xml:space="preserve">
-    <value>Bu kullanıcı grup davetlerini bloklamış.</value>
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Grup dağıtıldı.</value>
@@ -540,9 +534,6 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Ana Sunucu'ya bağlanıldı.</value>
   </data>
-  <data name="REMOVE_VEHICLE" xml:space="preserve">
-    <value>Taşıt kullanırken sadece YP/BP iksiri kullanabilirsin.</value>
-  </data>
   <data name="REPUT_DECREASED" xml:space="preserve">
     <value>İtibarın azaldı.</value>
   </data>
@@ -563,12 +554,6 @@
   </data>
   <data name="SHOP_EMPTY" xml:space="preserve">
     <value>Boş bir market oluşturamazsın.</value>
-  </data>
-  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
-    <value>Portal ve geçit yakınlarında market oluşturamazsın.</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
-    <value>Bu haritada market oluşturamazsın.</value>
   </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Akın esnasında market oluşturamazsın.</value>
@@ -617,9 +602,6 @@
   </data>
   <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
     <value>İkinci efektler bitti. {0}</value>
-  </data>
-  <data name="TOO_LOW_LEVEL" xml:space="preserve">
-    <value>Sınıf değiştirmek için Seviyen 15, Meslek Seviyen 20 olmalıdır.</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Satıcı iade işlemi için yeterli alana sahip değil.</value>
@@ -822,23 +804,11 @@
   <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
     <value>Arkadaşının Mini Ülkesi kapalı durumda.</value>
   </data>
-  <data name="MINILAND_PRIVATE" xml:space="preserve">
-    <value>Mini Ülke artık özel.</value>
-  </data>
-  <data name="MINILAND_PUBLIC" xml:space="preserve">
-    <value>Mini Ülke artık herkese açık.</value>
-  </data>
-  <data name="MINILAND_LOCK" xml:space="preserve">
-    <value>Mini Ülke kilitlendi.</value>
-  </data>
   <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
     <value>Mini Ülke bilgisi düzenlendi.</value>
   </data>
   <data name="MINILAND_NEED_LOCK" xml:space="preserve">
     <value>Mini Ülkeni kilitlemelisin!</value>
-  </data>
-  <data name="ALREADY_THIS_MINILANDOBJECT" xml:space="preserve">
-    <value>Bu obje zaten yerleştirilmiş.</value>
   </data>
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
     <value>Kullanılabilir yeterli nokta yok.</value>
@@ -911,8 +881,5 @@
   </data>
   <data name="QUEST_NOT_FOUND" xml:space="preserve">
     <value>Görev bulunamadı.</value>
-  </data>
-  <data name="TOO_HIGH_LEVEL" xml:space="preserve">
-    <value>Seviyesi çok yüksek!</value>
   </data>
 </root>

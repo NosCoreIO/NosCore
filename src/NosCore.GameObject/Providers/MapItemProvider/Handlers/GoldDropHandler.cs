@@ -58,10 +58,9 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             else
             {
                 requestData.ClientSession.Character.Gold = maxGold;
-                await requestData.ClientSession.SendPacketAsync(new MsgPacket
+                await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
-                        requestData.ClientSession.Account.Language),
+                    Message = Game18NConstString.MaxGoldReached,
                     Type = 0
                 }).ConfigureAwait(false);
             }

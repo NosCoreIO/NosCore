@@ -78,9 +78,8 @@ namespace NosCore.Tests.NRunTests
                 Type = (byte)characterClass
             }, _session).ConfigureAwait(false);
 
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
-                _session.Account.Language)) && (packet.Type == MessageType.White));
+            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Message == Game18NConstString.CanNotChangeJobAtThisLevel && packet.Type == MessageType.White);
         }
 
         [DataTestMethod]
@@ -98,9 +97,8 @@ namespace NosCore.Tests.NRunTests
                 Type = (byte)characterClass
             }, _session).ConfigureAwait(false);
 
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
-                _session.Account.Language)) && (packet.Type == MessageType.White));
+            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Message == Game18NConstString.CanNotChangeJobAtThisLevel && packet.Type == MessageType.White);
         }
 
         [DataTestMethod]

@@ -78,9 +78,8 @@ namespace NosCore.Tests.InventoryTests
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSp }, _session).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE, _session.Account.Language));
+            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Message == Game18NConstString.CantUseInVehicle);
         }
 
 
@@ -136,9 +135,8 @@ namespace NosCore.Tests.InventoryTests
             fairy.Type = NoscorePocketType.Wear;
             fairy.Slot = (byte)EquipmentType.Fairy;
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_FAIRY, _session.Account.Language));
+            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Message == Game18NConstString.SpecialistAndFairyDifferentElement);
         }
 
         [TestMethod]

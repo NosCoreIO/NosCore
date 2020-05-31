@@ -61,10 +61,9 @@ namespace NosCore.PacketHandlers.Inventory
 
                 if (clientSession.Character.IsVehicled)
                 {
-                    await clientSession.SendPacketAsync(new MsgPacket
+                    await clientSession.SendPacketAsync(new MsgiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.REMOVE_VEHICLE,
-                            clientSession.Account.Language)
+                        Message = Game18NConstString.CantUseInVehicle
                     }).ConfigureAwait(false);
                     return;
                 }

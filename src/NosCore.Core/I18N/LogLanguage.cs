@@ -28,7 +28,7 @@ namespace NosCore.Core.I18N
     {
         private static LogLanguage? _instance;
 
-        private static readonly CultureInfo _resourceCulture = new CultureInfo(Language.ToString());
+        private static readonly CultureInfo ResourceCulture = new CultureInfo(Language.ToString());
 
         private readonly ResourceManager _manager;
 
@@ -51,7 +51,7 @@ namespace NosCore.Core.I18N
 
         public string GetMessageFromKey(LogLanguageKey messageKey, string? culture)
         {
-            var cult = culture != null ? new CultureInfo(culture) : _resourceCulture;
+            var cult = culture != null ? new CultureInfo(culture) : ResourceCulture;
             var resourceMessage = (_manager != null)
                 ? _manager.GetResourceSet(cult, true,
                         cult.TwoLetterISOLanguageName == default(RegionType).ToString().ToLower(cult))
@@ -62,7 +62,7 @@ namespace NosCore.Core.I18N
 
         public ResourceSet? GetRessourceSet(string? culture)
         {
-            return _manager.GetResourceSet(culture != null ? new CultureInfo(culture) : _resourceCulture, true, true);
+            return _manager.GetResourceSet(culture != null ? new CultureInfo(culture) : ResourceCulture, true, true);
         }
     }
 }

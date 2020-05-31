@@ -56,10 +56,9 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 
             if ((requestData.ClientSession.Character.Level < 15) || (requestData.ClientSession.Character.JobLevel < 20))
             {
-                await requestData.ClientSession.SendPacketAsync(new MsgPacket
+                await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL,
-                        requestData.ClientSession.Account.Language),
+                    Message = Game18NConstString.CanNotChangeJobAtThisLevel,
                     Type = MessageType.White
                 }).ConfigureAwait(false);
                 return;

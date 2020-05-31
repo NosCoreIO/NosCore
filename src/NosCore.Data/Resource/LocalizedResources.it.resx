@@ -144,9 +144,6 @@
   <data name="ALREADY_TAKEN" xml:space="preserve">
     <value>Questo nome è già in uso !</value>
   </data>
-  <data name="ALREADY_THIS_MINILANDOBJECT" xml:space="preserve">
-    <value>Questo elemento è già stato inserito nella mini-land.</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Vuoi usare questo oggetto? Non potrai più commerciarlo</value>
   </data>
@@ -176,9 +173,6 @@
   </data>
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Il tuo personaggio non ha i requisiti necessari per indossare questo oggetto.</value>
-  </data>
-  <data name="BAD_FAIRY" xml:space="preserve">
-    <value>Il tuo specialista non ha l'elemento della fata.</value>
   </data>
   <data name="BAD_PASSWORD" xml:space="preserve">
     <value>Password errata</value>
@@ -367,9 +361,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Sei il leader del gruppo</value>
-  </data>
-  <data name="GROUP_BLOCKED" xml:space="preserve">
-    <value>L'utente ha bloccato gli inviti di gruppo</value>
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Il gruppo è stato sciolto</value>
@@ -577,17 +568,8 @@
   <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
     <value>Informazioni mini-land aggiornate.</value>
   </data>
-  <data name="MINILAND_LOCK" xml:space="preserve">
-    <value>La mini-land è ora chiusa.</value>
-  </data>
   <data name="MINILAND_NEED_LOCK" xml:space="preserve">
     <value>La costruzione è possibile solo con la mini-land chiusa.</value>
-  </data>
-  <data name="MINILAND_PRIVATE" xml:space="preserve">
-    <value>Da ora in poi, il mini-land è accessibile solo agli amici.</value>
-  </data>
-  <data name="MINILAND_PUBLIC" xml:space="preserve">
-    <value>Il mini-landè ora aperta a tutti.</value>
   </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Numero totale di visitatori: {0} visitatori di oggi: {1}</value>
@@ -786,9 +768,6 @@
   <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
     <value>La vendita è stata completata, hai ricevuto: {0} oro.</value>
   </data>
-  <data name="REMOVE_VEHICLE" xml:space="preserve">
-    <value>Sei sceso dal veicolo.</value>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>La reputazione è cambiata!</value>
   </data>
@@ -836,12 +815,6 @@
   </data>
   <data name="SHOP_EMPTY" xml:space="preserve">
     <value>Non puoi aprire una bottega vuota!</value>
-  </data>
-  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
-    <value>Non puoi aprire una bottega vicino al portale.</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
-    <value>Non puoi aprire una bottega in questa mappa.</value>
   </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Non puoi aprire una bottega durante un raid.</value>
@@ -896,12 +869,6 @@
   </data>
   <data name="TOKEN_UPDATED" xml:space="preserve">
     <value>Token aggiornato.</value>
-  </data>
-  <data name="TOO_HIGH_LEVEL" xml:space="preserve">
-    <value>Il livello è troppo alto!</value>
-  </data>
-  <data name="TOO_LOW_LEVEL" xml:space="preserve">
-    <value>Per cambiare classe devi essere minimo Livello 15 e Livello lavoro 20.</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Il negoziante non ha abbastanza spazio per ricevere il tuo oro.</value>
