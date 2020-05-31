@@ -69,10 +69,9 @@ namespace NosCore.PacketHandlers.Shops
 
             if (clientSession.Character.Gold + price * sellPacket.Amount > _worldConfiguration.MaxGoldAmount)
             {
-                await clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAX_GOLD,
-                        clientSession.Account.Language),
+                    Message = Game18NConstString.MaxGoldReached,
                     Type = 0
                 }).ConfigureAwait(false);
                 return;

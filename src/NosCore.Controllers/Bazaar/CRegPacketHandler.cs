@@ -71,10 +71,9 @@ namespace NosCore.PacketHandlers.Bazaar
             var maxGold = _configuration.MaxGoldAmount;
             if (clientSession.Character.Gold < tax)
             {
-                await clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
-                        clientSession.Account.Language)
+                    Message = Game18NConstString.NotEnoughGold
                 }).ConfigureAwait(false);
                 return;
             }

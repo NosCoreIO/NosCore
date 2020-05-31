@@ -78,10 +78,9 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
             }
             else
             {
-                await requestData.ClientSession.SendPacketAsync(new MsgPacket
+                await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                        requestData.ClientSession.Account.Language),
+                    Message = Game18NConstString.NotEnoughSpace,
                     Type = 0
                 }).ConfigureAwait(false);
             }

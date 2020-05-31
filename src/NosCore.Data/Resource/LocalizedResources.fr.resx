@@ -474,9 +474,6 @@
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>L'utilisateur n'est pas dans ta liste d'ami.</value>
   </data>
-  <data name="GROUP_BLOCKED" xml:space="preserve">
-    <value>Vous ne pouvez plus recevoir d'invitation dans un groupe.</value>
-  </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
     <value>Désirez vous partager le point de retour avec les membres du groupe ?</value>
   </data>
@@ -534,9 +531,6 @@
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Vous ne pouvez pas équiper cet équipement.</value>
   </data>
-  <data name="BAD_FAIRY" xml:space="preserve">
-    <value>La fée est d'un élément différent de la SPque vous tentez d'équiper.</value>
-  </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Vous avez acheté un objet.</value>
   </data>
@@ -573,9 +567,6 @@
   <data name="NO_SP" xml:space="preserve">
     <value>Vous n'avez aucune SPéquipée.</value>
   </data>
-  <data name="REMOVE_VEHICLE" xml:space="preserve">
-    <value>Veuillez quitter la locomotion pour équiper une carte SP.</value>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Votre réputation a changée.</value>
   </data>
@@ -600,12 +591,6 @@
   <data name="SHOP_EMPTY" xml:space="preserve">
     <value>Impossible d'ouvir le magasin car il est vide.</value>
   </data>
-  <data name="SHOP_NEAR_PORTAL" xml:space="preserve">
-    <value>Le magasin est trop pret du téléporteur.</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED" xml:space="preserve">
-    <value>Impossible d'ouvrir un magasin ici.</value>
-  </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Impossible d'ouvrir un magasin en tant que membre du raid.</value>
   </data>
@@ -629,9 +614,6 @@
   </data>
   <data name="STAY_TIME" xml:space="preserve">
     <value>Effet restant avant de pouvoir se transformer à nouveau : {0} secondes.</value>
-  </data>
-  <data name="TOO_LOW_LEVEL" xml:space="preserve">
-    <value>Vous devez etre niveau 15 de combat et 20 de métier pour changer de classe.</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Impossible d'acheter l'objet car le propiétaire ne peut pas collecter tout l'or.</value>
@@ -795,9 +777,6 @@
   <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
     <value>Tu ne peux pas encore envoyer l'invitation. Merci de réessayer dans {0} secondes.</value>
   </data>
-  <data name="ALREADY_THIS_MINILANDOBJECT" xml:space="preserve">
-    <value>Ce bâtiment a déjà été érigé.</value>
-  </data>
   <data name="AUTH_API_SUCCESS" xml:space="preserve">
     <value>Autorisation d'API réussie.</value>
   </data>
@@ -846,17 +825,8 @@
   <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
     <value>Informations du mini-pays mis à jour.</value>
   </data>
-  <data name="MINILAND_LOCK" xml:space="preserve">
-    <value>Mini-pays fermé.</value>
-  </data>
   <data name="MINILAND_NEED_LOCK" xml:space="preserve">
     <value>La construction n'est possible que dans un mini-pays fermé.</value>
-  </data>
-  <data name="MINILAND_PRIVATE" xml:space="preserve">
-    <value>Désormais, le mini-pays n'est accessible qu'aux amis.</value>
-  </data>
-  <data name="MINILAND_PUBLIC" xml:space="preserve">
-    <value>Désormais, le mini-pays est ouvert à tous.</value>
   </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Nombre total de visiteurs: {0} visiteurs actuels: {1}</value>

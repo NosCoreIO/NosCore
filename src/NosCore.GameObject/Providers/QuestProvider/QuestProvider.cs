@@ -225,20 +225,20 @@ namespace NosCore.GameObject.Providers.QuestProvider
 
             if (quest.LevelMin > character.Level)
             {
-                await character.SendPacketAsync(new MsgPacket
+                await character.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Whisper,
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_LOW_LEVEL, character.AccountLanguage)
+                    Message = Game18NConstString.LevelTooLow
                 }).ConfigureAwait(false);
                 return false;
             }
 
             if (quest.LevelMax < character.Level)
             {
-                await character.SendPacketAsync(new MsgPacket
+                await character.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Whisper,
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_HIGH_LEVEL, character.AccountLanguage)
+                    Message = Game18NConstString.LevelTooHigh
                 }).ConfigureAwait(false);
                 return false;
             }
