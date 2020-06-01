@@ -79,7 +79,6 @@ namespace NosCore.Tests.MinilandTests
                 });
             await TestHelpers.Instance.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto()
             {
-                Owner = _session.Character,
                 OwnerId = _session.Character.CharacterId,
             });
             _minilandProvider = new MinilandProvider(TestHelpers.Instance.MapInstanceProvider,
