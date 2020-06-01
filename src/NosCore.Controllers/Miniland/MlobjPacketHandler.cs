@@ -47,10 +47,9 @@ namespace NosCore.PacketHandlers.Miniland
                 case 1:
                     await clientSession.SendPacketAsync(new MlintroPacket {Intro = mlEditPacket.MinilandInfo!.Replace(' ', '^')}).ConfigureAwait(false);
                     miniland.MinilandMessage = mlEditPacket.MinilandInfo;
-                    await clientSession.SendPacketAsync(new InfoPacket
+                    await clientSession.SendPacketAsync(new InfoiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_INFO_CHANGED,
-                            clientSession.Account.Language)
+                        Message = Game18NConstString.MinilandChanged
                     }).ConfigureAwait(false);
                     break;
 

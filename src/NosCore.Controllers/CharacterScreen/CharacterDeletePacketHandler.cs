@@ -28,6 +28,7 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -81,9 +82,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             else
             {
-                await clientSession.SendPacketAsync(new InfoPacket
+                await clientSession.SendPacketAsync(new InfoiPacket
                 {
-                    Message = clientSession.GetMessageFromKey(LanguageKey.BAD_PASSWORD)
+                    Message = Game18NConstString.IncorrectPassword
                 }).ConfigureAwait(false);
             }
         }

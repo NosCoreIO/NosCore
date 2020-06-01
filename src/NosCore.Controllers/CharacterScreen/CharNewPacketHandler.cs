@@ -112,17 +112,17 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
                 else
                 {
-                    await clientSession.SendPacketAsync(new InfoPacket
+                    await clientSession.SendPacketAsync(new InfoiPacket
                     {
-                        Message = clientSession.GetMessageFromKey(LanguageKey.ALREADY_TAKEN)
+                        Message = Game18NConstString.CharacterNameAlreadyTaken
                     }).ConfigureAwait(false);
                 }
             }
             else
             {
-                await clientSession.SendPacketAsync(new InfoPacket
+                await clientSession.SendPacketAsync(new InfoiPacket
                 {
-                    Message = clientSession.GetMessageFromKey(LanguageKey.INVALID_CHARNAME)
+                    Message = Game18NConstString.NameIsInvalid
                 }).ConfigureAwait(false);
             }
         }

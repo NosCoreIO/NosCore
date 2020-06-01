@@ -34,6 +34,7 @@ using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.Enumerations;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
 
@@ -89,9 +90,9 @@ namespace NosCore.PacketHandlers.Chat
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
-                await session.SendPacketAsync(new InfoPacket
+                await session.SendPacketAsync(new InfoiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_OFFLINE, session.Account.Language)
+                    Message = Game18NConstString.FriendOffline
                 }).ConfigureAwait(false);
                 return;
             }

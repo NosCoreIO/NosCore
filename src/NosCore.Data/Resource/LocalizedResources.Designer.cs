@@ -115,24 +115,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You are already in group!.
-        /// </summary>
-        public static string ALREADY_IN_GROUP {
-            get {
-                return ResourceManager.GetString("ALREADY_IN_GROUP", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to This name is already taken!.
-        /// </summary>
-        public static string ALREADY_TAKEN {
-            get {
-                return ResourceManager.GetString("ALREADY_TAKEN", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Do you wish to bind with this item?.
         /// </summary>
         public static string ASK_BIND {
@@ -210,15 +192,6 @@ namespace NosCore.Data.Resource {
         public static string BAD_EQUIPMENT {
             get {
                 return ResourceManager.GetString("BAD_EQUIPMENT", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Wrong password!.
-        /// </summary>
-        public static string BAD_PASSWORD {
-            get {
-                return ResourceManager.GetString("BAD_PASSWORD", resourceCulture);
             }
         }
         
@@ -601,15 +574,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your friend is offline!.
-        /// </summary>
-        public static string FRIEND_OFFLINE {
-            get {
-                return ResourceManager.GetString("FRIEND_OFFLINE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Friend request rejected!.
         /// </summary>
         public static string FRIEND_REJECTED {
@@ -669,24 +633,6 @@ namespace NosCore.Data.Resource {
         public static string GROUP_CLOSED {
             get {
                 return ResourceManager.GetString("GROUP_CLOSED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The group is full!.
-        /// </summary>
-        public static string GROUP_FULL {
-            get {
-                return ResourceManager.GetString("GROUP_FULL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invitation sent!.
-        /// </summary>
-        public static string GROUP_INVITE {
-            get {
-                return ResourceManager.GetString("GROUP_INVITE", resourceCulture);
             }
         }
         
@@ -880,15 +826,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid characters in your nickname!.
-        /// </summary>
-        public static string INVALID_CHARNAME {
-            get {
-                return ResourceManager.GetString("INVALID_CHARNAME", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to You can only exchange tradable items..
         /// </summary>
         public static string INVALID_EXCHANGE {
@@ -912,15 +849,6 @@ namespace NosCore.Data.Resource {
         public static string INVALID_PASSWORD {
             get {
                 return ResourceManager.GetString("INVALID_PASSWORD", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Your inventory is full.
-        /// </summary>
-        public static string INVENTORY_FULL {
-            get {
-                return ResourceManager.GetString("INVENTORY_FULL", resourceCulture);
             }
         }
         
@@ -993,15 +921,6 @@ namespace NosCore.Data.Resource {
         public static string ITEM_NOT_SOLDABLE {
             get {
                 return ResourceManager.GetString("ITEM_NOT_SOLDABLE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You can&apos;t trade some item.
-        /// </summary>
-        public static string ITEM_NOT_TRADABLE {
-            get {
-                return ResourceManager.GetString("ITEM_NOT_TRADABLE", resourceCulture);
             }
         }
         
@@ -1204,15 +1123,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Maximum amount of gold reached!.
-        /// </summary>
-        public static string MAX_GOLD {
-            get {
-                return ResourceManager.GetString("MAX_GOLD", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {0} MapMonsters Parsed!.
         /// </summary>
         public static string MONSTERS_PARSED {
@@ -1299,15 +1209,6 @@ namespace NosCore.Data.Resource {
         public static string NOT_ENOUGH_MONEY {
             get {
                 return ResourceManager.GetString("NOT_ENOUGH_MONEY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Not enough place..
-        /// </summary>
-        public static string NOT_ENOUGH_PLACE {
-            get {
-                return ResourceManager.GetString("NOT_ENOUGH_PLACE", resourceCulture);
             }
         }
         

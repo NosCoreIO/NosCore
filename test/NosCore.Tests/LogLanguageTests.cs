@@ -230,13 +230,9 @@ namespace NosCore.Tests
             var values = Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s => s.ToString()).ToList();
             var logvalues = Enum.GetValues(typeof(LogLanguageKey)).OfType<LogLanguageKey>().Select(s => s.ToString())
                 .ToList();
-            foreach (DictionaryEntry? entry in LogLanguage.Instance.GetRessourceSet(type.ToString())!)
+            foreach (var resourceKey in LogLanguage.Instance.GetRessourceSet(type.ToString())!.Cast<DictionaryEntry?>().Select(entry => entry?.Key.ToString() ?? "").Where(resourceKey => !values.Contains(resourceKey) && !logvalues.Contains(resourceKey)))
             {
-                var resourceKey = entry?.Key.ToString() ?? "";
-                if (!values.Contains(resourceKey) && !logvalues.Contains(resourceKey))
-                {
-                    unfound.Append("key ").Append(resourceKey).Append(" is useless\n");
-                }
+                unfound.Append("key ").Append(resourceKey).Append(" is useless\n");
             }
 
             if (!string.IsNullOrEmpty(unfound.ToString()))

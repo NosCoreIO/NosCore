@@ -73,20 +73,18 @@ namespace NosCore.PacketHandlers.Group
 
                     if (targetSession?.Group?.IsGroupFull ?? true)
                     {
-                        await clientSession.SendPacketAsync(new InfoPacket
+                        await clientSession.SendPacketAsync(new InfoiPacket
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
-                                clientSession.Account.Language)
+                            Message = Game18NConstString.GroupIsFull
                         }).ConfigureAwait(false);
                         return;
                     }
 
                     if ((targetSession.Group!.Count > 1) && (clientSession.Character.Group!.Count > 1))
                     {
-                        await clientSession.SendPacketAsync(new InfoPacket
+                        await clientSession.SendPacketAsync(new InfoiPacket
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_IN_GROUP,
-                                clientSession.Account.Language)
+                            Message = Game18NConstString.AlreadyInAnotherGroup
                         }).ConfigureAwait(false);
                         return;
                     }
@@ -133,9 +131,9 @@ namespace NosCore.PacketHandlers.Group
                             (clientSession.Character.Group.Type == GroupType.Group))
                         && ((targetSession.Group.Count == 1) || (targetSession.Group.Type == GroupType.Group)))
                     {
-                        await clientSession.SendPacketAsync(new InfoPacket
+                        await clientSession.SendPacketAsync(new InfoiPacket
                         {
-                            Message = clientSession.GetMessageFromKey(LanguageKey.GROUP_INVITE)
+                            Message = Game18NConstString.GroupInvite
                         }).ConfigureAwait(false);
                         await targetSession.SendPacketAsync(new DlgPacket
                         {
@@ -216,16 +214,14 @@ namespace NosCore.PacketHandlers.Group
 
                     if (clientSession.Character.Group.IsGroupFull || (targetSession.Group?.IsGroupFull ?? true))
                     {
-                        await clientSession.SendPacketAsync(new InfoPacket
+                        await clientSession.SendPacketAsync(new InfoiPacket
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
-                                clientSession.Account.Language)
+                            Message = Game18NConstString.GroupIsFull
                         }).ConfigureAwait(false);
 
-                        await targetSession!.SendPacketAsync(new InfoPacket
+                        await targetSession!.SendPacketAsync(new InfoiPacket
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_FULL,
-                                targetSession.AccountLanguage)
+                            Message = Game18NConstString.GroupIsFull
                         }).ConfigureAwait(false);
                         return;
                     }

@@ -38,6 +38,7 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.Bazaar;
+using NosCore.Packets.Enumerations;
 using NosCore.Tests.Helpers;
 using Serilog;
 
@@ -174,9 +175,8 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012
             }, _session).ConfigureAwait(false);
-            var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.IsTrue(lastpacket?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE, _session.Account.Language));
+            var lastpacket = (InfoiPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
+            Assert.IsTrue(lastpacket?.Message == Game18NConstString.NotEnoughSpace);
         }
 
         [TestMethod]
