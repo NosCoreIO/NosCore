@@ -127,7 +127,7 @@ namespace <#= classNamespace #>
 	<#
 				     }
 #>
-	<#= isDto ? "public" /*https://github.com/mgravell/fast-member/issues/9 should be internal*/:"public" #> <#=
+	<#= isDto ? "internal" : "public" #> <#=
 				                 isDto ? ConvertToDtoName(prop.Type.AsString) : prop.Type.AsString #><#= isNullable ? "?" : "" #> <#= prop.Name #> { get; set; }<#= declaration #>
 <#= isNullable ? "		#nullable disable" : "" #>
 	 <#

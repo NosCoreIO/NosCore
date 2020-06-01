@@ -70,7 +70,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short DistanceDefenceDodge { get; set; }
 
-	 	public System.Collections.Generic.ICollection<DropDto> Drop { get; set; }
+	 	internal System.Collections.Generic.ICollection<DropDto> Drop { get; set; }
 
 	 	public byte Element { get; set; }
 
@@ -92,11 +92,11 @@ namespace NosCore.Data.StaticEntities
 
 	 	public short MagicDefence { get; set; }
 
-	 	public System.Collections.Generic.ICollection<MapMonsterDto> MapMonster { get; set; }
+	 	internal System.Collections.Generic.ICollection<MapMonsterDto> MapMonster { get; set; }
 
-	 	public System.Collections.Generic.ICollection<MapNpcDto> MapNpc { get; set; }
+	 	internal System.Collections.Generic.ICollection<MapNpcDto> MapNpc { get; set; }
 
-	 	public System.Collections.Generic.ICollection<MateDto> Mate { get; set; }
+	 	internal System.Collections.Generic.ICollection<MateDto> Mate { get; set; }
 
 	 	public int MaxHp { get; set; }
 
@@ -113,7 +113,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public byte NoticeRange { get; set; }
 
-	 	public System.Collections.Generic.ICollection<NpcMonsterSkillDto> NpcMonsterSkill { get; set; }
+	 	internal System.Collections.Generic.ICollection<NpcMonsterSkillDto> NpcMonsterSkill { get; set; }
 
 	 	[Key]
 		public short NpcMonsterVNum { get; set; }
@@ -138,7 +138,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public int GiveDamagePercentage { get; set; }
 
-	 	public System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
+	 	internal System.Collections.Generic.ICollection<BCardDto> BCards { get; set; }
 
 	 }
 }

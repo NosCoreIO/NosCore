@@ -39,9 +39,9 @@ namespace NosCore.Data.StaticEntities
 
 	 	public NosCore.Packets.Enumerations.QuestType QuestType { get; set; }
 
-	 	public System.Collections.Generic.ICollection<CharacterQuestDto> CharacterQuest { get; set; }
+	 	internal System.Collections.Generic.ICollection<CharacterQuestDto> CharacterQuest { get; set; }
 
-	 	public System.Collections.Generic.ICollection<QuestQuestRewardDto> QuestQuestReward { get; set; }
+	 	internal System.Collections.Generic.ICollection<QuestQuestRewardDto> QuestQuestReward { get; set; }
 
 	 	public byte LevelMin { get; set; }
 
@@ -51,7 +51,7 @@ namespace NosCore.Data.StaticEntities
 
 	 	public int? EndDialogId { get; set; }
 
-	 	public System.Collections.Generic.ICollection<QuestObjectiveDto> QuestObjective { get; set; }
+	 	internal System.Collections.Generic.ICollection<QuestObjectiveDto> QuestObjective { get; set; }
 
 	 	public short? TargetMap { get; set; }
 

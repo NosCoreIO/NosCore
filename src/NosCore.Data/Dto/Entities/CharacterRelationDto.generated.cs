@@ -33,9 +33,9 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class CharacterRelationDto : IDto
 	{
-		public CharacterDto Character1 { get; set; }
+		internal CharacterDto Character1 { get; set; }
 
-	 	public CharacterDto Character2 { get; set; }
+	 	internal CharacterDto Character2 { get; set; }
 
 	 	public long CharacterId { get; set; }
 
