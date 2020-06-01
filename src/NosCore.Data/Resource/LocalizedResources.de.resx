@@ -138,12 +138,6 @@
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Ihr seid bereits Freunde.</value>
   </data>
-  <data name="ALREADY_IN_GROUP" xml:space="preserve">
-    <value>Du bist bereits in einer Gruppe.</value>
-  </data>
-  <data name="ALREADY_TAKEN" xml:space="preserve">
-    <value>Dieser Name ist bereits belegt.</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Möchtest du dieses Item an dich binden?</value>
   </data>
@@ -175,9 +169,6 @@
   </data>
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Dein Charakter erfüllt nicht die Anforderungen um dieses Item zu tragen!</value>
-  </data>
-  <data name="BAD_PASSWORD" xml:space="preserve">
-    <value>Falsches Passwort!</value>
   </data>
   <data name="BANK_FULL" xml:space="preserve">
     <value>Deine Bank ist voll</value>
@@ -342,9 +333,6 @@
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Freund gelöscht!</value>
   </data>
-  <data name="FRIEND_OFFLINE" xml:space="preserve">
-    <value>Dein Freund ist Offline!</value>
-  </data>
   <data name="FRIEND_REJECTED" xml:space="preserve">
     <value>Freundschaftsanfrage abgelehnt!</value>
   </data>
@@ -372,12 +360,6 @@
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Gruppe qurde aufgelöst</value>
-  </data>
-  <data name="GROUP_FULL" xml:space="preserve">
-    <value>Gruppe ist voll!</value>
-  </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Deine Gruppeneinladung wurde verwendet!</value>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Du hast die Party verlassen!</value>
@@ -437,9 +419,6 @@
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Falsche ID!</value>
   </data>
-  <data name="INVALID_CHARNAME" xml:space="preserve">
-    <value>Ungültige Zeichen in deinem Nickname!</value>
-  </data>
   <data name="INVALID_EXCHANGE" xml:space="preserve">
     <value>Ungültiger Tausch.</value>
   </data>
@@ -448,9 +427,6 @@
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Falsches Password!</value>
-  </data>
-  <data name="INVENTORY_FULL" xml:space="preserve">
-    <value>Dein Inventar ist voll</value>
   </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
     <value>Möchtest du diesen Ort als deinen Rückkehrort setzen?</value>
@@ -491,9 +467,6 @@
   </data>
   <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
     <value>Das Item kann nicht verkauft werden!</value>
-  </data>
-  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
-    <value>Du kannst das Item nicht tauschen!</value>
   </data>
   <data name="ITEM_RECEIVED" xml:space="preserve">
     <value>Du hast {0} {1} erhalten.</value>
@@ -568,14 +541,8 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Keine Verbindung zum MasterServer! Versuche erneut in {0} sekunden...</value>
   </data>
-  <data name="MAX_GOLD" xml:space="preserve">
-    <value>Maximale Menage an Gold erreicht!</value>
-  </data>
   <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
     <value>Miniland für Freunde geschlossen.</value>
-  </data>
-  <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
-    <value>Miniland Beschreibung geändert!</value>
   </data>
   <data name="MINILAND_NEED_LOCK" xml:space="preserve">
     <value>Dein Miniland muss geschlossen sein.</value>
@@ -607,9 +574,6 @@
   </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Nicht genügend Geld!</value>
-  </data>
-  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
-    <value>Nicht genügend Raum!</value>
   </data>
   <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
     <value>Nicht genügend Ruf!</value>
@@ -843,12 +807,6 @@
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Bist du dir sicher, dass du das Item löschen möchtest?</value>
   </data>
-  <data name="TITLE_EFFECT_CHANGED" xml:space="preserve">
-    <value>Titel Effekt wurde geändert.</value>
-  </data>
-  <data name="TITLE_VISIBILITY_CHANGED" xml:space="preserve">
-    <value>Titel Sichtbarkeit wurde geändert.</value>
-  </data>
   <data name="TOKEN_UPDATED" xml:space="preserve">
     <value>Token aktualisiert.</value>
   </data>
@@ -908,9 +866,6 @@
   </data>
   <data name="WANT_ENABLE_TITLE" xml:space="preserve">
     <value>Möchtest du den Titel Aktivieren?</value>
-  </data>
-  <data name="WEAR_NEW_TITLE" xml:space="preserve">
-    <value />
   </data>
   <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
     <value>Du hast {0} nach einem Tausch gefragt.</value>

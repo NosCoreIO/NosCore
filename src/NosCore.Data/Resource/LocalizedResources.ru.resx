@@ -139,12 +139,6 @@
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Вы уже друзья!</value>
   </data>
-  <data name="ALREADY_IN_GROUP" xml:space="preserve">
-    <value>Вы уже в группе!</value>
-  </data>
-  <data name="ALREADY_TAKEN" xml:space="preserve">
-    <value>Данное имя занято!</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Ты хочешь привязать этот предмет?</value>
     <comment>О чем идет речь? Пока не ясно. Уточним.</comment>
@@ -178,9 +172,6 @@
   </data>
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Твой персонаж не соответствует требованиям для использования данного предмета.</value>
-  </data>
-  <data name="BAD_PASSWORD" xml:space="preserve">
-    <value>Неверный пароль!</value>
   </data>
   <data name="BANK_FULL" xml:space="preserve">
     <value>Ваш банковский счет переполнен</value>
@@ -351,9 +342,6 @@
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Друг удален.</value>
   </data>
-  <data name="FRIEND_OFFLINE" xml:space="preserve">
-    <value>Друг не в сети.</value>
-  </data>
   <data name="FRIEND_REJECTED" xml:space="preserve">
     <value>Запрос дружбы отклонен!</value>
   </data>
@@ -382,13 +370,6 @@
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Группа распущена</value>
-  </data>
-  <data name="GROUP_FULL" xml:space="preserve">
-    <value>Группа переполнена!</value>
-  </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Приглашение отправлено!</value>
-    <comment>Check</comment>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Ты покинул группу.</value>
@@ -451,9 +432,6 @@
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Неверный ID!</value>
   </data>
-  <data name="INVALID_CHARNAME" xml:space="preserve">
-    <value>Недопустимые символы в Никнейме!</value>
-  </data>
   <data name="INVALID_EXCHANGE" xml:space="preserve">
     <value>Некорректный обмен.</value>
   </data>
@@ -462,9 +440,6 @@
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Неверный пароль!</value>
-  </data>
-  <data name="INVENTORY_FULL" xml:space="preserve">
-    <value>Твой инвентарь переполнен!</value>
   </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
     <value>Хотите ли Вы установить точку возврата?</value>
@@ -509,9 +484,6 @@
   </data>
   <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
     <value>Этот предмет нельзя продать!</value>
-  </data>
-  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
-    <value>Вы не можете обмениваться одним из предметов!</value>
   </data>
   <data name="ITEM_RECEIVED" xml:space="preserve">
     <value>Вы получили {0} {1}.</value>
@@ -592,14 +564,8 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Не удалось подключиться к Master серверу! Повторная попытка через {0} секунд...</value>
   </data>
-  <data name="MAX_GOLD" xml:space="preserve">
-    <value>Достигнуто максимальное количество золота!</value>
-  </data>
   <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
     <value>Мини-страна друга закрыта</value>
-  </data>
-  <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
-    <value>Информация о Мини-стране обновлена</value>
   </data>
   <data name="MINILAND_NEED_LOCK" xml:space="preserve">
     <value>Строительство возможно только в закрытой Мини-стране</value>
@@ -630,9 +596,6 @@
   </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Недостаточно денег.</value>
-  </data>
-  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
-    <value>Места больше нет.</value>
   </data>
   <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
     <value>Недостаточно репутации для покупки предмета.</value>
@@ -864,12 +827,6 @@
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Ты уверен(-а), что хочешь удалить этот предмет?</value>
   </data>
-  <data name="TITLE_EFFECT_CHANGED" xml:space="preserve">
-    <value>Эффект титула изменен</value>
-  </data>
-  <data name="TITLE_VISIBILITY_CHANGED" xml:space="preserve">
-    <value>Видимость титула изменена</value>
-  </data>
   <data name="TOKEN_UPDATED" xml:space="preserve">
     <value>Токен обновлен.</value>
   </data>
@@ -929,9 +886,6 @@
   </data>
   <data name="WANT_ENABLE_TITLE" xml:space="preserve">
     <value>Активировать титул?</value>
-  </data>
-  <data name="WEAR_NEW_TITLE" xml:space="preserve">
-    <value>Активирован новый титул</value>
   </data>
   <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
     <value>Запрошен обмен у {0}.</value>

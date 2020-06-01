@@ -129,12 +129,6 @@
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>You are already friends!</value>
   </data>
-  <data name="ALREADY_IN_GROUP" xml:space="preserve">
-    <value>You are already in group!</value>
-  </data>
-  <data name="ALREADY_TAKEN" xml:space="preserve">
-    <value>This name is already taken!</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Do you wish to bind with this item?</value>
   </data>
@@ -163,9 +157,6 @@
   </data>
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Your character does not fulfil the requirements needed to wear this item.</value>
-  </data>
-  <data name="BAD_PASSWORD" xml:space="preserve">
-    <value>Wrong password!</value>
   </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Character added to blacklist!</value>
@@ -268,9 +259,6 @@
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Friend deleted!</value>
   </data>
-  <data name="FRIEND_OFFLINE" xml:space="preserve">
-    <value>Your friend is offline!</value>
-  </data>
   <data name="FRIEND_REJECTED" xml:space="preserve">
     <value>Friend request rejected!</value>
   </data>
@@ -289,9 +277,6 @@
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Group disbanded</value>
-  </data>
-  <data name="GROUP_FULL" xml:space="preserve">
-    <value>The group is full!</value>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>You left the party</value>
@@ -338,14 +323,8 @@
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Wrong Id!</value>
   </data>
-  <data name="INVALID_CHARNAME" xml:space="preserve">
-    <value>Invalid characters in your nickname!</value>
-  </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Wrong Password!</value>
-  </data>
-  <data name="INVENTORY_FULL" xml:space="preserve">
-    <value>Your inventory is full</value>
   </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown Invite type</value>
@@ -368,9 +347,6 @@
   </data>
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>You can not drop that item here!</value>
-  </data>
-  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
-    <value>You can't trade some item</value>
   </data>
   <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
     <value>Your job level has changed!</value>
@@ -421,9 +397,6 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Cannot connect to Master Server! Trying again in {0} seconds...</value>
   </data>
-  <data name="MAX_GOLD" xml:space="preserve">
-    <value>Maximum amount of gold reached!</value>
-  </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters Parsed!</value>
   </data>
@@ -435,9 +408,6 @@
   </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>You do not have enough money to purchase that item!</value>
-  </data>
-  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
-    <value>Not enough place.</value>
   </data>
   <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
     <value>You don't have enough reputation to purchase that item!</value>
@@ -661,10 +631,6 @@
   </data>
   <data name="FRIEND_ADD" xml:space="preserve">
     <value>[{0}] wants to be your friend! Do you accept the request?</value>
-    <comment>Check</comment>
-  </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Invitation sent!</value>
     <comment>Check</comment>
   </data>
   <data name="GROUP_REFUSED" xml:space="preserve">
