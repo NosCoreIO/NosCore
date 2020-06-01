@@ -842,10 +842,11 @@ namespace NosCore.Database.Migrations
                     BuffBlocked = table.Column<bool>(nullable: false),
                     Class = table.Column<byte>(nullable: false),
                     Compliment = table.Column<short>(nullable: false),
-                    Dignity = table.Column<float>(nullable: false),
+                    Dignity = table.Column<short>(nullable: false),
                     Elo = table.Column<int>(nullable: false),
                     EmoticonsBlocked = table.Column<bool>(nullable: false),
                     ExchangeBlocked = table.Column<bool>(nullable: false),
+                    ShouldRename = table.Column<bool>(nullable: false),
                     Faction = table.Column<byte>(nullable: false),
                     FamilyRequestBlocked = table.Column<bool>(nullable: false),
                     FriendRequestBlocked = table.Column<bool>(nullable: false),
@@ -1376,7 +1377,7 @@ namespace NosCore.Database.Migrations
                     OwnerId = table.Column<long>(nullable: false),
                     DailyVisitCount = table.Column<int>(nullable: false),
                     VisitCount = table.Column<int>(nullable: false),
-                    WelcomeMusicInfo = table.Column<string>(nullable: false)
+                    WelcomeMusicInfo = table.Column<short>(nullable: false)
                 },
                 constraints: table =>
                 {
