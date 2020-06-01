@@ -33,11 +33,11 @@ namespace NosCore.Data.Dto
 	/// </summary>
 	public class WarehouseItemDto : IDto
 	{
-		public WarehouseDto Warehouse { get; set; }
+		internal WarehouseDto Warehouse { get; set; }
 
 	 	public System.Guid WarehouseId { get; set; }
 
-	 	public ItemInstanceDto ItemInstance { get; set; }
+	 	internal ItemInstanceDto ItemInstance { get; set; }
 
 	 	public System.Guid ItemInstanceId { get; set; }
 
