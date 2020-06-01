@@ -101,7 +101,9 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));
-            using var content = new StringContent(JsonSerializer.Serialize(SystemTime.Now()), Encoding.Default,
+            var jsonPatch = new JsonPatchDocument<ChannelInfo>();
+            jsonPatch.Replace(s => s.LastPing, SystemTime.Now());
+            using var content = new StringContent(JsonSerializer.Serialize(jsonPatch), Encoding.Default,
                 "application/json");
 
             var postResponse = await client

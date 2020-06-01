@@ -457,10 +457,14 @@ namespace NosCore.WorldServer
                         .Build();
                 });
 
-            services.AddControllers()
-            .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
-            .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
-            .AddControllersAsServices();
+            services.AddControllers(options =>
+                {
+                    options.InputFormatters.Insert(0,
+                        NewtonsoftJsonPatchInputFormatterHelper.GetJsonPatchInputFormatter());
+                })
+                .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
+                .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
+                .AddControllersAsServices();
 
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
 

@@ -226,7 +226,11 @@ namespace NosCore.MasterServer
                 });
 
             services
-                .AddControllers()
+                .AddControllers(options =>
+                {
+                    options.InputFormatters.Insert(0,
+                        NewtonsoftJsonPatchInputFormatterHelper.GetJsonPatchInputFormatter());
+                })
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();

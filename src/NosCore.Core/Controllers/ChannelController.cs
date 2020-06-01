@@ -27,6 +27,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Core.Configuration;
@@ -158,7 +159,7 @@ namespace NosCore.Core.Controllers
         }
 
         [HttpPatch]
-        public HttpStatusCode PingUpdate(int id, [FromBody] DateTime data)
+        public HttpStatusCode PingUpdate(int id, [FromBody] JsonPatchDocument<ChannelInfo> data)
         {
             var chann = MasterClientListSingleton.Instance.Channels.FirstOrDefault(s => s.Id == id);
             if (chann == null)
@@ -174,7 +175,7 @@ namespace NosCore.Core.Controllers
                 return HttpStatusCode.RequestTimeout;
             }
 
-            chann.LastPing = data;
+            data.ApplyTo(chann);
             return HttpStatusCode.OK;
         }
     }
