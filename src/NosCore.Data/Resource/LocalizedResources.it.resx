@@ -138,12 +138,6 @@
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Siete già amici!</value>
   </data>
-  <data name="ALREADY_IN_GROUP" xml:space="preserve">
-    <value>Sei già in gruppo!</value>
-  </data>
-  <data name="ALREADY_TAKEN" xml:space="preserve">
-    <value>Questo nome è già in uso !</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Vuoi usare questo oggetto? Non potrai più commerciarlo</value>
   </data>
@@ -173,9 +167,6 @@
   </data>
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Il tuo personaggio non ha i requisiti necessari per indossare questo oggetto.</value>
-  </data>
-  <data name="BAD_PASSWORD" xml:space="preserve">
-    <value>Password errata</value>
   </data>
   <data name="BANK_FULL" xml:space="preserve">
     <value>Il tuo conto corrente è pieno.</value>
@@ -334,9 +325,6 @@
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Amico cancellato.</value>
   </data>
-  <data name="FRIEND_OFFLINE" xml:space="preserve">
-    <value>Il tuo amico è offline!</value>
-  </data>
   <data name="FRIEND_REJECTED" xml:space="preserve">
     <value>Richiesta d'amicizia rifiutata!</value>
   </data>
@@ -364,12 +352,6 @@
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Il gruppo è stato sciolto</value>
-  </data>
-  <data name="GROUP_FULL" xml:space="preserve">
-    <value>Il gruppo è pieno</value>
-  </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Invito di gruppo inviato!</value>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Sei uscito dal gruppo</value>
@@ -428,9 +410,6 @@
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>L'ID è errato!</value>
   </data>
-  <data name="INVALID_CHARNAME" xml:space="preserve">
-    <value>Il nome contiene caratteri non ammessi.</value>
-  </data>
   <data name="INVALID_EXCHANGE" xml:space="preserve">
     <value>Non puoi commerciare questo oggetto.</value>
   </data>
@@ -439,9 +418,6 @@
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>la password è errata!</value>
-  </data>
-  <data name="INVENTORY_FULL" xml:space="preserve">
-    <value>Il tuo inventario è pieno.</value>
   </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
     <value>Vuoi impostare il punto di ritorno?</value>
@@ -482,9 +458,6 @@
   </data>
   <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
     <value>Questo oggetto non può essere venduto.</value>
-  </data>
-  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
-    <value>Questo oggetto non può essere commerciato.</value>
   </data>
   <data name="ITEM_RECEIVED" xml:space="preserve">
     <value>Hai ricevuto {0} x {1}</value>
@@ -559,14 +532,8 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Impossibile connettersi al MasterServer! Provando ancora tra {0} secondi...</value>
   </data>
-  <data name="MAX_GOLD" xml:space="preserve">
-    <value>Hai raggiunto la quantità massima di oro!</value>
-  </data>
   <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
     <value>La Mini-land del tuo amico è chiusa</value>
-  </data>
-  <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
-    <value>Informazioni mini-land aggiornate.</value>
   </data>
   <data name="MINILAND_NEED_LOCK" xml:space="preserve">
     <value>La costruzione è possibile solo con la mini-land chiusa.</value>
@@ -597,9 +564,6 @@
   </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Non hai abbastanza oro per comprare questo oggetto.</value>
-  </data>
-  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
-    <value>Non hai spazio sufficiente!</value>
   </data>
   <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
     <value>Non hai abbastanza reputazione per comprare questo oggetto.</value>
@@ -861,12 +825,6 @@
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>L'oggetto verrà distrutto.</value>
   </data>
-  <data name="TITLE_EFFECT_CHANGED" xml:space="preserve">
-    <value>L'effetto del titolo è cambiato.</value>
-  </data>
-  <data name="TITLE_VISIBILITY_CHANGED" xml:space="preserve">
-    <value>La visibilità del titolo è cambiata.</value>
-  </data>
   <data name="TOKEN_UPDATED" xml:space="preserve">
     <value>Token aggiornato.</value>
   </data>
@@ -925,9 +883,6 @@
   </data>
   <data name="WANT_ENABLE_TITLE" xml:space="preserve">
     <value>Vuoi attivare il titolo?</value>
-  </data>
-  <data name="WEAR_NEW_TITLE" xml:space="preserve">
-    <value>Nuovo titolo attivato.</value>
   </data>
   <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
     <value>Hai richiesto il commercio a {0}</value>

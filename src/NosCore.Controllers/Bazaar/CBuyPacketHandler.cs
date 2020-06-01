@@ -125,10 +125,9 @@ namespace NosCore.PacketHandlers.Bazaar
                 }
                 else
                 {
-                    await clientSession.SendPacketAsync(new InfoPacket
+                    await clientSession.SendPacketAsync(new InfoiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_PLACE,
-                            clientSession.Account.Language)
+                        Message = Game18NConstString.NotEnoughSpace
                     }).ConfigureAwait(false);
                     return;
                 }

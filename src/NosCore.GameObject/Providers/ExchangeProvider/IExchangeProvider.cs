@@ -26,6 +26,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
+using NosCore.Packets.Interfaces;
 
 namespace NosCore.GameObject.Providers.ExchangeProvider
 {
@@ -33,7 +34,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
     {
         void SetGold(long visualId, long gold, long bankGold);
 
-        Tuple<ExchangeResultType, Dictionary<long, InfoPacket>?> ValidateExchange(ClientSession session,
+        Tuple<ExchangeResultType, Dictionary<long, IPacket>?> ValidateExchange(ClientSession session,
             ICharacterEntity targetSession);
 
         void ConfirmExchange(long visualId);

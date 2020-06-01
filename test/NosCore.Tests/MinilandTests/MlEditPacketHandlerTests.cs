@@ -110,9 +110,8 @@ namespace NosCore.Tests.MinilandTests
                 Type = 1
             };
             await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!).ConfigureAwait(false);
-            var lastpacket = (InfoPacket?)_session!.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(lastpacket?.Message,
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_INFO_CHANGED, _session.Account.Language));
+            var lastpacket = (InfoiPacket?)_session!.LastPackets.FirstOrDefault(s => s is InfoiPacket);
+            Assert.AreEqual(Game18NConstString.MinilandChanged, lastpacket!.Message);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
             Assert.AreEqual("test", miniland.MinilandMessage);
             var lastpacket2 = (MlintroPacket?)_session!.LastPackets.FirstOrDefault(s => s is MlintroPacket);
@@ -128,9 +127,8 @@ namespace NosCore.Tests.MinilandTests
                 Type = 1
             };
             await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!).ConfigureAwait(false);
-            var lastpacket = (InfoPacket?)_session!.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(lastpacket?.Message,
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_INFO_CHANGED, _session.Account.Language));
+            var lastpacket = (InfoiPacket?)_session!.LastPackets.FirstOrDefault(s => s is InfoiPacket);
+            Assert.AreEqual(Game18NConstString.MinilandChanged, lastpacket!.Message);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
             Assert.AreEqual("Test Test", miniland.MinilandMessage);
             var lastpacket2 = (MlintroPacket?)_session!.LastPackets.FirstOrDefault(s => s is MlintroPacket);
