@@ -92,25 +92,28 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                     (_, __, timeSpan) =>
                         _logger.Verbose(
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_PING))
-                ).ExecuteAsync(PingAsync).ConfigureAwait(false);
+                ).ExecuteAsync(() =>
+                {
+                    var jsonPatch = new JsonPatchDocument<ChannelInfo>();
+                    jsonPatch.Replace(s => s.LastPing, SystemTime.Now());
+                    return PatchAsync(MasterClientListSingleton.Instance.ChannelId, jsonPatch);
+                }).ConfigureAwait(false);
             _logger.Error(
                 LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_PING_FAILED));
             Environment.Exit(0);
         }
 
-        public async Task<HttpStatusCode> PingAsync()
+        public async Task<HttpStatusCode> PatchAsync(int channelId, JsonPatchDocument<ChannelInfo> patch)
         {
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));
-            var jsonPatch = new JsonPatchDocument<ChannelInfo>();
-            jsonPatch.Replace(s => s.LastPing, SystemTime.Now());
             //todo replace when Json.Net support jsonpatch
-            using var content = new StringContent(JsonConvert.SerializeObject(jsonPatch), Encoding.Default,
+            using var content = new StringContent(JsonConvert.SerializeObject(patch), Encoding.Default,
                 "application/json");
 
             var postResponse = await client
-                .PatchAsync(new Uri($"{client.BaseAddress}api/channel?id=" + MasterClientListSingleton.Instance.ChannelId), content).ConfigureAwait(false);
+                .PatchAsync(new Uri($"{client.BaseAddress}api/channel?id={channelId}"), content).ConfigureAwait(false);
             if (postResponse.IsSuccessStatusCode)
             {
                 return JsonSerializer.Deserialize<HttpStatusCode>(await postResponse.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
@@ -222,31 +225,6 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             }
 
             return channels.FirstOrDefault(s => s.Id == channelId);
-        }
-
-        public async Task<HttpStatusCode> SetMaintenanceAsync(int channelId, bool maintenanceMode)
-        {
-            var patch = new JsonPatchDocument<ChannelInfo>();
-            patch.Replace(link => link.IsMaintenance, maintenanceMode);
-            //todo replace when Json.Net support jsonpatch
-            using var content = new StringContent(JsonConvert.SerializeObject(patch), Encoding.Default,
-                "application/json");
-
-            using var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));
-
-            var postResponse = await client
-                .PatchAsync(new Uri($"{client.BaseAddress}api/channel?id={channelId}"), content).ConfigureAwait(false);
-            if (postResponse.IsSuccessStatusCode)
-            {
-                return JsonSerializer.Deserialize<HttpStatusCode>(await postResponse.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
-            }
-
-            throw new HttpRequestException(postResponse.Headers.ToString());
         }
     }
 }
