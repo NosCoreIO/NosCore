@@ -20,16 +20,16 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClients
 {
     public interface IChannelHttpClient
     {
         Task ConnectAsync();
-        Task<HttpStatusCode> PingAsync();
+        Task<HttpStatusCode> PatchAsync(int channelId, JsonPatchDocument<ChannelInfo> patch);
         Task<string?> GetOrRefreshTokenAsync();
         Task<List<ChannelInfo>> GetChannelsAsync();
         Task<ChannelInfo> GetChannelAsync(int channelId);
-        Task<HttpStatusCode> SetMaintenanceAsync(int channelId, bool maintenanceMode);
     }
 }
