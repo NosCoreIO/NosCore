@@ -41,7 +41,7 @@ namespace NosCore.Data.StaticEntities
 		[AdaptMember("Title")]
 		public string TitleI18NKey { get; set; }
 
-	 	public System.Collections.Generic.HashSet<ActPartDto> ActParts { get; set; }
+	 	internal System.Collections.Generic.HashSet<ActPartDto> ActParts { get; set; }
 
 	 	public byte Scene { get; set; }
 

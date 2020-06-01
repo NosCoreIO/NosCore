@@ -35,11 +35,11 @@ namespace NosCore.Data.Dto
 	{
 		public long CharacterId { get; set; }
 
-	 	public CharacterDto Character { get; set; }
+	 	internal CharacterDto Character { get; set; }
 
 	 	public byte ActPartId { get; set; }
 
-	 	public ActPartDto ActPart { get; set; }
+	 	internal ActPartDto ActPart { get; set; }
 
 	 	[Key]
 		public System.Guid Id { get; set; }

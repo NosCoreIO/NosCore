@@ -35,13 +35,13 @@ namespace NosCore.Data.Dto
 	{
 		public short Amount { get; set; }
 
-	 	public System.Collections.Generic.ICollection<BazaarItemDto> BazaarItem { get; set; }
+	 	internal System.Collections.Generic.ICollection<BazaarItemDto> BazaarItem { get; set; }
 
-	 	public System.Collections.Generic.ICollection<MailDto> Mail { get; set; }
+	 	internal System.Collections.Generic.ICollection<MailDto> Mail { get; set; }
 
-	 	public System.Collections.Generic.ICollection<WarehouseItemDto> WarehouseItems { get; set; }
+	 	internal System.Collections.Generic.ICollection<WarehouseItemDto> WarehouseItems { get; set; }
 
-	 	public CharacterDto BoundCharacter { get; set; }
+	 	internal CharacterDto BoundCharacter { get; set; }
 
 	 	public long? BoundCharacterId { get; set; }
 
@@ -51,13 +51,13 @@ namespace NosCore.Data.Dto
 
 	 	public int DurabilityPoint { get; set; }
 
-	 	public ItemDto Item { get; set; }
+	 	internal ItemDto Item { get; set; }
 
 	 	public System.DateTime? ItemDeleteTime { get; set; }
 
 	 	public short ItemVNum { get; set; }
 
-	 	public System.Collections.Generic.ICollection<InventoryItemInstanceDto> InventoryItemInstance { get; set; }
+	 	internal System.Collections.Generic.ICollection<InventoryItemInstanceDto> InventoryItemInstance { get; set; }
 
 	 	public byte Upgrade { get; set; }
 
