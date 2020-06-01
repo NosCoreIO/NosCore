@@ -42,11 +42,14 @@ using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.VisualStudio.Threading;
@@ -458,9 +461,10 @@ namespace NosCore.WorldServer
                 });
 
             services.AddControllers()
-            .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
-            .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
-            .AddControllersAsServices();
+                .AddNewtonsoftJson()//todo remove when Json.Net support jsonPatch
+                .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
+                .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
+                .AddControllersAsServices();
 
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
 

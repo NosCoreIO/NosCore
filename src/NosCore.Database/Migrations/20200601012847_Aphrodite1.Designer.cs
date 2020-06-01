@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    [Migration("20200405000656_Aphrodite1")]
+    [Migration("20200601012847_Aphrodite1")]
     partial class Aphrodite1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -18,7 +18,7 @@ namespace NosCore.Database.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.3")
+                .HasAnnotation("ProductVersion", "3.1.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("NosCore.Database.Entities.Account", b =>
@@ -322,8 +322,8 @@ namespace NosCore.Database.Migrations
                     b.Property<Guid?>("CurrentScriptId")
                         .HasColumnType("uuid");
 
-                    b.Property<float>("Dignity")
-                        .HasColumnType("real");
+                    b.Property<short>("Dignity")
+                        .HasColumnType("smallint");
 
                     b.Property<int>("Elo")
                         .HasColumnType("integer");
@@ -430,6 +430,9 @@ namespace NosCore.Database.Migrations
 
                     b.Property<long>("Reput")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("ShouldRename")
+                        .HasColumnType("boolean");
 
                     b.Property<byte>("Slot")
                         .HasColumnType("smallint");
@@ -1684,9 +1687,8 @@ namespace NosCore.Database.Migrations
                     b.Property<int>("VisitCount")
                         .HasColumnType("integer");
 
-                    b.Property<string>("WelcomeMusicInfo")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<short>("WelcomeMusicInfo")
+                        .HasColumnType("smallint");
 
                     b.HasKey("MinilandId");
 
