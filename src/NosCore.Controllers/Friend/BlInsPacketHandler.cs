@@ -27,6 +27,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.Enumerations;
 using Serilog;
 
 namespace NosCore.PacketHandlers.Friend
@@ -49,24 +50,21 @@ namespace NosCore.PacketHandlers.Friend
             switch (result)
             {
                 case LanguageKey.CANT_BLOCK_FRIEND:
-                    await session.SendPacketAsync(new InfoPacket
+                    await session.SendPacketAsync(new InfoiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_BLOCK_FRIEND,
-                            session.Account.Language)
+                        Message = Game18NConstString.CannotBlackListFriend
                     }).ConfigureAwait(false);
                     break;
                 case LanguageKey.ALREADY_BLACKLISTED:
-                    await session.SendPacketAsync(new InfoPacket
+                    await session.SendPacketAsync(new InfoiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_BLACKLISTED,
-                            session.Account.Language)
+                        Message = Game18NConstString.AlreadyBlacklisted
                     }).ConfigureAwait(false);
                     break;
                 case LanguageKey.BLACKLIST_ADDED:
-                    await session.SendPacketAsync(new InfoPacket
+                    await session.SendPacketAsync(new InfoiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_ADDED,
-                            session.Account.Language)
+                        Message = Game18NConstString.CharacterBlacklisted
                     }).ConfigureAwait(false);
                     await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(_blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
                     break;

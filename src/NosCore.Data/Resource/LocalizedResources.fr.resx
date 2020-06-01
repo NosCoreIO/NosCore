@@ -264,12 +264,6 @@
   <data name="CORRUPT_PACKET" xml:space="preserve">
     <value>Paquet corrompu.</value>
   </data>
-  <data name="ALREADY_TAKEN" xml:space="preserve">
-    <value>Ce pseudo est déjà utilisé.</value>
-  </data>
-  <data name="BAD_PASSWORD" xml:space="preserve">
-    <value>Mauvais mot de passe.</value>
-  </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>{0} i18n ActDesc parser. Region : {1}</value>
   </data>
@@ -299,9 +293,6 @@
   </data>
   <data name="I18N_SKILL_PARSED" xml:space="preserve">
     <value>{0} i18n skills parser. Region : {1}</value>
-  </data>
-  <data name="INVALID_CHARNAME" xml:space="preserve">
-    <value>Le nom du personnage est invalide.</value>
   </data>
   <data name="MAPS_PARSED" xml:space="preserve">
     <value>{0} Maps ont été analysées avec succès !</value>
@@ -381,9 +372,6 @@
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Ami supprimé.</value>
   </data>
-  <data name="FRIEND_OFFLINE" xml:space="preserve">
-    <value>Ami déconnecté.</value>
-  </data>
   <data name="FRIEND_REJECTED" xml:space="preserve">
     <value>Demande d'ami rejetée.</value>
   </data>
@@ -405,12 +393,6 @@
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Impossible de jeter l'objet ici.</value>
   </data>
-  <data name="MAX_GOLD" xml:space="preserve">
-    <value>Vous avez atteint le nombre d'or maximum.</value>
-  </data>
-  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
-    <value>Vous n'avez pas assez de place.</value>
-  </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Pas présent dans votre liste noire.</value>
   </data>
@@ -429,9 +411,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Le joueur est déjà dans ta liste noire.</value>
   </data>
-  <data name="ALREADY_IN_GROUP" xml:space="preserve">
-    <value>Déjà dans un groupe.</value>
-  </data>
   <data name="ENCODE_ERROR" xml:space="preserve">
     <value>Erreur d'encodage.</value>
   </data>
@@ -443,12 +422,6 @@
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Le groupe a été dissous.</value>
-  </data>
-  <data name="GROUP_FULL" xml:space="preserve">
-    <value>Le groupe est déjà plein.</value>
-  </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Invitation envoyée.</value>
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Tu ne peux pas modifier les options de partages des objets. Demandes au chef du groupe !</value>
@@ -630,9 +603,6 @@
   <data name="BANK_FULL" xml:space="preserve">
     <value>Ton compte en banque est déjà remplit.</value>
   </data>
-  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
-    <value>Un ou plusieurs objets ne sont pas échangeables.</value>
-  </data>
   <data name="ALREADY_EXCHANGE" xml:space="preserve">
     <value>Le joueur est déjà en commerce. Ressayez plus tard.</value>
   </data>
@@ -656,9 +626,6 @@
   </data>
   <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
     <value>Liste d'échange invalide.</value>
-  </data>
-  <data name="INVENTORY_FULL" xml:space="preserve">
-    <value>Votre inventaire est plein.</value>
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Votre niveau de métier est trop bas.</value>
@@ -822,9 +789,6 @@
   <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
     <value>Le mini-pays de votre ami est fermé.</value>
   </data>
-  <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
-    <value>Informations du mini-pays mis à jour.</value>
-  </data>
   <data name="MINILAND_NEED_LOCK" xml:space="preserve">
     <value>La construction n'est possible que dans un mini-pays fermé.</value>
   </data>
@@ -855,12 +819,6 @@
   <data name="STATE_CHANGED_BAZAAR" xml:space="preserve">
     <value>Lot mis à jour.</value>
   </data>
-  <data name="TITLE_EFFECT_CHANGED" xml:space="preserve">
-    <value>Effet de titre modifié.</value>
-  </data>
-  <data name="TITLE_VISIBILITY_CHANGED" xml:space="preserve">
-    <value>La visibilité du titre a changé.</value>
-  </data>
   <data name="TOKEN_UPDATED" xml:space="preserve">
     <value>Token mis à jour.</value>
   </data>
@@ -875,8 +833,5 @@
   </data>
   <data name="WANT_ENABLE_TITLE" xml:space="preserve">
     <value>Voulez-vous activer le titre ?</value>
-  </data>
-  <data name="WEAR_NEW_TITLE" xml:space="preserve">
-    <value>Nouveau titre activé.</value>
   </data>
 </root>

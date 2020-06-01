@@ -135,12 +135,6 @@
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Už jste přátelé</value>
   </data>
-  <data name="ALREADY_IN_GROUP" xml:space="preserve">
-    <value>Už jste ve skupině!</value>
-  </data>
-  <data name="ALREADY_TAKEN" xml:space="preserve">
-    <value>Tohle jméno je obsazené!</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Chceš spojit tyto položky</value>
   </data>
@@ -169,9 +163,6 @@
   </data>
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Tvá postava nesplňuje požadavky pro nošení tohoto vybavení.</value>
-  </data>
-  <data name="BAD_PASSWORD" xml:space="preserve">
-    <value>Špatné Heslo</value>
   </data>
   <data name="BANK_FULL" xml:space="preserve">
     <value>Tvůj bankovní účet je plný!</value>
@@ -282,9 +273,6 @@
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Kamarád smazán!</value>
   </data>
-  <data name="FRIEND_OFFLINE" xml:space="preserve">
-    <value>Kamarád je offline!</value>
-  </data>
   <data name="FRIEND_REJECTED" xml:space="preserve">
     <value>Žádost o přátelství byla zamítnuta!</value>
   </data>
@@ -302,12 +290,6 @@
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Skupina rozpuštěna</value>
-  </data>
-  <data name="GROUP_FULL" xml:space="preserve">
-    <value>Skupina je plná!</value>
-  </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Pozvánka poslána!</value>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Opustil si skupinu</value>
@@ -366,14 +348,8 @@
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Neexistující ID</value>
   </data>
-  <data name="INVALID_CHARNAME" xml:space="preserve">
-    <value>Nevhodné Jméno Charakteru!</value>
-  </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Špatné Heslo</value>
-  </data>
-  <data name="INVENTORY_FULL" xml:space="preserve">
-    <value>Máš plný inventář.</value>
   </data>
   <data name="INVITED_GROUP_SHARE" xml:space="preserve">
     <value>Chceš sdílet se skupinou místo návratu?</value>
@@ -407,9 +383,6 @@
   </data>
   <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
     <value>Tento předmět nemůže být prodán!</value>
-  </data>
-  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
-    <value>Nemůžeš obchodovat s tímto itemem.</value>
   </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Životnost Předmětu vypršela!</value>
@@ -462,9 +435,6 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Znovu připojení k Master Serveru</value>
   </data>
-  <data name="MAX_GOLD" xml:space="preserve">
-    <value>Máš maximální počet Zlata!</value>
-  </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} Monstra byla úspěšně nahrána!</value>
   </data>
@@ -476,9 +446,6 @@
   </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Nemáš dostatek financí ke koupení tohoto předmětu!</value>
-  </data>
-  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
-    <value>Nemáš dostatek místa!</value>
   </data>
   <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
     <value>Nemáš dostatek pověsti ke koupení tohoto předmětu!</value>

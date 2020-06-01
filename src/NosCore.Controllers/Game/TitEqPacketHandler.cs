@@ -26,6 +26,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -48,9 +49,9 @@ namespace NosCore.PacketHandlers.Game
                         title.Visible = false;
                     }
                     tit.Visible = !tit.Visible;
-                    await session.SendPacketAsync(new InfoPacket
+                    await session.SendPacketAsync(new InfoiPacket
                     {
-                        Message = session.GetMessageFromKey(LanguageKey.TITLE_VISIBILITY_CHANGED)
+                        Message = Game18NConstString.TitleChangedOrHidden
                     }).ConfigureAwait(false);
                     break;
                 default:
@@ -59,9 +60,9 @@ namespace NosCore.PacketHandlers.Game
                         title.Active = false;
                     }
                     tit.Active = !tit.Active;
-                    await session.SendPacketAsync(new InfoPacket
+                    await session.SendPacketAsync(new InfoiPacket
                     {
-                        Message = session.GetMessageFromKey(LanguageKey.TITLE_EFFECT_CHANGED)
+                        Message = Game18NConstString.TitleEffectChangedOrDeactivated
                     }).ConfigureAwait(false);
                     break;
             }

@@ -28,6 +28,7 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 
 namespace NosCore.PacketHandlers.CharacterScreen
@@ -76,17 +77,17 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
                 else
                 {
-                    await clientSession.SendPacketAsync(new InfoPacket
+                    await clientSession.SendPacketAsync(new InfoiPacket
                     {
-                        Message = clientSession.GetMessageFromKey(LanguageKey.ALREADY_TAKEN)
+                        Message = Game18NConstString.CharacterNameAlreadyTaken
                     }).ConfigureAwait(false);
                 }
             }
             else
             {
-                await clientSession.SendPacketAsync(new InfoPacket
+                await clientSession.SendPacketAsync(new InfoiPacket
                 {
-                    Message = clientSession.GetMessageFromKey(LanguageKey.INVALID_CHARNAME)
+                    Message = Game18NConstString.NameIsInvalid
                 }).ConfigureAwait(false);
             }
         }

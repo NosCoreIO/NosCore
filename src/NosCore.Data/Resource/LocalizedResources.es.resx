@@ -129,12 +129,6 @@
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>¡Actualmente ya sois amigos!</value>
   </data>
-  <data name="ALREADY_IN_GROUP" xml:space="preserve">
-    <value>¡Actualmente ya estas en un grupo!</value>
-  </data>
-  <data name="ALREADY_TAKEN" xml:space="preserve">
-    <value>¡Este nombre ya lo tiene otro usuario!</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>¿Deseas vincular este objeto?</value>
   </data>
@@ -161,9 +155,6 @@
   </data>
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Tu personaje no cumple con los requisitos necesarios para llevar este objeto.</value>
-  </data>
-  <data name="BAD_PASSWORD" xml:space="preserve">
-    <value>¡Contraseña incorrecta!</value>
   </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>¡Personaje añadido a la lista negra!</value>
@@ -266,9 +257,6 @@
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>¡Amigo eliminado!</value>
   </data>
-  <data name="FRIEND_OFFLINE" xml:space="preserve">
-    <value>¡Tu amigo está desconectado!</value>
-  </data>
   <data name="FRIEND_REJECTED" xml:space="preserve">
     <value>¡Petición de amistad rechazada!</value>
   </data>
@@ -287,9 +275,6 @@
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Se ha disuelto el grupo.</value>
-  </data>
-  <data name="GROUP_FULL" xml:space="preserve">
-    <value>¡El grupo está lleno!</value>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Has abandonado el grupo.</value>
@@ -335,9 +320,6 @@
   </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>¡Id incorrecta!</value>
-  </data>
-  <data name="INVALID_CHARNAME" xml:space="preserve">
-    <value>¡Hay caracteres invalidos en tu nombre!</value>
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>¡Contraseña incorrecta!</value>
@@ -413,9 +395,6 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>¡No se pudo conectar al Servidor Maestro! Reintentando en {0} segundos...</value>
   </data>
-  <data name="MAX_GOLD" xml:space="preserve">
-    <value>¡Cantidad máxima de oro alcanzada!</value>
-  </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>¡{0} MapMonsters (Monstruos de los Mapas) Analizados!</value>
   </data>
@@ -427,9 +406,6 @@
   </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>¡No tienes suficiente oro para comprar ese objeto!</value>
-  </data>
-  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
-    <value>No hay suficiente espacio en tu inventario.</value>
   </data>
   <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
     <value>¡No tienes suficiente reputación para comprar ese objeto!</value>

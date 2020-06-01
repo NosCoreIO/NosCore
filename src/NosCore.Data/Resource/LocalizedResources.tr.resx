@@ -129,12 +129,6 @@
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Zaten arkadaşsınız.</value>
   </data>
-  <data name="ALREADY_IN_GROUP" xml:space="preserve">
-    <value>Zaten bir gruptasın.</value>
-  </data>
-  <data name="ALREADY_TAKEN" xml:space="preserve">
-    <value>Bu isim zaten kullanılıyor.</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Bu eşyayı bağlamak istiyor musun?</value>
   </data>
@@ -161,9 +155,6 @@
   </data>
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Karakterin bu eşyayı giymek için gereksinimleri karşılamıyor.</value>
-  </data>
-  <data name="BAD_PASSWORD" xml:space="preserve">
-    <value>Parola hatalı.</value>
   </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Karakter karalisteye eklendi!</value>
@@ -264,9 +255,6 @@
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Arkadaşlıktan çıkarıldı.</value>
   </data>
-  <data name="FRIEND_OFFLINE" xml:space="preserve">
-    <value>Arkadaşın çevrimdışı.</value>
-  </data>
   <data name="FRIEND_REJECTED" xml:space="preserve">
     <value>Arkadaşlık isteği reddedildi.</value>
   </data>
@@ -284,9 +272,6 @@
   </data>
   <data name="GROUP_CLOSED" xml:space="preserve">
     <value>Grup dağıtıldı.</value>
-  </data>
-  <data name="GROUP_FULL" xml:space="preserve">
-    <value>Grup dolu!</value>
   </data>
   <data name="GROUP_LEFT" xml:space="preserve">
     <value>Gruptan ayrıldın.</value>
@@ -333,14 +318,8 @@
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Hatalı kullanıcı adı!</value>
   </data>
-  <data name="INVALID_CHARNAME" xml:space="preserve">
-    <value>İsminde geçersiz karakterler var!</value>
-  </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Parola hatalı!</value>
-  </data>
-  <data name="INVENTORY_FULL" xml:space="preserve">
-    <value>Envanterin dolu!</value>
   </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Bilinmeyen davet türü.</value>
@@ -362,9 +341,6 @@
   </data>
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Bu eşyayı burada düşüremezsin!</value>
-  </data>
-  <data name="ITEM_NOT_TRADABLE" xml:space="preserve">
-    <value>Bu eşyayla değiş tokuş yapılamaz!</value>
   </data>
   <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
     <value>Meslek seviyen yükseldi!</value>
@@ -414,9 +390,6 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Ana Sunucu'ya bağlanılamadı. {0} saniye içerisinde tekrar denenecek.</value>
   </data>
-  <data name="MAX_GOLD" xml:space="preserve">
-    <value>Maksimum altın sınırına ulaştın!</value>
-  </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} Harita canavarları işlendi!</value>
   </data>
@@ -428,9 +401,6 @@
   </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Bu eşyayı satın almak için yeterince altının yok!</value>
-  </data>
-  <data name="NOT_ENOUGH_PLACE" xml:space="preserve">
-    <value>Envanterinde yer yok!</value>
   </data>
   <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
     <value>Bu eşyayı satın almak için yeterince itibarın yok!</value>
@@ -651,9 +621,6 @@
   <data name="FRIEND_ADD" xml:space="preserve">
     <value>[{0}] Sana bir arkadaşlık isteği gönderdi. Arkadaşlığa kabul ediyor musun?</value>
   </data>
-  <data name="GROUP_INVITE" xml:space="preserve">
-    <value>Davet gönderildi.</value>
-  </data>
   <data name="GROUP_REFUSED" xml:space="preserve">
     <value>Grup davetin reddedildi.</value>
   </data>
@@ -804,9 +771,6 @@
   <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
     <value>Arkadaşının Mini Ülkesi kapalı durumda.</value>
   </data>
-  <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
-    <value>Mini Ülke bilgisi düzenlendi.</value>
-  </data>
   <data name="MINILAND_NEED_LOCK" xml:space="preserve">
     <value>Mini Ülkeni kilitlemelisin!</value>
   </data>
@@ -842,15 +806,6 @@
   </data>
   <data name="WANT_ENABLE_TITLE" xml:space="preserve">
     <value>Unvan'ı etkinleştirmek istiyor musun?</value>
-  </data>
-  <data name="WEAR_NEW_TITLE" xml:space="preserve">
-    <value>Yeni unvanı giymek istiyor musun.</value>
-  </data>
-  <data name="TITLE_VISIBILITY_CHANGED" xml:space="preserve">
-    <value>Unvan görünürlüğü değiştirildi.</value>
-  </data>
-  <data name="TITLE_EFFECT_CHANGED" xml:space="preserve">
-    <value>Unvan etkisinin aktifliği değiştirildi.</value>
   </data>
   <data name="LOGIN_MEDAL" xml:space="preserve">
     <value>Giriş madalyası</value>
