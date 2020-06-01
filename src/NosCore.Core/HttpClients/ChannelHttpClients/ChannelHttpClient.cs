@@ -30,6 +30,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -38,6 +39,7 @@ using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using Polly;
 using Serilog;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClients
 {
@@ -103,7 +105,8 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));
             var jsonPatch = new JsonPatchDocument<ChannelInfo>();
             jsonPatch.Replace(s => s.LastPing, SystemTime.Now());
-            using var content = new StringContent(JsonSerializer.Serialize(jsonPatch), Encoding.Default,
+            //todo replace when Json.Net support jsonpatch
+            using var content = new StringContent(JsonConvert.SerializeObject(jsonPatch), Encoding.Default,
                 "application/json");
 
             var postResponse = await client
@@ -225,8 +228,10 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
         {
             var patch = new JsonPatchDocument<ChannelInfo>();
             patch.Replace(link => link.IsMaintenance, maintenanceMode);
-            using var content = new StringContent(JsonSerializer.Serialize(patch), Encoding.Default,
+            //todo replace when Json.Net support jsonpatch
+            using var content = new StringContent(JsonConvert.SerializeObject(patch), Encoding.Default,
                 "application/json");
+
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));

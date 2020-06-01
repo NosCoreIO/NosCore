@@ -159,7 +159,7 @@ namespace NosCore.Core.Controllers
         }
 
         [HttpPatch]
-        public HttpStatusCode PingUpdate(int id, [FromBody] JsonPatchDocument<ChannelInfo> data)
+        public HttpStatusCode PingUpdate(int id, [FromBody] JsonPatchDocument<ChannelInfo?> data)
         {
             var chann = MasterClientListSingleton.Instance.Channels.FirstOrDefault(s => s.Id == id);
             if (chann == null)
