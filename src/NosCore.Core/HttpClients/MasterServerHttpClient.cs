@@ -107,7 +107,7 @@ namespace NosCore.Core.HttpClients
             var client = await ConnectAsync().ConfigureAwait(false);
             //todo replace when Json.Net support jsonpatch
             using var content = new StringContent(JsonConvert.SerializeObject(objectToPost), Encoding.Default,
-                "application/json");
+                "application/json-patch+json");
 
             var response = await client.PatchAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}"), content).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
