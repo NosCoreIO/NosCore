@@ -658,4 +658,154 @@
   <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
     <value>Poprosiłeś o wymianę: {0}.</value>
   </data>
+  <data name="ACCEPTED_SHARE" xml:space="preserve">
+    <value>Zaakceptowano prośbę o wspólny punkt powrotu!</value>
+  </data>
+  <data name="BANK_FULL" xml:space="preserve">
+    <value>Bank pełny.</value>
+  </data>
+  <data name="BAZAAR_PRICE_CHANGED" xml:space="preserve">
+    <value>Zmieniłeś cenę przedmiotu na {0}.</value>
+  </data>
+  <data name="BUY_ITEM_FROM" xml:space="preserve">
+    <value>Kupiłeś przedmiot od {0} {1} {2}!</value>
+  </data>
+  <data name="CANT_USE" xml:space="preserve">
+    <value>Nie mogę tego użyć!</value>
+  </data>
+  <data name="CANT_USE_IN_VEHICLE" xml:space="preserve">
+    <value>Nie można użyć podczas używania transportu!</value>
+  </data>
+  <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
+    <value>Nie możesz użyć żadnego przedmiotu w sklepie!</value>
+  </data>
+  <data name="CAN_NOT_MODIFY_SOLD_ITEMS" xml:space="preserve">
+    <value>Nie można zmienić ceny sprzedanego przedmiotu!</value>
+  </data>
+  <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
+    <value>Nie możesz jeszcze wysłać zaproszenia. Spróbuj za {0} sekund!</value>
+  </data>
+  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
+    <value>Wymiana zablokowana.</value>
+  </data>
+  <data name="GIFTED" xml:space="preserve">
+    <value>Podarowano {0}.</value>
+  </data>
+  <data name="GIFT_SENT" xml:space="preserve">
+    <value>Prezent został wysłany.</value>
+  </data>
+  <data name="HAS_SHOP_OPENED" xml:space="preserve">
+    <value>Nie możesz się wymieniać z graczem który ma otwarty sklep!</value>
+  </data>
+  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
+    <value>Czy chcesz ustawić wspólny punkt powrotu?</value>
+  </data>
+  <data name="IN_WAITING_FOR" xml:space="preserve">
+    <value>W oczekiwaniu na {0}.</value>
+  </data>
+  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
+    <value>Przedmiot Krainy Śmierci {0} został zdobyty!</value>
+  </data>
+  <data name="ITEM_GIFTED" xml:space="preserve">
+    <value>Przedmiot {0} został wysłany.</value>
+  </data>
+  <data name="ITEM_RECEIVED" xml:space="preserve">
+    <value>Otrzymano {0} {1}</value>
+  </data>
+  <data name="ITEM_TIMEOUT" xml:space="preserve">
+    <value>Przedmiot stracił ważność.</value>
+  </data>
+  <data name="LIMIT_EXCEEDED" xml:space="preserve">
+    <value>Nie możesz dodać więcej przedmiotów na NosBazar, ponieważ osiągnąłeś limit!</value>
+  </data>
+  <data name="LOGIN_MEDAL" xml:space="preserve">
+    <value>Medal NosHandlarza aktywny!</value>
+  </data>
+  <data name="MAILED" xml:space="preserve">
+    <value>Wiadomość została wysłana!</value>
+  </data>
+  <data name="MAIL_DELETED" xml:space="preserve">
+    <value>Wiadomość została usunięta.</value>
+  </data>
+  <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
+    <value>MiniLand twojego znajomego jest aktualnie zamknięty.</value>
+  </data>
+  <data name="MINILAND_INFO_CHANGED" xml:space="preserve">
+    <value>Zmieniono informację MiniLandu.</value>
+  </data>
+  <data name="MINILAND_LOCK" xml:space="preserve">
+    <value>MiniLand jest teraz zamknięty.</value>
+  </data>
+  <data name="MINILAND_NEED_LOCK" xml:space="preserve">
+    <value>MiniLand musi być zamknięty!</value>
+  </data>
+  <data name="MINILAND_PRIVATE" xml:space="preserve">
+    <value>MiniLand jest teraz prywatny.</value>
+  </data>
+  <data name="MINILAND_PUBLIC" xml:space="preserve">
+    <value>MiniLand jest teraz publiczny.</value>
+  </data>
+  <data name="MINILAND_VISITOR" xml:space="preserve">
+    <value>Liczba odwiedzeń: {0} , Liczba dziesiejszych odwiedzeń {1}</value>
+  </data>
+  <data name="NEW_MAIL" xml:space="preserve">
+    <value>Masz {0} nowych wiadomości!</value>
+  </data>
+  <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
+    <value>Nie masz wystarczającej liczby punktów trwałości.</value>
+  </data>
+  <data name="NOT_ENOUGH_MINILAND_POINT" xml:space="preserve">
+    <value>Nie masz wystarczającej liczby punków MiniLandu.</value>
+  </data>
+  <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
+    <value>Użytkownik nie znajduję się na liście znajomych!</value>
+  </data>
+  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
+    <value>Przedmiot został pomyślnie wystawiony na bazar!</value>
+  </data>
+  <data name="PORTAL_DELAY" xml:space="preserve">
+    <value>Odczekaj chwilę, przed kolejną teleportacją!</value>
+  </data>
+  <data name="PRICE_EXCEEDED" xml:space="preserve">
+    <value>Limit ceny został przekroczony!</value>
+  </data>
+  <data name="QUEST_ALREADY_DONE" xml:space="preserve">
+    <value>Zadanie zostało już zakończone!</value>
+  </data>
+  <data name="QUEST_FINISHED" xml:space="preserve">
+    <value>Zadanie skończone.</value>
+  </data>
+  <data name="REFILL_MINIGAME" xml:space="preserve">
+    <value>Musisz uzupełnić punkty minigry by móc grać dalej {0}.</value>
+  </data>
+  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
+    <value>Sprzedaż zakończona, otrzymałeś {0} złota!</value>
+  </data>
+  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
+    <value>Wysłano wiadmość do użytkownika.</value>
+  </data>
+  <data name="SPEAKER" xml:space="preserve">
+    <value>Głośnik</value>
+  </data>
+  <data name="STATE_CHANGED_BAZAAR" xml:space="preserve">
+    <value>Sprzedaż zaaktualizowana.</value>
+  </data>
+  <data name="TITLE_EFFECT_CHANGED" xml:space="preserve">
+    <value>Efekt tytułu zmieniony.</value>
+  </data>
+  <data name="TITLE_VISIBILITY_CHANGED" xml:space="preserve">
+    <value>Widoczność tytułu zmieniona.</value>
+  </data>
+  <data name="TOO_HIGH_LEVEL" xml:space="preserve">
+    <value>Za wysoki poziom!</value>
+  </data>
+  <data name="UNKNOWN" xml:space="preserve">
+    <value>Nieznane.</value>
+  </data>
+  <data name="USER_NOT_FOUND" xml:space="preserve">
+    <value>Nie znaleziono użytkownika.</value>
+  </data>
+  <data name="WANT_ENABLE_TITLE" xml:space="preserve">
+    <value>Czy chcesz aktywować ten tytuł?</value>
+  </data>
 </root>
