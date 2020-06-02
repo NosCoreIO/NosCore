@@ -460,8 +460,20 @@ namespace NosCore.WorldServer
                         .Build();
                 });
 
-            services.AddControllers()
-                .AddNewtonsoftJson()//todo remove when Json.Net support jsonPatch
+            services
+                .AddControllers(options =>//todo remove when System.Text.Json support jsonPatch
+            {
+                options.InputFormatters.Insert(0, new ServiceCollection()
+                    .AddLogging()
+                    .AddMvc()
+                    .AddNewtonsoftJson()
+                    .Services.BuildServiceProvider().GetRequiredService<IOptions<MvcOptions>>()
+                    .Value
+                    .InputFormatters
+                    .OfType<NewtonsoftJsonPatchInputFormatter>()
+                    .First());
+            })
+                .AddNewtonsoftJson()//todo remove when System.Text.Json support jsonPatch
                 .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();

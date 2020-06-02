@@ -229,8 +229,18 @@ namespace NosCore.MasterServer
                 });
 
             services
-                .AddControllers()
-                .AddNewtonsoftJson()//todo remove when Json.Net support jsonPatch
+                .AddControllers(options =>//todo remove when Json.Net support jsonPatch
+                {
+                    options.InputFormatters.Insert(0, new ServiceCollection()
+                        .AddLogging()
+                        .AddMvc()
+                        .AddNewtonsoftJson()
+                        .Services.BuildServiceProvider().GetRequiredService<IOptions<MvcOptions>>()
+                        .Value
+                        .InputFormatters
+                        .OfType<NewtonsoftJsonPatchInputFormatter>()
+                        .First());
+                })
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
