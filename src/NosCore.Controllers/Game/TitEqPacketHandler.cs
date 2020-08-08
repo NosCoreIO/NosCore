@@ -26,6 +26,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 
 namespace NosCore.PacketHandlers.Game
