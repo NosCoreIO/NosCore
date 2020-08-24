@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NosCore.Controllers\NosCore.PacketHandlers.csproj" />
+    <ProjectReference Include="..\NosCore.PacketHandlers\NosCore.PacketHandlers.csproj" />
   </ItemGroup>
 
 </Project>
