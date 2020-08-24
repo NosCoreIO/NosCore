@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.GameObject", "src\N
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Data", "src\NosCore.Data\NosCore.Data.csproj", "{AEDAAE2C-D615-4241-8006-240BB7FF1446}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.PacketHandlers", "src\NosCore.Controllers\NosCore.PacketHandlers.csproj", "{8DD33CE5-B9B4-4CCA-B3D7-55DA387AB4AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.PacketHandlers", "src\NosCore.PacketHandlers\NosCore.PacketHandlers.csproj", "{8DD33CE5-B9B4-4CCA-B3D7-55DA387AB4AA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Tests", "test\NosCore.Tests\NosCore.Tests.csproj", "{B22C7ABE-2B56-42AF-8CF2-46058A5B6543}"
 EndProject
