@@ -32,6 +32,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.PacketHandlers.Inventory;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Helpers;
 using Serilog;
 

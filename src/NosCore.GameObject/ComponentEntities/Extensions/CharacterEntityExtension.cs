@@ -326,7 +326,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Unknown3 = 0,
                     WeaponUpgradeRareSubPacket = visualEntity.GetWeaponUpgradeRareSubPacket(),
                     ArmorUpgradeRareSubPacket = visualEntity.GetArmorUpgradeRareSubPacket(),
-                    FamilyId = -1,
+                    FamilySubPacket = new FamilySubPacket(),
                     FamilyName = null,
                     ReputIco = (byte)(visualEntity.DignityIcon == DignityType.Default ? (byte)visualEntity.ReputIcon
                         : -(byte)visualEntity.DignityIcon),//TODO replace type by a byte

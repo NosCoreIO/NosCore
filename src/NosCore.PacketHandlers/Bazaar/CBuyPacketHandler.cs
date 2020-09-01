@@ -34,6 +34,7 @@ using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.Shared.Enumerations;
 using Serilog;
 
 namespace NosCore.PacketHandlers.Bazaar

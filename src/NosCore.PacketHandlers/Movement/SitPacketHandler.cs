@@ -29,6 +29,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
 using System.Linq;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.PacketHandlers.Movement
 {
