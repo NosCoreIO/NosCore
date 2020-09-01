@@ -29,6 +29,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Providers.MapItemProvider
 {

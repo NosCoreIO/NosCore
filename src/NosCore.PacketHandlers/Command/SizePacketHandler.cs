@@ -27,6 +27,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.Shared.Enumerations;
 using Serilog;
 
 namespace NosCore.PacketHandlers.Command

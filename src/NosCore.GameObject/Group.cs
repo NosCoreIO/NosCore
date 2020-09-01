@@ -31,6 +31,7 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject
 {

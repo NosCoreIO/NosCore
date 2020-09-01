@@ -20,6 +20,7 @@
 using System;
 using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {

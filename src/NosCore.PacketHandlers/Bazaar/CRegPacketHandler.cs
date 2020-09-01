@@ -37,6 +37,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.PacketHandlers.Bazaar
 {

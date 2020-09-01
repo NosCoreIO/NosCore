@@ -31,6 +31,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.InventoryService;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {

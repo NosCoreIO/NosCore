@@ -34,6 +34,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.Enumerations;
 using Serilog;
 
 namespace NosCore.GameObject
