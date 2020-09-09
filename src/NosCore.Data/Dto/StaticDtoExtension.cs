@@ -34,8 +34,13 @@ namespace NosCore.Data.Dto
             var properties = staticDto.GetProperties();
             foreach (var prop in properties.Where(p => typeof(I18NString).IsAssignableFrom(p.PropertyType)))
             {
+                var key = properties.FirstOrDefault(s => s.Name == $"{prop.Name}I18NKey");
+                if (key == null)
+                {
+                    continue;
+                }
                 dic.Add(prop,
-                    new Tuple<PropertyInfo, Type>(properties.FirstOrDefault(s => s.Name == $"{prop.Name}I18NKey"),
+                    new Tuple<PropertyInfo, Type>(key,
                         prop.GetCustomAttribute<I18NFromAttribute>()!.Type));
             }
 

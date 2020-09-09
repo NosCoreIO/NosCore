@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Parcel
                 var item = _itemProvider.Convert(itemInstance!);
                 item.Id = Guid.NewGuid();
                 var newInv = clientSession.Character.InventoryService
-                    .AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId))
+                    .AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId))?
                     .FirstOrDefault();
                 if (newInv != null)
                 {

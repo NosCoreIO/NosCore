@@ -31,6 +31,8 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.Tests.Helpers;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.Tests.BazaarTests
 {

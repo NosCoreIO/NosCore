@@ -165,9 +165,9 @@ namespace NosCore.Tests
             IInventoryService inventory2 =
                 new InventoryService(new List<ItemDto> {new Item {VNum = 1013, Type = NoscorePocketType.Main}},
                     _worldConfiguration!, Logger);
-            var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 1), 0))
+            var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 1), 0))!
                 .First();
-            var item2 = inventory2.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1013, 1), 0))
+            var item2 = inventory2.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1013, 1), 0))!
                 .First();
 
             _exchangeProvider!.OpenExchange(1, 2);

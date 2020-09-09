@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Providers.MinilandProvider
                 Unknown3 = 0,
                 MinilandPoint = MinilandPoint,
                 MinilandState = State,
-                MinilandWelcomeMessage = MinilandMessage,
+                MinilandWelcomeMessage = MinilandMessage ?? "", //todo this has a default value in number in the new mlinfo
                 WelcomeMusicInfo2 = WelcomeMusicInfo
             };
         }

@@ -6,6 +6,7 @@
     <LangVersion>latest</LangVersion>
     <UseNETCoreGenerator>true</UseNETCoreGenerator>
     <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

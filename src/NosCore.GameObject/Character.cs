@@ -71,6 +71,8 @@ using NosCore.Shared.Enumerations;
 using Serilog;
 using NosCore.Algorithm.ReputationService;
 using NosCore.GameObject.Providers.QuestProvider;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.GameObject
 {
@@ -135,7 +137,7 @@ namespace NosCore.GameObject
 
         private byte _speed;
 
-        public new ScriptDto? Script { get; set; }
+        public ScriptDto? Script { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
 

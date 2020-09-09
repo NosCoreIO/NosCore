@@ -188,13 +188,13 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         {
             var random2 = Guid.NewGuid();
             MapItem? droppedItem;
-            var possibilities = new List<MapCell>();
+            var possibilities = new List<(short X, short Y)>();
 
             for (short x = -1; x < 2; x++)
             {
                 for (short y = -1; y < 2; y++)
                 {
-                    possibilities.Add(new MapCell { X = x, Y = y });
+                    possibilities.Add((x, y));
                 }
             }
 

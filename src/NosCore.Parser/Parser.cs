@@ -131,7 +131,7 @@ namespace NosCore.Parser
                         .SingleInstance();
                     var container = containerBuilder.Build();
                     var factory = container.Resolve<ImportFactory>();
-                    factory.SetFolder(folder);
+                    factory.SetFolder(folder!);
                     await factory.ImportPacketsAsync().ConfigureAwait(false);
 
                     if (key.KeyChar != 'n')

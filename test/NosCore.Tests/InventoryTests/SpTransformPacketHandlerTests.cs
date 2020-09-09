@@ -32,6 +32,8 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Tests.Helpers;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.Tests.InventoryTests
 {

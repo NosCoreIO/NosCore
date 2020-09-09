@@ -52,7 +52,8 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 
         public async Task<Tuple<ServerConfiguration?, ConnectedAccount?>> GetCharacterAsync(long? characterId, string? characterName)
         {
-            foreach (var channel in (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false)).Where(c => c.Type == ServerType.WorldServer))
+            var servers = await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false) ?? new List<ChannelInfo>();
+            foreach (var channel in servers.Where(c => c.Type == ServerType.WorldServer))
             {
                 var accounts = await GetConnectedAccountAsync(channel).ConfigureAwait(false);
                 var target = accounts.FirstOrDefault(s =>

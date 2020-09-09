@@ -38,9 +38,9 @@ namespace NosCore.GameObject
         private readonly ILogger _logger;
 
         private readonly List<NpcMonsterDto> _npcMonsters;
-        private readonly IDistanceCalculator _distanceCalculator;
-        public new NpcMonsterDto NpcMonster { get; private set; } = null!;
-        public MapMonster(List<NpcMonsterDto> npcMonsters, ILogger logger, IDistanceCalculator distanceCalculator)
+        private readonly IHeuristic _distanceCalculator;
+        public NpcMonsterDto NpcMonster { get; private set; } = null!;
+        public MapMonster(List<NpcMonsterDto> npcMonsters, ILogger logger, IHeuristic distanceCalculator)
         {
             _npcMonsters = npcMonsters;
             _logger = logger;

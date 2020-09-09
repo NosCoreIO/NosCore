@@ -104,7 +104,7 @@ namespace NosCore.Tests.PacketHandlerTests
             {
                 Name = name
             }, _session!).ConfigureAwait(false);
-            Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Name == name).Skip(1).Any());
+            Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Name == name)!.Skip(1).Any());
         }
 
         [TestMethod]
@@ -116,7 +116,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Name = name,
                 Slot = 1
             }, _session!).ConfigureAwait(false);
-            Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Slot == 1).Skip(1).Any());
+            Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Slot == 1)!.Skip(1).Any());
         }
     }
 }

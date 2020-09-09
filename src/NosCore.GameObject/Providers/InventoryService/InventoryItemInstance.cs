@@ -25,7 +25,7 @@ namespace NosCore.GameObject.Providers.InventoryService
 {
     public class InventoryItemInstance : InventoryItemInstanceDto
     {
-        public new IItemInstance? ItemInstance { get; set; }
+        public IItemInstance? ItemInstance { get; set; }
 
         public static InventoryItemInstance Create(IItemInstance it, long characterId)
         {

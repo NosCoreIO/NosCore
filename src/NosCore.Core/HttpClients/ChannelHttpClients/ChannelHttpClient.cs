@@ -81,10 +81,10 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
-            _token = result.Token;
+            _token = result?.Token;
             _lastUpdateToken = SystemTime.Now();
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.REGISTRED_ON_MASTER));
-            MasterClientListSingleton.Instance.ChannelId = result.ChannelInfo!.ChannelId;
+            MasterClientListSingleton.Instance.ChannelId = result?.ChannelInfo!.ChannelId;
 
             await Policy
                 .HandleResult<HttpStatusCode>(ping => ping == HttpStatusCode.OK)
@@ -169,14 +169,14 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
-            _token = result.Token;
+            _token = result?.Token;
             _lastUpdateToken = SystemTime.Now();
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SECURITY_TOKEN_UPDATED));
 
             return _token;
         }
 
-        public async Task<List<ChannelInfo>> GetChannelsAsync()
+        public async Task<List<ChannelInfo>?> GetChannelsAsync()
         {
             var channels = MasterClientListSingleton.Instance.Channels;
             if (MasterClientListSingleton.Instance.Channels.Any())
@@ -201,12 +201,12 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             return channels;
         }
 
-        public async Task<ChannelInfo> GetChannelAsync(int channelId)
+        public async Task<ChannelInfo?> GetChannelAsync(int channelId)
         {
             var channels = MasterClientListSingleton.Instance.Channels;
             if (MasterClientListSingleton.Instance.Channels.Any())
             {
-                return channels.FirstOrDefault(s => s.Id == channelId);
+                return channels?.FirstOrDefault(s => s.Id == channelId);
             }
 
             using var client = _httpClientFactory.CreateClient();
@@ -224,7 +224,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                     });
             }
 
-            return channels.FirstOrDefault(s => s.Id == channelId);
+            return channels?.FirstOrDefault(s => s.Id == channelId);
         }
     }
 }

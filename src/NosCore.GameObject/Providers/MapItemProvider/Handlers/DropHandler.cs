@@ -45,9 +45,9 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
         public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             var amount = requestData.Data.Item1.Amount;
-            var inv = requestData.ClientSession.Character.InventoryService.AddItemToPocket(
-                    InventoryItemInstance.Create(requestData.Data.Item1.ItemInstance!,
-                        requestData.ClientSession.Character.CharacterId))
+            var iteminstance = InventoryItemInstance.Create(requestData.Data.Item1.ItemInstance!,
+                requestData.ClientSession.Character.CharacterId);
+            var inv = requestData.ClientSession.Character.InventoryService.AddItemToPocket(iteminstance)?
                 .FirstOrDefault();
 
             if (inv != null)

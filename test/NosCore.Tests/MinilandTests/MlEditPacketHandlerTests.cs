@@ -52,7 +52,7 @@ namespace NosCore.Tests.MinilandTests
 
         private ClientSession? _session;
         private MinilandProvider _minilandProvider = null!;
-        private ClientSession _session2;
+        private ClientSession _session2 = null!;
 
         [TestInitialize]
         public async Task SetupAsync()

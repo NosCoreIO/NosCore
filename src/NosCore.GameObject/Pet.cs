@@ -30,7 +30,7 @@ namespace NosCore.GameObject
     public class Pet : MapMonsterDto, INamedEntity //TODO replace MapMonsterDTO by the correct PetDTO
     {
         public IDisposable? Life { get; private set; }
-        public new NpcMonsterDto NpcMonster { get; private set; } = null!;
+        public NpcMonsterDto NpcMonster { get; private set; } = null!;
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
         public DateTime LastMove { get; set; }

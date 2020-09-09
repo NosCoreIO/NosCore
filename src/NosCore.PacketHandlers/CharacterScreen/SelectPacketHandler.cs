@@ -108,9 +108,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 var inventories = _inventoryItemInstanceDao
                     .Where(s => s.CharacterId == character.CharacterId)
-                    .ToList();
+                    ?.ToList() ?? new List<InventoryItemInstanceDto>();
                 var ids = inventories.Select(o => o.ItemInstanceId).ToArray();
-                var items = _itemInstanceDao.Where(s => ids.Contains(s!.Id)).ToList();
+                var items = _itemInstanceDao.Where(s => ids.Contains(s!.Id))?.ToList() ?? new List<IItemInstanceDto?>();
                 inventories.ForEach(k => character.InventoryService[k.ItemInstanceId] =
                     InventoryItemInstance.Create(_itemProvider.Convert(items.First(s => s!.Id == k.ItemInstanceId)!),
                         character.CharacterId, k));
@@ -130,8 +130,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     clientSession.Character.Mp = (int)clientSession.Character.MpLoad();
                 }
 
-                clientSession.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(_characterQuestDao
-                    .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToDictionary(x => x.Id, x =>
+                var quests = _characterQuestDao
+                    .Where(s => s.CharacterId == clientSession.Character.CharacterId) ?? new List<CharacterQuestDto>();
+                clientSession.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(quests.ToDictionary(x => x.Id, x =>
                     {
                         var charquest = x.Adapt<CharacterQuest>();
                         charquest.Quest = _quests.First(s => s.QuestId == charquest.QuestId).Adapt<GameObject.Providers.QuestProvider.Quest>();
@@ -140,11 +141,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         return charquest;
                     }));
                 clientSession.Character.QuicklistEntries = _quickListEntriesDao
-                    .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
+                    .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<QuicklistEntryDto>();
                 clientSession.Character.StaticBonusList = _staticBonusDao
-                    .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
+                    .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<StaticBonusDto>();
                 clientSession.Character.Titles = _titleDao
-                    .Where(s => s.CharacterId == clientSession.Character.CharacterId).ToList();
+                    .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<TitleDto>();
                 await clientSession.SendPacketAsync(new OkPacket()).ConfigureAwait(false);
             }
             catch (Exception ex)

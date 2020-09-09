@@ -29,6 +29,8 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.PacketHandlers.Bazaar
 {

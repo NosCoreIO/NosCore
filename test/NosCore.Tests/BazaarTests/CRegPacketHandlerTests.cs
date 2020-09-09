@@ -46,6 +46,8 @@ using NosCore.PacketHandlers.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Helpers;
 using Serilog;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -167,7 +169,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task RegisterTooExpensiveWhenNoMedalAsync()
         {
             _session!.Character.Gold = 500000;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
                 .First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -194,7 +196,7 @@ namespace NosCore.Tests.BazaarTests
             {
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
                 .First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -218,7 +220,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task RegisterTooExpensiveAsync()
         {
             _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
                 .First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -241,7 +243,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task RegisterTooLongWhenNoMedalAsync()
         {
             _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
                 .First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -263,7 +265,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task RegisterUnvalidTimeAsync()
         {
             _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
                 .First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -285,7 +287,7 @@ namespace NosCore.Tests.BazaarTests
         {
             _session!.Character.Gold = 5000000;
             _session.Character.InventoryService!
-                .AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0)).First();
+                .AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!.First();
             _bazaarHttpClient.Reset();
             _bazaarHttpClient!.Setup(s => s.AddBazaarAsync(It.IsAny<BazaarRequest>())).ReturnsAsync(LanguageKey.LIMIT_EXCEEDED);
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
@@ -311,7 +313,7 @@ namespace NosCore.Tests.BazaarTests
         {
             _session!.Character.Gold = 5000000;
             _session.Character.InventoryService!
-                .AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0)).First();
+                .AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!.First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
                 Type = 0,
@@ -334,7 +336,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task RegisterLessThanInInventoryAsync()
         {
             _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))
+            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
                 .First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -356,7 +358,7 @@ namespace NosCore.Tests.BazaarTests
         {
             _session!.Character.Gold = 5000000;
             _session.Character.InventoryService!
-                .AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0)).First();
+                .AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!.First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
                 Type = 0,

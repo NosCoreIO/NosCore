@@ -29,6 +29,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Enumerations;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {

@@ -67,7 +67,7 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
                 JsonSerializer.Deserialize<List<WarehouseLink>>(await response.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
+                }) ?? new List<WarehouseLink>();
             foreach (var warehouselink in warehouselinks)
             {
                 var warehouseItem = warehouselink.Warehouse!.Adapt<WarehouseItem>();

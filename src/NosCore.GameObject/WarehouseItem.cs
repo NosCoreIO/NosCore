@@ -24,6 +24,6 @@ namespace NosCore.GameObject
 {
     public class WarehouseItem : WarehouseItemDto
     {
-        public new IItemInstance? ItemInstance { get; set; }
+        public IItemInstance? ItemInstance { get; set; }
     }
 }

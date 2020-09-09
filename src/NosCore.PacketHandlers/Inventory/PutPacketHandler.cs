@@ -28,6 +28,8 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.PacketHandlers.Inventory
 {

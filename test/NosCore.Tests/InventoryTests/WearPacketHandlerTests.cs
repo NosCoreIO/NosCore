@@ -42,6 +42,8 @@ using NosCore.PacketHandlers.Inventory;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Helpers;
 using Serilog;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.Tests.InventoryTests
 {

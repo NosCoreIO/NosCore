@@ -33,6 +33,8 @@ using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {

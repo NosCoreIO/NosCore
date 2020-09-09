@@ -98,7 +98,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 new CharacterDto {CharacterId = 2, Name = "test"}
             };
             _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
-                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile())));
+                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile()))!);
            await _characterRelationDao!.TryInsertOrUpdateAsync(new[]
            {
                new CharacterRelationDto
@@ -137,7 +137,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 _session!.Character!,
                 targetSession.Character!
             };
-            _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+            _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))!
                 .ReturnsAsync((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
             await _characterRelationDao!.TryInsertOrUpdateAsync(new[]
             {
@@ -178,7 +178,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 targetSession.Character!
             };
             _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
-                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile())));
+                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile()))!);
 
             var fdelPacket = new FdelPacket
             {

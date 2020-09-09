@@ -51,7 +51,9 @@ namespace NosCore.Core.Configuration
         [Required]
         public string? ServerName { get; set; }
 
+#pragma warning disable CA2227 // Collection properties should be read only
         public FeatureFlags FeatureFlags { get; set; } = new FeatureFlags();
+#pragma warning restore CA2227 // Collection properties should be read only
 
         public short MaxItemAmount { get; set; }
 

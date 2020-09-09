@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using NosCore.Data.StaticEntities;
 using NosCore.PathFinder;
 using NosCore.Shared.Helpers;
@@ -62,20 +63,20 @@ namespace NosCore.GameObject.Map
 
         internal bool GetFreePosition(ref short firstX, ref short firstY, byte xpoint, byte ypoint)
         {
-            var minX = (short) (-xpoint + firstX);
-            var maxX = (short) (xpoint + firstX);
+            var minX = (short)(-xpoint + firstX);
+            var maxX = (short)(xpoint + firstX);
 
-            var minY = (short) (-ypoint + firstY);
-            var maxY = (short) (ypoint + firstY);
+            var minY = (short)(-ypoint + firstY);
+            var maxY = (short)(ypoint + firstY);
 
-            var cells = new List<MapCell>();
+            var cells = new List<(short X, short Y)>();
             for (var y = minY; y <= maxY; y++)
             {
                 for (var x = minX; x <= maxX; x++)
                 {
                     if ((x != firstX) || (y != firstY))
                     {
-                        cells.Add(new MapCell {X = x, Y = y});
+                        cells.Add((x, y));
                     }
                 }
             }
@@ -97,15 +98,15 @@ namespace NosCore.GameObject.Map
 
         public bool IsBlockedZone(short firstX, short firstY, short mapX, short mapY)
         {
-            var posX = (short) Math.Abs(mapX - firstX);
-            var posY = (short) Math.Abs(mapY - firstY);
+            var posX = (short)Math.Abs(mapX - firstX);
+            var posY = (short)Math.Abs(mapY - firstY);
 
             var positiveX = mapX > firstX;
             var positiveY = mapY > firstY;
 
             for (var i = 0; i <= posX; i++)
             {
-                if (!IsWalkable((short) ((positiveX ? i : -i) + firstX), firstY))
+                if (!IsWalkable((short)((positiveX ? i : -i) + firstX), firstY))
                 {
                     return true;
                 }
@@ -113,7 +114,7 @@ namespace NosCore.GameObject.Map
 
             for (var i = 0; i <= posY; i++)
             {
-                if (!IsWalkable(firstX, (short) ((positiveY ? i : -i) + firstY)))
+                if (!IsWalkable(firstX, (short)((positiveY ? i : -i) + firstY)))
                 {
                     return true;
                 }

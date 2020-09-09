@@ -40,9 +40,9 @@ namespace NosCore.PacketHandlers.Movement
     {
         private readonly IMapInstanceProvider _mapInstanceProvider;
         private readonly IMinilandProvider _minilandProvider;
-        private readonly IDistanceCalculator _distanceCalculator;
+        private readonly IHeuristic _distanceCalculator;
 
-        public PreqPacketHandler(IMapInstanceProvider mapInstanceProvider, IMinilandProvider minilandProvider, IDistanceCalculator distanceCalculator)
+        public PreqPacketHandler(IMapInstanceProvider mapInstanceProvider, IMinilandProvider minilandProvider, IHeuristic distanceCalculator)
         {
             _mapInstanceProvider = mapInstanceProvider;
             _minilandProvider = minilandProvider;
@@ -66,15 +66,7 @@ namespace NosCore.PacketHandlers.Movement
                 .GetMinilandPortals(session.Character.CharacterId)
                 .Where(s => s.SourceMapInstanceId == session.Character.MapInstanceId));
             var portal = portals.Find(port =>
-                _distanceCalculator.GetDistance(new MapCell
-                {
-                    X = session.Character.PositionX,
-                    Y = session.Character.PositionY
-                }, new MapCell
-                {
-                    X = port.SourceX,
-                    Y = port.SourceY
-                })
+                _distanceCalculator.GetDistance((session.Character.PositionX, session.Character.PositionY), (port.SourceX, port.SourceY))
                   <= 2);
             if (portal == null)
             {
