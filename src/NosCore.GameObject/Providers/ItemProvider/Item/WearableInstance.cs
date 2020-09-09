@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
         public bool IsBound => BoundCharacterId.HasValue && (Item?.ItemType != ItemType.Armor)
             && (Item?.ItemType != ItemType.Weapon);
 
-        public new Item? Item { get; set; }
+        public Item? Item { get; set; }
         public List<Task> HandlerTasks { get; set; } = new List<Task>();
         public object Clone()
         {

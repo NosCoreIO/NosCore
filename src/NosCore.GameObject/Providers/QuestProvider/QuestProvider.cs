@@ -34,6 +34,8 @@ using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.UI;
 using Serilog;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.GameObject.Providers.QuestProvider
 {

@@ -45,14 +45,14 @@ namespace NosCore.PacketHandlers.Bazaar
 
         public override async Task ExecuteAsync(CBListPacket packet, ClientSession clientSession)
         {
-            var itemssearch = packet.ItemVNumFilter.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
+            var itemssearch = packet.ItemVNumFilter?.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
 
             var bzlist = await _bazaarHttpClient.GetBazaarLinksAsync(-1, packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
                 packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null).ConfigureAwait(false);
             var bzlistsearched = bzlist.Where(s => itemssearch!.Contains(s.ItemInstance!.ItemVNum)).ToList();
 
             //price up price down quantity up quantity down
-            var definitivelist = itemssearch.Any() ? bzlistsearched : bzlist;
+            var definitivelist = itemssearch?.Any() == true ? bzlistsearched : bzlist;
             definitivelist = packet.OrderFilter switch
             {
                 0 => definitivelist
@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         IsPackage = bzlink.BazaarItem.IsPackage,
                         Price = bzlink.BazaarItem.Price,
                         MinutesLeft =
-                            (long) (bzlink.BazaarItem.DateStart.AddHours(bzlink.BazaarItem.Duration) - SystemTime.Now())
+                            (long)(bzlink.BazaarItem.DateStart.AddHours(bzlink.BazaarItem.Duration) - SystemTime.Now())
                             .TotalMinutes,
                         Unknown1 = false,
                         Unknown = 2,

@@ -53,10 +53,16 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
                     $"{ApiUrl}?id={i}&Index={packetIndex}&PageSize={pagesize}&TypeFilter={packetTypeFilter}&SubTypeFilter={packetSubTypeFilter}&LevelFilter={packetLevelFilter}&RareFilter={packetRareFilter}&UpgradeFilter={packetUpgradeFilter}&SellerFilter={sellerFilter}").ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                return JsonSerializer.Deserialize<List<BazaarLink>>(await response.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
+                var list = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                if (list == null)
+                {
+                    return new List<BazaarLink>();
+                }
+
+                return JsonSerializer.Deserialize<List<BazaarLink>>(list, new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
+                }) ?? new List<BazaarLink>();
             }
 
             throw new ArgumentException();

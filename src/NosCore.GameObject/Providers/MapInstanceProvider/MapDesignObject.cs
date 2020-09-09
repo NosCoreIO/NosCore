@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
         public bool IsWarehouse { get; set; }
 
-        public new InventoryItemInstance? InventoryItemInstance { get; set; }
+        public InventoryItemInstance? InventoryItemInstance { get; set; }
 
         public GroundEffectPacket GenerateEffect()
         {

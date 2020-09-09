@@ -32,6 +32,8 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.PacketHandlers.Miniland
 {

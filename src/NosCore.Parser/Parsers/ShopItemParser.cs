@@ -69,7 +69,7 @@ namespace NosCore.Parser.Parsers
 
                         var sitem = new ShopItemDto
                         {
-                            ShopId = shopdb.FirstOrDefault(s => s.MapNpcId == npcid)
+                            ShopId = shopdb.FirstOrDefault(s => s.MapNpcId == npcid)!
                                 .ShopId,
                             Type = type,
                             Slot = byte.Parse(item[1]),

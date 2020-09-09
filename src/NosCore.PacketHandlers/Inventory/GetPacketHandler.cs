@@ -38,9 +38,9 @@ namespace NosCore.PacketHandlers.Inventory
     public class GetPacketHandler : PacketHandler<GetPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        private readonly IDistanceCalculator _distanceCalculator;
+        private readonly IHeuristic _distanceCalculator;
 
-        public GetPacketHandler(ILogger logger, IDistanceCalculator distanceCalculator)
+        public GetPacketHandler(ILogger logger, IHeuristic distanceCalculator)
         {
             _logger = logger;
             _distanceCalculator = distanceCalculator;
@@ -59,8 +59,8 @@ namespace NosCore.PacketHandlers.Inventory
             switch (getPacket.PickerType)
             {
                 case VisualType.Player:
-                    canpick = _distanceCalculator.GetDistance(new MapCell { X = clientSession.Character.PositionX, Y = clientSession.Character.PositionY },
-                        new MapCell { X = mapItem.PositionX, Y = mapItem.PositionY }) < 8;
+                    canpick = _distanceCalculator.GetDistance((clientSession.Character.PositionX, clientSession.Character.PositionY),
+                        (mapItem.PositionX, mapItem.PositionY)) < 8;
                     break;
 
                 case VisualType.Npc:

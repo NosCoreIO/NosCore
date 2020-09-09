@@ -35,21 +35,23 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.PacketHandlers.Shops
 {
     public class MShopPacketHandler : PacketHandler<MShopPacket>, IWorldPacketHandler
     {
-        private readonly IDistanceCalculator _distanceCalculator;
+        private readonly IHeuristic _distanceCalculator;
 
-        public MShopPacketHandler(IDistanceCalculator distanceCalculator)
+        public MShopPacketHandler(IHeuristic distanceCalculator)
         {
             _distanceCalculator = distanceCalculator;
         }
         public override async Task ExecuteAsync(MShopPacket mShopPacket, ClientSession clientSession)
         {
             var portal = clientSession.Character.MapInstance.Portals.Find(port =>
-                _distanceCalculator.GetDistance(new MapCell { X = clientSession.Character.PositionX, Y = clientSession.Character.PositionY }, new MapCell { X = port.SourceX, Y = port.SourceY }) <= 6);
+                _distanceCalculator.GetDistance((clientSession.Character.PositionX, clientSession.Character.PositionY), (port.SourceX, port.SourceY)) <= 6);
             if (portal != null)
             {
                 await clientSession.SendPacketAsync(new MsgiPacket

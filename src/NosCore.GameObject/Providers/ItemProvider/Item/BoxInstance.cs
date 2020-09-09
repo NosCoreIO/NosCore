@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Item
         {
         }
         public List<Task> HandlerTasks { get; set; } = new List<Task>();
-        public new Item? Item { get; set; }
+        public Item? Item { get; set; }
         public Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>>? Requests { get; set; }
 
         public object Clone()

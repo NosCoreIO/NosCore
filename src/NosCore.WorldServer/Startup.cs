@@ -93,6 +93,7 @@ using Serializer = NosCore.Packets.Serializer;
 using NosCore.Dao;
 using NosCore.Data.Dto;
 using NosCore.PathFinder;
+using NosCore.PathFinder.Heuristic;
 using NosCore.Shared.Configuration;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
 using NosCore.Shared.I18N;
@@ -355,7 +356,7 @@ namespace NosCore.WorldServer
             TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             containerBuilder.RegisterType<ClientSession>();
-            containerBuilder.RegisterType<OctileDistanceCalculator>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<OctileDistanceHeuristic>().AsImplementedInterfaces();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
             containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly)

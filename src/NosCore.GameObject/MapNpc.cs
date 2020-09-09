@@ -47,11 +47,11 @@ namespace NosCore.GameObject
         private readonly IDao<ShopItemDto, int>? _shopItems;
         private readonly IDao<ShopDto, int>? _shops;
         private readonly List<NpcTalkDto> _npcTalks;
-        private readonly IDistanceCalculator _distanceCalculator;
-        public new NpcMonsterDto NpcMonster { get; private set; } = null!;
+        private readonly IHeuristic _distanceCalculator;
+        public NpcMonsterDto NpcMonster { get; private set; } = null!;
         public MapNpc(IItemProvider? itemProvider, IDao<ShopDto, int>? shops,
             IDao<ShopItemDto, int>? shopItems,
-            List<NpcMonsterDto>? npcMonsters, ILogger logger, List<NpcTalkDto> npcTalks, IDistanceCalculator distanceCalculator)
+            List<NpcMonsterDto>? npcMonsters, ILogger logger, List<NpcTalkDto> npcTalks, IHeuristic distanceCalculator)
         {
             _npcMonsters = npcMonsters;
             _npcTalks = npcTalks;
@@ -130,7 +130,7 @@ namespace NosCore.GameObject
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        public new Shop? Shop { get; private set; }
+        public Shop? Shop { get; private set; }
 
         public Subject<RequestData>? Requests { get; set; }
 

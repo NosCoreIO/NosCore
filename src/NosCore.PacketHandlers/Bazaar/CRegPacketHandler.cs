@@ -38,6 +38,8 @@ using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.Shared.Enumerations;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.PacketHandlers.Bazaar
 {

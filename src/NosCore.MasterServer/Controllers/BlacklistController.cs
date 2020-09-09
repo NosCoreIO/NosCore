@@ -60,8 +60,8 @@ namespace NosCore.MasterServer.Controllers
                 throw new ArgumentException();
             }
 
-            var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId)
-                .ToList();
+            var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId)?
+                .ToList() ?? new List<CharacterRelationDto>();
             if (relations.Any(s =>
                 (s.RelatedCharacterId == blacklistRequest.BlInsPacket?.CharacterId) &&
                 (s.RelationType != CharacterRelationType.Blocked)))

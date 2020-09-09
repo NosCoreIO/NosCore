@@ -47,7 +47,7 @@ namespace NosCore.Core.Controllers
     {
         private readonly WebApiConfiguration _apiConfiguration;
         private readonly ILogger _logger;
-        private int _id = 0;
+        private int _id;
 
         public ChannelController(WebApiConfiguration apiConfiguration, ILogger logger)
         {
@@ -175,7 +175,7 @@ namespace NosCore.Core.Controllers
                 return HttpStatusCode.RequestTimeout;
             }
 
-            data.ApplyTo(chann);
+            data?.ApplyTo(chann);
             return HttpStatusCode.OK;
         }
     }

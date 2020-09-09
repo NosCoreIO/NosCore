@@ -140,8 +140,8 @@ namespace NosCore.GameObject.Providers.MinilandProvider
 
             var listobjects = character.InventoryService.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();
             var idlist = listobjects.Select(s => s.Id).ToArray();
-            var minilandObjectsDto = _minilandObjectsDao.Where(s => idlist.Contains((Guid) s.InventoryItemInstanceId!))
-                .ToList();
+            var minilandObjectsDto = _minilandObjectsDao.Where(s => idlist.Contains((Guid) s.InventoryItemInstanceId!))?
+                .ToList() ?? new List<MinilandObjectDto>();
             foreach (var mlobjdto in minilandObjectsDto)
             {
                 var mlobj = mlobjdto.Adapt<MapDesignObject>();

@@ -73,7 +73,7 @@ namespace NosCore.MasterServer.Controllers
                     throw new ArgumentException();
                 }
 
-                var relations = _characterRelationDao.Where(s => s.CharacterId == friendPacket.CharacterId).ToList();
+                var relations = _characterRelationDao.Where(s => s.CharacterId == friendPacket.CharacterId)?.ToList() ?? new List<CharacterRelationDto>();
                 if (relations.Count(s => s.RelationType == CharacterRelationType.Friend) >= 80)
                 {
                     return LanguageKey.FRIENDLIST_FULL;

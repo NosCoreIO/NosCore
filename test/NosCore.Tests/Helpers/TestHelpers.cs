@@ -84,6 +84,7 @@ using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations;
 using NosCore.PathFinder;
+using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
 
 namespace NosCore.Tests.Helpers
@@ -161,7 +162,7 @@ namespace NosCore.Tests.Helpers
 
         public MapInstanceProvider MapInstanceProvider { get; set; } = null!;
         public IDbContextBuilder ContextBuilder { get; set; } = new DataAccessHelper();
-        public IDistanceCalculator DistanceCalculator { get; set; } = new OctileDistanceCalculator();
+        public IHeuristic DistanceCalculator { get; set; } = new OctileDistanceHeuristic();
 
         private async Task<MapInstanceProvider> GenerateMapInstanceProviderAsync()
         {

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -34,8 +35,8 @@ namespace NosCore.MasterServer.DataHolders
             var billist = bazaarItemDao.LoadAll().ToList();
             var bzItemInstanceIds = billist.Select(o => o.ItemInstanceId).ToList();
             var bzCharacterIds = billist.Select(o => o.SellerId).ToList();
-            var itemInstancelist = itemInstanceDao.Where(s => bzItemInstanceIds.Contains(s!.Id)).ToList();
-            var characterList = characterDao.Where(s => bzCharacterIds.Contains(s.CharacterId)).ToList();
+            var itemInstancelist = itemInstanceDao.Where(s => bzItemInstanceIds.Contains(s!.Id))?.ToList() ?? new List<IItemInstanceDto?>();
+            var characterList = characterDao.Where(s => bzCharacterIds.Contains(s.CharacterId))?.ToList() ?? new List<CharacterDto>();
 
             BazaarItems = new ConcurrentDictionary<long, BazaarLink>(billist.ToDictionary(x => x.BazaarItemId,
                 x => new BazaarLink

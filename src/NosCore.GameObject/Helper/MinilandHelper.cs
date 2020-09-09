@@ -255,7 +255,7 @@ namespace NosCore.GameObject.Helper
 
         public static MinilandHelper Instance => _instance ??= new MinilandHelper();
 
-        public Gift GetMinilandGift(short game, int point)
+        public Gift? GetMinilandGift(short game, int point)
         {
             var rand = new Random();
             return _gifts[game][point].OrderBy(s => rand.Next()).FirstOrDefault();

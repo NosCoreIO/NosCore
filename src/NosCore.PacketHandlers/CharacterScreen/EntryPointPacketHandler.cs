@@ -24,6 +24,8 @@ using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
+using Microsoft.Extensions.DependencyInjection;
+using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -76,11 +78,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 throw new ArgumentNullException(nameof(clientSession));
             }
 
-            if (clientSession.Account == null)
+            if (clientSession.Account == null!)
             {
                 var alreadyConnnected = false;
                 var name = packet.Name;
-                foreach (var channel in (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false)).Where(c => c.Type == ServerType.WorldServer))
+                var servers = await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false) ?? new List<ChannelInfo>();
+                foreach (var channel in servers.Where(c => c.Type == ServerType.WorldServer))
                 {
                     var accounts = await _connectedAccountHttpClient.GetConnectedAccountAsync(channel).ConfigureAwait(false);
                     var target = accounts.FirstOrDefault(s => s.Name == name);

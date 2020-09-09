@@ -36,6 +36,8 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
@@ -181,7 +183,10 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             {
                 var gift = MinilandHelper.Instance.GetMinilandGift(_minigamePacket.MinigameVNum,
                     _minigamePacket.Point ?? 0);
-
+                if (gift == null)
+                {
+                    return;
+                }
                 if (gifts.Any(o => o.VNum == gift.VNum))
                 {
                     gifts.First(o => o.Amount == gift.Amount).Amount += gift.Amount;
@@ -285,7 +290,10 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             }
 
             var obj = MinilandHelper.Instance.GetMinilandGift(_minigamePacket!.MinigameVNum, _minigamePacket.Point ?? 0);
-
+            if (obj == null)
+            {
+                return;
+            }
             await _clientSession!.SendPacketAsync(new MloRwPacket { Amount = obj.Amount, VNum = obj.VNum }).ConfigureAwait(false);
             // _clientSession.SendPacket(new MlptPacket {_miniland.MinilandPoint, 100});
             var inv = _clientSession.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(

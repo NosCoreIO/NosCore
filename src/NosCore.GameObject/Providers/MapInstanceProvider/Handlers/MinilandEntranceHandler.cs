@@ -26,6 +26,8 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MinilandProvider;
 using System.Threading.Tasks;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider.Handlers
 {

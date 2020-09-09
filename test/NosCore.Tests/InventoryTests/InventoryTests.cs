@@ -65,7 +65,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void CreateItem()
         {
-            var item = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0)).First();
+            var item = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!.First();
             Assert.IsTrue((item.ItemInstance?.Amount == 1) && (item.ItemInstance.ItemVNum == 1012) &&
                 (item.Type == NoscorePocketType.Main));
         }
@@ -73,15 +73,15 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void CreateItemAndStackIt()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0)).First();
-            var item = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0)).First();
+            Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!.First();
+            var item = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0))!.First();
             Assert.IsTrue((item.ItemInstance?.Amount == 2) && (item.ItemInstance.ItemVNum == 1012));
         }
 
         [TestMethod]
         public void CreateItemWhenSlotMax()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0)).First();
+            Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!.First();
             var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0));
             Assert.IsTrue(items![0]!.ItemInstance?.Amount == 1);
         }
@@ -89,7 +89,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void CreateItemWhenSlotFilled()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 990), 0)).First();
+            Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 990), 0))!.First();
             var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 29), 0));
             Assert.IsTrue((items![0]!.ItemInstance?.Amount == 999) && (items.Last()!.ItemInstance?.Amount == 20));
         }
@@ -103,7 +103,7 @@ namespace NosCore.Tests.InventoryTests
                 NoscorePocketType.Main, 1);
             Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 990), 0),
                 NoscorePocketType.Main, 2);
-            var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 27), 0));
+            var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 27), 0))!;
             Assert.IsTrue(items.All(item => item.ItemInstance!.Amount == 999) && (items?.Count == 3));
         }
 
@@ -179,7 +179,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void MoveFullSlot()
         {
-            var item = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))
+            var item = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!
                 .First();
             Inventory.TryMoveItem(item.Type, item.Slot, 999, 1, out var originItem, out var destinationItem);
             Assert.IsTrue(originItem == null);
@@ -189,7 +189,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void MoveHalfSlot()
         {
-            var item = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))
+            var item = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!
                 .First();
             Inventory.TryMoveItem(item.Type, item.Slot, 499, 1, out var originItem, out var destinationItem);
             Assert.IsTrue((originItem?.ItemInstance?.Amount == 500) && (originItem.Slot == 0));
@@ -199,7 +199,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void MoveHalfSlotAndMergeThem()
         {
-            var item = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))
+            var item = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!
                 .First();
             Inventory.TryMoveItem(item.Type, item.Slot, 499, 1, out _, out _);
             Inventory.TryMoveItem(item.Type, 0, 500, 1, out var originItem, out var destinationItem);
@@ -210,7 +210,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void MoveHalfSlotAndMergeThemWithOverflow()
         {
-            var item = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))
+            var item = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!
                 .First();
             Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 500), 0));
             Inventory.TryMoveItem(item.Type, item.Slot, 600, 1, out var originItem, out var destinationItem);
@@ -225,7 +225,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void MoveFashionToFashionPocket()
         {
-            var fashion = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(924), 0)).First();
+            var fashion = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(924), 0))!.First();
             var item = Inventory.MoveInPocket(fashion.Slot, fashion.Type, NoscorePocketType.Costume);
             Assert.IsTrue(item?.Type == NoscorePocketType.Costume);
         }
@@ -233,7 +233,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void MoveFashionToSpecialistPocket()
         {
-            var fashion = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(924), 0)).First();
+            var fashion = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(924), 0))!.First();
             var item = Inventory.MoveInPocket(fashion.Slot, fashion.Type, NoscorePocketType.Specialist);
             Assert.IsNull(item);
         }
@@ -241,7 +241,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void MoveSpecialistToFashionPocket()
         {
-            var specialist = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(912), 0))
+            var specialist = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(912), 0))!
                 .First();
             var item = Inventory.MoveInPocket(specialist.Slot, specialist.Type, NoscorePocketType.Costume);
             Assert.IsNull(item);
@@ -250,7 +250,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void MoveSpecialistToSpecialistPocket()
         {
-            var specialist = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(912), 0))
+            var specialist = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(912), 0))!
                 .First();
             var item = Inventory.MoveInPocket(specialist.Slot, specialist.Type, NoscorePocketType.Specialist);
             Assert.IsTrue(item?.Type == NoscorePocketType.Specialist);
@@ -259,7 +259,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void MoveWeaponToPocket()
         {
-            var weapon = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1), 0)).First();
+            var weapon = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1), 0))!.First();
             var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, NoscorePocketType.Wear);
             Assert.IsTrue(item?.Type == NoscorePocketType.Wear);
         }
@@ -267,7 +267,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void SwapWithEmpty()
         {
-            var weapon = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1), 0)).First();
+            var weapon = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1), 0))!.First();
             var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, NoscorePocketType.Wear,
                 (short) EquipmentType.MainWeapon, true);
             Assert.IsTrue((item?.Type == NoscorePocketType.Wear) &&
@@ -277,8 +277,8 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public void SwapWithNotEmpty()
         {
-            var weapon = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(2), 0)).First();
-            var weapon2 = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1), 0)).First();
+            var weapon = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(2), 0))!.First();
+            var weapon2 = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1), 0))!.First();
             var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, NoscorePocketType.Wear,
                 (short) EquipmentType.MainWeapon, true);
             var item2 = Inventory.MoveInPocket(weapon2.Slot, weapon2.Type, NoscorePocketType.Wear,

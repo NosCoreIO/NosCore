@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         public Task AddMapInstanceAsync(MapInstance mapInstance)
         {
             _mapInstances.TryAdd(mapInstance.MapInstanceId, mapInstance);
-            return LoadPortalsAsync(mapInstance, _portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId).ToList());
+            return LoadPortalsAsync(mapInstance, _portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId)?.ToList() ?? new List<PortalDto>());
         }
 
         public void RemoveMap(Guid mapInstanceId)
@@ -102,7 +102,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
                     return mapinstance;
                 }));
 
-            await Task.WhenAll(_mapInstances.Values.Select(s=>s.StartLifeAsync())).ConfigureAwait(false);
+            await Task.WhenAll(_mapInstances.Values.Select(s => s.StartLifeAsync())).ConfigureAwait(false);
             await Task.WhenAll(_mapInstances.Values.Select(mapInstance => portals.ContainsKey(mapInstance.Map.MapId) ? LoadPortalsAsync(mapInstance, portals[mapInstance.Map.MapId]) : Task.CompletedTask)).ConfigureAwait(false);
         }
 

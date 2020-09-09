@@ -33,6 +33,8 @@ using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Enumerations;
 using Character = NosCore.Data.WebApi.Character;
+//TODO stop using obsolete
+#pragma warning disable 618
 
 namespace NosCore.PacketHandlers.Command
 {

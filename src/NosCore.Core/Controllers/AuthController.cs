@@ -141,9 +141,9 @@ namespace NosCore.Core.Controllers
         [HttpPost("codes")]
         public IActionResult GetAuthCode(ApiPlatformGameAccount platformGameAccount)
         {
-            var identity = (ClaimsIdentity)User.Identity;
-            if (!identity.Claims.Any(s =>
-                (s.Type == ClaimTypes.Sid) && (s.Value == platformGameAccount.PlatformGameAccountId)))
+            var identity = (ClaimsIdentity?)User.Identity;
+            if (identity?.Claims.Any(s =>
+                (s.Type == ClaimTypes.Sid) && (s.Value == platformGameAccount.PlatformGameAccountId)) != true)
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
             }
@@ -197,10 +197,10 @@ namespace NosCore.Core.Controllers
     [Serializable]
     public class ApiSession
     {
-        public string? GfLang { get; set; }
-        public string? Identity { get; set; }
-        public string? Locale { get; set; }
-        public string? Password { get; set; }
+        public string GfLang { get; set; } = null!;
+        public string Identity { get; set; } = null!;
+        public string Locale { get; set; } = null!;
+        public string Password { get; set; } = null!;
     }
 
     [Serializable]
