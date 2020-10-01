@@ -20,6 +20,8 @@
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -28,15 +30,18 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
+using Serilog;
 
 namespace NosCore.PacketHandlers.Movement
 {
     public class WalkPacketHandler : PacketHandler<WalkPacket>, IWorldPacketHandler
     {
         private readonly IHeuristic _distanceCalculator;
+        private readonly ILogger _logger;
 
-        public WalkPacketHandler(IHeuristic distanceCalculator)
+        public WalkPacketHandler(IHeuristic distanceCalculator, ILogger logger)
         {
+            _logger = logger;
             _distanceCalculator = distanceCalculator;
         }
         public override async Task ExecuteAsync(WalkPacket walkPacket, ClientSession session)
@@ -49,13 +54,23 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
-            //todo check speed and distance
             if ((walkPacket.XCoordinate + walkPacket.YCoordinate) % 3 % 2 != walkPacket.Unknown)
             {
-                //todo log and disconnect
+                await session.DisconnectAsync();
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.WALK_CHECKSUM_INVALID), session.Character.VisualId);
                 return;
             }
 
+            var travelTime = 2500 / walkPacket.Speed * distance;
+            if (travelTime > 1000)
+            {
+                await session.DisconnectAsync();
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SPEED_INVALID), session.Character.VisualId);
+                return;
+            }
+
+            await Task.Delay(travelTime);
+            session.Character.LastMove = SystemTime.Now();
             if (session.Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
             {
                 session.Character.MapX = walkPacket.XCoordinate;
@@ -67,7 +82,6 @@ namespace NosCore.PacketHandlers.Movement
 
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateMove(),
                 new EveryoneBut(session.Channel!.Id)).ConfigureAwait(false);
-            session.Character.LastMove = SystemTime.Now();
         }
     }
 }
