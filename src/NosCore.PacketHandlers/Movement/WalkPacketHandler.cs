@@ -18,8 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Core;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -34,9 +37,11 @@ namespace NosCore.PacketHandlers.Movement
     public class WalkPacketHandler : PacketHandler<WalkPacket>, IWorldPacketHandler
     {
         private readonly IHeuristic _distanceCalculator;
+        private ILogger _logger;
 
-        public WalkPacketHandler(IHeuristic distanceCalculator)
+        public WalkPacketHandler(IHeuristic distanceCalculator, ILogger logger)
         {
+            _logger = logger;
             _distanceCalculator = distanceCalculator;
         }
         public override async Task ExecuteAsync(WalkPacket walkPacket, ClientSession session)
@@ -49,10 +54,17 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
-            //todo check speed and distance
             if ((walkPacket.XCoordinate + walkPacket.YCoordinate) % 3 % 2 != walkPacket.Unknown)
             {
-                //todo log and disconnect
+                await session.DisconnectAsync();
+                _logger.LogError(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.WALK_CHECKSUM_INVALID), session.Character.VisualId);
+                return;
+            }
+
+            if (2500 / walkPacket.Speed * distance > (SystemTime.Now() - session.Character.LastMove).TotalSeconds)
+            {
+                await session.DisconnectAsync();
+                _logger.LogError(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SPEED_INVALID), session.Character.VisualId);
                 return;
             }
 
