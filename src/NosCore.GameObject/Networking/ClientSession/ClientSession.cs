@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using NosCore.Packets.Attributes;
 using NosCore.Packets.Enumerations;
@@ -59,7 +60,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         private readonly IExchangeProvider _exchangeProvider = null!;
         private readonly IFriendHttpClient _friendHttpClient = null!;
-
+        private readonly SemaphoreSlim handlingPacketLock = new SemaphoreSlim(1, 1);
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
         private readonly IMapInstanceProvider _mapInstanceProvider = null!;
@@ -478,7 +479,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                                 if (!HasSelectedCharacter && !attr.AnonymousAccess)
                                 {
                                     _logger.Warning(
-                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
+                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey
+                                            .PACKET_USED_WITHOUT_CHARACTER),
                                         packet.Header);
                                     return;
                                 }
@@ -490,8 +492,18 @@ namespace NosCore.GameObject.Networking.ClientSession
                                     return;
                                 }
 
-                                await handler.ExecuteAsync(packet, this).ConfigureAwait(false);
+                                await handlingPacketLock.WaitAsync();
+                                try
+                                {
+                                    await handler.ExecuteAsync(packet, this).ConfigureAwait(false);
+                                    await Task.Delay(200);
+                                }
+                                finally
+                                {
+                                    handlingPacketLock.Release();
+                                }
                             }
+
                         }
                         else
                         {
