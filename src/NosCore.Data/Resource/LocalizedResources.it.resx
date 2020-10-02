@@ -679,9 +679,6 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Vuoi sincronizzare TimeSpaces?</value>
   </data>
-  <data name="PLATFORM_UNSUPORTED_CONSOLE_TITLE" xml:space="preserve">
-    <value>Questa piattaforma non supporta il titolo della console.</value>
-  </data>
   <data name="PLAYER_IN_SHOP" xml:space="preserve">
     <value>The {0} player is in store mode.</value>
   </data>

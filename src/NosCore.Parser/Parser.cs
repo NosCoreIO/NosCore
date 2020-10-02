@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
@@ -66,7 +67,10 @@ namespace NosCore.Parser
 
         public static async Task Main(string[] args)
         {
-            try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Console.Title = Title;
+            }
             var parserConfiguration = new ParserConfiguration();
             ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "parser.yml" }, parserConfiguration);
             Shared.I18N.Logger.PrintHeader(ConsoleText);

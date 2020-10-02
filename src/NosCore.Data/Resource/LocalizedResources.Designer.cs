@@ -1474,15 +1474,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This platform doesn&apos;t support console title..
-        /// </summary>
-        public static string PLATFORM_UNSUPORTED_CONSOLE_TITLE {
-            get {
-                return ResourceManager.GetString("PLATFORM_UNSUPORTED_CONSOLE_TITLE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The {0} player is in store mode..
         /// </summary>
         public static string PLAYER_IN_SHOP {

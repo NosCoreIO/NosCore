@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -48,13 +49,9 @@ namespace NosCore.LoginServer
         {
             try
             {
-                try
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     Console.Title += $@" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
-                }
-                catch (PlatformNotSupportedException)
-                {
-                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLATFORM_UNSUPORTED_CONSOLE_TITLE));
                 }
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                     _loginConfiguration.Port);

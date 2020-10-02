@@ -21,6 +21,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -61,13 +62,9 @@ namespace NosCore.MasterServer
             }
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
-            try
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Console.Title += $@" - WebApi : {_masterConfiguration.WebApi}";
-            }
-            catch
-            {
-                Console.ReadKey();
             }
         }
     }

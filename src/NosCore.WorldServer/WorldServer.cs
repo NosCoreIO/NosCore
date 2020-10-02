@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
@@ -75,15 +76,12 @@ namespace NosCore.WorldServer
 
             try
             {
-                try
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    Console.Title +=
-                        $@" - Port : {_worldConfiguration.Port} - WebApi : {_worldConfiguration.WebApi}";
+                    Console.Title += $@" - Port : {_worldConfiguration.Port} - WebApi : {_worldConfiguration.WebApi}";
                 }
-                catch (PlatformNotSupportedException)
-                {
-                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLATFORM_UNSUPORTED_CONSOLE_TITLE));
-                }
+
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                     _worldConfiguration.Port);
                 await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);

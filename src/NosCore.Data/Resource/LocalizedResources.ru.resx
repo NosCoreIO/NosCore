@@ -704,9 +704,6 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Импортировать пространственно-временные порталы?</value>
   </data>
-  <data name="PLATFORM_UNSUPORTED_CONSOLE_TITLE" xml:space="preserve">
-    <value>Неподдерживаемая платформа</value>
-  </data>
   <data name="PLAYER_IN_SHOP" xml:space="preserve">
     <value>{0} в магазине.</value>
   </data>
