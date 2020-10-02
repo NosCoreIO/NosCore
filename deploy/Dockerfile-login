@@ -1,14 +1,14 @@
-ARG REPO=mcr.microsoft.com/dotnet/core/runtime
+ARG REPO=mcr.microsoft.com/dotnet/runtime
 FROM $REPO:5.0-alpine
 
 RUN apk add --no-cache icu-libs
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 # Install ASP.NET Core
-ENV ASPNET_VERSION 5.0.0-preview.3.20215.14
+ENV ASPNET_VERSION 5.0.0-rc.1.20451.17
 
-RUN wget -O aspnetcore.tar.gz https://dotnetcli.azureedge.net/dotnet/aspnetcore/Runtime/$ASPNET_VERSION/aspnetcore-runtime-$ASPNET_VERSION-linux-musl-arm64.tar.gz \
-    && aspnetcore_sha512='35efa93b5dec1184510bcb1ab454770f577c163967933257bfce56be5596633f6873671350819044b737e4fd6f6ff19d5904164f496ad633068a39efe77070d3' \
+RUN wget -O aspnetcore.tar.gz https://dotnetcli.azureedge.net/dotnet/aspnetcore/Runtime/$ASPNET_VERSION/aspnetcore-runtime-$ASPNET_VERSION-linux-musl-x64.tar.gz \
+    && aspnetcore_sha512='963ad9dbaa48e1224d53b7db3d8869de973e2d576368cb87ba95f3fafaa49cf36e1988eecaafe1e0efbd36f2cd3d9d171c39c5205ad93cdcdcf5a7c13860cef9' \
     && echo "$aspnetcore_sha512  aspnetcore.tar.gz" | sha512sum -c - \
     && tar -ozxf aspnetcore.tar.gz -C /usr/share/dotnet ./shared/Microsoft.AspNetCore.App \
     && rm aspnetcore.tar.gz
