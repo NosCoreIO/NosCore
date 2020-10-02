@@ -682,9 +682,6 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Möchtest du die TimeSpaces laden?</value>
   </data>
-  <data name="PLATFORM_UNSUPORTED_CONSOLE_TITLE" xml:space="preserve">
-    <value>Platform Supportet leider nicht den Konsolen Titel.</value>
-  </data>
   <data name="PLAYER_IN_SHOP" xml:space="preserve">
     <value>{0} befindet sich im Shop.</value>
   </data>

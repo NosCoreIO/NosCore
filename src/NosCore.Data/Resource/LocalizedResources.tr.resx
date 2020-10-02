@@ -729,9 +729,6 @@
   <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
     <value>Şu anda davet gönderemezsin. Lütfen {0} saniye içerisinde tekrar dene.</value>
   </data>
-  <data name="PLATFORM_UNSUPORTED_CONSOLE_TITLE" xml:space="preserve">
-    <value>Bu platform konsol başlığını desteklemiyor.</value>
-  </data>
   <data name="QUESTS_PARSED" xml:space="preserve">
     <value>{0} Görev işlendi!</value>
   </data>
