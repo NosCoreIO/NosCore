@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Core;
@@ -69,7 +70,9 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
-            await Task.Delay(travelTime);
+            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateMove(),
+                new EveryoneBut(session.Channel!.Id)).ConfigureAwait(false);
+
             session.Character.LastMove = SystemTime.Now();
             if (session.Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
             {
@@ -79,9 +82,6 @@ namespace NosCore.PacketHandlers.Movement
 
             session.Character.PositionX = walkPacket.XCoordinate;
             session.Character.PositionY = walkPacket.YCoordinate;
-
-            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateMove(),
-                new EveryoneBut(session.Channel!.Id)).ConfigureAwait(false);
         }
     }
 }
