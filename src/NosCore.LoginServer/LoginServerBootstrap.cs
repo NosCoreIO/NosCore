@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -163,7 +164,10 @@ namespace NosCore.LoginServer
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureServices((hostContext, services) =>
                 {
-                    try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        Console.Title = Title;
+                    }
                     InitializeConfiguration(args);
 
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));

@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
@@ -184,7 +185,10 @@ namespace NosCore.MasterServer
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            try { Console.Title = Title; } catch (PlatformNotSupportedException) { }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Console.Title = Title;
+            }
             Logger.PrintHeader(ConsoleText);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
                 .UseNpgsql(_configuration.Database!.ConnectionString);
