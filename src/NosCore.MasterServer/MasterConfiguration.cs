@@ -26,9 +26,9 @@ namespace NosCore.MasterServer
     public class MasterConfiguration : LanguageConfiguration
     {
         [Required]
-        public WebApiConfiguration? WebApi { get; set; }
+        public WebApiConfiguration WebApi { get; set; } = null!;
 
         [Required]
-        public SqlConnectionConfiguration? Database { get; set; }
+        public SqlConnectionConfiguration Database { get; set; } = null!;
     }
 }

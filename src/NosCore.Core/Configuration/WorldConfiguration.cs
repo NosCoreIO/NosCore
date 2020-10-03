@@ -25,13 +25,13 @@ namespace NosCore.Core.Configuration
     public class WorldConfiguration : ServerConfiguration
     {
         [Required]
-        public WebApiConfiguration? MasterCommunication { get; set; }
+        public WebApiConfiguration MasterCommunication { get; set; } = null!;
 
         [Required]
-        public ServerConfiguration? WebApi { get; set; }
+        public ServerConfiguration WebApi { get; set; } = null!;
 
         [Required]
-        public SqlConnectionConfiguration? Database { get; set; }
+        public SqlConnectionConfiguration Database { get; set; } = null!;
 
         [Range(1, short.MaxValue)]
         public short ConnectedAccountLimit { get; set; }

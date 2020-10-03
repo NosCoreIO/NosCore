@@ -28,6 +28,7 @@ using Autofac;
 using AutofacSerilogIntegration;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Dao;
@@ -72,7 +73,7 @@ namespace NosCore.Parser
                 Console.Title = Title;
             }
             var parserConfiguration = new ParserConfiguration();
-            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "parser.yml" }, parserConfiguration);
+            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "parser.yml" }).Bind(parserConfiguration);
             Shared.I18N.Logger.PrintHeader(ConsoleText);
             LogLanguage.Language = parserConfiguration.Language;
             Logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
