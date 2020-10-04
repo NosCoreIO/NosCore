@@ -40,6 +40,7 @@ using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.GameObject.Character;
 
@@ -65,7 +66,7 @@ namespace NosCore.Tests
         public void Test_Add_Player()
         {
             var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, new Mock<IDao<CharacterDto, long>>().Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new Mock<IDao<AccountDto, long>>().Object, Logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IDao<TitleDto, Guid>>().Object,
-                new Mock<IDao<CharacterQuestDto, Guid>>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService())
+                new Mock<IDao<CharacterQuestDto, Guid>>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -83,7 +84,7 @@ namespace NosCore.Tests
         public void Test_Remove_Player()
         {
             var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, new Mock<IDao<CharacterDto, long>>().Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new Mock<IDao<AccountDto, long>>().Object, Logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
-                , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService())
+                , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -117,7 +118,7 @@ namespace NosCore.Tests
             for (var i = 0; i < (long)_group!.Type; i++)
             {
                 var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object, new Mock<IDao<CharacterDto, long>>().Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new Mock<IDao<AccountDto, long>>().Object, Logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
-                    , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService())
+                    , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration)
                 {
                     CharacterId = i + 1,
                     Name = $"TestExistingCharacter{i}",

@@ -19,6 +19,8 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -33,6 +35,13 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
 {
     public class GoldDropEventHandler : IEventHandler<MapItem, Tuple<MapItem, GetPacket>>
     {
+        private readonly IOptions<WorldConfiguration> _worldConfiguration;
+
+        public GoldDropEventHandler(IOptions<WorldConfiguration> worldConfiguration)
+        {
+            _worldConfiguration = worldConfiguration;
+        }
+
         public bool Condition(MapItem item)
         {
             return item.VNum == 1046;
@@ -41,7 +50,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
         public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             // handle gold drop
-            var maxGold = requestData.ClientSession.WorldConfiguration.Value.MaxGoldAmount;
+            var maxGold = _worldConfiguration.Value.MaxGoldAmount;
             if (requestData.ClientSession.Character.Gold + requestData.Data.Item1.Amount <= maxGold)
             {
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)

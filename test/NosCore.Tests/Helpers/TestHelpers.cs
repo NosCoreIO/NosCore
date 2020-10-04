@@ -110,7 +110,7 @@ namespace NosCore.Tests.Helpers
         public Mock<IConnectedAccountHttpClient> ConnectedAccountHttpClient = new Mock<IConnectedAccountHttpClient>();
         public Mock<IFriendHttpClient> FriendHttpClient = new Mock<IFriendHttpClient>();
         public Mock<IPacketHttpClient> PacketHttpClient = new Mock<IPacketHttpClient>();
-        
+
         private TestHelpers()
         {
             BlacklistHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
@@ -168,7 +168,7 @@ namespace NosCore.Tests.Helpers
         private async Task<MapInstanceProvider> GenerateMapInstanceProviderAsync()
         {
             MapItemProvider = new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
-                {new DropEventHandler(), new SpChargerEventHandler(), new GoldDropEventHandler()});
+                {new DropEventHandler(), new SpChargerEventHandler(), new GoldDropEventHandler(TestHelpers.Instance.WorldConfiguration)});
             var map = new Map
             {
                 MapId = 0,
@@ -244,7 +244,8 @@ namespace NosCore.Tests.Helpers
         }
 
         public void InitDatabase()
-        {   var contextBuilder =
+        {
+            var contextBuilder =
                 new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                     Guid.NewGuid().ToString());
             var nosCorecontextBuilder = new DataAccessHelper();
@@ -271,7 +272,7 @@ namespace NosCore.Tests.Helpers
                     new List<NpcMonsterDto>(), _logger, new List<NpcTalkDto>(), TestHelpers.Instance.DistanceCalculator));
             TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig()
                 .ConstructUsing(src => new GameObject.MapMonster(new List<NpcMonsterDto>(), _logger, TestHelpers.Instance.DistanceCalculator));
-         
+
         }
 
         public async Task<ClientSession> GenerateSessionAsync()
@@ -311,7 +312,7 @@ namespace NosCore.Tests.Helpers
             var chara = new GameObject.Character(new InventoryService(ItemList, WorldConfiguration, _logger),
                 new ExchangeProvider(new Mock<IItemProvider>().Object, WorldConfiguration, _logger), new Mock<IItemProvider>().Object, CharacterDao, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, AccountDao,
                 _logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, minilandProvider.Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
-                , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService())
+                , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration)
             {
                 CharacterId = _lastId,
                 Name = "TestExistingCharacter" + _lastId,

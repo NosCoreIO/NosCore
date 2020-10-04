@@ -72,31 +72,29 @@ namespace NosCore.GameObject.Networking.ClientSession
         private Character? _character;
         private int? _waitForPacketsAmount;
 
-        public ClientSession(IOptions<ServerConfiguration> configuration,
-            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
+        public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
-            : this(configuration, null, null, logger, packetsHandlers, friendHttpClient, packetSerializer,
-                packetHttpClient, null)
-        {
-        }
-
-        public ClientSession(IOptions<ServerConfiguration> configuration, IMapInstanceProvider? mapInstanceProvider,
-            IExchangeProvider? exchangeProvider, ILogger logger,
-            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
-            IMinilandProvider? minilandProvider) : base(logger)
+            : base(logger)
         {
             _logger = logger;
             _packetsHandlers = packetsHandlers.ToList();
             _friendHttpClient = friendHttpClient;
             _packetSerializer = packetSerializer;
             _packetHttpClient = packetHttpClient;
-            if (!(configuration is IOptions<WorldConfiguration> worldConfiguration))
-            {
-                return;
-            }
+        }
 
-            WorldConfiguration = worldConfiguration;
+        public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
+            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
+        {
+        }
+
+        public ClientSession(IOptions<WorldConfiguration> configuration, IMapInstanceProvider? mapInstanceProvider,
+            IExchangeProvider? exchangeProvider, ILogger logger,
+            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
+            IMinilandProvider? minilandProvider) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
+        {
             _mapInstanceProvider = mapInstanceProvider!;
             _exchangeProvider = exchangeProvider!;
             _minilandProvider = minilandProvider!;
@@ -110,8 +108,6 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
             }
         }
-
-        public IOptions<WorldConfiguration> WorldConfiguration { get; } = null!;
 
         public bool GameStarted { get; set; }
 

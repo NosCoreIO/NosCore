@@ -38,6 +38,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.Threading;
 using NosCore.Core;
 using NosCore.Core.Configuration;
@@ -77,22 +78,21 @@ namespace NosCore.LoginServer
 
         private static void InitializeConfiguration(string[] args)
         {
-            _loginConfiguration = new LoginConfiguration();
-            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" }).Bind(_loginConfiguration);
             _logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
             Shared.I18N.Logger.PrintHeader(ConsoleText);
+
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-            optionsBuilder.UseNpgsql(_loginConfiguration.Database!.ConnectionString);
+            var loginConfiguration = new LoginConfiguration();
+            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" }).Bind(loginConfiguration);
+            optionsBuilder.UseNpgsql(loginConfiguration.Database!.ConnectionString);
             _dataAccess = new DataAccessHelper();
             _dataAccess.Initialize(optionsBuilder.Options, _logger);
-            LogLanguage.Language = _loginConfiguration.Language;
         }
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
             containerBuilder.Register<IDbContextBuilder>(c => _dataAccess).AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterInstance(_loginConfiguration!).As<LoginConfiguration>().As<ServerConfiguration>();
             containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>()
                 .SingleInstance();
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
@@ -110,13 +110,17 @@ namespace NosCore.LoginServer
                 .Where(t => t.Name.EndsWith("HttpClient"))
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
-            containerBuilder.Register(c => new Channel
+            containerBuilder.Register(c =>
             {
-                MasterCommunication = _loginConfiguration!.MasterCommunication,
-                ClientType = ServerType.LoginServer,
-                ClientName = $"{ServerType.LoginServer}",
-                Port = _loginConfiguration.Port,
-                Host = _loginConfiguration.Host!
+                var conf = c.Resolve<IOptions<LoginConfiguration>>();
+                return new Channel
+                {
+                    MasterCommunication = conf.Value!.MasterCommunication,
+                    ClientType = ServerType.LoginServer,
+                    ClientName = $"{ServerType.LoginServer}",
+                    Port = conf.Value.Port,
+                    Host = conf.Value.Host!
+                };
             });
             foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
             {
@@ -168,12 +172,18 @@ namespace NosCore.LoginServer
                     {
                         Console.Title = Title;
                     }
+
+                    var configuration =
+                        ConfiguratorBuilder.InitializeConfiguration(args, new[] {"logger.yml", "login.yml"});
+                    services.AddOptions<LoginConfiguration>().Bind(configuration).ValidateDataAnnotations();
+                    services.AddOptions<ServerConfiguration>().Bind(configuration).ValidateDataAnnotations();
                     InitializeConfiguration(args);
 
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
                     services.AddHttpClient();
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);
+                    services.AddDbContext<NosCoreContext>();
                     var containerBuilder = new ContainerBuilder();
                     InitializeContainer(containerBuilder);
                     containerBuilder.Populate(services);

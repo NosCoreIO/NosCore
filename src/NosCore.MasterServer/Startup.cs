@@ -67,6 +67,7 @@ using NosCore.Database.Entities;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
+using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using ILogger = Serilog.ILogger;
 using NosCore.Shared.I18N;
@@ -198,42 +199,21 @@ namespace NosCore.MasterServer
             services.AddOptions<MasterConfiguration>().Bind(_configuration).ValidateDataAnnotations();
             services.AddOptions<WebApiConfiguration>().Bind(_configuration.GetSection(nameof(MasterConfiguration.WebApi))).ValidateDataAnnotations();
 
+            var masterConfiguration = new MasterConfiguration();
+            _configuration.Bind(masterConfiguration);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
-                .UseNpgsql(_masterConfiguration.Database!.ConnectionString);
+                .UseNpgsql(masterConfiguration.Database!.ConnectionString);
+
             _dataAccess = new DataAccessHelper();
             _dataAccess.Initialize(optionsBuilder.Options, Logger.GetLoggerConfiguration().CreateLogger());
-            LogLanguage.Language = _masterConfiguration.Language;
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
-            var password = _masterConfiguration.WebApi!.HashingType switch
-            {
-                HashingType.BCrypt => _masterConfiguration.WebApi.Password!.ToBcrypt(_masterConfiguration.WebApi.Salt!),
-                HashingType.Pbkdf2 => _masterConfiguration.WebApi.Password!.ToPbkdf2Hash(_masterConfiguration.WebApi.Salt!),
-                HashingType.Sha512 => _masterConfiguration.WebApi.Password!.ToSha512(),
-                _ => _masterConfiguration.WebApi.Password!.ToSha512()
-            };
 
-            var keyByteArray = Encoding.Default.GetBytes(password);
-            var signinKey = new SymmetricSecurityKey(keyByteArray);
-
-
+            services.ConfigureOptions<ConfigureJwtBearerOptions>();
             services.AddHttpClient();
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
-            services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(cfg =>
-                {
-                    cfg.RequireHttpsMetadata = false;
-                    cfg.SaveToken = true;
-                    cfg.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        IssuerSigningKey = signinKey,
-                        ValidAudience = "Audience",
-                        ValidIssuer = "Issuer",
-                        ValidateIssuerSigningKey = true,
-                        ValidateLifetime = true
-                    };
-                });
+            services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
             services.AddAuthorization(o =>
                 {
@@ -279,6 +259,7 @@ namespace NosCore.MasterServer
 
             app.UseAuthorization();
 
+            LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<MasterConfiguration>>().Value.Language;
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

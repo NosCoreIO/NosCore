@@ -94,7 +94,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task Test_Overflow_SpAdditionPointsAsync()
         {
-            _session!.Character.SpAdditionPoint = _session.WorldConfiguration.Value.MaxAdditionalSpPoints;
+            _session!.Character.SpAdditionPoint = TestHelpers.Instance.WorldConfiguration.Value.MaxAdditionalSpPoints;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
             await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket
@@ -107,7 +107,7 @@ namespace NosCore.Tests.InventoryTests
                 Parameter = 0
             }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((_session.Character.SpAdditionPoint == _session.WorldConfiguration.Value.MaxAdditionalSpPoints) &&
+            Assert.IsTrue((_session.Character.SpAdditionPoint == TestHelpers.Instance.WorldConfiguration.Value.MaxAdditionalSpPoints) &&
                 (packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
                     _session.Account.Language)));
         }
@@ -115,7 +115,7 @@ namespace NosCore.Tests.InventoryTests
         [TestMethod]
         public async Task Test_CloseToLimit_SpAdditionPointsAsync()
         {
-            _session!.Character.SpAdditionPoint = _session.WorldConfiguration.Value.MaxAdditionalSpPoints - 1;
+            _session!.Character.SpAdditionPoint = TestHelpers.Instance.WorldConfiguration.Value.MaxAdditionalSpPoints - 1;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
             await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket
@@ -127,7 +127,7 @@ namespace NosCore.Tests.InventoryTests
                 Mode = 0,
                 Parameter = 0
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue((_session.Character.SpAdditionPoint == _session.WorldConfiguration.Value.MaxAdditionalSpPoints) &&
+            Assert.IsTrue((_session.Character.SpAdditionPoint == TestHelpers.Instance.WorldConfiguration.Value.MaxAdditionalSpPoints) &&
                 !_session.LastPackets.Any(s => s is MsgiPacket));
         }
     }

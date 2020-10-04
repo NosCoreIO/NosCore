@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
+using Microsoft.Extensions.Options;
 using NosCore.Shared.Configuration;
 using Serilog;
 
@@ -30,11 +31,11 @@ namespace NosCore.GameObject.Networking
 {
     public class NetworkManager
     {
-        private readonly ServerConfiguration _configuration;
+        private readonly IOptions<ServerConfiguration> _configuration;
         private readonly ILogger _logger;
         private readonly Func<ISocketChannel, PipelineFactory> _pipelineFactory;
 
-        public NetworkManager(ServerConfiguration configuration,
+        public NetworkManager(IOptions<ServerConfiguration> configuration,
             Func<ISocketChannel, PipelineFactory> pipelineFactory, ILogger logger)
         {
             _configuration = configuration;
@@ -57,7 +58,7 @@ namespace NosCore.GameObject.Networking
                     .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
                         _pipelineFactory(channel).CreatePipeline()));
 
-                var bootstrapChannel = await bootstrap.BindAsync(_configuration.Port).ConfigureAwait(false);
+                var bootstrapChannel = await bootstrap.BindAsync(_configuration.Value.Port).ConfigureAwait(false);
                 Console.CancelKeyPress += ((s, a) =>
                 {
                     ClosingEvent.Set();

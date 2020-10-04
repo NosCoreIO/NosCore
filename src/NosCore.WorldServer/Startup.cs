@@ -296,7 +296,6 @@ namespace NosCore.WorldServer
                 .SingleInstance();
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterInstance(_worldConfiguration!.MasterCommunication!).As<WebApiConfiguration>();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
@@ -304,24 +303,25 @@ namespace NosCore.WorldServer
                 .Where(t => t.Name.EndsWith("HttpClient"))
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
-            var claims = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, "Server"),
-                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-            });
-            var keyByteArray = Encoding.Default.GetBytes(_worldConfiguration.MasterCommunication!.Password!.ToSha512());
-            var signinKey = new SymmetricSecurityKey(keyByteArray);
-            var handler = new JwtSecurityTokenHandler();
-            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-            {
-                Subject = claims,
-                Issuer = "Issuer",
-                Audience = "Audience",
-                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
-            });
+         
             containerBuilder.Register(c =>
             {
                 var configuration = c.Resolve<IOptions<WorldConfiguration>>();
+                var claims = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "Server"),
+                    new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
+                });
+                var keyByteArray = Encoding.Default.GetBytes(configuration.Value.MasterCommunication!.Password!.ToSha512());
+                var signinKey = new SymmetricSecurityKey(keyByteArray);
+                var handler = new JwtSecurityTokenHandler();
+                var securityToken = handler.CreateToken(new SecurityTokenDescriptor
+                {
+                    Subject = claims,
+                    Issuer = "Issuer",
+                    Audience = "Audience",
+                    SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
+                });
                 return new Channel
                 {
                     MasterCommunication = configuration.Value.MasterCommunication,
@@ -427,45 +427,26 @@ namespace NosCore.WorldServer
             }
             Logger.PrintHeader(ConsoleText);
             services.AddOptions<WorldConfiguration>().Bind(_configuration).ValidateDataAnnotations();
-            services.AddOptions<WebApiConfiguration>().Bind(_configuration.GetSection(nameof(WorldConfiguration.WebApi))).ValidateDataAnnotations();
+            services.AddOptions<ServerConfiguration>().Bind(_configuration).ValidateDataAnnotations();
+            services.AddOptions<WebApiConfiguration>().Bind(_configuration.GetSection(nameof(WorldConfiguration.MasterCommunication))).ValidateDataAnnotations();
 
+            var worldConfiguration = new WorldConfiguration();
+            _configuration.Bind(worldConfiguration);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
-                .UseNpgsql(_worldConfiguration.Database!.ConnectionString);
+                .UseNpgsql(worldConfiguration.Database!.ConnectionString);
+
             _dataAccess = new DataAccessHelper();
             _dataAccess.Initialize(optionsBuilder.Options, Logger.GetLoggerConfiguration().CreateLogger());
-            LogLanguage.Language = _worldConfiguration.Language;
-
+            
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
 
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
-            var password = _worldConfiguration.MasterCommunication!.HashingType switch
-            {
-                HashingType.BCrypt => _worldConfiguration.MasterCommunication!.Password!.ToBcrypt(_worldConfiguration
-                    .MasterCommunication!.Salt ?? ""),
-                HashingType.Pbkdf2 => _worldConfiguration.MasterCommunication!.Password!.ToPbkdf2Hash(_worldConfiguration
-                    .MasterCommunication!.Salt ?? ""),
-                HashingType.Sha512 => _worldConfiguration.MasterCommunication!.Password!.ToSha512(),
-                _ => _worldConfiguration.MasterCommunication!.Password!.ToSha512()
-            };
 
-            services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(cfg =>
-                {
-                    cfg.RequireHttpsMetadata = false;
-                    cfg.SaveToken = true;
-                    cfg.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.Default.GetBytes(password)),
-                        ValidAudience = "Audience",
-                        ValidIssuer = "Issuer",
-                        ValidateIssuerSigningKey = true,
-                        ValidateLifetime = true
-                    };
-                });
 
+            services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+            services.ConfigureOptions<ConfigureJwtBearerOptions>();
             services.AddAuthorization(o =>
                 {
                     o.DefaultPolicy = new AuthorizationPolicyBuilder()
@@ -526,6 +507,7 @@ namespace NosCore.WorldServer
             app.UseRouting();
             app.UseAuthorization();
 
+            LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<WorldConfiguration>>().Value.Language;
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

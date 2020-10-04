@@ -22,6 +22,7 @@ using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels.Sockets;
+using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Networking;
 using NosCore.Shared.Configuration;
@@ -32,13 +33,13 @@ namespace NosCore.GameObject.Networking
     {
         private readonly ISocketChannel _channel;
         private readonly ClientSession.ClientSession _clientSession;
-        private readonly ServerConfiguration _configuration;
+        private readonly IOptions<ServerConfiguration> _configuration;
         private readonly MessageToMessageDecoder<IByteBuffer> _decoder;
         private readonly MessageToMessageEncoder<IEnumerable<IPacket>> _encoder;
 
         public PipelineFactory(ISocketChannel channel, MessageToMessageDecoder<IByteBuffer> decoder,
             MessageToMessageEncoder<IEnumerable<IPacket>> encoder, ClientSession.ClientSession clientSession,
-            ServerConfiguration configuration)
+            IOptions<ServerConfiguration> configuration)
         {
             _channel = channel;
             _decoder = decoder;
@@ -50,7 +51,7 @@ namespace NosCore.GameObject.Networking
         public void CreatePipeline()
         {
             SessionFactory.Instance.Sessions[_channel.Id.AsLongText()] =
-                new RegionTypeMapping(0, _configuration.Language);
+                new RegionTypeMapping(0, _configuration.Value.Language);
             var pipeline = _channel.Pipeline;
             pipeline.AddLast(_decoder);
             _clientSession.RegisterChannel(_channel);
