@@ -19,6 +19,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
@@ -36,9 +37,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
     public class SpRechargerEventHandler : IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>
     {
-        private readonly WorldConfiguration _worldConfiguration;
+        private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
-        public SpRechargerEventHandler(WorldConfiguration worldConfiguration)
+        public SpRechargerEventHandler(IOptions<WorldConfiguration> worldConfiguration)
         {
             _worldConfiguration = worldConfiguration;
         }
@@ -52,7 +53,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 
         public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
-            if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.MaxAdditionalSpPoints)
+            if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.Value.MaxAdditionalSpPoints)
             {
                 var itemInstance = requestData.Data.Item1;
                 requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,

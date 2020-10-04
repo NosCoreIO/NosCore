@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
@@ -45,9 +46,9 @@ namespace NosCore.GameObject.Networking.LoginService
         private readonly IAuthHttpClient _authHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly LoginConfiguration _loginConfiguration;
+        private readonly IOptions<LoginConfiguration> _loginConfiguration;
 
-        public LoginService(LoginConfiguration loginConfiguration, IDao<AccountDto, long> accountDao,
+        public LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
             IAuthHttpClient authHttpClient,
             IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
         {
@@ -67,9 +68,9 @@ namespace NosCore.GameObject.Networking.LoginService
                     ? SessionFactory.Instance.Sessions[clientSession.Channel.Id.AsLongText()].SessionId : 0;
 
 
-                if (((_loginConfiguration.ClientVersion != null) &&
-                        (clientVersion != _loginConfiguration.ClientVersion))
-                    || ((_loginConfiguration.Md5String != null) && (md5String != _loginConfiguration.Md5String)))
+                if (((_loginConfiguration.Value.ClientVersion != null) &&
+                        (clientVersion != _loginConfiguration.Value.ClientVersion))
+                    || ((_loginConfiguration.Value.Md5String != null) && (md5String != _loginConfiguration.Value.Md5String)))
                 {
                     await clientSession.SendPacketAsync(new FailcPacket
                     {

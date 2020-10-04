@@ -32,6 +32,7 @@ using DotNetty.Codecs;
 using FastExpressionCompiler;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -70,21 +71,20 @@ namespace NosCore.LoginServer
     {
         private const string Title = "NosCore - LoginServer";
         private const string ConsoleText = "LOGIN SERVER - NosCoreIO";
-        private static readonly ILogger Logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+        private static ILogger _logger = null!;
 
-        private static LoginConfiguration _loginConfiguration = null!;
         private static DataAccessHelper _dataAccess = null!;
 
         private static void InitializeConfiguration(string[] args)
         {
-            var conf = new LoginConfiguration();
-            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" }, conf);
-            _loginConfiguration = conf;
+            _loginConfiguration = new LoginConfiguration();
+            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" }).Bind(_loginConfiguration);
+            _logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
             Shared.I18N.Logger.PrintHeader(ConsoleText);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             optionsBuilder.UseNpgsql(_loginConfiguration.Database!.ConnectionString);
             _dataAccess = new DataAccessHelper();
-            _dataAccess.Initialize(optionsBuilder.Options, Logger);
+            _dataAccess.Initialize(optionsBuilder.Options, _logger);
             LogLanguage.Language = _loginConfiguration.Language;
         }
 
@@ -148,7 +148,7 @@ namespace NosCore.LoginServer
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
+                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
             }
         }
 

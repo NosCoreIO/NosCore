@@ -621,7 +621,7 @@ namespace NosCore.GameObject
             }
             else
             {
-                if (price + shop.Session.Character.Gold > shop.Session.WorldConfiguration.MaxGoldAmount)
+                if (price + shop.Session.Character.Gold > shop.Session.WorldConfiguration.Value.MaxGoldAmount)
                 {
                     await SendPacketAsync(new SMemoPacket
                     {
@@ -941,9 +941,9 @@ namespace NosCore.GameObject
             return new SpPacket
             {
                 AdditionalPoint = SpAdditionPoint,
-                MaxAdditionalPoint = Session.WorldConfiguration.MaxAdditionalSpPoints,
+                MaxAdditionalPoint = Session.WorldConfiguration.Value.MaxAdditionalSpPoints,
                 SpPoint = SpPoint,
-                MaxSpPoint = Session.WorldConfiguration.MaxSpPoints
+                MaxSpPoint = Session.WorldConfiguration.Value.MaxSpPoints
             };
         }
 
@@ -961,8 +961,8 @@ namespace NosCore.GameObject
         }
         public Task AddSpPointsAsync(int spPointToAdd)
         {
-            SpPoint = SpPoint + spPointToAdd > Session.WorldConfiguration.MaxSpPoints
-                ? Session.WorldConfiguration.MaxSpPoints : SpPoint + spPointToAdd;
+            SpPoint = SpPoint + spPointToAdd > Session.WorldConfiguration.Value.MaxSpPoints
+                ? Session.WorldConfiguration.Value.MaxSpPoints : SpPoint + spPointToAdd;
             return SendPacketAsync(this.GenerateSpPoint());
         }
 
@@ -988,8 +988,8 @@ namespace NosCore.GameObject
 
         public Task AddAdditionalSpPointsAsync(int spPointToAdd)
         {
-            SpAdditionPoint = SpAdditionPoint + spPointToAdd > Session.WorldConfiguration.MaxAdditionalSpPoints
-                ? Session.WorldConfiguration.MaxAdditionalSpPoints : SpAdditionPoint + spPointToAdd;
+            SpAdditionPoint = SpAdditionPoint + spPointToAdd > Session.WorldConfiguration.Value.MaxAdditionalSpPoints
+                ? Session.WorldConfiguration.Value.MaxAdditionalSpPoints : SpAdditionPoint + spPointToAdd;
             return SendPacketAsync(GenerateSpPoint());
         }
 

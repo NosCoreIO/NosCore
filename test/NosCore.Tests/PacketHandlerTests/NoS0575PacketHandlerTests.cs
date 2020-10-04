@@ -20,6 +20,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
@@ -49,7 +50,7 @@ namespace NosCore.Tests.PacketHandlerTests
         private Mock<IAuthHttpClient>? _authHttpClient;
         private Mock<IChannelHttpClient>? _channelHttpClient;
         private Mock<IConnectedAccountHttpClient>? _connectedAccountHttpClient;
-        private LoginConfiguration? _loginConfiguration;
+        private IOptions<LoginConfiguration>? _loginConfiguration;
         private NoS0575PacketHandler? _noS0575PacketHandler;
         private ClientSession? _session;
 
@@ -61,7 +62,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _authHttpClient = new Mock<IAuthHttpClient>();
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
-            _loginConfiguration = new LoginConfiguration();
+            _loginConfiguration = Options.Create(new LoginConfiguration());
             _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration,
                     TestHelpers.Instance.AccountDao,
                     _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object),
@@ -71,7 +72,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginOldClientAsync()
         {
-            _loginConfiguration!.ClientVersion = new ClientVersionSubPacket {Major = 1};
+            _loginConfiguration!.Value.ClientVersion = new ClientVersionSubPacket {Major = 1};
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,
@@ -85,7 +86,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginOldAuthWithNewAuthEnforcedAsync()
         {
-            _loginConfiguration!.EnforceNewAuth = true;
+            _loginConfiguration!.Value.EnforceNewAuth = true;
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,

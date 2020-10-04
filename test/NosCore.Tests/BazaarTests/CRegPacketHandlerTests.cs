@@ -232,7 +232,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0,
-                Price = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount + 1
+                Price = TestHelpers.Instance.WorldConfiguration.Value.MaxGoldAmount + 1
             }, _session).ConfigureAwait(false);
             var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket?.Message ==

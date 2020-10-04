@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
@@ -35,9 +36,9 @@ namespace NosCore.PacketHandlers.Shops
 {
     public class SellPacketHandler : PacketHandler<SellPacket>, IWorldPacketHandler
     {
-        private readonly WorldConfiguration _worldConfiguration;
+        private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
-        public SellPacketHandler(WorldConfiguration worldConfiguration)
+        public SellPacketHandler(IOptions<WorldConfiguration> worldConfiguration)
         {
             _worldConfiguration = worldConfiguration;
         }
@@ -67,7 +68,7 @@ namespace NosCore.PacketHandlers.Shops
             var price = inv.ItemInstance.Item.ItemType == ItemType.Sell ? inv.ItemInstance.Item.Price
                 : inv.ItemInstance.Item.Price / 20;
 
-            if (clientSession.Character.Gold + price * sellPacket.Amount > _worldConfiguration.MaxGoldAmount)
+            if (clientSession.Character.Gold + price * sellPacket.Amount > _worldConfiguration.Value.MaxGoldAmount)
             {
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {

@@ -46,6 +46,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
@@ -107,12 +108,12 @@ namespace NosCore.WorldServer
     {
         private const string Title = "NosCore - WorldServer";
         private const string ConsoleText = "WORLD SERVER - NosCoreIO";
-        private readonly WorldConfiguration _worldConfiguration;
         private static DataAccessHelper _dataAccess = null!;
+        private readonly IConfiguration _configuration;
 
-        public Startup(WorldConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
-            _worldConfiguration = configuration;
+            _configuration = configuration;
         }
 
         public static void RegisterMapper<TGameObject, TDto>(IContainer container) where TGameObject : notnull
@@ -295,7 +296,6 @@ namespace NosCore.WorldServer
                 .SingleInstance();
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterInstance(_worldConfiguration!).As<ServerConfiguration>();
             containerBuilder.RegisterInstance(_worldConfiguration!.MasterCommunication!).As<WebApiConfiguration>();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
@@ -319,20 +319,24 @@ namespace NosCore.WorldServer
                 Audience = "Audience",
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
             });
-            containerBuilder.Register(c => new Channel
+            containerBuilder.Register(c =>
             {
-                MasterCommunication = _worldConfiguration.MasterCommunication,
-                ClientName = _worldConfiguration.ServerName!,
-                ClientType = ServerType.WorldServer,
-                ConnectedAccountLimit = _worldConfiguration.ConnectedAccountLimit,
-                Port = _worldConfiguration.Port,
-                DisplayPort = _worldConfiguration.DisplayPort,
-                DisplayHost = _worldConfiguration.DisplayHost,
-                ServerGroup = _worldConfiguration.ServerGroup,
-                StartInMaintenance = _worldConfiguration.StartInMaintenance,
-                Host = _worldConfiguration.Host!,
-                WebApi = _worldConfiguration.WebApi,
-                Token = handler.WriteToken(securityToken)
+                var configuration = c.Resolve<IOptions<WorldConfiguration>>();
+                return new Channel
+                {
+                    MasterCommunication = configuration.Value.MasterCommunication,
+                    ClientName = configuration.Value.ServerName!,
+                    ClientType = ServerType.WorldServer,
+                    ConnectedAccountLimit = configuration.Value.ConnectedAccountLimit,
+                    Port = configuration.Value.Port,
+                    DisplayPort = configuration.Value.DisplayPort,
+                    DisplayHost = configuration.Value.DisplayHost,
+                    ServerGroup = configuration.Value.ServerGroup,
+                    StartInMaintenance = configuration.Value.StartInMaintenance,
+                    Host = configuration.Value.Host!,
+                    WebApi = configuration.Value.WebApi,
+                    Token = handler.WriteToken(securityToken)
+                };
             });
             //NosCore.Controllers
             foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
@@ -422,6 +426,9 @@ namespace NosCore.WorldServer
                 Console.Title = Title;
             }
             Logger.PrintHeader(ConsoleText);
+            services.AddOptions<WorldConfiguration>().Bind(_configuration).ValidateDataAnnotations();
+            services.AddOptions<WebApiConfiguration>().Bind(_configuration.GetSection(nameof(WorldConfiguration.WebApi))).ValidateDataAnnotations();
+
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
                 .UseNpgsql(_worldConfiguration.Database!.ConnectionString);
             _dataAccess = new DataAccessHelper();
@@ -517,7 +524,6 @@ namespace NosCore.WorldServer
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore World API"));
             app.UseAuthentication();
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

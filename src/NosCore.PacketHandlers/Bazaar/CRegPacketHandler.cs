@@ -20,6 +20,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
@@ -46,11 +47,11 @@ namespace NosCore.PacketHandlers.Bazaar
     public class CRegPacketHandler : PacketHandler<CRegPacket>, IWorldPacketHandler
     {
         private readonly IBazaarHttpClient _bazaarHttpClient;
-        private readonly WorldConfiguration _configuration;
+        private readonly IOptions<WorldConfiguration> _configuration;
         private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
 
-        public CRegPacketHandler(WorldConfiguration configuration, IBazaarHttpClient bazaarHttpClient,
+        public CRegPacketHandler(IOptions<WorldConfiguration> configuration, IBazaarHttpClient bazaarHttpClient,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao)
         {
@@ -71,7 +72,7 @@ namespace NosCore.PacketHandlers.Bazaar
             var taxmin = price >= 4000 ? 60 + (price - 4000) / 2000 * 30 > 10000 ? 10000
                 : 60 + (price - 4000) / 2000 * 30 : 50;
             var tax = medal == null ? taxmax : taxmin;
-            var maxGold = _configuration.MaxGoldAmount;
+            var maxGold = _configuration.Value.MaxGoldAmount;
             if (clientSession.Character.Gold < tax)
             {
                 await clientSession.SendPacketAsync(new MsgiPacket

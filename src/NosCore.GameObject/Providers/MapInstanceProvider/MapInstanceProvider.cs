@@ -77,7 +77,8 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
             var monsters = _mapMonsters.LoadAll().Adapt<IEnumerable<MapMonster>>().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
-            var npcs = _mapNpcs.LoadAll().Adapt<IEnumerable<MapNpc>>().GroupBy(u => u.MapId)
+            var test = _mapNpcs.LoadAll();
+            var npcs = test.Adapt<IEnumerable<MapNpc>>().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
             var portals = _portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
 

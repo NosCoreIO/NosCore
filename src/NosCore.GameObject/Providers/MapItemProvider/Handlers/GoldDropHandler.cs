@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Providers.MapItemProvider.Handlers
         public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             // handle gold drop
-            var maxGold = requestData.ClientSession.WorldConfiguration.MaxGoldAmount;
+            var maxGold = requestData.ClientSession.WorldConfiguration.Value.MaxGoldAmount;
             if (requestData.ClientSession.Character.Gold + requestData.Data.Item1.Amount <= maxGold)
             {
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)

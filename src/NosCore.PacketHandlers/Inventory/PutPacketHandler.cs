@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
@@ -35,9 +36,9 @@ namespace NosCore.PacketHandlers.Inventory
 {
     public class PutPacketHandler : PacketHandler<PutPacket>, IWorldPacketHandler
     {
-        private readonly WorldConfiguration _worldConfiguration;
+        private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
-        public PutPacketHandler(WorldConfiguration worldConfiguration)
+        public PutPacketHandler(IOptions<WorldConfiguration> worldConfiguration)
         {
             _worldConfiguration = worldConfiguration;
         }
@@ -49,7 +50,7 @@ namespace NosCore.PacketHandlers.Inventory
                     (NoscorePocketType) putPacket.PocketType);
             if (invitem?.ItemInstance?.Item?.IsDroppable ?? false)
             {
-                if ((putPacket.Amount > 0) && (putPacket.Amount <= _worldConfiguration.MaxItemAmount))
+                if ((putPacket.Amount > 0) && (putPacket.Amount <= _worldConfiguration.Value.MaxItemAmount))
                 {
                     if (clientSession.Character.MapInstance.MapItems.Count < 200)
                     {

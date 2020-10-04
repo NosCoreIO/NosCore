@@ -37,6 +37,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
@@ -76,10 +77,10 @@ namespace NosCore.MasterServer
     {
         private const string Title = "NosCore - MasterServer";
         private const string ConsoleText = "MASTER SERVER - NosCoreIO";
-        private readonly MasterConfiguration _configuration;
         private static DataAccessHelper _dataAccess = null!;
+        private readonly IConfiguration _configuration;
 
-        public Startup(MasterConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -160,12 +161,16 @@ namespace NosCore.MasterServer
             var containerBuilder = new ContainerBuilder();
             containerBuilder.Register<IDbContextBuilder>(c => _dataAccess).AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
-            containerBuilder.Register(c => new Channel
+            containerBuilder.Register(c =>
             {
-                MasterCommunication = _configuration.WebApi,
-                ClientName = "Master Server",
-                ClientType = ServerType.MasterServer,
-                WebApi = _configuration.WebApi
+                var configuration = c.Resolve<IOptions<MasterConfiguration>>();
+                return new Channel
+                {
+                    MasterCommunication = configuration.Value.WebApi,
+                    ClientName = "Master Server",
+                    ClientType = ServerType.MasterServer,
+                    WebApi = configuration.Value.WebApi
+                };
             });
             containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
             containerBuilder.RegisterLogger();
@@ -190,23 +195,28 @@ namespace NosCore.MasterServer
                 Console.Title = Title;
             }
             Logger.PrintHeader(ConsoleText);
+            services.AddOptions<MasterConfiguration>().Bind(_configuration).ValidateDataAnnotations();
+            services.AddOptions<WebApiConfiguration>().Bind(_configuration.GetSection(nameof(MasterConfiguration.WebApi))).ValidateDataAnnotations();
+
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
-                .UseNpgsql(_configuration.Database!.ConnectionString);
+                .UseNpgsql(_masterConfiguration.Database!.ConnectionString);
             _dataAccess = new DataAccessHelper();
             _dataAccess.Initialize(optionsBuilder.Options, Logger.GetLoggerConfiguration().CreateLogger());
-            LogLanguage.Language = _configuration.Language;
+            LogLanguage.Language = _masterConfiguration.Language;
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
-            var password = _configuration.WebApi!.HashingType switch
+            var password = _masterConfiguration.WebApi!.HashingType switch
             {
-                HashingType.BCrypt => _configuration.WebApi.Password!.ToBcrypt(_configuration.WebApi.Salt!),
-                HashingType.Pbkdf2 => _configuration.WebApi.Password!.ToPbkdf2Hash(_configuration.WebApi.Salt!),
-                HashingType.Sha512 => _configuration.WebApi.Password!.ToSha512(),
-                _ => _configuration.WebApi.Password!.ToSha512()
+                HashingType.BCrypt => _masterConfiguration.WebApi.Password!.ToBcrypt(_masterConfiguration.WebApi.Salt!),
+                HashingType.Pbkdf2 => _masterConfiguration.WebApi.Password!.ToPbkdf2Hash(_masterConfiguration.WebApi.Salt!),
+                HashingType.Sha512 => _masterConfiguration.WebApi.Password!.ToSha512(),
+                _ => _masterConfiguration.WebApi.Password!.ToSha512()
             };
 
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
+
+
             services.AddHttpClient();
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
@@ -254,7 +264,6 @@ namespace NosCore.MasterServer
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
 
             var containerBuilder = InitializeContainer(services);
-            containerBuilder.RegisterInstance(_configuration.WebApi).As<WebApiConfiguration>();
             var container = containerBuilder.Build();
             Task.Run(container.Resolve<MasterServer>().Run).Forget();
             return new AutofacServiceProvider(container);

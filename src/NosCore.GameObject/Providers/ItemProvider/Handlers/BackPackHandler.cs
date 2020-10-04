@@ -20,6 +20,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Core;
@@ -37,9 +38,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {
     public class BackPackHandler : IEventHandler<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>
     {
-        private readonly WorldConfiguration _conf;
+        private readonly IOptions<WorldConfiguration> _conf;
 
-        public BackPackHandler(WorldConfiguration conf)
+        public BackPackHandler(IOptions<WorldConfiguration> conf)
         {
             _conf = conf;
         }

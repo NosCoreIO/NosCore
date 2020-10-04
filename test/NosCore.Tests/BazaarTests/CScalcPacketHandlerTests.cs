@@ -161,7 +161,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task RetrieveWhenMaxGoldAsync()
         {
-            _session!.Character.Gold = TestHelpers.Instance.WorldConfiguration.MaxGoldAmount;
+            _session!.Character.Gold = TestHelpers.Instance.WorldConfiguration.Value.MaxGoldAmount;
             await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
             {
                 BazaarId = 0,

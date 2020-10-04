@@ -19,6 +19,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;

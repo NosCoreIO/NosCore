@@ -20,6 +20,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
@@ -33,11 +34,10 @@ namespace NosCore.LoginServer
     {
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly ILogger _logger;
-        private readonly LoginConfiguration _loginConfiguration;
+        private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly NetworkManager _networkManager;
 
-        public LoginServer(LoginConfiguration loginConfiguration, NetworkManager networkManager, ILogger logger,
-            IChannelHttpClient channelHttpClient)
+        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
@@ -51,11 +51,9 @@ namespace NosCore.LoginServer
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    Console.Title += $@" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
+                    Console.Title += $@" - Port : {Convert.ToInt32(_loginConfiguration.Value.Port)}";
                 }
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
-                    _loginConfiguration.Port);
-
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _loginConfiguration.Value.Port);
                 await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
             }
             catch

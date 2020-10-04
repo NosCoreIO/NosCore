@@ -27,6 +27,7 @@ using NosCore.Packets.Interfaces;
 using DotNetty.Transport.Channels;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Moq;
 using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ExperienceService;
@@ -128,14 +129,14 @@ namespace NosCore.Tests.Helpers
         public MapItemProvider? MapItemProvider { get; set; }
         public Guid MinilandId { get; set; } = Guid.NewGuid();
 
-        public WorldConfiguration WorldConfiguration { get; } = new WorldConfiguration
+        public IOptions<WorldConfiguration> WorldConfiguration { get; } = Options.Create(new WorldConfiguration
         {
             BackpackSize = 2,
             MaxItemAmount = 999,
             MaxSpPoints = 10_000,
             MaxAdditionalSpPoints = 1_000_000,
             MaxGoldAmount = 999_999_999
-        };
+        });
 
         public List<ItemDto> ItemList { get; } = new List<ItemDto>
         {
@@ -307,7 +308,7 @@ namespace NosCore.Tests.Helpers
                 SessionId = _lastId
             };
 
-            var chara = new GameObject.Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
+            var chara = new GameObject.Character(new InventoryService(ItemList, WorldConfiguration, _logger),
                 new ExchangeProvider(new Mock<IItemProvider>().Object, WorldConfiguration, _logger), new Mock<IItemProvider>().Object, CharacterDao, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, AccountDao,
                 _logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, minilandProvider.Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
                 , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService())
