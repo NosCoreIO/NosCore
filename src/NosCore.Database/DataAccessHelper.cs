@@ -17,51 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using Microsoft.EntityFrameworkCore;
-using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
-using NosCore.Data.Enumerations.I18N;
 using Serilog;
 
 namespace NosCore.Database
 {
     public class DataAccessHelper : IDbContextBuilder
     {
-        private DbContextOptions? _option;
-        private ILogger _logger = null!;
+        private readonly NosCoreContext _nosCoreContext;
 
-        /// <summary>
-        ///     Creates new instance of database context.
-        /// </summary>
+        public DataAccessHelper(NosCoreContext nosCoreContext)
+        {
+            _nosCoreContext = nosCoreContext;
+        }
+
         public DbContext CreateContext()
         {
-            return new NosCoreContext(_option);
-        }
-
-        internal void InitializeForTest(DbContextOptions option, ILogger logger)
-        {
-            _option = option;
-            _logger = logger;
-        }
-
-        public void Initialize(DbContextOptions option, ILogger logger)
-        {
-            _logger = logger;
-            _option = option;
-            using var context = CreateContext();
-            try
-            {
-                context.Database.Migrate();
-                context.Database.GetDbConnection().Open();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
-            }
-            catch (Exception ex)
-            {
-                _logger.Error("Database Error", ex);
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
-                throw;
-            }
+            return _nosCoreContext;
         }
     }
 }

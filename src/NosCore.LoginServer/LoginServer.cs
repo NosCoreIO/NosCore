@@ -20,11 +20,13 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Database;
 using NosCore.GameObject.Networking;
 using Serilog;
 
@@ -36,13 +38,15 @@ namespace NosCore.LoginServer
         private readonly ILogger _logger;
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly NetworkManager _networkManager;
+        private readonly DataAccessHelper _dataAccessHelper;
 
-        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient)
+        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, DataAccessHelper dataAccessHelper)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
             _logger = logger;
             _channelHttpClient = channelHttpClient;
+            _dataAccessHelper = dataAccessHelper;
         }
 
         public async Task RunAsync()
@@ -52,6 +56,20 @@ namespace NosCore.LoginServer
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     Console.Title += $@" - Port : {Convert.ToInt32(_loginConfiguration.Value.Port)}";
+                }
+
+                await using var context = _dataAccessHelper.CreateContext();
+                try
+                {
+                    await context.Database.MigrateAsync();
+                    await context.Database.GetDbConnection().OpenAsync();
+                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error("Database Error", ex);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
+                    throw;
                 }
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _loginConfiguration.Value.Port);
                 await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);

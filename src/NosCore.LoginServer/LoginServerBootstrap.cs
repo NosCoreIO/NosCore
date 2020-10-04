@@ -74,8 +74,6 @@ namespace NosCore.LoginServer
         private const string ConsoleText = "LOGIN SERVER - NosCoreIO";
         private static ILogger _logger = null!;
 
-        private static DataAccessHelper _dataAccess = null!;
-
         private static void InitializeConfiguration(string[] args)
         {
             _logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
@@ -85,13 +83,11 @@ namespace NosCore.LoginServer
             var loginConfiguration = new LoginConfiguration();
             ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" }).Bind(loginConfiguration);
             optionsBuilder.UseNpgsql(loginConfiguration.Database!.ConnectionString);
-            _dataAccess = new DataAccessHelper();
-            _dataAccess.Initialize(optionsBuilder.Options, _logger);
         }
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
-            containerBuilder.Register<IDbContextBuilder>(c => _dataAccess).AsImplementedInterfaces().SingleInstance();
+            containerBuilder.RegisterType<DataAccessHelper>().AsImplementedInterfaces();
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>()
                 .SingleInstance();

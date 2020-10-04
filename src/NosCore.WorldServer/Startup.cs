@@ -108,7 +108,6 @@ namespace NosCore.WorldServer
     {
         private const string Title = "NosCore - WorldServer";
         private const string ConsoleText = "WORLD SERVER - NosCoreIO";
-        private static DataAccessHelper _dataAccess = null!;
         private readonly IConfiguration _configuration;
 
         public Startup(IConfiguration configuration)
@@ -259,29 +258,29 @@ namespace NosCore.WorldServer
             var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
             var assemblyDb = typeof(Account).Assembly.GetTypes();
 
-            assemblyDto.Where(p =>
-                    typeof(IDto).IsAssignableFrom(p) &&
-                    (!p.Name.Contains("InstanceDto") || p.Name.Contains("Inventory")) && p.IsClass)
-                .ToList()
-                .ForEach(t =>
-                {
-                    var type = assemblyDb.First(tgo =>
-                        string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                    var typepk = type.GetProperties()
-                        .Where(s => _dataAccess.CreateContext().Model.FindEntityType(type)
-                            .FindPrimaryKey().Properties.Select(x => x.Name)
-                            .Contains(s.Name)
-                        ).ToArray()[0];
-                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType).Invoke(null,
-                        new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
-                });
+            //assemblyDto.Where(p =>
+            //        typeof(IDto).IsAssignableFrom(p) &&
+            //        (!p.Name.Contains("InstanceDto") || p.Name.Contains("Inventory")) && p.IsClass)
+            //    .ToList()
+            //    .ForEach(t =>
+            //    {
+            //        var type = assemblyDb.First(tgo =>
+            //            string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
+            //        var typepk = type.GetProperties()
+            //            .Where(s => _dataAccess.CreateContext().Model.FindEntityType(type)
+            //                .FindPrimaryKey().Properties.Select(x => x.Name)
+            //                .Contains(s.Name)
+            //            ).ToArray()[0];
+            //        registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType).Invoke(null,
+            //            new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
+            //    });
 
             containerBuilder.RegisterType<Dao<ItemInstance, IItemInstanceDto?, Guid>>().As<IDao<IItemInstanceDto?, Guid>>().SingleInstance();
         }
 
         private void InitializeContainer(ContainerBuilder containerBuilder)
         {
-            containerBuilder.Register<IDbContextBuilder>(c => _dataAccess).AsImplementedInterfaces().SingleInstance();
+            containerBuilder.RegisterType<DataAccessHelper>().AsImplementedInterfaces();
             containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces().PropertiesAutowired();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => (p.Namespace != "NosCore.Packets.ServerPackets.Login") && (p.Name != "NoS0575Packet")
@@ -296,6 +295,7 @@ namespace NosCore.WorldServer
                 .SingleInstance();
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
+            containerBuilder.RegisterType<DataAccessHelper>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
@@ -435,9 +435,7 @@ namespace NosCore.WorldServer
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
                 .UseNpgsql(worldConfiguration.Database!.ConnectionString);
 
-            _dataAccess = new DataAccessHelper();
-            _dataAccess.Initialize(optionsBuilder.Options, Logger.GetLoggerConfiguration().CreateLogger());
-            
+          
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
 

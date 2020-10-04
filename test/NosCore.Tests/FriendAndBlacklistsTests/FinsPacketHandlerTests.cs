@@ -71,7 +71,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _characterRelationDao =new Dao<CharacterRelation, CharacterRelationDto, Guid>(Logger, TestHelpers.Instance.ContextBuilder);
+            _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
             _friendRequestHolder = new FriendRequestHolder();
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_targetSession.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
