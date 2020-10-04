@@ -90,23 +90,24 @@ namespace NosCore.MasterServer
             var registerDatabaseObject = typeof(Startup).GetMethod(nameof(RegisterDatabaseObject));
             var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
             var assemblyDb = typeof(Account).Assembly.GetTypes();
+            assemblyDto.Where(p =>
+                    typeof(IDto).IsAssignableFrom(p) &&
+                    (!p.Name.Contains("InstanceDto") || p.Name.Contains("Inventory")) && p.IsClass)
+                .ToList()
+                .ForEach(t =>
+                {
+                    var type = assemblyDb.First(tgo =>
+                        string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
+                    var typepk = type.GetProperties()
+                        .Where(s => new NosCoreContext(new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
+                            Guid.NewGuid().ToString()).Options).Model.FindEntityType(type)
+                            .FindPrimaryKey().Properties.Select(x => x.Name)
+                            .Contains(s.Name)
+                        ).ToArray()[0];
+                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType)
+                        .Invoke(null, new object?[] { containerBuilder });
+                });
 
-            //assemblyDto.Where(p =>
-            //        typeof(IDto).IsAssignableFrom(p) &&
-            //        (!p.Name.Contains("InstanceDto") || p.Name.Contains("Inventory")) && p.IsClass)
-            //    .ToList()
-            //    .ForEach(t =>
-            //    {
-            //        var type = assemblyDb.First(tgo =>
-            //            string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-            //        var typepk = type.GetProperties()
-            //            .Where(s => _dataAccess.CreateContext().Model.FindEntityType(type)
-            //                .FindPrimaryKey().Properties.Select(x => x.Name)
-            //                .Contains(s.Name)
-            //            ).ToArray()[0];
-            //        registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType)
-            //            .Invoke(null, new object?[] { containerBuilder });
-            //    });
 
             containerBuilder.RegisterType<Dao<ItemInstance, IItemInstanceDto?, Guid>>().As<IDao<IItemInstanceDto?, Guid>>().SingleInstance();
 
@@ -200,9 +201,8 @@ namespace NosCore.MasterServer
 
             var masterConfiguration = new MasterConfiguration();
             _configuration.Bind(masterConfiguration);
-            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
-                .UseNpgsql(masterConfiguration.Database!.ConnectionString);
-
+            services.AddDbContext<NosCoreContext>(
+                conf => conf.UseNpgsql(masterConfiguration.Database!.ConnectionString), contextLifetime: ServiceLifetime.Transient);
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
 

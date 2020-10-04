@@ -168,9 +168,10 @@ namespace NosCore.LoginServer
                     {
                         Console.Title = Title;
                     }
-
+                    var loginConfiguration = new LoginConfiguration();
                     var configuration =
                         ConfiguratorBuilder.InitializeConfiguration(args, new[] {"logger.yml", "login.yml"});
+                    configuration.Bind(loginConfiguration);
                     services.AddOptions<LoginConfiguration>().Bind(configuration).ValidateDataAnnotations();
                     services.AddOptions<ServerConfiguration>().Bind(configuration).ValidateDataAnnotations();
                     InitializeConfiguration(args);
@@ -179,7 +180,8 @@ namespace NosCore.LoginServer
                     services.AddHttpClient();
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);
-                    services.AddDbContext<NosCoreContext>();
+                    services.AddDbContext<NosCoreContext>(
+                        conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString), contextLifetime: ServiceLifetime.Transient);
                     var containerBuilder = new ContainerBuilder();
                     InitializeContainer(containerBuilder);
                     containerBuilder.Populate(services);

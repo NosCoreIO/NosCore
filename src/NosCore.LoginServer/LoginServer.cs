@@ -25,6 +25,7 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database;
 using NosCore.GameObject.Networking;
@@ -38,9 +39,9 @@ namespace NosCore.LoginServer
         private readonly ILogger _logger;
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly NetworkManager _networkManager;
-        private readonly DataAccessHelper _dataAccessHelper;
+        private readonly IDbContextBuilder _dataAccessHelper;
 
-        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, DataAccessHelper dataAccessHelper)
+        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, IDbContextBuilder dataAccessHelper)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;

@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Dao.Interfaces;
 using Serilog;
@@ -25,16 +26,16 @@ namespace NosCore.Database
 {
     public class DataAccessHelper : IDbContextBuilder
     {
-        private readonly NosCoreContext _nosCoreContext;
+        private readonly Func<NosCoreContext> _nosCoreContext;
 
-        public DataAccessHelper(NosCoreContext nosCoreContext)
+        public DataAccessHelper(Func<NosCoreContext> createContext)
         {
-            _nosCoreContext = nosCoreContext;
+            _nosCoreContext = createContext;
         }
 
         public DbContext CreateContext()
         {
-            return _nosCoreContext;
+            return _nosCoreContext();
         }
     }
 }
