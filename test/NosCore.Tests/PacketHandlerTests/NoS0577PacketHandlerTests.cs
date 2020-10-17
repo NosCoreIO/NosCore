@@ -25,6 +25,7 @@ using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
@@ -54,10 +55,10 @@ namespace NosCore.Tests.PacketHandlerTests
         private readonly Mock<IAuthHttpClient> _authHttpClient = new Mock<IAuthHttpClient>();
         private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
         private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
-        private readonly LoginConfiguration _loginConfiguration = new LoginConfiguration
+        private readonly IOptions<LoginConfiguration> _loginConfiguration = Options.Create(new LoginConfiguration
         {
             MasterCommunication = new WebApiConfiguration()
-        };
+        });
         private NoS0577PacketHandler? _noS0577PacketHandler;
         private ClientSession? _session;
 
@@ -74,7 +75,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration,
                 TestHelpers.Instance.AccountDao,
                 _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object));
-            var authController = new AuthController(_loginConfiguration.MasterCommunication!,
+            var authController = new AuthController(Options.Create(_loginConfiguration.Value.MasterCommunication),
                 TestHelpers.Instance.AccountDao, Logger);
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
@@ -86,7 +87,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginBCryptAsync()
         {
-            _loginConfiguration.MasterCommunication!.HashingType = HashingType.BCrypt;
+            _loginConfiguration.Value.MasterCommunication!.HashingType = HashingType.BCrypt;
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
@@ -106,7 +107,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginPbkdf2Async()
         {
-            _loginConfiguration.MasterCommunication!.HashingType = HashingType.Pbkdf2;
+            _loginConfiguration.Value.MasterCommunication!.HashingType = HashingType.Pbkdf2;
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
@@ -124,7 +125,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginOldClientAsync()
         {
-            _loginConfiguration.ClientVersion = new ClientVersionSubPacket { Major = 1 };
+            _loginConfiguration.Value.ClientVersion = new ClientVersionSubPacket { Major = 1 };
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),

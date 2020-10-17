@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -45,9 +46,9 @@ namespace NosCore.PacketHandlers.Command
         private readonly IItemProvider _itemProvider;
         private readonly List<ItemDto> _items;
         private readonly ILogger _logger;
-        private readonly WorldConfiguration _worldConfiguration;
+        private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
-        public CreateItemPackettHandler(ILogger logger, List<ItemDto> items, WorldConfiguration worldConfiguration,
+        public CreateItemPackettHandler(ILogger logger, List<ItemDto> items, IOptions<WorldConfiguration> worldConfiguration,
             IItemProvider itemProvider)
         {
             _logger = logger;
@@ -124,8 +125,8 @@ namespace NosCore.PacketHandlers.Command
 
             if (createItemPacket.DesignOrAmount.HasValue && !createItemPacket.Upgrade.HasValue)
             {
-                amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.MaxItemAmount
-                    ? _worldConfiguration.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
+                amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.Value.MaxItemAmount
+                    ? _worldConfiguration.Value.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
             }
 
             var inv = session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(

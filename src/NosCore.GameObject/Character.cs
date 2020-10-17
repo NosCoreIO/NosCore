@@ -37,6 +37,7 @@ using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
 using DotNetty.Transport.Channels;
+using Microsoft.Extensions.Options;
 using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
@@ -70,6 +71,7 @@ using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.Shared.Enumerations;
 using Serilog;
 using NosCore.Algorithm.ReputationService;
+using NosCore.Core.Configuration;
 using NosCore.GameObject.Providers.QuestProvider;
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -97,6 +99,7 @@ namespace NosCore.GameObject
         private readonly IHeroExperienceService _heroExperienceService;
         private readonly IReputationService _reputationService;
         private readonly IDignityService _dignityService;
+        private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
         public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider,
             IDao<CharacterDto, long> characterDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
@@ -105,7 +108,7 @@ namespace NosCore.GameObject
             IDao<QuicklistEntryDto, Guid> quicklistEntriesDao, IDao<MinilandDto, Guid> minilandDao,
             IMinilandProvider minilandProvider, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
             IHpService hpService, IMpService mpService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpeedService speedService,
-            IReputationService reputationService, IDignityService dignityService)
+            IReputationService reputationService, IDignityService dignityService, IOptions<WorldConfiguration> worldConfiguration)
         {
             InventoryService = inventory;
             ExchangeProvider = exchangeProvider;
@@ -133,6 +136,7 @@ namespace NosCore.GameObject
             _speedService = speedService;
             _reputationService = reputationService;
             _dignityService = dignityService;
+            _worldConfiguration = worldConfiguration;
         }
 
         private byte _speed;
@@ -621,7 +625,7 @@ namespace NosCore.GameObject
             }
             else
             {
-                if (price + shop.Session.Character.Gold > shop.Session.WorldConfiguration.MaxGoldAmount)
+                if (price + shop.Session.Character.Gold > _worldConfiguration.Value.MaxGoldAmount)
                 {
                     await SendPacketAsync(new SMemoPacket
                     {
@@ -941,9 +945,9 @@ namespace NosCore.GameObject
             return new SpPacket
             {
                 AdditionalPoint = SpAdditionPoint,
-                MaxAdditionalPoint = Session.WorldConfiguration.MaxAdditionalSpPoints,
+                MaxAdditionalPoint = _worldConfiguration.Value.MaxAdditionalSpPoints,
                 SpPoint = SpPoint,
-                MaxSpPoint = Session.WorldConfiguration.MaxSpPoints
+                MaxSpPoint = _worldConfiguration.Value.MaxSpPoints
             };
         }
 
@@ -961,8 +965,8 @@ namespace NosCore.GameObject
         }
         public Task AddSpPointsAsync(int spPointToAdd)
         {
-            SpPoint = SpPoint + spPointToAdd > Session.WorldConfiguration.MaxSpPoints
-                ? Session.WorldConfiguration.MaxSpPoints : SpPoint + spPointToAdd;
+            SpPoint = SpPoint + spPointToAdd > _worldConfiguration.Value.MaxSpPoints
+                ? _worldConfiguration.Value.MaxSpPoints : SpPoint + spPointToAdd;
             return SendPacketAsync(this.GenerateSpPoint());
         }
 
@@ -988,8 +992,8 @@ namespace NosCore.GameObject
 
         public Task AddAdditionalSpPointsAsync(int spPointToAdd)
         {
-            SpAdditionPoint = SpAdditionPoint + spPointToAdd > Session.WorldConfiguration.MaxAdditionalSpPoints
-                ? Session.WorldConfiguration.MaxAdditionalSpPoints : SpAdditionPoint + spPointToAdd;
+            SpAdditionPoint = SpAdditionPoint + spPointToAdd > _worldConfiguration.Value.MaxAdditionalSpPoints
+                ? _worldConfiguration.Value.MaxAdditionalSpPoints : SpAdditionPoint + spPointToAdd;
             return SendPacketAsync(GenerateSpPoint());
         }
 

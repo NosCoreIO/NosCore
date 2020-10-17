@@ -59,7 +59,7 @@ namespace NosCore.Tests.ItemHandlerTests
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _logger = new Mock<ILogger>();
-            TestHelpers.Instance.WorldConfiguration.BackpackSize = 40;
+            TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 40;
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             Handler = new WearEventHandler(_logger.Object);
             var items = new List<ItemDto>

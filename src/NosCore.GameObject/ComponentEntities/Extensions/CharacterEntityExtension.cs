@@ -51,6 +51,7 @@ using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Shared.Enumerations;
 using System;
+using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 
@@ -148,13 +149,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static ExtsPacket GenerateExts(this ICharacterEntity visualEntity, WorldConfiguration conf)
+        public static ExtsPacket GenerateExts(this ICharacterEntity visualEntity, IOptions<WorldConfiguration> conf)
         {
             return new ExtsPacket
             {
-                EquipmentExtension = (byte)(visualEntity.InventoryService.Expensions[NoscorePocketType.Equipment] + conf.BackpackSize),
-                MainExtension = (byte)(visualEntity.InventoryService.Expensions[NoscorePocketType.Main] + conf.BackpackSize),
-                EtcExtension = (byte)(visualEntity.InventoryService.Expensions[NoscorePocketType.Etc] + conf.BackpackSize)
+                EquipmentExtension = (byte)(visualEntity.InventoryService.Expensions[NoscorePocketType.Equipment] + conf.Value.BackpackSize),
+                MainExtension = (byte)(visualEntity.InventoryService.Expensions[NoscorePocketType.Main] + conf.Value.BackpackSize),
+                EtcExtension = (byte)(visualEntity.InventoryService.Expensions[NoscorePocketType.Etc] + conf.Value.BackpackSize)
             };
         }
 

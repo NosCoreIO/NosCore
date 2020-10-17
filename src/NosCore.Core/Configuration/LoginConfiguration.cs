@@ -26,10 +26,10 @@ namespace NosCore.Core.Configuration
     public class LoginConfiguration : ServerConfiguration
     {
         [Required]
-        public WebApiConfiguration? MasterCommunication { get; set; }
+        public WebApiConfiguration MasterCommunication { get; set; } = null!;
 
         [Required]
-        public SqlConnectionConfiguration? Database { get; set; }
+        public SqlConnectionConfiguration Database { get; set; } = null!;
 
         public ClientVersionSubPacket? ClientVersion { get; set; }
         public string? Md5String { get; set; }

@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
@@ -43,11 +44,16 @@ using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -107,12 +113,11 @@ namespace NosCore.WorldServer
     {
         private const string Title = "NosCore - WorldServer";
         private const string ConsoleText = "WORLD SERVER - NosCoreIO";
-        private readonly WorldConfiguration _worldConfiguration;
-        private static DataAccessHelper _dataAccess = null!;
+        private readonly IConfiguration _configuration;
 
-        public Startup(WorldConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
-            _worldConfiguration = configuration;
+            _configuration = configuration;
         }
 
         public static void RegisterMapper<TGameObject, TDto>(IContainer container) where TGameObject : notnull
@@ -266,8 +271,10 @@ namespace NosCore.WorldServer
                 {
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
+                    var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
+                        Guid.NewGuid().ToString());
                     var typepk = type.GetProperties()
-                        .Where(s => _dataAccess.CreateContext().Model.FindEntityType(type)
+                        .Where(s => new NosCoreContext(optionsBuilder.Options).Model.FindEntityType(type)
                             .FindPrimaryKey().Properties.Select(x => x.Name)
                             .Contains(s.Name)
                         ).ToArray()[0];
@@ -280,7 +287,7 @@ namespace NosCore.WorldServer
 
         private void InitializeContainer(ContainerBuilder containerBuilder)
         {
-            containerBuilder.Register<IDbContextBuilder>(c => _dataAccess).AsImplementedInterfaces().SingleInstance();
+            containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
             containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces().PropertiesAutowired();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => (p.Namespace != "NosCore.Packets.ServerPackets.Login") && (p.Name != "NoS0575Packet")
@@ -295,8 +302,6 @@ namespace NosCore.WorldServer
                 .SingleInstance();
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterInstance(_worldConfiguration!).As<ServerConfiguration>();
-            containerBuilder.RegisterInstance(_worldConfiguration!.MasterCommunication!).As<WebApiConfiguration>();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
@@ -304,35 +309,40 @@ namespace NosCore.WorldServer
                 .Where(t => t.Name.EndsWith("HttpClient"))
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
-            var claims = new ClaimsIdentity(new[]
+
+            containerBuilder.Register(c =>
             {
-                new Claim(ClaimTypes.NameIdentifier, "Server"),
-                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-            });
-            var keyByteArray = Encoding.Default.GetBytes(_worldConfiguration.MasterCommunication!.Password!.ToSha512());
-            var signinKey = new SymmetricSecurityKey(keyByteArray);
-            var handler = new JwtSecurityTokenHandler();
-            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-            {
-                Subject = claims,
-                Issuer = "Issuer",
-                Audience = "Audience",
-                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
-            });
-            containerBuilder.Register(c => new Channel
-            {
-                MasterCommunication = _worldConfiguration.MasterCommunication,
-                ClientName = _worldConfiguration.ServerName!,
-                ClientType = ServerType.WorldServer,
-                ConnectedAccountLimit = _worldConfiguration.ConnectedAccountLimit,
-                Port = _worldConfiguration.Port,
-                DisplayPort = _worldConfiguration.DisplayPort,
-                DisplayHost = _worldConfiguration.DisplayHost,
-                ServerGroup = _worldConfiguration.ServerGroup,
-                StartInMaintenance = _worldConfiguration.StartInMaintenance,
-                Host = _worldConfiguration.Host!,
-                WebApi = _worldConfiguration.WebApi,
-                Token = handler.WriteToken(securityToken)
+                var configuration = c.Resolve<IOptions<WorldConfiguration>>();
+                var claims = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, "Server"),
+                    new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
+                });
+                var keyByteArray = Encoding.Default.GetBytes(configuration.Value.MasterCommunication!.Password!.ToSha512());
+                var signinKey = new SymmetricSecurityKey(keyByteArray);
+                var handler = new JwtSecurityTokenHandler();
+                var securityToken = handler.CreateToken(new SecurityTokenDescriptor
+                {
+                    Subject = claims,
+                    Issuer = "Issuer",
+                    Audience = "Audience",
+                    SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
+                });
+                return new Channel
+                {
+                    MasterCommunication = configuration.Value.MasterCommunication,
+                    ClientName = configuration.Value.ServerName!,
+                    ClientType = ServerType.WorldServer,
+                    ConnectedAccountLimit = configuration.Value.ConnectedAccountLimit,
+                    Port = configuration.Value.Port,
+                    DisplayPort = configuration.Value.DisplayPort,
+                    DisplayHost = configuration.Value.DisplayHost,
+                    ServerGroup = configuration.Value.ServerGroup,
+                    StartInMaintenance = configuration.Value.StartInMaintenance,
+                    Host = configuration.Value.Host!,
+                    WebApi = configuration.Value.WebApi,
+                    Token = handler.WriteToken(securityToken)
+                };
             });
             //NosCore.Controllers
             foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
@@ -413,7 +423,6 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces();
         }
 
-
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
@@ -422,43 +431,25 @@ namespace NosCore.WorldServer
                 Console.Title = Title;
             }
             Logger.PrintHeader(ConsoleText);
-            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
-                .UseNpgsql(_worldConfiguration.Database!.ConnectionString);
-            _dataAccess = new DataAccessHelper();
-            _dataAccess.Initialize(optionsBuilder.Options, Logger.GetLoggerConfiguration().CreateLogger());
-            LogLanguage.Language = _worldConfiguration.Language;
+            services.AddOptions<WorldConfiguration>().Bind(_configuration).ValidateDataAnnotations();
+            services.AddOptions<ServerConfiguration>().Bind(_configuration).ValidateDataAnnotations();
+            services.AddOptions<WebApiConfiguration>().Bind(_configuration.GetSection(nameof(WorldConfiguration.MasterCommunication))).ValidateDataAnnotations();
+
+            var worldConfiguration = new WorldConfiguration();
+            _configuration.Bind(worldConfiguration);
+            services.AddDbContext<NosCoreContext>(
+                conf => conf.UseNpgsql(worldConfiguration.Database!.ConnectionString));
+
+            services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(worldConfiguration.WebApi.Port));
 
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
 
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
-            var password = _worldConfiguration.MasterCommunication!.HashingType switch
-            {
-                HashingType.BCrypt => _worldConfiguration.MasterCommunication!.Password!.ToBcrypt(_worldConfiguration
-                    .MasterCommunication!.Salt ?? ""),
-                HashingType.Pbkdf2 => _worldConfiguration.MasterCommunication!.Password!.ToPbkdf2Hash(_worldConfiguration
-                    .MasterCommunication!.Salt ?? ""),
-                HashingType.Sha512 => _worldConfiguration.MasterCommunication!.Password!.ToSha512(),
-                _ => _worldConfiguration.MasterCommunication!.Password!.ToSha512()
-            };
 
-            services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(cfg =>
-                {
-                    cfg.RequireHttpsMetadata = false;
-                    cfg.SaveToken = true;
-                    cfg.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.Default.GetBytes(password)),
-                        ValidAudience = "Audience",
-                        ValidIssuer = "Issuer",
-                        ValidateIssuerSigningKey = true,
-                        ValidateLifetime = true
-                    };
-                });
-
+            services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+            services.ConfigureOptions<ConfigureJwtBearerOptions>();
             services.AddAuthorization(o =>
                 {
                     o.DefaultPolicy = new AuthorizationPolicyBuilder()
@@ -494,8 +485,6 @@ namespace NosCore.WorldServer
             TypeAdapterConfig.GlobalSettings
                 .When(s => !s.SourceType.IsAssignableFrom(s.DestinationType) && typeof(IStaticDto).IsAssignableFrom(s.DestinationType))
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
-            TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
-                .AfterMapping(dest => Task.Run(dest.InitializeAsync));
             TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
             var containerBuilder = new ContainerBuilder();
@@ -509,7 +498,6 @@ namespace NosCore.WorldServer
             return new AutofacServiceProvider(container);
         }
 
-
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app)
         {
@@ -517,9 +505,9 @@ namespace NosCore.WorldServer
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore World API"));
             app.UseAuthentication();
             app.UseRouting();
-
             app.UseAuthorization();
 
+            LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<WorldConfiguration>>().Value.Language;
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

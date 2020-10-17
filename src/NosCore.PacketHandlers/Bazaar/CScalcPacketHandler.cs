@@ -19,6 +19,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
@@ -45,9 +46,9 @@ namespace NosCore.PacketHandlers.Bazaar
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly IItemProvider _itemProvider;
         private readonly ILogger _logger;
-        private readonly WorldConfiguration _worldConfiguration;
+        private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
-        public CScalcPacketHandler(WorldConfiguration worldConfiguration, IBazaarHttpClient bazaarHttpClient,
+        public CScalcPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IBazaarHttpClient bazaarHttpClient,
             IItemProvider itemProvider, ILogger logger, IDao<IItemInstanceDto?, Guid> itemInstanceDao)
         {
             _worldConfiguration = worldConfiguration;
@@ -67,7 +68,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 var price = bz.BazaarItem.Price * soldedamount - taxes;
                 if (clientSession.Character.InventoryService.CanAddItem(bz.ItemInstance.ItemVNum))
                 {
-                    if (clientSession.Character.Gold + price <= _worldConfiguration.MaxGoldAmount)
+                    if (clientSession.Character.Gold + price <= _worldConfiguration.Value.MaxGoldAmount)
                     {
                         clientSession.Character.Gold += price;
                         await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);

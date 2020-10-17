@@ -19,6 +19,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -56,7 +57,7 @@ namespace NosCore.Tests.InventoryTests
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _putPacketHandler = new PutPacketHandler(_session.WorldConfiguration);
+            _putPacketHandler = new PutPacketHandler(TestHelpers.Instance.WorldConfiguration);
         }
 
         [TestMethod]

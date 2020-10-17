@@ -36,7 +36,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
@@ -66,6 +68,7 @@ using NosCore.Database.Entities;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
+using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using ILogger = Serilog.ILogger;
 using NosCore.Shared.I18N;
@@ -76,10 +79,9 @@ namespace NosCore.MasterServer
     {
         private const string Title = "NosCore - MasterServer";
         private const string ConsoleText = "MASTER SERVER - NosCoreIO";
-        private readonly MasterConfiguration _configuration;
-        private static DataAccessHelper _dataAccess = null!;
+        private readonly IConfiguration _configuration;
 
-        public Startup(MasterConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -89,7 +91,6 @@ namespace NosCore.MasterServer
             var registerDatabaseObject = typeof(Startup).GetMethod(nameof(RegisterDatabaseObject));
             var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
             var assemblyDb = typeof(Account).Assembly.GetTypes();
-
             assemblyDto.Where(p =>
                     typeof(IDto).IsAssignableFrom(p) &&
                     (!p.Name.Contains("InstanceDto") || p.Name.Contains("Inventory")) && p.IsClass)
@@ -99,13 +100,15 @@ namespace NosCore.MasterServer
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                     var typepk = type.GetProperties()
-                        .Where(s => _dataAccess.CreateContext().Model.FindEntityType(type)
+                        .Where(s => new NosCoreContext(new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
+                            Guid.NewGuid().ToString()).Options).Model.FindEntityType(type)
                             .FindPrimaryKey().Properties.Select(x => x.Name)
                             .Contains(s.Name)
                         ).ToArray()[0];
                     registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType)
                         .Invoke(null, new object?[] { containerBuilder });
                 });
+
 
             containerBuilder.RegisterType<Dao<ItemInstance, IItemInstanceDto?, Guid>>().As<IDao<IItemInstanceDto?, Guid>>().SingleInstance();
 
@@ -158,15 +161,19 @@ namespace NosCore.MasterServer
         private ContainerBuilder InitializeContainer(IServiceCollection services)
         {
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.Register<IDbContextBuilder>(c => _dataAccess).AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
-            containerBuilder.Register(c => new Channel
+            containerBuilder.Register(c =>
             {
-                MasterCommunication = _configuration.WebApi,
-                ClientName = "Master Server",
-                ClientType = ServerType.MasterServer,
-                WebApi = _configuration.WebApi
+                var configuration = c.Resolve<IOptions<MasterConfiguration>>();
+                return new Channel
+                {
+                    MasterCommunication = configuration.Value.WebApi,
+                    ClientName = "Master Server",
+                    ClientType = ServerType.MasterServer,
+                    WebApi = configuration.Value.WebApi
+                };
             });
+            containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
             containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
@@ -190,40 +197,23 @@ namespace NosCore.MasterServer
                 Console.Title = Title;
             }
             Logger.PrintHeader(ConsoleText);
-            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>()
-                .UseNpgsql(_configuration.Database!.ConnectionString);
-            _dataAccess = new DataAccessHelper();
-            _dataAccess.Initialize(optionsBuilder.Options, Logger.GetLoggerConfiguration().CreateLogger());
-            LogLanguage.Language = _configuration.Language;
+            services.AddOptions<MasterConfiguration>().Bind(_configuration).ValidateDataAnnotations();
+            services.AddOptions<WebApiConfiguration>().Bind(_configuration.GetSection(nameof(MasterConfiguration.WebApi))).ValidateDataAnnotations();
+
+            var masterConfiguration = new MasterConfiguration();
+            _configuration.Bind(masterConfiguration);
+
+            services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(masterConfiguration.WebApi.Port));
+            services.AddDbContext<NosCoreContext>(
+                conf => conf.UseNpgsql(masterConfiguration.Database!.ConnectionString));
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
-            var password = _configuration.WebApi!.HashingType switch
-            {
-                HashingType.BCrypt => _configuration.WebApi.Password!.ToBcrypt(_configuration.WebApi.Salt!),
-                HashingType.Pbkdf2 => _configuration.WebApi.Password!.ToPbkdf2Hash(_configuration.WebApi.Salt!),
-                HashingType.Sha512 => _configuration.WebApi.Password!.ToSha512(),
-                _ => _configuration.WebApi.Password!.ToSha512()
-            };
 
-            var keyByteArray = Encoding.Default.GetBytes(password);
-            var signinKey = new SymmetricSecurityKey(keyByteArray);
+            services.ConfigureOptions<ConfigureJwtBearerOptions>();
             services.AddHttpClient();
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
-            services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(cfg =>
-                {
-                    cfg.RequireHttpsMetadata = false;
-                    cfg.SaveToken = true;
-                    cfg.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        IssuerSigningKey = signinKey,
-                        ValidAudience = "Audience",
-                        ValidIssuer = "Issuer",
-                        ValidateIssuerSigningKey = true,
-                        ValidateLifetime = true
-                    };
-                });
+            services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
             services.AddAuthorization(o =>
                 {
@@ -254,7 +244,6 @@ namespace NosCore.MasterServer
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
 
             var containerBuilder = InitializeContainer(services);
-            containerBuilder.RegisterInstance(_configuration.WebApi).As<WebApiConfiguration>();
             var container = containerBuilder.Build();
             Task.Run(container.Resolve<MasterServer>().Run).Forget();
             return new AutofacServiceProvider(container);
@@ -270,6 +259,7 @@ namespace NosCore.MasterServer
 
             app.UseAuthorization();
 
+            LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<MasterConfiguration>>().Value.Language;
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

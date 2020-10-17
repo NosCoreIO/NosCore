@@ -28,6 +28,7 @@ using Autofac;
 using AutofacSerilogIntegration;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Dao;
@@ -72,7 +73,7 @@ namespace NosCore.Parser
                 Console.Title = Title;
             }
             var parserConfiguration = new ParserConfiguration();
-            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "parser.yml" }, parserConfiguration);
+            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "parser.yml" }).Bind(parserConfiguration);
             Shared.I18N.Logger.PrintHeader(ConsoleText);
             LogLanguage.Language = parserConfiguration.Language;
             Logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
@@ -84,8 +85,6 @@ namespace NosCore.Parser
             {
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
                 optionsBuilder.UseNpgsql(parserConfiguration.Database!.ConnectionString);
-                var dataAccess = new DataAccessHelper();
-                dataAccess.Initialize(optionsBuilder.Options, Logger);
                 try
                 {
                     Logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ENTER_PATH));
@@ -105,7 +104,6 @@ namespace NosCore.Parser
 
                     var containerBuilder = new ContainerBuilder();
                     containerBuilder.RegisterLogger();
-                    containerBuilder.Register<IDbContextBuilder>(c => dataAccess).AsImplementedInterfaces().SingleInstance();
                     containerBuilder.RegisterAssemblyTypes(typeof(CardParser).Assembly)
                         .Where(t => t.Name.EndsWith("Parser") && !t.IsGenericType)
                         .AsSelf()
@@ -123,7 +121,7 @@ namespace NosCore.Parser
                             var type = assemblyDb.First(tgo =>
                                 string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                             var typepk = type.GetProperties()
-                                .Where(s => dataAccess.CreateContext().Model.FindEntityType(type)
+                                .Where(s => new NosCoreContext(optionsBuilder.Options).Model.FindEntityType(type)
                                     .FindPrimaryKey().Properties.Select(x => x.Name)
                                     .Contains(s.Name)
                                 ).ToArray()[0];

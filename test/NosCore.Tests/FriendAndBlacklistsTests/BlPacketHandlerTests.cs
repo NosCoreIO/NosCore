@@ -50,7 +50,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
         [TestInitialize]
         public async Task SetupAsync()
         {
-            _characterRelationDao = new Dao<CharacterRelation, CharacterRelationDto, Guid>(Logger, TestHelpers.Instance.ContextBuilder);
+            _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
             Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);

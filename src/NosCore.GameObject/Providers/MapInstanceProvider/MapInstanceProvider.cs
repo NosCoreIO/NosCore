@@ -38,25 +38,32 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
     public class MapInstanceProvider : IMapInstanceProvider
     {
         private readonly ILogger _logger;
+        private readonly List<ShopDto> _shopDtos;
+        private readonly IDao<ShopItemDto, int>? _shopItems;
         private readonly IMapItemProvider _mapItemProvider;
         private readonly IDao<MapMonsterDto, int> _mapMonsters;
+        private readonly List<NpcTalkDto> _npcTalks;
         private readonly IDao<MapNpcDto, int> _mapNpcs;
         private readonly List<MapDto> _maps;
         private readonly IDao<PortalDto, int> _portalDao;
-
+        private readonly List<NpcMonsterDto> _npcMonsters;
         private ConcurrentDictionary<Guid, MapInstance> _mapInstances =
             new ConcurrentDictionary<Guid, MapInstance>();
 
-        public MapInstanceProvider(List<MapDto> maps,
+        public MapInstanceProvider(List<MapDto> maps, List<NpcMonsterDto> npcMonsters, List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos,
             IMapItemProvider mapItemProvider, IDao<MapNpcDto, int> mapNpcs,
-            IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, ILogger logger)
+            IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems, ILogger logger)
         {
             _mapItemProvider = mapItemProvider;
+            _npcTalks = npcTalks;
+            _npcMonsters = npcMonsters;
             _mapMonsters = mapMonsters;
             _portalDao = portalDao;
             _maps = maps;
             _mapNpcs = mapNpcs;
             _logger = logger;
+            _shopItems = shopItems;
+            _shopDtos = shopDtos;
         }
 
         public Task AddMapInstanceAsync(MapInstance mapInstance)
@@ -74,11 +81,21 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
         public async Task InitializeAsync()
         {
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LOADING_MAPINSTANCES));
+            try
+            {
+                var test = _mapMonsters.LoadAll();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
             var monsters = _mapMonsters.LoadAll().Adapt<IEnumerable<MapMonster>>().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
+
             var npcs = _mapNpcs.LoadAll().Adapt<IEnumerable<MapNpc>>().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
+
             var portals = _portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
 
             var mapsdic = _maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
@@ -91,12 +108,27 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
 
                     if (monsters.ContainsKey(map.MapId))
                     {
-                        mapinstance.LoadMonsters(monsters[map.MapId]);
+                        var mapMonsters = monsters[map.MapId];
+                        mapMonsters.ForEach(s => s.Initialize(_npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!));
+                        mapinstance.LoadMonsters(mapMonsters);
                     }
 
                     if (npcs.ContainsKey(map.MapId))
                     {
-                        mapinstance.LoadNpcs(npcs[map.MapId]);
+                        var mapNpcs = npcs[map.MapId];
+                        mapNpcs.ForEach(s =>
+                        {
+                            List<ShopItemDto> shopItems = new List<ShopItemDto>();
+                            NpcTalkDto? dialog = null;
+                            var shop = _shopDtos.Find(o => o.MapNpcId == s.MapNpcId);
+                            if (shop != null)
+                            {
+                                shopItems = _shopItems!.Where(o => o.ShopId == shop.ShopId)!.ToList();
+                                dialog = _npcTalks!.Find(o => o.DialogId == s.Dialog);
+                            }
+                            s.Initialize(_npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!, shop, dialog, shopItems);
+                        });
+                        mapinstance.LoadNpcs(mapNpcs);
                     }
 
                     return mapinstance;

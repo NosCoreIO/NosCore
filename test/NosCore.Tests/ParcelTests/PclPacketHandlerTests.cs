@@ -111,7 +111,7 @@ namespace NosCore.Tests.ParcelTests
         [TestMethod]
         public async Task Test_ReceiveGiftNoPlaceAsync()
         {
-            TestHelpers.Instance.WorldConfiguration.BackpackSize = 0;
+            TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 0;
             var item = _item!.Create(1);
             var mail = new MailData
             {

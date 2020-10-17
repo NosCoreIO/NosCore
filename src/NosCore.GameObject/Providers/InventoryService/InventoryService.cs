@@ -21,6 +21,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -32,11 +33,11 @@ namespace NosCore.GameObject.Providers.InventoryService
 {
     public class InventoryService : ConcurrentDictionary<Guid, InventoryItemInstance>, IInventoryService
     {
-        private readonly WorldConfiguration _configuration;
+        private readonly IOptions<WorldConfiguration> _configuration;
         private readonly List<ItemDto> _items;
         private readonly ILogger _logger;
 
-        public InventoryService(List<ItemDto> items, WorldConfiguration configuration, ILogger logger)
+        public InventoryService(List<ItemDto> items, IOptions<WorldConfiguration> configuration, ILogger logger)
         {
             _items = items;
             _configuration = configuration;
@@ -52,7 +53,7 @@ namespace NosCore.GameObject.Providers.InventoryService
                 NoscorePocketType.Specialist => 45 + Expensions[pocket],
                 NoscorePocketType.Costume => 60 + Expensions[pocket],
                 NoscorePocketType.Wear => 17,
-                _ => _configuration.BackpackSize + Expensions[pocket]
+                _ => _configuration.Value.BackpackSize + Expensions[pocket]
             });
         }
 
@@ -126,17 +127,17 @@ namespace NosCore.GameObject.Providers.InventoryService
             {
                 var slotNotFull = this.ToList().Select(s => s.Value).Where(i =>
                     i.ItemInstance!.ItemVNum.Equals(newItem.ItemInstance!.ItemVNum) &&
-                    (i.ItemInstance.Amount < _configuration.MaxItemAmount));
+                    (i.ItemInstance.Amount < _configuration.Value.MaxItemAmount));
                 var freeslot = GetMaxSlot(newItem.Type) - this.Count(s => s.Value.Type == newItem.Type);
                 IEnumerable<InventoryItemInstance> itemInstances =
                     slotNotFull as IList<InventoryItemInstance> ?? slotNotFull.ToList();
-                if (newItem.ItemInstance!.Amount <= freeslot * _configuration.MaxItemAmount
-                    + itemInstances.Sum(s => _configuration.MaxItemAmount - s.ItemInstance!.Amount))
+                if (newItem.ItemInstance!.Amount <= freeslot * _configuration.Value.MaxItemAmount
+                    + itemInstances.Sum(s => _configuration.Value.MaxItemAmount - s.ItemInstance!.Amount))
                 {
                     foreach (var slotToAdd in itemInstances)
                     {
                         var max = slotToAdd.ItemInstance?.Amount + newItem.ItemInstance?.Amount;
-                        max = max > _configuration.MaxItemAmount ? _configuration.MaxItemAmount : max;
+                        max = max > _configuration.Value.MaxItemAmount ? _configuration.Value.MaxItemAmount : max;
                         newItem.ItemInstance!.Amount =
                             (short)((slotToAdd.ItemInstance?.Amount + newItem.ItemInstance?.Amount - max) ?? 0);
                         slotToAdd.ItemInstance!.Amount = (short)(max ?? 0);
@@ -388,13 +389,13 @@ namespace NosCore.GameObject.Providers.InventoryService
                             && ((sourcePocket.ItemInstance.Item!.Type == NoscorePocketType.Main) ||
                                 (sourcePocket.ItemInstance.Item.Type == NoscorePocketType.Etc)))
                         {
-                            if (destinationPocket.ItemInstance.Amount + amount > _configuration.MaxItemAmount)
+                            if (destinationPocket.ItemInstance.Amount + amount > _configuration.Value.MaxItemAmount)
                             {
                                 var saveItemCount = destinationPocket.ItemInstance.Amount;
-                                destinationPocket.ItemInstance.Amount = _configuration.MaxItemAmount;
+                                destinationPocket.ItemInstance.Amount = _configuration.Value.MaxItemAmount;
                                 sourcePocket.ItemInstance.Amount =
                                     (short)(saveItemCount + sourcePocket.ItemInstance.Amount -
-                                        _configuration.MaxItemAmount);
+                                        _configuration.Value.MaxItemAmount);
                             }
                             else
                             {
@@ -451,10 +452,10 @@ namespace NosCore.GameObject.Providers.InventoryService
                 }
 
                 var amount = itemGroup.Sum(s => s.Amount);
-                var rest = amount % (type == NoscorePocketType.Equipment ? 1 : _configuration.MaxItemAmount);
+                var rest = amount % (type == NoscorePocketType.Equipment ? 1 : _configuration.Value.MaxItemAmount);
                 var newSlotNeeded = itemList.Where(s => s.ItemInstance?.ItemVNum == itemGroup.Key)
-                    .Sum(s => _configuration.MaxItemAmount - s.ItemInstance?.Amount) <= rest;
-                place[type] -= amount / (type == NoscorePocketType.Equipment ? 1 : _configuration.MaxItemAmount) +
+                    .Sum(s => _configuration.Value.MaxItemAmount - s.ItemInstance?.Amount) <= rest;
+                place[type] -= amount / (type == NoscorePocketType.Equipment ? 1 : _configuration.Value.MaxItemAmount) +
                     (newSlotNeeded ? 1 : 0);
 
                 if (place[type] < 0)

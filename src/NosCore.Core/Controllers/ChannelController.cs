@@ -29,6 +29,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
@@ -45,11 +46,11 @@ namespace NosCore.Core.Controllers
     [AuthorizeRole(AuthorityType.Root)]
     public class ChannelController : Controller
     {
-        private readonly WebApiConfiguration _apiConfiguration;
+        private readonly IOptions<WebApiConfiguration> _apiConfiguration;
         private readonly ILogger _logger;
         private int _id;
 
-        public ChannelController(WebApiConfiguration apiConfiguration, ILogger logger)
+        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger)
         {
             _logger = logger;
             _apiConfiguration = apiConfiguration;
@@ -62,12 +63,12 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.NameIdentifier, "Server"),
                 new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
             });
-            var password = _apiConfiguration.HashingType switch
+            var password = _apiConfiguration.Value.HashingType switch
             {
-                HashingType.BCrypt => _apiConfiguration.Password!.ToBcrypt(_apiConfiguration.Salt ?? ""),
-                HashingType.Pbkdf2 => _apiConfiguration.Password!.ToPbkdf2Hash(_apiConfiguration.Salt ?? ""),
-                HashingType.Sha512 => _apiConfiguration.Password!.ToSha512(),
-                _ => _apiConfiguration.Password!.ToSha512()
+                HashingType.BCrypt => _apiConfiguration.Value.Password!.ToBcrypt(_apiConfiguration.Value.Salt ?? ""),
+                HashingType.Pbkdf2 => _apiConfiguration.Value.Password!.ToPbkdf2Hash(_apiConfiguration.Value.Salt ?? ""),
+                HashingType.Sha512 => _apiConfiguration.Value.Password!.ToSha512(),
+                _ => _apiConfiguration.Value.Password!.ToSha512()
             };
 
             var keyByteArray = Encoding.Default.GetBytes(password);
@@ -98,7 +99,7 @@ namespace NosCore.Core.Controllers
                 return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
             }
 
-            if (data.MasterCommunication!.Password != _apiConfiguration.Password)
+            if (data.MasterCommunication!.Password != _apiConfiguration.Value.Password)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_ERROR));
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));

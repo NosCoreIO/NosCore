@@ -21,6 +21,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Exchanges;
@@ -45,9 +46,9 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
         private readonly ConcurrentDictionary<long, long> _exchangeRequests;
         private readonly IItemProvider _itemBuilderService;
         private readonly ILogger _logger;
-        private readonly WorldConfiguration _worldConfiguration;
+        private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
-        public ExchangeProvider(IItemProvider itemBuilderService, WorldConfiguration worldConfiguration, ILogger logger)
+        public ExchangeProvider(IItemProvider itemBuilderService, IOptions<WorldConfiguration> worldConfiguration, ILogger logger)
         {
             _exchangeDatas = new ConcurrentDictionary<long, ExchangeData>();
             _exchangeRequests = new ConcurrentDictionary<long, long>();
@@ -70,7 +71,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
             var targetInfo = GetData(targetSession.VisualId);
             var dictionary = new Dictionary<long, IPacket>();
 
-            if (exchangeInfo.Gold + targetSession.Gold > _worldConfiguration.MaxGoldAmount)
+            if (exchangeInfo.Gold + targetSession.Gold > _worldConfiguration.Value.MaxGoldAmount)
             {
                 dictionary.Add(targetSession.VisualId, new InfoiPacket
                 {
@@ -78,7 +79,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                 });
             }
 
-            if (targetInfo.Gold + session.Character.Gold > _worldConfiguration.MaxGoldAmount)
+            if (targetInfo.Gold + session.Character.Gold > _worldConfiguration.Value.MaxGoldAmount)
             {
                 dictionary.Add(targetSession.VisualId, new InfoiPacket
                 {
@@ -88,7 +89,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                     dictionary);
             }
 
-            if (exchangeInfo.BankGold + targetSession.BankGold > _worldConfiguration.MaxBankGoldAmount)
+            if (exchangeInfo.BankGold + targetSession.BankGold > _worldConfiguration.Value.MaxBankGoldAmount)
             {
                 dictionary.Add(targetSession.VisualId, new InfoPacket
                 {
@@ -98,7 +99,7 @@ namespace NosCore.GameObject.Providers.ExchangeProvider
                     dictionary);
             }
 
-            if (targetInfo.BankGold + session.Account.BankMoney > _worldConfiguration.MaxBankGoldAmount)
+            if (targetInfo.BankGold + session.Account.BankMoney > _worldConfiguration.Value.MaxBankGoldAmount)
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {

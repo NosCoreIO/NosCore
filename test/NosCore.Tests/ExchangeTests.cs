@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Options;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -44,18 +45,18 @@ namespace NosCore.Tests
 
         private ItemProvider? _itemProvider;
 
-        private WorldConfiguration? _worldConfiguration;
+        private IOptions<WorldConfiguration>? _worldConfiguration;
 
         [TestInitialize]
         public void Setup()
         {
-            _worldConfiguration = new WorldConfiguration
+            _worldConfiguration = Options.Create(new WorldConfiguration
             {
                 MaxItemAmount = 999,
                 BackpackSize = 48,
                 MaxGoldAmount = 1000000000,
                 MaxBankGoldAmount = 100000000000
-            };
+            });
 
             var items = new List<ItemDto>
             {

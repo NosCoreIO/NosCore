@@ -20,6 +20,7 @@
 using System;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NosCore.Core.Configuration;
@@ -49,16 +50,13 @@ namespace NosCore.MasterServer
 
         private static IWebHost BuildWebHost(string[] args)
         {
-            var conf = new MasterConfiguration();
-            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "master.yml" }, conf);
             return WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
                     logging.AddSerilog();
                 })
-                .ConfigureServices((hostContext, services) => services.AddSingleton(conf))
-                .UseUrls(conf.WebApi!.ToString())
+                .UseConfiguration(ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "master.yml" }))
                 .UseStartup<Startup>()
                 .PreferHostingUrls(true)
                 .SuppressStatusMessages(true)

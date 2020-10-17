@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.Inventory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -51,7 +52,7 @@ namespace NosCore.Tests.ItemHandlerTests
         public async Task SetupAsync()
         {
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            Handler = new BackPackHandler(new WorldConfiguration { MaxAdditionalSpPoints = 1 });
+            Handler = new BackPackHandler(Options.Create(new WorldConfiguration { MaxAdditionalSpPoints = 1 }));
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, ItemType = ItemType.Special, Effect = ItemEffectType.InventoryTicketUpgrade, EffectValue = 0},

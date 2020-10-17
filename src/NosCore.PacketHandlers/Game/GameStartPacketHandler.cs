@@ -33,6 +33,7 @@ using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.Threading;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -50,10 +51,10 @@ namespace NosCore.PacketHandlers.Game
         private readonly IMailHttpClient _mailHttpClient;
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
-        private readonly WorldConfiguration _worldConfiguration;
+        private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly IQuestProvider _questProvider;
 
-        public GameStartPacketHandler(WorldConfiguration worldConfiguration, IFriendHttpClient friendHttpClient,
+        public GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IFriendHttpClient friendHttpClient,
             IChannelHttpClient channelHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient,
             IPacketHttpClient packetHttpClient,
@@ -85,7 +86,7 @@ namespace NosCore.PacketHandlers.Game
                 _questProvider.RunScriptAsync(session.Character).Forget();
             }
 
-            if (_worldConfiguration.WorldInformation)
+            if (_worldConfiguration.Value.WorldInformation)
             {
                 await session.SendPacketAsync(session.Character.GenerateSay("-------------------[NosCore]---------------",
                     SayColorType.Yellow)).ConfigureAwait(false);

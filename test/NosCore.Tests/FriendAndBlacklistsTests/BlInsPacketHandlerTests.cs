@@ -44,9 +44,6 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
 
-        private readonly IDao<CharacterRelationDto, Guid> _characterRelationDao =
-           new Dao<CharacterRelation, CharacterRelationDto, Guid>(Logger, TestHelpers.Instance.ContextBuilder);
-
         private BlInsPackettHandler? _blInsPacketHandler;
         private ClientSession? _session;
 
@@ -78,7 +75,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
 
             await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session!).ConfigureAwait(false);
             Assert.IsNull(await
-                _characterRelationDao.FirstOrDefaultAsync(s =>
+                TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s =>
                     (_session!.Character.CharacterId == s.CharacterId) &&
                     (s.RelationType == CharacterRelationType.Blocked)).ConfigureAwait(false));
         }
@@ -95,7 +92,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                         ChannelId = 1, ConnectedCharacter = new Character {Id = targetSession.Character.CharacterId}
                     }));
             using var blacklist = new BlacklistController(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
-                _characterRelationDao, TestHelpers.Instance.CharacterDao);
+                TestHelpers.Instance.CharacterRelationDao, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklistAsync(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.AddBlacklistAsync(new BlacklistRequest
                 {
@@ -112,7 +109,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
 
            await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session).ConfigureAwait(false);
             Assert.IsNotNull(
-                _characterRelationDao.FirstOrDefaultAsync(s => (_session.Character.CharacterId == s.CharacterId)
+                TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s => (_session.Character.CharacterId == s.CharacterId)
                     && (targetSession.Character.CharacterId == s.RelatedCharacterId) &&
                     (s.RelationType == CharacterRelationType.Blocked)));
         }

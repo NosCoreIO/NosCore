@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -35,19 +36,14 @@ namespace NosCore.MasterServer
         private readonly ILogger _logger;
         private readonly MasterConfiguration _masterConfiguration;
 
-        public MasterServer(MasterConfiguration masterConfiguration, ILogger logger)
+        public MasterServer(IOptions<MasterConfiguration> masterConfiguration, ILogger logger)
         {
-            _masterConfiguration = masterConfiguration;
+            _masterConfiguration = masterConfiguration.Value;
             _logger = logger;
         }
 
         public void Run()
         {
-            if (_masterConfiguration == null)
-            {
-                return;
-            }
-
             if (!Debugger.IsAttached)
             {
                 Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => MasterClientListSingleton.Instance.Channels

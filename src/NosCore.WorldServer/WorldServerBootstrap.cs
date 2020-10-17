@@ -21,6 +21,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NosCore.Core.Configuration;
@@ -51,16 +52,13 @@ namespace NosCore.WorldServer
 
         private static IWebHost BuildWebHost(string[] args)
         {
-            var conf = new WorldConfiguration();
-            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "world.yml" }, conf);
             return WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
                     logging.AddSerilog();
                 })
-                .ConfigureServices((hostContext, services) => services.AddSingleton(conf))
-                .UseUrls(conf.WebApi!.ToString())
+                .UseConfiguration(ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "world.yml" }))
                 .UseStartup<Startup>()
                 .PreferHostingUrls(true)
                 .SuppressStatusMessages(true)

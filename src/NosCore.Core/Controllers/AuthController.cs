@@ -26,6 +26,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
@@ -46,10 +47,10 @@ namespace NosCore.Core.Controllers
     public class AuthController : Controller
     {
         private readonly IDao<AccountDto, long> _accountDao;
-        private readonly WebApiConfiguration _apiConfiguration;
+        private readonly IOptions<WebApiConfiguration> _apiConfiguration;
         private readonly ILogger _logger;
 
-        public AuthController(WebApiConfiguration apiConfiguration, IDao<AccountDto, long> accountDao, ILogger logger)
+        public AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao, ILogger logger)
         {
             _apiConfiguration = apiConfiguration;
             _accountDao = accountDao;
@@ -62,16 +63,16 @@ namespace NosCore.Core.Controllers
         {
             if (!ModelState.IsValid || session == null)
             {
-                return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
+                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR));
             }
 
             var account = await _accountDao.FirstOrDefaultAsync(s => s.Name == session.Identity).ConfigureAwait(false);
             if (account == null)
             {
-                return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
+                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR));
             }
 
-            switch (_apiConfiguration.HashingType)
+            switch (_apiConfiguration.Value.HashingType)
             {
                 case HashingType.BCrypt:
                     if (account.NewAuthPassword != Encoding.Default
@@ -111,12 +112,12 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.Sid, platformGameAccountId.ToString()),
                 new Claim(ClaimTypes.Role, account.Authority.ToString())
             });
-            var password = _apiConfiguration.HashingType switch
+            var password = _apiConfiguration.Value.HashingType switch
             {
-                HashingType.BCrypt => _apiConfiguration.Password!.ToBcrypt(_apiConfiguration.Salt ?? ""),
-                HashingType.Pbkdf2 => _apiConfiguration.Password!.ToPbkdf2Hash(_apiConfiguration.Salt ?? ""),
-                HashingType.Sha512 => _apiConfiguration.Password!.ToSha512(),
-                _ => _apiConfiguration.Password!.ToSha512()
+                HashingType.BCrypt => _apiConfiguration.Value.Password!.ToBcrypt(_apiConfiguration.Value.Salt ?? ""),
+                HashingType.Pbkdf2 => _apiConfiguration.Value.Password!.ToPbkdf2Hash(_apiConfiguration.Value.Salt ?? ""),
+                HashingType.Sha512 => _apiConfiguration.Value.Password!.ToSha512(),
+                _ => _apiConfiguration.Value.Password!.ToSha512()
             };
 
             var keyByteArray = Encoding.Default.GetBytes(password);

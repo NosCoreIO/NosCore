@@ -26,6 +26,7 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using DotNetty.Transport.Channels;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.DignityService;
@@ -77,7 +78,7 @@ namespace NosCore.Tests.InventoryTests
             Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _friendHttpClient = new Mock<IFriendHttpClient>().Object;
-            TestHelpers.Instance.WorldConfiguration.BackpackSize = 3;
+            TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 3;
             _instanceProvider = TestHelpers.Instance.MapInstanceProvider;
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
         }
@@ -274,7 +275,7 @@ namespace NosCore.Tests.InventoryTests
 
         private async Task<ClientSession> PrepareSessionShopAsync()
         {
-            var conf = new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999};
+            var conf = Options.Create(new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999});
             var session2 = new ClientSession(conf, new Mock<IMapInstanceProvider>().Object, new Mock<IExchangeProvider>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object, new Mock<IMinilandProvider>().Object);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
@@ -284,7 +285,7 @@ namespace NosCore.Tests.InventoryTests
 
             await session2.SetCharacterAsync(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object,
                 new Mock<IDao<CharacterDto, long>>().Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new Mock<IDao<AccountDto, long>>().Object, Logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
-                , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService())
+                , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration)
             {
                 CharacterId = 1,
                 Name = "chara2",

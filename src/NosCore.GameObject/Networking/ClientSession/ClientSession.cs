@@ -28,6 +28,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Map;
 using DotNetty.Transport.Channels;
+using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
@@ -60,7 +61,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         private readonly IExchangeProvider _exchangeProvider = null!;
         private readonly IFriendHttpClient _friendHttpClient = null!;
-        private readonly SemaphoreSlim handlingPacketLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _handlingPacketLock = new SemaphoreSlim(1, 1);
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
         private readonly IMapInstanceProvider _mapInstanceProvider = null!;
@@ -71,31 +72,29 @@ namespace NosCore.GameObject.Networking.ClientSession
         private Character? _character;
         private int? _waitForPacketsAmount;
 
-        public ClientSession(ServerConfiguration configuration,
-            ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
+        public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
-            : this(configuration, null, null, logger, packetsHandlers, friendHttpClient, packetSerializer,
-                packetHttpClient, null)
-        {
-        }
-
-        public ClientSession(ServerConfiguration configuration, IMapInstanceProvider? mapInstanceProvider,
-            IExchangeProvider? exchangeProvider, ILogger logger,
-            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
-            IMinilandProvider? minilandProvider) : base(logger)
+            : base(logger)
         {
             _logger = logger;
             _packetsHandlers = packetsHandlers.ToList();
             _friendHttpClient = friendHttpClient;
             _packetSerializer = packetSerializer;
             _packetHttpClient = packetHttpClient;
-            if (!(configuration is WorldConfiguration worldConfiguration))
-            {
-                return;
-            }
+        }
 
-            WorldConfiguration = worldConfiguration;
+        public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
+            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
+        {
+        }
+
+        public ClientSession(IOptions<WorldConfiguration> configuration, IMapInstanceProvider? mapInstanceProvider,
+            IExchangeProvider? exchangeProvider, ILogger logger,
+            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
+            IMinilandProvider? minilandProvider) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
+        {
             _mapInstanceProvider = mapInstanceProvider!;
             _exchangeProvider = exchangeProvider!;
             _minilandProvider = minilandProvider!;
@@ -109,8 +108,6 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
             }
         }
-
-        public WorldConfiguration WorldConfiguration { get; } = null!;
 
         public bool GameStarted { get; set; }
 
@@ -479,8 +476,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                                 if (!HasSelectedCharacter && !attr.AnonymousAccess)
                                 {
                                     _logger.Warning(
-                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey
-                                            .PACKET_USED_WITHOUT_CHARACTER),
+                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
                                         packet.Header);
                                     return;
                                 }
@@ -492,7 +488,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                                     return;
                                 }
 
-                                await handlingPacketLock.WaitAsync();
+                                await _handlingPacketLock.WaitAsync();
                                 try
                                 {
                                     await handler.ExecuteAsync(packet, this).ConfigureAwait(false);
@@ -500,7 +496,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                                 }
                                 finally
                                 {
-                                    handlingPacketLock.Release();
+                                    _handlingPacketLock.Release();
                                 }
                             }
 

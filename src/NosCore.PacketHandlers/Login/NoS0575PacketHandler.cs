@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Core.I18N;
@@ -32,10 +33,10 @@ namespace NosCore.PacketHandlers.Login
     public class NoS0575PacketHandler : PacketHandler<NoS0575Packet>, ILoginPacketHandler
     {
         private readonly ILogger _logger;
-        private readonly LoginConfiguration _loginConfiguration;
+        private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly ILoginService _loginService;
 
-        public NoS0575PacketHandler(ILoginService loginService, LoginConfiguration loginConfiguration, ILogger logger)
+        public NoS0575PacketHandler(ILoginService loginService, IOptions<LoginConfiguration> loginConfiguration, ILogger logger)
         {
             _loginService = loginService;
             _loginConfiguration = loginConfiguration;
@@ -44,7 +45,7 @@ namespace NosCore.PacketHandlers.Login
 
         public override Task ExecuteAsync(NoS0575Packet packet, ClientSession clientSession)
         {
-            if (!_loginConfiguration.EnforceNewAuth)
+            if (!_loginConfiguration.Value.EnforceNewAuth)
             {
                 return _loginService.LoginAsync(packet.Username, packet.Md5String!, packet.ClientVersion!, clientSession,
                     packet.Password!,

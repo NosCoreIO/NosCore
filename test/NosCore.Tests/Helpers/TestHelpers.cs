@@ -27,6 +27,8 @@ using NosCore.Packets.Interfaces;
 using DotNetty.Transport.Channels;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
 using Moq;
 using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ExperienceService;
@@ -109,7 +111,7 @@ namespace NosCore.Tests.Helpers
         public Mock<IConnectedAccountHttpClient> ConnectedAccountHttpClient = new Mock<IConnectedAccountHttpClient>();
         public Mock<IFriendHttpClient> FriendHttpClient = new Mock<IFriendHttpClient>();
         public Mock<IPacketHttpClient> PacketHttpClient = new Mock<IPacketHttpClient>();
-        
+
         private TestHelpers()
         {
             BlacklistHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
@@ -122,20 +124,21 @@ namespace NosCore.Tests.Helpers
         public static TestHelpers Instance => _lazy.Value;
 
         public IDao<AccountDto, long> AccountDao { get; private set; } = null!;
+        public IDao<CharacterRelationDto, Guid> CharacterRelationDao { get; set; } = null!;
         public IDao<CharacterDto, long> CharacterDao { get; private set; } = null!;
         public IDao<MinilandDto, Guid> MinilandDao { get; private set; } = null!;
         public IDao<MinilandObjectDto, Guid> MinilandObjectDao { get; private set; } = null!;
         public MapItemProvider? MapItemProvider { get; set; }
         public Guid MinilandId { get; set; } = Guid.NewGuid();
 
-        public WorldConfiguration WorldConfiguration { get; } = new WorldConfiguration
+        public IOptions<WorldConfiguration> WorldConfiguration { get; } = Options.Create(new WorldConfiguration
         {
             BackpackSize = 2,
             MaxItemAmount = 999,
             MaxSpPoints = 10_000,
             MaxAdditionalSpPoints = 1_000_000,
             MaxGoldAmount = 999_999_999
-        };
+        });
 
         public List<ItemDto> ItemList { get; } = new List<ItemDto>
         {
@@ -161,13 +164,12 @@ namespace NosCore.Tests.Helpers
         };
 
         public MapInstanceProvider MapInstanceProvider { get; set; } = null!;
-        public IDbContextBuilder ContextBuilder { get; set; } = new DataAccessHelper();
         public IHeuristic DistanceCalculator { get; set; } = new OctileDistanceHeuristic();
 
         private async Task<MapInstanceProvider> GenerateMapInstanceProviderAsync()
         {
             MapItemProvider = new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
-                {new DropEventHandler(), new SpChargerEventHandler(), new GoldDropEventHandler()});
+                {new DropEventHandler(), new SpChargerEventHandler(), new GoldDropEventHandler(TestHelpers.Instance.WorldConfiguration)});
             var map = new Map
             {
                 MapId = 0,
@@ -220,10 +222,10 @@ namespace NosCore.Tests.Helpers
             var npc = new MapNpcDto();
             await _mapNpcDao.TryInsertOrUpdateAsync(npc).ConfigureAwait(false);
 
-            var instanceAccessService = new MapInstanceProvider(new List<MapDto> { map, mapShop, miniland },
+            var instanceAccessService = new MapInstanceProvider(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
                 MapItemProvider,
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, _logger);
+                _mapMonsterDao, _portalDao, _shopItemDao, _logger);
             await instanceAccessService.InitializeAsync().ConfigureAwait(false);
             await instanceAccessService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
                 MapInstanceType.NormalInstance, MapItemProvider, _logger, new List<IMapInstanceEventHandler>())).ConfigureAwait(false);
@@ -243,12 +245,11 @@ namespace NosCore.Tests.Helpers
         }
 
         public void InitDatabase()
-        {   var contextBuilder =
-                new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
-                    Guid.NewGuid().ToString());
-            var nosCorecontextBuilder = new DataAccessHelper();
-            nosCorecontextBuilder.InitializeForTest(contextBuilder.Options, _logger);
-            ContextBuilder = nosCorecontextBuilder;
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
+                Guid.NewGuid().ToString());
+            DbContext ContextBuilder() => new NosCoreContext(optionsBuilder.Options);
+            CharacterRelationDao = new Dao<Database.Entities.CharacterRelation, CharacterRelationDto, Guid>(_logger, ContextBuilder);
             AccountDao = new Dao<Account, AccountDto, long>(_logger, ContextBuilder);
             _portalDao = new Dao<Portal, PortalDto, int>(_logger, ContextBuilder);
             _mapMonsterDao = new Dao<MapMonster, MapMonsterDto, int>(_logger, ContextBuilder);
@@ -262,15 +263,12 @@ namespace NosCore.Tests.Helpers
             _inventoryItemInstanceDao = new Dao<InventoryItemInstance, InventoryItemInstanceDto, Guid>(_logger, ContextBuilder);
             _staticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(_logger, ContextBuilder);
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
-            TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
-                .AfterMapping(dest => Task.Run(dest.InitializeAsync));
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig()
-                .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _shopDao, _shopItemDao,
-                    new List<NpcMonsterDto>(), _logger, new List<NpcTalkDto>(), TestHelpers.Instance.DistanceCalculator));
+                .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _logger, TestHelpers.Instance.DistanceCalculator));
             TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig()
-                .ConstructUsing(src => new GameObject.MapMonster(new List<NpcMonsterDto>(), _logger, TestHelpers.Instance.DistanceCalculator));
-         
+                .ConstructUsing(src => new GameObject.MapMonster(_logger, TestHelpers.Instance.DistanceCalculator));
+
         }
 
         public async Task<ClientSession> GenerateSessionAsync()
@@ -307,10 +305,10 @@ namespace NosCore.Tests.Helpers
                 SessionId = _lastId
             };
 
-            var chara = new GameObject.Character(new InventoryService(ItemList, session.WorldConfiguration, _logger),
+            var chara = new GameObject.Character(new InventoryService(ItemList, WorldConfiguration, _logger),
                 new ExchangeProvider(new Mock<IItemProvider>().Object, WorldConfiguration, _logger), new Mock<IItemProvider>().Object, CharacterDao, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, AccountDao,
                 _logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, minilandProvider.Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
-                , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService())
+                , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration)
             {
                 CharacterId = _lastId,
                 Name = "TestExistingCharacter" + _lastId,

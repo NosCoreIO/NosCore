@@ -19,6 +19,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
@@ -38,9 +39,9 @@ namespace NosCore.WorldServer.Controllers
     public class StatController : Controller
     {
         private readonly ILogger _logger;
-        private readonly WorldConfiguration _worldConfiguration;
+        private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
-        public StatController(WorldConfiguration worldConfiguration, ILogger logger)
+        public StatController(IOptions<WorldConfiguration> worldConfiguration, ILogger logger)
         {
             _worldConfiguration = worldConfiguration;
             _logger = logger;
@@ -77,7 +78,7 @@ namespace NosCore.WorldServer.Controllers
                     await session.SetReputationAsync(data.Data).ConfigureAwait(false);
                     break;
                 case UpdateStatActionType.UpdateGold:
-                    if (session.Gold + data.Data > _worldConfiguration.MaxGoldAmount)
+                    if (session.Gold + data.Data > _worldConfiguration.Value.MaxGoldAmount)
                     {
                         return BadRequest(); // MaxGold
                     }

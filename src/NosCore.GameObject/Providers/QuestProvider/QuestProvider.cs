@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mapster;
+using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -44,12 +45,12 @@ namespace NosCore.GameObject.Providers.QuestProvider
         private readonly List<ScriptDto> _scripts;
         private readonly List<QuestDto> _quests;
         private readonly List<QuestObjectiveDto> _questObjectives;
-        private readonly WorldConfiguration _worldConfiguration;
+        private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly ILogger _logger;
 
 
         public QuestProvider(List<ScriptDto> scripts,
-            WorldConfiguration worldConfiguration, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives, ILogger logger)
+            IOptions<WorldConfiguration> worldConfiguration, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives, ILogger logger)
         {
             _scripts = scripts;
             _quests = quests;
@@ -63,7 +64,7 @@ namespace NosCore.GameObject.Providers.QuestProvider
         {
             if (character.CurrentScriptId == null) //todo handle other acts
             {
-                if (_worldConfiguration.SceneOnCreate)
+                if (_worldConfiguration.Value.SceneOnCreate)
                 {
                     await character.SendPacketAsync(new ScenePacket { SceneId = 40 }).ConfigureAwait(false);
                     await Task.Delay(TimeSpan.FromSeconds(71)).ConfigureAwait(false);

@@ -20,10 +20,14 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Database;
 using NosCore.GameObject.Networking;
 using Serilog;
 
@@ -33,16 +37,17 @@ namespace NosCore.LoginServer
     {
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly ILogger _logger;
-        private readonly LoginConfiguration _loginConfiguration;
+        private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly NetworkManager _networkManager;
+        private readonly NosCoreContext _context;
 
-        public LoginServer(LoginConfiguration loginConfiguration, NetworkManager networkManager, ILogger logger,
-            IChannelHttpClient channelHttpClient)
+        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, NosCoreContext context)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
             _logger = logger;
             _channelHttpClient = channelHttpClient;
+            _context = context;
         }
 
         public async Task RunAsync()
@@ -51,11 +56,22 @@ namespace NosCore.LoginServer
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    Console.Title += $@" - Port : {Convert.ToInt32(_loginConfiguration.Port)}";
+                    Console.Title += $@" - Port : {Convert.ToInt32(_loginConfiguration.Value.Port)}";
                 }
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
-                    _loginConfiguration.Port);
 
+                try
+                {
+                    await _context.Database.MigrateAsync();
+                    await _context.Database.GetDbConnection().OpenAsync();
+                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error("Database Error", ex);
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
+                    throw;
+                }
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _loginConfiguration.Value.Port);
                 await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
             }
             catch
