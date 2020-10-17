@@ -84,7 +84,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             _token = result?.Token;
             _lastUpdateToken = SystemTime.Now();
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.REGISTRED_ON_MASTER));
-            MasterClientListSingleton.Instance.ChannelId = result?.ChannelInfo!.ChannelId;
+            MasterClientListSingleton.Instance.ChannelId = result?.ChannelInfo?.ChannelId ?? 0;
 
             await Policy
                 .HandleResult<HttpStatusCode>(ping => ping == HttpStatusCode.OK)
