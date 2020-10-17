@@ -222,10 +222,10 @@ namespace NosCore.Tests.Helpers
             var npc = new MapNpcDto();
             await _mapNpcDao.TryInsertOrUpdateAsync(npc).ConfigureAwait(false);
 
-            var instanceAccessService = new MapInstanceProvider(new List<MapDto> { map, mapShop, miniland },
+            var instanceAccessService = new MapInstanceProvider(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
                 MapItemProvider,
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, _logger);
+                _mapMonsterDao, _portalDao, _shopItemDao, _logger);
             await instanceAccessService.InitializeAsync().ConfigureAwait(false);
             await instanceAccessService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
                 MapInstanceType.NormalInstance, MapItemProvider, _logger, new List<IMapInstanceEventHandler>())).ConfigureAwait(false);
@@ -246,32 +246,28 @@ namespace NosCore.Tests.Helpers
 
         public void InitDatabase()
         {
-            var contextBuilder = new Mock<IDbContextBuilder>();
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                 Guid.NewGuid().ToString());
-            contextBuilder.Setup(s => s.CreateContext()).Returns(() => new NosCoreContext(optionsBuilder.Options));
-            CharacterRelationDao = new Dao<Database.Entities.CharacterRelation, CharacterRelationDto, Guid>(_logger, contextBuilder.Object);
-            AccountDao = new Dao<Account, AccountDto, long>(_logger, contextBuilder.Object);
-            _portalDao = new Dao<Portal, PortalDto, int>(_logger, contextBuilder.Object);
-            _mapMonsterDao = new Dao<MapMonster, MapMonsterDto, int>(_logger, contextBuilder.Object);
-            _mapNpcDao = new Dao<MapNpc, MapNpcDto, int>(_logger, contextBuilder.Object);
-            MinilandDao = new Dao<Miniland, MinilandDto, Guid>(_logger, contextBuilder.Object);
-            MinilandObjectDao = new Dao<MinilandObject, MinilandObjectDto, Guid>(_logger, contextBuilder.Object);
-            _shopDao = new Dao<Shop, ShopDto, int>(_logger, contextBuilder.Object);
-            _shopItemDao = new Dao<ShopItem, ShopItemDto, int>(_logger, contextBuilder.Object);
-            CharacterDao = new Dao<Character, CharacterDto, long>(_logger, contextBuilder.Object);
-            _itemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(_logger, contextBuilder.Object);
-            _inventoryItemInstanceDao = new Dao<InventoryItemInstance, InventoryItemInstanceDto, Guid>(_logger, contextBuilder.Object);
-            _staticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(_logger, contextBuilder.Object);
+            DbContext ContextBuilder() => new NosCoreContext(optionsBuilder.Options);
+            CharacterRelationDao = new Dao<Database.Entities.CharacterRelation, CharacterRelationDto, Guid>(_logger, ContextBuilder);
+            AccountDao = new Dao<Account, AccountDto, long>(_logger, ContextBuilder);
+            _portalDao = new Dao<Portal, PortalDto, int>(_logger, ContextBuilder);
+            _mapMonsterDao = new Dao<MapMonster, MapMonsterDto, int>(_logger, ContextBuilder);
+            _mapNpcDao = new Dao<MapNpc, MapNpcDto, int>(_logger, ContextBuilder);
+            MinilandDao = new Dao<Miniland, MinilandDto, Guid>(_logger, ContextBuilder);
+            MinilandObjectDao = new Dao<MinilandObject, MinilandObjectDto, Guid>(_logger, ContextBuilder);
+            _shopDao = new Dao<Shop, ShopDto, int>(_logger, ContextBuilder);
+            _shopItemDao = new Dao<ShopItem, ShopItemDto, int>(_logger, ContextBuilder);
+            CharacterDao = new Dao<Character, CharacterDto, long>(_logger, ContextBuilder);
+            _itemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(_logger, ContextBuilder);
+            _inventoryItemInstanceDao = new Dao<InventoryItemInstance, InventoryItemInstanceDto, Guid>(_logger, ContextBuilder);
+            _staticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(_logger, ContextBuilder);
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
-            TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
-                .AfterMapping(dest => Task.Run(dest.InitializeAsync));
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig()
-                .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _shopDao, _shopItemDao,
-                    new List<NpcMonsterDto>(), _logger, new List<NpcTalkDto>(), TestHelpers.Instance.DistanceCalculator));
+                .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _logger, TestHelpers.Instance.DistanceCalculator));
             TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig()
-                .ConstructUsing(src => new GameObject.MapMonster(new List<NpcMonsterDto>(), _logger, TestHelpers.Instance.DistanceCalculator));
+                .ConstructUsing(src => new GameObject.MapMonster(_logger, TestHelpers.Instance.DistanceCalculator));
 
         }
 

@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
@@ -43,12 +44,16 @@ using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -282,7 +287,7 @@ namespace NosCore.WorldServer
 
         private void InitializeContainer(ContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterType<DataAccessHelper>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
             containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces().PropertiesAutowired();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => (p.Namespace != "NosCore.Packets.ServerPackets.Login") && (p.Name != "NoS0575Packet")
@@ -304,7 +309,7 @@ namespace NosCore.WorldServer
                 .Where(t => t.Name.EndsWith("HttpClient"))
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
-         
+
             containerBuilder.Register(c =>
             {
                 var configuration = c.Resolve<IOptions<WorldConfiguration>>();
@@ -418,7 +423,6 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces();
         }
 
-
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
@@ -434,14 +438,15 @@ namespace NosCore.WorldServer
             var worldConfiguration = new WorldConfiguration();
             _configuration.Bind(worldConfiguration);
             services.AddDbContext<NosCoreContext>(
-                conf => conf.UseNpgsql(worldConfiguration.Database!.ConnectionString), contextLifetime: ServiceLifetime.Transient);
+                conf => conf.UseNpgsql(worldConfiguration.Database!.ConnectionString));
+
+            services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(worldConfiguration.WebApi.Port));
 
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
 
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
-
 
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             services.ConfigureOptions<ConfigureJwtBearerOptions>();
@@ -480,8 +485,6 @@ namespace NosCore.WorldServer
             TypeAdapterConfig.GlobalSettings
                 .When(s => !s.SourceType.IsAssignableFrom(s.DestinationType) && typeof(IStaticDto).IsAssignableFrom(s.DestinationType))
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
-            TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
-                .AfterMapping(dest => Task.Run(dest.InitializeAsync));
             TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
             var containerBuilder = new ContainerBuilder();
@@ -494,7 +497,6 @@ namespace NosCore.WorldServer
 
             return new AutofacServiceProvider(container);
         }
-
 
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app)

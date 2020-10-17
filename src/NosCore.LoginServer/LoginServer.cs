@@ -39,15 +39,15 @@ namespace NosCore.LoginServer
         private readonly ILogger _logger;
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly NetworkManager _networkManager;
-        private readonly IDbContextBuilder _dataAccessHelper;
+        private readonly NosCoreContext _context;
 
-        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, IDbContextBuilder dataAccessHelper)
+        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, NosCoreContext context)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
             _logger = logger;
             _channelHttpClient = channelHttpClient;
-            _dataAccessHelper = dataAccessHelper;
+            _context = context;
         }
 
         public async Task RunAsync()
@@ -59,11 +59,10 @@ namespace NosCore.LoginServer
                     Console.Title += $@" - Port : {Convert.ToInt32(_loginConfiguration.Value.Port)}";
                 }
 
-                await using var context = _dataAccessHelper.CreateContext();
                 try
                 {
-                    await context.Database.MigrateAsync();
-                    await context.Database.GetDbConnection().OpenAsync();
+                    await _context.Database.MigrateAsync();
+                    await _context.Database.GetDbConnection().OpenAsync();
                     _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
                 }
                 catch (Exception ex)

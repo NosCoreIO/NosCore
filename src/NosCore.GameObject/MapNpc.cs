@@ -39,24 +39,14 @@ using Serilog;
 
 namespace NosCore.GameObject
 {
-    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity, IInitializable
+    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity
     {
         private readonly IItemProvider? _itemProvider;
         private readonly ILogger _logger;
-        private readonly List<NpcMonsterDto>? _npcMonsters;
-        private readonly IDao<ShopItemDto, int>? _shopItems;
-        private readonly IDao<ShopDto, int>? _shops;
-        private readonly List<NpcTalkDto> _npcTalks;
         private readonly IHeuristic _distanceCalculator;
         public NpcMonsterDto NpcMonster { get; private set; } = null!;
-        public MapNpc(IItemProvider? itemProvider, IDao<ShopDto, int>? shops,
-            IDao<ShopItemDto, int>? shopItems,
-            List<NpcMonsterDto>? npcMonsters, ILogger logger, List<NpcTalkDto> npcTalks, IHeuristic distanceCalculator)
+        public MapNpc(IItemProvider? itemProvider, ILogger logger, IHeuristic distanceCalculator)
         {
-            _npcMonsters = npcMonsters;
-            _npcTalks = npcTalks;
-            _shops = shops;
-            _shopItems = shopItems;
             _itemProvider = itemProvider;
             _logger = logger;
             Requests = new Subject<RequestData>();
@@ -65,9 +55,9 @@ namespace NosCore.GameObject
 
         public IDisposable? Life { get; private set; }
 
-        public async Task InitializeAsync()
+        public void Initialize(NpcMonsterDto npcMonster, ShopDto? shopDto, NpcTalkDto? npcTalkDto, List<ShopItemDto> shopItemsDto)
         {
-            NpcMonster = _npcMonsters!.Find(s => s.NpcMonsterVNum == VNum)!;
+            NpcMonster = npcMonster;
             Mp = NpcMonster?.MaxMp ?? 0;
             Hp = NpcMonster?.MaxHp ?? 0;
             Speed = NpcMonster?.Speed ?? 0;
@@ -80,23 +70,21 @@ namespace NosCore.GameObject
                 return ShowDialogAsync(request);
             }
             Requests.Select(RequestExecAsync).Subscribe();
-            var shopObj = await _shops!.FirstOrDefaultAsync(s => s.MapNpcId == MapNpcId).ConfigureAwait(false);
+            var shopObj = shopDto;
             if (shopObj == null)
             {
                 return;
             }
 
-
-            var shopItemsDto = _shopItems!.Where(s => s.ShopId == shopObj.ShopId);
             var shopItemsList = new ConcurrentDictionary<int, ShopItem>();
-            Parallel.ForEach(shopItemsDto!, shopItemGrouping =>
+            Parallel.ForEach(shopItemsDto, shopItemGrouping =>
             {
                 var shopItem = shopItemGrouping.Adapt<ShopItem>();
                 shopItem.ItemInstance = _itemProvider!.Create(shopItemGrouping.ItemVNum, -1);
                 shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
             });
             Shop = shopObj.Adapt<Shop>();
-            Shop.Name = _npcTalks!.Find(s => s.DialogId == Dialog)?.Name ?? new I18NString();
+            Shop.Name = npcTalkDto?.Name ?? new I18NString();
             Shop.Session = null;
             Shop.ShopItems = shopItemsList;
         }

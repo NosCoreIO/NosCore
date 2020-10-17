@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.Database.Entities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Providers.MapInstanceProvider;
@@ -33,32 +34,29 @@ using Serilog;
 
 namespace NosCore.GameObject
 {
-    public class MapMonster : MapMonsterDto, INonPlayableEntity, IInitializable
+    public class MapMonster : MapMonsterDto, INonPlayableEntity
     {
         private readonly ILogger _logger;
 
-        private readonly List<NpcMonsterDto> _npcMonsters;
         private readonly IHeuristic _distanceCalculator;
         public NpcMonsterDto NpcMonster { get; private set; } = null!;
-        public MapMonster(List<NpcMonsterDto> npcMonsters, ILogger logger, IHeuristic distanceCalculator)
+        public MapMonster(ILogger logger, IHeuristic distanceCalculator)
         {
-            _npcMonsters = npcMonsters;
             _logger = logger;
             _distanceCalculator = distanceCalculator;
         }
 
         public IDisposable? Life { get; private set; }
 
-        public Task InitializeAsync()
+        public void Initialize(NpcMonsterDto npcMonster)
         {
-            NpcMonster = _npcMonsters.Find(s => s.NpcMonsterVNum == VNum)!;
+            NpcMonster = npcMonster;
             Mp = NpcMonster?.MaxMp ?? 0;
             Hp = NpcMonster?.MaxHp ?? 0;
             Speed = NpcMonster?.Speed ?? 0;
             PositionX = MapX;
             PositionY = MapY;
             IsAlive = true;
-            return Task.CompletedTask;
         }
 
         public bool IsSitting { get; set; }

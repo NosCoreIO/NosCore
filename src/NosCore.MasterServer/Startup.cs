@@ -36,6 +36,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -160,7 +161,6 @@ namespace NosCore.MasterServer
         private ContainerBuilder InitializeContainer(IServiceCollection services)
         {
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterType<DataAccessHelper>().AsImplementedInterfaces();
             containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
             containerBuilder.Register(c =>
             {
@@ -173,6 +173,7 @@ namespace NosCore.MasterServer
                     WebApi = configuration.Value.WebApi
                 };
             });
+            containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
             containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
@@ -201,8 +202,10 @@ namespace NosCore.MasterServer
 
             var masterConfiguration = new MasterConfiguration();
             _configuration.Bind(masterConfiguration);
+
+            services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(masterConfiguration.WebApi.Port));
             services.AddDbContext<NosCoreContext>(
-                conf => conf.UseNpgsql(masterConfiguration.Database!.ConnectionString), contextLifetime: ServiceLifetime.Transient);
+                conf => conf.UseNpgsql(masterConfiguration.Database!.ConnectionString));
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
 

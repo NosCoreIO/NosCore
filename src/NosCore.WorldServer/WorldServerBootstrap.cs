@@ -52,17 +52,13 @@ namespace NosCore.WorldServer
 
         private static IWebHost BuildWebHost(string[] args)
         {
-            var configuration = ConfiguratorBuilder.InitializeConfiguration(args, new[] {"logger.yml", "world.yml"});
-            var webApi = new ServerConfiguration();
-            configuration.GetSection("WebApi").Bind(webApi);
             return WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
                     logging.AddSerilog();
                 })
-                .UseConfiguration(configuration)
-                .UseUrls(webApi.ToString())
+                .UseConfiguration(ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "world.yml" }))
                 .UseStartup<Startup>()
                 .PreferHostingUrls(true)
                 .SuppressStatusMessages(true)

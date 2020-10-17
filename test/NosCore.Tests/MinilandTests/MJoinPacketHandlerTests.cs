@@ -28,7 +28,6 @@ using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
@@ -63,7 +62,7 @@ namespace NosCore.Tests.MinilandTests
         public async Task SetupAsync()
         {
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
-                .ConstructUsing(src => new MapNpc(null, null, null, null, Logger, new List<NpcTalkDto>(), TestHelpers.Instance.DistanceCalculator));
+                .ConstructUsing(src => new MapNpc(null, Logger, TestHelpers.Instance.DistanceCalculator));
             Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);

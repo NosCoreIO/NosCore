@@ -87,7 +87,7 @@ namespace NosCore.LoginServer
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterType<DataAccessHelper>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>()
                 .SingleInstance();
@@ -181,15 +181,13 @@ namespace NosCore.LoginServer
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);
                     services.AddDbContext<NosCoreContext>(
-                        conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString), contextLifetime: ServiceLifetime.Transient);
+                        conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString));
                     var containerBuilder = new ContainerBuilder();
                     InitializeContainer(containerBuilder);
                     containerBuilder.Populate(services);
                     var container = containerBuilder.Build();
 
                     Task.Run(container.Resolve<LoginServer>().RunAsync).Forget();
-                    TypeAdapterConfig.GlobalSettings.ForDestinationType<IInitializable>()
-                       .AfterMapping(dest => Task.Run(dest.InitializeAsync));
                     TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
                 })
