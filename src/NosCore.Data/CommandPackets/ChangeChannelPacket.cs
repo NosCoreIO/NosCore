@@ -17,17 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Login;
+using NosCore.Packets.Attributes;
+using NosCore.Data.Enumerations.Account;
 using NosCore.Shared.Enumerations;
 
-namespace NosCore.GameObject.Networking.LoginService
+namespace NosCore.Data.CommandPackets
 {
-    public interface ILoginService
+    [CommandPacketHeader("$ChangeChannel", AuthorityType.GameMaster)]
+    public class ChangeChannelPacket : CommandPacket
     {
-        Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,
-            ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language);
+        [PacketIndex(0)]
+        public int ChannelId { get; set; }
 
-        Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId);
+        public override string Help()
+        {
+            return "$ChangeChannel ChannelId";
+        }
     }
 }

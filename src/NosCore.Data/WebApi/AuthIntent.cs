@@ -17,17 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Login;
-using NosCore.Shared.Enumerations;
+using System.ComponentModel.DataAnnotations;
+using NosCore.Data.Dto;
 
-namespace NosCore.GameObject.Networking.LoginService
+namespace NosCore.Data.WebApi
 {
-    public interface ILoginService
+    public class AuthIntent
     {
-        Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,
-            ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language);
-
-        Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId);
+        public long SessionId { get; set; }
+        public string AccountName { get; set; } = null!;
     }
 }

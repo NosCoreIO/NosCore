@@ -129,7 +129,7 @@ namespace NosCore.LoginServer
             }
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => ((p.Namespace == "NosCore.Packets.ServerPackets.Login") ||
+                .Where(p => ((p.Namespace == "NosCore.Packets.ServerPackets.Login" && p.Name != "MzPacket" && p.Name != "ItPacket") ||
                         (p.Namespace == "NosCore.Packets.ClientPackets.Login"))
                     && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
             containerBuilder.Register(c => new Deserializer(listofpacket))

@@ -31,7 +31,6 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
-using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
 
 namespace NosCore.PacketHandlers.Movement

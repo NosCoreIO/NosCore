@@ -105,18 +105,16 @@ namespace NosCore.Core.Controllers
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
             }
 
+            _id = ++MasterClientListSingleton.Instance.ConnectionCounter;
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_SUCCESS), _id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
-
-
-            _id = ++MasterClientListSingleton.Instance.ConnectionCounter;
 
             var serv = new ChannelInfo
             {
                 Name = data.ClientName,
                 Host = data.Host,
                 Port = data.Port,
-                DisplayPort = data.DisplayPort,
+                DisplayPort = (ushort?)data.DisplayPort,
                 DisplayHost = data.DisplayHost,
                 IsMaintenance = data.StartInMaintenance,
                 Id = _id,

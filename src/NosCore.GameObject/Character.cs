@@ -73,6 +73,8 @@ using Serilog;
 using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Configuration;
 using NosCore.GameObject.Providers.QuestProvider;
+using NosCore.Packets.ServerPackets.Login;
+
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -1111,6 +1113,5 @@ namespace NosCore.GameObject
             await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
         }
-
     }
 }

@@ -19,9 +19,12 @@
 
 using System;
 using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Mapster;
 using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Data.WebApi;
 
 namespace NosCore.Core.HttpClients.AuthHttpClients
 {
@@ -55,6 +58,24 @@ namespace NosCore.Core.HttpClients.AuthHttpClients
                 .ConfigureAwait(false);
             return result.Adapt<string?>();
 
+        }
+
+        public async Task SetAwaitingConnectionAsync(long sessionId, string accountName)
+        {
+            var client = await ConnectAsync().ConfigureAwait(false);
+            if (client == null)
+            {
+                return;
+            }
+
+            var intent = new AuthIntent()
+            {
+                SessionId = -1,
+                AccountName = accountName,
+            };
+            using var content = new StringContent(JsonSerializer.Serialize(intent), Encoding.Default,
+                "application/json");
+            await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
         }
     }
 }

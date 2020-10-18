@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Core;
@@ -29,7 +28,6 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
 using Serilog;
 
@@ -55,7 +53,7 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
-            if ((walkPacket.XCoordinate + walkPacket.YCoordinate) % 3 % 2 != walkPacket.Unknown)
+            if ((walkPacket.XCoordinate + walkPacket.YCoordinate) % 3 % 2 != walkPacket.CheckSum)
             {
                 await session.DisconnectAsync();
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.WALK_CHECKSUM_INVALID), session.Character.VisualId);

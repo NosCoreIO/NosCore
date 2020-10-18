@@ -49,6 +49,7 @@ using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.Packets;
 using NosCore.Shared.Configuration;
 using Serilog;
 
@@ -432,15 +433,14 @@ namespace NosCore.GameObject.Networking.ClientSession
                             return;
                         }
 
+                        var crossServer = WaitForPacketList[0].Header == "DAC";
                         packet = new EntryPointPacket
                         {
                             Header = "EntryPoint",
-                            Title = "EntryPoint",
                             KeepAliveId = packet.KeepAliveId,
-                            Packet1Id = WaitForPacketList[0].KeepAliveId!.ToString()!,
-                            Name = WaitForPacketList[0].Header!,
-                            Packet2Id = packet.KeepAliveId!.ToString()!,
-                            Password = packet.Header!
+                            Name = !crossServer ? WaitForPacketList[0].Header! : (WaitForPacketList[0] as UnresolvedPacket)?.Body ?? "",
+                            Password = crossServer ? "thisisgfmode" : packet.Header!,
+                            CrossServer = crossServer
                         };
 
                         _waitForPacketsAmount = null;
@@ -488,7 +488,11 @@ namespace NosCore.GameObject.Networking.ClientSession
                                     return;
                                 }
 
-                                await _handlingPacketLock.WaitAsync();
+                                if (contex != null)
+                                {
+                                    await _handlingPacketLock.WaitAsync();
+                                }
+
                                 try
                                 {
                                     await handler.ExecuteAsync(packet, this).ConfigureAwait(false);
@@ -496,7 +500,10 @@ namespace NosCore.GameObject.Networking.ClientSession
                                 }
                                 finally
                                 {
-                                    _handlingPacketLock.Release();
+                                    if (contex != null)
+                                    {
+                                        _handlingPacketLock.Release();
+                                    }
                                 }
                             }
 

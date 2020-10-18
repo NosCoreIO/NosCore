@@ -34,12 +34,12 @@ using NosCore.Core.Networking;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Shared.Enumerations;
 using Serilog;
 
@@ -102,13 +102,27 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     return;
                 }
 
+                byte slot = 0;
+                if (packet.CrossServer)
+                {
+                    var crossServerData = packet.Name.Split(" ");
+                    name = crossServerData.FirstOrDefault() ?? string.Empty;
+                    if (!byte.TryParse(crossServerData.Skip(1).FirstOrDefault(), out slot))
+                    {
+                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_CROSS_SERVER_AUTH));
+                        await clientSession.DisconnectAsync().ConfigureAwait(false);
+                        return;
+                    }
+                }
                 var account = await _accountDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false);
 
                 if (account != null)
                 {
-                    var result =
-                         packet.Password != "thisisgfmode" ? null : await _authHttpClient.GetAwaitingConnectionAsync(name, packet.Password, clientSession.SessionId).ConfigureAwait(false);
-                    if (result != null || (packet.Password != "thisisgfmode" && account.Password?.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) == true))
+                    var passwordLessConnection = packet.Password == "thisisgfmode";
+                    var awaitingConnection =
+                        (passwordLessConnection ? await _authHttpClient.GetAwaitingConnectionAsync(name, packet.Password, packet.CrossServer ? -1 : clientSession.SessionId).ConfigureAwait(false) != null
+                            : account.Password?.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) == true);
+                    if (awaitingConnection)
                     {
                         var accountobject = new AccountDto
                         {
@@ -122,7 +136,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                             .FirstOrDefault(s => s.Value.SessionId == clientSession.SessionId)
                             .Value.RegionType = account.Language;
                         clientSession.InitializeAccount(accountobject);
-                        //Send Account Connected
+                        if (packet.CrossServer)
+                        {
+                            await clientSession.HandlePacketsAsync(new[] { new SelectPacket { Slot = slot } }).ConfigureAwait(false);
+                        }
+                        //todo Send Account Connected
                     }
                     else
                     {

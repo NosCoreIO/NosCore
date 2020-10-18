@@ -18,16 +18,24 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Login;
-using NosCore.Shared.Enumerations;
+using NosCore.Data.CommandPackets;
+using NosCore.GameObject;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.LoginService;
 
-namespace NosCore.GameObject.Networking.LoginService
+namespace NosCore.PacketHandlers.Command
 {
-    public interface ILoginService
+    public class ChangeChannelPacketHandler : PacketHandler<ChangeChannelPacket>, IWorldPacketHandler
     {
-        Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,
-            ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language);
+        private readonly ILoginService _loginService;
 
-        Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId);
+        public ChangeChannelPacketHandler(ILoginService loginService)
+        {
+            _loginService = loginService;
+        }
+        public override Task ExecuteAsync(ChangeChannelPacket changeClassPacket, ClientSession session)
+        {
+            return _loginService.MoveChannelAsync(session, changeClassPacket.ChannelId);
+        }
     }
 }

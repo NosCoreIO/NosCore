@@ -59,6 +59,30 @@ namespace NosCore.GameObject.Networking.LoginService
             _channelHttpClient = channelHttpClient;
         }
 
+        public async Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId)
+        {
+            var server = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
+            if (server == null)
+            {
+                return;
+            }
+            await clientSession.SendPacketAsync(new MzPacket
+            {
+                Port = server.DisplayPort ?? server.Port,
+                Ip = server.DisplayHost ?? server.Host,
+                CharacterSlot = clientSession.Character.Slot
+            });
+
+            await clientSession.SendPacketAsync(new ItPacket
+            {
+                Mode = 1
+            });
+
+            await _authHttpClient.SetAwaitingConnectionAsync(-1, clientSession.Account.Name);
+            await clientSession.Character.SaveAsync();
+            await clientSession.DisconnectAsync();
+        }
+
         public async Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,
             ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language)
         {

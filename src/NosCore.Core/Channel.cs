@@ -39,7 +39,7 @@ namespace NosCore.Core
 
         public ServerType ClientType { get; set; }
 
-        public int Port { get; set; }
+        public ushort Port { get; set; }
 
         public byte ServerGroup { get; set; }
 
