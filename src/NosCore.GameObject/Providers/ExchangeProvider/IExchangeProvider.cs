@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.Packets.ServerPackets.Inventory;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.InventoryService;

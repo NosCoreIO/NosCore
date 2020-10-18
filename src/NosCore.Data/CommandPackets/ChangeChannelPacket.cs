@@ -19,7 +19,6 @@
 
 using NosCore.Packets.Attributes;
 using NosCore.Data.Enumerations.Account;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.Data.CommandPackets
 {

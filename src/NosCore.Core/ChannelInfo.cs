@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using NosCore.Data.Enumerations;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 

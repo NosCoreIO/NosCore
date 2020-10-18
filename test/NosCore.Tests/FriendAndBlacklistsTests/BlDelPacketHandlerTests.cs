@@ -32,7 +32,6 @@ using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Database.Entities;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -40,7 +39,6 @@ using NosCore.MasterServer.Controllers;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
-using NosCore.Dao;
 using NosCore.Data.WebApi;
 using NosCore.Shared.Configuration;
 

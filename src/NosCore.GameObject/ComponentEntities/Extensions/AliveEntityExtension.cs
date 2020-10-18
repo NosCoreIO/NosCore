@@ -38,7 +38,6 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;

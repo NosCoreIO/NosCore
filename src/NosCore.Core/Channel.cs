@@ -19,7 +19,6 @@
 
 using System;
 using NosCore.Core.Configuration;
-using NosCore.Data.Enumerations;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 

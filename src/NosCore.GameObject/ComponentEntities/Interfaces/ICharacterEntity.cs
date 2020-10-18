@@ -22,8 +22,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
-using NosCore.Packets.ServerPackets.Inventory;
-using NosCore.Packets.ServerPackets.Visibility;
 using DotNetty.Transport.Channels;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Account;

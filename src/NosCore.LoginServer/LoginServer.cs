@@ -25,7 +25,6 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
-using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database;
 using NosCore.GameObject.Networking;

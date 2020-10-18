@@ -21,7 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Data.StaticEntities;
-using NosCore.PathFinder;
 using NosCore.Shared.Helpers;
 
 namespace NosCore.GameObject.Map

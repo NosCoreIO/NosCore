@@ -39,8 +39,6 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
-using CharacterRelation = NosCore.Database.Entities.CharacterRelation;
-using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Shared.Configuration;
 

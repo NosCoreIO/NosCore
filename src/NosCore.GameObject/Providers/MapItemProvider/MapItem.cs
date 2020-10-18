@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Drops;
-using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;

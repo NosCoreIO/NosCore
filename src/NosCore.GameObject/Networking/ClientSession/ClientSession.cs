@@ -50,7 +50,6 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.Packets;
-using NosCore.Shared.Configuration;
 using Serilog;
 
 namespace NosCore.GameObject.Networking.ClientSession
