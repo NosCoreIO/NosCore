@@ -82,11 +82,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
         {
             try
             {
-                if ((clientSession?.Account == null) || clientSession.HasSelectedCharacter)
-                {
-                    return;
-                }
-
                 var characterDto = await
                     _characterDao.FirstOrDefaultAsync(s =>
                         (s.AccountId == clientSession.Account.AccountId) && (s.Slot == packet.Slot)

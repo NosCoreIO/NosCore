@@ -85,10 +85,10 @@ namespace NosCore.Core.Encryption
                 }
             }
 #pragma warning disable CA1031 // Do not catch general exception types
-            catch
+            catch (Exception ex)
 #pragma warning restore CA1031 // Do not catch general exception types
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING), "");
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_DECODING), ex);
             }
         }
     }

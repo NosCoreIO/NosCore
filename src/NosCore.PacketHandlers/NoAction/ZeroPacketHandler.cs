@@ -17,19 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Packets;
-using NosCore.Packets.Attributes;
+using System.Threading.Tasks;
+using NosCore.GameObject;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Infrastructure;
 
-namespace NosCore.Data.CommandPackets
+namespace NosCore.PacketHandlers.NoAction
 {
-    [PacketHeader("EntryPoint", AnonymousAccess = true)]
-    public class EntryPointPacket : PacketBase
+    public class ZeroPacketHandler : PacketHandler<ZeroPacket>, IWorldPacketHandler
     {
-        [PacketIndex(1)]
-        public string Name { get; set; } = "";
-
-        [PacketIndex(2)]
-        public string Password { get; set; } = "";
+        public override Task ExecuteAsync(ZeroPacket packet, ClientSession clientSession)
+        {
+            return Task.CompletedTask;
+        }
     }
-
 }

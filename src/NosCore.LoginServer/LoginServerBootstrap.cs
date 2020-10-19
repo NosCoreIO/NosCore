@@ -127,9 +127,7 @@ namespace NosCore.LoginServer
             }
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => ((p.Namespace == "NosCore.Packets.ServerPackets.Login" && p.Name != "MzPacket" && p.Name != "ItPacket") ||
-                        (p.Namespace == "NosCore.Packets.ClientPackets.Login"))
-                    && p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList();
+                .Where(p => p.GetInterfaces().Contains(typeof(ILoginPacket)) && p.IsClass && !p.IsAbstract).ToList();
             containerBuilder.Register(c => new Deserializer(listofpacket))
                 .AsImplementedInterfaces()
                 .SingleInstance();
@@ -168,7 +166,7 @@ namespace NosCore.LoginServer
                     }
                     var loginConfiguration = new LoginConfiguration();
                     var configuration =
-                        ConfiguratorBuilder.InitializeConfiguration(args, new[] {"logger.yml", "login.yml"});
+                        ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" });
                     configuration.Bind(loginConfiguration);
                     services.AddOptions<LoginConfiguration>().Bind(configuration).ValidateDataAnnotations();
                     services.AddOptions<ServerConfiguration>().Bind(configuration).ValidateDataAnnotations();

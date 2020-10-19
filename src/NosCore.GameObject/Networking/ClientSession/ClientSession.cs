@@ -49,7 +49,7 @@ using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
-using NosCore.Packets;
+using NosCore.Packets.ClientPackets.Infrastructure;
 using Serilog;
 
 namespace NosCore.GameObject.Networking.ClientSession
@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             new Dictionary<Type, PacketHeaderAttribute>();
 
         private readonly IExchangeProvider _exchangeProvider = null!;
-        private readonly IFriendHttpClient _friendHttpClient = null!;
+        private readonly IFriendHttpClient _friendHttpClient;
         private readonly SemaphoreSlim _handlingPacketLock = new SemaphoreSlim(1, 1);
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
@@ -410,6 +410,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                             SessionId = SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId;
                             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED),
                                 SessionId);
+
                             _waitForPacketsAmount = 2;
                             return;
                         }
@@ -425,94 +426,90 @@ namespace NosCore.GameObject.Networking.ClientSession
                     if (_waitForPacketsAmount.HasValue)
                     {
                         WaitForPacketList.Add(pack);
-
-                        if (WaitForPacketList.Count != _waitForPacketsAmount)
+                        if (packet.Header != _attributeDic[typeof(DacPacket)].Identification)
                         {
-                            LastKeepAliveIdentity = packet.KeepAliveId ?? 0;
-                            return;
+                            if (WaitForPacketList.Count != _waitForPacketsAmount)
+                            {
+                                LastKeepAliveIdentity = packet.KeepAliveId ?? 0;
+                                return;
+                            }
+
+                            packet = new EntryPointPacket
+                            {
+                                Header = "EntryPoint",
+                                KeepAliveId = packet.KeepAliveId,
+                                Name = WaitForPacketList[0].Header!,
+                                Password = "thisisgfmode",
+                            };
                         }
-
-                        var crossServer = WaitForPacketList[0].Header == "DAC";
-                        packet = new EntryPointPacket
-                        {
-                            Header = "EntryPoint",
-                            KeepAliveId = packet.KeepAliveId,
-                            Name = !crossServer ? WaitForPacketList[0].Header! : (WaitForPacketList[0] as UnresolvedPacket)?.Body ?? "",
-                            Password = crossServer ? "thisisgfmode" : packet.Header!,
-                            CrossServer = crossServer
-                        };
 
                         _waitForPacketsAmount = null;
                         WaitForPacketList.Clear();
                     }
 
-                    if (packet.Header != "0")
+                    var packetHeader = packet.Header;
+                    if (string.IsNullOrWhiteSpace(packetHeader) && (contex != null))
                     {
-                        var packetHeader = packet.Header;
-                        if (string.IsNullOrWhiteSpace(packetHeader) && (contex != null))
-                        {
-                            _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET),
-                                packet);
-                            await DisconnectAsync().ConfigureAwait(false);
-                            return;
-                        }
+                        _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET),
+                            packet);
+                        await DisconnectAsync().ConfigureAwait(false);
+                        return;
+                    }
 
-                        var handler = _packetsHandlers.FirstOrDefault(s =>
-                            s.GetType().BaseType?.GenericTypeArguments[0] == packet.GetType());
-                        if (handler != null)
+                    var handler = _packetsHandlers.FirstOrDefault(s =>
+                        s.GetType().BaseType?.GenericTypeArguments[0] == packet.GetType());
+                    if (handler != null)
+                    {
+                        if (packet.IsValid)
                         {
-                            if (packet.IsValid)
+                            var attr = _attributeDic[packet.GetType()];
+                            if (HasSelectedCharacter && attr.BlockedByTrading && Character.InExchangeOrShop)
                             {
-                                var attr = _attributeDic[packet.GetType()];
-                                if (HasSelectedCharacter && attr.BlockedByTrading && Character.InExchangeOrShop)
-                                {
-                                    _logger.Warning(
-                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLAYER_IN_SHOP),
-                                        packet.Header);
-                                    return;
-                                }
-
-                                if (!HasSelectedCharacter && !attr.AnonymousAccess)
-                                {
-                                    _logger.Warning(
-                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
-                                        packet.Header);
-                                    return;
-                                }
-
-                                //check for the correct authority
-                                if (IsAuthenticated && attr is CommandPacketHeaderAttribute commandHeader &&
-                                    ((byte)commandHeader.Authority > (byte)Account.Authority))
-                                {
-                                    return;
-                                }
-
-                                if (contex != null)
-                                {
-                                    await _handlingPacketLock.WaitAsync();
-                                }
-
-                                try
-                                {
-                                    await handler.ExecuteAsync(packet, this).ConfigureAwait(false);
-                                    await Task.Delay(200);
-                                }
-                                finally
-                                {
-                                    if (contex != null)
-                                    {
-                                        _handlingPacketLock.Release();
-                                    }
-                                }
+                                _logger.Warning(
+                                    LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLAYER_IN_SHOP),
+                                    packet.Header);
+                                return;
                             }
 
-                        }
-                        else
-                        {
-                            _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_NOT_FOUND),
-                                packet.Header);
+                            if (!HasSelectedCharacter && !attr.AnonymousAccess)
+                            {
+                                _logger.Warning(
+                                    LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
+                                    packet.Header);
+                                return;
+                            }
+
+                            //check for the correct authority
+                            if (IsAuthenticated && attr is CommandPacketHeaderAttribute commandHeader &&
+                                ((byte)commandHeader.Authority > (byte)Account.Authority))
+                            {
+                                return;
+                            }
+
+                            if (contex != null)
+                            {
+                                await _handlingPacketLock.WaitAsync();
+                            }
+
+                            try
+                            {
+                                await Task.WhenAll(handler.ExecuteAsync(packet, this), Task.Delay(200)).ConfigureAwait(false);
+                            }
+                            finally
+                            {
+                                if (contex != null)
+                                {
+                                    _handlingPacketLock.Release();
+                                }
+                            }
                         }
                     }
+                    else
+                    {
+                        _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_NOT_FOUND),
+                            packet.Header);
+                    }
+
                 }
                 else
                 {
