@@ -19,10 +19,11 @@
 
 using NosCore.Packets;
 using NosCore.Packets.Attributes;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.Data.CommandPackets
 {
-    [PacketHeader("EntryPoint", AnonymousAccess = true)]
+    [PacketHeader("EntryPoint", Scope.OnCharacterScreen)]
     public class EntryPointPacket : PacketBase
     {
         [PacketIndex(1)]

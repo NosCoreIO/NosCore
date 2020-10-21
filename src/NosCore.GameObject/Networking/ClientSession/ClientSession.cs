@@ -81,6 +81,14 @@ namespace NosCore.GameObject.Networking.ClientSession
             _friendHttpClient = friendHttpClient;
             _packetSerializer = packetSerializer;
             _packetHttpClient = packetHttpClient;
+            foreach (var handler in _packetsHandlers)
+            {
+                var type = handler.GetType().BaseType?.GenericTypeArguments[0]!;
+                if (!_attributeDic.ContainsKey(type ?? throw new InvalidOperationException()))
+                {
+                    _attributeDic.Add(type, type.GetCustomAttribute<PacketHeaderAttribute>(true)!);
+                }
+            }
         }
 
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
@@ -99,14 +107,6 @@ namespace NosCore.GameObject.Networking.ClientSession
             _exchangeProvider = exchangeProvider!;
             _minilandProvider = minilandProvider!;
             _isWorldClient = true;
-            foreach (var handler in _packetsHandlers)
-            {
-                var type = handler.GetType().BaseType?.GenericTypeArguments[0]!;
-                if (!_attributeDic.ContainsKey(type ?? throw new InvalidOperationException()))
-                {
-                    _attributeDic.Add(type, type.GetCustomAttribute<PacketHeaderAttribute>(true)!);
-                }
-            }
         }
 
         public bool GameStarted { get; set; }
@@ -463,7 +463,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         if (packet.IsValid)
                         {
                             var attr = _attributeDic[packet.GetType()];
-                            if (HasSelectedCharacter && attr.BlockedByTrading && Character.InExchangeOrShop)
+                            if (HasSelectedCharacter && (attr.Scopes & Scope.InTrade) == 0 && Character.InExchangeOrShop)
                             {
                                 _logger.Warning(
                                     LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLAYER_IN_SHOP),
@@ -471,10 +471,18 @@ namespace NosCore.GameObject.Networking.ClientSession
                                 return;
                             }
 
-                            if (!HasSelectedCharacter && !attr.AnonymousAccess)
+                            if (!HasSelectedCharacter && (attr.Scopes & Scope.OnCharacterScreen) == 0)
                             {
                                 _logger.Warning(
                                     LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
+                                    packet.Header);
+                                return;
+                            }
+
+                            if (HasSelectedCharacter && (attr.Scopes & Scope.InGame) == 0)
+                            {
+                                _logger.Warning(
+                                    LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WHILE_IN_GAME),
                                     packet.Header);
                                 return;
                             }
@@ -517,6 +525,15 @@ namespace NosCore.GameObject.Networking.ClientSession
                     if (string.IsNullOrWhiteSpace(packetHeader))
                     {
                         await DisconnectAsync().ConfigureAwait(false);
+                        return;
+                    }
+
+                    var attr = _attributeDic[packet.GetType()];
+                    if ((attr.Scopes & Scope.OnLoginScreen) == 0)
+                    {
+                        _logger.Warning(
+                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WHILE_NOT_ON_LOGIN),
+                            packet.Header);
                         return;
                     }
 

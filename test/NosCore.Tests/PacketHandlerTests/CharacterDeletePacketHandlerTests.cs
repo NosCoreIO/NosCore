@@ -17,10 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations.Character;
+using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Tests.Helpers;
@@ -36,9 +38,13 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestInitialize]
         public async Task SetupAsync()
         {
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _characterDeletePacketHandler =
                 new CharacterDeletePacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao);
+            _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler>{
+                _characterDeletePacketHandler
+            }).ConfigureAwait(false);
+
         }
 
         [TestMethod]
@@ -59,11 +65,11 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task DeleteCharacterWhenInGame_Does_Not_Delete_CharacterAsync()
         {
-            await _characterDeletePacketHandler!.ExecuteAsync(new CharacterDeletePacket
+            await _session!.HandlePacketsAsync(new[]{new CharacterDeletePacket
             {
                 Slot = 1,
                 Password = "test"
-            }, _session!).ConfigureAwait(false);
+            }}).ConfigureAwait(false);
             Assert.IsNotNull(
                 await TestHelpers.Instance.CharacterDao
                     .FirstOrDefaultAsync(s =>

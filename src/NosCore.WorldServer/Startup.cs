@@ -94,6 +94,8 @@ using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Serializer = NosCore.Packets.Serializer;
 using NosCore.Dao;
 using NosCore.Data.Dto;
+using NosCore.Packets.Attributes;
+using NosCore.Packets.Enumerations;
 using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Configuration;
@@ -284,7 +286,8 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
             containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces().PropertiesAutowired();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => p.GetInterfaces().Contains(typeof(IWorldPacket)) && p.IsClass && !p.IsAbstract).ToList();
+                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() == null
+                    || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) == 0) && p.IsClass && !p.IsAbstract).ToList();
             listofpacket.AddRange(typeof(HelpPacket).Assembly.GetTypes()
                 .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList());
             containerBuilder.Register(c => new Deserializer(listofpacket))

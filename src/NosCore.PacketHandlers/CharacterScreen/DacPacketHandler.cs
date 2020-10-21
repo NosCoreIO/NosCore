@@ -57,6 +57,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
         {
             await EntryPointPacketHandler.VerifyConnectionAsync(clientSession, _logger, _authHttpClient,
                 _connectedAccountHttpClient, _accountDao, _channelHttpClient, true, packet.AccountName, "thisisgfmode", -1);
+            if (clientSession.Account == null!)
+            {
+                return;
+            }
             await clientSession.HandlePacketsAsync(new[] {new SelectPacket {Slot = packet.Slot}})
                 .ConfigureAwait(false);
 

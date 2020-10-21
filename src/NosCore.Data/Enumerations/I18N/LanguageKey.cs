@@ -160,7 +160,8 @@ namespace NosCore.Data.Enumerations.I18N
         NPCTALKS_PARSED,
         WALK_CHECKSUM_INVALID,
         SPEED_INVALID,
-        INVALID_CROSS_SERVER_AUTH
+        PACKET_USED_WHILE_IN_GAME,
+        PACKET_USED_WHILE_NOT_ON_LOGIN
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

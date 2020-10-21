@@ -121,6 +121,7 @@ namespace NosCore.Tests.Helpers
         public static TestHelpers Instance => _lazy.Value;
 
         public IDao<AccountDto, long> AccountDao { get; private set; } = null!;
+        public IDao<MateDto, long> MateDao { get; private set; } = null!;
         public IDao<CharacterRelationDto, Guid> CharacterRelationDao { get; set; } = null!;
         public IDao<CharacterDto, long> CharacterDao { get; private set; } = null!;
         public IDao<MinilandDto, Guid> MinilandDao { get; private set; } = null!;
@@ -248,6 +249,7 @@ namespace NosCore.Tests.Helpers
             DbContext ContextBuilder() => new NosCoreContext(optionsBuilder.Options);
             CharacterRelationDao = new Dao<Database.Entities.CharacterRelation, CharacterRelationDto, Guid>(_logger, ContextBuilder);
             AccountDao = new Dao<Account, AccountDto, long>(_logger, ContextBuilder);
+            MateDao = new Dao<Mate, MateDto, long>(_logger, ContextBuilder);
             _portalDao = new Dao<Portal, PortalDto, int>(_logger, ContextBuilder);
             _mapMonsterDao = new Dao<MapMonster, MapMonsterDto, int>(_logger, ContextBuilder);
             _mapNpcDao = new Dao<MapNpc, MapNpcDto, int>(_logger, ContextBuilder);
@@ -268,7 +270,7 @@ namespace NosCore.Tests.Helpers
 
         }
 
-        public async Task<ClientSession> GenerateSessionAsync()
+        public async Task<ClientSession> GenerateSessionAsync(List<IPacketHandler>? packetHandlers = null)
         {
             _lastId++;
             var acc = new AccountDto
@@ -279,7 +281,7 @@ namespace NosCore.Tests.Helpers
                 MapInstanceProvider,
                 new Mock<IExchangeProvider>().Object,
                 _logger,
-                new List<IPacketHandler>
+                packetHandlers ?? new List<IPacketHandler>
                 {
                     new CharNewPacketHandler(CharacterDao, MinilandDao),
                     new BlInsPackettHandler(BlacklistHttpClient.Object, _logger),

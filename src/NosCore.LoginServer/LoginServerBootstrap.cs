@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Autofac;
@@ -61,6 +62,8 @@ using NosCore.PacketHandlers.Login;
 using Serilog;
 using ILogger = Serilog.ILogger;
 using NosCore.Dao;
+using NosCore.Packets.Attributes;
+using NosCore.Packets.Enumerations;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 
@@ -127,7 +130,7 @@ namespace NosCore.LoginServer
             }
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => p.GetInterfaces().Contains(typeof(ILoginPacket)) && p.IsClass && !p.IsAbstract).ToList();
+                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() == null || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) != 0) && p.IsClass && !p.IsAbstract).ToList();
             containerBuilder.Register(c => new Deserializer(listofpacket))
                 .AsImplementedInterfaces()
                 .SingleInstance();
