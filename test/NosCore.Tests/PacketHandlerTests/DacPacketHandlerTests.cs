@@ -17,16 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Core;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Helpers;
 using Serilog;
 
@@ -35,37 +41,70 @@ namespace NosCore.Tests.PacketHandlerTests
     [TestClass]
     public class DacPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly Mock<ILogger> Logger = new Mock<ILogger>();
         private DacPacketHandler _dacPacketHandler = null!;
-        private ClientSession? _session;
-        private Mock<AuthHttpClient> _authHttpClient = null!;
-        private Mock<ConnectedAccountHttpClient> _connectedAccountHttpClient = null!;
-        private Mock<ChannelHttpClient> _channelHttpClient = null!;
+        private ClientSession _session = null!;
+        private Mock<IAuthHttpClient> _authHttpClient = null!;
+        private Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = null!;
+        private Mock<IChannelHttpClient> _channelHttpClient = null!;
+        private string _accountName = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _accountName = _session!.Account.Name;
+            _session!.Account = null!;
             await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_session.Character);
             await _session.SetCharacterAsync(null).ConfigureAwait(false);
-            _authHttpClient = new Mock<AuthHttpClient>();
-            _connectedAccountHttpClient = new Mock<ConnectedAccountHttpClient>();
-            _channelHttpClient = new Mock<ChannelHttpClient>();
+            _authHttpClient = new Mock<IAuthHttpClient>();
+            _connectedAccountHttpClient = new Mock<IConnectedAccountHttpClient>();
+            _channelHttpClient = new Mock<IChannelHttpClient>();
             _dacPacketHandler =
-                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger, _authHttpClient.Object, _connectedAccountHttpClient.Object, _channelHttpClient.Object);
+                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, _authHttpClient.Object, _connectedAccountHttpClient.Object, _channelHttpClient.Object);
         }
 
+        [TestMethod]
+        public async Task ConnectionWithAlreadyConnectedAccountAsync()
+        {
+            var packet = new DacPacket
+            {
+                Slot = 2,
+                AccountName = _accountName
+            };
+            _channelHttpClient.Setup(o => o.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>()
+            {
+                new ChannelInfo
+                {
+                    Id = 1,
+                }
+            });
+            _connectedAccountHttpClient.Setup(o => o.GetConnectedAccountAsync(It.IsAny<ChannelInfo>())).ReturnsAsync(
+                new List<ConnectedAccount>
+                {
+                    new ConnectedAccount
+                    {
+                        ChannelId = 1,
+                        Name = _accountName
+                    }
+                });
+            await _dacPacketHandler.ExecuteAsync(packet, _session);
+            Logger.Verify(o => o.Error(It.Is<string>(o => o == LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ALREADY_CONNECTED)), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
+            Assert.IsNull(_session!.Account);
+        }
 
         [TestMethod]
-        public async Task ConnectionWithInvalidCharacterAsync()
+        public async Task ConnectionWithInvalidAccountAsync()
         {
-            await _dacPacketHandler.ExecuteAsync(new DacPacket
+            var packet = new DacPacket
             {
-                Slot = 1,
-                AccountName = _session!.Account.Name,
-            }, _session);
-            _session!.Account = null!;
+                Slot = 2,
+                AccountName = "fakeName"
+            };
+            await _dacPacketHandler.ExecuteAsync(packet, _session);
+            Logger.Verify(o => o.Error(It.Is<string>(o => o == LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT)), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
+
             Assert.IsNull(_session!.Account);
         }
 
@@ -75,21 +114,24 @@ namespace NosCore.Tests.PacketHandlerTests
             await _dacPacketHandler.ExecuteAsync(new DacPacket
             {
                 Slot = 0,
-                AccountName = _session!.Account.Name,
+                AccountName = _accountName
             }, _session);
-            _session!.Account = null!;
+            Logger.Verify(o => o.Error(It.Is<string>(o => o == LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD)), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
             Assert.IsNull(_session!.Account);
         }
 
         [TestMethod]
         public async Task ConnectionWithInwaitingAccountAsync()
         {
-            await _dacPacketHandler.ExecuteAsync(new DacPacket
+            var packet = new DacPacket
             {
                 Slot = 0,
-                AccountName = _session!.Account.Name,
-            }, _session);
-            _session!.Account = null!;
+                AccountName = _accountName
+            };
+            _authHttpClient.Setup(authHttpClient => authHttpClient
+                    .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync("123");
+            await _dacPacketHandler.ExecuteAsync(packet, _session);
             Assert.IsNotNull(_session!.Account);
         }
     }

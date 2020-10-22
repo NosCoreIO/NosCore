@@ -90,6 +90,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             if (alreadyConnnected)
             {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ALREADY_CONNECTED), new
+                {
+                    accountName
+                });
                 await clientSession.DisconnectAsync().ConfigureAwait(false);
                 return;
             }
@@ -98,7 +102,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             if (account == null)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT), new
+                {
+                    accountName
+                });
                 await clientSession.DisconnectAsync().ConfigureAwait(false);
                 return;
             }
@@ -113,7 +120,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             if (!awaitingConnection)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD));
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD), new
+                {
+                    accountName
+                });
                 await clientSession.DisconnectAsync().ConfigureAwait(false);
                 return;
             }
@@ -126,9 +136,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 Authority = account.Authority,
                 Language = account.Language
             };
-            SessionFactory.Instance.Sessions
-                .FirstOrDefault(s => s.Value.SessionId == clientSession.SessionId)
-                .Value.RegionType = account.Language;
+            var sessionMapping = SessionFactory.Instance.Sessions
+                .FirstOrDefault(s => s.Value.SessionId == clientSession.SessionId);
+            if (!sessionMapping.Equals(default(KeyValuePair<string, RegionTypeMapping>)))
+            {
+                sessionMapping.Value.RegionType = account.Language;
+            }
             clientSession.InitializeAccount(accountobject);
             //todo Send Account Connected
         }

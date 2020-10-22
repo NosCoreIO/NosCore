@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 return;
             }
-            await clientSession.HandlePacketsAsync(new[] {new SelectPacket {Slot = packet.Slot}})
+            await clientSession.HandlePacketsAsync(new[] { new SelectPacket { Slot = packet.Slot } })
                 .ConfigureAwait(false);
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),

@@ -25,9 +25,11 @@ using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
+using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -88,6 +90,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         && (s.State == CharacterState.Active)).ConfigureAwait(false);
                 if (characterDto == null)
                 {
+                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHARACTER_SLOT_EMPTY), new
+                    {
+                        clientSession.Account.AccountId, 
+                        packet.Slot
+                    });
                     return;
                 }
 
@@ -145,7 +152,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             catch (Exception ex)
             {
-                _logger.Error("Select character failed.", ex);
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHARACTER_SELECTION_FAILED), ex, new
+                {
+                    clientSession.Account.AccountId,
+                    packet.Slot
+                });
             }
         }
     }

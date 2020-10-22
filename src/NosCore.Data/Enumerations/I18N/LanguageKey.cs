@@ -161,7 +161,10 @@ namespace NosCore.Data.Enumerations.I18N
         WALK_CHECKSUM_INVALID,
         SPEED_INVALID,
         PACKET_USED_WHILE_IN_GAME,
-        PACKET_USED_WHILE_NOT_ON_LOGIN
+        PACKET_USED_WHILE_NOT_ON_LOGIN,
+        CHARACTER_SLOT_EMPTY,
+        CHARACTER_SELECTION_FAILED,
+        ALREADY_CONNECTED
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
