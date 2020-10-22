@@ -19,7 +19,6 @@
 
 using System;
 using NosCore.Core.Configuration;
-using NosCore.Data.Enumerations;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 
@@ -39,7 +38,7 @@ namespace NosCore.Core
 
         public ServerType ClientType { get; set; }
 
-        public int Port { get; set; }
+        public ushort Port { get; set; }
 
         public byte ServerGroup { get; set; }
 

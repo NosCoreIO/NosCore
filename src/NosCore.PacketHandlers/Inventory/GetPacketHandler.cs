@@ -28,7 +28,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using Serilog;

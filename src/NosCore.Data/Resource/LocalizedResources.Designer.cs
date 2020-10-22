@@ -169,7 +169,7 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Client : {1} authenticated successfully!.
+        ///   Looks up a localized string similar to Client {0} : {1} authenticated successfully!.
         /// </summary>
         public static string AUTHENTICATED_SUCCESS {
             get {

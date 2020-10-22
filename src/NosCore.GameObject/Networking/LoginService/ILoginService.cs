@@ -27,5 +27,7 @@ namespace NosCore.GameObject.Networking.LoginService
     {
         Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,
             ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language);
+
+        Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId);
     }
 }

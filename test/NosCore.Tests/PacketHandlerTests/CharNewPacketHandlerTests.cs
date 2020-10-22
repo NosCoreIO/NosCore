@@ -50,11 +50,11 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _chara = _session.Character;
-            await _session.SetCharacterAsync(null).ConfigureAwait(false);
             _charNewPacketHandler =
                 new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.MinilandDao);
+            _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { _charNewPacketHandler }).ConfigureAwait(false);
+            _chara = _session.Character;
+            await _session.SetCharacterAsync(null).ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -66,10 +66,10 @@ namespace NosCore.Tests.PacketHandlerTests
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     Logger, new List<IMapInstanceEventHandler>());
             const string name = "TestCharacter";
-            await _charNewPacketHandler!.ExecuteAsync(new CharNewPacket
+            await _session!.HandlePacketsAsync(new[] {new CharNewPacket
             {
                 Name = name
-            }, _session).ConfigureAwait(false);
+            }}).ConfigureAwait(false);
             Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
         }
 

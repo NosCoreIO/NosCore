@@ -49,7 +49,7 @@ using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
-using NosCore.Shared.Configuration;
+using NosCore.Packets.ClientPackets.Infrastructure;
 using Serilog;
 
 namespace NosCore.GameObject.Networking.ClientSession
@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             new Dictionary<Type, PacketHeaderAttribute>();
 
         private readonly IExchangeProvider _exchangeProvider = null!;
-        private readonly IFriendHttpClient _friendHttpClient = null!;
+        private readonly IFriendHttpClient _friendHttpClient;
         private readonly SemaphoreSlim _handlingPacketLock = new SemaphoreSlim(1, 1);
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
@@ -81,6 +81,14 @@ namespace NosCore.GameObject.Networking.ClientSession
             _friendHttpClient = friendHttpClient;
             _packetSerializer = packetSerializer;
             _packetHttpClient = packetHttpClient;
+            foreach (var handler in _packetsHandlers)
+            {
+                var type = handler.GetType().BaseType?.GenericTypeArguments[0]!;
+                if (!_attributeDic.ContainsKey(type ?? throw new InvalidOperationException()))
+                {
+                    _attributeDic.Add(type, type.GetCustomAttribute<PacketHeaderAttribute>(true)!);
+                }
+            }
         }
 
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
@@ -99,14 +107,6 @@ namespace NosCore.GameObject.Networking.ClientSession
             _exchangeProvider = exchangeProvider!;
             _minilandProvider = minilandProvider!;
             _isWorldClient = true;
-            foreach (var handler in _packetsHandlers)
-            {
-                var type = handler.GetType().BaseType?.GenericTypeArguments[0]!;
-                if (!_attributeDic.ContainsKey(type ?? throw new InvalidOperationException()))
-                {
-                    _attributeDic.Add(type, type.GetCustomAttribute<PacketHeaderAttribute>(true)!);
-                }
-            }
         }
 
         public bool GameStarted { get; set; }
@@ -410,6 +410,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                             SessionId = SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId;
                             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED),
                                 SessionId);
+
                             _waitForPacketsAmount = 2;
                             return;
                         }
@@ -425,88 +426,98 @@ namespace NosCore.GameObject.Networking.ClientSession
                     if (_waitForPacketsAmount.HasValue)
                     {
                         WaitForPacketList.Add(pack);
-
-                        if (WaitForPacketList.Count != _waitForPacketsAmount)
+                        if (packet.Header != _attributeDic[typeof(DacPacket)].Identification)
                         {
-                            LastKeepAliveIdentity = packet.KeepAliveId ?? 0;
-                            return;
+                            if (WaitForPacketList.Count != _waitForPacketsAmount)
+                            {
+                                LastKeepAliveIdentity = packet.KeepAliveId ?? 0;
+                                return;
+                            }
+
+                            packet = new EntryPointPacket
+                            {
+                                Header = "EntryPoint",
+                                KeepAliveId = packet.KeepAliveId,
+                                Name = WaitForPacketList[0].Header!,
+                                Password = "thisisgfmode",
+                            };
                         }
-
-                        packet = new EntryPointPacket
-                        {
-                            Header = "EntryPoint",
-                            Title = "EntryPoint",
-                            KeepAliveId = packet.KeepAliveId,
-                            Packet1Id = WaitForPacketList[0].KeepAliveId!.ToString()!,
-                            Name = WaitForPacketList[0].Header!,
-                            Packet2Id = packet.KeepAliveId!.ToString()!,
-                            Password = packet.Header!
-                        };
 
                         _waitForPacketsAmount = null;
                         WaitForPacketList.Clear();
                     }
 
-                    if (packet.Header != "0")
+                    var packetHeader = packet.Header;
+                    if (string.IsNullOrWhiteSpace(packetHeader) && (contex != null))
                     {
-                        var packetHeader = packet.Header;
-                        if (string.IsNullOrWhiteSpace(packetHeader) && (contex != null))
-                        {
-                            _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET),
-                                packet);
-                            await DisconnectAsync().ConfigureAwait(false);
-                            return;
-                        }
+                        _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET),
+                            packet);
+                        await DisconnectAsync().ConfigureAwait(false);
+                        return;
+                    }
 
-                        var handler = _packetsHandlers.FirstOrDefault(s =>
-                            s.GetType().BaseType?.GenericTypeArguments[0] == packet.GetType());
-                        if (handler != null)
+                    var handler = _packetsHandlers.FirstOrDefault(s =>
+                        s.GetType().BaseType?.GenericTypeArguments[0] == packet.GetType());
+                    if (handler != null)
+                    {
+                        if (packet.IsValid)
                         {
-                            if (packet.IsValid)
+                            var attr = _attributeDic[packet.GetType()];
+                            if (HasSelectedCharacter && (attr.Scopes & Scope.InTrade) == 0 && Character.InExchangeOrShop)
                             {
-                                var attr = _attributeDic[packet.GetType()];
-                                if (HasSelectedCharacter && attr.BlockedByTrading && Character.InExchangeOrShop)
-                                {
-                                    _logger.Warning(
-                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLAYER_IN_SHOP),
-                                        packet.Header);
-                                    return;
-                                }
+                                _logger.Warning(
+                                    LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLAYER_IN_SHOP),
+                                    packet.Header);
+                                return;
+                            }
 
-                                if (!HasSelectedCharacter && !attr.AnonymousAccess)
-                                {
-                                    _logger.Warning(
-                                        LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
-                                        packet.Header);
-                                    return;
-                                }
+                            if (!HasSelectedCharacter && (attr.Scopes & Scope.OnCharacterScreen) == 0)
+                            {
+                                _logger.Warning(
+                                    LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
+                                    packet.Header);
+                                return;
+                            }
 
-                                //check for the correct authority
-                                if (IsAuthenticated && attr is CommandPacketHeaderAttribute commandHeader &&
-                                    ((byte)commandHeader.Authority > (byte)Account.Authority))
-                                {
-                                    return;
-                                }
+                            if (HasSelectedCharacter && (attr.Scopes & Scope.InGame) == 0)
+                            {
+                                _logger.Warning(
+                                    LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WHILE_IN_GAME),
+                                    packet.Header);
+                                return;
+                            }
 
+                            //check for the correct authority
+                            if (IsAuthenticated && attr is CommandPacketHeaderAttribute commandHeader &&
+                                ((byte)commandHeader.Authority > (byte)Account.Authority))
+                            {
+                                return;
+                            }
+
+                            if (contex != null)
+                            {
                                 await _handlingPacketLock.WaitAsync();
-                                try
-                                {
-                                    await handler.ExecuteAsync(packet, this).ConfigureAwait(false);
-                                    await Task.Delay(200);
-                                }
-                                finally
+                            }
+
+                            try
+                            {
+                                await Task.WhenAll(handler.ExecuteAsync(packet, this), Task.Delay(200)).ConfigureAwait(false);
+                            }
+                            finally
+                            {
+                                if (contex != null)
                                 {
                                     _handlingPacketLock.Release();
                                 }
                             }
-
-                        }
-                        else
-                        {
-                            _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_NOT_FOUND),
-                                packet.Header);
                         }
                     }
+                    else
+                    {
+                        _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_NOT_FOUND),
+                            packet.Header);
+                    }
+
                 }
                 else
                 {
@@ -514,6 +525,15 @@ namespace NosCore.GameObject.Networking.ClientSession
                     if (string.IsNullOrWhiteSpace(packetHeader))
                     {
                         await DisconnectAsync().ConfigureAwait(false);
+                        return;
+                    }
+
+                    var attr = _attributeDic[packet.GetType()];
+                    if ((attr.Scopes & Scope.OnLoginScreen) == 0)
+                    {
+                        _logger.Warning(
+                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WHILE_NOT_ON_LOGIN),
+                            packet.Header);
                         return;
                     }
 

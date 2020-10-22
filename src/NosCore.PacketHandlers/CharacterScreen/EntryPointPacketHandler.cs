@@ -34,7 +34,6 @@ using NosCore.Core.Networking;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -70,77 +69,95 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _channelHttpClient = channelHttpClient;
         }
 
+        public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient,
+            IConnectedAccountHttpClient connectedAccountHttpClient, IDao<AccountDto, long> accountDao, IChannelHttpClient channelHttpClient, bool passwordLessConnection, string accountName, string password, int sessionId)
+        {
+            var alreadyConnnected = false;
+            var servers = await channelHttpClient.GetChannelsAsync().ConfigureAwait(false) ?? new List<ChannelInfo>();
+            foreach (var channel in servers.Where(c => c.Type == ServerType.WorldServer))
+            {
+                var accounts = await connectedAccountHttpClient.GetConnectedAccountAsync(channel).ConfigureAwait(false);
+                var target = accounts.FirstOrDefault(s => s.Name == accountName);
+
+                if (target == null)
+                {
+                    continue;
+                }
+
+                alreadyConnnected = true;
+                break;
+            }
+
+            if (alreadyConnnected)
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ALREADY_CONNECTED), new
+                {
+                    accountName
+                });
+                await clientSession.DisconnectAsync().ConfigureAwait(false);
+                return;
+            }
+
+            var account = await accountDao.FirstOrDefaultAsync(s => s.Name == accountName).ConfigureAwait(false);
+
+            if (account == null)
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT), new
+                {
+                    accountName
+                });
+                await clientSession.DisconnectAsync().ConfigureAwait(false);
+                return;
+            }
+
+            var awaitingConnection =
+                (passwordLessConnection
+                    ? await authHttpClient
+                        .GetAwaitingConnectionAsync(accountName, password, sessionId)
+                        .ConfigureAwait(false) != null
+                    : account.Password?.Equals(password.ToSha512(), StringComparison.OrdinalIgnoreCase) ==
+                    true);
+
+            if (!awaitingConnection)
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD), new
+                {
+                    accountName
+                });
+                await clientSession.DisconnectAsync().ConfigureAwait(false);
+                return;
+            }
+
+            var accountobject = new AccountDto
+            {
+                AccountId = account.AccountId,
+                Name = account.Name,
+                Password = account.Password!.ToLower(),
+                Authority = account.Authority,
+                Language = account.Language
+            };
+            var sessionMapping = SessionFactory.Instance.Sessions
+                .FirstOrDefault(s => s.Value.SessionId == clientSession.SessionId);
+            if (!sessionMapping.Equals(default(KeyValuePair<string, RegionTypeMapping>)))
+            {
+                sessionMapping.Value.RegionType = account.Language;
+            }
+            clientSession.InitializeAccount(accountobject);
+            //todo Send Account Connected
+        }
+
         public override async Task ExecuteAsync(EntryPointPacket packet, ClientSession clientSession)
         {
-            if (clientSession == null)
-            {
-                throw new ArgumentNullException(nameof(clientSession));
-            }
-
+            await VerifyConnectionAsync(clientSession, _logger, _authHttpClient, _connectedAccountHttpClient,
+                _accountDao, _channelHttpClient, packet.Password == "thisisgfmode", packet.Name, packet.Password,
+                clientSession.SessionId);
             if (clientSession.Account == null!)
             {
-                var alreadyConnnected = false;
-                var name = packet.Name;
-                var servers = await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false) ?? new List<ChannelInfo>();
-                foreach (var channel in servers.Where(c => c.Type == ServerType.WorldServer))
-                {
-                    var accounts = await _connectedAccountHttpClient.GetConnectedAccountAsync(channel).ConfigureAwait(false);
-                    var target = accounts.FirstOrDefault(s => s.Name == name);
-
-                    if (target == null)
-                    {
-                        continue;
-                    }
-
-                    alreadyConnnected = true;
-                    break;
-                }
-
-                if (alreadyConnnected)
-                {
-                    await clientSession.DisconnectAsync().ConfigureAwait(false);
-                    return;
-                }
-
-                var account = await _accountDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false);
-
-                if (account != null)
-                {
-                    var result =
-                         packet.Password != "thisisgfmode" ? null : await _authHttpClient.GetAwaitingConnectionAsync(name, packet.Password, clientSession.SessionId).ConfigureAwait(false);
-                    if (result != null || (packet.Password != "thisisgfmode" && account.Password?.Equals(packet.Password.ToSha512(), StringComparison.OrdinalIgnoreCase) == true))
-                    {
-                        var accountobject = new AccountDto
-                        {
-                            AccountId = account.AccountId,
-                            Name = account.Name,
-                            Password = account.Password!.ToLower(),
-                            Authority = account.Authority,
-                            Language = account.Language
-                        };
-                        SessionFactory.Instance.Sessions
-                            .FirstOrDefault(s => s.Value.SessionId == clientSession.SessionId)
-                            .Value.RegionType = account.Language;
-                        clientSession.InitializeAccount(accountobject);
-                        //Send Account Connected
-                    }
-                    else
-                    {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD));
-                        await clientSession.DisconnectAsync().ConfigureAwait(false);
-                        return;
-                    }
-                }
-                else
-                {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT));
-                    await clientSession.DisconnectAsync().ConfigureAwait(false);
-                    return;
-                }
-
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
-                    clientSession.Account!.Name);
+                return;
             }
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
+                clientSession.Account!.Name);
+
 
             var characters = _characterDao.Where(s =>
                 (s.AccountId == clientSession.Account!.AccountId) && (s.State == CharacterState.Active));

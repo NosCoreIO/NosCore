@@ -27,15 +27,12 @@ using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
-using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Inventory;
-using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Packets.ServerPackets.Visibility;
 using DotNetty.Transport.Channels;
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.DignityService;
@@ -73,6 +70,7 @@ using Serilog;
 using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Configuration;
 using NosCore.GameObject.Providers.QuestProvider;
+
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -1111,6 +1109,5 @@ namespace NosCore.GameObject
             await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
         }
-
     }
 }

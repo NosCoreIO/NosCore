@@ -29,7 +29,6 @@ using AutofacSerilogIntegration;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -41,7 +40,6 @@ using NosCore.Database.Entities.Base;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.Configuration;
 using Serilog;
-using NosCore.Shared.I18N;
 
 // ReSharper disable LocalizableElement
 

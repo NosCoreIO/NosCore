@@ -40,7 +40,6 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PacketHandlers.Shops;
-using NosCore.Shared.Enumerations;
 using NosCore.Tests.Helpers;
 using Serilog;
 //TODO stop using obsolete

@@ -19,25 +19,18 @@
 
 using NosCore.Packets.Attributes;
 using NosCore.Data.Enumerations.Account;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.Data.CommandPackets
 {
-    [CommandPacketHeader("$Size", AuthorityType.GameMaster)]
-    public class SizePacket : CommandPacket
+    [CommandPacketHeader("$ChangeChannel", AuthorityType.GameMaster)]
+    public class ChangeChannelPacket : CommandPacket
     {
         [PacketIndex(0)]
-        public VisualType VisualType { get; set; }
-
-        [PacketIndex(1)]
-        public long VisualId { get; set; }
-
-        [PacketIndex(2)]
-        public byte Size { get; set; }
+        public int ChannelId { get; set; }
 
         public override string Help()
         {
-            return "$Size VISUALTYPE VISUALID VALUE";
+            return "$ChangeChannel ChannelId";
         }
     }
 }

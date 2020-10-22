@@ -17,27 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Packets.Attributes;
-using NosCore.Data.Enumerations.Account;
-using NosCore.Shared.Enumerations;
+using System.Threading.Tasks;
+using NosCore.Data.CommandPackets;
+using NosCore.GameObject;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.LoginService;
 
-namespace NosCore.Data.CommandPackets
+namespace NosCore.PacketHandlers.Command
 {
-    [CommandPacketHeader("$Size", AuthorityType.GameMaster)]
-    public class SizePacket : CommandPacket
+    public class ChangeChannelPacketHandler : PacketHandler<ChangeChannelPacket>, IWorldPacketHandler
     {
-        [PacketIndex(0)]
-        public VisualType VisualType { get; set; }
+        private readonly ILoginService _loginService;
 
-        [PacketIndex(1)]
-        public long VisualId { get; set; }
-
-        [PacketIndex(2)]
-        public byte Size { get; set; }
-
-        public override string Help()
+        public ChangeChannelPacketHandler(ILoginService loginService)
         {
-            return "$Size VISUALTYPE VISUALID VALUE";
+            _loginService = loginService;
+        }
+        public override Task ExecuteAsync(ChangeChannelPacket changeClassPacket, ClientSession session)
+        {
+            return _loginService.MoveChannelAsync(session, changeClassPacket.ChannelId);
         }
     }
 }

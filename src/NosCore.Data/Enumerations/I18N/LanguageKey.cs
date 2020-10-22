@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Diagnostics.CodeAnalysis;
-using JetBrains.Annotations;
 
 namespace NosCore.Data.Enumerations.I18N
 {
@@ -160,7 +159,12 @@ namespace NosCore.Data.Enumerations.I18N
         SCRIPTS_LOADED,
         NPCTALKS_PARSED,
         WALK_CHECKSUM_INVALID,
-        SPEED_INVALID
+        SPEED_INVALID,
+        PACKET_USED_WHILE_IN_GAME,
+        PACKET_USED_WHILE_NOT_ON_LOGIN,
+        CHARACTER_SLOT_EMPTY,
+        CHARACTER_SELECTION_FAILED,
+        ALREADY_CONNECTED
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

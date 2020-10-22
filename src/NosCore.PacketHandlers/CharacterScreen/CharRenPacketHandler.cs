@@ -25,7 +25,6 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
@@ -44,11 +43,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public override async Task ExecuteAsync(CharRenamePacket packet, ClientSession clientSession)
         {
-            if (clientSession.HasSelectedCharacter)
-            {
-                return;
-            }
-
             // TODO: Hold Account Information in Authorized object
             var accountId = clientSession.Account.AccountId;
             var slot = packet.Slot;

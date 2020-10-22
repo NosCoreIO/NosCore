@@ -19,12 +19,13 @@
 
 using NosCore.Packets.Attributes;
 using NosCore.Data.Enumerations.Account;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.Data.CommandPackets
 {
     public class CommandPacketHeaderAttribute : PacketHeaderAttribute
     {
-        public CommandPacketHeaderAttribute(string identification, AuthorityType authority) : base(identification)
+        public CommandPacketHeaderAttribute(string identification, AuthorityType authority) : base(identification, Scope.InGame | Scope.InGame)
         {
             Authority = authority;
         }

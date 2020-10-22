@@ -41,19 +41,15 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Quest;
-using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Shared.Enumerations;
 using System;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.I18N;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

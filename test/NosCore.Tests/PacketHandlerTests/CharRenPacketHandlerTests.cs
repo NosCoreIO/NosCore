@@ -49,13 +49,16 @@ namespace NosCore.Tests.PacketHandlerTests
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _charRenPacketHandler =
+                new CharRenPacketHandler(TestHelpers.Instance.CharacterDao);
+            _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler>{
+                _charRenPacketHandler
+            }).ConfigureAwait(false);
             _chara = _session.Character;
             _chara.ShouldRename = true;
             await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_session.Character);
             await _session.SetCharacterAsync(null).ConfigureAwait(false);
-            _charRenPacketHandler =
-                new CharRenPacketHandler(TestHelpers.Instance.CharacterDao);
+
         }
 
         [TestMethod]
@@ -67,11 +70,11 @@ namespace NosCore.Tests.PacketHandlerTests
                     new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
                     Logger, new List<IMapInstanceEventHandler>());
             const string name = "TestCharacter2";
-            await _charRenPacketHandler!.ExecuteAsync(new CharRenamePacket
+            await _session!.HandlePacketsAsync(new[] { new CharRenamePacket
             {
                 Name = name,
-                Slot = 0
-            }, _session).ConfigureAwait(false);
+                Slot = 1
+            }}).ConfigureAwait(false);
             Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
         }
 

@@ -33,7 +33,6 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.PathFinder;
 using NosCore.PathFinder.Interfaces;
 //TODO stop using obsolete
 #pragma warning disable 618

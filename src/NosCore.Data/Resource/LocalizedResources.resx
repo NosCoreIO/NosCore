@@ -143,7 +143,7 @@
     <comment>check</comment>
   </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
-    <value>Client : {1} authenticated successfully!</value>
+    <value>Client {0} : {1} authenticated successfully!</value>
     <comment>check</comment>
   </data>
   <data name="AUTH_ERROR" xml:space="preserve">

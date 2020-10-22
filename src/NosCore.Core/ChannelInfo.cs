@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using NosCore.Data.Enumerations;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 
@@ -28,10 +27,10 @@ namespace NosCore.Core
     {
         public int Id { get; set; }
         public string? Name { get; set; }
-        public string? Host { get; set; }
-        public int Port { get; set; }
+        public string Host { get; set; } = null!;
+        public ushort Port { get; set; }
         public string? DisplayHost { get; set; }
-        public int? DisplayPort { get; set; }
+        public ushort? DisplayPort { get; set; }
         public int ConnectedAccountLimit { get; set; }
 
         public ServerConfiguration? WebApi { get; set; }

@@ -36,6 +36,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.Shared.Enumerations;
 using Serilog;
 
@@ -156,6 +157,18 @@ namespace NosCore.Core.Controllers
             return Ok(new { code = authCode });
         }
 
+
+        [HttpPost]
+        public IActionResult SetExpectingConnection([FromBody] AuthIntent intent)
+        {
+            if (intent == null!)
+            {
+                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
+            }
+
+            SessionFactory.Instance.ReadyForAuth.AddOrUpdate(intent.AccountName, intent.SessionId, (key, oldValue) => intent.SessionId);
+            return Ok();
+        }
 
         [HttpGet]
         public IActionResult GetExpectingConnection(string? id, string? token, long sessionId)

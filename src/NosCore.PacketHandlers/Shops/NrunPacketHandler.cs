@@ -20,7 +20,6 @@
 using System;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.Npcs;
-using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;

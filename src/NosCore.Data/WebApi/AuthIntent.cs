@@ -17,27 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Packets.Attributes;
-using NosCore.Data.Enumerations.Account;
-using NosCore.Shared.Enumerations;
-
-namespace NosCore.Data.CommandPackets
+namespace NosCore.Data.WebApi
 {
-    [CommandPacketHeader("$Size", AuthorityType.GameMaster)]
-    public class SizePacket : CommandPacket
+    public class AuthIntent
     {
-        [PacketIndex(0)]
-        public VisualType VisualType { get; set; }
-
-        [PacketIndex(1)]
-        public long VisualId { get; set; }
-
-        [PacketIndex(2)]
-        public byte Size { get; set; }
-
-        public override string Help()
-        {
-            return "$Size VISUALTYPE VISUALID VALUE";
-        }
+        public long SessionId { get; set; }
+        public string AccountName { get; set; } = null!;
     }
 }
