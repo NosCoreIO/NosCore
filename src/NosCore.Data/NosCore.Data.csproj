@@ -38,7 +38,7 @@
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
-    <PackageReference Include="Mapster" Version="6.5.0" />
+    <PackageReference Include="Mapster" Version="6.5.1" />
     <PackageReference Include="Mapster.JsonNet" Version="1.1.0" />
     <PackageReference Include="NosCore.FastMember" Version="1.5.0" />
     <PackageReference Include="NosCore.Packets" Version="1.0.0" />
