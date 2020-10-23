@@ -101,6 +101,9 @@ namespace NosCore.Parser
                     }
 
                     var containerBuilder = new ContainerBuilder();
+                    containerBuilder.Register(c => optionsBuilder.Options).As<DbContextOptions>();
+                    containerBuilder.RegisterType<NosCoreContext>().As<DbContext>()
+                        .OnActivated(c=> c.Instance.Database.Migrate());
                     containerBuilder.RegisterLogger();
                     containerBuilder.RegisterAssemblyTypes(typeof(CardParser).Assembly)
                         .Where(t => t.Name.EndsWith("Parser") && !t.IsGenericType)
@@ -118,6 +121,8 @@ namespace NosCore.Parser
                         {
                             var type = assemblyDb.First(tgo =>
                                 string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
+                            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
+                                Guid.NewGuid().ToString());
                             var typepk = type.GetProperties()
                                 .Where(s => new NosCoreContext(optionsBuilder.Options).Model.FindEntityType(type)
                                     .FindPrimaryKey().Properties.Select(x => x.Name)
