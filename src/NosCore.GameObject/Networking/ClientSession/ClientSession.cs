@@ -166,7 +166,15 @@ namespace NosCore.GameObject.Networking.ClientSession
                 return;
             }
 
-            await HandlePacketsAsync(buff, context).ConfigureAwait(false);
+            try
+            {
+                await HandlePacketsAsync(buff, context).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_HANDLING_ERROR), ex);
+                await DisconnectAsync();
+            }
         }
 
 #pragma warning disable VSTHRD100 // Avoid async void methods

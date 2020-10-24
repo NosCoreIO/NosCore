@@ -164,7 +164,8 @@ namespace NosCore.Data.Enumerations.I18N
         PACKET_USED_WHILE_NOT_ON_LOGIN,
         CHARACTER_SLOT_EMPTY,
         CHARACTER_SELECTION_FAILED,
-        ALREADY_CONNECTED
+        ALREADY_CONNECTED,
+        PACKET_HANDLING_ERROR
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
