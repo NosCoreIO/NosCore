@@ -93,7 +93,7 @@ namespace NosCore.PacketHandlers.Shops
             clientSession.Character.InventoryService.RemoveItemAmountFromInventory(sellPacket.Amount,
                 inv.ItemInstanceId);
             await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
-
+            await clientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot)).ConfigureAwait(false);
         }
     }
 }

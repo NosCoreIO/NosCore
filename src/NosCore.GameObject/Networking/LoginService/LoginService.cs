@@ -61,7 +61,7 @@ namespace NosCore.GameObject.Networking.LoginService
         public async Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId)
         {
             var server = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
-            if (server == null)
+            if (server == null || server.Type != ServerType.WorldServer)
             {
                 return;
             }
