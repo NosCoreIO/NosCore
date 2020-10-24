@@ -101,7 +101,7 @@ namespace NosCore.PacketHandlers.Inventory
                             {
                                 Type = 3,
                                 Delay = 5000,
-                                Packet = new SpTransformPacket { Type = SlPacketType.WearSp }
+                                Packet = new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }
                             }).ConfigureAwait(false);
                             await clientSession.Character.MapInstance.SendPacketAsync(new GuriPacket
                             {
