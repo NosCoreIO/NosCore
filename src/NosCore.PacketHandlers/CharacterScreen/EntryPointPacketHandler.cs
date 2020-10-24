@@ -148,16 +148,19 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public override async Task ExecuteAsync(EntryPointPacket packet, ClientSession clientSession)
         {
-            await VerifyConnectionAsync(clientSession, _logger, _authHttpClient, _connectedAccountHttpClient,
-                _accountDao, _channelHttpClient, packet.Password == "thisisgfmode", packet.Name, packet.Password,
-                clientSession.SessionId);
-            if (clientSession.Account == null!)
+            if (clientSession.Account == null!) // we bypass this when create new char
             {
-                return;
-            }
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
-                clientSession.Account!.Name);
+                await VerifyConnectionAsync(clientSession, _logger, _authHttpClient, _connectedAccountHttpClient,
+                    _accountDao, _channelHttpClient, packet.Password == "thisisgfmode", packet.Name, packet.Password,
+                    clientSession.SessionId);
+                if (clientSession.Account == null!)
+                {
+                    return;
+                }
 
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
+                    clientSession.Account!.Name);
+            }
 
             var characters = _characterDao.Where(s =>
                 (s.AccountId == clientSession.Account!.AccountId) && (s.State == CharacterState.Active));
