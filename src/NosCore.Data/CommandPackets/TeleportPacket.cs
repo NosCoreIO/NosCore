@@ -36,7 +36,7 @@ namespace NosCore.Data.CommandPackets
 
         public override string Help()
         {
-            return "$Teleport CHARACTERNAME/MAP X(?) Y(?)";
+            return "$Teleport TeleportArgument [X] [Y]";
         }
     }
 }

@@ -18,7 +18,7 @@ namespace NosCore.Data.CommandPackets
 
         public override string Help()
         {
-            return "$fl CHARACTERNAME";
+            return "$fl [CharacterName]";
         }
     }
 }

@@ -39,7 +39,7 @@ namespace NosCore.PacketHandlers.Command
 
         public override async Task ExecuteAsync(KickPacket kickPacket, ClientSession session)
         {
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, kickPacket.Name).ConfigureAwait(false);
+            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, kickPacket.Name ?? session.Character.Name).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {

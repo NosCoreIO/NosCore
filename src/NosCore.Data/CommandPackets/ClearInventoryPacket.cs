@@ -19,22 +19,18 @@
 
 using NosCore.Packets.Attributes;
 using NosCore.Data.Enumerations.Account;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.Data.CommandPackets
 {
-    [CommandPacketHeader("$ChangeClass", AuthorityType.GameMaster)]
-    public class ChangeClassPacket : CommandPacket
+    [CommandPacketHeader("$ClearInventory", AuthorityType.Moderator)]
+    public class ClearInventoryPacket : CommandPacket
     {
         [PacketIndex(0)]
-        public CharacterClassType ClassType { get; set; }
-
-        [PacketIndex(1)]
         public string? Name { get; set; }
 
         public override string Help()
         {
-            return "$ChangeClass ClassType [Name]";
+            return "$ClearInventory [Name]";
         }
     }
 }

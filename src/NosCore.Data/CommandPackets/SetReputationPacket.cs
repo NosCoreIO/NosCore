@@ -35,7 +35,7 @@ namespace NosCore.Data.CommandPackets
 
         public override string Help()
         {
-            return "$SetReputation Value [Name]";
+            return "$SetReputation Reputation [Name]";
         }
     }
 }
