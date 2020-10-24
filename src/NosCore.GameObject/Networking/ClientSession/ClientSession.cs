@@ -170,9 +170,10 @@ namespace NosCore.GameObject.Networking.ClientSession
             {
                 await HandlePacketsAsync(buff, context).ConfigureAwait(false);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_HANDLING_ERROR), ex);
+                await DisconnectAsync();
             }
         }
 
