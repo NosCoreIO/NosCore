@@ -83,7 +83,7 @@ namespace NosCore.PacketHandlers.Game
 
             if (session.Character.CurrentScriptId == null)
             {
-                _questProvider.RunScriptAsync(session.Character).Forget();
+                _ = _questProvider.RunScriptAsync(session.Character);
             }
 
             if (_worldConfiguration.Value.WorldInformation)

@@ -45,7 +45,7 @@ namespace NosCore.MasterServer.DataHolders
             _items = items;
             _characterDao = characterDao;
             _itemInstanceDao = itemInstanceDao;
-            InitializeAsync().Forget();
+            _ = InitializeAsync();
         }
 
         public new ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>> this[long characterId]

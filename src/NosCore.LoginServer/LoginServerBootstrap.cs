@@ -186,7 +186,7 @@ namespace NosCore.LoginServer
                     containerBuilder.Populate(services);
                     var container = containerBuilder.Build();
 
-                    Task.Run(container.Resolve<LoginServer>().RunAsync).Forget();
+                    _ = container.Resolve<LoginServer>().RunAsync();
                     TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
                 })

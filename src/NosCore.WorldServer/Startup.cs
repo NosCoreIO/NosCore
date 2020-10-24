@@ -489,7 +489,7 @@ namespace NosCore.WorldServer
             var container = containerBuilder.Build();
             RegisterGo(container);
 
-            Task.Run(container.Resolve<WorldServer>().RunAsync).Forget();
+            _ = container.Resolve<WorldServer>().RunAsync();
 
             return new AutofacServiceProvider(container);
         }

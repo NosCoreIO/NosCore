@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
                 return;
             }
 
-            string? data = requestData.Data.Value;
+            var data = requestData.Data.Value;
             string[] valuesplit = (data ?? string.Empty).Split(' ');
             string message = $"<{GameLanguage.Instance.GetMessageFromKey(LanguageKey.SPEAKER, requestData.ClientSession.Account.Language)}> [{requestData.ClientSession.Character.Name}]:";
             if (requestData.Data.Data == 999)
