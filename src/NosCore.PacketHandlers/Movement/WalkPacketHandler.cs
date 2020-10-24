@@ -45,10 +45,10 @@ namespace NosCore.PacketHandlers.Movement
         }
         public override async Task ExecuteAsync(WalkPacket walkPacket, ClientSession session)
         {
-            var distance = (int)_distanceCalculator.GetDistance((session.Character.PositionX, session.Character.PositionY), (walkPacket.XCoordinate, walkPacket.YCoordinate));
+            var distance = (int)_distanceCalculator.GetDistance((session.Character.PositionX, session.Character.PositionY), (walkPacket.XCoordinate, walkPacket.YCoordinate)) - 1;
 
             if (((session.Character.Speed < walkPacket.Speed)
-                && (session.Character.LastSpeedChange.AddSeconds(5) <= SystemTime.Now())) || (distance > 60))
+                && (session.Character.LastSpeedChange.AddSeconds(5) <= SystemTime.Now())) || (distance > session.Character.Speed / 2))
             {
                 return;
             }
