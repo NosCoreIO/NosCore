@@ -25,12 +25,9 @@ namespace NosCore.Data.CommandPackets
     [CommandPacketHeader("$ClearInventory", AuthorityType.Moderator)]
     public class ClearInventoryPacket : CommandPacket
     {
-        [PacketIndex(0)]
-        public string? Name { get; set; }
-
         public override string Help()
         {
-            return "$ClearInventory [Name]";
+            return "$ClearInventory";
         }
     }
 }

@@ -105,8 +105,8 @@ namespace NosCore.PacketHandlers.Inventory
                             }).ConfigureAwait(false);
                             await clientSession.Character.MapInstance.SendPacketAsync(new GuriPacket
                             {
-                                Type = GuriPacketType.Unknow,
-                                Value = 1,
+                                Type = GuriPacketType.Dance,
+                                Argument = 1,
                                 EntityId = clientSession.Character.CharacterId
                             }).ConfigureAwait(false);
                         }
