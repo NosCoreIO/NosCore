@@ -1013,7 +1013,7 @@ namespace NosCore.GameObject
             await MapInstance.SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(new GuriPacket
             {
-                Type = GuriPacketType.Unknow2,
+                Type = GuriPacketType.Unknow,
                 Value = 1,
                 EntityId = CharacterId
             }).ConfigureAwait(false);
@@ -1072,7 +1072,7 @@ namespace NosCore.GameObject
             await MapInstance.SendPacketAsync(this.GenerateEff(196)).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(new GuriPacket
             {
-                Type = GuriPacketType.Unknow2,
+                Type = GuriPacketType.Unknow,
                 Value = 1,
                 EntityId = CharacterId
             }).ConfigureAwait(false);
