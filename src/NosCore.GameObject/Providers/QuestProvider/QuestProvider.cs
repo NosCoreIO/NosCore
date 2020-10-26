@@ -273,7 +273,7 @@ namespace NosCore.GameObject.Providers.QuestProvider
 
         public async Task<bool> ValidateQuestAsync(ICharacterEntity character, short questId)
         {
-            bool isValid = false;
+            var isValid = false;
             var characterQuest = character.Quests.Values.FirstOrDefault(s => s.QuestId == questId);
             switch (characterQuest?.Quest.QuestType)
             {

@@ -35,7 +35,7 @@ namespace NosCore.Data.CommandPackets
 
         public override string Help()
         {
-            return "$SetHeroLevel Value [Name]";
+            return "$SetHeroLevel Level [Name]";
         }
     }
 }

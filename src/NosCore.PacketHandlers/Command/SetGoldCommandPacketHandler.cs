@@ -67,8 +67,6 @@ namespace NosCore.PacketHandlers.Command
             }
 
             await _statHttpClient.ChangeStatAsync(data, receiver.Item1!).ConfigureAwait(false);
-
-            await session.SendPacketAsync(session.Character.GenerateGold()).ConfigureAwait(false);
         }
     }
 }

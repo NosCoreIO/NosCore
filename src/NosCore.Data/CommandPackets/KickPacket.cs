@@ -30,7 +30,7 @@ namespace NosCore.Data.CommandPackets
 
         public override string Help()
         {
-            return "$Kick VALUE";
+            return "$Kick [Name]";
         }
     }
 }

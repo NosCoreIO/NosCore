@@ -101,12 +101,12 @@ namespace NosCore.PacketHandlers.Inventory
                             {
                                 Type = 3,
                                 Delay = 5000,
-                                Packet = new SpTransformPacket { Type = SlPacketType.WearSp }
+                                Packet = new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }
                             }).ConfigureAwait(false);
                             await clientSession.Character.MapInstance.SendPacketAsync(new GuriPacket
                             {
-                                Type = GuriPacketType.Unknow,
-                                Value = 1,
+                                Type = GuriPacketType.Dance,
+                                Argument = 1,
                                 EntityId = clientSession.Character.CharacterId
                             }).ConfigureAwait(false);
                         }

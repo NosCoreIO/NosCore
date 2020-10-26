@@ -153,7 +153,7 @@ namespace NosCore.Tests
                 }
             }
 
-            foreach (LogLanguageKey val in (LogLanguageKey[]) Enum.GetValues(typeof(LogLanguageKey)))
+            foreach (var val in (LogLanguageKey[]) Enum.GetValues(typeof(LogLanguageKey)))
             {
                 var type = val!.GetType();
                 var typeInfo = type.GetTypeInfo();

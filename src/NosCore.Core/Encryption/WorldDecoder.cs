@@ -83,12 +83,12 @@ namespace NosCore.Core.Encryption
                     for (var i = 0; i < len; i++)
                     {
                         count++;
-                        int highbyte = str.Length > count ? str[count] : 0;
+                        var highbyte = str.Length > count ? str[count] : 0;
 
                         highbyte &= 0xF0;
                         highbyte >>= 0x4;
 
-                        int lowbyte = str.Length > count ? str[count] : 0;
+                        var lowbyte = str.Length > count ? str[count] : 0;
 
                         lowbyte &= 0x0F;
 

@@ -40,7 +40,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualStudio.Threading;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
@@ -186,7 +185,7 @@ namespace NosCore.LoginServer
                     containerBuilder.Populate(services);
                     var container = containerBuilder.Build();
 
-                    Task.Run(container.Resolve<LoginServer>().RunAsync).Forget();
+                    _ = container.Resolve<LoginServer>().RunAsync();
                     TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
                 })

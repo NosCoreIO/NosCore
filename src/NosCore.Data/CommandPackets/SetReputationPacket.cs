@@ -30,12 +30,12 @@ namespace NosCore.Data.CommandPackets
         [Range(0, long.MaxValue)]
         public long Reputation { get; set; }
 
-        [PacketIndex(1, IsOptional = true)]
+        [PacketIndex(1)]
         public string? Name { get; set; }
 
         public override string Help()
         {
-            return "$SetReputation NAME VALUE";
+            return "$SetReputation Reputation [Name]";
         }
     }
 }

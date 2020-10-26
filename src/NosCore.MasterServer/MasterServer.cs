@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.I18N;

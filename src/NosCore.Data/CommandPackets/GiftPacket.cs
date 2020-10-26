@@ -26,23 +26,23 @@ namespace NosCore.Data.CommandPackets
     public class GiftPacket : CommandPacket
     {
         [PacketIndex(0)]
-        public string? CharacterName { get; set; }
-
-        [PacketIndex(1)]
         public short VNum { get; set; }
 
-        [PacketIndex(2)]
+        [PacketIndex(1)]
         public byte Amount { get; set; }
 
-        [PacketIndex(3)]
+        [PacketIndex(2)]
         public sbyte Rare { get; set; }
 
-        [PacketIndex(4)]
+        [PacketIndex(3)]
         public byte Upgrade { get; set; }
+
+        [PacketIndex(4)]
+        public string? CharacterName { get; set; }
 
         public override string Help()
         {
-            return "$Gift CHARACTERNAME VNUM AMOUNT RARE UPGRADE";
+            return "$Gift VNum Amount Rare Upgrade [CharacterName]";
         }
     }
 }

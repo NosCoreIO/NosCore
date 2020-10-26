@@ -35,7 +35,7 @@ namespace NosCore.Data.CommandPackets
 
         public override string Help()
         {
-            return "$Gold QUANTITY NICKNAME";
+            return "$Gold Gold [Name]";
         }
     }
 }

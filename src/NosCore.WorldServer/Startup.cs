@@ -55,7 +55,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.VisualStudio.Threading;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Core;
 using NosCore.Core.Configuration;
@@ -489,7 +488,7 @@ namespace NosCore.WorldServer
             var container = containerBuilder.Build();
             RegisterGo(container);
 
-            Task.Run(container.Resolve<WorldServer>().RunAsync).Forget();
+            _ = container.Resolve<WorldServer>().RunAsync();
 
             return new AutofacServiceProvider(container);
         }

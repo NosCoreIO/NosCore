@@ -34,7 +34,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualStudio.Threading;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
@@ -83,7 +82,7 @@ namespace NosCore.PacketHandlers.Game
 
             if (session.Character.CurrentScriptId == null)
             {
-                _questProvider.RunScriptAsync(session.Character).Forget();
+                _ = _questProvider.RunScriptAsync(session.Character);
             }
 
             if (_worldConfiguration.Value.WorldInformation)

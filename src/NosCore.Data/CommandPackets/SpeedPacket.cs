@@ -30,7 +30,7 @@ namespace NosCore.Data.CommandPackets
 
         public override string Help()
         {
-            return "$Speed value";
+            return "$Speed Speed";
         }
     }
 }

@@ -38,9 +38,9 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
             await requestData.ClientSession.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Effect,
-                Unknown = 3,
-                EntityId = requestData.Data.Item1.Slot,
-                Value = 1
+                Argument = 3,
+                SecondArgument = 1,
+                EntityId = requestData.Data.Item1.Slot
             }).ConfigureAwait(false);
         }
     }

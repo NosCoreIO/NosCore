@@ -37,7 +37,7 @@ namespace NosCore.Data.CommandPackets
 
         public override string Help()
         {
-            return "$Size VISUALTYPE VISUALID VALUE";
+            return "$Size VisualType VisualId Size";
         }
     }
 }

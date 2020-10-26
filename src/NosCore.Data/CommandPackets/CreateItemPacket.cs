@@ -36,7 +36,7 @@ namespace NosCore.Data.CommandPackets
 
         public override string Help()
         {
-            return "$CreateItem ITEMVNUM DESIGN/RARE/AMOUNT/WINGS UPDATE";
+            return "$CreateItem VNum [DesignOrAmount] [Upgrade]";
         }
     }
 }

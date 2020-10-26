@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Providers.ItemProvider.Handlers
                 YesPacket = new GuriPacket
                 {
                     Type = GuriPacketType.Title,
-                    Unknown = (uint)requestData.Data.Item1.ItemInstance!.ItemVNum,
+                    Argument = (uint)requestData.Data.Item1.ItemInstance!.ItemVNum,
                     EntityId = requestData.Data.Item1.Slot
                 },
                 Question = GameLanguage.Instance.GetMessageFromKey(LanguageKey.WANT_ENABLE_TITLE,

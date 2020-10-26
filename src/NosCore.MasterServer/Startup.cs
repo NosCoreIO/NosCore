@@ -44,7 +44,6 @@ using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using Microsoft.VisualStudio.Threading;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Controllers;
@@ -240,7 +239,7 @@ namespace NosCore.MasterServer
 
             var containerBuilder = InitializeContainer(services);
             var container = containerBuilder.Build();
-            Task.Run(container.Resolve<MasterServer>().Run).Forget();
+            container.Resolve<MasterServer>().Run();
             return new AutofacServiceProvider(container);
         }
 

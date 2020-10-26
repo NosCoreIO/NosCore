@@ -113,7 +113,7 @@ namespace NosCore.PacketHandlers.Group
 
                     if (clientSession.Character.LastGroupRequest != null)
                     {
-                        TimeSpan diffTimeSpan = ((DateTime)clientSession.Character.LastGroupRequest).AddSeconds(5) - SystemTime.Now();
+                        var diffTimeSpan = ((DateTime)clientSession.Character.LastGroupRequest).AddSeconds(5) - SystemTime.Now();
                         if (diffTimeSpan.Seconds > 0 && diffTimeSpan.Seconds <= 5)
                         {
                             await clientSession.SendPacketAsync(new InfoPacket
