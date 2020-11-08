@@ -18,17 +18,25 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Mapster;
+using NosCore.Algorithm.HpService;
+using NosCore.Algorithm.MpService;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
@@ -39,13 +47,26 @@ namespace NosCore.PacketHandlers.CharacterScreen
     {
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IDao<MinilandDto, Guid> _minilandDao;
+        private readonly IDao<QuicklistEntryDto, Guid> _quicklistEntryDao;
+        private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
+        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
+        private readonly IItemProvider _itemBuilderService;
+        private readonly IHpService _hpService;
+        private readonly IMpService _mpService;
 
         public const string Nameregex =
             @"^[\u0021-\u007E\u00A1-\u00AC\u00AE-\u00FF\u4E00-\u9FA5\u0E01-\u0E3A\u0E3F-\u0E5B\u002E]*$";
-        public CharNewPacketHandler(IDao<CharacterDto, long> characterDao, IDao<MinilandDto, Guid> minilandDao)
+        public CharNewPacketHandler(IDao<CharacterDto, long> characterDao, IDao<MinilandDto, Guid> minilandDao, IItemProvider itemBuilderService,
+            IDao<QuicklistEntryDto, Guid> quicklistEntryDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao, IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IHpService hpService, IMpService mpService)
         {
             _characterDao = characterDao;
             _minilandDao = minilandDao;
+            _itemBuilderService = itemBuilderService;
+            _quicklistEntryDao = quicklistEntryDao;
+            _inventoryItemInstanceDao = inventoryItemInstanceDao;
+            _itemInstanceDao = itemInstanceDao;
+            _hpService = hpService;
+            _mpService = mpService;
         }
 
         public override async Task ExecuteAsync(CharNewPacket packet, ClientSession clientSession)
@@ -68,20 +89,22 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         (s.Name == characterName) && (s.State == CharacterState.Active)).ConfigureAwait(false);
                 if (character == null)
                 {
+                    var level = (byte)(packet.IsMartialArtist ? 81 : 1);
+                    var @class = packet.IsMartialArtist ? CharacterClassType.MartialArtist
+                        : CharacterClassType.Adventurer;
                     var chara = new CharacterDto
                     {
-                        Class = packet.IsMartialArtist ? CharacterClassType.MartialArtist
-                            : CharacterClassType.Adventurer,
+                        Class = @class,
                         Gender = packet.Gender,
                         HairColor = packet.HairColor,
                         HairStyle = packet.HairStyle,
-                        Hp = packet.IsMartialArtist ? 12965 : 221,
+                        Hp = (int)_hpService.GetHp(@class, level),
                         JobLevel = 1,
-                        Level = (byte)(packet.IsMartialArtist ? 81 : 1),
+                        Level = level,
                         MapId = 1,
                         MapX = (short)RandomHelper.Instance.RandomNumber(78, 81),
                         MapY = (short)RandomHelper.Instance.RandomNumber(114, 118),
-                        Mp = packet.IsMartialArtist ? 2369 : 221,
+                        Mp = (int)_mpService.GetMp(@class, level),
                         MaxMateCount = 10,
                         SpPoint = 10000,
                         SpAdditionPoint = 0,
@@ -101,6 +124,26 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         WelcomeMusicInfo = 3800
                     };
                     await _minilandDao.TryInsertOrUpdateAsync(miniland).ConfigureAwait(false);
+
+                    //todo make it configurable
+                    var charaGo = chara.Adapt<Character>();
+                    if (packet.IsMartialArtist)
+                    {
+
+                    }
+                    else
+                    {
+                        charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(1), charaGo.CharacterId), NoscorePocketType.Wear);
+                        charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(8), charaGo.CharacterId), NoscorePocketType.Wear);
+                        charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(12), charaGo.CharacterId), NoscorePocketType.Wear);
+                    }
+
+                    charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(2024, 10), charaGo.CharacterId), NoscorePocketType.Etc);
+                    charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(2081, 1), charaGo.CharacterId), NoscorePocketType.Etc);
+
+                    await _itemInstanceDao.TryInsertOrUpdateAsync(charaGo.InventoryService.Values.Select(s => s.ItemInstance!).ToArray()).ConfigureAwait(false);
+                    await _inventoryItemInstanceDao.TryInsertOrUpdateAsync(charaGo.InventoryService.Values.ToArray()).ConfigureAwait(false);
+
                     await clientSession.SendPacketAsync(new SuccessPacket()).ConfigureAwait(false);
                     await clientSession.HandlePacketsAsync(new[] { new EntryPointPacket() }).ConfigureAwait(false);
                 }

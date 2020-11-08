@@ -49,6 +49,7 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestInitialize]
         public async Task SetupAsync()
         {
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _logger = new Mock<ILogger>();
             Handler = new VehicleEventHandler(_logger.Object);
@@ -73,7 +74,7 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestMethod]
         public async Task Test_Vehicle_GetDelayedAsync()
         {
-            UseItem.Mode = 0;
+            UseItem.Mode = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (DelayPacket?)Session.LastPackets.FirstOrDefault(s => s is DelayPacket);

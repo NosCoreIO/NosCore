@@ -52,6 +52,7 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestInitialize]
         public async Task SetupAsync()
         {
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _minilandProvider = new Mock<IMinilandProvider>();
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _minilandProvider.Setup(s => s.GetMiniland(Session.Character.CharacterId))
