@@ -24,6 +24,7 @@ using NosCore.Data.Enumerations.Account;
 namespace NosCore.Data.CommandPackets
 {
     [CommandPacketHeader("$SetHeroLevel", AuthorityType.GameMaster)]
+    [PacketHeaderAlias("$HeroLvl")]
     public class SetHeroLevelCommandPacket : CommandPacket
     {
         [PacketIndex(0)]

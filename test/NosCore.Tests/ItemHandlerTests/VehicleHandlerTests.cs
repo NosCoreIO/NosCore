@@ -73,7 +73,7 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestMethod]
         public async Task Test_Vehicle_GetDelayedAsync()
         {
-            UseItem.Mode = 1;
+            UseItem.Mode = 0;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (DelayPacket?)Session.LastPackets.FirstOrDefault(s => s is DelayPacket);
