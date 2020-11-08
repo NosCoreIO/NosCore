@@ -24,6 +24,7 @@ using NosCore.Data.Enumerations.Account;
 namespace NosCore.Data.CommandPackets
 {
     [CommandPacketHeader("$SetJobLevel", AuthorityType.GameMaster)]
+    [PacketHeaderAlias("$JLvl")]
     public class SetJobLevelCommandPacket : CommandPacket
     {
         [PacketIndex(0)]

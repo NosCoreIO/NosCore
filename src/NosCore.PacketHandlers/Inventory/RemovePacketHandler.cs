@@ -26,6 +26,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.Packets.ClientPackets.Specialists;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -34,14 +35,22 @@ namespace NosCore.PacketHandlers.Inventory
         public override async Task ExecuteAsync(RemovePacket removePacket, ClientSession clientSession)
         {
             var inventory =
-                clientSession.Character.InventoryService.LoadBySlotAndType((short) removePacket.InventorySlot,
+                clientSession.Character.InventoryService.LoadBySlotAndType((short)removePacket.InventorySlot,
                     NoscorePocketType.Wear);
             if (inventory == null)
             {
                 return;
             }
 
-            var inv = clientSession.Character.InventoryService.MoveInPocket((short) removePacket.InventorySlot,
+            if (inventory.ItemInstance!.Item!.EquipmentSlot == EquipmentType.Sp)
+            {
+                await clientSession.HandlePacketsAsync(new[] { new SpTransformPacket
+                {
+                    Type = SlPacketType.WearSpAndTransform
+                } });
+            }
+
+            var inv = clientSession.Character.InventoryService.MoveInPocket((short)removePacket.InventorySlot,
                 NoscorePocketType.Wear, NoscorePocketType.Equipment);
 
             if (inv == null)
@@ -54,7 +63,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            await clientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot)).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot)).ConfigureAwait(false);
 
             await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateEq()).ConfigureAwait(false);
             await clientSession.SendPacketAsync(clientSession.Character.GenerateEquipment()).ConfigureAwait(false);

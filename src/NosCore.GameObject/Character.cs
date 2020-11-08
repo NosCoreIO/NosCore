@@ -446,6 +446,31 @@ namespace NosCore.GameObject
             Class = classType;
             Hp = MaxHp;
             Mp = MaxMp;
+            var itemsToAdd = new List<BasicEquipment>();
+            foreach (var (key, _) in _worldConfiguration.Value.BasicEquipments)
+            {
+                switch (key)
+                {
+                    case nameof(CharacterClassType.Adventurer) when Class == CharacterClassType.Adventurer:
+                    case nameof(CharacterClassType.Archer) when Class == CharacterClassType.Archer:
+                    case nameof(CharacterClassType.Mage) when Class == CharacterClassType.Mage:
+                    case nameof(CharacterClassType.MartialArtist) when Class == CharacterClassType.MartialArtist:
+                    case nameof(CharacterClassType.Swordsman) when Class == CharacterClassType.Swordsman:
+                        itemsToAdd.AddRange(_worldConfiguration.Value.BasicEquipments[key]);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            foreach (var inv in itemsToAdd
+                .Select(itemToAdd => InventoryService.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(itemToAdd.VNum, itemToAdd.Amount), CharacterId), itemToAdd.NoscorePocketType))
+                .Where(inv => inv != null))
+            {
+                await SendPacketsAsync(
+                    inv!.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot))).ConfigureAwait(false);
+            }
+
             await SendPacketAsync(this.GenerateTit()).ConfigureAwait(false);
             await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(this.GenerateEq()).ConfigureAwait(false);

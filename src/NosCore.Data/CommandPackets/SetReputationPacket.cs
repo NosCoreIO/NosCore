@@ -24,6 +24,7 @@ using NosCore.Data.Enumerations.Account;
 namespace NosCore.Data.CommandPackets
 {
     [CommandPacketHeader("$SetReputation", AuthorityType.GameMaster)]
+    [PacketHeaderAlias("$Reputation")]
     public class SetReputationPacket : CommandPacket
     {
         [PacketIndex(0)]

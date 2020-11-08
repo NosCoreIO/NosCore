@@ -49,6 +49,7 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestInitialize]
         public async Task SetupAsync()
         {
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _logger = new Mock<ILogger>();
             Handler = new VehicleEventHandler(_logger.Object);

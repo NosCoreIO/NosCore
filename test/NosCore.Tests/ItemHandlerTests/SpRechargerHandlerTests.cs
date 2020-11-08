@@ -52,6 +52,7 @@ namespace NosCore.Tests.ItemHandlerTests
         [TestInitialize]
         public async Task SetupAsync()
         {
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             Handler = new SpRechargerEventHandler(Options.Create(new WorldConfiguration {MaxAdditionalSpPoints = 1}));
             var items = new List<ItemDto>

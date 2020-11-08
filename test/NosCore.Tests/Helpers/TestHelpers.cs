@@ -283,7 +283,8 @@ namespace NosCore.Tests.Helpers
                 _logger,
                 packetHandlers ?? new List<IPacketHandler>
                 {
-                    new CharNewPacketHandler(CharacterDao, MinilandDao),
+                    new CharNewPacketHandler(CharacterDao, MinilandDao, new Mock<IItemProvider>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
+                            new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), WorldConfiguration),
                     new BlInsPackettHandler(BlacklistHttpClient.Object, _logger),
                     new UseItemPacketHandler(),
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
@@ -293,8 +294,8 @@ namespace NosCore.Tests.Helpers
                         new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>()),
                     new CSkillPacketHandler(),
                     new CBuyPacketHandler(new Mock<IBazaarHttpClient>().Object, new Mock<IItemProvider>().Object, _logger, _itemInstanceDao),
-                    new CRegPacketHandler(WorldConfiguration,new Mock<IBazaarHttpClient>().Object,_itemInstanceDao, _inventoryItemInstanceDao ),
-                    new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, new Mock<IItemProvider>().Object, _logger, _itemInstanceDao )
+                    new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, _itemInstanceDao, _inventoryItemInstanceDao),
+                    new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, new Mock<IItemProvider>().Object, _logger, _itemInstanceDao)
                 },
                 FriendHttpClient.Object,
                 new Mock<ISerializer>().Object,
