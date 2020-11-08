@@ -23,8 +23,11 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Mapster;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.MpService;
+using NosCore.Core.Configuration;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -53,11 +56,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IItemProvider _itemBuilderService;
         private readonly IHpService _hpService;
         private readonly IMpService _mpService;
+        private readonly WorldConfiguration _worldConfiguration;
 
         public const string Nameregex =
             @"^[\u0021-\u007E\u00A1-\u00AC\u00AE-\u00FF\u4E00-\u9FA5\u0E01-\u0E3A\u0E3F-\u0E5B\u002E]*$";
         public CharNewPacketHandler(IDao<CharacterDto, long> characterDao, IDao<MinilandDto, Guid> minilandDao, IItemProvider itemBuilderService,
-            IDao<QuicklistEntryDto, Guid> quicklistEntryDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao, IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IHpService hpService, IMpService mpService)
+            IDao<QuicklistEntryDto, Guid> quicklistEntryDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao, IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IHpService hpService, IMpService mpService, IOptions<WorldConfiguration> worldConfiguration)
         {
             _characterDao = characterDao;
             _minilandDao = minilandDao;
@@ -67,6 +71,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _itemInstanceDao = itemInstanceDao;
             _hpService = hpService;
             _mpService = mpService;
+            _worldConfiguration = worldConfiguration.Value;
         }
 
         public override async Task ExecuteAsync(CharNewPacket packet, ClientSession clientSession)
@@ -125,21 +130,28 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     };
                     await _minilandDao.TryInsertOrUpdateAsync(miniland).ConfigureAwait(false);
 
-                    //todo make it configurable
                     var charaGo = chara.Adapt<Character>();
-                    if (packet.IsMartialArtist)
+                    var itemsToAdd = new List<BasicEquipment>();
+                    foreach (var item in _worldConfiguration.BasicEquipments)
                     {
-
+                        switch (item.Key)
+                        {
+                            case nameof(CharacterClassType.Adventurer) when @class != CharacterClassType.Adventurer:
+                            case nameof(CharacterClassType.Archer) when @class != CharacterClassType.Archer:
+                            case nameof(CharacterClassType.Mage) when @class != CharacterClassType.Mage:
+                            case nameof(CharacterClassType.MartialArtist) when @class != CharacterClassType.MartialArtist:
+                            case nameof(CharacterClassType.Swordsman) when @class != CharacterClassType.Swordsman:
+                                break;
+                            default:
+                                itemsToAdd.AddRange(_worldConfiguration.BasicEquipments[item.Key]);
+                                break;
+                        }
                     }
-                    else
+
+                    foreach (var itemToAdd in itemsToAdd)
                     {
-                        charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(1), charaGo.CharacterId), NoscorePocketType.Wear);
-                        charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(8), charaGo.CharacterId), NoscorePocketType.Wear);
-                        charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(12), charaGo.CharacterId), NoscorePocketType.Wear);
+                        charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(itemToAdd.VNum, itemToAdd.Amount), charaGo.CharacterId), itemToAdd.NoscorePocketType);
                     }
-
-                    charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(2024, 10), charaGo.CharacterId), NoscorePocketType.Etc);
-                    charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(2081, 1), charaGo.CharacterId), NoscorePocketType.Etc);
 
                     await _itemInstanceDao.TryInsertOrUpdateAsync(charaGo.InventoryService.Values.Select(s => s.ItemInstance!).ToArray()).ConfigureAwait(false);
                     await _inventoryItemInstanceDao.TryInsertOrUpdateAsync(charaGo.InventoryService.Values.ToArray()).ConfigureAwait(false);

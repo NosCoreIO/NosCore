@@ -17,8 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.Enumerations;
+using NosCore.Packets.Enumerations;
 using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Core.Configuration
 {
@@ -66,5 +71,18 @@ namespace NosCore.Core.Configuration
         public int MaxSpPoints { get; set; }
 
         public int MaxAdditionalSpPoints { get; set; }
+
+#pragma warning disable CA2227 // Collection properties should be read only
+        public Dictionary<string, List<BasicEquipment>> BasicEquipments { get; set; } = new Dictionary<string, List<BasicEquipment>>();
+#pragma warning restore CA2227 // Collection properties should be read only
+    }
+
+    public class BasicEquipment
+    {
+        public short VNum { get; set; }
+
+        public short Amount { get; set; }
+
+        public NoscorePocketType NoscorePocketType { get; set; }
     }
 }

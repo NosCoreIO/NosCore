@@ -284,7 +284,7 @@ namespace NosCore.Tests.Helpers
                 packetHandlers ?? new List<IPacketHandler>
                 {
                     new CharNewPacketHandler(CharacterDao, MinilandDao, new Mock<IItemProvider>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
-                            new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService()),
+                            new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), WorldConfiguration),
                     new BlInsPackettHandler(BlacklistHttpClient.Object, _logger),
                     new UseItemPacketHandler(),
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,

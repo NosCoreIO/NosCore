@@ -38,3 +38,21 @@ MaxGoldAmount: 1000000000
 MaxBankGoldAmount: 100000000000
 MaxSpPoints: 10000
 MaxAdditionalSpPoints: 1000000
+BasicEquipments:
+  Adventurer:
+  - VNum: 1
+    Amount: 1
+    NoscorePocketType: 8
+  - VNum: 8
+    Amount: 1
+    NoscorePocketType: 8
+  - VNum: 12
+    Amount: 1
+    NoscorePocketType: 8
+  "*":
+  - VNum: 2081
+    Amount: 1
+    NoscorePocketType: 2
+  - VNum: 2024
+    Amount: 1
+    NoscorePocketType: 2
