@@ -500,3 +500,4 @@ Log.txt
 /build/netcoreapp2.*
 /build/netcoreapp3.*
 /build/netcoreapp5.*
+/build/net5.*
