@@ -1,6 +1,9 @@
 ARG REPO=mcr.microsoft.com/dotnet/runtime
 FROM $REPO:5.0-alpine
 
+RUN apk add --no-cache icu-libs	# Install .NET
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+
 # Install .NET
 ENV DOTNET_VERSION 5.0.0
 
