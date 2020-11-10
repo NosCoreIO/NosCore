@@ -161,7 +161,7 @@ namespace NosCore.PacketHandlers.Shops
                             clientSession.Account.Language)
                     }).ConfigureAwait(false);
 
-                    clientSession.Character.Requests.Subscribe(data =>
+                    clientSession.Character.Requests?.Subscribe(data =>
                         data.ClientSession.SendPacketAsync(
                             clientSession.Character.GenerateNpcReq(clientSession.Character.Shop.ShopId)));
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GeneratePFlag(),
