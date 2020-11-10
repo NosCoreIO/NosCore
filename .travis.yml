@@ -5,7 +5,7 @@ addons:
     snaps:
       - name: dotnet-sdk
         confinement: classic
-        channel: 5.0
+        channel: 5.0/stable
 env:
     global:
       - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
