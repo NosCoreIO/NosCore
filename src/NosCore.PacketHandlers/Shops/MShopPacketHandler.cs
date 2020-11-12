@@ -131,7 +131,7 @@ namespace NosCore.PacketHandlers.Shops
                             });
                     }
 
-                    if (clientSession.Character.Shop.ShopItems.Count == 0)
+                    if (clientSession.Character.Shop.ShopItems.IsEmpty)
                     {
                         await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop }).ConfigureAwait(false);
                         await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(

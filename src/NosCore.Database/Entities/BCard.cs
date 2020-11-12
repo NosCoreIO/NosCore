@@ -35,13 +35,13 @@ namespace NosCore.Database.Entities
 
         public int SecondData { get; set; }
 
-        public virtual Card Card { get; set; } = null!;
+        public virtual Card? Card { get; set; }
 
-        public virtual Item Item { get; set; } = null!;
+        public virtual Item? Item { get; set; }
 
-        public virtual Skill Skill { get; set; } = null!;
+        public virtual Skill? Skill { get; set; }
 
-        public virtual NpcMonster NpcMonster { get; set; } = null!;
+        public virtual NpcMonster? NpcMonster { get; set; }
 
         public short? CardId { get; set; }
 

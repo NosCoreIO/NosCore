@@ -35,12 +35,12 @@ namespace NosCore.Database.Entities
 
         public short VNum { get; set; }
 
-        public virtual MapType MapType { get; set; } = null!;
+        public virtual MapType? MapType { get; set; }
 
         public short? MapTypeId { get; set; }
 
         public short? MonsterVNum { get; set; }
 
-        public virtual NpcMonster NpcMonster { get; set; } = null!;
+        public virtual NpcMonster? NpcMonster { get; set; }
     }
 }
