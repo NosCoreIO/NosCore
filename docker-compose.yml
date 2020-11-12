@@ -46,7 +46,7 @@ services:
     networks: 
       - noscore-network
     volumes:
-      - ./build/netcoreapp5.0/linux-musl-x64:/app/build/netcoreapp5.0/linux-musl-x64
+      - ./build/net5.0/linux-musl-x64:/app/build/net5.0/linux-musl-x64
       - ./configuration/:/app/build/configuration   
 
   world:
@@ -70,7 +70,7 @@ services:
     networks: 
       - noscore-network
     volumes:
-      - ./build/netcoreapp5.0/linux-musl-x64:/app/build/netcoreapp5.0/linux-musl-x64
+      - ./build/net5.0/linux-musl-x64:/app/build/net5.0/linux-musl-x64
       - ./configuration/:/app/build/configuration   
       
   login:
@@ -91,7 +91,7 @@ services:
     networks: 
       - noscore-network
     volumes:
-      - ./build/netcoreapp5.0/linux-musl-x64:/app/build/netcoreapp5.0/linux-musl-x64
+      - ./build/net5.0/linux-musl-x64:/app/build/net5.0/linux-musl-x64
       - ./configuration/:/app/build/configuration   
 
 networks:
