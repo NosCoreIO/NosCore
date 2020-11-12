@@ -67,7 +67,7 @@ namespace NosCore.GameObject
             {
                 return ShowDialogAsync(request);
             }
-            Requests.Select(RequestExecAsync).Subscribe();
+            Requests?.Select(RequestExecAsync).Subscribe();
             var shopObj = shopDto;
             if (shopObj == null)
             {
