@@ -750,7 +750,7 @@ namespace NosCore.GameObject
                 }
             }).ConfigureAwait(false);
 
-            if (Shop.ShopItems.Count != 0)
+            if (!Shop.ShopItems.IsEmpty)
             {
                 return this.GenerateNInv(1, 0);
             }
