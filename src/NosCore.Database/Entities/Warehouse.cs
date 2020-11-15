@@ -30,11 +30,11 @@ namespace NosCore.Database.Entities
             WarehouseItems = new HashSet<WarehouseItem>();
         }
 
-        public virtual Character Character { get; set; } = null!;
+        public virtual Character? Character { get; set; }
 
         public long? CharacterId { get; set; }
 
-        public virtual Family Family { get; set; } = null!;
+        public virtual Family? Family { get; set; }
 
         public long? FamilyId { get; set; }
 

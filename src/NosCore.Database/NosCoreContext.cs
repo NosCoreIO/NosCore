@@ -339,7 +339,7 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Character>()
                 .HasMany(e => e.Mail)
-                .WithOne(e => e.Sender)
+                .WithOne(e => e.Sender!)
                 .IsRequired(false)
                 .HasForeignKey(e => e.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -388,13 +388,13 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Mail>()
                 .HasOne(e => e.ItemInstance)
-                .WithMany(e => e.Mail)
+                .WithMany(e => e!.Mail)
                 .HasForeignKey(e => e.ItemInstanceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MinilandObject>()
                 .HasOne(e => e.InventoryItemInstance)
-                .WithMany(e => e.MinilandObject)
+                .WithMany(e => e!.MinilandObject)
                 .HasForeignKey(e => e.InventoryItemInstanceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -432,7 +432,7 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Mail>()
                 .HasOne(e => e.ItemInstance)
-                .WithMany(e => e.Mail)
+                .WithMany(e => e!.Mail)
                 .HasForeignKey(e => e.ItemInstanceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -673,13 +673,13 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Character>()
                 .HasMany(e => e.Warehouses)
-                .WithOne(e => e.Character)
+                .WithOne(e => e.Character!)
                 .HasForeignKey(e => e.CharacterId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Family>()
                 .HasMany(e => e.Warehouses)
-                .WithOne(e => e.Family)
+                .WithOne(e => e.Family!)
                 .HasForeignKey(e => e.FamilyId)
                 .OnDelete(DeleteBehavior.Restrict);
 
