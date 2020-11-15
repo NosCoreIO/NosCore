@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>preview</LangVersion>
     <UseNETCoreGenerator>true</UseNETCoreGenerator>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -41,7 +41,7 @@
     <PackageReference Include="Mapster" Version="7.0.0" />
     <PackageReference Include="Mapster.JsonNet" Version="1.1.0" />
     <PackageReference Include="NosCore.FastMember" Version="1.5.0" />
-    <PackageReference Include="NosCore.Packets" Version="1.2.0" />
+    <PackageReference Include="NosCore.Packets" Version="1.3.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resource\LocalizedResources.Designer.cs">

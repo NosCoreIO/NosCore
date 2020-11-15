@@ -342,7 +342,6 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-
         public static InEquipmentSubPacket GetEquipmentSubPacket(this ICharacterEntity visualEntity) => new InEquipmentSubPacket
         {
             Armor = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear)?.ItemInstance?
