@@ -53,7 +53,7 @@ namespace NosCore.Tests
                 var matches = regex.Matches(content);
                 foreach (Match? match in matches)
                 {
-                    var param = match?.Groups?.Values?.Where(s => s.Name == "parameter").FirstOrDefault()?.Captures.Count() ?? 0;
+                    var param = match?.Groups?.Values?.Where(s => s.Name == "parameter").FirstOrDefault()?.Captures.Count ?? 0;
                     var key = match?.Groups?.Values?.FirstOrDefault(s => s.Name == "key")?.Value ?? "";
                     if (_dict.ContainsKey(key))
                     {
@@ -197,7 +197,7 @@ namespace NosCore.Tests
             foreach (var val in Enum.GetValues(typeof(LanguageKey)))
             {
                 var value = GameLanguage.Instance.GetMessageFromKey((LanguageKey)val!, type);
-                var paramCount = Regex.Matches(value, @"{[0-9A-Za-z]}").Count();
+                var paramCount = Regex.Matches(value, @"{[0-9A-Za-z]}").Count;
                 var expectedCount = !_dict.ContainsKey($"LanguageKey.{val}") ? 0
                     : _dict[$"LanguageKey.{val}"];
                 if ((value != $"#<{val}>") && (expectedCount != paramCount))

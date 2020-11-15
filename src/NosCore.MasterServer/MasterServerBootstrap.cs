@@ -37,7 +37,7 @@ namespace NosCore.MasterServer
         {
             try
             {
-                BuildWebHost(new string[0]).Run();
+                BuildWebHost(Array.Empty<string>()).Run();
             }
             catch (Exception ex)
             {

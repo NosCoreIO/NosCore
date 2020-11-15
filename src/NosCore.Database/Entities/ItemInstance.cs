@@ -43,7 +43,7 @@ namespace NosCore.Database.Entities
         public virtual ICollection<WarehouseItem> WarehouseItems { get; }
 
         [ForeignKey(nameof(BoundCharacterId))]
-        public virtual Character BoundCharacter { get; set; } = null!;
+        public virtual Character? BoundCharacter { get; set; }
 
         public long? BoundCharacterId { get; set; }
 
