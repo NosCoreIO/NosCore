@@ -30,13 +30,13 @@ namespace NosCore.Database.Entities
 
         public short Morph { get; set; }
 
-        public short Pos { get; set; }
+        public short IconVNum { get; set; }
 
-        public short Q1 { get; set; }
-
-        public short Q2 { get; set; }
+        public short QuickListIndex { get; set; }
 
         public short Slot { get; set; }
+
+        public short IconType { get; set; }
 
         public QSetType Type { get; set; }
     }
