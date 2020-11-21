@@ -153,6 +153,28 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(itemToAdd.VNum, itemToAdd.Amount), charaGo.CharacterId), itemToAdd.NoscorePocketType);
                     }
 
+
+                    await _quicklistEntryDao.TryInsertOrUpdateAsync(new[] {
+                        new QuicklistEntryDto
+                        { 
+                            Id = Guid.NewGuid(),
+                            CharacterId = chara.CharacterId,
+                            Type = QSetType.Default,
+                            Slot = 2,
+                            Q2 = 1,
+                            Pos = 0
+                        },
+                        new QuicklistEntryDto
+                        {
+                            Id = Guid.NewGuid(),
+                            CharacterId = chara.CharacterId,
+                            Q2 = 9,
+                            Type = QSetType.Set,
+                            Slot = 3,
+                            Pos = 1
+                        }
+                    });
+
                     await _itemInstanceDao.TryInsertOrUpdateAsync(charaGo.InventoryService.Values.Select(s => s.ItemInstance!).ToArray()).ConfigureAwait(false);
                     await _inventoryItemInstanceDao.TryInsertOrUpdateAsync(charaGo.InventoryService.Values.ToArray()).ConfigureAwait(false);
 

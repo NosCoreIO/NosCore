@@ -60,6 +60,12 @@ namespace NosCore.PacketHandlers.Command
                     return Task.CompletedTask;
             }
 
+            if (entity == null)
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST),
+                    sizePacket.VisualType);
+                return Task.CompletedTask;
+            }
             entity.Size = sizePacket.Size;
             return session.Character.MapInstance.SendPacketAsync(entity.GenerateCharSc());
         }

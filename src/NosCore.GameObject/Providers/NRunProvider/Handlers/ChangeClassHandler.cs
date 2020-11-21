@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 
         public async Task ExecuteAsync(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
         {
-            if (requestData.ClientSession.Character.Class != (byte) CharacterClassType.Adventurer)
+            if (requestData.ClientSession.Character.Class != (byte)CharacterClassType.Adventurer)
             {
                 await requestData.ClientSession.SendPacketAsync(new MsgPacket
                 {
@@ -61,17 +61,6 @@ namespace NosCore.GameObject.Providers.NRunProvider.Handlers
                 await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                 {
                     Message = Game18NConstString.CanNotChangeJobAtThisLevel,
-                    Type = MessageType.White
-                }).ConfigureAwait(false);
-                return;
-            }
-
-            if (requestData.ClientSession.Character.InventoryService.Any(s => s.Value.Type == NoscorePocketType.Wear))
-            {
-                await requestData.ClientSession.SendPacketAsync(new MsgPacket
-                {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
-                        requestData.ClientSession.Account.Language),
                     Type = MessageType.White
                 }).ConfigureAwait(false);
                 return;
