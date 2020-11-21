@@ -19,7 +19,7 @@ install:
 script:
     - dotnet --version
     - dotnet restore
-    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'  --runtime linux-musl-x64 --nologo
+    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --runtime linux-musl-x64 --nologo --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
 after_success:
     - curl -s https://codecov.io/bash | bash -s -- -t $(CODECOV_TOKEN)
 after_script:
@@ -28,7 +28,7 @@ after_script:
     - aws lambda invoke --function-name noscore-travis --region us-west-2 --payload '{"Build_Id":"'"$TRAVIS_JOB_ID"'", "Travis_Branch":"'"$TRAVIS_BRANCH"'", "Travis_Test_Result":"'"$TRAVIS_TEST_RESULT"'", "Travis_Commit":"'"$TRAVIS_COMMIT"'", "Travis_Repo_Slug":"'"$TRAVIS_REPO_SLUG"'", "Travis_Pull_Request":"'"$TRAVIS_PULL_REQUEST"'"}' outputfile
 
 deploy:
-  cleanup: true
+  cleanup: false
   provider: script
   script: sudo bash ./scripts/docker-publish.sh
   on:
