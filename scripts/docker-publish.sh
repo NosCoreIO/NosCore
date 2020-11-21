@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-dotnet build --runtime linux-musl-x64 --nologo
+dotnet build --nologo
 
 DOCKER_ENV=''
 DOCKER_TAG=''
