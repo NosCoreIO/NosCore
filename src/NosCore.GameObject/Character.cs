@@ -502,11 +502,11 @@ namespace NosCore.GameObject
                 new QuicklistEntryDto
                 {
                     CharacterId = CharacterId,
-                    Q1 = 0,
-                    Q2 = 9,
+                    QuickListIndex = 0,
+                    Slot = 9,
                     Type = QSetType.Set,
-                    Slot = 3,
-                    Pos = 1
+                    IconType = 3,
+                    IconVNum = 1
                 }
             };
 
@@ -842,13 +842,13 @@ namespace NosCore.GameObject
                 for (var j = 0; j < 30; j++)
                 {
                     var qi = QuicklistEntries.FirstOrDefault(n =>
-                        (n.Q1 == i) && (n.Q2 == j) && (n.Morph == (UseSp ? Morph : 0)));
+                        (n.QuickListIndex == i) && (n.Slot == j) && (n.Morph == (UseSp ? Morph : 0)));
 
                     subpacket.Add(new QsetClientSubPacket
                     {
                         OriginQuickList = qi == null ? (short)255 : (short)qi.Type,
-                        OriginQuickListSlot = qi?.Slot ?? -1,
-                        Data = qi?.Pos ?? -1
+                        OriginQuickListSlot = qi?.IconType ?? -1,
+                        Data = qi?.IconVNum ?? -1
                     });
                 }
 

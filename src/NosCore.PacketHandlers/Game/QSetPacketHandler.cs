@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Game
 
         public override async Task ExecuteAsync(QsetPacket qSetPacket, ClientSession session)
         {
-            short data1 = 0, data2 = 0, q1 = qSetPacket.OriginQuickList, q2 = qSetPacket.OriginQuickListSlot;
+            short data1 = 0, data2 = 0, quickListIndex = qSetPacket.OriginQuickList, q2 = qSetPacket.OriginQuickListSlot;
             var type = qSetPacket.Type;
             var morph = session.Character.UseSp ? session.Character.Morph : (short) 0;
             if (qSetPacket.FirstData.HasValue)
@@ -66,43 +66,43 @@ namespace NosCore.PacketHandlers.Game
                 case QSetType.Default:
                 case QSetType.Set:
                     session.Character.QuicklistEntries.RemoveAll(
-                        n => (n.Q1 == q1) && (n.Q2 == q2) && (n.Morph == morph));
+                        n => (n.QuickListIndex == quickListIndex) && (n.Slot == q2) && (n.Morph == morph));
                     session.Character.QuicklistEntries.Add(new QuicklistEntryDto
                     {
                         Id = Guid.NewGuid(),
                         CharacterId = session.Character.CharacterId,
                         Type = type,
-                        Q1 = q1,
-                        Q2 = q2,
-                        Slot = data1,
-                        Pos = data2,
+                        QuickListIndex = quickListIndex,
+                        Slot = q2,
+                        IconType = data1,
+                        IconVNum = data2,
                         Morph = morph
                     });
-                    await SendQSetAsync(session, q1, q2, type, data1, data2).ConfigureAwait(false);
+                    await SendQSetAsync(session, quickListIndex, q2, type, data1, data2).ConfigureAwait(false);
                     break;
 
                 case QSetType.Move:
                     var qlFrom = session.Character.QuicklistEntries.Find(n =>
-                        (n.Q1 == data1) && (n.Q2 == data2) && (n.Morph == morph));
+                        (n.QuickListIndex == data1) && (n.Slot == data2) && (n.Morph == morph));
                     if (qlFrom != null)
                     {
                         var qlTo = session.Character.QuicklistEntries.Find(n =>
-                            (n.Q1 == q1) && (n.Q2 == q2) && (n.Morph == morph));
+                            (n.QuickListIndex == quickListIndex) && (n.Slot == q2) && (n.Morph == morph));
 
-                        qlFrom.Q1 = q1;
-                        qlFrom.Q2 = q2;
+                        qlFrom.QuickListIndex = quickListIndex;
+                        qlFrom.Slot = q2;
 
                         if (qlTo == null)
                         {
-                            await SendQSetAsync(session, qlFrom.Q1, qlFrom.Q2, qlFrom.Type, qlFrom.Slot, qlFrom.Pos).ConfigureAwait(false);
+                            await SendQSetAsync(session, qlFrom.QuickListIndex, qlFrom.Slot, qlFrom.Type, qlFrom.IconType, qlFrom.IconVNum).ConfigureAwait(false);
                             await SendQSetAsync(session, data1, data2, QSetType.Reset, 7, -1).ConfigureAwait(false);
                         }
                         else
                         {
-                            await SendQSetAsync(session, qlFrom.Q1, qlFrom.Q2, qlFrom.Type, qlFrom.Slot, qlFrom.Pos).ConfigureAwait(false);
-                            qlTo.Q1 = data1;
-                            qlTo.Q2 = data2;
-                            await SendQSetAsync(session, qlTo.Q1, qlTo.Q2, qlTo.Type, qlTo.Slot, qlTo.Pos).ConfigureAwait(false);
+                            await SendQSetAsync(session, qlFrom.QuickListIndex, qlFrom.Slot, qlFrom.Type, qlFrom.IconType, qlFrom.IconVNum).ConfigureAwait(false);
+                            qlTo.QuickListIndex = data1;
+                            qlTo.Slot = data2;
+                            await SendQSetAsync(session, qlTo.QuickListIndex, qlTo.Slot, qlTo.Type, qlTo.IconType, qlTo.IconVNum).ConfigureAwait(false);
                         }
                     }
 
@@ -110,8 +110,8 @@ namespace NosCore.PacketHandlers.Game
 
                 case QSetType.Remove:
                     session.Character.QuicklistEntries.RemoveAll(
-                        n => (n.Q1 == q1) && (n.Q2 == q2) && (n.Morph == morph));
-                    await SendQSetAsync(session, q1, q2, QSetType.Reset, 7, -1).ConfigureAwait(false);
+                        n => (n.QuickListIndex == quickListIndex) && (n.Slot == q2) && (n.Morph == morph));
+                    await SendQSetAsync(session, quickListIndex, q2, QSetType.Reset, 7, -1).ConfigureAwait(false);
                     break;
 
                 default:

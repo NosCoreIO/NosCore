@@ -160,18 +160,18 @@ namespace NosCore.PacketHandlers.CharacterScreen
                             Id = Guid.NewGuid(),
                             CharacterId = chara.CharacterId,
                             Type = QSetType.Default,
-                            Slot = 2,
-                            Q2 = 1,
-                            Pos = 0
+                            IconType = 2,
+                            Slot = 1,
+                            IconVNum = 0
                         },
                         new QuicklistEntryDto
                         {
                             Id = Guid.NewGuid(),
                             CharacterId = chara.CharacterId,
-                            Q2 = 9,
+                            Slot = 9,
                             Type = QSetType.Set,
-                            Slot = 3,
-                            Pos = 1
+                            IconType = 3,
+                            IconVNum = 1
                         }
                     });
 

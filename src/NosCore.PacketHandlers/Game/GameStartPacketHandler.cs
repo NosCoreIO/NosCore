@@ -153,7 +153,7 @@ namespace NosCore.PacketHandlers.Game
             //            Session.SendPacket("zzim");
             //            Session.SendPacket($"twk 2 {Session.Character.CharacterId} {Session.Account.Name} {Session.Character.Name} shtmxpdlfeoqkr");
 
-            await session.SendPacketsAsync(session.Character.Quests.Values.Select(qst => qst.Quest.GenerateTargetPacket())).ConfigureAwait(false);
+            await session.SendPacketsAsync(session.Character.Quests.Values.Where(o=>o.CompletedOn == null).Select(qst => qst.Quest.GenerateTargetPacket())).ConfigureAwait(false);
             //            // sqst bf
             //            Session.SendPacket("act6");
             //            Session.SendPacket(Session.Character.GenerateFaction());
