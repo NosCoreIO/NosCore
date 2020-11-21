@@ -490,7 +490,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 ClassType = visualEntity.Class,
                 EqSubPacket = visualEntity.GetEquipmentSubPacket(),
                 WeaponUpgradeRarePacket = visualEntity.GetWeaponUpgradeRareSubPacket(),
-                ArmorUpgradeRarePacket = visualEntity.GetArmorUpgradeRareSubPacket()
+                ArmorUpgradeRarePacket = visualEntity.GetArmorUpgradeRareSubPacket(),
+                Size = visualEntity.Size
             };
         }
 

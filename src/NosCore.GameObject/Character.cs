@@ -431,6 +431,18 @@ namespace NosCore.GameObject
                 return;
             }
 
+            if (InventoryService.Any(s => s.Value.Type == NoscorePocketType.Wear))
+            {
+                await SendPacketAsync(new MsgPacket
+                {
+                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
+                        AccountLanguage),
+                    Type = MessageType.White
+                }).ConfigureAwait(false);
+                return;
+            }
+
+
             JobLevel = 1;
             JobLevelXp = 0;
             await SendPacketAsync(new NpInfoPacket()).ConfigureAwait(false);
@@ -834,8 +846,8 @@ namespace NosCore.GameObject
 
                     subpacket.Add(new QsetClientSubPacket
                     {
-                        Type = qi?.Type ?? QSetType.Reset,
-                        OriginQuickListSlot = qi?.Slot ?? 7,
+                        OriginQuickList = qi == null ? (short)255 : (short)qi.Type,
+                        OriginQuickListSlot = qi?.Slot ?? -1,
                         Data = qi?.Pos ?? -1
                     });
                 }
