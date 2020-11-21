@@ -50,9 +50,9 @@ BasicEquipments:
     Amount: 1
     NoscorePocketType: 8
   "*":
-  - VNum: 2081
-    Amount: 1
-    NoscorePocketType: 2
   - VNum: 2024
+    Amount: 10
+    NoscorePocketType: 2
+  - VNum: 2081
     Amount: 1
     NoscorePocketType: 2

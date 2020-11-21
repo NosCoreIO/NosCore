@@ -2156,7 +2156,7 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("Slot")
                         .HasColumnType("smallint");
 
-                    b.Property<byte>("Type")
+                    b.Property<short>("Type")
                         .HasColumnType("smallint");
 
                     b.HasKey("Id");

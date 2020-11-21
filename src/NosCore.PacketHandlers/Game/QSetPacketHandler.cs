@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Game
 {
     public class QSetPacketHandler : PacketHandler<QsetPacket>, IWorldPacketHandler
     {
-        private async Task SendQSetAsync(ClientSession session, short q1, short q2, QSetType type, short data1, short data2)
+        private async Task SendQSetAsync(ClientSession session, short q1, short q2, short type, short data1, short data2)
         {
             await session.SendPacketAsync(new QsetClientPacket
             {
@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.Game
                 OriginQuickListSlot = q2,
                 Data = new QsetClientSubPacket
                 {
-                    Type = type,
+                    Type = (QSetType)type,
                     OriginQuickList = data1,
                     OriginQuickListSlot = data2,
                     Data = 0
@@ -71,14 +71,14 @@ namespace NosCore.PacketHandlers.Game
                     {
                         Id = Guid.NewGuid(),
                         CharacterId = session.Character.CharacterId,
-                        Type = type,
+                        Type = (short)type,
                         QuickListIndex = quickListIndex,
                         Slot = q2,
                         IconType = data1,
                         IconVNum = data2,
                         Morph = morph
                     });
-                    await SendQSetAsync(session, quickListIndex, q2, type, data1, data2).ConfigureAwait(false);
+                    await SendQSetAsync(session, quickListIndex, q2, (short)type, data1, data2).ConfigureAwait(false);
                     break;
 
                 case QSetType.Move:
@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Game
                         if (qlTo == null)
                         {
                             await SendQSetAsync(session, qlFrom.QuickListIndex, qlFrom.Slot, qlFrom.Type, qlFrom.IconType, qlFrom.IconVNum).ConfigureAwait(false);
-                            await SendQSetAsync(session, data1, data2, QSetType.Reset, 7, -1).ConfigureAwait(false);
+                            await SendQSetAsync(session, data1, data2, 7, -1, -1).ConfigureAwait(false);
                         }
                         else
                         {
@@ -111,7 +111,7 @@ namespace NosCore.PacketHandlers.Game
                 case QSetType.Remove:
                     session.Character.QuicklistEntries.RemoveAll(
                         n => (n.QuickListIndex == quickListIndex) && (n.Slot == q2) && (n.Morph == morph));
-                    await SendQSetAsync(session, quickListIndex, q2, QSetType.Reset, 7, -1).ConfigureAwait(false);
+                    await SendQSetAsync(session, quickListIndex, q2, 7, -1, -1).ConfigureAwait(false);
                     break;
 
                 default:

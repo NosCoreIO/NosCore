@@ -38,6 +38,6 @@ namespace NosCore.Database.Entities
 
         public short IconType { get; set; }
 
-        public QSetType Type { get; set; }
+        public short Type { get; set; }
     }
 }

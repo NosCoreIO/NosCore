@@ -501,10 +501,11 @@ namespace NosCore.GameObject
             {
                 new QuicklistEntryDto
                 {
+                    Id = Guid.NewGuid(),
                     CharacterId = CharacterId,
                     QuickListIndex = 0,
                     Slot = 9,
-                    Type = QSetType.Set,
+                    Type = 1,
                     IconType = 3,
                     IconVNum = 1
                 }
@@ -846,7 +847,7 @@ namespace NosCore.GameObject
 
                     subpacket.Add(new QsetClientSubPacket
                     {
-                        OriginQuickList = qi == null ? (short)255 : (short)qi.Type,
+                        OriginQuickList = qi?.Type ?? 7,
                         OriginQuickListSlot = qi?.IconType ?? -1,
                         Data = qi?.IconVNum ?? -1
                     });
