@@ -47,7 +47,7 @@ namespace NosCore.Data.Dto
 
 	 	public short IconType { get; set; }
 
-	 	public NosCore.Packets.Enumerations.QSetType Type { get; set; }
+	 	public short Type { get; set; }
 
 	 	[Key]
 		public System.Guid Id { get; set; }

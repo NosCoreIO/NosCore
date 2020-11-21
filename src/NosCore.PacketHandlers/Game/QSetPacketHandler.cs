@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Game
                     {
                         Id = Guid.NewGuid(),
                         CharacterId = session.Character.CharacterId,
-                        Type = type,
+                        Type = (short)type,
                         QuickListIndex = quickListIndex,
                         Slot = q2,
                         IconType = data1,
@@ -94,15 +94,15 @@ namespace NosCore.PacketHandlers.Game
 
                         if (qlTo == null)
                         {
-                            await SendQSetAsync(session, qlFrom.QuickListIndex, qlFrom.Slot, qlFrom.Type, qlFrom.IconType, qlFrom.IconVNum).ConfigureAwait(false);
+                            await SendQSetAsync(session, qlFrom.QuickListIndex, qlFrom.Slot, (QSetType	)qlFrom.Type, qlFrom.IconType, qlFrom.IconVNum).ConfigureAwait(false);
                             await SendQSetAsync(session, data1, data2, QSetType.Reset, 7, -1).ConfigureAwait(false);
                         }
                         else
                         {
-                            await SendQSetAsync(session, qlFrom.QuickListIndex, qlFrom.Slot, qlFrom.Type, qlFrom.IconType, qlFrom.IconVNum).ConfigureAwait(false);
+                            await SendQSetAsync(session, qlFrom.QuickListIndex, qlFrom.Slot, (QSetType)qlFrom.Type, qlFrom.IconType, qlFrom.IconVNum).ConfigureAwait(false);
                             qlTo.QuickListIndex = data1;
                             qlTo.Slot = data2;
-                            await SendQSetAsync(session, qlTo.QuickListIndex, qlTo.Slot, qlTo.Type, qlTo.IconType, qlTo.IconVNum).ConfigureAwait(false);
+                            await SendQSetAsync(session, qlTo.QuickListIndex, qlTo.Slot, (QSetType)qlTo.Type, qlTo.IconType, qlTo.IconVNum).ConfigureAwait(false);
                         }
                     }
 

@@ -159,9 +159,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         { 
                             Id = Guid.NewGuid(),
                             CharacterId = chara.CharacterId,
-                            Type = QSetType.Default,
-                            IconType = 2,
                             Slot = 1,
+                            Type = 0,
+                            IconType = 2,
                             IconVNum = 0
                         },
                         new QuicklistEntryDto
@@ -169,10 +169,28 @@ namespace NosCore.PacketHandlers.CharacterScreen
                             Id = Guid.NewGuid(),
                             CharacterId = chara.CharacterId,
                             Slot = 9,
-                            Type = QSetType.Set,
+                            Type = 1,
                             IconType = 3,
                             IconVNum = 1
-                        }
+                        },
+                        new QuicklistEntryDto
+                        {
+                            Id = Guid.NewGuid(),
+                            CharacterId = chara.CharacterId,
+                            Slot = 0,
+                            Type = 1,
+                            IconType = 1,
+                            IconVNum = 1
+                        },
+                        new QuicklistEntryDto
+                        {
+                            Id = Guid.NewGuid(),
+                            CharacterId = chara.CharacterId,
+                            Slot = 8,
+                            Type = 1,
+                            IconType = 1,
+                            IconVNum = 16
+                        },
                     });
 
                     await _itemInstanceDao.TryInsertOrUpdateAsync(charaGo.InventoryService.Values.Select(s => s.ItemInstance!).ToArray()).ConfigureAwait(false);
