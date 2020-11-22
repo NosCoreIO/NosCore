@@ -19,6 +19,7 @@ install:
 script:
     - dotnet --version
     - dotnet restore
+    - dotnet build
     - dotnet test --runtime linux-musl-x64 --filter TestCategory=SomethingAsDotnetBuildDoesntWorkAnymore
     - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
 after_success:
