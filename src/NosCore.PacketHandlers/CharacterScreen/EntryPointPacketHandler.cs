@@ -152,12 +152,19 @@ namespace NosCore.PacketHandlers.CharacterScreen
         {
             if (clientSession.Account == null!) // we bypass this when create new char
             {
+                var passwordLessConnection = packet.Password == "thisisgfmode";
                 await VerifyConnectionAsync(clientSession, _logger, _authHttpClient, _connectedAccountHttpClient,
-                    _accountDao, _channelHttpClient, packet.Password == "thisisgfmode", packet.Name, packet.Password,
+                    _accountDao, _channelHttpClient, passwordLessConnection, packet.Name, packet.Password,
                     clientSession.SessionId);
                 if (clientSession.Account == null!)
                 {
                     return;
+                }
+
+                if (passwordLessConnection)
+                {
+                    //MFA can be validated on launcher
+                    clientSession.MfaValidated = true;
                 }
 
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
