@@ -116,14 +116,13 @@ namespace NosCore.PacketHandlers.Command
                     {
                         upgrade = (byte)createItemPacket.DesignOrAmount.Value;
                     }
-                    else
+                    else if(iteminfo.EquipmentSlot == EquipmentType.Armor || iteminfo.EquipmentSlot == EquipmentType.MainWeapon || iteminfo.EquipmentSlot == EquipmentType.SecondaryWeapon)
                     {
                         rare = (sbyte)createItemPacket.DesignOrAmount.Value;
                     }
                 }
             }
-
-            if (createItemPacket.DesignOrAmount.HasValue && !createItemPacket.Upgrade.HasValue)
+            else if (createItemPacket.DesignOrAmount.HasValue && !createItemPacket.Upgrade.HasValue)
             {
                 amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.Value.MaxItemAmount
                     ? _worldConfiguration.Value.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
