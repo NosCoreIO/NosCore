@@ -39,6 +39,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.Shared.Enumerations;
 using Serilog;
+using TwoFactorAuthNet;
 
 namespace NosCore.Core.Controllers
 {
@@ -71,6 +72,11 @@ namespace NosCore.Core.Controllers
             if (account == null)
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR));
+            }
+            var tfa = new TwoFactorAuth();
+            if (account.MfaSecret != null && !tfa.VerifyCode(account.MfaSecret, session.Mfa))
+            {
+                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT));
             }
 
             switch (_apiConfiguration.Value.HashingType)
@@ -192,10 +198,23 @@ namespace NosCore.Core.Controllers
             if (id != null && (SessionFactory.Instance.ReadyForAuth.ContainsKey(id) &&
                 (sessionId == SessionFactory.Instance.ReadyForAuth[id])))
             {
-                return Ok(id);
+                return Ok(false);
             }
 
-            return Ok(null);
+            return Ok(true);
+        }
+
+        [HttpGet("MfaEnabled")]
+        [AllowAnonymous]
+        public async Task<IActionResult> HasMfaEnabled(string? username)
+        {
+            var account = await _accountDao.FirstOrDefaultAsync(s => s.Name == username).ConfigureAwait(false);
+            if (account == null || account.MfaSecret == null)
+            {
+                return Ok(false);
+            }
+
+            return Ok(true);
         }
 
         private static string HexStringToString(string hexString)
@@ -215,6 +234,7 @@ namespace NosCore.Core.Controllers
         public string Identity { get; set; } = null!;
         public string Locale { get; set; } = null!;
         public string Password { get; set; } = null!;
+        public string? Mfa { get; set; }
     }
 
     [Serializable]

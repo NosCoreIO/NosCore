@@ -68,5 +68,8 @@ namespace NosCore.Data.Dto
 
 	 	public long ItemShopMoney { get; set; }
 
+	 	#nullable enable
+		public string? MfaSecret { get; set; } = "";
+		#nullable disable
 	 }
 }

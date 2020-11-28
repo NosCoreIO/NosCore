@@ -71,5 +71,8 @@ namespace NosCore.Database.Entities
         public long BankMoney { get; set; }
 
         public long ItemShopMoney { get; set; }
+
+        [MaxLength(255)]
+        public string? MfaSecret { get; set; }
     }
 }
