@@ -50,6 +50,7 @@ using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.Packets.ClientPackets.Infrastructure;
+using NosCore.Packets.ClientPackets.UI;
 using Serilog;
 
 namespace NosCore.GameObject.Networking.ClientSession
@@ -110,6 +111,8 @@ namespace NosCore.GameObject.Networking.ClientSession
         }
 
         public bool GameStarted { get; set; }
+
+        public bool MfaValidated { get; set; }
 
         public int LastKeepAliveIdentity { get; set; }
 
@@ -479,7 +482,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                                 return;
                             }
 
-                            if (!HasSelectedCharacter && (attr.Scopes & Scope.OnCharacterScreen) == 0)
+                            var isMfa = packet is GuriPacket guri && guri.Type == GuriPacketType.TextInput && guri.Argument == 3 && guri.VisualId == 0;
+                            if (!HasSelectedCharacter && (attr.Scopes & Scope.OnCharacterScreen) == 0 && !isMfa)
                             {
                                 _logger.Warning(
                                     LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),

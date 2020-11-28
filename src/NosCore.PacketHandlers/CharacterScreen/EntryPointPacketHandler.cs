@@ -39,6 +39,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using Serilog;
 
@@ -134,7 +135,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 Name = account.Name,
                 Password = account.Password!.ToLower(),
                 Authority = account.Authority,
-                Language = account.Language
+                Language = account.Language,
+                MfaSecret = account.MfaSecret
             };
             var sessionMapping = SessionFactory.Instance.Sessions
                 .FirstOrDefault(s => s.Value.SessionId == clientSession.SessionId);
@@ -160,6 +162,16 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
                     clientSession.Account!.Name);
+                if (!clientSession.MfaValidated && clientSession.Account.MfaSecret != null)
+                {
+                    await clientSession.SendPacketAsync(new GuriPacket
+                    {
+                        Type = GuriPacketType.Effect,
+                        Argument = 3,
+                        EntityId = 0
+                    }).ConfigureAwait(false);
+                    return;
+                }
             }
 
             var characters = _characterDao.Where(s =>
