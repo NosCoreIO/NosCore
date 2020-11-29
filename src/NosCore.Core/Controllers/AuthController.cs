@@ -198,10 +198,10 @@ namespace NosCore.Core.Controllers
             if (id != null && (SessionFactory.Instance.ReadyForAuth.ContainsKey(id) &&
                 (sessionId == SessionFactory.Instance.ReadyForAuth[id])))
             {
-                return Ok(false);
+                return Ok(true);
             }
 
-            return Ok(true);
+            return Ok(false);
         }
 
         [HttpGet("MfaEnabled")]
