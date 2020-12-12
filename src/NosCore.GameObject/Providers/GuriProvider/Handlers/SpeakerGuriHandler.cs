@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Providers.GuriProvider.Handlers
 
         public bool Condition(GuriPacket packet)
         {
-            return packet.Type == GuriPacketType.TextInput && packet.Argument == 3;
+            return packet.Type == GuriPacketType.TextInput && packet.Argument == 3 && packet.VisualId != 0;
         }
 
         private string CraftMessage(string message, string[] valuesplit)

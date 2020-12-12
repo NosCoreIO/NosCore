@@ -44,6 +44,7 @@ using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers.Login;
 using NosCore.Tests.Helpers;
 using Serilog;
+using TwoFactorAuthNet;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
@@ -62,7 +63,7 @@ namespace NosCore.Tests.PacketHandlerTests
         private NoS0577PacketHandler? _noS0577PacketHandler;
         private ClientSession? _session;
 
-        private string GuidToToken(string token)
+        private static string GuidToToken(string token)
         {
             return string.Join("", token.ToCharArray().Select(s => Convert.ToByte(s).ToString("x")));
         }
@@ -75,7 +76,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration,
                 TestHelpers.Instance.AccountDao,
                 _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object));
-            var authController = new AuthController(Options.Create(_loginConfiguration.Value.MasterCommunication),
+            var authController = new Core.Controllers.AuthController(Options.Create(_loginConfiguration.Value.MasterCommunication),
                 TestHelpers.Instance.AccountDao, Logger);
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),

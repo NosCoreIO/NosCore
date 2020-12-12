@@ -39,6 +39,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using Serilog;
 
@@ -134,7 +135,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 Name = account.Name,
                 Password = account.Password!.ToLower(),
                 Authority = account.Authority,
-                Language = account.Language
+                Language = account.Language,
+                MfaSecret = account.MfaSecret
             };
             var sessionMapping = SessionFactory.Instance.Sessions
                 .FirstOrDefault(s => s.Value.SessionId == clientSession.SessionId);
@@ -150,16 +152,33 @@ namespace NosCore.PacketHandlers.CharacterScreen
         {
             if (clientSession.Account == null!) // we bypass this when create new char
             {
+                var passwordLessConnection = packet.Password == "thisisgfmode";
                 await VerifyConnectionAsync(clientSession, _logger, _authHttpClient, _connectedAccountHttpClient,
-                    _accountDao, _channelHttpClient, packet.Password == "thisisgfmode", packet.Name, packet.Password,
+                    _accountDao, _channelHttpClient, passwordLessConnection, packet.Name, packet.Password,
                     clientSession.SessionId);
                 if (clientSession.Account == null!)
                 {
                     return;
                 }
 
+                if (passwordLessConnection)
+                {
+                    //MFA can be validated on launcher
+                    clientSession.MfaValidated = true;
+                }
+
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
                     clientSession.Account!.Name);
+                if (!clientSession.MfaValidated && clientSession.Account.MfaSecret != null)
+                {
+                    await clientSession.SendPacketAsync(new GuriPacket
+                    {
+                        Type = GuriPacketType.Effect,
+                        Argument = 3,
+                        EntityId = 0
+                    }).ConfigureAwait(false);
+                    return;
+                }
             }
 
             var characters = _characterDao.Where(s =>
