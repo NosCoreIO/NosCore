@@ -63,7 +63,7 @@ namespace NosCore.Tests.PacketHandlerTests
         private NoS0577PacketHandler? _noS0577PacketHandler;
         private ClientSession? _session;
 
-        private string GuidToToken(string token)
+        private static string GuidToToken(string token)
         {
             return string.Join("", token.ToCharArray().Select(s => Convert.ToByte(s).ToString("x")));
         }

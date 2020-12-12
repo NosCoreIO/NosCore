@@ -99,7 +99,6 @@ namespace NosCore.Tests.Helpers
         private IDao<MapMonsterDto, int> _mapMonsterDao = null!;
         private IDao<MapNpcDto, int> _mapNpcDao = null!;
         private IDao<PortalDto, int> _portalDao = null!;
-        private IDao<ShopDto, int> _shopDao = null!;
         private IDao<ShopItemDto, int> _shopItemDao = null!;
         private IDao<StaticBonusDto, long> _staticBonusDao = null!;
         private int _lastId = 100;
@@ -255,7 +254,6 @@ namespace NosCore.Tests.Helpers
             _mapNpcDao = new Dao<MapNpc, MapNpcDto, int>(_logger, ContextBuilder);
             MinilandDao = new Dao<Miniland, MinilandDto, Guid>(_logger, ContextBuilder);
             MinilandObjectDao = new Dao<MinilandObject, MinilandObjectDto, Guid>(_logger, ContextBuilder);
-            _shopDao = new Dao<Shop, ShopDto, int>(_logger, ContextBuilder);
             _shopItemDao = new Dao<ShopItem, ShopItemDto, int>(_logger, ContextBuilder);
             CharacterDao = new Dao<Character, CharacterDto, long>(_logger, ContextBuilder);
             _itemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(_logger, ContextBuilder);

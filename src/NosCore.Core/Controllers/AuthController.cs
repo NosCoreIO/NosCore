@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -63,7 +64,7 @@ namespace NosCore.Core.Controllers
         [HttpPost("sessions")]
         public async Task<IActionResult> ConnectUserAsync(ApiSession session)
         {
-            if (!ModelState.IsValid || session == null)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR));
             }
@@ -74,7 +75,7 @@ namespace NosCore.Core.Controllers
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR));
             }
             var tfa = new TwoFactorAuth();
-            if (account.MfaSecret != null && !tfa.VerifyCode(account.MfaSecret, session.Mfa))
+            if (!string.IsNullOrEmpty(account.MfaSecret) && !tfa.VerifyCode(account.MfaSecret, session.Mfa))
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT));
             }
@@ -230,9 +231,13 @@ namespace NosCore.Core.Controllers
     [Serializable]
     public class ApiSession
     {
+        [Required]
         public string GfLang { get; set; } = null!;
+        [Required]
         public string Identity { get; set; } = null!;
+        [Required]
         public string Locale { get; set; } = null!;
+        [Required]
         public string Password { get; set; } = null!;
         public string? Mfa { get; set; }
     }

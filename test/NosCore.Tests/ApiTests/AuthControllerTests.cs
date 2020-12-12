@@ -23,6 +23,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.Tests.Helpers;
 using Serilog;
+using TwoFactorAuthNet;
 
 namespace NosCore.Tests.ApiTests
 {
@@ -32,6 +33,7 @@ namespace NosCore.Tests.ApiTests
         private readonly string _tokenGuid = Guid.NewGuid().ToString();
         private AuthController _controller = null!;
         private ClientSession _session = null!;
+        private Mock<ILogger> _logger = null!;
 
         [TestInitialize]
         public async Task Setup()
@@ -41,95 +43,92 @@ namespace NosCore.Tests.ApiTests
             SessionFactory.Instance.Sessions.Clear();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _controller = new AuthController(Options.Create(new WebApiConfiguration()), TestHelpers.Instance.AccountDao, new Mock<ILogger>().Object);
+            _logger = new Mock<ILogger>();
+            _controller = new AuthController(Options.Create(new WebApiConfiguration()
+            {
+                Password = "123"
+            }), TestHelpers.Instance.AccountDao, _logger.Object);
         }
 
-        //[AllowAnonymous]
-        //[HttpPost("sessions")]
-        //public async Task<IActionResult> ConnectUserAsync(ApiSession session)
-        //{
-        //    if (!ModelState.IsValid || session == null)
-        //    {
-        //        return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR));
-        //    }
+        [TestMethod]
+        public async Task ConnectUser()
+        {
+            await _controller.ConnectUserAsync(new ApiSession
+            {
+                Identity = _session.Account.Name,
+                GfLang = "EN",
+                Password = "test",
+                Locale = "en-GB"
+            });
 
-        //    var account = await _accountDao.FirstOrDefaultAsync(s => s.Name == session.Identity).ConfigureAwait(false);
-        //    if (account == null)
-        //    {
-        //        return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR));
-        //    }
-        //    var tfa = new TwoFactorAuth();
-        //    if (account.MfaSecret != null && !tfa.VerifyCode(account.MfaSecret, session.Mfa))
-        //    {
-        //        return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT));
-        //    }
+            _logger.Verify(o=>o.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_API_SUCCESS),
+                _session.Account.Name, It.IsAny<Guid>(), "en-GB"), Times.Once());
+        }
 
-        //    switch (_apiConfiguration.Value.HashingType)
-        //    {
-        //        case HashingType.BCrypt:
-        //            if (account.NewAuthPassword != Encoding.Default
-        //                    .GetString(Convert.FromBase64String(account!.NewAuthPassword!))
-        //                    .ToBcrypt(account.NewAuthSalt!
-        //                ))
-        //            {
-        //                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
-        //            }
+        [TestMethod]
+        public async Task ConnectUserInvalidPassword()
+        {
+            var result = await _controller.ConnectUserAsync(new ApiSession
+            {
+                Identity = _session.Account.Name,
+                GfLang = "EN",
+                Password = "test2"
+            });
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT))), JsonSerializer.Serialize((BadRequestObjectResult)result));
+        }
 
-        //            break;
-        //        case HashingType.Pbkdf2:
-        //            if (account.NewAuthPassword != Encoding.Default
-        //                .GetString(Convert.FromBase64String(account.NewAuthPassword!))
-        //                .ToPbkdf2Hash(account.NewAuthSalt!))
-        //            {
-        //                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
-        //            }
+        [TestMethod]
+        public async Task ConnectUserAsyncWhenInvalidAccount()
+        {
+            var result = await _controller.ConnectUserAsync(new ApiSession
+            {
+                Identity = _session.Account.Name + "abc"
+            });
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR))), JsonSerializer.Serialize((BadRequestObjectResult)result));
+        }
 
-        //            break;
-        //        default:
-        //            if (account.Password!.ToLower(CultureInfo.CurrentCulture) != (session.Password?.ToSha512() ?? ""))
-        //            {
-        //                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
-        //            }
+        [TestMethod]
+        public async Task ConnectUserAsyncWhenInvalidMfa()
+        {
+            var tfa = new TwoFactorAuth();
+            _session.Account.MfaSecret = tfa.CreateSecret();
+            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session.Account);
 
-        //            break;
-        //    }
+            var result = await _controller.ConnectUserAsync(new ApiSession
+            {
+                Identity = _session.Account.Name,
+                Mfa = tfa.GetCode(string.Concat(_session.Account.MfaSecret.Reverse())),
+            });
 
-        //    account.Language = Enum.Parse<RegionType>(session.GfLang?.ToUpper(CultureInfo.CurrentCulture) ?? "");
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT))), JsonSerializer.Serialize((BadRequestObjectResult)result));
+        }
 
-        //    account = await _accountDao.TryInsertOrUpdateAsync(account).ConfigureAwait(false);
-        //    var platformGameAccountId = Guid.NewGuid();
-        //    var claims = new ClaimsIdentity(new[]
-        //    {
-        //        new Claim(ClaimTypes.NameIdentifier, session.Identity),
-        //        new Claim(ClaimTypes.Sid, platformGameAccountId.ToString()),
-        //        new Claim(ClaimTypes.Role, account.Authority.ToString())
-        //    });
-        //    var password = _apiConfiguration.Value.HashingType switch
-        //    {
-        //        HashingType.BCrypt => _apiConfiguration.Value.Password!.ToBcrypt(_apiConfiguration.Value.Salt ?? ""),
-        //        HashingType.Pbkdf2 => _apiConfiguration.Value.Password!.ToPbkdf2Hash(_apiConfiguration.Value.Salt ?? ""),
-        //        HashingType.Sha512 => _apiConfiguration.Value.Password!.ToSha512(),
-        //        _ => _apiConfiguration.Value.Password!.ToSha512()
-        //    };
+        [TestMethod]
+        public async Task ConnectUserAsyncWhenNoMfa()
+        {
+            var result = await _controller.ConnectUserAsync(new ApiSession
+            {
+                Identity = _session.Account.Name
+            });
 
-        //    var keyByteArray = Encoding.Default.GetBytes(password);
-        //    var signinKey = new SymmetricSecurityKey(keyByteArray);
-        //    var handler = new JwtSecurityTokenHandler();
-        //    var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-        //    {
-        //        Subject = claims,
-        //        Issuer = "Issuer",
-        //        Audience = "Audience",
-        //        SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
-        //    });
-        //    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_API_SUCCESS),
-        //        session.Identity, platformGameAccountId, session.Locale);
-        //    return Ok(new
-        //    {
-        //        token = handler.WriteToken(securityToken),
-        //        platformGameAccountId
-        //    });
-        //}
+            Assert.AreNotEqual(JsonSerializer.Serialize(new BadRequestObjectResult(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT))), JsonSerializer.Serialize((BadRequestObjectResult)result));
+        }
+
+        [TestMethod]
+        public async Task ConnectUserAsyncWhenValidMfa()
+        {
+            var tfa = new TwoFactorAuth();
+            _session.Account.MfaSecret = tfa.CreateSecret();
+            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session.Account);
+
+            var result = await _controller.ConnectUserAsync(new ApiSession
+            {
+                Identity = _session.Account.Name,
+                Mfa = tfa.GetCode(_session.Account.MfaSecret),
+            });
+
+            Assert.AreNotEqual(JsonSerializer.Serialize(new BadRequestObjectResult(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT))), JsonSerializer.Serialize((BadRequestObjectResult)result));
+        }
 
         [TestMethod]
         public void GetAuthCodeGenerateAuthCodeWhenValidIdentity()
@@ -172,7 +171,7 @@ namespace NosCore.Tests.ApiTests
                     User = new ClaimsPrincipal(identity)
                 }
             };
-           
+
             var result = _controller.GetAuthCode(new ApiPlatformGameAccount
             {
                 PlatformGameAccountId = "123"
