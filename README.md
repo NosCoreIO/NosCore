@@ -4,7 +4,7 @@
 
 # NosCore #
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/78d6f89d028f4b9eb0349e37eb10fbac)](https://www.codacy.com/app/NosCoreIO/NosCore?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=NosCoreIO/NosCore&amp;utm_campaign=Badge_Grade)
-[![Travis build status](https://travis-ci.org/NosCoreIO/NosCore.svg?branch=master)](https://travis-ci.org/NosCoreIO/NosCore)
+[![Travis build status](https://travis-ci.com/NosCoreIO/NosCore.svg?branch=master)](https://travis-ci.com/NosCoreIO/NosCore)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/NosCoreIO/NosCore.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/NosCoreIO/NosCore/alerts/)
 
 # Special Thanks for Contributions #
