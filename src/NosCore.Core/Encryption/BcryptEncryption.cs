@@ -17,15 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Data.Enumerations
-{
-    public enum HashingType
-    {
-        Sha512,
+using System;
+using NosCore.Shared.Authentication;
 
-        //if your care about security use Pbkdf2 (bcrypt doesn't have a approved package for c#)
-        //PBKDF2-HMAC-SHA512-150000
-        Pbkdf2,
-        BCrypt
+namespace NosCore.Core.Encryption
+{
+    public class BcryptEncryption : IEncryption
+    {
+        public string Encrypt(string password, string? salt)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password, salt);
+        }
+
+        public string Encrypt(string password) => throw new NotImplementedException();
     }
 }

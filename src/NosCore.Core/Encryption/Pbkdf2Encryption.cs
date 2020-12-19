@@ -18,27 +18,28 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
-using System.Reflection;
+using System.Globalization;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using NosCore.Shared.Authentication;
 
-namespace NosCore.Core.Extensions
+namespace NosCore.Core.Encryption
 {
-    public static class AssemblyExtension
+    public class Pbkdf2Encryption : IEncryption
     {
-        public static IEnumerable<T> GetInstancesOfImplementingTypes<T>(this Assembly assembly)
+        public string Encrypt(string inputString, string? salt)
         {
-            if (assembly == null)
-            {
-                throw new ArgumentNullException(nameof(assembly));
-            }
+            var saltBytes = Convert.FromBase64String(Convert.ToBase64String(Encoding.Default.GetBytes(salt ?? "")));
 
-            foreach (var t in assembly.GetTypes())
-            {
-                if (typeof(T).IsAssignableFrom(t))
-                {
-                    yield return t.CreateInstance<T>();
-                }
-            }
+            using var pbkdf2 = new Rfc2898DeriveBytes(
+                Encoding.Default.GetBytes(inputString),
+                saltBytes,
+                150000,
+                HashAlgorithmName.SHA512);
+            return string.Concat(pbkdf2.GetBytes(64).Select(item => item.ToString("x2", CultureInfo.CurrentCulture)));
         }
+
+        public string Encrypt(string password) => throw new NotImplementedException();
     }
 }

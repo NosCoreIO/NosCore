@@ -36,6 +36,7 @@ using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.Authentication;
 using Polly;
 using Serilog;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -45,16 +46,18 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
     public class ChannelHttpClient : IChannelHttpClient
     {
         private readonly Channel _channel;
+        private readonly IEncryption _encryption;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
         private DateTime _lastUpdateToken;
         private string? _token;
 
-        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger)
+        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger, IEncryption encryption)
         {
             _httpClientFactory = httpClientFactory;
             _channel = channel;
             _logger = logger;
+            _encryption = encryption;
         }
 
         public async Task ConnectAsync()
@@ -133,16 +136,8 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-            var password = _channel.MasterCommunication.HashingType switch
-            {
-                HashingType.BCrypt => _channel.MasterCommunication.Password!.ToBcrypt(_channel.MasterCommunication
-                    .Salt!),
-                HashingType.Pbkdf2 => _channel.MasterCommunication.Password!.ToPbkdf2Hash(_channel
-                    .MasterCommunication.Salt!),
-                HashingType.Sha512 => _channel.MasterCommunication.Password!.ToSha512(),
-                _ => _channel.MasterCommunication.Password!.ToSha512()
-            };
 
+            var password = _encryption.Encrypt(_channel.MasterCommunication.Password ?? "", _channel.MasterCommunication.Salt);
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             var handler = new JwtSecurityTokenHandler();

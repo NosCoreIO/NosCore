@@ -39,6 +39,9 @@ using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.Authentication;
+using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 using Serilog;
 
 namespace NosCore.Core.Controllers
@@ -50,11 +53,13 @@ namespace NosCore.Core.Controllers
         private readonly IOptions<WebApiConfiguration> _apiConfiguration;
         private readonly ILogger _logger;
         private int _id;
+        private readonly IEncryption _encryption;
 
-        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger)
+        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger, IEncryption encryption)
         {
             _logger = logger;
             _apiConfiguration = apiConfiguration;
+            _encryption = encryption;
         }
 
         private string GenerateToken()
@@ -64,14 +69,7 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.NameIdentifier, "Server"),
                 new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
             });
-            var password = _apiConfiguration.Value.HashingType switch
-            {
-                HashingType.BCrypt => _apiConfiguration.Value.Password!.ToBcrypt(_apiConfiguration.Value.Salt ?? ""),
-                HashingType.Pbkdf2 => _apiConfiguration.Value.Password!.ToPbkdf2Hash(_apiConfiguration.Value.Salt ?? ""),
-                HashingType.Sha512 => _apiConfiguration.Value.Password!.ToSha512(),
-                _ => _apiConfiguration.Value.Password!.ToSha512()
-            };
-
+            var password = _encryption.Encrypt(_apiConfiguration.Value.Password ?? "", _apiConfiguration.Value.Salt);
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             var handler = new JwtSecurityTokenHandler();

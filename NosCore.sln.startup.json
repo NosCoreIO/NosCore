@@ -23,12 +23,21 @@
         "NosCore.MasterServer": {}
       }
     },
+    "World + Login + Master + WebApi": {
+      "Projects": {
+        "NosCore.WorldServer": {},
+        "NosCore.LoginServer": {},
+        "NosCore.MasterServer": {},
+        "NosCore.WebApi": {}
+      }
+    },
     "All": {
       "Projects": {
         "NosCore.WorldServer": {},
         "NosCore.LoginServer": {},
         "NosCore.MasterServer": {},
-        "NosCore.Parser": {}
+        "NosCore.Parser": {},
+        "NosCore.WebApi": {}
       }
     },
     "LoginServer": {
@@ -51,9 +60,9 @@
         "NosCore.Parser": {}
       }
     },
-    "Gui": {
+    "WebApi": {
       "Projects": {
-        "NosCore.PathFinder.Gui": {}
+        "NosCore.WebApi": {}
       }
     }
   }

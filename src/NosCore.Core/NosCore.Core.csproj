@@ -26,7 +26,6 @@
     <PackageReference Include="DotNetty.Transport" Version="0.6.0" />
     <PackageReference Include="FastExpressionCompiler" Version="2.0.0" />
     <PackageReference Include="JsonPatch.Net" Version="1.0.3" />
-    <PackageReference Include="JsonPointer.Net" Version="1.3.0" />
     <PackageReference Include="Mapster" Version="7.0.1" />
     <PackageReference Include="Mapster.JsonNet" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.1" />

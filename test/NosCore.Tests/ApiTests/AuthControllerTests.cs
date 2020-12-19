@@ -15,6 +15,8 @@ using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Shared.Authentication;
+using NosCore.Shared.Configuration;
 using NosCore.Tests.Helpers;
 using Serilog;
 using TwoFactorAuthNet;
@@ -28,6 +30,7 @@ namespace NosCore.Tests.ApiTests
         private AuthController _controller = null!;
         private ClientSession _session = null!;
         private Mock<ILogger> _logger = null!;
+        private IEncryption _encryption = null!;
 
         [TestInitialize]
         public async Task Setup()
@@ -41,7 +44,7 @@ namespace NosCore.Tests.ApiTests
             _controller = new AuthController(Options.Create(new WebApiConfiguration()
             {
                 Password = "123"
-            }), TestHelpers.Instance.AccountDao, _logger.Object);
+            }), TestHelpers.Instance.AccountDao, _logger.Object, _encryption);
         }
 
         [TestMethod]

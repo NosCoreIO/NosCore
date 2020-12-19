@@ -1,0 +1,13 @@
+MasterCommunication:
+  Password: NosCorePassword
+  Host: ${MASTER_HOST,http://localhost}
+  Port: 5000
+  Routes:
+    ConnectedAccount: api/connectedAccount
+    Channel: api/channel
+    Session: api/session
+    Relation: api/relation
+    Packet: api/packet
+    Stat: api/stat
+    Friend: api/friend
+    Blacklist: api/blacklist

@@ -19,8 +19,10 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -32,7 +34,7 @@ using Serilog;
 
 namespace NosCore.LoginServer
 {
-    public class LoginServer
+    public class LoginServer : BackgroundService
     {
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly ILogger _logger;
@@ -49,7 +51,7 @@ namespace NosCore.LoginServer
             _context = context;
         }
 
-        public async Task RunAsync()
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try
             {
@@ -60,8 +62,8 @@ namespace NosCore.LoginServer
 
                 try
                 {
-                    await _context.Database.MigrateAsync();
-                    await _context.Database.GetDbConnection().OpenAsync();
+                    await _context.Database.MigrateAsync(cancellationToken: stoppingToken);
+                    await _context.Database.GetDbConnection().OpenAsync(stoppingToken);
                     _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
                 }
                 catch (Exception ex)

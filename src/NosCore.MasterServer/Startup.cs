@@ -45,6 +45,7 @@ using Microsoft.OpenApi.Models;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Controllers;
+using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.HttpClients.IncommingMailHttpClients;
@@ -61,6 +62,8 @@ using NosCore.Database.Entities;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
+using NosCore.Shared.Authentication;
+using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using ILogger = Serilog.ILogger;
 using NosCore.Shared.I18N;
@@ -225,6 +228,12 @@ namespace NosCore.MasterServer
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
 
             var containerBuilder = InitializeContainer(services);
+            containerBuilder.Register<IEncryption>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
+            {
+                HashingType.BCrypt => new BcryptEncryption(),
+                HashingType.Pbkdf2 => new Pbkdf2Encryption(),
+                _ => new Sha512Encryption()
+            });
             var container = containerBuilder.Build();
             container.Resolve<MasterServer>().Run();
             return new AutofacServiceProvider(container);

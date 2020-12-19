@@ -41,6 +41,9 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers.Login;
+using NosCore.Shared.Authentication;
+using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Helpers;
 using Serilog;
 
@@ -50,6 +53,7 @@ namespace NosCore.Tests.PacketHandlerTests
     public class NoS0577PacketHandlerTests
     {
         private readonly string _tokenGuid = Guid.NewGuid().ToString();
+        private IEncryption _encryption = null!;
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private readonly Mock<IAuthHttpClient> _authHttpClient = new Mock<IAuthHttpClient>();
         private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
@@ -75,7 +79,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 TestHelpers.Instance.AccountDao,
                 _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object));
             var authController = new Core.Controllers.AuthController(Options.Create(_loginConfiguration.Value.MasterCommunication),
-                TestHelpers.Instance.AccountDao, Logger);
+                TestHelpers.Instance.AccountDao, Logger, _encryption);
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
@@ -86,12 +90,12 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginBCryptAsync()
         {
-            _loginConfiguration.Value.MasterCommunication!.HashingType = HashingType.BCrypt;
+            _encryption = new BcryptEncryption();
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
             _session!.Account.NewAuthSalt = BCrypt.Net.BCrypt.GenerateSalt();
-            _session.Account.NewAuthPassword = _tokenGuid.ToBcrypt(_session.Account.NewAuthSalt);
+            _session.Account.NewAuthPassword = _encryption.Encrypt(_tokenGuid,_session.Account.NewAuthSalt);
 
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
@@ -106,11 +110,11 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginPbkdf2Async()
         {
-            _loginConfiguration.Value.MasterCommunication!.HashingType = HashingType.Pbkdf2;
+            _encryption = new Pbkdf2Encryption();
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
-            _session!.Account.NewAuthPassword = _tokenGuid.ToPbkdf2Hash("MY_SUPER_SECRET_HASH");
+            _session!.Account.NewAuthPassword = _encryption.Encrypt(_tokenGuid, "MY_SUPER_SECRET_HASH");
             _session.Account.NewAuthSalt = "MY_SUPER_SECRET_HASH";
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet

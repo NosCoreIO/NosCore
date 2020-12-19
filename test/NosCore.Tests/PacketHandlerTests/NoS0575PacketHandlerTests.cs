@@ -46,7 +46,7 @@ namespace NosCore.Tests.PacketHandlerTests
     public class NoS0575PacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private readonly string _password = "test".ToSha512();
+        private string _password = null!;
         private Mock<IAuthHttpClient>? _authHttpClient;
         private Mock<IChannelHttpClient>? _channelHttpClient;
         private Mock<IConnectedAccountHttpClient>? _connectedAccountHttpClient;
@@ -57,6 +57,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestInitialize]
         public async Task SetupAsync()
         {
+            _password = new Sha512Encryption().Encrypt("test1");
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _authHttpClient = new Mock<IAuthHttpClient>();
@@ -72,14 +73,14 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestMethod]
         public async Task LoginOldClientAsync()
         {
-            _loginConfiguration!.Value.ClientVersion = new ClientVersionSubPacket {Major = 1};
+            _loginConfiguration!.Value.ClientVersion = new ClientVersionSubPacket { Major = 1 };
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,
                 Username = _session!.Account.Name.ToUpperInvariant()
             }, _session).ConfigureAwait(false);
 
-            Assert.IsTrue(((FailcPacket?) _session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.OldClient);
         }
 
@@ -105,7 +106,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Username = "noaccount"
             }, _session!).ConfigureAwait(false);
 
-            Assert.IsTrue(((FailcPacket?) _session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AccountOrPasswordWrong);
         }
 
@@ -118,27 +119,28 @@ namespace NosCore.Tests.PacketHandlerTests
                 Username = _session!.Account.Name.ToUpperInvariant()
             }, _session).ConfigureAwait(false);
 
-            Assert.IsTrue(((FailcPacket?) _session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.WrongCaps);
         }
 
         [TestMethod]
         public async Task LoginWrongPAsswordAsync()
         {
+            var encryption = new Sha512Encryption();
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
-                Password = "test1".ToSha512(),
+                Password = encryption.Encrypt("test1"),
                 Username = _session!.Account.Name
             }, _session).ConfigureAwait(false);
 
-            Assert.IsTrue(((FailcPacket?) _session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AccountOrPasswordWrong);
         }
 
         [TestMethod]
         public async Task LoginAsync()
         {
-            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> {new ChannelInfo()});
+            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
             _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
@@ -147,13 +149,13 @@ namespace NosCore.Tests.PacketHandlerTests
                 Username = _session!.Account.Name
             }, _session).ConfigureAwait(false);
 
-            Assert.IsNotNull((NsTestPacket?) _session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
+            Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }
 
         [TestMethod]
         public async Task LoginAlreadyConnectedAsync()
         {
-            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> {new ChannelInfo()});
+            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
             _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>())).ReturnsAsync(
                 new List<ConnectedAccount>
                     {new ConnectedAccount {Name = _session!.Account.Name}});
@@ -162,7 +164,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Password = _password,
                 Username = _session.Account.Name
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue(((FailcPacket?) _session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AlreadyConnected);
         }
 
@@ -178,7 +180,7 @@ namespace NosCore.Tests.PacketHandlerTests
                 Password = _password,
                 Username = _session!.Account.Name
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue(((FailcPacket?) _session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.CantConnect);
         }
 

@@ -99,6 +99,7 @@ using NosCore.Shared.Configuration;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
 using NosCore.Shared.I18N;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.Authentication;
 
 namespace NosCore.WorldServer
 {
@@ -304,6 +305,13 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
 
+            containerBuilder.Register<IEncryption>(o => o.Resolve<IOptions<WorldConfiguration>>().Value.MasterCommunication.HashingType switch
+            {
+                HashingType.BCrypt => new BcryptEncryption(),
+                HashingType.Pbkdf2 => new Pbkdf2Encryption(),
+                _ => new Sha512Encryption()
+            });
+
             containerBuilder.Register(c =>
             {
                 var configuration = c.Resolve<IOptions<WorldConfiguration>>();
@@ -312,7 +320,8 @@ namespace NosCore.WorldServer
                     new Claim(ClaimTypes.NameIdentifier, "Server"),
                     new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
                 });
-                var keyByteArray = Encoding.Default.GetBytes(configuration.Value.MasterCommunication!.Password!.ToSha512());
+
+                var keyByteArray = Encoding.Default.GetBytes(c.Resolve<IEncryption>().Encrypt(configuration.Value.MasterCommunication!.Password!));
                 var signinKey = new SymmetricSecurityKey(keyByteArray);
                 var handler = new JwtSecurityTokenHandler();
                 var securityToken = handler.CreateToken(new SecurityTokenDescriptor

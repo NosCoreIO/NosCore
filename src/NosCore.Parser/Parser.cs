@@ -101,6 +101,8 @@ namespace NosCore.Parser
                     }
 
                     var containerBuilder = new ContainerBuilder();
+
+                    containerBuilder.RegisterInstance(parserConfiguration);
                     containerBuilder.Register(c => optionsBuilder.Options).As<DbContextOptions>();
                     containerBuilder.RegisterType<NosCoreContext>().As<DbContext>()
                         .OnActivated(c=> c.Instance.Database.Migrate());
