@@ -17,20 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using Microsoft.AspNetCore.Authorization;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 
-namespace NosCore.Core
+namespace NosCore.Core.I18N
 {
-    public class AuthorizeRoleAttribute : AuthorizeAttribute
+    public class RegionTypeMapping
     {
-        public AuthorizeRoleAttribute(AuthorityType allowedRole)
+        public RegionTypeMapping(int sessionId, RegionType regionType)
         {
-            var enums = Enum.GetValues(typeof(AuthorityType)).Cast<AuthorityType>().ToList()
-                .Where(s => s >= allowedRole);
-            Roles = string.Join(",", enums.ToArray());
+            SessionId = sessionId;
+            RegionType = regionType;
         }
+
+        public int SessionId { get; set; }
+        public RegionType RegionType { get; set; }
     }
 }

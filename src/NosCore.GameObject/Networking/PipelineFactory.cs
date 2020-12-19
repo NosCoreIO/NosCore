@@ -24,6 +24,7 @@ using DotNetty.Codecs;
 using DotNetty.Transport.Channels.Sockets;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
+using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Shared.Configuration;
 
