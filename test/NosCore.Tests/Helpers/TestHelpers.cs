@@ -78,7 +78,6 @@ using MapMonster = NosCore.Database.Entities.MapMonster;
 using MapNpc = NosCore.Database.Entities.MapNpc;
 using Miniland = NosCore.Database.Entities.Miniland;
 using Portal = NosCore.Database.Entities.Portal;
-using Shop = NosCore.Database.Entities.Shop;
 using ShopItem = NosCore.Database.Entities.ShopItem;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;

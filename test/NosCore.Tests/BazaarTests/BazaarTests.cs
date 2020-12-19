@@ -20,7 +20,9 @@
 using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.JsonPatch;
+using Json.More;
+using Json.Patch;
+using Json.Pointer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
@@ -360,8 +362,7 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task ModifyBazaarNotRegisteredAsync()
         {
-            var patch = new JsonPatchDocument<BazaarLink>();
-            patch.Replace(link => link.BazaarItem!.Price, 50);
+            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<BazaarLink>(o => o.BazaarItem!.Price), 50.AsJsonElement()));
             Assert.IsNull(await _bazaarController!.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
         }
 
@@ -387,8 +388,7 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstanceId = _guid,
                     Price = 80
                 }).ConfigureAwait(false);
-            var patch = new JsonPatchDocument<BazaarLink>();
-            patch.Replace(link => link.BazaarItem!.Price, 50);
+            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<BazaarLink>(o => o.BazaarItem!.Price), 50.AsJsonElement()));
             Assert.IsNotNull(await _bazaarController.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
             Assert.AreEqual(50, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.Price);
         }
@@ -416,8 +416,7 @@ namespace NosCore.Tests.BazaarTests
                     Price = 50
                 }).ConfigureAwait(false);
             _bazaarItemsHolder!.BazaarItems[0].ItemInstance!.Amount--;
-            var patch = new JsonPatchDocument<BazaarLink>();
-            patch.Replace(link => link.BazaarItem!.Price, 10);
+            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<BazaarLink>(o=>o.BazaarItem!.Price), 10.AsJsonElement()));
             Assert.IsNull(await _bazaarController.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
             Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Price);
         }

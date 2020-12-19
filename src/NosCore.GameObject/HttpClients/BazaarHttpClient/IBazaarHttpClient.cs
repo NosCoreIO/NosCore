@@ -19,8 +19,8 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Json.Patch;
 using NosCore.Packets.Enumerations;
-using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 
@@ -35,6 +35,6 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
         Task<LanguageKey?> AddBazaarAsync(BazaarRequest bazaarRequest);
         Task<BazaarLink?> GetBazaarLinkAsync(long bazaarId);
         Task<bool> RemoveAsync(long bazaarId, int count, string requestCharacterName);
-        Task<BazaarLink> ModifyAsync(long bazaarId, JsonPatchDocument<BazaarLink> patchBz);
+        Task<BazaarLink> ModifyAsync(long bazaarId, JsonPatch patchBz);
     }
 }

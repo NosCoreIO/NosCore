@@ -20,8 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.JsonPatch;
+using Json.Patch;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
@@ -111,7 +112,7 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPatch]
-        public async Task<MailData?> ViewMailAsync(long id, [FromBody] JsonPatchDocument<MailDto> mailData)
+        public async Task<MailData?> ViewMailAsync(long id, [FromBody] JsonPatch mailData)
         {
             var mail = await _mailDao.FirstOrDefaultAsync(s => s.MailId == id).ConfigureAwait(false);
             if (mail == null)
@@ -120,8 +121,8 @@ namespace NosCore.MasterServer.Controllers
             }
 
 
-            mailData.ApplyTo(mail);
-            var bz = mail;
+            var result = mailData.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(mail)).RootElement);
+            var bz = JsonSerializer.Deserialize<MailDto>(result!.Result.GetRawText())!;
             await _mailDao.TryInsertOrUpdateAsync(bz).ConfigureAwait(false);
             var savedData =
                 _parcelHolder[mail.IsSenderCopy ? (long)mail.SenderId! : mail.ReceiverId][mail.IsSenderCopy]

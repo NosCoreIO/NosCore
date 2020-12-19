@@ -20,14 +20,14 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.JsonPatch;
+using Json.Patch;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClients
 {
     public interface IChannelHttpClient
     {
         Task ConnectAsync();
-        Task<HttpStatusCode> PatchAsync(int channelId, JsonPatchDocument<ChannelInfo> patch);
+        Task<HttpStatusCode> PatchAsync(int channelId, JsonPatch patch);
         Task<string?> GetOrRefreshTokenAsync();
         Task<List<ChannelInfo>?> GetChannelsAsync();
         Task<ChannelInfo?> GetChannelAsync(int channelId);

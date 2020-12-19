@@ -18,9 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
+using Json.More;
+using Json.Patch;
+using Json.Pointer;
 using NosCore.Packets.ClientPackets.Parcel;
 using NosCore.Packets.Enumerations;
-using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -55,8 +57,7 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    var patch = new JsonPatchDocument<MailDto>();
-                    patch.Replace(link => link.IsOpened, true);
+                    var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<MailDto>(o => o.IsOpened), true.AsJsonElement()));
                     await _mailHttpClient.ViewGiftAsync(mail.MailDto.MailId, patch).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(mail.GeneratePostMessage(pstClientPacket.Type)).ConfigureAwait(false);
                     break;

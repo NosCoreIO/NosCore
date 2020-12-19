@@ -43,8 +43,6 @@ using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -188,6 +186,7 @@ namespace NosCore.WorldServer
             containerBuilder.Register(c =>
                 {
                     var dic = new Dictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>
+
                     {
                         {
                             typeof(I18NActDescDto),
@@ -453,19 +452,7 @@ namespace NosCore.WorldServer
                 });
 
             services
-                .AddControllers(options =>//todo remove when System.Text.Json support jsonPatch
-            {
-                options.InputFormatters.Insert(0, new ServiceCollection()
-                    .AddLogging()
-                    .AddMvc()
-                    .AddNewtonsoftJson()
-                    .Services.BuildServiceProvider().GetRequiredService<IOptions<MvcOptions>>()
-                    .Value
-                    .InputFormatters
-                    .OfType<NewtonsoftJsonPatchInputFormatter>()
-                    .First());
-            })
-                .AddNewtonsoftJson()//todo remove when System.Text.Json support jsonPatch
+                .AddControllers()
                 .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();

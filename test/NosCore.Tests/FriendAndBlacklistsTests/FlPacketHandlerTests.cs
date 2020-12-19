@@ -31,7 +31,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
-using NosCore.PacketHandlers.Command;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;

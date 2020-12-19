@@ -30,7 +30,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
 using NosCore.Core.Configuration;
-using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -44,7 +43,6 @@ using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers.Login;
 using NosCore.Tests.Helpers;
 using Serilog;
-using TwoFactorAuthNet;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

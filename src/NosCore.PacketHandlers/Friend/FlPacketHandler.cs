@@ -27,7 +27,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.PacketHandlers.Command;
 
 namespace NosCore.PacketHandlers.Friend
 {

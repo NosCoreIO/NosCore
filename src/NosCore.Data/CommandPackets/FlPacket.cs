@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|	
 // -----------------------------------	
 
-using NosCore.Packets;
 using NosCore.Packets.Attributes;
 using NosCore.Packets.Enumerations;
 

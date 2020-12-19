@@ -20,9 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Dao.Interfaces;
@@ -106,7 +106,7 @@ namespace NosCore.MasterServer.Controllers
                         pocketType = PocketType.Equipment;
                         if (subTypeFilter > 0)
                         {
-                            var equipmentTypeFilter = (BazaarEquipmentType) subTypeFilter;
+                            var equipmentTypeFilter = (BazaarEquipmentType)subTypeFilter;
                         }
 
                         applyLevelFilter = true;
@@ -117,7 +117,7 @@ namespace NosCore.MasterServer.Controllers
                         pocketType = PocketType.Equipment;
                         if (subTypeFilter > 0)
                         {
-                            var jeweleryTypeFilter = (BazaarJeweleryType) subTypeFilter;
+                            var jeweleryTypeFilter = (BazaarJeweleryType)subTypeFilter;
                         }
 
                         applyLevelFilter = true;
@@ -147,7 +147,7 @@ namespace NosCore.MasterServer.Controllers
                         pocketType = PocketType.Main;
                         if (subTypeFilter > 0)
                         {
-                            var mainTypeFilter = (BazaarMainType) subTypeFilter;
+                            var mainTypeFilter = (BazaarMainType)subTypeFilter;
                         }
 
                         break;
@@ -156,7 +156,7 @@ namespace NosCore.MasterServer.Controllers
                         pocketType = PocketType.Etc;
                         if (subTypeFilter > 0)
                         {
-                            var bazaarTypeFilter = (BazaarUsableType) subTypeFilter;
+                            var bazaarTypeFilter = (BazaarUsableType)subTypeFilter;
                         }
 
                         break;
@@ -175,7 +175,7 @@ namespace NosCore.MasterServer.Controllers
             }
 
             //todo this need to be move to the filter when done
-            return bzlist.Skip(index ?? 0 * pageSize ?? 0).Take((byte) (pageSize ?? bzlist.Count)).ToList();
+            return bzlist.Skip(index ?? 0 * pageSize ?? 0).Take((byte)(pageSize ?? bzlist.Count)).ToList();
         }
 
 
@@ -201,7 +201,7 @@ namespace NosCore.MasterServer.Controllers
             }
             else
             {
-                var item = (IItemInstanceDto) bzlink.ItemInstance!;
+                var item = (IItemInstanceDto)bzlink.ItemInstance!;
                 item.Amount -= count;
                 await _itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(false);
             }
@@ -263,7 +263,7 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPatch]
-        public async Task<BazaarLink?> ModifyBazaarAsync(long id, [FromBody] JsonPatchDocument<BazaarLink> bzMod)
+        public async Task<BazaarLink?> ModifyBazaarAsync(long id, [FromBody] Json.Patch.JsonPatch bzMod)
         {
             var item = _holder.BazaarItems.Values
                 .FirstOrDefault(o => o.BazaarItem?.BazaarItemId == id);
@@ -272,9 +272,11 @@ namespace NosCore.MasterServer.Controllers
                 return null;
             }
 
-            bzMod.ApplyTo(item);
-            var bz = item.BazaarItem!;
+            var result = bzMod.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(item)).RootElement);
+            item = JsonSerializer.Deserialize<BazaarLink>(result!.Result.GetRawText());
+            var bz = item!.BazaarItem!;
             await _bazaarItemDao.TryInsertOrUpdateAsync(bz).ConfigureAwait(true);
+            _holder.BazaarItems[item.BazaarItem!.BazaarItemId] = item;
             return item;
 
         }

@@ -28,9 +28,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.JsonPatch;
+using Json.Patch;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -94,8 +93,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_PING))
                 ).ExecuteAsync(() =>
                 {
-                    var jsonPatch = new JsonPatchDocument<ChannelInfo>();
-                    jsonPatch.Replace(s => s.LastPing, SystemTime.Now());
+                    var jsonPatch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/LastPing"), JsonDocument.Parse(JsonSerializer.Serialize(SystemTime.Now())).RootElement));
                     return PatchAsync(MasterClientListSingleton.Instance.ChannelId, jsonPatch);
                 }).ConfigureAwait(false);
             _logger.Error(
@@ -103,13 +101,13 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             Environment.Exit(0);
         }
 
-        public async Task<HttpStatusCode> PatchAsync(int channelId, JsonPatchDocument<ChannelInfo> patch)
+        public async Task<HttpStatusCode> PatchAsync(int channelId, Json.Patch.JsonPatch patch)
         {
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));
             //todo replace when System.Text.Json support jsonpatch
-            using var content = new StringContent(JsonConvert.SerializeObject(patch), Encoding.Default,
+            using var content = new StringContent(JsonSerializer.Serialize(patch), Encoding.Default,
                 "application/json-patch+json");
 
             var postResponse = await client
@@ -119,7 +117,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                 return JsonSerializer.Deserialize<HttpStatusCode>(await postResponse.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
+                })!;
             }
 
             throw new HttpRequestException(postResponse.Headers.ToString());

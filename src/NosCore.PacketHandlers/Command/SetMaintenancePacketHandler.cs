@@ -20,7 +20,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.JsonPatch;
+using Json.More;
+using Json.Patch;
+using Json.Pointer;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.Networking;
@@ -45,8 +47,7 @@ namespace NosCore.PacketHandlers.Command
             var servers = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer).ToList();
 
-            var patch = new JsonPatchDocument<ChannelInfo>();
-            patch.Replace(link => link.IsMaintenance, setMaintenancePacket.MaintenanceMode);
+            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<ChannelInfo>(o => o.IsMaintenance), setMaintenancePacket.MaintenanceMode.AsJsonElement()));
             if (setMaintenancePacket.IsGlobal == false)
             {
                 await _channelHttpClient.PatchAsync(MasterClientListSingleton.Instance.ChannelId, patch);
