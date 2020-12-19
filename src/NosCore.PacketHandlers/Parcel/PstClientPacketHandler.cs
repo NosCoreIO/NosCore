@@ -21,12 +21,14 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Json.More;
 using Json.Patch;
+using Json.Pointer;
 using NosCore.Packets.ClientPackets.Parcel;
 using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.MailHttpClient;
@@ -57,7 +59,7 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    var patch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/IsOpened"), true.AsJsonElement()));
+                    var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<MailDto>(o => o.IsOpened), true.AsJsonElement()));
                     await _mailHttpClient.ViewGiftAsync(mail.MailDto.MailId, patch).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(mail.GeneratePostMessage(pstClientPacket.Type)).ConfigureAwait(false);
                     break;

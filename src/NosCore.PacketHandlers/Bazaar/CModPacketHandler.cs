@@ -21,11 +21,14 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Json.More;
 using Json.Patch;
+using Json.Pointer;
+using NosCore.Core;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
@@ -64,7 +67,7 @@ namespace NosCore.PacketHandlers.Bazaar
 
                 if (bz.BazaarItem?.Amount == packet.Amount)
                 {
-                    var patch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/BazaarItem/Price"), packet.NewPrice.AsJsonElement()));
+                    var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<BazaarLink>(o => o.BazaarItem!.Price), packet.NewPrice.AsJsonElement()));
                     var bzMod = await _bazaarHttpClient.ModifyAsync(packet.BazaarId, patch).ConfigureAwait(false);
 
                     if ((bzMod != null) && (bzMod.BazaarItem?.Price != bz.BazaarItem.Price))

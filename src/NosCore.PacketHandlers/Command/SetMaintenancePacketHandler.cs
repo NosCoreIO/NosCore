@@ -23,10 +23,12 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Json.More;
 using Json.Patch;
+using Json.Pointer;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
+using NosCore.Data.Dto;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Enumerations;
@@ -47,7 +49,7 @@ namespace NosCore.PacketHandlers.Command
             var servers = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer).ToList();
 
-            var patch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/IsMaintenance"), setMaintenancePacket.MaintenanceMode.AsJsonElement()));
+            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<ChannelInfo>(o => o.IsMaintenance), setMaintenancePacket.MaintenanceMode.AsJsonElement()));
             if (setMaintenancePacket.IsGlobal == false)
             {
                 await _channelHttpClient.PatchAsync(MasterClientListSingleton.Instance.ChannelId, patch);
