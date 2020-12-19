@@ -17,14 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Text.Json;
 using System.Threading.Tasks;
+using Json.More;
+using Json.Patch;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
@@ -63,8 +64,7 @@ namespace NosCore.PacketHandlers.Bazaar
 
                 if (bz.BazaarItem?.Amount == packet.Amount)
                 {
-                    var patch = new JsonPatchDocument<BazaarLink>();
-                    patch.Replace(link => link.BazaarItem!.Price, packet.NewPrice);
+                    var patch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/BazaarItem/Price"), packet.NewPrice.AsJsonElement()));
                     var bzMod = await _bazaarHttpClient.ModifyAsync(packet.BazaarId, patch).ConfigureAwait(false);
 
                     if ((bzMod != null) && (bzMod.BazaarItem?.Price != bz.BazaarItem.Price))

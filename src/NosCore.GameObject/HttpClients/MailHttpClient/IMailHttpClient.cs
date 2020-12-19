@@ -19,7 +19,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.JsonPatch;
+using Json.Patch;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -36,7 +36,7 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
         Task<IEnumerable<MailData>> GetGiftsAsync(long characterId);
         Task<MailData?> GetGiftAsync(long id, long characterId, bool isCopy);
         Task DeleteGiftAsync(long giftId, long visualId, bool isCopy);
-        Task ViewGiftAsync(long giftId, JsonPatchDocument<MailDto> mailData);
+        Task ViewGiftAsync(long giftId, JsonPatch mailData);
         Task SendMessageAsync(ICharacterEntity character, long characterId, string title, string text);
     }
 }

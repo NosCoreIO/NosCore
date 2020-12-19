@@ -22,13 +22,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using NosCore.Packets.Enumerations;
-using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Json.Patch;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 
 namespace NosCore.GameObject.HttpClients.BazaarHttpClient
@@ -94,7 +94,7 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
             throw new ArgumentException();
         }
 
-        public Task<BazaarLink> ModifyAsync(long bazaarId, JsonPatchDocument<BazaarLink> patchBz)
+        public Task<BazaarLink> ModifyAsync(long bazaarId, JsonPatch patchBz)
         {
             return PatchAsync<BazaarLink>(bazaarId, patchBz);
         }

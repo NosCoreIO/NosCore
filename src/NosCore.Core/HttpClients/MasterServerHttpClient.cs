@@ -25,7 +25,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
-using Newtonsoft.Json;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -106,7 +105,7 @@ namespace NosCore.Core.HttpClients
         {
             var client = await ConnectAsync().ConfigureAwait(false);
             //todo replace when Json.Net support jsonpatch
-            using var content = new StringContent(JsonConvert.SerializeObject(objectToPost), Encoding.Default,
+            using var content = new StringContent(JsonSerializer.Serialize(objectToPost), Encoding.Default,
                 "application/json-patch+json");
 
             var response = await client.PatchAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}"), content).ConfigureAwait(false);

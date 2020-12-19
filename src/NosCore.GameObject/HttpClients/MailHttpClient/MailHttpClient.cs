@@ -21,8 +21,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Json.Patch;
 using NosCore.Packets.Enumerations;
-using Microsoft.AspNetCore.JsonPatch;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -79,7 +79,7 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
             return DeleteAsync($"{giftId}&characterId={visualId}&senderCopy={isCopy}");
         }
 
-        public Task ViewGiftAsync(long giftId, JsonPatchDocument<MailDto> mailData)
+        public Task ViewGiftAsync(long giftId, JsonPatch mailData)
         {
             return PatchAsync<MailData>(giftId, mailData);
         }

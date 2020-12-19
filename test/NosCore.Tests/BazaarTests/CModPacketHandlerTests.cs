@@ -19,10 +19,10 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Json.Patch;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.I18N;
@@ -79,7 +79,7 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 });
             _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(1)).ReturnsAsync((BazaarLink?) null);
-            _bazaarHttpClient.Setup(b => b.ModifyAsync(It.IsAny<long>(), It.IsAny<JsonPatchDocument<BazaarLink>>())).ReturnsAsync(new BazaarLink
+            _bazaarHttpClient.Setup(b => b.ModifyAsync(It.IsAny<long>(), It.IsAny<JsonPatch>())).ReturnsAsync(new BazaarLink
                 {
                     SellerName = _session.Character.Name,
                     BazaarItem = new BazaarItemDto {Price = 70, Amount = 1},
