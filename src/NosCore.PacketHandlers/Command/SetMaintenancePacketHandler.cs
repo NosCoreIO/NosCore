@@ -19,7 +19,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Json.More;
 using Json.Patch;
@@ -28,7 +27,6 @@ using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
-using NosCore.Data.Dto;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Enumerations;

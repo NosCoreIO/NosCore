@@ -28,7 +28,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Json.More;
 using Json.Patch;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Core.Encryption;

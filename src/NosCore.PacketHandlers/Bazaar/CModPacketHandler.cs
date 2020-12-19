@@ -17,12 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Text.Json;
 using System.Threading.Tasks;
 using Json.More;
 using Json.Patch;
 using Json.Pointer;
-using NosCore.Core;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
