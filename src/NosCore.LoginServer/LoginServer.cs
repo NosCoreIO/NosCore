@@ -53,32 +53,25 @@ namespace NosCore.LoginServer
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Console.Title += $@" - Port : {Convert.ToInt32(_loginConfiguration.Value.Port)}";
+            }
+
             try
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    Console.Title += $@" - Port : {Convert.ToInt32(_loginConfiguration.Value.Port)}";
-                }
-
-                try
-                {
-                    await _context.Database.MigrateAsync(cancellationToken: stoppingToken);
-                    await _context.Database.GetDbConnection().OpenAsync(stoppingToken);
-                    _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error("Database Error", ex);
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
-                    throw;
-                }
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _loginConfiguration.Value.Port);
-                await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
+                await _context.Database.MigrateAsync(cancellationToken: stoppingToken);
+                await _context.Database.GetDbConnection().OpenAsync(stoppingToken);
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
             }
-            catch
+            catch (Exception ex)
             {
-                Console.ReadKey();
+                _logger.Error("Database Error", ex);
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
+                throw;
             }
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _loginConfiguration.Value.Port);
+            await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }
 }

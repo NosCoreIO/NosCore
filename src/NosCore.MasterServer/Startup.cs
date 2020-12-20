@@ -155,7 +155,6 @@ namespace NosCore.MasterServer
         private ContainerBuilder InitializeContainer(IServiceCollection services)
         {
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
             containerBuilder.Register(c =>
             {
                 var configuration = c.Resolve<IOptions<MasterConfiguration>>();
@@ -221,6 +220,11 @@ namespace NosCore.MasterServer
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
+            services.AddSignalR((hubOptions =>
+            {
+                hubOptions.EnableDetailedErrors = true;
+                hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(10);
+            }));
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
             TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
@@ -234,7 +238,7 @@ namespace NosCore.MasterServer
                 _ => new Sha512Encryption()
             });
             var container = containerBuilder.Build();
-            container.Resolve<MasterServer>().Run();
+            services.AddHostedService<MasterServer>();
             return new AutofacServiceProvider(container);
         }
 
@@ -246,12 +250,14 @@ namespace NosCore.MasterServer
             app.UseAuthentication();
             app.UseRouting();
 
+            app.UseWebSockets();
             app.UseAuthorization();
 
             LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<MasterConfiguration>>().Value.Language;
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<GameHub>("/hub/game");
             });
         }
     }
