@@ -36,7 +36,7 @@ using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
@@ -53,7 +53,7 @@ namespace NosCore.Tests.PacketHandlerTests
     public class NoS0577PacketHandlerTests
     {
         private readonly string _tokenGuid = Guid.NewGuid().ToString();
-        private IEncryption _encryption = null!;
+        private IHasher _encryption = null!;
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private readonly Mock<IAuthHttpClient> _authHttpClient = new Mock<IAuthHttpClient>();
         private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;

@@ -20,7 +20,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 

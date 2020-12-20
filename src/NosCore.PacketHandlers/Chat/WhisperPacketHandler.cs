@@ -28,7 +28,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;

@@ -34,7 +34,7 @@ using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.Authentication;
 using Polly;
@@ -46,13 +46,13 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
     public class ChannelHttpClient : IChannelHttpClient
     {
         private readonly Channel _channel;
-        private readonly IEncryption _encryption;
+        private readonly IHasher _encryption;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
         private DateTime _lastUpdateToken;
         private string? _token;
 
-        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger, IEncryption encryption)
+        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger, IHasher encryption)
         {
             _httpClientFactory = httpClientFactory;
             _channel = channel;
@@ -137,7 +137,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
 
-            var password = _encryption.Encrypt(_channel.MasterCommunication.Password ?? "", _channel.MasterCommunication.Salt);
+            var password = _encryption.Hash(_channel.MasterCommunication.Password ?? "", _channel.MasterCommunication.Salt);
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             var handler = new JwtSecurityTokenHandler();

@@ -26,9 +26,9 @@ using NosCore.Shared.Authentication;
 
 namespace NosCore.Core.Encryption
 {
-    public class Pbkdf2Encryption : IEncryption
+    public class Pbkdf2Encryption : IHasher
     {
-        public string Encrypt(string inputString, string? salt)
+        public string Hash(string inputString, string? salt)
         {
             var saltBytes = Convert.FromBase64String(Convert.ToBase64String(Encoding.Default.GetBytes(salt ?? "")));
 
@@ -40,6 +40,6 @@ namespace NosCore.Core.Encryption
             return string.Concat(pbkdf2.GetBytes(64).Select(item => item.ToString("x2", CultureInfo.CurrentCulture)));
         }
 
-        public string Encrypt(string password) => throw new NotImplementedException();
+        public string Hash(string password) => throw new NotImplementedException();
     }
 }

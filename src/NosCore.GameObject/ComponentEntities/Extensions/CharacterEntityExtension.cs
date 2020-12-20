@@ -33,7 +33,7 @@ using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;

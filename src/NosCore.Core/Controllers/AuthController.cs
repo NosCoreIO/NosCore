@@ -54,9 +54,9 @@ namespace NosCore.Core.Controllers
         private readonly IDao<AccountDto, long> _accountDao;
         private readonly IOptions<WebApiConfiguration> _apiConfiguration;
         private readonly ILogger _logger;
-        private readonly IEncryption _encryption;
+        private readonly IHasher _encryption;
 
-        public AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao, ILogger logger, IEncryption encryption)
+        public AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao, ILogger logger, IHasher encryption)
         {
             _apiConfiguration = apiConfiguration;
             _accountDao = accountDao;
@@ -84,7 +84,7 @@ namespace NosCore.Core.Controllers
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT));
             }
 
-            if (account.NewAuthPassword != _encryption.Encrypt(Encoding.Default
+            if (account.NewAuthPassword != _encryption.Hash(Encoding.Default
                     .GetString(Convert.FromBase64String(account!.NewAuthPassword!)), account.NewAuthSalt!
             ))
             {

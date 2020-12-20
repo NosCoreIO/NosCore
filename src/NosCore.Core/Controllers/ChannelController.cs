@@ -37,11 +37,10 @@ using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
-using NosCore.Shared.Enumerations;
 using Serilog;
 
 namespace NosCore.Core.Controllers
@@ -53,9 +52,9 @@ namespace NosCore.Core.Controllers
         private readonly IOptions<WebApiConfiguration> _apiConfiguration;
         private readonly ILogger _logger;
         private int _id;
-        private readonly IEncryption _encryption;
+        private readonly IHasher _encryption;
 
-        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger, IEncryption encryption)
+        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger, IHasher encryption)
         {
             _logger = logger;
             _apiConfiguration = apiConfiguration;
@@ -69,7 +68,7 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.NameIdentifier, "Server"),
                 new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
             });
-            var password = _encryption.Encrypt(_apiConfiguration.Value.Password ?? "", _apiConfiguration.Value.Salt);
+            var password = _encryption.Hash(_apiConfiguration.Value.Password ?? "", _apiConfiguration.Value.Salt);
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
             var handler = new JwtSecurityTokenHandler();

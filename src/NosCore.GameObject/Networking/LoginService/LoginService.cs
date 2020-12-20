@@ -33,7 +33,7 @@ using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.Networking;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.WebApi;
 using NosCore.Shared.Enumerations;
 

@@ -107,7 +107,7 @@ namespace NosCore.LoginServer
                 .Where(t => t.Name.EndsWith("HttpClient"))
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
-            containerBuilder.Register<IEncryption>(o => o.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication.HashingType switch
+            containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication.HashingType switch
             {
                 HashingType.BCrypt => new BcryptEncryption(),
                 HashingType.Pbkdf2 => new Pbkdf2Encryption(),

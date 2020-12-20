@@ -24,7 +24,7 @@ using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;

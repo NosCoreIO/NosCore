@@ -26,7 +26,7 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Encryption;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.I18N;
 using NosCore.Parser.Parsers;

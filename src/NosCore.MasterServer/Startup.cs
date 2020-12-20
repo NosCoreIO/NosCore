@@ -228,7 +228,7 @@ namespace NosCore.MasterServer
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
 
             var containerBuilder = InitializeContainer(services);
-            containerBuilder.Register<IEncryption>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
+            containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
             {
                 HashingType.BCrypt => new BcryptEncryption(),
                 HashingType.Pbkdf2 => new Pbkdf2Encryption(),

@@ -65,7 +65,7 @@ using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.DataAttributes;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.I18N;
 using NosCore.Database;
@@ -305,7 +305,7 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
 
-            containerBuilder.Register<IEncryption>(o => o.Resolve<IOptions<WorldConfiguration>>().Value.MasterCommunication.HashingType switch
+            containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WorldConfiguration>>().Value.MasterCommunication.HashingType switch
             {
                 HashingType.BCrypt => new BcryptEncryption(),
                 HashingType.Pbkdf2 => new Pbkdf2Encryption(),
@@ -321,7 +321,7 @@ namespace NosCore.WorldServer
                     new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
                 });
 
-                var keyByteArray = Encoding.Default.GetBytes(c.Resolve<IEncryption>().Encrypt(configuration.Value.MasterCommunication!.Password!));
+                var keyByteArray = Encoding.Default.GetBytes(c.Resolve<IHasher>().Encrypt(configuration.Value.MasterCommunication!.Password!));
                 var signinKey = new SymmetricSecurityKey(keyByteArray);
                 var handler = new JwtSecurityTokenHandler();
                 var securityToken = handler.CreateToken(new SecurityTokenDescriptor

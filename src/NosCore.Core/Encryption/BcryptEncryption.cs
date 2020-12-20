@@ -22,13 +22,13 @@ using NosCore.Shared.Authentication;
 
 namespace NosCore.Core.Encryption
 {
-    public class BcryptEncryption : IEncryption
+    public class BcryptEncryption : IHasher
     {
-        public string Encrypt(string password, string? salt)
+        public string Hash(string password, string? salt)
         {
             return BCrypt.Net.BCrypt.HashPassword(password, salt);
         }
 
-        public string Encrypt(string password) => throw new NotImplementedException();
+        public string Hash(string password) => throw new NotImplementedException();
     }
 }

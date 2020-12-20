@@ -36,7 +36,7 @@ using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;

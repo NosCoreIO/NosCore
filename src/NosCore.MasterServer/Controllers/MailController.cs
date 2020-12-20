@@ -30,7 +30,7 @@ using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;

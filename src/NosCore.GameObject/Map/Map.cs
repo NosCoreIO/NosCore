@@ -21,17 +21,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Data.StaticEntities;
+using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Helpers;
 
 namespace NosCore.GameObject.Map
 {
-    public class Map : MapDto
+    public class Map : MapDto, IMapGrid
     {
         private short _xLength;
 
         private short _yLength;
 
-        public short XLength
+        public short Width
         {
             get
             {
@@ -44,7 +45,7 @@ namespace NosCore.GameObject.Map
             }
         }
 
-        public short YLength
+        public short Height
         {
             get
             {
@@ -57,7 +58,7 @@ namespace NosCore.GameObject.Map
             }
         }
 
-        public byte this[short x, short y] => Data.AsSpan().Slice(4 + y * XLength + x, 1)[0];
+        public byte this[short x, short y] => Data.AsSpan().Slice(4 + y * Width + x, 1)[0];
 
         internal bool GetFreePosition(ref short firstX, ref short firstY, byte xpoint, byte ypoint)
         {
@@ -123,7 +124,7 @@ namespace NosCore.GameObject.Map
 
         public bool IsWalkable(short mapX, short mapY)
         {
-            if ((mapX > XLength) || (mapX < 0) || (mapY > YLength) || (mapY < 0))
+            if ((mapX > Width) || (mapX < 0) || (mapY > Height) || (mapY < 0))
             {
                 return false;
             }

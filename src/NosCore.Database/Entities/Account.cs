@@ -19,7 +19,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Database.Entities.Base;
 using NosCore.Shared.Enumerations;
 

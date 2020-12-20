@@ -30,7 +30,7 @@ namespace NosCore.Tests.ApiTests
         private AuthController _controller = null!;
         private ClientSession _session = null!;
         private Mock<ILogger> _logger = null!;
-        private IEncryption _encryption = null!;
+        private IHasher _encryption = null!;
 
         [TestInitialize]
         public async Task Setup()

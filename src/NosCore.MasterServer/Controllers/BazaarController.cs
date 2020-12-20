@@ -27,7 +27,7 @@ using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.Enumerations.Bazaar;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;

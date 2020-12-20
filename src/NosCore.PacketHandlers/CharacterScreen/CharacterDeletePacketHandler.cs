@@ -36,9 +36,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
     {
         private readonly IDao<AccountDto, long> _accountDao;
         private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IEncryption _encryption;
+        private readonly IHasher _encryption;
 
-        public CharacterDeletePacketHandler(IDao<CharacterDto, long> characterDao, IDao<AccountDto, long> accountDao, IEncryption encryption)
+        public CharacterDeletePacketHandler(IDao<CharacterDto, long> characterDao, IDao<AccountDto, long> accountDao, IHasher encryption)
         {
             _characterDao = characterDao;
             _accountDao = accountDao;

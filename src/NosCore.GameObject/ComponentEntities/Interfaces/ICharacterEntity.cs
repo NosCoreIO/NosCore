@@ -24,14 +24,13 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using DotNetty.Transport.Channels;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.Account;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Providers.InventoryService;
 using System;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Providers.QuestProvider;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {

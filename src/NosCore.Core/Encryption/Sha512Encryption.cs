@@ -25,15 +25,15 @@ using NosCore.Shared.Authentication;
 
 namespace NosCore.Core.Encryption
 {
-    public class Sha512Encryption : IEncryption
+    public class Sha512Encryption : IHasher
     {
-        public string Encrypt(string password, string? salt)
+        public string Hash(string password, string? salt)
         {
             using var hash = SHA512.Create();
             return string.Concat(hash.ComputeHash(Encoding.Default.GetBytes(salt ?? "" + password))
                 .Select(item => item.ToString("x2", CultureInfo.CurrentCulture)));
         }
 
-        public string Encrypt(string password) => Encrypt(password, null);
+        public string Hash(string password) => Hash(password, null);
     }
 }
