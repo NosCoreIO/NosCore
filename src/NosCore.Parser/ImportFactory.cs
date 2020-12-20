@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using NosCore.Core.Encryption;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -30,7 +29,6 @@ using NosCore.Shared.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.I18N;
 using NosCore.Parser.Parsers;
-using NosCore.Shared.Authentication;
 using Serilog;
 
 namespace NosCore.Parser
@@ -87,7 +85,7 @@ namespace NosCore.Parser
             IDao<I18NItemDto, int> i18NItemDao, IDao<I18NBCardDto, int> i18NbCardDao,
             IDao<I18NCardDto, int> i18NCardDao, IDao<I18NActDescDto, int> i18NActDescDao, ILogger logger)
         {
-            _password = new Sha512Encryption().Encrypt("test");
+            _password = new Sha512Encryption().Hash("test");
             _actParser = actParser;
             _questPrizeParser = questPrizeParser;
             _questParser = questParser;

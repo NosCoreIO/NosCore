@@ -17,17 +17,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.ComponentModel.DataAnnotations;
-using NosCore.Shared.Configuration;
+using System;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using NosCore.Shared.Enumerations;
 
-namespace NosCore.MasterServer
+namespace NosCore.Core
 {
-    public class MasterConfiguration : LanguageConfiguration
+    public class AuthorizeRoleAttribute : AuthorizeAttribute
     {
-        [Required]
-        public WebApiConfiguration WebApi { get; set; } = null!;
-
-        [Required]
-        public SqlConnectionConfiguration Database { get; set; } = null!;
+        public AuthorizeRoleAttribute(AuthorityType allowedRole)
+        {
+            var enums = Enum.GetValues(typeof(AuthorityType)).Cast<AuthorityType>().ToList()
+                .Where(s => s >= allowedRole);
+            Roles = string.Join(",", enums.ToArray());
+        }
     }
 }

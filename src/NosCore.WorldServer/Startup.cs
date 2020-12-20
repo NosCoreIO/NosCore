@@ -98,7 +98,6 @@ using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Configuration;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
 using NosCore.Shared.I18N;
-using NosCore.Shared.Enumerations;
 using NosCore.Shared.Authentication;
 
 namespace NosCore.WorldServer
@@ -321,7 +320,7 @@ namespace NosCore.WorldServer
                     new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
                 });
 
-                var keyByteArray = Encoding.Default.GetBytes(c.Resolve<IHasher>().Encrypt(configuration.Value.MasterCommunication!.Password!));
+                var keyByteArray = Encoding.Default.GetBytes(c.Resolve<IHasher>().Hash(configuration.Value.MasterCommunication!.Password!));
                 var signinKey = new SymmetricSecurityKey(keyByteArray);
                 var handler = new JwtSecurityTokenHandler();
                 var securityToken = handler.CreateToken(new SecurityTokenDescriptor

@@ -57,7 +57,7 @@ namespace NosCore.Tests.PacketHandlerTests
         [TestInitialize]
         public async Task SetupAsync()
         {
-            _password = new Sha512Encryption().Encrypt("test1");
+            _password = new Sha512Encryption().Hash("test1");
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _authHttpClient = new Mock<IAuthHttpClient>();
@@ -129,7 +129,7 @@ namespace NosCore.Tests.PacketHandlerTests
             var encryption = new Sha512Encryption();
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
-                Password = encryption.Encrypt("test1"),
+                Password = encryption.Hash("test1"),
                 Username = _session!.Account.Name
             }, _session).ConfigureAwait(false);
 

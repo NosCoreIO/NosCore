@@ -35,7 +35,6 @@ using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.Networking;
-using NosCore.Data.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
@@ -43,7 +42,6 @@ using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers.Login;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
-using NosCore.Shared.Enumerations;
 using NosCore.Tests.Helpers;
 using Serilog;
 
@@ -95,7 +93,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
             _session!.Account.NewAuthSalt = BCrypt.Net.BCrypt.GenerateSalt();
-            _session.Account.NewAuthPassword = _encryption.Encrypt(_tokenGuid,_session.Account.NewAuthSalt);
+            _session.Account.NewAuthPassword = _encryption.Hash(_tokenGuid,_session.Account.NewAuthSalt);
 
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
@@ -114,7 +112,7 @@ namespace NosCore.Tests.PacketHandlerTests
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
             _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
-            _session!.Account.NewAuthPassword = _encryption.Encrypt(_tokenGuid, "MY_SUPER_SECRET_HASH");
+            _session!.Account.NewAuthPassword = _encryption.Hash(_tokenGuid, "MY_SUPER_SECRET_HASH");
             _session.Account.NewAuthSalt = "MY_SUPER_SECRET_HASH";
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet

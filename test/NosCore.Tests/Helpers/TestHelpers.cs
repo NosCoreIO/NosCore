@@ -271,7 +271,7 @@ namespace NosCore.Tests.Helpers
         {
             _lastId++;
             var acc = new AccountDto
-            { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = new Sha512Encryption().Encrypt("test") };
+            { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = new Sha512Encryption().Hash("test") };
             acc = await AccountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
             var minilandProvider = new Mock<IMinilandProvider>();
             var session = new ClientSession(WorldConfiguration,

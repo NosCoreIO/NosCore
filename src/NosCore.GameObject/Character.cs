@@ -65,7 +65,6 @@ using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
-using NosCore.Shared.Enumerations;
 using Serilog;
 using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Configuration;

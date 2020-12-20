@@ -29,13 +29,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NosCore.Core.Configuration;
-using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.Shared.Authentication;
@@ -103,7 +100,7 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.Role, account.Authority.ToString())
             });
 
-            var password = _encryption.Encrypt(_apiConfiguration.Value.Password ?? "", _apiConfiguration.Value.Salt);
+            var password = _encryption.Hash(_apiConfiguration.Value.Password ?? "", _apiConfiguration.Value.Salt);
 
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);

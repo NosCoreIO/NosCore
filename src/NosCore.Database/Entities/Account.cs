@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NosCore.Shared.Enumerations;
 using NosCore.Database.Entities.Base;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.Database.Entities
 {

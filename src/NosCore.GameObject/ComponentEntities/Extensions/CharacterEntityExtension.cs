@@ -46,7 +46,6 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Quest;
-using NosCore.Shared.Enumerations;
 using System;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
@@ -302,7 +301,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Direction = visualEntity.Direction,
                 InCharacterSubPacket = new InCharacterSubPacket
                 {
-                    Authority = visualEntity.Authority > AuthorityType.Administrator ? AuthorityUIType.Administrator : (AuthorityUIType)(int)visualEntity.Authority,
+                    Authority = visualEntity.Authority >= AuthorityType.Administrator ? AuthorityType.Administrator : AuthorityType.User,
                     Gender = visualEntity.Gender,
                     HairStyle = visualEntity.HairStyle,
                     HairColor = visualEntity.HairColor,
@@ -507,13 +506,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 FamilyId = -1,
                 FamilyName = null,
                 CharacterId = visualEntity.VisualId,
-                Authority = (AuthorityUIType)(int)visualEntity.Authority,
+                Authority = visualEntity.Authority >= AuthorityType.Administrator ? AuthorityType.Administrator : AuthorityType.User,
                 Gender = visualEntity.Gender,
                 HairStyle = visualEntity.HairStyle,
                 HairColor = visualEntity.HairColor,
                 Class = visualEntity.Class,
                 Icon = (byte)(visualEntity.DignityIcon == DignityType.Default ? (byte)visualEntity.ReputIcon : -(byte)visualEntity.DignityIcon),
-                Compliment = (short)(visualEntity.Authority == AuthorityType.Moderator ? 500 : visualEntity.Compliment),
+                Compliment = (short)(visualEntity.Authority >= AuthorityType.Moderator ? 500 : visualEntity.Compliment),
                 Morph = 0,
                 Invisible = false,
                 FamilyLevel = 0,

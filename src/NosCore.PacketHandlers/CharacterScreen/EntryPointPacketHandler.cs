@@ -116,7 +116,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     ? await authHttpClient
                         .GetAwaitingConnectionAsync(accountName, password, sessionId)
                         .ConfigureAwait(false) != null
-                    : account.Password?.Equals(new Sha512Encryption().Encrypt(password), StringComparison.OrdinalIgnoreCase) ==
+                    : account.Password?.Equals(new Sha512Encryption().Hash(password), StringComparison.OrdinalIgnoreCase) ==
                     true);
 
             if (!awaitingConnection)

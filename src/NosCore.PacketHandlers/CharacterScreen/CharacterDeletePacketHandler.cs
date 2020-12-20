@@ -20,7 +20,6 @@
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Core.Encryption;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
@@ -54,7 +53,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            if ((account.Password!.ToLower() == _encryption.Encrypt(packet.Password!)) || (account.Name == packet.Password))
+            if ((account.Password!.ToLower() == _encryption.Hash(packet.Password!)) || (account.Name == packet.Password))
             {
                 var character = await _characterDao.FirstOrDefaultAsync(s =>
                     (s.AccountId == account.AccountId) && (s.Slot == packet.Slot)

@@ -30,7 +30,6 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using Serilog;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.WorldServer.Controllers
 {
