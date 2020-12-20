@@ -19,12 +19,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
@@ -36,7 +40,7 @@ using Serilog;
 
 namespace NosCore.WorldServer
 {
-    public class WorldServer
+    public class WorldServer : BackgroundService
     {
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly List<IGlobalEvent> _events;
@@ -44,9 +48,11 @@ namespace NosCore.WorldServer
         private readonly NetworkManager _networkManager;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly IMapInstanceProvider _mapInstanceProvider;
+        private readonly HubConnection _hubConnection;
+        private readonly Channel _channel;
 
-        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager,
-            IEnumerable<IGlobalEvent> events, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceProvider mapInstanceProvider)
+        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Channel channel,
+            IEnumerable<IGlobalEvent> events, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceProvider mapInstanceProvider, HubConnection hubConnection)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -54,9 +60,11 @@ namespace NosCore.WorldServer
             _logger = logger;
             _channelHttpClient = channelHttpClient;
             _mapInstanceProvider = mapInstanceProvider;
+            _hubConnection = hubConnection;
+            _channel = channel;
         }
 
-        public async Task RunAsync()
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await _mapInstanceProvider.InitializeAsync().ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
@@ -69,22 +77,16 @@ namespace NosCore.WorldServer
                 Thread.Sleep(30000);
             };
 
-            try
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    Console.Title += $@" - Port : {_worldConfiguration.Value.Port} - WebApi : {_worldConfiguration.Value.WebApi}";
-                }
-
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
-                    _worldConfiguration.Value.Port);
-                await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
+                Console.Title += $@" - Port : {_worldConfiguration.Value.Port} - WebApi : {_worldConfiguration.Value.WebApi}";
             }
-            catch
-            {
-                Console.ReadKey();
-            }
+
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
+                _worldConfiguration.Value.Port);
+            await _hubConnection.StartAsync(stoppingToken);
+            await _hubConnection.SendAsync("Connect", _channel, stoppingToken);
+            await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }
 }

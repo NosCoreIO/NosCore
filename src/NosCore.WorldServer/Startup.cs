@@ -44,6 +44,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -346,6 +347,14 @@ namespace NosCore.WorldServer
                     Token = handler.WriteToken(securityToken)
                 };
             });
+
+            containerBuilder
+                .Register(
+                    c => new HubConnectionBuilder()
+                        .WithUrl($"{c.Resolve<IOptions<WorldConfiguration>>().Value.MasterCommunication}/hub/game")
+                        .Build())
+                .SingleInstance();
+
             //NosCore.Controllers
             foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
             {
@@ -361,9 +370,6 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
-
-            //NosCore.WorldServer
-            containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
 
             //NosCore.GameObject
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
@@ -466,6 +472,7 @@ namespace NosCore.WorldServer
                 .AddControllersAsServices();
 
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
+            services.AddHostedService<WorldServer>();
 
             TypeAdapterConfig.GlobalSettings
                 .ForDestinationType<I18NString>()
@@ -482,9 +489,6 @@ namespace NosCore.WorldServer
             containerBuilder.Populate(services);
             var container = containerBuilder.Build();
             RegisterGo(container);
-
-            _ = container.Resolve<WorldServer>().RunAsync();
-
             return new AutofacServiceProvider(container);
         }
 

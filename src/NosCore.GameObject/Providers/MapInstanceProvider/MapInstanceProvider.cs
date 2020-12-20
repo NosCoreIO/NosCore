@@ -83,7 +83,7 @@ namespace NosCore.GameObject.Providers.MapInstanceProvider
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LOADING_MAPINSTANCES));
             try
             {
-                var test = _mapMonsters.LoadAll();
+                _ = _mapMonsters.LoadAll();
             }
             catch (Exception ex)
             {

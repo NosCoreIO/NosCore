@@ -225,6 +225,7 @@ namespace NosCore.MasterServer
                 hubOptions.EnableDetailedErrors = true;
                 hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(10);
             }));
+            services.AddHostedService<MasterServer>();
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
             TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
@@ -238,7 +239,6 @@ namespace NosCore.MasterServer
                 _ => new Sha512Encryption()
             });
             var container = containerBuilder.Build();
-            services.AddHostedService<MasterServer>();
             return new AutofacServiceProvider(container);
         }
 
