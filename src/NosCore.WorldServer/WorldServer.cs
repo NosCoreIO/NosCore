@@ -82,10 +82,11 @@ namespace NosCore.WorldServer
                 Console.Title += $@" - Port : {_worldConfiguration.Value.Port} - WebApi : {_worldConfiguration.Value.WebApi}";
             }
 
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
-                _worldConfiguration.Value.Port);
             await _hubConnection.StartAsync(stoppingToken);
             await _hubConnection.SendAsync("RegisterChannel", _channel, cancellationToken: stoppingToken);
+
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
+                _worldConfiguration.Value.Port);
             await _networkManager.RunServerAsync();
         }
     }

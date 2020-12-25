@@ -67,28 +67,30 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
             return new Tuple<ServerConfiguration?, ConnectedAccount?>(null, null);
         }
 
-        public async Task<List<ConnectedAccount>> GetConnectedAccountAsync(ChannelInfo channel)
+        public Task<List<ConnectedAccount>> GetConnectedAccountAsync(ChannelInfo channel)
         {
-            if (channel == null)
-            {
-                throw new ArgumentNullException(nameof(channel));
-            }
 
-            using var client = CreateClient();
-            client.BaseAddress = new Uri(channel.WebApi?.ToString() ?? "");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
+            throw new NotImplementedException();
+            //if (channel == null)
+            //{
+            //    throw new ArgumentNullException(nameof(channel));
+            //}
 
-            var response = await client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}")).ConfigureAwait(false);
-            if (response.IsSuccessStatusCode)
-            {
-                return JsonSerializer.Deserialize<List<ConnectedAccount>>(
-                    await response.Content!.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    })!;
-            }
+            //using var client = CreateClient();
+            //client.BaseAddress = new Uri(channel.WebApi?.ToString() ?? "");
+            //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
 
-            return new List<ConnectedAccount>();
+            //var response = await client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}")).ConfigureAwait(false);
+            //if (response.IsSuccessStatusCode)
+            //{
+            //    return JsonSerializer.Deserialize<List<ConnectedAccount>>(
+            //        await response.Content!.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
+            //        {
+            //            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            //        })!;
+            //}
+
+            //return new List<ConnectedAccount>();
         }
     }
 }

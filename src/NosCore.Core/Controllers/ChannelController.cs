@@ -117,29 +117,12 @@ namespace NosCore.Core.Controllers
                 WebApi = data.WebApi,
                 LastPing = SystemTime.Now(),
                 Type = data.ClientType,
-                Token = data.Token
             };
 
             MasterClientListSingleton.Instance.Channels.Add(serv);
             data.ChannelId = _id;
 
 
-            return Ok(new ConnectionInfo { Token = GenerateToken(), ChannelInfo = data });
-        }
-
-        [HttpPut]
-        public IActionResult UpdateToken([FromBody] Channel data)
-        {
-            if (data == null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
-
-            var channel = MasterClientListSingleton.Instance.Channels.First(s =>
-                (s.Name == data.ClientName) && (s.Host == data.Host) && (s.Port == data.Port));
-            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TOKEN_UPDATED), channel.Id.ToString(CultureInfo.CurrentCulture),
-                data.ClientName);
-            channel.Token = data.Token;
             return Ok(new ConnectionInfo { Token = GenerateToken(), ChannelInfo = data });
         }
 

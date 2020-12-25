@@ -77,10 +77,10 @@ namespace NosCore.LoginServer
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
                 throw;
             }
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _loginConfiguration.Value.Port);
-
             await _hubConnection.StartAsync(stoppingToken);
             await _hubConnection.SendAsync("RegisterChannel", _channel, stoppingToken);
+
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _loginConfiguration.Value.Port);
             await _networkManager.RunServerAsync();
         }
     }

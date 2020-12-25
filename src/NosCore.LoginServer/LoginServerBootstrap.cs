@@ -19,14 +19,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
-using NosCore.Packets;
 using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
@@ -41,6 +43,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
@@ -67,6 +70,8 @@ using NosCore.Packets.Enumerations;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
+using Deserializer = NosCore.Packets.Deserializer;
+using Serializer = NosCore.Packets.Serializer;
 
 namespace NosCore.LoginServer
 {
@@ -98,9 +103,30 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder
                 .Register(
-                    c => new HubConnectionBuilder()
-                        .WithUrl($"{c.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication}/hub/game")
-                        .Build())
+                    c =>
+                    {
+                        var conf = c.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication;
+                        var claims = new ClaimsIdentity(new[]
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, "Server"),
+                            new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
+                        });
+
+                        var keyByteArray = Encoding.Default.GetBytes(c.Resolve<IHasher>().Hash(conf.Password!));
+                        var signinKey = new SymmetricSecurityKey(keyByteArray);
+                        var handler = new JwtSecurityTokenHandler();
+                        var securityToken = handler.CreateToken(new SecurityTokenDescriptor
+                        {
+                            Subject = claims,
+                            Issuer = "Issuer",
+                            Audience = "Audience",
+                            SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
+                        });
+                        return new HubConnectionBuilder()
+                            .WithUrl($"{conf}/hub/game",
+                                options => options.AccessTokenProvider = () => Task.FromResult(handler.WriteToken(securityToken)))
+                            .Build();
+                    })
                 .SingleInstance();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();

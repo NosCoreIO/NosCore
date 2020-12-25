@@ -135,23 +135,6 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
 
-            var password = _encryption.Hash(_channel.MasterCommunication.Password ?? "", _channel.MasterCommunication.Salt);
-            var keyByteArray = Encoding.Default.GetBytes(password);
-            var signinKey = new SymmetricSecurityKey(keyByteArray);
-            var handler = new JwtSecurityTokenHandler();
-            var claims = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, "Server"),
-                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-            });
-            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-            {
-                Subject = claims,
-                Issuer = "Issuer",
-                Audience = "Audience",
-                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
-            });
-            _channel.Token = handler.WriteToken(securityToken);
             using var content = new StringContent(JsonSerializer.Serialize(_channel),
                 Encoding.Default, "application/json");
             var message = client.PutAsync(new Uri($"{client.BaseAddress}api/channel"), content);

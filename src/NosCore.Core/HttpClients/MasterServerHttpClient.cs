@@ -68,20 +68,6 @@ namespace NosCore.Core.HttpClients
             return client;
         }
 
-        public async Task<HttpClient?> ConnectAsync(int channelId)
-        {
-            using var client = _httpClientFactory.CreateClient();
-            var channel = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
-            if (channel == null)
-            {
-                return null;
-            }
-
-            client.BaseAddress = new Uri(channel.WebApi!.ToString());
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
-            return client;
-        }
-
         protected async Task<T> PostAsync<T>(object objectToPost)
         {
             var client = await ConnectAsync().ConfigureAwait(false);

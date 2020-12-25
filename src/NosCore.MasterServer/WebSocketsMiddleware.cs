@@ -18,26 +18,30 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using NosCore.Shared.Configuration;
-using NosCore.Shared.Enumerations;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
-namespace NosCore.Core
+namespace NosCore.MasterServer
 {
-    public class ChannelInfo
+    public class WebSocketsMiddleware
     {
-        public int Id { get; set; }
-        public string? Name { get; set; }
-        public string Host { get; set; } = null!;
-        public ushort Port { get; set; }
-        public string? DisplayHost { get; set; }
-        public ushort? DisplayPort { get; set; }
-        public int ConnectedAccountLimit { get; set; }
+        private readonly RequestDelegate _next;
 
-        public ServerConfiguration? WebApi { get; set; }
+        public WebSocketsMiddleware(RequestDelegate next)
+        {
+            _next = next;
+        }
 
-        public DateTime LastPing { get; set; }
+        public async Task Invoke(HttpContext httpContext)
+        {
+            var request = httpContext.Request;
+            if (request.Path.StartsWithSegments("/hub", StringComparison.OrdinalIgnoreCase) &&
+                request.Query.TryGetValue("access_token", out var accessToken))
+            {
+                request.Headers.Add("Authorization", $"Bearer {accessToken}");
+            }
 
-        public ServerType Type { get; set; }
-        public bool IsMaintenance { get; set; }
+            await _next(httpContext);
+        }
     }
 }

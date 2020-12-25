@@ -34,8 +34,9 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
     <PackageReference Include="ServiceStack.Kestrel" Version="5.10.2" />
   </ItemGroup>
+
   <ItemGroup>
-    <Folder Include="Controller\" />
+    <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
   </ItemGroup>
 
 </Project>

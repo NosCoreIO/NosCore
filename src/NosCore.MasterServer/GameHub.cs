@@ -22,6 +22,8 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
@@ -34,6 +36,7 @@ using Serilog;
 
 namespace NosCore.MasterServer
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class GameHub : Hub
     {
         private readonly ILogger _logger;
@@ -76,7 +79,6 @@ namespace NosCore.MasterServer
                 WebApi = data.WebApi,
                 LastPing = SystemTime.Now(),
                 Type = data.ClientType,
-                Token = data.Token
             };
 
             MasterClientListSingleton.Instance.Channels.Add(serv);

@@ -38,26 +38,29 @@ namespace NosCore.Core.HttpClients.IncommingMailHttpClients
             RequireConnection = true;
         }
 
-        public async Task DeleteIncommingMailAsync(int channelId, long id, short mailId, byte postType)
+        public Task DeleteIncommingMailAsync(int channelId, long id, short mailId, byte postType)
         {
-            using var client = await ConnectAsync(channelId).ConfigureAwait(false); 
-            if(client == null)
-            {
-                return;
-            }
-            await client.DeleteAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}&mailId={mailId}&postType={postType}")).ConfigureAwait(false);
+            throw new NotImplementedException();
+            //using var client = await ConnectAsync(channelId).ConfigureAwait(false); 
+            //if(client == null)
+            //{
+            //    return;
+            //}
+            //await client.DeleteAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}&mailId={mailId}&postType={postType}")).ConfigureAwait(false);
         }
 
-        public async Task NotifyIncommingMailAsync(int channelId, MailData mailRequest)
+        public Task NotifyIncommingMailAsync(int channelId, MailData mailRequest)
         {
-            using var client = await ConnectAsync(channelId).ConfigureAwait(false);
-            if (client == null)
-            {
-                return;
-            }
-            using var content = new StringContent(JsonSerializer.Serialize(mailRequest), Encoding.Default,
-                "application/json");
-            await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
+
+            throw new NotImplementedException();
+            //using var client = await ConnectAsync(channelId).ConfigureAwait(false);
+            //if (client == null)
+            //{
+            //    return;
+            //}
+            //using var content = new StringContent(JsonSerializer.Serialize(mailRequest), Encoding.Default,
+            //    "application/json");
+            //await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
         }
 
         public Task OpenIncommingMailAsync(int channelId, MailData mailData)

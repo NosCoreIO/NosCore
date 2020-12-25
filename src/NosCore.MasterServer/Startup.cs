@@ -247,6 +247,7 @@ namespace NosCore.MasterServer
         {
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore Master API"));
+            app.UseMiddleware<WebSocketsMiddleware>();
             app.UseAuthentication();
             app.UseRouting();
 

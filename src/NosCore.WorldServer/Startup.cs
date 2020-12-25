@@ -315,22 +315,6 @@ namespace NosCore.WorldServer
             containerBuilder.Register(c =>
             {
                 var configuration = c.Resolve<IOptions<WorldConfiguration>>();
-                var claims = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, "Server"),
-                    new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-                });
-
-                var keyByteArray = Encoding.Default.GetBytes(c.Resolve<IHasher>().Hash(configuration.Value.MasterCommunication!.Password!));
-                var signinKey = new SymmetricSecurityKey(keyByteArray);
-                var handler = new JwtSecurityTokenHandler();
-                var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-                {
-                    Subject = claims,
-                    Issuer = "Issuer",
-                    Audience = "Audience",
-                    SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
-                });
                 return new Channel
                 {
                     MasterCommunication = configuration.Value.MasterCommunication,
@@ -344,16 +328,36 @@ namespace NosCore.WorldServer
                     StartInMaintenance = configuration.Value.StartInMaintenance,
                     Host = configuration.Value.Host!,
                     WebApi = configuration.Value.WebApi,
-                    Token = handler.WriteToken(securityToken)
                 };
             });
 
             containerBuilder
                 .Register(
-                    c => new HubConnectionBuilder()
-                        .WithUrl($"{c.Resolve<IOptions<WorldConfiguration>>().Value.MasterCommunication}/hub/game")
-                        .Build())
-                .SingleInstance();
+                    c =>
+                        {
+                            var conf = c.Resolve<IOptions<WorldConfiguration>>().Value.MasterCommunication;
+                            var claims = new ClaimsIdentity(new[]
+                            {
+                                new Claim(ClaimTypes.NameIdentifier, "Server"),
+                                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
+                            });
+
+                            var keyByteArray = Encoding.Default.GetBytes(c.Resolve<IHasher>().Hash(conf.Password!));
+                            var signinKey = new SymmetricSecurityKey(keyByteArray);
+                            var handler = new JwtSecurityTokenHandler();
+                            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
+                            {
+                                Subject = claims,
+                                Issuer = "Issuer",
+                                Audience = "Audience",
+                                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
+                            });
+                            return new HubConnectionBuilder()
+                                .WithUrl($"{conf}/hub/game",
+                                    options => options.AccessTokenProvider = () => Task.FromResult(handler.WriteToken(securityToken)))
+                                .Build();
+                        })
+                        .SingleInstance();
 
             //NosCore.Controllers
             foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())

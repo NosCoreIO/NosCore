@@ -18,41 +18,27 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using NosCore.Shared.Configuration;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc;
+using NosCore.Core;
+using NosCore.Core.Networking;
 using NosCore.Shared.Enumerations;
 
-namespace NosCore.Core
+namespace NosCore.WebApi.Controller
 {
-    [Serializable]
-    public class Channel
+    [Route("api/[controller]")]
+    [AuthorizeRole(AuthorityType.Root)]
+    public class ChannelController : Microsoft.AspNetCore.Mvc.Controller
     {
-        private string _clientName = ""; 
-        public WebApiConfiguration? MasterCommunication { get; set; }
-
-        public string ClientName
+        // GET api/channel
+        [HttpGet]
+#pragma warning disable CA1822 // Mark members as static
+        public List<ChannelInfo> GetChannels(long? id)
+#pragma warning restore CA1822 // Mark members as static
         {
-            get => string.IsNullOrEmpty(_clientName) ? ClientType.ToString() : _clientName;
-            set => _clientName = value;
+            throw new NotImplementedException();
+            //return id != null ? MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList() : MasterClientListSingleton.Instance.Channels;
         }
-
-        public ServerType ClientType { get; set; }
-
-        public ushort Port { get; set; }
-
-        public byte ServerGroup { get; set; }
-
-        public int ChannelId { get; set; }
-
-        public string? DisplayHost { get; set; }
-
-        public int? DisplayPort { get; set; }
-
-        public bool StartInMaintenance { get; set; }
-
-        public string Host { get; set; } = "";
-
-        public int ConnectedAccountLimit { get; set; }
-
-        public ServerConfiguration? WebApi { get; set; }
     }
 }
