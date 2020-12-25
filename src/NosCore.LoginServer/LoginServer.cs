@@ -21,9 +21,11 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
@@ -41,14 +43,19 @@ namespace NosCore.LoginServer
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly NetworkManager _networkManager;
         private readonly NosCoreContext _context;
+        private readonly Channel _channel;
+        private readonly HubConnection _hubConnection;
 
-        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, NosCoreContext context)
+        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, 
+            NosCoreContext context, HubConnection hubConnection, Channel channel)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
             _logger = logger;
             _channelHttpClient = channelHttpClient;
             _context = context;
+            _channel = channel;
+            _hubConnection = hubConnection;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -60,7 +67,7 @@ namespace NosCore.LoginServer
 
             try
             {
-                await _context.Database.MigrateAsync(cancellationToken: stoppingToken);
+                await _context.Database.MigrateAsync(stoppingToken);
                 await _context.Database.GetDbConnection().OpenAsync(stoppingToken);
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
             }
@@ -71,7 +78,10 @@ namespace NosCore.LoginServer
                 throw;
             }
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _loginConfiguration.Value.Port);
-            await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
+
+            await _hubConnection.StartAsync(stoppingToken);
+            await _hubConnection.SendAsync("RegisterChannel", _channel, stoppingToken);
+            await _networkManager.RunServerAsync();
         }
     }
 }

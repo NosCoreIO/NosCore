@@ -85,8 +85,8 @@ namespace NosCore.WorldServer
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                 _worldConfiguration.Value.Port);
             await _hubConnection.StartAsync(stoppingToken);
-            await _hubConnection.SendAsync("Connect", _channel, stoppingToken);
-            await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
+            await _hubConnection.SendAsync("RegisterChannel", _channel, cancellationToken: stoppingToken);
+            await _networkManager.RunServerAsync();
         }
     }
 }

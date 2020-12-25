@@ -18,27 +18,68 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
+using NosCore.Core;
 using NosCore.Core.I18N;
+using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.Configuration;
 using Serilog;
+// ReSharper disable UnusedMember.Global
 
 namespace NosCore.MasterServer
 {
     public class GameHub : Hub
     {
         private readonly ILogger _logger;
-        public GameHub(ILogger logger)
+        private readonly IOptions<WebApiConfiguration> _apiConfiguration;
+
+        public GameHub(ILogger logger, IOptions<WebApiConfiguration> apiConfiguration)
         {
+            _apiConfiguration = apiConfiguration;
             _logger = logger;
         }
 
-        public override async Task OnConnectedAsync()
+        public List<ChannelInfo> GetChannels(long? id)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, "Channels");
-            await base.OnConnectedAsync();
-            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.REGISTRED_ON_MASTER));
+            return id != null ? MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList() : MasterClientListSingleton.Instance.Channels;
+        }
+
+        public void RegisterChannel(Channel data)
+        {
+            if (data.MasterCommunication!.Password != _apiConfiguration.Value.Password)
+            {
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_ERROR));
+                return;
+            }
+
+            var id = ++MasterClientListSingleton.Instance.ConnectionCounter;
+            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_SUCCESS),
+                id.ToString(CultureInfo.CurrentCulture),
+                data.ClientName);
+
+            var serv = new ChannelInfo
+            {
+                Name = data.ClientName,
+                Host = data.Host,
+                Port = data.Port,
+                DisplayPort = (ushort?)data.DisplayPort,
+                DisplayHost = data.DisplayHost,
+                IsMaintenance = data.StartInMaintenance,
+                Id = id,
+                ConnectedAccountLimit = data.ConnectedAccountLimit,
+                WebApi = data.WebApi,
+                LastPing = SystemTime.Now(),
+                Type = data.ClientType,
+                Token = data.Token
+            };
+
+            MasterClientListSingleton.Instance.Channels.Add(serv);
         }
     }
 }

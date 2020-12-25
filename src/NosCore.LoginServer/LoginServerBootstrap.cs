@@ -32,6 +32,7 @@ using DotNetty.Buffers;
 using DotNetty.Codecs;
 using FastExpressionCompiler;
 using Mapster;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -94,9 +95,13 @@ namespace NosCore.LoginServer
                 .SingleInstance();
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
-            containerBuilder.RegisterType<LoginServer>().PropertiesAutowired();
             containerBuilder.RegisterType<ClientSession>();
-
+            containerBuilder
+                .Register(
+                    c => new HubConnectionBuilder()
+                        .WithUrl($"{c.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication}/hub/game")
+                        .Build())
+                .SingleInstance();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
