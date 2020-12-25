@@ -17,14 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 
-namespace NosCore.WebApi.Models.DataHolders
+namespace NosCore.Core.Rpc
 {
-    public class FriendRequestHolder
+    public interface IMasterHub
     {
-        public ConcurrentDictionary<Guid, Tuple<long, long>> FriendRequestCharacters { get; set; } =
-            new ConcurrentDictionary<Guid, Tuple<long, long>>();
+        public void RegisterChannel(Channel data);
+        List<ChannelInfo> GetChannel(long id);
+        List<ChannelInfo> GetChannels();
     }
 }

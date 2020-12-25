@@ -51,6 +51,7 @@ using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Core.Rpc;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -101,30 +102,16 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<ClientSession>();
+            containerBuilder.RegisterType<SecurityTokenProvider>();
             containerBuilder
                 .Register(
                     c =>
                     {
                         var conf = c.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication;
-                        var claims = new ClaimsIdentity(new[]
-                        {
-                            new Claim(ClaimTypes.NameIdentifier, "Server"),
-                            new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-                        });
-
-                        var keyByteArray = Encoding.Default.GetBytes(c.Resolve<IHasher>().Hash(conf.Password!));
-                        var signinKey = new SymmetricSecurityKey(keyByteArray);
-                        var handler = new JwtSecurityTokenHandler();
-                        var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-                        {
-                            Subject = claims,
-                            Issuer = "Issuer",
-                            Audience = "Audience",
-                            SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
-                        });
+                        var securityTokenProvider = c.Resolve<SecurityTokenProvider>();
                         return new HubConnectionBuilder()
-                            .WithUrl($"{conf}/hub/master",
-                                options => options.AccessTokenProvider = () => Task.FromResult(handler.WriteToken(securityToken)))
+                            .WithUrl($"{conf}/{nameof(MasterHub)}",
+                                options => options.AccessTokenProvider = () => Task.FromResult(securityTokenProvider.GenerateSecurityToken(conf.Password!, conf.Salt)))
                             .Build();
                     })
                 .SingleInstance();

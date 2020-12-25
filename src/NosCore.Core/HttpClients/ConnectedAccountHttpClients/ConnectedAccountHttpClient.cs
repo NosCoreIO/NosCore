@@ -19,35 +19,75 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Core.Rpc;
 using NosCore.Data.WebApi;
 using NosCore.Shared.Configuration;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 {
-    public class ConnectedAccountHttpClient: IConnectedAccountHttpClient
+    public class ConnectedAccountHttpClient : IConnectedAccountHttpClient
     {
         private readonly HubConnection _hubConnection;
+        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IOptions<WorldConfiguration> _worldConfOptions;
+        private readonly SecurityTokenProvider _securityTokenProvider;
 
-        public ConnectedAccountHttpClient(HubConnection hubConnection)
+        public ConnectedAccountHttpClient(HubConnection hubConnection, IChannelHttpClient channelHttpClient, IOptions<WorldConfiguration> worldConfOptions, SecurityTokenProvider securityTokenProvider)
         {
             _hubConnection = hubConnection;
+            _channelHttpClient = channelHttpClient;
+            _worldConfOptions = worldConfOptions;
+            _securityTokenProvider = securityTokenProvider;
         }
 
-        public Task DisconnectAsync(long connectedCharacterId)
+        public async Task DisconnectAsync(long connectedCharacterId)
         {
-            return _hubConnection.SendAsync("Kick", connectedCharacterId);
+            await _hubConnection.SendAsync("Kick", connectedCharacterId);
         }
 
-        public Task<Tuple<ServerConfiguration?, ConnectedAccount?>> GetCharacterAsync(long? characterId, string? characterName)
+        public async Task<Tuple<ServerConfiguration?, ConnectedAccount?>> GetCharacterAsync(long? characterId, string? characterName)
         {
-            return _hubConnection.InvokeAsync<Tuple<ServerConfiguration?, ConnectedAccount?>>("GetCharacter", characterId, characterName);
+            var characters = new Tuple<ServerConfiguration?, ConnectedAccount?>(null, null);
+            var channels = await _channelHttpClient.GetChannelsAsync();
+            foreach (var channel in channels)
+            {
+                var hub = new HubConnectionBuilder()
+                    .WithUrl($"{channel.WebApi}/{nameof(WorldHub)}",
+                        options => options.AccessTokenProvider = () => Task.FromResult(_securityTokenProvider.GenerateSecurityToken(_worldConfOptions.Value.MasterCommunication.Password!, _worldConfOptions.Value.MasterCommunication.Salt)))
+                    .Build();
+                var result = await hub.InvokeAsync<Tuple<ServerConfiguration?, ConnectedAccount?>?>("GetCharacter", characterId, characterName);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            return characters;
         }
 
-        public Task<List<ConnectedAccount>> GetConnectedAccountAsync(ChannelInfo channel)
+        public async Task<List<ConnectedAccount>> GetConnectedAccountAsync(ChannelInfo? channel)
         {
-            return _hubConnection.InvokeAsync<List<ConnectedAccount>>("GetCharacters", channel);
+            var result = new List<ConnectedAccount>();
+            var channels = await _channelHttpClient.GetChannelsAsync();
+            if (channel != null)
+            {
+                channels = channels.Where(o => o.Id == channel.Id).ToList();
+            }
+            foreach (var chan in channels)
+            {
+                var hub = new HubConnectionBuilder()
+                    .WithUrl($"{chan.WebApi}/{nameof(WorldHub)}",
+                        options => options.AccessTokenProvider = () => Task.FromResult(_securityTokenProvider.GenerateSecurityToken(_worldConfOptions.Value.MasterCommunication.Password!, _worldConfOptions.Value.MasterCommunication.Salt)))
+                    .Build();
+                result.AddRange(await hub.InvokeAsync<List<ConnectedAccount>>("GetCharacters"));
+            }
+
+            return result;
         }
     }
 }

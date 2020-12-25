@@ -32,7 +32,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NosCore.GameObject\NosCore.GameObject.csproj" />
-    <ProjectReference Include="..\NosCore.Rpc\NosCore.Rpc.csproj" />
   </ItemGroup>
 
 </Project>

@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -26,14 +24,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using NosCore.Core;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.Configuration;
 using Serilog;
 
-namespace NosCore.Rpc
+namespace NosCore.Core.Rpc
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class MasterHub : Hub, IMasterHub

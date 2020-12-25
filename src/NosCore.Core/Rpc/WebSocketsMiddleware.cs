@@ -18,13 +18,30 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
-namespace NosCore.WebApi.Models.DataHolders
+namespace NosCore.Core.Rpc
 {
-    public class FriendRequestHolder
+    public class WebSocketsMiddleware
     {
-        public ConcurrentDictionary<Guid, Tuple<long, long>> FriendRequestCharacters { get; set; } =
-            new ConcurrentDictionary<Guid, Tuple<long, long>>();
+        private readonly RequestDelegate _next;
+
+        public WebSocketsMiddleware(RequestDelegate next)
+        {
+            _next = next;
+        }
+
+        public async Task Invoke(HttpContext httpContext)
+        {
+            var request = httpContext.Request;
+            if (request.Path.StartsWithSegments("/hub", StringComparison.OrdinalIgnoreCase) &&
+                request.Query.TryGetValue("access_token", out var accessToken))
+            {
+                request.Headers.Add("Authorization", $"Bearer {accessToken}");
+            }
+
+            await _next(httpContext);
+        }
     }
 }

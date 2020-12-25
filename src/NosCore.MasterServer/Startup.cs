@@ -41,13 +41,13 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Core.Rpc;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.DataAttributes;
@@ -58,7 +58,6 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.Rpc;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
@@ -168,7 +167,6 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
-            containerBuilder.RegisterType<IncommingMailHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ItemProvider>().AsImplementedInterfaces();
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);
@@ -193,8 +191,6 @@ namespace NosCore.MasterServer
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(masterConfiguration.WebApi.Port));
             services.AddDbContext<NosCoreContext>(
                 conf => conf.UseNpgsql(masterConfiguration.Database!.ConnectionString));
-            services.AddSwaggerGen(c =>
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
 
             services.ConfigureOptions<ConfigureJwtBearerOptions>();
             services.AddHttpClient();
@@ -245,7 +241,7 @@ namespace NosCore.MasterServer
             LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<MasterConfiguration>>().Value.Language;
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<MasterHub>("/hub/master");
+                endpoints.MapHub<MasterHub>(nameof(MasterHub));
             });
         }
     }

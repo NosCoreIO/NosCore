@@ -61,6 +61,7 @@ using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Core.Rpc;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.DataAttributes;
@@ -294,8 +295,8 @@ namespace NosCore.WorldServer
                 .SingleInstance();
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
                 .Where(t => t.Name.EndsWith("HttpClient"))
@@ -328,34 +329,19 @@ namespace NosCore.WorldServer
                 };
             });
 
+            containerBuilder.RegisterType<SecurityTokenProvider>();
             containerBuilder
                 .Register(
                     c =>
-                        {
-                            var conf = c.Resolve<IOptions<WorldConfiguration>>().Value.MasterCommunication;
-                            var claims = new ClaimsIdentity(new[]
-                            {
-                                new Claim(ClaimTypes.NameIdentifier, "Server"),
-                                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-                            });
-
-                            var keyByteArray = Encoding.Default.GetBytes(c.Resolve<IHasher>().Hash(conf.Password!));
-                            var signinKey = new SymmetricSecurityKey(keyByteArray);
-                            var handler = new JwtSecurityTokenHandler();
-                            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-                            {
-                                Subject = claims,
-                                Issuer = "Issuer",
-                                Audience = "Audience",
-                                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
-                            });
-                            return new HubConnectionBuilder()
-                                .WithUrl($"{conf}/hub/master",
-                                    options => options.AccessTokenProvider = () => Task.FromResult(handler.WriteToken(securityToken)))
-                                .Build();
-                        })
-                        .SingleInstance();
-
+                    {
+                        var conf = c.Resolve<IOptions<WorldConfiguration>>().Value.MasterCommunication;
+                        var securityTokenProvider = c.Resolve<SecurityTokenProvider>();
+                        return new HubConnectionBuilder()
+                            .WithUrl($"{conf}/{nameof(MasterHub)}",
+                                options => options.AccessTokenProvider = () => Task.FromResult(securityTokenProvider.GenerateSecurityToken(conf.Password!, conf.Salt)))
+                            .Build();
+                    })
+                .SingleInstance();
             //NosCore.Controllers
             foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
             {
@@ -450,6 +436,12 @@ namespace NosCore.WorldServer
 
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(worldConfiguration.WebApi.Port));
 
+            services.AddSignalR((hubOptions =>
+            {
+                hubOptions.EnableDetailedErrors = true;
+                hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(10);
+            }));
+
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
 
@@ -493,6 +485,7 @@ namespace NosCore.WorldServer
             LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<WorldConfiguration>>().Value.Language;
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<WorldHub>(nameof(WorldHub));
             });
         }
     }
