@@ -43,7 +43,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using NosCore.Core;
-using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
@@ -59,8 +58,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.MasterServer.Controllers;
-using NosCore.MasterServer.DataHolders;
+using NosCore.Rpc;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
@@ -167,11 +165,7 @@ namespace NosCore.MasterServer
                 };
             });
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
-            containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
-            containerBuilder.RegisterType<BazaarItemsHolder>().SingleInstance();
-            containerBuilder.RegisterType<ParcelHolder>().SingleInstance();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<IncommingMailHttpClient>().AsImplementedInterfaces();
@@ -215,16 +209,12 @@ namespace NosCore.MasterServer
                         .Build();
                 });
 
-            services
-                .AddControllers()
-                .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
-                .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
-                .AddControllersAsServices();
             services.AddSignalR((hubOptions =>
             {
                 hubOptions.EnableDetailedErrors = true;
                 hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(10);
             }));
+
             services.AddHostedService<MasterServer>();
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
@@ -245,8 +235,6 @@ namespace NosCore.MasterServer
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app)
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore Master API"));
             app.UseMiddleware<WebSocketsMiddleware>();
             app.UseAuthentication();
             app.UseRouting();
@@ -257,8 +245,7 @@ namespace NosCore.MasterServer
             LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<MasterConfiguration>>().Value.Language;
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
-                endpoints.MapHub<GameHub>("/hub/game");
+                endpoints.MapHub<MasterHub>("/hub/master");
             });
         }
     }

@@ -39,5 +39,6 @@ namespace NosCore.Core
 
         public ServerType Type { get; set; }
         public bool IsMaintenance { get; set; }
+        public string ConnectionId { get; set; } = null!;
     }
 }

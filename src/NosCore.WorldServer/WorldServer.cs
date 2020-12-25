@@ -36,6 +36,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using Polly;
 using Serilog;
 
 namespace NosCore.WorldServer
@@ -82,8 +83,15 @@ namespace NosCore.WorldServer
                 Console.Title += $@" - Port : {_worldConfiguration.Value.Port} - WebApi : {_worldConfiguration.Value.WebApi}";
             }
 
-            await _hubConnection.StartAsync(stoppingToken);
-            await _hubConnection.SendAsync("RegisterChannel", _channel, cancellationToken: stoppingToken);
+            await Policy
+                .Handle<Exception>()
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (_, __, timeSpan) =>
+                        _logger.Error(
+                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
+                            timeSpan.TotalSeconds)
+                ).ExecuteAsync(() => _hubConnection.StartAsync(stoppingToken));
+            await _hubConnection.SendAsync("RegisterChannel", _channel, stoppingToken);
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                 _worldConfiguration.Value.Port);

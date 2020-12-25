@@ -17,188 +17,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Json.Patch;
-using Microsoft.IdentityModel.Tokens;
-using NosCore.Core.I18N;
-using NosCore.Core.Networking;
-using NosCore.Shared.Enumerations;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Shared.Authentication;
-using Polly;
-using Serilog;
-using JsonSerializer = System.Text.Json.JsonSerializer;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClients
 {
     public class ChannelHttpClient : IChannelHttpClient
     {
-        private readonly Channel _channel;
-        private readonly IHasher _encryption;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger _logger;
-        private DateTime _lastUpdateToken;
-        private string? _token;
+        private readonly HubConnection _hubConnection;
 
-        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger, IHasher encryption)
+        public ChannelHttpClient(HubConnection hubConnection)
         {
-            _httpClientFactory = httpClientFactory;
-            _channel = channel;
-            _logger = logger;
-            _encryption = encryption;
+            _hubConnection = hubConnection;
         }
 
-        public async Task ConnectAsync()
+        public Task<List<ChannelInfo>> GetChannelsAsync()
         {
-            using var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
-
-            using var content = new StringContent(JsonSerializer.Serialize(_channel),
-                Encoding.Default, "application/json");
-
-            var message = Policy
-                .Handle<Exception>()
-                .OrResult<HttpResponseMessage>(mess => !mess.IsSuccessStatusCode)
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                    (_, __, timeSpan) =>
-                        _logger.Error(
-                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
-                            timeSpan.TotalSeconds)
-                ).ExecuteAsync(() => client.PostAsync(new Uri($"{client.BaseAddress}api/channel"), content));
-
-            var result =
-                JsonSerializer.Deserialize<ConnectionInfo>(await (await message.ConfigureAwait(false)).Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
-            _token = result?.Token;
-            _lastUpdateToken = SystemTime.Now();
-            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.REGISTRED_ON_MASTER));
-            MasterClientListSingleton.Instance.ChannelId = result?.ChannelInfo?.ChannelId ?? 0;
-
-            await Policy
-                .HandleResult<HttpStatusCode>(ping => ping == HttpStatusCode.OK)
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(1),
-                    (_, __, timeSpan) =>
-                        _logger.Verbose(
-                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_PING))
-                ).ExecuteAsync(() =>
-                {
-                    var jsonPatch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/LastPing"), JsonDocument.Parse(JsonSerializer.Serialize(SystemTime.Now())).RootElement));
-                    return PatchAsync(MasterClientListSingleton.Instance.ChannelId, jsonPatch);
-                }).ConfigureAwait(false);
-            _logger.Error(
-                LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_PING_FAILED));
-            Environment.Exit(0);
+            return _hubConnection.InvokeAsync<List<ChannelInfo>>("GetChannels");
         }
 
-        public async Task<HttpStatusCode> PatchAsync(int channelId, Json.Patch.JsonPatch patch)
+        public Task<ChannelInfo?> GetChannelAsync(long channelId)
         {
-            using var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));
-            //todo replace when System.Text.Json support jsonpatch
-            using var content = new StringContent(JsonSerializer.Serialize(patch), Encoding.Default,
-                "application/json-patch+json");
-
-            var postResponse = await client
-                .PatchAsync(new Uri($"{client.BaseAddress}api/channel?id={channelId}"), content).ConfigureAwait(false);
-            if (postResponse.IsSuccessStatusCode)
-            {
-                return JsonSerializer.Deserialize<HttpStatusCode>(await postResponse.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                })!;
-            }
-
-            throw new HttpRequestException(postResponse.Headers.ToString());
-        }
-
-        public async Task<string?> GetOrRefreshTokenAsync()
-        {
-            if (_lastUpdateToken.AddMinutes(25) >= SystemTime.Now())
-            {
-                return _token;
-            }
-
-            using var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-
-            using var content = new StringContent(JsonSerializer.Serialize(_channel),
-                Encoding.Default, "application/json");
-            var message = client.PutAsync(new Uri($"{client.BaseAddress}api/channel"), content);
-            var result =
-                JsonSerializer.Deserialize<ConnectionInfo>(await (await message.ConfigureAwait(false)).Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
-            _token = result?.Token;
-            _lastUpdateToken = SystemTime.Now();
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SECURITY_TOKEN_UPDATED));
-
-            return _token;
-        }
-
-        public async Task<List<ChannelInfo>?> GetChannelsAsync()
-        {
-            var channels = MasterClientListSingleton.Instance.Channels;
-            if (MasterClientListSingleton.Instance.Channels.Any())
-            {
-                return channels;
-            }
-
-            using var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));
-
-            var response = await client.GetAsync(new Uri($"{_channel.MasterCommunication}/api/channel")).ConfigureAwait(false);
-            if (response.IsSuccessStatusCode)
-            {
-                channels = JsonSerializer.Deserialize<List<ChannelInfo>>(await response.Content.ReadAsStringAsync().ConfigureAwait(false)
-                    , new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
-            }
-
-            return channels;
-        }
-
-        public async Task<ChannelInfo?> GetChannelAsync(int channelId)
-        {
-            var channels = MasterClientListSingleton.Instance.Channels;
-            if (MasterClientListSingleton.Instance.Channels.Any())
-            {
-                return channels?.FirstOrDefault(s => s.Id == channelId);
-            }
-
-            using var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));
-
-            var response = await client.GetAsync(new Uri($"{_channel.MasterCommunication}/api/channel?id={channelId}")).ConfigureAwait(false);
-            if (response.IsSuccessStatusCode)
-            {
-                channels = JsonSerializer.Deserialize<List<ChannelInfo>>(await response.Content.ReadAsStringAsync().ConfigureAwait(false)
-                    , new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
-            }
-
-            return channels?.FirstOrDefault(s => s.Id == channelId);
+            return _hubConnection.InvokeAsync<ChannelInfo?>("GetChannel", channelId);
         }
     }
 }

@@ -21,7 +21,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace NosCore.MasterServer
+namespace NosCore.Rpc
 {
     public class WebSocketsMiddleware
     {

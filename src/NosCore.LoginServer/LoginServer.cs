@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,18 +28,17 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database;
 using NosCore.GameObject.Networking;
+using Polly;
 using Serilog;
 
 namespace NosCore.LoginServer
 {
     public class LoginServer : BackgroundService
     {
-        private readonly IChannelHttpClient _channelHttpClient;
         private readonly ILogger _logger;
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly NetworkManager _networkManager;
@@ -46,13 +46,12 @@ namespace NosCore.LoginServer
         private readonly Channel _channel;
         private readonly HubConnection _hubConnection;
 
-        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, 
+        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger,
             NosCoreContext context, HubConnection hubConnection, Channel channel)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
             _logger = logger;
-            _channelHttpClient = channelHttpClient;
             _context = context;
             _channel = channel;
             _hubConnection = hubConnection;
@@ -77,7 +76,15 @@ namespace NosCore.LoginServer
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
                 throw;
             }
-            await _hubConnection.StartAsync(stoppingToken);
+
+            await Policy
+                .Handle<Exception>()
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (_, __, timeSpan) =>
+                        _logger.Error(
+                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
+                            timeSpan.TotalSeconds)
+                ).ExecuteAsync(() => _hubConnection.StartAsync(stoppingToken));
             await _hubConnection.SendAsync("RegisterChannel", _channel, stoppingToken);
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _loginConfiguration.Value.Port);

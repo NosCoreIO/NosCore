@@ -17,28 +17,36 @@
 //// You should have received a copy of the GNU General Public License
 //// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
+//using System.Threading.Tasks;
 //using Microsoft.AspNetCore.Mvc;
 //using NosCore.Core;
-//using NosCore.Core.Networking;
 //using NosCore.Shared.Enumerations;
+//using NosCore.GameObject;
+//using NosCore.GameObject.Networking;
 
-//namespace NosCore.WebApi.Controller
+//namespace NosCore.WorldServer.Controllers
 //{
 //    [Route("api/[controller]")]
-//    [AuthorizeRole(AuthorityType.Root)]
-//    public class ChannelController : Microsoft.AspNetCore.Mvc.Controller
+//    [AuthorizeRole(AuthorityType.GameMaster)]
+//    public class SessionController : Controller
 //    {
-//        // GET api/channel
-//        [HttpGet]
-//#pragma warning disable CA1822 // Mark members as static
-//        public List<ChannelInfo> GetChannels(long? id)
-//#pragma warning restore CA1822 // Mark members as static
+//        // DELETE api/session
+//        [HttpDelete]
+//        public async Task<IActionResult> DisconnectAsync(long id)
 //        {
-//            throw new NotImplementedException();
-//            //return id != null ? MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList() : MasterClientListSingleton.Instance.Channels;
+//            if (!ModelState.IsValid)
+//            {
+//                return BadRequest();
+//            }
+
+//            var targetSession = Broadcaster.Instance.GetCharacter(s => s.VisualId == id) as Character;
+//            if (targetSession?.Session == null)
+//            {
+//                return Ok(); // TODO : Handle 404 in WebApi
+//            }
+
+//            await targetSession.Session.DisconnectAsync().ConfigureAwait(false);
+//            return Ok();
 //        }
 //    }
 //}

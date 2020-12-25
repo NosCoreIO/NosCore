@@ -17,16 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-using Json.Patch;
+using System;
 
-namespace NosCore.Core.HttpClients.ChannelHttpClients
+namespace NosCore.WebApi.Models
 {
-    public interface IChannelHttpClient
+    [Serializable]
+    public class ApiPlatformGameAccount
     {
-        Task<List<ChannelInfo>> GetChannelsAsync();
-        Task<ChannelInfo?> GetChannelAsync(long channelId);
+        public string? PlatformGameAccountId { get; set; }
     }
 }

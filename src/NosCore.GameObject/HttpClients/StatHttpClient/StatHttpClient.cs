@@ -41,16 +41,17 @@ namespace NosCore.GameObject.HttpClients.StatHttpClient
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task ChangeStatAsync(StatData data, ServerConfiguration item1)
+        public Task ChangeStatAsync(StatData data, ServerConfiguration item1)
         {
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(item1.ToString());
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
+            throw new NotImplementedException();
+            //var client = _httpClientFactory.CreateClient();
+            //client.BaseAddress = new Uri(item1.ToString());
+            //client.DefaultRequestHeaders.Authorization =
+            //    new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
 
-            var content = new StringContent(JsonSerializer.Serialize(data),
-                Encoding.Default, "application/json");
-            await client.PostAsync(ApiUrl, content).ConfigureAwait(false);
+            //var content = new StringContent(JsonSerializer.Serialize(data),
+            //    Encoding.Default, "application/json");
+            //await client.PostAsync(ApiUrl, content).ConfigureAwait(false);
         }
     }
 }

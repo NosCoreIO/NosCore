@@ -123,7 +123,7 @@ namespace NosCore.LoginServer
                             SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
                         });
                         return new HubConnectionBuilder()
-                            .WithUrl($"{conf}/hub/game",
+                            .WithUrl($"{conf}/hub/master",
                                 options => options.AccessTokenProvider = () => Task.FromResult(handler.WriteToken(securityToken)))
                             .Build();
                     })

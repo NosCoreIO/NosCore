@@ -70,16 +70,17 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
             return Task.WhenAll(packets.Select(packet => BroadcastPacketAsync(packet, channelId)));
         }
 
-        private async Task SendPacketToChannelAsync(PostedPacket postedPacket, string channel)
+        private Task SendPacketToChannelAsync(PostedPacket postedPacket, string channel)
         {
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(channel);
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
-            var content = new StringContent(JsonSerializer.Serialize(postedPacket),
-                Encoding.Default, "application/json");
+            throw new NotImplementedException();
+            //var client = _httpClientFactory.CreateClient();
+            //client.BaseAddress = new Uri(channel);
+            //client.DefaultRequestHeaders.Authorization =
+            //    new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
+            //var content = new StringContent(JsonSerializer.Serialize(postedPacket),
+            //    Encoding.Default, "application/json");
 
-            await client.PostAsync("api/packet", content).ConfigureAwait(false);
+            //await client.PostAsync("api/packet", content).ConfigureAwait(false);
         }
     }
 }

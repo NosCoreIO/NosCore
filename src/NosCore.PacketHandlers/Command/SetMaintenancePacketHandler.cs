@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -42,23 +43,24 @@ namespace NosCore.PacketHandlers.Command
             _channelHttpClient = channelHttpClient;
         }
 
-        public override async Task ExecuteAsync(SetMaintenancePacket setMaintenancePacket, ClientSession session)
+        public override Task ExecuteAsync(SetMaintenancePacket setMaintenancePacket, ClientSession session)
         {
-            var servers = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
-                ?.Where(c => c.Type == ServerType.WorldServer).ToList();
+            throw new NotImplementedException();
+            //var servers = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
+            //    ?.Where(c => c.Type == ServerType.WorldServer).ToList();
 
-            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<ChannelInfo>(o => o.IsMaintenance), setMaintenancePacket.MaintenanceMode.AsJsonElement()));
-            if (setMaintenancePacket.IsGlobal == false)
-            {
-                await _channelHttpClient.PatchAsync(MasterClientListSingleton.Instance.ChannelId, patch);
-            }
-            else
-            {
-                foreach (var server in servers ?? new List<ChannelInfo>())
-                {
-                    await _channelHttpClient.PatchAsync(server.Id, patch);
-                }
-            }
+            //var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<ChannelInfo>(o => o.IsMaintenance), setMaintenancePacket.MaintenanceMode.AsJsonElement()));
+            //if (setMaintenancePacket.IsGlobal == false)
+            //{
+            //    await _channelHttpClient.PatchAsync(MasterClientListSingleton.Instance.ChannelId, patch);
+            //}
+            //else
+            //{
+            //    foreach (var server in servers ?? new List<ChannelInfo>())
+            //    {
+            //        await _channelHttpClient.PatchAsync(server.Id, patch);
+            //    }
+            //}
         }
     }
 }

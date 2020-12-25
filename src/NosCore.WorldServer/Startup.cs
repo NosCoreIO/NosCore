@@ -53,11 +53,9 @@ using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Core;
 using NosCore.Core.Configuration;
-using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -83,7 +81,6 @@ using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PacketHandlers.Login;
-using NosCore.WorldServer.Controllers;
 using Character = NosCore.GameObject.Character;
 using Deserializer = NosCore.Packets.Deserializer;
 using ILogger = Serilog.ILogger;
@@ -353,7 +350,7 @@ namespace NosCore.WorldServer
                                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
                             });
                             return new HubConnectionBuilder()
-                                .WithUrl($"{conf}/hub/game",
+                                .WithUrl($"{conf}/hub/master",
                                     options => options.AccessTokenProvider = () => Task.FromResult(handler.WriteToken(securityToken)))
                                 .Build();
                         })
@@ -373,7 +370,6 @@ namespace NosCore.WorldServer
             //NosCore.Core
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
-            containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
 
             //NosCore.GameObject
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
@@ -454,9 +450,6 @@ namespace NosCore.WorldServer
 
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(worldConfiguration.WebApi.Port));
 
-            services.AddSwaggerGen(c =>
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
-
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
 
@@ -468,12 +461,6 @@ namespace NosCore.WorldServer
                         .RequireAuthenticatedUser()
                         .Build();
                 });
-
-            services
-                .AddControllers()
-                .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
-                .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
-                .AddControllersAsServices();
 
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddHostedService<WorldServer>();
@@ -499,8 +486,6 @@ namespace NosCore.WorldServer
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app)
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore World API"));
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
@@ -508,7 +493,6 @@ namespace NosCore.WorldServer
             LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<WorldConfiguration>>().Value.Language;
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
             });
         }
     }

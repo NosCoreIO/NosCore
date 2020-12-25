@@ -17,24 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using NosCore.Core;
-using NosCore.Shared.Enumerations;
-using NosCore.Data.WebApi;
-using NosCore.GameObject.Networking;
+using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace NosCore.WorldServer.Controllers
+namespace NosCore.WebApi.Models
 {
-    [Route("api/[controller]")]
-    [AuthorizeRole(AuthorityType.GameMaster)]
-    public class ConnectedAccountController : Controller
+    [Serializable]
+    public class ApiSession
     {
-        // GET api/connectedAccount
-        [HttpGet]
-        public List<ConnectedAccount> GetconnectedAccount()
-        {
-            return Broadcaster.Instance.ConnectedAccounts();
-        }
+        [Required]
+        public string GfLang { get; set; } = null!;
+        [Required]
+        public string Identity { get; set; } = null!;
+        [Required]
+        public string Locale { get; set; } = null!;
+        [Required]
+        public string Password { get; set; } = null!;
+        public string? Mfa { get; set; }
     }
 }

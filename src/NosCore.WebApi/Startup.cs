@@ -45,9 +45,6 @@ namespace NosCore.WebApi
 
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(webApiConfiguration.Port));
 
-            services.AddSwaggerGen(c =>
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Web API", Version = "v1" }));
-
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();

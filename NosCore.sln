@@ -22,7 +22,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.PacketHandlers", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Tests", "test\NosCore.Tests\NosCore.Tests.csproj", "{B22C7ABE-2B56-42AF-8CF2-46058A5B6543}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.WebApi", "src\NosCore.WebApi\NosCore.WebApi.csproj", "{B6A07BF9-C5FF-4594-BC29-979352078677}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.WebApi", "src\NosCore.WebApi\NosCore.WebApi.csproj", "{B6A07BF9-C5FF-4594-BC29-979352078677}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.Rpc", "src\NosCore.Rpc\NosCore.Rpc.csproj", "{45EEF0D7-E339-449A-9DA0-0815B381FB5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -74,6 +76,10 @@ Global
 		{B6A07BF9-C5FF-4594-BC29-979352078677}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6A07BF9-C5FF-4594-BC29-979352078677}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6A07BF9-C5FF-4594-BC29-979352078677}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45EEF0D7-E339-449A-9DA0-0815B381FB5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45EEF0D7-E339-449A-9DA0-0815B381FB5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45EEF0D7-E339-449A-9DA0-0815B381FB5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45EEF0D7-E339-449A-9DA0-0815B381FB5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

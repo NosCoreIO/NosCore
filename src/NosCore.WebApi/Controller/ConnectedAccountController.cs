@@ -19,26 +19,22 @@
 
 //using System;
 //using System.Collections.Generic;
-//using System.Linq;
 //using Microsoft.AspNetCore.Mvc;
-//using NosCore.Core;
-//using NosCore.Core.Networking;
+//using NosCore.Data.WebApi;
 //using NosCore.Shared.Enumerations;
 
 //namespace NosCore.WebApi.Controller
 //{
 //    [Route("api/[controller]")]
-//    [AuthorizeRole(AuthorityType.Root)]
-//    public class ChannelController : Microsoft.AspNetCore.Mvc.Controller
+//    [Core.AuthorizeRole(AuthorityType.GameMaster)]
+//    public class ConnectedAccountController : Microsoft.AspNetCore.Mvc.Controller
 //    {
-//        // GET api/channel
+//        // GET api/connectedAccount
 //        [HttpGet]
-//#pragma warning disable CA1822 // Mark members as static
-//        public List<ChannelInfo> GetChannels(long? id)
-//#pragma warning restore CA1822 // Mark members as static
+//        public List<ConnectedAccount> GetConnectedAccount()
 //        {
 //            throw new NotImplementedException();
-//            //return id != null ? MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList() : MasterClientListSingleton.Instance.Channels;
+//            //return Broadcaster.Instance.ConnectedAccounts();
 //        }
 //    }
 //}
