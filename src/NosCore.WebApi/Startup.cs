@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.I18N;

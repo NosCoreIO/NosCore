@@ -18,9 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
-using Json.Patch;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClients
 {

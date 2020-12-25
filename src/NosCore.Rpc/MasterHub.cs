@@ -33,12 +33,10 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.Configuration;
 using Serilog;
 
-// ReSharper disable UnusedMember.Global
-
 namespace NosCore.Rpc
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class MasterHub : Hub
+    public class MasterHub : Hub<IMasterHub>, IMasterHub
     {
         private readonly ILogger _logger;
         private readonly IOptions<WebApiConfiguration> _apiConfiguration;
@@ -161,5 +159,12 @@ namespace NosCore.Rpc
 
             MasterClientListSingleton.Instance.Channels.Add(serv);
         }
+    }
+
+    public interface IMasterHub
+    {
+        public void RegisterChannel(Channel data);
+        List<ChannelInfo> GetChannel(long id);
+        List<ChannelInfo> GetChannels();
     }
 }
