@@ -17,20 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Packets.Attributes;
-using NosCore.Shared.Enumerations;
+using System.Globalization;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using NosCore.Shared.Authentication;
 
-namespace NosCore.Data.CommandPackets
+namespace NosCore.Core.Encryption
 {
-    [CommandPacketHeader("$Effect", AuthorityType.GameMaster)]
-    public class EffectCommandPacket : CommandPacket
+    public class Sha512Hasher : IHasher
     {
-        [PacketIndex(0)]
-        public int EffectId { get; set; }
-
-        public override string Help()
+        public string Hash(string password, string? salt)
         {
-            return "$Effect EffectId";
+            using var hash = SHA512.Create();
+            return string.Concat(hash.ComputeHash(Encoding.Default.GetBytes(salt ?? "" + password))
+                .Select(item => item.ToString("x2", CultureInfo.CurrentCulture)));
         }
+
+        public string Hash(string password) => Hash(password, null);
     }
 }

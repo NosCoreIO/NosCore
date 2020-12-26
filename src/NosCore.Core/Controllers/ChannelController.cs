@@ -36,10 +36,12 @@ using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.Authentication;
+using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 using Serilog;
+using HashingType = NosCore.Data.Enumerations.HashingType;
 
 namespace NosCore.Core.Controllers
 {
@@ -50,11 +52,13 @@ namespace NosCore.Core.Controllers
         private readonly IOptions<WebApiConfiguration> _apiConfiguration;
         private readonly ILogger _logger;
         private int _id;
+        private readonly IHasher _hasher;
 
-        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger)
+        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger, IHasher hasher)
         {
             _logger = logger;
             _apiConfiguration = apiConfiguration;
+            _hasher = hasher;
         }
 
         private string GenerateToken()
@@ -64,13 +68,7 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.NameIdentifier, "Server"),
                 new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
             });
-            var password = _apiConfiguration.Value.HashingType switch
-            {
-                HashingType.BCrypt => _apiConfiguration.Value.Password!.ToBcrypt(_apiConfiguration.Value.Salt ?? ""),
-                HashingType.Pbkdf2 => _apiConfiguration.Value.Password!.ToPbkdf2Hash(_apiConfiguration.Value.Salt ?? ""),
-                HashingType.Sha512 => _apiConfiguration.Value.Password!.ToSha512(),
-                _ => _apiConfiguration.Value.Password!.ToSha512()
-            };
+            var password = _hasher.Hash(_apiConfiguration.Value.Password!, _apiConfiguration.Value.Salt);
 
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);

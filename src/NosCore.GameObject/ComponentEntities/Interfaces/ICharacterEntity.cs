@@ -24,7 +24,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using DotNetty.Transport.Channels;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Providers.InventoryService;

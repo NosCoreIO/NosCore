@@ -1,3 +1,4 @@
-ignore:
-  - "src/NosCore.Database"
-  - "src/NosCore.PathFinder.Gui"
+coverage:
+  range: 28..100 #upgrade when code coverage is up
+  round: down
+  precision: 2

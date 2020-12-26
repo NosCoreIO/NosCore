@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Packets.Attributes;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Data.CommandPackets
 {

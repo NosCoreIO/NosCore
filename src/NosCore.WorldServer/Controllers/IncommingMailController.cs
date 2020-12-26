@@ -24,11 +24,11 @@ using NosCore.Packets.ServerPackets.Parcel;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.WorldServer.Controllers
 {

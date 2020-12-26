@@ -22,21 +22,15 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using NosCore.Shared.Authentication;
 
 namespace NosCore.Core.Encryption
 {
-    public static class EncryptionExtension
+    public class Pbkdf2Hasher : IHasher
     {
-        public static string ToSha512(this string inputString)
+        public string Hash(string inputString, string? salt)
         {
-            using var hash = SHA512.Create();
-            return string.Concat(hash.ComputeHash(Encoding.Default.GetBytes(inputString))
-.Select(item => item.ToString("x2", CultureInfo.CurrentCulture)));
-        }
-
-        public static string ToPbkdf2Hash(this string inputString, string salt)
-        {
-            var saltBytes = Convert.FromBase64String(Convert.ToBase64String(Encoding.Default.GetBytes(salt)));
+            var saltBytes = Convert.FromBase64String(Convert.ToBase64String(Encoding.Default.GetBytes(salt ?? "")));
 
             using var pbkdf2 = new Rfc2898DeriveBytes(
                 Encoding.Default.GetBytes(inputString),
@@ -46,9 +40,6 @@ namespace NosCore.Core.Encryption
             return string.Concat(pbkdf2.GetBytes(64).Select(item => item.ToString("x2", CultureInfo.CurrentCulture)));
         }
 
-        public static string ToBcrypt(this string inputString, string salt)
-        {
-            return BCrypt.Net.BCrypt.HashPassword(inputString, salt);
-        }
+        public string Hash(string password) => throw new NotImplementedException();
     }
 }

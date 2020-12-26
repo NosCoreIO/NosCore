@@ -22,6 +22,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -31,7 +34,7 @@ using Serilog;
 
 namespace NosCore.MasterServer
 {
-    public class MasterServer
+    public class MasterServer : BackgroundService
     {
         private readonly ILogger _logger;
         private readonly MasterConfiguration _masterConfiguration;
@@ -42,7 +45,7 @@ namespace NosCore.MasterServer
             _logger = logger;
         }
 
-        public void Run()
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (!Debugger.IsAttached)
             {
@@ -62,6 +65,8 @@ namespace NosCore.MasterServer
             {
                 Console.Title += $@" - WebApi : {_masterConfiguration.WebApi}";
             }
+
+            return Task.CompletedTask;
         }
     }
 }

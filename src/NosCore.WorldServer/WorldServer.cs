@@ -24,6 +24,7 @@ using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -36,7 +37,7 @@ using Serilog;
 
 namespace NosCore.WorldServer
 {
-    public class WorldServer
+    public class WorldServer : BackgroundService
     {
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly List<IGlobalEvent> _events;
@@ -56,7 +57,7 @@ namespace NosCore.WorldServer
             _mapInstanceProvider = mapInstanceProvider;
         }
 
-        public async Task RunAsync()
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await _mapInstanceProvider.InitializeAsync().ConfigureAwait(false);
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
@@ -69,22 +70,14 @@ namespace NosCore.WorldServer
                 Thread.Sleep(30000);
             };
 
-            try
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    Console.Title += $@" - Port : {_worldConfiguration.Value.Port} - WebApi : {_worldConfiguration.Value.WebApi}";
-                }
-
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
-                    _worldConfiguration.Value.Port);
-                await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
+                Console.Title += $@" - Port : {_worldConfiguration.Value.Port} - WebApi : {_worldConfiguration.Value.WebApi}";
             }
-            catch
-            {
-                Console.ReadKey();
-            }
+
+            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
+                _worldConfiguration.Value.Port);
+            await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }
 }

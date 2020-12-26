@@ -22,13 +22,13 @@ using NosCore.Packets.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.Group;
+using NosCore.Shared.Enumerations;
 using Serilog;
 
 namespace NosCore.WorldServer.Controllers

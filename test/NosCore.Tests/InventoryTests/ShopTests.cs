@@ -279,7 +279,7 @@ namespace NosCore.Tests.InventoryTests
             var session2 = new ClientSession(conf, new Mock<IMapInstanceProvider>().Object, new Mock<IExchangeProvider>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object, new Mock<IMinilandProvider>().Object);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
-            var account = new AccountDto {Name = "AccountTest", Password = "test".ToSha512()};
+            var account = new AccountDto {Name = "AccountTest", Password = new Sha512Hasher().Hash("test")};
             session2.InitializeAccount(account);
             session2.SessionId = 1;
 

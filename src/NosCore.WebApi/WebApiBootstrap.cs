@@ -17,21 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using NosCore.Data.Enumerations;
-using NosCore.Shared.Configuration;
+using System.Threading.Tasks;
 
-namespace NosCore.Core.Configuration
+namespace NosCore.WebApi
 {
-    [Serializable]
-    public class WebApiConfiguration : ServerConfiguration
+    public static class LoginServerBootstrap
     {
-        [Required]
-        public string? Password { get; set; }
-
-        public HashingType HashingType { get; set; }
-
-        public string? Salt { get; set; }
+      
+        public static Task Main(string[] args)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

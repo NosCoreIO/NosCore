@@ -73,6 +73,7 @@
     <Folder Include="Dto\Entities\" />
     <Folder Include="Dto\I18N\" />
     <Folder Include="Dto\StaticEntities\" />
+    <Folder Include="Enumerations\Account\" />
   </ItemGroup>
 
   <ItemGroup>
