@@ -27,9 +27,9 @@ using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.MasterServer.Controllers
 {

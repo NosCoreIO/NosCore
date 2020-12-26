@@ -21,43 +21,44 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Data.StaticEntities;
+using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Helpers;
 
 namespace NosCore.GameObject.Map
 {
-    public class Map : MapDto
+    public class Map : MapDto, IMapGrid
     {
-        private short _xLength;
+        private short _width;
 
-        private short _yLength;
+        private short _height;
 
-        public short XLength
+        public short Width
         {
             get
             {
-                if (_xLength == 0)
+                if (_width == 0)
                 {
-                    _xLength = BitConverter.ToInt16(Data.AsSpan().Slice(0, 2).ToArray(), 0);
+                    _width = BitConverter.ToInt16(Data.AsSpan().Slice(0, 2).ToArray(), 0);
                 }
 
-                return _xLength;
+                return _width;
             }
         }
 
-        public short YLength
+        public short Height
         {
             get
             {
-                if (_yLength == 0)
+                if (_height == 0)
                 {
-                    _yLength = BitConverter.ToInt16(Data.AsSpan().Slice(2, 2).ToArray(), 0);
+                    _height = BitConverter.ToInt16(Data.AsSpan().Slice(2, 2).ToArray(), 0);
                 }
 
-                return _yLength;
+                return _height;
             }
         }
 
-        public byte this[short x, short y] => Data.AsSpan().Slice(4 + y * XLength + x, 1)[0];
+        public byte this[short x, short y] => Data.AsSpan().Slice(4 + y * Width + x, 1)[0];
 
         internal bool GetFreePosition(ref short firstX, ref short firstY, byte xpoint, byte ypoint)
         {
@@ -123,7 +124,7 @@ namespace NosCore.GameObject.Map
 
         public bool IsWalkable(short mapX, short mapY)
         {
-            if ((mapX > XLength) || (mapX < 0) || (mapY > YLength) || (mapY < 0))
+            if ((mapX > Width) || (mapX < 0) || (mapY > Height) || (mapY < 0))
             {
                 return false;
             }

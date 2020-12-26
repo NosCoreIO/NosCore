@@ -63,6 +63,7 @@ using ILogger = Serilog.ILogger;
 using NosCore.Dao;
 using NosCore.Packets.Attributes;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 
@@ -93,7 +94,6 @@ namespace NosCore.LoginServer
                 .SingleInstance();
             containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
-            containerBuilder.RegisterType<LoginServer>().PropertiesAutowired();
             containerBuilder.RegisterType<ClientSession>();
 
             containerBuilder.RegisterType<NetworkManager>();
@@ -106,6 +106,12 @@ namespace NosCore.LoginServer
                 .Where(t => t.Name.EndsWith("HttpClient"))
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
+            containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication.HashingType switch
+            {
+                HashingType.BCrypt => new BcryptHasher(),
+                HashingType.Pbkdf2 => new Pbkdf2Hasher(),
+                _ => new Sha512Hasher()
+            });
             containerBuilder.Register(c =>
             {
                 var conf = c.Resolve<IOptions<LoginConfiguration>>();
@@ -160,6 +166,7 @@ namespace NosCore.LoginServer
                 })
                 .UseConsoleLifetime()
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+                .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>
                 {
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -180,12 +187,7 @@ namespace NosCore.LoginServer
                     services.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);
                     services.AddDbContext<NosCoreContext>(
                         conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString));
-                    var containerBuilder = new ContainerBuilder();
-                    InitializeContainer(containerBuilder);
-                    containerBuilder.Populate(services);
-                    var container = containerBuilder.Build();
-
-                    _ = container.Resolve<LoginServer>().RunAsync();
+                    services.AddHostedService<LoginServer>();
                     TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
                 })

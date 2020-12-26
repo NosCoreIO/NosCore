@@ -40,6 +40,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Authentication;
 using NosCore.Shared.Enumerations;
 using Serilog;
 
@@ -59,7 +60,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<AccountDto, long> accountDao,
             IDao<MateDto, long> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient)
+            IChannelHttpClient channelHttpClient, IHasher hasher)
         {
             _characterDao = characterDao;
             _accountDao = accountDao;
@@ -116,7 +117,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     ? await authHttpClient
                         .GetAwaitingConnectionAsync(accountName, password, sessionId)
                         .ConfigureAwait(false) != null
-                    : account.Password?.Equals(password.ToSha512(), StringComparison.OrdinalIgnoreCase) ==
+                    : account.Password?.Equals(new Sha512Hasher().Hash(password), StringComparison.OrdinalIgnoreCase) ==
                     true);
 
             if (!awaitingConnection)

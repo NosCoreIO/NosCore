@@ -65,7 +65,6 @@ using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.DataAttributes;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.I18N;
 using NosCore.Database;
@@ -95,10 +94,12 @@ using NosCore.Packets.Attributes;
 using NosCore.Packets.Enumerations;
 using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
 using NosCore.Shared.I18N;
 using NosCore.Shared.Enumerations;
+using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 
 namespace NosCore.WorldServer
 {
@@ -306,13 +307,14 @@ namespace NosCore.WorldServer
 
             containerBuilder.Register(c =>
             {
+                var hasher = c.Resolve<IHasher>();
                 var configuration = c.Resolve<IOptions<WorldConfiguration>>();
                 var claims = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, "Server"),
                     new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
                 });
-                var keyByteArray = Encoding.Default.GetBytes(configuration.Value.MasterCommunication!.Password!.ToSha512());
+                var keyByteArray = Encoding.Default.GetBytes(hasher.Hash(configuration.Value.MasterCommunication!.Password!, configuration.Value.MasterCommunication!.Salt));
                 var signinKey = new SymmetricSecurityKey(keyByteArray);
                 var handler = new JwtSecurityTokenHandler();
                 var securityToken = handler.CreateToken(new SecurityTokenDescriptor
@@ -338,6 +340,12 @@ namespace NosCore.WorldServer
                     Token = handler.WriteToken(securityToken)
                 };
             });
+            containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
+            {
+                HashingType.BCrypt => new BcryptHasher(),
+                HashingType.Pbkdf2 => new Pbkdf2Hasher(),
+                _ => new Sha512Hasher()
+            });
             //NosCore.Controllers
             foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
             {
@@ -353,9 +361,6 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
-
-            //NosCore.WorldServer
-            containerBuilder.RegisterType<WorldServer>().PropertiesAutowired();
 
             //NosCore.GameObject
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
@@ -458,6 +463,7 @@ namespace NosCore.WorldServer
                 .AddControllersAsServices();
 
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
+            services.AddHostedService<WorldServer>();
 
             TypeAdapterConfig.GlobalSettings
                 .ForDestinationType<I18NString>()
@@ -475,7 +481,6 @@ namespace NosCore.WorldServer
             var container = containerBuilder.Build();
             RegisterGo(container);
 
-            _ = container.Resolve<WorldServer>().RunAsync();
 
             return new AutofacServiceProvider(container);
         }

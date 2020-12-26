@@ -36,7 +36,6 @@ using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
@@ -51,6 +50,7 @@ using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using NosCore.Packets.ClientPackets.UI;
+using NosCore.Shared.Enumerations;
 using Serilog;
 
 namespace NosCore.GameObject.Networking.ClientSession

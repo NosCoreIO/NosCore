@@ -20,9 +20,9 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.WorldServer.Controllers
 {

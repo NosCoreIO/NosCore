@@ -38,6 +38,8 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using NosCore.Shared.Authentication;
+using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using Serilog;
 using TwoFactorAuthNet;
@@ -52,12 +54,14 @@ namespace NosCore.Core.Controllers
         private readonly IDao<AccountDto, long> _accountDao;
         private readonly IOptions<WebApiConfiguration> _apiConfiguration;
         private readonly ILogger _logger;
+        private readonly IHasher _hasher;
 
-        public AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao, ILogger logger)
+        public AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao, ILogger logger, IHasher hasher)
         {
             _apiConfiguration = apiConfiguration;
             _accountDao = accountDao;
             _logger = logger;
+            _hasher = hasher;
         }
 
         [AllowAnonymous]
@@ -80,38 +84,14 @@ namespace NosCore.Core.Controllers
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT));
             }
 
-            switch (_apiConfiguration.Value.HashingType)
+            if (account.Password!.ToLower(CultureInfo.CurrentCulture) != (_hasher.Hash(session.Password)) 
+                && account.NewAuthPassword!.ToLower(CultureInfo.CurrentCulture) != (_hasher.Hash(session.Password, account.NewAuthSalt!)))
             {
-                case HashingType.BCrypt:
-                    if (account.NewAuthPassword != Encoding.Default
-                            .GetString(Convert.FromBase64String(account!.NewAuthPassword!))
-                            .ToBcrypt(account.NewAuthSalt!
-                        ))
-                    {
-                        return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
-                    }
-
-                    break;
-                case HashingType.Pbkdf2:
-                    if (account.NewAuthPassword != Encoding.Default
-                        .GetString(Convert.FromBase64String(account.NewAuthPassword!))
-                        .ToPbkdf2Hash(account.NewAuthSalt!))
-                    {
-                        return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
-                    }
-
-                    break;
-                default:
-                    if (account.Password!.ToLower(CultureInfo.CurrentCulture) != (session.Password?.ToSha512() ?? ""))
-                    {
-                        return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
-                    }
-
-                    break;
+                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
             }
 
             account.Language = Enum.Parse<RegionType>(session.GfLang?.ToUpper(CultureInfo.CurrentCulture) ?? "");
-            
+
             account = await _accountDao.TryInsertOrUpdateAsync(account).ConfigureAwait(false);
             var platformGameAccountId = Guid.NewGuid();
             var claims = new ClaimsIdentity(new[]
@@ -120,13 +100,7 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.Sid, platformGameAccountId.ToString()),
                 new Claim(ClaimTypes.Role, account.Authority.ToString())
             });
-            var password = _apiConfiguration.Value.HashingType switch
-            {
-                HashingType.BCrypt => _apiConfiguration.Value.Password!.ToBcrypt(_apiConfiguration.Value.Salt ?? ""),
-                HashingType.Pbkdf2 => _apiConfiguration.Value.Password!.ToPbkdf2Hash(_apiConfiguration.Value.Salt ?? ""),
-                HashingType.Sha512 => _apiConfiguration.Value.Password!.ToSha512(),
-                _ => _apiConfiguration.Value.Password!.ToSha512()
-            };
+            var password = _hasher.Hash(_apiConfiguration.Value.Password!, _apiConfiguration.Value.Salt);
 
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);

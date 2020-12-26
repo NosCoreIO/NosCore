@@ -36,7 +36,7 @@ namespace NosCore.Data.Dto
 		[Key]
 		public long AccountId { get; set; }
 
-	 	public NosCore.Data.Enumerations.Account.AuthorityType Authority { get; set; }
+	 	public NosCore.Shared.Enumerations.AuthorityType Authority { get; set; }
 
 	 	internal System.Collections.Generic.ICollection<CharacterDto> Character { get; set; }
 

@@ -26,24 +26,19 @@ namespace NosCore.Core.Extensions
     {
         public static Encoding? GetEncoding(this RegionType region)
         {
-            switch (region)
+            return region switch
             {
-                case RegionType.ES:
-                case RegionType.EN:
-                case RegionType.FR:
-                    return CodePagesEncodingProvider.Instance.GetEncoding(1252);
-                case RegionType.DE:
-                case RegionType.IT:
-                case RegionType.PL:
-                case RegionType.CS:
-                    return CodePagesEncodingProvider.Instance.GetEncoding(1250);
-                case RegionType.TR:
-                    return CodePagesEncodingProvider.Instance.GetEncoding(1254);
-                case RegionType.RU:
-                    return CodePagesEncodingProvider.Instance.GetEncoding(1251);
-                default:
-                    return Encoding.Default;
-            }
+                RegionType.ES => CodePagesEncodingProvider.Instance.GetEncoding(1252),
+                RegionType.EN => CodePagesEncodingProvider.Instance.GetEncoding(1252),
+                RegionType.FR => CodePagesEncodingProvider.Instance.GetEncoding(1252),
+                RegionType.DE => CodePagesEncodingProvider.Instance.GetEncoding(1250),
+                RegionType.IT => CodePagesEncodingProvider.Instance.GetEncoding(1250),
+                RegionType.PL => CodePagesEncodingProvider.Instance.GetEncoding(1250),
+                RegionType.CS => CodePagesEncodingProvider.Instance.GetEncoding(1250),
+                RegionType.TR => CodePagesEncodingProvider.Instance.GetEncoding(1254),
+                RegionType.RU => CodePagesEncodingProvider.Instance.GetEncoding(1251),
+                _ => Encoding.Default
+            };
         }
     }
 }

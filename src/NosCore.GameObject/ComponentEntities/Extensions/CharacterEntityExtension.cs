@@ -33,7 +33,6 @@ using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
@@ -302,7 +301,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Direction = visualEntity.Direction,
                 InCharacterSubPacket = new InCharacterSubPacket
                 {
-                    Authority = visualEntity.Authority > AuthorityType.Administrator ? AuthorityUIType.Administrator : (AuthorityUIType)(int)visualEntity.Authority,
+                    Authority = visualEntity.Authority >= AuthorityType.Administrator ? AuthorityType.Administrator : AuthorityType.User,
                     Gender = visualEntity.Gender,
                     HairStyle = visualEntity.HairStyle,
                     HairColor = visualEntity.HairColor,
@@ -335,7 +334,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     FamilyLevel = 0,
                     FamilyIcons = new List<bool> { false, false, false },
                     ArenaWinner = false,
-                    Compliment = (short)(visualEntity.Authority == AuthorityType.Moderator ? 500 : visualEntity.Compliment),
+                    Compliment = (short)(visualEntity.Authority >= AuthorityType.Moderator ? 500 : visualEntity.Compliment),
                     Size = visualEntity.Size,
                     HeroLevel = visualEntity.HeroLevel
                 }
@@ -507,7 +506,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 FamilyId = -1,
                 FamilyName = null,
                 CharacterId = visualEntity.VisualId,
-                Authority = (AuthorityUIType)(int)visualEntity.Authority,
+                Authority = visualEntity.Authority,
                 Gender = visualEntity.Gender,
                 HairStyle = visualEntity.HairStyle,
                 HairColor = visualEntity.HairColor,

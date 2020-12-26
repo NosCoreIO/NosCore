@@ -45,6 +45,7 @@ using Microsoft.OpenApi.Models;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Controllers;
+using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.HttpClients.IncommingMailHttpClients;
@@ -61,9 +62,12 @@ using NosCore.Database.Entities;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.MasterServer.Controllers;
 using NosCore.MasterServer.DataHolders;
+using NosCore.Shared.Authentication;
+using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using ILogger = Serilog.ILogger;
 using NosCore.Shared.I18N;
+using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 
 namespace NosCore.MasterServer
 {
@@ -153,7 +157,12 @@ namespace NosCore.MasterServer
         private ContainerBuilder InitializeContainer(IServiceCollection services)
         {
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterType<MasterServer>().PropertiesAutowired();
+            containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
+            {
+                HashingType.BCrypt => new BcryptHasher(),
+                HashingType.Pbkdf2 => new Pbkdf2Hasher(),
+                _ => new Sha512Hasher()
+            });
             containerBuilder.Register(c =>
             {
                 var configuration = c.Resolve<IOptions<MasterConfiguration>>();
@@ -219,6 +228,7 @@ namespace NosCore.MasterServer
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
+            services.AddHostedService<MasterServer>();
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
             TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
@@ -226,7 +236,6 @@ namespace NosCore.MasterServer
 
             var containerBuilder = InitializeContainer(services);
             var container = containerBuilder.Build();
-            container.Resolve<MasterServer>().Run();
             return new AutofacServiceProvider(container);
         }
 

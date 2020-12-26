@@ -30,13 +30,13 @@ using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.MasterServer.DataHolders;
 using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.MasterServer.Controllers
 {

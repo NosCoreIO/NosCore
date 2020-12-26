@@ -17,17 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace NosCore.Data.Enumerations.Account
+using System;
+using NosCore.Shared.Authentication;
+
+namespace NosCore.Core.Encryption
 {
-    public enum AuthorityType : short
+    public class BcryptHasher : IHasher
     {
-        Closed = -3,
-        Banned = -2,
-        Unconfirmed = -1,
-        User = 0,
-        Moderator = 1,
-        GameMaster = 2,
-        Administrator = 3,
-        Root = 4
+        public string Hash(string password, string? salt)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password, salt);
+        }
+
+        public string Hash(string password) => throw new NotImplementedException();
     }
 }

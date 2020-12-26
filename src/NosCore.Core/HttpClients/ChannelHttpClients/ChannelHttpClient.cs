@@ -30,12 +30,12 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Json.Patch;
 using Microsoft.IdentityModel.Tokens;
-using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Account;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.Authentication;
+using NosCore.Shared.Enumerations;
 using Polly;
 using Serilog;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -49,12 +49,14 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
         private readonly ILogger _logger;
         private DateTime _lastUpdateToken;
         private string? _token;
+        private readonly IHasher _hasher;
 
-        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger)
+        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger, IHasher hasher)
         {
             _httpClientFactory = httpClientFactory;
             _channel = channel;
             _logger = logger;
+            _hasher = hasher;
         }
 
         public async Task ConnectAsync()
@@ -133,15 +135,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-            var password = _channel.MasterCommunication.HashingType switch
-            {
-                HashingType.BCrypt => _channel.MasterCommunication.Password!.ToBcrypt(_channel.MasterCommunication
-                    .Salt!),
-                HashingType.Pbkdf2 => _channel.MasterCommunication.Password!.ToPbkdf2Hash(_channel
-                    .MasterCommunication.Salt!),
-                HashingType.Sha512 => _channel.MasterCommunication.Password!.ToSha512(),
-                _ => _channel.MasterCommunication.Password!.ToSha512()
-            };
+            var password = _hasher.Hash(_channel.MasterCommunication.Password!, _channel.MasterCommunication.Salt);
 
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
