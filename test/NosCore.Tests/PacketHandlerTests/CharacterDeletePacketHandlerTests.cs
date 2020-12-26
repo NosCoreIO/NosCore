@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Core.Encryption;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
@@ -40,7 +41,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _characterDeletePacketHandler =
-                new CharacterDeletePacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao);
+                new CharacterDeletePacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao, new Sha512Hasher());
             _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler>{
                 _characterDeletePacketHandler
             }).ConfigureAwait(false);

@@ -11,10 +11,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Configuration;
 using NosCore.Core.Controllers;
+using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Shared.Configuration;
 using NosCore.Tests.Helpers;
 using Serilog;
 using TwoFactorAuthNet;
@@ -41,7 +43,7 @@ namespace NosCore.Tests.ApiTests
             _controller = new AuthController(Options.Create(new WebApiConfiguration()
             {
                 Password = "123"
-            }), TestHelpers.Instance.AccountDao, _logger.Object);
+            }), TestHelpers.Instance.AccountDao, _logger.Object, new Sha512Hasher());
         }
 
         [TestMethod]
