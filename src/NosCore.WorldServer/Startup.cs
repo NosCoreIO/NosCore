@@ -346,16 +346,13 @@ namespace NosCore.WorldServer
                 HashingType.Pbkdf2 => new Pbkdf2Hasher(),
                 _ => new Sha512Hasher()
             });
+
             //NosCore.Controllers
-            foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
-            {
-                if (typeof(IPacketHandler).IsAssignableFrom(type) && typeof(IWorldPacketHandler).IsAssignableFrom(type))
-                {
-                    containerBuilder.RegisterType(type)
-                        .AsImplementedInterfaces()
-                        .PropertiesAutowired();
-                }
-            }
+
+            containerBuilder.RegisterTypes(typeof(NoS0575PacketHandler).Assembly.GetTypes()
+                    .Where(type => typeof(IPacketHandler).IsAssignableFrom(type) && typeof(IWorldPacketHandler).IsAssignableFrom(type)).ToArray())
+                .AsImplementedInterfaces()
+                .PropertiesAutowired();
 
             //NosCore.Core
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
@@ -363,9 +360,6 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
 
             //NosCore.GameObject
-            TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
-            TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
-            TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<OctileDistanceHeuristic>().As<IHeuristic>();
             containerBuilder.RegisterType<NetworkManager>();
@@ -386,38 +380,14 @@ namespace NosCore.WorldServer
                 .AsSelf()
                 .PropertiesAutowired();
 
-
             containerBuilder.RegisterAssemblyTypes(typeof(IGlobalEvent).Assembly)
                 .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
 
             containerBuilder
-                .RegisterAssemblyTypes(typeof(IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>).Assembly)
-                .Where(t => typeof(IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>)
-                    .IsAssignableFrom(t))
-                .SingleInstance()
-                .AsImplementedInterfaces();
-
-            containerBuilder
-                .RegisterAssemblyTypes(typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>).Assembly)
-                .Where(t => typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>)
-                    .IsAssignableFrom(t))
-                .SingleInstance()
-                .AsImplementedInterfaces();
-
-            containerBuilder
-                .RegisterAssemblyTypes(
-                    typeof(IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).Assembly)
-                .Where(t => typeof(IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>)
-                    .IsAssignableFrom(t))
-                .SingleInstance()
-                .AsImplementedInterfaces();
-
-            containerBuilder
-                .RegisterAssemblyTypes(typeof(IEventHandler<GuriPacket, GuriPacket>).Assembly)
-                .Where(t => typeof(IEventHandler<GuriPacket, GuriPacket>)
-                    .IsAssignableFrom(t))
+                .RegisterAssemblyTypes(typeof(IEventHandler<,>).Assembly)
+                .AsClosedTypesOf(typeof(IEventHandler<,>))
                 .SingleInstance()
                 .AsImplementedInterfaces();
         }
@@ -436,17 +406,11 @@ namespace NosCore.WorldServer
 
             var worldConfiguration = new WorldConfiguration();
             _configuration.Bind(worldConfiguration);
-            services.AddDbContext<NosCoreContext>(
-                conf => conf.UseNpgsql(worldConfiguration.Database!.ConnectionString));
-
+            services.AddDbContext<NosCoreContext>(conf => conf.UseNpgsql(worldConfiguration.Database!.ConnectionString));
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(worldConfiguration.WebApi.Port));
-
-            services.AddSwaggerGen(c =>
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
-
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
-
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             services.ConfigureOptions<ConfigureJwtBearerOptions>();
             services.AddAuthorization(o =>
@@ -465,13 +429,13 @@ namespace NosCore.WorldServer
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddHostedService<WorldServer>();
 
-            TypeAdapterConfig.GlobalSettings
-                .ForDestinationType<I18NString>()
-                .BeforeMapping(s => s.Clear());
-            TypeAdapterConfig.GlobalSettings.Default
-                 .IgnoreMember((member, side) => ((side == MemberSide.Destination) && member.Type.GetInterfaces().Contains(typeof(IEntity))) || (member.Type.GetGenericArguments().Any() && member.Type.GetGenericArguments()[0].GetInterfaces().Contains(typeof(IEntity))));
-            TypeAdapterConfig.GlobalSettings
-                .When(s => !s.SourceType.IsAssignableFrom(s.DestinationType) && typeof(IStaticDto).IsAssignableFrom(s.DestinationType))
+            TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
+            TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<I18NString>().BeforeMapping(s => s.Clear());
+            TypeAdapterConfig.GlobalSettings.Default.IgnoreMember((member, side)
+                => ((side == MemberSide.Destination) && member.Type.GetInterfaces().Contains(typeof(IEntity))) || (member.Type.GetGenericArguments().Any() && member.Type.GetGenericArguments()[0].GetInterfaces().Contains(typeof(IEntity))));
+            TypeAdapterConfig.GlobalSettings.When(s => !s.SourceType.IsAssignableFrom(s.DestinationType) && typeof(IStaticDto).IsAssignableFrom(s.DestinationType))
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
             TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
