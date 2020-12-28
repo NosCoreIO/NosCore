@@ -17,23 +17,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.Packets.Enumerations;
 
-namespace NosCore.GameObject.Providers.BazaarService
+namespace NosCore.GameObject.Services.FriendService
 {
-    public interface IBazaarService
+    public interface IFriendService
     {
-        List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
-            byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter);
+        Task<LanguageKey> AddFriendAsync(FriendShipRequest friendPacket);
 
-        Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName);
+        Task<List<CharacterRelationStatus>> GetFriendsAsync(long id);
 
-        Task<LanguageKey> AddBazaarAsync(BazaarRequest bazaarRequest);
-
-        Task<BazaarLink?> ModifyBazaarAsync(long id, Json.Patch.JsonPatch bzMod);
+        Task<bool> DeleteAsync(Guid id);
     }
 }

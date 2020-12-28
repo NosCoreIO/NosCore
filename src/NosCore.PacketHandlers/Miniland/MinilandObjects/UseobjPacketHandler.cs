@@ -27,8 +27,8 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.HttpClients.WarehouseHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MinilandProvider;
 using System.Threading.Tasks;
+using NosCore.GameObject.Providers.MinilandProvider;
 
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {

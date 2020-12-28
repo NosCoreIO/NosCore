@@ -19,14 +19,15 @@
 
 using System;
 using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Drops;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.ServerPackets.UI;
+
 //TODO stop using obsolete
 #pragma warning disable 618
 

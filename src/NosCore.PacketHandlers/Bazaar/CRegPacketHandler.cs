@@ -37,7 +37,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Shared.Enumerations;
 //TODO stop using obsolete
 #pragma warning disable 618

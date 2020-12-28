@@ -19,9 +19,6 @@
 
 using System;
 using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
@@ -30,9 +27,13 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using Serilog;
+
 //TODO stop using obsolete
 #pragma warning disable 618
 

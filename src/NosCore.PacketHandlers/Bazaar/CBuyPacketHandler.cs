@@ -32,8 +32,8 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Shared.Enumerations;
 using Serilog;
 

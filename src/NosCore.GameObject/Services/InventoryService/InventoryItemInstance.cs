@@ -21,7 +21,7 @@ using System;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
-namespace NosCore.GameObject.Providers.InventoryService
+namespace NosCore.GameObject.Services.InventoryService
 {
     public class InventoryItemInstance : InventoryItemInstanceDto
     {

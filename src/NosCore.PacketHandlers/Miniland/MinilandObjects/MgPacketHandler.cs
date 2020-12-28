@@ -32,10 +32,11 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.InventoryService;
+
 //TODO stop using obsolete
 #pragma warning disable 618
 

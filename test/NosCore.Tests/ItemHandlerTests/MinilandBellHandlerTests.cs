@@ -32,11 +32,11 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Handlers;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Tests.Helpers;
 using Serilog;
 

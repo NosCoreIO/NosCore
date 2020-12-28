@@ -22,8 +22,8 @@ using System.Linq;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Data.Enumerations;
-using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.InventoryService;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

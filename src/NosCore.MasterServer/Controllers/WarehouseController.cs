@@ -24,7 +24,7 @@ using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Providers.WarehouseService;
+using NosCore.GameObject.Services.WarehouseService;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.MasterServer.Controllers

@@ -40,7 +40,7 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Providers.BlackListService;
+using NosCore.GameObject.Services.BlackListService;
 using NosCore.Shared.Configuration;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests

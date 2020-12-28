@@ -35,7 +35,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.Shared.Configuration;
 
-namespace NosCore.GameObject.Providers.MailService
+namespace NosCore.GameObject.Services.MailService
 {
     public class MailService : IMailService
     {

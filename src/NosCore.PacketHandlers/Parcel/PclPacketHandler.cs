@@ -32,8 +32,8 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Services.InventoryService;
 
 namespace NosCore.PacketHandlers.Parcel
 {

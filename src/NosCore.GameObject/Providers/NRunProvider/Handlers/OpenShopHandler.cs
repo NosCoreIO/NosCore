@@ -19,11 +19,11 @@
 
 using System;
 using System.Threading.Tasks;
+using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject.Providers.NRunProvider.Handlers
 {

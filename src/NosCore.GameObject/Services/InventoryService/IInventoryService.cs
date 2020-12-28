@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 
-namespace NosCore.GameObject.Providers.InventoryService
+namespace NosCore.GameObject.Services.InventoryService
 {
     public interface IInventoryService : IDictionary<Guid, InventoryItemInstance>
     {

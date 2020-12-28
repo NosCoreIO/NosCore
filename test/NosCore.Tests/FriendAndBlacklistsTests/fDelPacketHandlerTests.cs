@@ -37,7 +37,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.FriendService;
+using NosCore.GameObject.Services.FriendService;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;

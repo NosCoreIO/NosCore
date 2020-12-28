@@ -18,10 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Data.Dto;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.ClientPackets.Inventory;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item
 {

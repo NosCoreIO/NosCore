@@ -21,13 +21,13 @@ using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Drops;
-using NosCore.Packets.ServerPackets.Entities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Providers.MapItemProvider

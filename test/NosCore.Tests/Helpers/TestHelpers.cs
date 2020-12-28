@@ -56,15 +56,6 @@ using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ExchangeProvider;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Handlers;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
-using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.GameObject.Providers.MapItemProvider.Handlers;
-using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.PacketHandlers.Friend;
@@ -82,6 +73,15 @@ using ShopItem = NosCore.Database.Entities.ShopItem;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations;
+using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Handlers;
+using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
+using NosCore.GameObject.Providers.MapItemProvider;
+using NosCore.GameObject.Providers.MapItemProvider.Handlers;
+using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
 
@@ -232,7 +232,7 @@ namespace NosCore.Tests.Helpers
         {
             return new ItemProvider(ItemList,
                 new List<IEventHandler<Item,
-                    Tuple<GameObject.Providers.InventoryService.InventoryItemInstance, UseItemPacket>>>
+                    Tuple<GameObject.Services.InventoryService.InventoryItemInstance, UseItemPacket>>>
                 {
                     new SpRechargerEventHandler(WorldConfiguration),
                     new VehicleEventHandler(_logger),

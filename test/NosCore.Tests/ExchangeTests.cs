@@ -30,9 +30,9 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Providers.ExchangeProvider;
-using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.InventoryService;
 using Serilog;
 
 namespace NosCore.Tests

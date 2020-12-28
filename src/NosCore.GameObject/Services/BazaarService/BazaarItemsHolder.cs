@@ -25,7 +25,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 
-namespace NosCore.GameObject.Providers.BazaarService
+namespace NosCore.GameObject.Services.BazaarService
 {
     public class BazaarItemsHolder
     {

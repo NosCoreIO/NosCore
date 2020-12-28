@@ -19,11 +19,11 @@
 
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
 using System;
 using System.Threading.Tasks;
 using NosCore.GameObject;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.InventoryService;
 
 namespace NosCore.Tests.ItemHandlerTests
 {

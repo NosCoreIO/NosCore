@@ -30,7 +30,7 @@ using NosCore.Data.WebApi;
 using NosCore.Packets.Enumerations;
 using Serilog;
 
-namespace NosCore.GameObject.Providers.FriendService
+namespace NosCore.GameObject.Services.FriendService
 {
     public class FriendService : IFriendService
     {

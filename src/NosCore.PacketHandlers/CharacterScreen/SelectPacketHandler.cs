@@ -34,10 +34,10 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.QuestProvider;
+using NosCore.GameObject.Services.InventoryService;
 using Serilog;
 
 namespace NosCore.PacketHandlers.CharacterScreen

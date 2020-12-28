@@ -58,17 +58,17 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Providers.ExchangeProvider;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.Shared.Enumerations;
 using Serilog;
 using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Configuration;
+using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.GameObject.Providers.QuestProvider;
+using NosCore.GameObject.Services.InventoryService;
 
 //TODO stop using obsolete
 #pragma warning disable 618

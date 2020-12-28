@@ -21,8 +21,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
@@ -32,7 +30,9 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {

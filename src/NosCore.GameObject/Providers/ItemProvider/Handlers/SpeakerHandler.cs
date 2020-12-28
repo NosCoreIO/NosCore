@@ -19,12 +19,12 @@
 
 using System;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.Items;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Data.Enumerations.Items;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Handlers
 {

@@ -23,15 +23,15 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Inventory;
 using Mapster;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.ClientPackets.Inventory;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.ItemProvider

@@ -23,7 +23,7 @@ using Json.Patch;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Providers.MailService;
+using NosCore.GameObject.Services.MailService;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.MasterServer.Controllers

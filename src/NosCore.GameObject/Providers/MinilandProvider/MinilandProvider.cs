@@ -22,7 +22,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Packets.Enumerations;
 using Mapster;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -31,9 +30,10 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.MapInstanceProvider;
 using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Providers.MinilandProvider
 {

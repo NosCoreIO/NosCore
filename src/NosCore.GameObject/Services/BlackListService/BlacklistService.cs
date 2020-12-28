@@ -28,7 +28,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.Packets.Enumerations;
 
-namespace NosCore.GameObject.Providers.BlackListService
+namespace NosCore.GameObject.Services.BlackListService
 {
     public class BlacklistService : IBlacklistService
     {

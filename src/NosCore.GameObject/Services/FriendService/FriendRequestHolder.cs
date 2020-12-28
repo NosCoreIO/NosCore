@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Concurrent;
 
-namespace NosCore.GameObject.Providers.FriendService
+namespace NosCore.GameObject.Services.FriendService
 {
     public class FriendRequestHolder
     {

@@ -29,7 +29,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Providers.ItemProvider.Item;
 using Serilog;
 
-namespace NosCore.GameObject.Providers.InventoryService
+namespace NosCore.GameObject.Services.InventoryService
 {
     public class InventoryService : ConcurrentDictionary<Guid, InventoryItemInstance>, IInventoryService
     {

@@ -25,7 +25,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
 
-namespace NosCore.GameObject.Providers.WarehouseService
+namespace NosCore.GameObject.Services.WarehouseService
 {
     public class WarehouseService : IWarehouseService
     {

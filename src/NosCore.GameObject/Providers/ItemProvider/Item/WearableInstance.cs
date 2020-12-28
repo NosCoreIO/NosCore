@@ -21,14 +21,14 @@ using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
 using NosCore.Shared.Helpers;
 using Serilog;
 

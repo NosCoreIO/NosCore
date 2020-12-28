@@ -23,14 +23,12 @@ using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 
-namespace NosCore.GameObject.Providers.FriendService
+namespace NosCore.GameObject.Services.BlackListService
 {
-    public interface IFriendService
+    public interface IBlacklistService
     {
-        Task<LanguageKey> AddFriendAsync(FriendShipRequest friendPacket);
-
-        Task<List<CharacterRelationStatus>> GetFriendsAsync(long id);
-
-        Task<bool> DeleteAsync(Guid id);
+        Task<LanguageKey> BlacklistPlayerAsync(BlacklistRequest blacklistRequest);
+        Task<List<CharacterRelationStatus>> GetBlacklistedListAsync(long id);
+        Task<bool> UnblacklistAsync(Guid id);
     }
 }

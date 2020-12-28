@@ -32,7 +32,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
 using NosCore.Packets.Enumerations;
 
-namespace NosCore.GameObject.Providers.BazaarService
+namespace NosCore.GameObject.Services.BazaarService
 {
     public class BazaarService : IBazaarService
     {

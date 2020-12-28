@@ -17,10 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Data.Dto;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ServerPackets.Map;
 using NosCore.Packets.ServerPackets.Miniland;
-using NosCore.Data.Dto;
-using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject.Providers.MapInstanceProvider
 {

@@ -20,8 +20,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.UI;
-using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
@@ -31,7 +29,9 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.ClientPackets.UI;
+using NosCore.Packets.Enumerations;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.GuriProvider.Handlers

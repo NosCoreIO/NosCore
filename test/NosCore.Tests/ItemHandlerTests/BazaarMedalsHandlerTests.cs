@@ -28,13 +28,13 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Handlers;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.Tests.Helpers;
 using Serilog;
 using Moq;
+using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Providers.ItemProvider.Handlers;
+using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.InventoryService;
 
 namespace NosCore.Tests.ItemHandlerTests
 {

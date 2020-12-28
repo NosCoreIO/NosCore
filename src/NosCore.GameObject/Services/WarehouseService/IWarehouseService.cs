@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
 
-namespace NosCore.GameObject.Providers.WarehouseService
+namespace NosCore.GameObject.Services.WarehouseService
 {
     public interface IWarehouseService
     {

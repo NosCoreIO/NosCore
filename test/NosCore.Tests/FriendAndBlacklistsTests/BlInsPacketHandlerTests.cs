@@ -26,7 +26,7 @@ using Moq;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.BlackListService;
+using NosCore.GameObject.Services.BlackListService;
 using NosCore.MasterServer.Controllers;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;

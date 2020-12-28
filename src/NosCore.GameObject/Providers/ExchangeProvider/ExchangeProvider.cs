@@ -23,18 +23,18 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Exchanges;
-using NosCore.Packets.ServerPackets.Inventory;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Exchanges;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 
 namespace NosCore.GameObject.Providers.ExchangeProvider

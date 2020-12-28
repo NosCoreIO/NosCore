@@ -23,9 +23,9 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Npcs;
 
 namespace NosCore.GameObject.Providers.NRunProvider
 {

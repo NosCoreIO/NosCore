@@ -20,9 +20,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Drops;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -30,7 +27,10 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Providers.MapItemProvider.Handlers

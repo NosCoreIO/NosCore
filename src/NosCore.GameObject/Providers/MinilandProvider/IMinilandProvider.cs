@@ -20,9 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NosCore.Packets.Enumerations;
-using NosCore.GameObject.Providers.InventoryService;
 using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Providers.MinilandProvider
 {

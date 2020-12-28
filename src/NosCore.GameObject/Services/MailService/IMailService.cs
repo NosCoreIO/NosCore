@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using Json.Patch;
 using NosCore.Data.WebApi;
 
-namespace NosCore.GameObject.Providers.MailService
+namespace NosCore.GameObject.Services.MailService
 {
     public interface IMailService
     {

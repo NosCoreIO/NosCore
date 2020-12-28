@@ -23,8 +23,8 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.UI;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.UI;
 
 namespace NosCore.GameObject.Providers.GuriProvider
 {

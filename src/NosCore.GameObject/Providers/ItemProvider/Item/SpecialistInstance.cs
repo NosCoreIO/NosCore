@@ -21,10 +21,10 @@ using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.ClientPackets.Inventory;
 
 namespace NosCore.GameObject.Providers.ItemProvider.Item
 {

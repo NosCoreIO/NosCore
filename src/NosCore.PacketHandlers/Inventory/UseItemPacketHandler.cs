@@ -23,7 +23,7 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Services.InventoryService;
 
 namespace NosCore.PacketHandlers.Inventory
 {

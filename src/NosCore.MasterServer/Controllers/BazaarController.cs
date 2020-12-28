@@ -24,7 +24,7 @@ using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Providers.BazaarService;
+using NosCore.GameObject.Services.BazaarService;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.MasterServer.Controllers
