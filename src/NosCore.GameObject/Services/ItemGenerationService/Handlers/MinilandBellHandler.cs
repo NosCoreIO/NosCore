@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -31,6 +29,8 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using System;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
@@ -78,7 +78,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 {
                     Type = 3,
                     Delay = 5000,
-                    Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType) itemInstance.Type,
+                    Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type,
                         itemInstance.Slot,
                         2, 0)
                 }).ConfigureAwait(false);
@@ -87,7 +87,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
             await requestData.ClientSession.SendPacketAsync(
-                itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
+                itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
             var miniland = _minilandProvider.GetMiniland(requestData.ClientSession.Character.CharacterId);
             await requestData.ClientSession.ChangeMapInstanceAsync(miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
         }

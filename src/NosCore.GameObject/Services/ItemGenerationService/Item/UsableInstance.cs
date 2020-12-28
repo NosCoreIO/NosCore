@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
         public Item? Item { get; set; }
         public object Clone()
         {
-            return (UsableInstance) MemberwiseClone();
+            return (UsableInstance)MemberwiseClone();
         }
     }
 }

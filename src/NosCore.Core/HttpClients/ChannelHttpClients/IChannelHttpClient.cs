@@ -17,10 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Json.Patch;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Json.Patch;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClients
 {

@@ -17,12 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Extensions.Options;
-using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Configuration;
@@ -35,7 +30,12 @@ using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Tests
 {
@@ -162,10 +162,10 @@ namespace NosCore.Tests
         public void Test_Process_Exchange()
         {
             IInventoryService inventory1 =
-                new InventoryService(new List<ItemDto> {new Item {VNum = 1012, Type = NoscorePocketType.Main}},
+                new InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
                     _worldConfiguration!, Logger);
             IInventoryService inventory2 =
-                new InventoryService(new List<ItemDto> {new Item {VNum = 1013, Type = NoscorePocketType.Main}},
+                new InventoryService(new List<ItemDto> { new Item { VNum = 1013, Type = NoscorePocketType.Main } },
                     _worldConfiguration!, Logger);
             var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 1), 0))!
                 .First();

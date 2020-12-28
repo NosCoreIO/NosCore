@@ -17,11 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
@@ -29,6 +26,9 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ServerPackets.UI;
+using System.Threading.Tasks;
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Inventory
         {
             var invitem =
                 clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
-                    (NoscorePocketType) putPacket.PocketType);
+                    (NoscorePocketType)putPacket.PocketType);
             if (invitem?.ItemInstance?.Item?.IsDroppable ?? false)
             {
                 if ((putPacket.Amount > 0) && (putPacket.Amount <= _worldConfiguration.Value.MaxItemAmount))
@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Inventory
                         }
 
                         invitem = clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
-                            (NoscorePocketType) putPacket.PocketType);
+                            (NoscorePocketType)putPacket.PocketType);
                         await clientSession.SendPacketAsync(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot)).ConfigureAwait(false);
                         await clientSession.Character.MapInstance.SendPacketAsync(droppedItem.GenerateDrop()).ConfigureAwait(false);
                     }

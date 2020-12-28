@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
@@ -31,6 +28,9 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                     itemInstance.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]),
                 SayColorType.Green)).ConfigureAwait(false);
             await requestData.ClientSession.SendPacketAsync(
-                itemInstance.GeneratePocketChange((PocketType) itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
+                itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
 
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
                 itemInstance.ItemInstanceId);

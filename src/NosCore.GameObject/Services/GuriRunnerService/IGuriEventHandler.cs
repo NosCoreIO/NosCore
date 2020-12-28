@@ -21,7 +21,7 @@ using NosCore.Packets.ClientPackets.UI;
 
 namespace NosCore.GameObject.Services.GuriRunnerService
 {
-    public interface IGuriEventHandler  : IEventHandler<GuriPacket, GuriPacket>
+    public interface IGuriEventHandler : IEventHandler<GuriPacket, GuriPacket>
     {
     }
 }

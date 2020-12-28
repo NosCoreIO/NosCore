@@ -31,12 +31,12 @@ namespace NosCore.Core.Extensions
 
         public static Func<TBase> GetConstructorDelegate<TBase>(this Type type)
         {
-            return (Func<TBase>) GetConstructorDelegate(type, typeof(Func<TBase>));
+            return (Func<TBase>)GetConstructorDelegate(type, typeof(Func<TBase>));
         }
 
         public static Func<object> GetConstructorDelegate(this Type type)
         {
-            return (Func<object>) GetConstructorDelegate(type, typeof(Func<object>));
+            return (Func<object>)GetConstructorDelegate(type, typeof(Func<object>));
         }
 
         public static Delegate GetConstructorDelegate(this Type type, Type delegateType)
@@ -83,13 +83,13 @@ namespace NosCore.Core.Extensions
         {
             if (Constructors.TryGetValue(type, out var constructor))
             {
-                return (T) constructor();
+                return (T)constructor();
             }
 
             constructor = type.GetConstructorDelegate();
             Constructors.TryAdd(type, constructor);
 
-            return (T) constructor();
+            return (T)constructor();
         }
     }
 }

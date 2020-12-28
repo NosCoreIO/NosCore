@@ -17,12 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Auction;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
@@ -35,7 +29,13 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.PacketHandlers.Bazaar;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Auction;
 using NosCore.Tests.Helpers;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -75,8 +75,8 @@ namespace NosCore.Tests.BazaarTests
                     It.IsAny<byte>(),
                     It.IsAny<long?>())
             ).ReturnsAsync(new List<BazaarLink>());
-            await _cblistPacketHandler!.ExecuteAsync(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!).ConfigureAwait(false);
-            var lastpacket = (RcbListPacket?) _session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
+            await _cblistPacketHandler!.ExecuteAsync(new CBListPacket { ItemVNumFilter = new List<short>() }, _session!).ConfigureAwait(false);
+            var lastpacket = (RcbListPacket?)_session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket?.Items?.Count == 0);
         }
 
@@ -104,8 +104,8 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 }
             });
-            await _cblistPacketHandler!.ExecuteAsync(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!).ConfigureAwait(false);
-            var lastpacket = (RcbListPacket?) _session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
+            await _cblistPacketHandler!.ExecuteAsync(new CBListPacket { ItemVNumFilter = new List<short>() }, _session!).ConfigureAwait(false);
+            var lastpacket = (RcbListPacket?)_session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket?.Items?.Count == 1);
         }
 
@@ -132,8 +132,8 @@ namespace NosCore.Tests.BazaarTests
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 }
             });
-            await _cblistPacketHandler!.ExecuteAsync(new CBListPacket {ItemVNumFilter = new List<short>()}, _session!).ConfigureAwait(false);
-            var lastpacket = (RcbListPacket?) _session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
+            await _cblistPacketHandler!.ExecuteAsync(new CBListPacket { ItemVNumFilter = new List<short>() }, _session!).ConfigureAwait(false);
+            var lastpacket = (RcbListPacket?)_session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
             Assert.IsTrue(lastpacket?.Items?.Count == 0);
         }
 

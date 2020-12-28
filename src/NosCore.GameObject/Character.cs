@@ -17,22 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Shops;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.Interfaces;
-using NosCore.Packets.ServerPackets.Inventory;
-using NosCore.Packets.ServerPackets.Player;
-using NosCore.Packets.ServerPackets.Quicklist;
-using NosCore.Packets.ServerPackets.Shop;
-using NosCore.Packets.ServerPackets.Specialists;
-using NosCore.Packets.ServerPackets.UI;
 using DotNetty.Transport.Channels;
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.DignityService;
@@ -41,8 +25,10 @@ using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.MpService;
+using NosCore.Algorithm.ReputationService;
 using NosCore.Algorithm.SpeedService;
 using NosCore.Core;
+using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -58,10 +44,6 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.Shared.Enumerations;
-using Serilog;
-using NosCore.Algorithm.ReputationService;
-using NosCore.Core.Configuration;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -70,6 +52,24 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.NRunService;
 using NosCore.GameObject.Services.QuestService;
+using NosCore.Packets.ClientPackets.Shops;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Quicklist;
+using NosCore.Packets.ServerPackets.Shop;
+using NosCore.Packets.ServerPackets.Specialists;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
+using Serilog;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Threading.Tasks;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -180,7 +180,8 @@ namespace NosCore.GameObject
 
         public ConcurrentDictionary<Guid, CharacterQuest> Quests { get; set; } = null!;
 
-        public Dictionary<Type, Subject<RequestData>> Requests { get; set; } = new Dictionary<Type, Subject<RequestData>> {
+        public Dictionary<Type, Subject<RequestData>> Requests { get; set; } = new Dictionary<Type, Subject<RequestData>>
+        {
             [typeof(INrunEventHandler)] = new Subject<RequestData>()
         };
 

@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.WarehouseService
 {
@@ -89,13 +89,13 @@ namespace NosCore.GameObject.Services.WarehouseService
             var warehouse = new WarehouseDto
             {
                 CharacterId = depositRequest.WarehouseType == WarehouseType.FamilyWareHouse ? null
-                    : (long?) depositRequest.OwnerId,
+                    : (long?)depositRequest.OwnerId,
                 Id = Guid.NewGuid(),
                 FamilyId = depositRequest.WarehouseType == WarehouseType.FamilyWareHouse
-                    ? (long?) depositRequest.OwnerId : null,
+                    ? (long?)depositRequest.OwnerId : null,
                 Type = depositRequest.WarehouseType,
             };
-            warehouse = await _warehouseDao.TryInsertOrUpdateAsync( warehouse).ConfigureAwait(true);
+            warehouse = await _warehouseDao.TryInsertOrUpdateAsync(warehouse).ConfigureAwait(true);
             var warehouseItem = new WarehouseItemDto
             {
                 Slot = depositRequest.Slot,

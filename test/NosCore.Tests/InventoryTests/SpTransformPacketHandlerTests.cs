@@ -17,11 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Specialists;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -31,7 +26,12 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Inventory;
+using NosCore.Packets.ClientPackets.Specialists;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Helpers;
+using System.Linq;
+using System.Threading.Tasks;
 //TODO stop using obsolete
 #pragma warning disable 618
 

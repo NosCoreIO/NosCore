@@ -17,12 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
 using Json.More;
 using Json.Patch;
 using Json.Pointer;
-using NosCore.Packets.ClientPackets.Parcel;
-using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -31,6 +28,9 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Parcel;
+using NosCore.Packets.Enumerations;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Parcel
 {

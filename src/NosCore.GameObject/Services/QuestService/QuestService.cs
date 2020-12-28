@@ -17,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Mapster;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
@@ -35,6 +31,10 @@ using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.UI;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -220,7 +220,7 @@ namespace NosCore.GameObject.Services.QuestService
             var quest = questDto.Adapt<Quest>();
             quest.QuestObjectives = _questObjectives.Where(s => s.QuestId == questId).ToList();
 
-            if (character.Quests.Where(s=>s.Value.CompletedOn == null).Any(q => !q.Value.Quest.IsSecondary) ||
+            if (character.Quests.Where(s => s.Value.CompletedOn == null).Any(q => !q.Value.Quest.IsSecondary) ||
                 (character.Quests.Where(s => s.Value.CompletedOn == null).Where(q => q.Value.Quest.QuestType != QuestType.WinRaid).ToList().Count >= 5 &&
                     quest.QuestType != QuestType.WinRaid))
             {

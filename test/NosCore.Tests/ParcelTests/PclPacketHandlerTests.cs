@@ -17,12 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Parcel;
-using NosCore.Packets.ServerPackets.Parcel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
@@ -33,7 +27,13 @@ using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Parcel;
+using NosCore.Packets.ClientPackets.Parcel;
+using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Tests.Helpers;
+using System;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace NosCore.Tests.ParcelTests
 {
@@ -90,7 +90,7 @@ namespace NosCore.Tests.ParcelTests
             var item = _item!.Create(1);
             var mail = new MailData
             {
-                ItemInstance = (ItemInstanceDto) item,
+                ItemInstance = (ItemInstanceDto)item,
                 MailDto = new MailDto
                 {
                     ItemInstanceId = item.Id

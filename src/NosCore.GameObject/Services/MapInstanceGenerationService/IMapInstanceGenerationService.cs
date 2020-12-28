@@ -17,9 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Data.Enumerations.Map;
 using System;
 using System.Threading.Tasks;
-using NosCore.Data.Enumerations.Map;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {

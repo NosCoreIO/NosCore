@@ -17,11 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using DotNetty.Transport.Channels.Groups;
+using NosCore.Packets.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Packets.Interfaces;
-using DotNetty.Transport.Channels.Groups;
 
 namespace NosCore.GameObject.Networking.Group
 {
@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Networking.Group
 
         public static Task SendPacketAsync(this IBroadcastable channelGroup, IPacket packet, IChannelMatcher matcher)
         {
-           return channelGroup.SendPacketsAsync(new[] { packet }, matcher);
+            return channelGroup.SendPacketsAsync(new[] { packet }, matcher);
         }
 
 

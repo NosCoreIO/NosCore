@@ -17,11 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Buff;
@@ -29,6 +24,11 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
@@ -79,8 +79,8 @@ namespace NosCore.Parser.Parsers
             var genericParser = new GenericParser<CardDto>(folder + _fileCardDat,
                 "END", 1, actionList, _logger);
             var cards = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.CardId).Select(g => g.First()).ToList();
-             await _cardDao.TryInsertOrUpdateAsync(cards).ConfigureAwait(false);
-             await _bcardDao.TryInsertOrUpdateAsync(cards.Where(s=>s.BCards != null).SelectMany(s=>s.BCards)).ConfigureAwait(false);
+            await _cardDao.TryInsertOrUpdateAsync(cards).ConfigureAwait(false);
+            await _bcardDao.TryInsertOrUpdateAsync(cards.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CARDS_PARSED), cards.Count);
         }

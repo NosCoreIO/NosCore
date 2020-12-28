@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -27,6 +25,8 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Helpers;
+using System;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.NRunService.Handlers
 {
@@ -57,8 +57,8 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
             {
                 await clientSession.Character.RemoveGoldAsync(goldToPay).ConfigureAwait(false);
                 await clientSession.ChangeMapAsync(
-                    mapId, (short) RandomHelper.Instance.RandomNumber(x1, x2),
-                    (short) RandomHelper.Instance.RandomNumber(y1, y2)).ConfigureAwait(false);
+                    mapId, (short)RandomHelper.Instance.RandomNumber(x1, x2),
+                    (short)RandomHelper.Instance.RandomNumber(y1, y2)).ConfigureAwait(false);
                 return;
             }
 

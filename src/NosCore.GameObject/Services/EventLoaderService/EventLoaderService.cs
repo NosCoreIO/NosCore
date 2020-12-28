@@ -17,17 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject.Services.EventLoaderService
 {
-    public class EventLoaderService<T1, T2, TEventType> : IEventLoaderService<T1, T2> 
+    public class EventLoaderService<T1, T2, TEventType> : IEventLoaderService<T1, T2>
     where T1 : IRequestableEntity<T2>
     where TEventType : IEventHandler
     {

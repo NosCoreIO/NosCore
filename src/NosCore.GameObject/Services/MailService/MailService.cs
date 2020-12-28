@@ -17,11 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Json.Patch;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
@@ -35,6 +30,11 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Shared.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MailService
 {

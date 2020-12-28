@@ -17,14 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
+using NosCore.GameObject;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.MinilandService;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Miniland
 {
@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Miniland
             switch (mlEditPacket.Type)
             {
                 case 1:
-                    await clientSession.SendPacketAsync(new MlintroPacket {Intro = mlEditPacket.MinilandInfo!.Replace(' ', '^')}).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(new MlintroPacket { Intro = mlEditPacket.MinilandInfo!.Replace(' ', '^') }).ConfigureAwait(false);
                     miniland.MinilandMessage = mlEditPacket.MinilandInfo;
                     await clientSession.SendPacketAsync(new InfoiPacket
                     {

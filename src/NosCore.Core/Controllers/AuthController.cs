@@ -17,14 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -39,6 +31,14 @@ using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using Serilog;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 using TwoFactorAuthNet;
 
 namespace NosCore.Core.Controllers
@@ -81,7 +81,7 @@ namespace NosCore.Core.Controllers
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT));
             }
 
-            if (account.Password!.ToLower(CultureInfo.CurrentCulture) != (_hasher.Hash(session.Password)) 
+            if (account.Password!.ToLower(CultureInfo.CurrentCulture) != (_hasher.Hash(session.Password))
                 && account.NewAuthPassword!.ToLower(CultureInfo.CurrentCulture) != (_hasher.Hash(session.Password, account.NewAuthSalt!)))
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));

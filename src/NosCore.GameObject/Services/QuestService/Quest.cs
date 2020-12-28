@@ -17,10 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.ServerPackets.Quest;
+using System.Collections.Generic;
 
 namespace NosCore.GameObject.Services.QuestService
 {

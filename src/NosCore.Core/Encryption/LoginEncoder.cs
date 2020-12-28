@@ -17,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
@@ -29,7 +25,11 @@ using NosCore.Core.Extensions;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Packets.Interfaces;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Core.Encryption
 {
@@ -64,7 +64,7 @@ namespace NosCore.Core.Encryption
                     }
 
                     tmp[^1] = 25;
-                    return tmp.Length == 0 ? new byte[] {0xFF} : tmp;
+                    return tmp.Length == 0 ? new byte[] { 0xFF } : tmp;
                 }).ToArray()));
             }
 #pragma warning disable CA1031 // Do not catch general exception types

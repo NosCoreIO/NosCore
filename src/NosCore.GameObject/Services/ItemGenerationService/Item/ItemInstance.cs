@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using NosCore.Data.Dto;
+using System;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Item
 {
@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
 
         public object Clone()
         {
-            return (ItemInstance) MemberwiseClone();
+            return (ItemInstance)MemberwiseClone();
         }
     }
 }

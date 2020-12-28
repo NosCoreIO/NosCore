@@ -17,11 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
@@ -30,7 +25,12 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Bazaar;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Helpers;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -68,7 +68,7 @@ namespace NosCore.Tests.BazaarTests
         public async Task OpenWhenNoMedalAsync()
         {
             await _cskillPacketHandler!.ExecuteAsync(new CSkillPacket(), _session!).ConfigureAwait(false);
-            var lastpacket = (InfoPacket?) _session!.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket?)_session!.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.IsTrue(lastpacket?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL, _session.Account.Language));
         }
@@ -81,7 +81,7 @@ namespace NosCore.Tests.BazaarTests
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
             await _cskillPacketHandler!.ExecuteAsync(new CSkillPacket(), _session).ConfigureAwait(false);
-            var lastpacket = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(lastpacket?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, _session.Account.Language));
         }

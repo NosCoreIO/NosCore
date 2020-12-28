@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using NosCore.Data.StaticEntities;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.GameObject.Map
 {

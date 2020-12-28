@@ -17,14 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using NosCore.Packets.ClientPackets.Login;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Login;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.AuthHttpClients;
@@ -34,7 +27,14 @@ using NosCore.Core.Networking;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
+using NosCore.Packets.ClientPackets.Login;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Enumerations;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Networking.LoginService
 {

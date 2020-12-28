@@ -49,10 +49,10 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         {
             return new GroundEffectPacket
             {
-                Effect = (ushort) Effect,
+                Effect = (ushort)Effect,
                 XYCoordinates = $"{MapX}{MapY:00}",
-                MapX = (ushort) MapX,
-                MapY = (ushort) MapY,
+                MapX = (ushort)MapX,
+                MapY = (ushort)MapY,
                 IsRemoval = isRemoval
             };
         }

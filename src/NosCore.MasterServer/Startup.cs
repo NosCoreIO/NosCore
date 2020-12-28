@@ -17,12 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
@@ -59,14 +53,19 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.BazaarService;
-using NosCore.GameObject.Services.FriendService;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
-using ILogger = Serilog.ILogger;
 using NosCore.Shared.I18N;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using FriendController = NosCore.MasterServer.Controllers.FriendController;
+using ILogger = Serilog.ILogger;
 
 namespace NosCore.MasterServer
 {

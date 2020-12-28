@@ -17,11 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Inventory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
@@ -29,8 +24,13 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Inventory;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
@@ -63,8 +63,8 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 999), 0));
             await _biPacketHandler!.ExecuteAsync(new BiPacket
-                {Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Main}, _session).ConfigureAwait(false);
-            var packet = (IvnPacket?) _session.LastPackets.FirstOrDefault(s => s is IvnPacket);
+            { Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Main }, _session).ConfigureAwait(false);
+            var packet = (IvnPacket?)_session.LastPackets.FirstOrDefault(s => s is IvnPacket);
             Assert.IsTrue(packet?.IvnSubPackets?.All(iv => (iv?.Slot == 0) && (iv.VNum == -1)) ?? false);
         }
 
@@ -73,9 +73,9 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
             await _biPacketHandler!.ExecuteAsync(new BiPacket
-                {Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Equipment}, _session).ConfigureAwait(false);
+            { Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Count == 0);
-            var packet = (IvnPacket?) _session.LastPackets.FirstOrDefault(s => s is IvnPacket);
+            var packet = (IvnPacket?)_session.LastPackets.FirstOrDefault(s => s is IvnPacket);
             Assert.IsTrue(packet?.IvnSubPackets?.All(iv => (iv?.Slot == 0) && (iv.VNum == -1)) ?? false);
         }
     }

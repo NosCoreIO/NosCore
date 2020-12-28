@@ -17,14 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Relations;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -40,10 +32,18 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FriendService;
 using NosCore.PacketHandlers.Friend;
+using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Configuration;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
-using NosCore.Shared.Configuration;
 using FriendController = NosCore.MasterServer.Controllers.FriendController;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
@@ -73,7 +73,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(It.IsAny<long?>(), It.IsAny<string?>()))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
-                        { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
+                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
             _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
                 _connectedAccountHttpClient.Object);
@@ -98,8 +98,8 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             };
             _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile()))!);
-           await _characterRelationDao!.TryInsertOrUpdateAsync(new[]
-           {
+            await _characterRelationDao!.TryInsertOrUpdateAsync(new[]
+            {
                new CharacterRelationDto
                {
                    CharacterId = 2,

@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -27,6 +24,9 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 {

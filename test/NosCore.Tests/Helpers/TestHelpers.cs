@@ -17,13 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Drops;
-using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.Interfaces;
 using DotNetty.Transport.Channels;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +34,10 @@ using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Dao;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
@@ -50,43 +46,47 @@ using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
+using NosCore.GameObject.Holders;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.EventLoaderService;
+using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Handlers;
+using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MapItemGenerationService;
+using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.PacketHandlers.Friend;
 using NosCore.PacketHandlers.Inventory;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.PathFinder.Heuristic;
+using NosCore.PathFinder.Interfaces;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Character = NosCore.Database.Entities.Character;
 using InventoryItemInstance = NosCore.Database.Entities.InventoryItemInstance;
 using Item = NosCore.GameObject.Services.ItemGenerationService.Item.Item;
+using ItemInstance = NosCore.Database.Entities.ItemInstance;
 using Map = NosCore.GameObject.Map.Map;
 using MapMonster = NosCore.Database.Entities.MapMonster;
 using MapNpc = NosCore.Database.Entities.MapNpc;
 using Miniland = NosCore.Database.Entities.Miniland;
 using Portal = NosCore.Database.Entities.Portal;
 using ShopItem = NosCore.Database.Entities.ShopItem;
-using NosCore.Dao;
-using NosCore.Dao.Interfaces;
-using NosCore.Data.Enumerations;
-using NosCore.GameObject.Holders;
-using NosCore.GameObject.Services.EventLoaderService;
-using NosCore.GameObject.Services.ExchangeService;
-using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.ItemGenerationService.Handlers;
-using NosCore.PathFinder.Heuristic;
-using NosCore.PathFinder.Interfaces;
-using ItemInstance = NosCore.Database.Entities.ItemInstance;
-using NosCore.GameObject.Services.MapInstanceAccessService;
-using NosCore.GameObject.Services.MapInstanceGenerationService;
-using NosCore.GameObject.Services.MapItemGenerationService;
-using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
-using NosCore.GameObject.Services.MinilandService;
 
 namespace NosCore.Tests.Helpers
 {
@@ -304,7 +304,7 @@ namespace NosCore.Tests.Helpers
                 FriendHttpClient.Object,
                 new Mock<ISerializer>().Object,
                 PacketHttpClient.Object,
-                minilandProvider.Object, 
+                minilandProvider.Object,
                 MapInstanceGeneratorService)
             {
                 SessionId = _lastId

@@ -17,13 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Miniland;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Miniland;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
@@ -32,6 +25,13 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.Packets.ClientPackets.Miniland;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Miniland;
+using NosCore.Packets.ServerPackets.UI;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -96,7 +96,7 @@ namespace NosCore.PacketHandlers.Miniland
                             minilandobject.ItemInstance.Item.ItemSubType)).Value;
                 if (min != null)
                 {
-                    await clientSession.HandlePacketsAsync(new[] {new RmvobjPacket {Slot = min.InventoryItemInstance?.Slot ?? 0}}).ConfigureAwait(false);
+                    await clientSession.HandlePacketsAsync(new[] { new RmvobjPacket { Slot = min.InventoryItemInstance?.Slot ?? 0 } }).ConfigureAwait(false);
                 }
             }
 
@@ -104,7 +104,7 @@ namespace NosCore.PacketHandlers.Miniland
 
             await clientSession.SendPacketAsync(minilandobj.GenerateEffect()).ConfigureAwait(false);
             await clientSession.SendPacketAsync(new MinilandPointPacket
-                {MinilandPoint = minilandobject.ItemInstance?.Item?.MinilandObjectPoint ?? 0, Unknown = 100}).ConfigureAwait(false);
+            { MinilandPoint = minilandobject.ItemInstance?.Item?.MinilandObjectPoint ?? 0, Unknown = 100 }).ConfigureAwait(false);
             await clientSession.SendPacketAsync(minilandobj.GenerateMapDesignObject()).ConfigureAwait(false);
         }
     }

@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -25,6 +24,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Helpers;
 using Serilog;
+using System;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Item
 {
@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
         public Item? Item { get; set; }
         public object Clone()
         {
-            return (WearableInstance) MemberwiseClone();
+            return (WearableInstance)MemberwiseClone();
         }
 
         public void SetRarityPoint()
@@ -59,76 +59,76 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
             {
                 case EquipmentType.MainWeapon:
                 case EquipmentType.SecondaryWeapon:
-                {
-                    var point = 0; //todo CharacterHelper.Instance.RarityPoint(Rare, Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
-                    Concentrate = 0;
-                    HitRate = 0;
-                    DamageMinimum = 0;
-                    DamageMaximum = 0;
-                    if (Rare >= 0)
                     {
+                        var point = 0; //todo CharacterHelper.Instance.RarityPoint(Rare, Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
+                        Concentrate = 0;
+                        HitRate = 0;
+                        DamageMinimum = 0;
+                        DamageMaximum = 0;
+                        if (Rare >= 0)
+                        {
+                            for (var i = 0; i < point; i++)
+                            {
+                                var rndn = RandomHelper.Instance.RandomNumber(0, 3);
+                                if (rndn == 0)
+                                {
+                                    Concentrate++;
+                                    HitRate++;
+                                }
+                                else
+                                {
+                                    DamageMinimum++;
+                                    DamageMaximum++;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (var i = 0; i > Rare * 10; i--)
+                            {
+                                DamageMinimum--;
+                                DamageMaximum--;
+                            }
+                        }
+                    }
+                    break;
+
+                case EquipmentType.Armor:
+                    {
+                        var point = 0; //todo CharacterHelper.Instance.RarityPoint(Rare, Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
+                        DefenceDodge = 0;
+                        DistanceDefenceDodge = 0;
+                        DistanceDefence = 0;
+                        MagicDefence = 0;
+                        CloseDefence = 0;
+                        if (Rare < 0)
+                        {
+                            for (var i = 0; i > Rare * 10; i--)
+                            {
+                                DistanceDefence--;
+                                MagicDefence--;
+                                CloseDefence--;
+                            }
+
+                            return;
+                        }
+
                         for (var i = 0; i < point; i++)
                         {
                             var rndn = RandomHelper.Instance.RandomNumber(0, 3);
                             if (rndn == 0)
                             {
-                                Concentrate++;
-                                HitRate++;
+                                DefenceDodge++;
+                                DistanceDefenceDodge++;
                             }
                             else
                             {
-                                DamageMinimum++;
-                                DamageMaximum++;
+                                DistanceDefence++;
+                                MagicDefence++;
+                                CloseDefence++;
                             }
                         }
                     }
-                    else
-                    {
-                        for (var i = 0; i > Rare * 10; i--)
-                        {
-                            DamageMinimum--;
-                            DamageMaximum--;
-                        }
-                    }
-                }
-                    break;
-
-                case EquipmentType.Armor:
-                {
-                    var point = 0; //todo CharacterHelper.Instance.RarityPoint(Rare, Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
-                    DefenceDodge = 0;
-                    DistanceDefenceDodge = 0;
-                    DistanceDefence = 0;
-                    MagicDefence = 0;
-                    CloseDefence = 0;
-                    if (Rare < 0)
-                    {
-                        for (var i = 0; i > Rare * 10; i--)
-                        {
-                            DistanceDefence--;
-                            MagicDefence--;
-                            CloseDefence--;
-                        }
-
-                        return;
-                    }
-
-                    for (var i = 0; i < point; i++)
-                    {
-                        var rndn = RandomHelper.Instance.RandomNumber(0, 3);
-                        if (rndn == 0)
-                        {
-                            DefenceDodge++;
-                            DistanceDefenceDodge++;
-                        }
-                        else
-                        {
-                            DistanceDefence++;
-                            MagicDefence++;
-                            CloseDefence++;
-                        }
-                    }
-                }
                     break;
 
                 default:

@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using FastMember;
+using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using FastMember;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.Data.Dto
 {

@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Data.WebApi;
 using System;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Data.WebApi;
 
 namespace NosCore.Core.HttpClients.IncommingMailHttpClients
 {
@@ -40,8 +40,8 @@ namespace NosCore.Core.HttpClients.IncommingMailHttpClients
 
         public async Task DeleteIncommingMailAsync(int channelId, long id, short mailId, byte postType)
         {
-            using var client = await ConnectAsync(channelId).ConfigureAwait(false); 
-            if(client == null)
+            using var client = await ConnectAsync(channelId).ConfigureAwait(false);
+            if (client == null)
             {
                 return;
             }

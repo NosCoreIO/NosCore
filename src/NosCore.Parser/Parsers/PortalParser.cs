@@ -17,16 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Enumerations;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
@@ -67,7 +67,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-               await _portalDao.TryInsertOrUpdateAsync(lodPortal).ConfigureAwait(false);
+                await _portalDao.TryInsertOrUpdateAsync(lodPortal).ConfigureAwait(false);
             }
 
             var minilandPortal = new PortalDto
@@ -147,7 +147,7 @@ namespace NosCore.Parser.Parsers
                     SourceX = short.Parse(currentPacket[1]),
                     SourceY = short.Parse(currentPacket[2]),
                     DestinationMapId = short.Parse(currentPacket[3]),
-                    Type = (PortalType) Enum.Parse(typeof(PortalType), currentPacket[4]),
+                    Type = (PortalType)Enum.Parse(typeof(PortalType), currentPacket[4]),
                     DestinationX = -1,
                     DestinationY = -1,
                     IsDisabled = false
@@ -185,7 +185,7 @@ namespace NosCore.Parser.Parsers
                 _listPortals2.Add(portal);
             }
 
-      
+
             // so this dude doesnt exist yet in DAOFactory -> insert it
             var portalsDtos = _listPortals2.Where(portal => !portalsdb
                 .Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(

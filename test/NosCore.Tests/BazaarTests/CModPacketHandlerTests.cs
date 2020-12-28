@@ -17,12 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
-using System.Threading.Tasks;
 using Json.Patch;
-using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Packets.ServerPackets.Chats;
-using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.I18N;
@@ -33,8 +28,13 @@ using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Bazaar;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -59,32 +59,32 @@ namespace NosCore.Tests.BazaarTests
                 new BazaarLink
                 {
                     SellerName = "test",
-                    BazaarItem = new BazaarItemDto {Price = 50, Amount = 1},
-                    ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
+                    BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
+                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
                 });
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(3)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = _session.Character.Name,
-                    BazaarItem = new BazaarItemDto {Price = 50, Amount = 1},
-                    ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 0}
+                    BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
+                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 0 }
                 });
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(2)).ReturnsAsync(
                 new BazaarLink
                 {
                     SellerName = _session.Character.Name,
-                    BazaarItem = new BazaarItemDto {Price = 60, Amount = 1},
-                    ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
+                    BazaarItem = new BazaarItemDto { Price = 60, Amount = 1 },
+                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
                 });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(1)).ReturnsAsync((BazaarLink?) null);
+            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(1)).ReturnsAsync((BazaarLink?)null);
             _bazaarHttpClient.Setup(b => b.ModifyAsync(It.IsAny<long>(), It.IsAny<JsonPatch>())).ReturnsAsync(new BazaarLink
-                {
-                    SellerName = _session.Character.Name,
-                    BazaarItem = new BazaarItemDto {Price = 70, Amount = 1},
-                    ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
-                });
+            {
+                SellerName = _session.Character.Name,
+                BazaarItem = new BazaarItemDto { Price = 70, Amount = 1 },
+                ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
+            });
         }
 
         [TestMethod]
@@ -131,14 +131,14 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task ModifyWhenSoldAsync()
         {
-           await _cmodPacketHandler!.ExecuteAsync(new CModPacket
-           {
-               BazaarId = 3,
-               NewPrice = 60,
-               Amount = 1,
-               VNum = 1012
-           }, _session!).ConfigureAwait(false);
-            var lastpacket = (ModalPacket?) _session!.LastPackets.FirstOrDefault(s => s is ModalPacket);
+            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
+            {
+                BazaarId = 3,
+                NewPrice = 60,
+                Amount = 1,
+                VNum = 1012
+            }, _session!).ConfigureAwait(false);
+            var lastpacket = (ModalPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS, _session.Account.Language));
         }
@@ -153,7 +153,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 2,
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
-            var lastpacket = (ModalPacket?) _session!.LastPackets.FirstOrDefault(s => s is ModalPacket);
+            var lastpacket = (ModalPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModalPacket);
             Assert.IsTrue(lastpacket?.Message ==
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
         }
@@ -161,13 +161,13 @@ namespace NosCore.Tests.BazaarTests
         [TestMethod]
         public async Task ModifyWhenPriceSamePriceAsync()
         {
-           await _cmodPacketHandler!.ExecuteAsync(new CModPacket
-           {
-               BazaarId = 2,
-               NewPrice = 60,
-               Amount = 1,
-               VNum = 1012
-           }, _session!).ConfigureAwait(false);
+            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
+            {
+                BazaarId = 2,
+                NewPrice = 60,
+                Amount = 1,
+                VNum = 1012
+            }, _session!).ConfigureAwait(false);
             Assert.IsNull(_session!.LastPackets.FirstOrDefault());
         }
 
@@ -181,7 +181,7 @@ namespace NosCore.Tests.BazaarTests
                 Amount = 1,
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
-            var lastpacket = (SayPacket?) _session!.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var lastpacket = (SayPacket?)_session!.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsTrue(lastpacket?.Message ==
                 string.Format(
                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED, _session.Account.Language),

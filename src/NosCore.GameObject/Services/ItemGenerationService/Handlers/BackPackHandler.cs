@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
@@ -33,6 +30,9 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
@@ -54,7 +54,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
         {
             var itemInstance = requestData.Data.Item1;
 
-            if (itemInstance.ItemInstance!.Item!.Effect == ItemEffectType.InventoryUpgrade 
+            if (itemInstance.ItemInstance!.Item!.Effect == ItemEffectType.InventoryUpgrade
                 && requestData.ClientSession.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BackPack))
             {
                 return;

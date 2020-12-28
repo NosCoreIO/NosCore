@@ -17,15 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels.Sockets;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Networking;
+using NosCore.Packets.Interfaces;
 using NosCore.Shared.Configuration;
+using System.Collections.Generic;
 
 namespace NosCore.GameObject.Networking
 {

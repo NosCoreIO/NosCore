@@ -17,17 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using DotNetty.Transport.Channels;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Packets.Interfaces;
+using Serilog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using NosCore.Packets.Interfaces;
-using DotNetty.Transport.Channels;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
-using Serilog;
 
 namespace NosCore.Core.Networking
 {

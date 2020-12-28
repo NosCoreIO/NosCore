@@ -17,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
@@ -28,7 +24,11 @@ using JetBrains.Annotations;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Packets.Interfaces;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace NosCore.Core.Encryption
 {

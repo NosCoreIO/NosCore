@@ -17,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Mapster;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -34,6 +30,10 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MinilandService
 {
@@ -139,7 +139,7 @@ namespace NosCore.GameObject.Services.MinilandService
 
             var listobjects = character.InventoryService.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();
             var idlist = listobjects.Select(s => s.Id).ToArray();
-            var minilandObjectsDto = _minilandObjectsDao.Where(s => idlist.Contains((Guid) s.InventoryItemInstanceId!))?
+            var minilandObjectsDto = _minilandObjectsDao.Where(s => idlist.Contains((Guid)s.InventoryItemInstanceId!))?
                 .ToList() ?? new List<MinilandObjectDto>();
             foreach (var mlobjdto in minilandObjectsDto)
             {
@@ -167,14 +167,14 @@ namespace NosCore.GameObject.Services.MinilandService
                 case MinilandState.Open:
                     return;
                 case MinilandState.Private:
-                {
-                    List<long> friends = (await _friendHttpClient.GetListFriendsAsync(characterId).ConfigureAwait(false))
-                        .Select(s => s.CharacterId)
-                        .ToList();
-                    // Kick all players in miniland except owner and his friends
-                    miniland!.Kick(o => o.VisualId != characterId && !friends.Contains(o.VisualId));
-                    break;
-                }
+                    {
+                        List<long> friends = (await _friendHttpClient.GetListFriendsAsync(characterId).ConfigureAwait(false))
+                            .Select(s => s.CharacterId)
+                            .ToList();
+                        // Kick all players in miniland except owner and his friends
+                        miniland!.Kick(o => o.VisualId != characterId && !friends.Contains(o.VisualId));
+                        break;
+                    }
                 default:
                     miniland!.Kick(o => o.VisualId != characterId);
                     break;
@@ -191,7 +191,7 @@ namespace NosCore.GameObject.Services.MinilandService
             var miniland = _mapInstanceAccessorService.GetMapInstance(_minilandHolder.Minilands[characterId].MapInstanceId);
 
             mapObject.Effect =
-                (short) (minilandobject?.ItemInstance?.Item?.EffectValue ?? minilandobject?.ItemInstance?.Design ?? 0);
+                (short)(minilandobject?.ItemInstance?.Item?.EffectValue ?? minilandobject?.ItemInstance?.Design ?? 0);
             mapObject.Width = minilandobject?.ItemInstance?.Item?.Width ?? 0;
             mapObject.Height = minilandobject?.ItemInstance?.Item?.Height ?? 0;
             mapObject.DurabilityPoint = (short)(minilandobject?.ItemInstance?.DurabilityPoint ?? 0);

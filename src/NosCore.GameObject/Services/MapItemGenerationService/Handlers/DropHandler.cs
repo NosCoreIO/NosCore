@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -32,6 +29,9 @@ using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {
@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 
             if (inv != null)
             {
-                await requestData.ClientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType) inv.Type, inv.Slot)).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot)).ConfigureAwait(false);
                 requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId,
                     out _);
                 await requestData.ClientSession.Character.MapInstance.SendPacketAsync(

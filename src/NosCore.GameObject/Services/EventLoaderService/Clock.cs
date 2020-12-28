@@ -1,11 +1,11 @@
-﻿using System;
+﻿using NosCore.Core;
+using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
+using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using NosCore.Core;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject.Services.EventLoaderService
 {

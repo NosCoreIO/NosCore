@@ -17,12 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Extensions.Options;
-using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Configuration;
@@ -34,7 +29,12 @@ using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Tests.InventoryTests
 {
@@ -60,7 +60,7 @@ namespace NosCore.Tests.InventoryTests
             };
             _itemProvider = new ItemGenerationService(items,
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
-            Inventory = new InventoryService(items, Options.Create(new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999}),
+            Inventory = new InventoryService(items, Options.Create(new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999 }),
                 Logger);
         }
 
@@ -271,7 +271,7 @@ namespace NosCore.Tests.InventoryTests
         {
             var weapon = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1), 0))!.First();
             var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, NoscorePocketType.Wear,
-                (short) EquipmentType.MainWeapon, true);
+                (short)EquipmentType.MainWeapon, true);
             Assert.IsTrue((item?.Type == NoscorePocketType.Wear) &&
                 (Inventory.LoadBySlotAndType(0, NoscorePocketType.Equipment) == null));
         }
@@ -282,13 +282,13 @@ namespace NosCore.Tests.InventoryTests
             var weapon = Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(2), 0))!.First();
             var weapon2 = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1), 0))!.First();
             var item = Inventory.MoveInPocket(weapon.Slot, weapon.Type, NoscorePocketType.Wear,
-                (short) EquipmentType.MainWeapon, true);
+                (short)EquipmentType.MainWeapon, true);
             var item2 = Inventory.MoveInPocket(weapon2.Slot, weapon2.Type, NoscorePocketType.Wear,
-                (short) EquipmentType.MainWeapon, true);
+                (short)EquipmentType.MainWeapon, true);
 
             Assert.IsTrue((item?.Type == NoscorePocketType.Equipment) && (item.Slot == 1) &&
                 (item2?.Type == NoscorePocketType.Wear) &&
-                (item2.Slot == (short) EquipmentType.MainWeapon));
+                (item2.Slot == (short)EquipmentType.MainWeapon));
         }
     }
 }

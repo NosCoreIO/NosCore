@@ -17,6 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using JetBrains.Annotations;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.Enumerations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,11 +30,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.Tests
 {
@@ -153,7 +153,7 @@ namespace NosCore.Tests
                 }
             }
 
-            foreach (var val in (LogLanguageKey[]) Enum.GetValues(typeof(LogLanguageKey)))
+            foreach (var val in (LogLanguageKey[])Enum.GetValues(typeof(LogLanguageKey)))
             {
                 var type = val!.GetType();
                 var typeInfo = type.GetTypeInfo();
@@ -162,12 +162,12 @@ namespace NosCore.Tests
                     var memberInfo = typeInfo.GetMember(val.ToString());
                     var attributes = memberInfo[0].GetCustomAttributes<UsedImplicitlyAttribute>();
                     var attribute = attributes.FirstOrDefault();
-               
 
-                if ((dict.ContainsKey($"LogLanguageKey.{val}") == false) && (attribute == null))
-                {
-                    uselessKeys.Append("\nLogLanguageKey ").Append(val).Append(" is not used!");
-                }
+
+                    if ((dict.ContainsKey($"LogLanguageKey.{val}") == false) && (attribute == null))
+                    {
+                        uselessKeys.Append("\nLogLanguageKey ").Append(val).Append(" is not used!");
+                    }
                 }
                 catch (Exception ex)
                 {

@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
 using Mapster;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -29,6 +27,8 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using Serilog;
+using System;
+using System.Collections.Generic;
 
 namespace NosCore.GameObject.Services.ItemGenerationService
 {

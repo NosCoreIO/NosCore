@@ -17,13 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
-using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
@@ -38,7 +31,14 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.QuestService;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Serilog;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -92,7 +92,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 {
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHARACTER_SLOT_EMPTY), new
                     {
-                        clientSession.Account.AccountId, 
+                        clientSession.Account.AccountId,
                         packet.Slot
                     });
                     return;

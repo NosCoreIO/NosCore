@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Linq;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Inventory;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -65,7 +65,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return new IvnPacket
                 {
                     Type = type,
-                    IvnSubPackets = new List<IvnSubPacket?> {((IItemInstance?) null).GenerateIvnSubPacket(type, slot)}
+                    IvnSubPackets = new List<IvnSubPacket?> { ((IItemInstance?)null).GenerateIvnSubPacket(type, slot) }
                 };
             }
 
@@ -95,7 +95,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return null;
             }
 
-            var type = (PocketType) itemInstance[0].Type;
+            var type = (PocketType)itemInstance[0].Type;
             return new IvnPacket
             {
                 Type = type,

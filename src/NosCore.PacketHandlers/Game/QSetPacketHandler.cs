@@ -17,14 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Quicklist;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Data.Dto;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Quicklist;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Quicklist;
+using System;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Game
         {
             short data1 = 0, data2 = 0, quickListIndex = qSetPacket.OriginQuickList, q2 = qSetPacket.OriginQuickListSlot;
             var type = qSetPacket.Type;
-            var morph = session.Character.UseSp ? session.Character.Morph : (short) 0;
+            var morph = session.Character.UseSp ? session.Character.Morph : (short)0;
             if (qSetPacket.FirstData.HasValue)
             {
                 data1 = qSetPacket.FirstData.Value;
@@ -94,7 +94,7 @@ namespace NosCore.PacketHandlers.Game
 
                         if (qlTo == null)
                         {
-                            await SendQSetAsync(session, qlFrom.QuickListIndex, qlFrom.Slot, (QSetType	)qlFrom.Type, qlFrom.IconType, qlFrom.IconVNum).ConfigureAwait(false);
+                            await SendQSetAsync(session, qlFrom.QuickListIndex, qlFrom.Slot, (QSetType)qlFrom.Type, qlFrom.IconType, qlFrom.IconVNum).ConfigureAwait(false);
                             await SendQSetAsync(session, data1, data2, QSetType.Reset, 7, -1).ConfigureAwait(false);
                         }
                         else

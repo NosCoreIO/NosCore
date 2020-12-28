@@ -17,10 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Database.Entities.Base;
+using NosCore.Packets.Enumerations;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Packets.Enumerations;
-using NosCore.Database.Entities.Base;
 
 namespace NosCore.Database.Entities
 {

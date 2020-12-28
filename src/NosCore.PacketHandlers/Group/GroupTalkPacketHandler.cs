@@ -17,14 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Chat;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Chats;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.Packets.ClientPackets.Chat;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Group
 {
@@ -39,7 +39,7 @@ namespace NosCore.PacketHandlers.Group
 
             return clientSession.Character.Group.SendPacketAsync(
                 clientSession.Character.GenerateSpk(new SpeakPacket
-                    {Message = groupTalkPacket.Message, SpeakType = SpeakType.Group}));
+                { Message = groupTalkPacket.Message, SpeakType = SpeakType.Group }));
         }
     }
 }

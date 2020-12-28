@@ -17,13 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Parcel;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Parcel;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -34,6 +27,13 @@ using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.Packets.ClientPackets.Parcel;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Parcel;
+using NosCore.Packets.ServerPackets.UI;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Parcel
 {
@@ -76,12 +76,12 @@ namespace NosCore.PacketHandlers.Parcel
                                 clientSession.Account.Language),
                             newInv.ItemInstance!.Item!.Name, newInv.ItemInstance.Amount), SayColorType.Green)).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(
-                        new ParcelPacket {Type = 2, Unknown = 1, Id = (short) getGiftPacket.GiftId}).ConfigureAwait(false);
+                        new ParcelPacket { Type = 2, Unknown = 1, Id = (short)getGiftPacket.GiftId }).ConfigureAwait(false);
                     await _mailHttpClient.DeleteGiftAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
                 }
                 else
                 {
-                    await clientSession.SendPacketAsync(new ParcelPacket {Type = 5, Unknown = 1, Id = 0}).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(new ParcelPacket { Type = 5, Unknown = 1, Id = 0 }).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(new MsgiPacket
                     {
                         Message = Game18NConstString.NotEnoughSpace,
@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.Parcel
             }
             else if (getGiftPacket.Type == 5)
             {
-                await clientSession.SendPacketAsync(new ParcelPacket {Type = 7, Unknown = 1, Id = (short) getGiftPacket.GiftId}).ConfigureAwait(false);
+                await clientSession.SendPacketAsync(new ParcelPacket { Type = 7, Unknown = 1, Id = (short)getGiftPacket.GiftId }).ConfigureAwait(false);
                 await _mailHttpClient.DeleteGiftAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
             }
         }

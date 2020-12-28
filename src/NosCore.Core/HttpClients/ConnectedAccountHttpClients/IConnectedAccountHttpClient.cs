@@ -17,11 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Data.WebApi;
+using NosCore.Shared.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NosCore.Data.WebApi;
-using NosCore.Shared.Configuration;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 {

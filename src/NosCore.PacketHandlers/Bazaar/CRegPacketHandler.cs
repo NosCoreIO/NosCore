@@ -17,15 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Bazaar;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -38,7 +31,14 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Bazaar;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -83,7 +83,7 @@ namespace NosCore.PacketHandlers.Bazaar
             }
 
             var it = clientSession.Character.InventoryService!.LoadBySlotAndType(cRegPacket.Slot,
-                cRegPacket.Inventory == 4 ? 0 : (NoscorePocketType) cRegPacket.Inventory);
+                cRegPacket.Inventory == 4 ? 0 : (NoscorePocketType)cRegPacket.Inventory);
             if ((it?.ItemInstance == null) || !it.ItemInstance.Item!.IsSoldable || (it.ItemInstance.BoundCharacterId != null) ||
                 (cRegPacket.Amount > it.ItemInstance.Amount))
             {
@@ -129,7 +129,7 @@ namespace NosCore.PacketHandlers.Bazaar
             }
 
             var bazar = clientSession.Character.InventoryService.LoadBySlotAndType(cRegPacket.Slot,
-                cRegPacket.Inventory == 4 ? NoscorePocketType.Equipment : (NoscorePocketType) cRegPacket.Inventory);
+                cRegPacket.Inventory == 4 ? NoscorePocketType.Equipment : (NoscorePocketType)cRegPacket.Inventory);
             if (bazar?.ItemInstance == null)
             {
                 return;
@@ -172,7 +172,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     }
 
                     await clientSession.SendPacketAsync(((InventoryItemInstance?)null).GeneratePocketChange(
-                        cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType) cRegPacket.Inventory,
+                        cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType)cRegPacket.Inventory,
                         cRegPacket.Slot)).ConfigureAwait(false);
                     clientSession.Character.Gold -= tax;
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
@@ -186,7 +186,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             clientSession.Account.Language)
                     }).ConfigureAwait(false);
 
-                    await clientSession.SendPacketAsync(new RCRegPacket {Type = VisualType.Player}).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(new RCRegPacket { Type = VisualType.Player }).ConfigureAwait(false);
                     break;
             }
         }

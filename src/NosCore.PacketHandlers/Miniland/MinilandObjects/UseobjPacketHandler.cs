@@ -17,18 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Miniland;
-using NosCore.Packets.ServerPackets.Warehouse;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.HttpClients.WarehouseHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using System.Threading.Tasks;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Miniland;
+using NosCore.Packets.ServerPackets.Warehouse;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
@@ -56,16 +56,16 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
             if (!minilandObject.InventoryItemInstance!.ItemInstance!.Item!.IsWarehouse)
             {
-                var game = (byte) (minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot ==
+                var game = (byte)(minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot ==
                     EquipmentType.MainWeapon
                         ? (4 + minilandObject.InventoryItemInstance.ItemInstance.ItemVNum) % 10
-                        : (int) minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot / 3);
+                        : (int)minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot / 3);
                 var full = false;
                 await clientSession.SendPacketAsync(new MloInfoPacket
                 {
                     IsOwner = miniland.MapInstanceId == clientSession.Character.MapInstanceId,
                     ObjectVNum = minilandObject.InventoryItemInstance.ItemInstance.ItemVNum,
-                    Slot = (byte) useobjPacket.ObjectId,
+                    Slot = (byte)useobjPacket.ObjectId,
                     MinilandPoints = miniland.MinilandPoint,
                     LawDurability = minilandObject.DurabilityPoint < 1000,
                     IsFull = full,
@@ -108,9 +108,9 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 await clientSession.SendPacketAsync(new StashAllPacket
                 {
                     WarehouseSize =
-                        (byte) minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint,
+                        (byte)minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint,
                     IvnSubPackets = warehouseItems.Select(invItem =>
-                        invItem.ItemInstance.GenerateIvnSubPacket((PocketType) invItem.ItemInstance!.Item!.Type,
+                        invItem.ItemInstance.GenerateIvnSubPacket((PocketType)invItem.ItemInstance!.Item!.Type,
                             invItem.Slot)).ToList()
                 }).ConfigureAwait(false);
             }

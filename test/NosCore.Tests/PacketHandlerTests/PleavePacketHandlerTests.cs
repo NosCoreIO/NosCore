@@ -17,12 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Groups;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Groups;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Group;
@@ -31,8 +25,14 @@ using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.Group;
 using NosCore.PacketHandlers.Group;
+using NosCore.Packets.ClientPackets.Groups;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
@@ -49,7 +49,7 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             Broadcaster.Reset();
             GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
-            for (byte i = 0; i < (byte) (GroupType.Group + 1); i++)
+            for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
                 var session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
                 session.RegisterChannel(null);

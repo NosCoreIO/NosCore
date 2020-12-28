@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -27,6 +24,9 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.NRunService.Handlers
 {
@@ -45,13 +45,13 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                     (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
                     (s.StaticBonusType == StaticBonusType.BazaarMedalSilver));
             var medal = medalBonus != null ? medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold
-                ? (byte) MedalType.Gold : (byte) MedalType.Silver : (byte) 0;
+                ? (byte)MedalType.Gold : (byte)MedalType.Silver : (byte)0;
             var time = medalBonus != null ? (int)(medalBonus.DateEnd == null ? 720 : ((TimeSpan)(medalBonus.DateEnd - SystemTime.Now())).TotalHours) : 0;
             return requestData.ClientSession.SendPacketAsync(new WopenPacket
             {
                 Type = WindowType.NosBazaar,
                 Unknown = medal,
-                Unknown2 = (byte) time
+                Unknown2 = (byte)time
             });
         }
     }

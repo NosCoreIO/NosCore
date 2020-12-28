@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -30,6 +28,8 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using Serilog;
+using System;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
@@ -63,7 +63,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 {
                     Type = 3,
                     Delay = 3000,
-                    Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType) itemInstance.Type,
+                    Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type,
                         itemInstance.Slot,
                         2, 0)
                 }).ConfigureAwait(false);
@@ -78,7 +78,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 requestData.ClientSession.Character.MorphDesign = 0;
                 requestData.ClientSession.Character.Morph =
                     itemInstance.ItemInstance.Item.SecondMorph == 0 ?
-                        (short) ((short) requestData.ClientSession.Character.Gender +
+                        (short)((short)requestData.ClientSession.Character.Gender +
                             itemInstance.ItemInstance.Item.Morph) :
                         requestData.ClientSession.Character.Gender == GenderType.Male
                             ? itemInstance.ItemInstance.Item.Morph

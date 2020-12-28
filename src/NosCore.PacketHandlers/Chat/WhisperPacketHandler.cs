@@ -17,15 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Packets.ClientPackets.Chat;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.Interfaces;
-using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
@@ -37,8 +29,16 @@ using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Chat;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
 using Serilog;
+using System;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
@@ -123,9 +123,9 @@ namespace NosCore.PacketHandlers.Chat
 
                 await _packetHttpClient.BroadcastPacketAsync(new PostedPacket
                 {
-                    Packet = _packetSerializer.Serialize(new[] {speakPacket}),
-                    ReceiverCharacter = new Character {Name = receiverName},
-                    SenderCharacter = new Character {Name = session.Character.Name},
+                    Packet = _packetSerializer.Serialize(new[] { speakPacket }),
+                    ReceiverCharacter = new Character { Name = receiverName },
+                    SenderCharacter = new Character { Name = session.Character.Name },
                     OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.Item2.ChannelId).ConfigureAwait(false);

@@ -17,19 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Mapster;
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.MpService;
 using NosCore.Core.Configuration;
-using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
@@ -38,9 +30,17 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -154,7 +154,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                     await _quicklistEntryDao.TryInsertOrUpdateAsync(new[] {
                         new QuicklistEntryDto
-                        { 
+                        {
                             Id = Guid.NewGuid(),
                             CharacterId = chara.CharacterId,
                             Slot = 1,

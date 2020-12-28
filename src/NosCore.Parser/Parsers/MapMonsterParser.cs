@@ -17,16 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
@@ -48,7 +48,7 @@ namespace NosCore.Parser.Parsers
         {
             short map = 0;
             var mobMvPacketsList = packetList.Where(o => o[0].Equals("mv") && o[1].Equals("3"))
-                .Select(currentPacket=>Convert.ToInt32(currentPacket[2])).Distinct().ToList();
+                .Select(currentPacket => Convert.ToInt32(currentPacket[2])).Distinct().ToList();
             var monsters = new List<MapMonsterDto>();
             var mapMonsterdb = _mapMonsterDao.LoadAll().ToList();
             var npcMonsterdb = _npcMonsterDao.LoadAll().ToList();
@@ -68,7 +68,7 @@ namespace NosCore.Parser.Parsers
                     MapMonsterId = int.Parse(currentPacket[3]),
                     MapX = short.Parse(currentPacket[4]),
                     MapY = short.Parse(currentPacket[5]),
-                    Direction = (byte) (currentPacket[6] == string.Empty ? 0 : byte.Parse(currentPacket[6])),
+                    Direction = (byte)(currentPacket[6] == string.Empty ? 0 : byte.Parse(currentPacket[6])),
                     IsDisabled = false,
                     IsMoving = mobMvPacketsList.Contains(int.Parse(currentPacket[3]))
                 };

@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
@@ -33,6 +31,8 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using Serilog;
+using System;
+using System.Threading.Tasks;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -168,7 +168,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 requestData.ClientSession.Character.InventoryService
                     .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.Type);
 
-            await  requestData.ClientSession.SendPacketAsync(newItem.GeneratePocketChange(packet.Type, packet.Slot)).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacketAsync(newItem.GeneratePocketChange(packet.Type, packet.Slot)).ConfigureAwait(false);
 
             await requestData.ClientSession.Character.MapInstance.SendPacketAsync(requestData.ClientSession.Character
                 .GenerateEq()).ConfigureAwait(false);

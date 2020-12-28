@@ -17,13 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Autofac;
 using AutofacSerilogIntegration;
 using Mapster;
@@ -40,6 +33,13 @@ using NosCore.Database.Entities.Base;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.Configuration;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 // ReSharper disable LocalizableElement
 
@@ -100,11 +100,11 @@ namespace NosCore.Parser
                         folder = args.Aggregate(folder, (current, str) => current + str + " ");
                     }
 
-                    var containerBuilder = new ContainerBuilder(); 
+                    var containerBuilder = new ContainerBuilder();
                     containerBuilder.RegisterInstance(parserConfiguration);
                     containerBuilder.Register(c => optionsBuilder.Options).As<DbContextOptions>();
                     containerBuilder.RegisterType<NosCoreContext>().As<DbContext>()
-                        .OnActivated(c=> c.Instance.Database.Migrate());
+                        .OnActivated(c => c.Instance.Database.Migrate());
                     containerBuilder.RegisterLogger();
                     containerBuilder.RegisterAssemblyTypes(typeof(CardParser).Assembly)
                         .Where(t => t.Name.EndsWith("Parser") && !t.IsGenericType)

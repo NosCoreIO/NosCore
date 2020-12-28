@@ -17,6 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Json.Patch;
+using NosCore.Core.I18N;
+using NosCore.Core.Networking;
+using NosCore.Data.Enumerations.I18N;
+using Polly;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,12 +32,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Json.Patch;
-using NosCore.Core.I18N;
-using NosCore.Core.Networking;
-using NosCore.Data.Enumerations.I18N;
-using Polly;
-using Serilog;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClients

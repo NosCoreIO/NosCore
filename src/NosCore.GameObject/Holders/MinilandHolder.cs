@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
 using NosCore.GameObject.Services.MinilandService;
+using System.Collections.Concurrent;
 
 namespace NosCore.GameObject.Holders
 {

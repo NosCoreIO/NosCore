@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
@@ -28,8 +27,9 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
-using Serilog;
 using NosCore.Shared.Enumerations;
+using Serilog;
+using System.Threading.Tasks;
 
 namespace NosCore.WorldServer.Controllers
 {
@@ -65,13 +65,13 @@ namespace NosCore.WorldServer.Controllers
             switch (data.ActionType)
             {
                 case UpdateStatActionType.UpdateLevel:
-                    session.SetLevel((byte) data.Data);
+                    session.SetLevel((byte)data.Data);
                     break;
                 case UpdateStatActionType.UpdateJobLevel:
-                    await session.SetJobLevelAsync((byte) data.Data).ConfigureAwait(false);
+                    await session.SetJobLevelAsync((byte)data.Data).ConfigureAwait(false);
                     break;
                 case UpdateStatActionType.UpdateHeroLevel:
-                    await session.SetHeroLevelAsync((byte) data.Data).ConfigureAwait(false);
+                    await session.SetHeroLevelAsync((byte)data.Data).ConfigureAwait(false);
                     break;
                 case UpdateStatActionType.UpdateReputation:
                     await session.SetReputationAsync(data.Data).ConfigureAwait(false);
@@ -85,7 +85,7 @@ namespace NosCore.WorldServer.Controllers
                     await session.SetGoldAsync(data.Data).ConfigureAwait(false);
                     break;
                 case UpdateStatActionType.UpdateClass:
-                    await session.ChangeClassAsync((CharacterClassType) data.Data).ConfigureAwait(false);
+                    await session.ChangeClassAsync((CharacterClassType)data.Data).ConfigureAwait(false);
                     break;
                 default:
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKWNOWN_RECEIVERTYPE));

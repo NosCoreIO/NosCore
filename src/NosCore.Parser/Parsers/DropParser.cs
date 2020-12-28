@@ -17,22 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 namespace NosCore.Parser.Parsers
 {
     public class DropParser
     {
-        private readonly IDao<DropDto, short> _dropDao; 
-        public DropParser(IDao<DropDto, short> dropDao) { 
-            _dropDao = dropDao; 
+        private readonly IDao<DropDto, short> _dropDao;
+        public DropParser(IDao<DropDto, short> dropDao)
+        {
+            _dropDao = dropDao;
         }
-        public DropDto GenerateDropDto(short vnum, int amount, short? monsterVNum, int dropChance, short mapTypeId) { 
-            return new DropDto {
-                VNum = vnum, 
+        public DropDto GenerateDropDto(short vnum, int amount, short? monsterVNum, int dropChance, short mapTypeId)
+        {
+            return new DropDto
+            {
+                VNum = vnum,
                 Amount = amount,
                 MonsterVNum = monsterVNum,
                 DropChance = dropChance,

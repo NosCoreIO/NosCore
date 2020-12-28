@@ -17,30 +17,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Relations;
-using NosCore.Packets.Enumerations;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
+using NosCore.GameObject.Holders;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.FriendService;
 using NosCore.PacketHandlers.Friend;
+using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.Enumerations;
+using NosCore.Shared.Configuration;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
-using NosCore.Dao.Interfaces;
-using NosCore.GameObject.Holders;
-using NosCore.GameObject.Services.FriendService;
-using NosCore.Shared.Configuration;
 using FriendController = NosCore.MasterServer.Controllers.FriendController;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests

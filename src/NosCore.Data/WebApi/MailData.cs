@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
+using NosCore.Data.Dto;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.Visibility;
-using NosCore.Data.Dto;
 using NosCore.Shared.Enumerations;
+using System;
 
 namespace NosCore.Data.WebApi
 {
@@ -41,8 +41,8 @@ namespace NosCore.Data.WebApi
             return new PostPacket
             {
                 Type = 5,
-                PostType = (byte) type,
-                Id = (short) MailId,
+                PostType = (byte)type,
+                Id = (short)MailId,
                 Unknown = 0,
                 PostSubPacket = new PostSubPacket
                 {
@@ -80,11 +80,11 @@ namespace NosCore.Data.WebApi
                     return ItemInstance == null ? null : new ParcelPacket
                     {
                         Type = 1,
-                        Unknown = type == 0 ? (byte) 1 : (byte) 2,
-                        Id = (short) MailId,
+                        Unknown = type == 0 ? (byte)1 : (byte)2,
+                        Id = (short)MailId,
                         ParcelAttachment = new ParcelAttachmentSubPacket
                         {
-                            TitleType = MailDto.Title == "NOSMALL" ? (byte) 1 : (byte) 4,
+                            TitleType = MailDto.Title == "NOSMALL" ? (byte)1 : (byte)4,
                             Unknown2 = 0,
                             Date = MailDto.Date.ToString("yyMMddHHmm"),
                             Title = MailDto.Title,
@@ -99,7 +99,7 @@ namespace NosCore.Data.WebApi
                     {
                         Type = 1,
                         PostType = type,
-                        Id = (short) MailId,
+                        Id = (short)MailId,
                         Unknown = 0,
                         IsOpened = MailDto.IsOpened,
                         DateTime = MailDto.Date.ToString("yyMMddHHmm"),

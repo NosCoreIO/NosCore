@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Concurrent;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.DignityService;
@@ -42,6 +39,9 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using Character = NosCore.GameObject.Character;
 
 namespace NosCore.Tests
