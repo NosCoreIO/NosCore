@@ -74,6 +74,7 @@ using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Holders;
+using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -81,7 +82,6 @@ using NosCore.GameObject.Services.ItemGenerationService.Handlers;
 using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
-using NosCore.GameObject.Services.EventRunnerService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
@@ -169,7 +169,7 @@ namespace NosCore.Tests.Helpers
 
         private async Task GenerateMapInstanceProviderAsync()
         {
-            MapItemProvider = new MapItemGenerationService(new EventRunnerService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
+            MapItemProvider = new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
                 {new DropEventHandler(), new SpChargerEventHandler(), new GoldDropEventHandler(TestHelpers.Instance.WorldConfiguration)}));
             var map = new Map
             {
@@ -227,7 +227,7 @@ namespace NosCore.Tests.Helpers
             var instanceGeneratorService = new MapInstanceGeneratorService(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
                 MapItemProvider,
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, _shopItemDao, _logger, new EventRunnerService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()), holder, MapInstanceAccessorService);
+                _mapMonsterDao, _portalDao, _shopItemDao, _logger, new EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()), holder, MapInstanceAccessorService);
             await instanceGeneratorService.InitializeAsync().ConfigureAwait(false);
             await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
                 MapInstanceType.NormalInstance, MapItemProvider, _logger)).ConfigureAwait(false);
@@ -236,7 +236,7 @@ namespace NosCore.Tests.Helpers
 
         public IItemGenerationService GenerateItemProvider()
         {
-            return new ItemGenerationService(ItemList, new EventRunnerService<Item,
+            return new ItemGenerationService(ItemList, new EventLoaderService<Item,
                 Tuple<GameObject.Services.InventoryService.InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
                 new List<IEventHandler<Item,
                     Tuple<GameObject.Services.InventoryService.InventoryItemInstance, UseItemPacket>>>

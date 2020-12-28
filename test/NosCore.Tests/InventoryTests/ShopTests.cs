@@ -51,6 +51,7 @@ using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -59,7 +60,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Tests.Helpers;
 using Serilog;
-using NosCore.GameObject.Services.EventRunnerService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MinilandService;
 
@@ -94,7 +94,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
             };
             var itemBuilder = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -115,7 +115,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
             };
             var itemBuilder = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0, Amount = 98});
@@ -136,7 +136,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
             };
             var itemBuilder = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -160,7 +160,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000}
             };
             var itemBuilder = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -185,7 +185,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
             };
             var itemBuilder = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -218,7 +218,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
             };
             var itemBuilder = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -251,7 +251,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1}
             };
             var itemBuilder = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1), Type = 0});
@@ -306,7 +306,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
             };
             var itemBuilder = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             var it = itemBuilder.Create(1, 999);

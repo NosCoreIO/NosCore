@@ -30,7 +30,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.Services.EventRunnerService;
+using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -59,7 +59,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
             _itemProvider = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
             Inventory = new InventoryService(items, Options.Create(new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999}),
                 Logger);
         }

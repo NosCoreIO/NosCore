@@ -24,7 +24,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Services.EventRunnerService;
+using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;

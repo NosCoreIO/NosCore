@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 using NosCore.Core;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.EventRunnerService;
 
-namespace NosCore.GameObject.Event
+namespace NosCore.GameObject.Services.EventLoaderService
 {
     public class Clock : IRequestableEntity<DateTime>
     {

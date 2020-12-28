@@ -31,7 +31,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.Services.EventRunnerService;
+using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Handlers;
@@ -59,7 +59,7 @@ namespace NosCore.Tests.ItemHandlerTests
                 new Item {Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon}
             };
             _itemProvider = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger.Object);
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger.Object);
         }
 
 

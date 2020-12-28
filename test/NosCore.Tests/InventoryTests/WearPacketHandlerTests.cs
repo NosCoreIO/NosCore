@@ -34,7 +34,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.EventRunnerService;
+using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Handlers;
@@ -101,7 +101,7 @@ namespace NosCore.Tests.InventoryTests
                     Class = 31 //sum of all 2^class
                 }
             };
-            _item = new ItemGenerationService(items, new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
+            _item = new ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
 
@@ -129,7 +129,7 @@ namespace NosCore.Tests.InventoryTests
                     Class = (byte) (31 - Math.Pow(2, (byte) classToTest))
                 }
             };
-            _item = new ItemGenerationService(items, new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
+            _item = new ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
 
@@ -169,7 +169,7 @@ namespace NosCore.Tests.InventoryTests
                 }
             };
             _item = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
 
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
@@ -206,7 +206,7 @@ namespace NosCore.Tests.InventoryTests
                 }
             };
             _item = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
@@ -230,7 +230,7 @@ namespace NosCore.Tests.InventoryTests
                     LevelJobMinimum = 3
                 }
             };
-            _item = new ItemGenerationService(items, new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
+            _item = new ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
@@ -252,7 +252,7 @@ namespace NosCore.Tests.InventoryTests
                     LevelMinimum = 3
                 }
             };
-            _item = new ItemGenerationService(items, new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
+            _item = new ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
@@ -278,7 +278,7 @@ namespace NosCore.Tests.InventoryTests
                 }
             };
             _item = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
@@ -300,7 +300,7 @@ namespace NosCore.Tests.InventoryTests
                     LevelMinimum = 3
                 }
             };
-            _item = new ItemGenerationService(items, new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>( 
+            _item = new ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>( 
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
@@ -327,7 +327,7 @@ namespace NosCore.Tests.InventoryTests
                 }
             };
             _item = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
@@ -348,7 +348,7 @@ namespace NosCore.Tests.InventoryTests
                 }
             };
             _item = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1, -2),
                 _session.Character.CharacterId));
@@ -378,7 +378,7 @@ namespace NosCore.Tests.InventoryTests
                 }
             };
             _item = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
@@ -412,7 +412,7 @@ namespace NosCore.Tests.InventoryTests
                 }
             };
             _item = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
@@ -448,7 +448,7 @@ namespace NosCore.Tests.InventoryTests
                 }
             };
             _item = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
@@ -482,7 +482,7 @@ namespace NosCore.Tests.InventoryTests
                 }
             };
             _item = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
@@ -514,7 +514,7 @@ namespace NosCore.Tests.InventoryTests
                     SecondaryElement = ElementType.Water
                 }
             };
-            _item = new ItemGenerationService(items, new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
+            _item = new ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
 
@@ -538,7 +538,7 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Equipment, VNum = 1, RequireBinding = true}
             };
             _item = new ItemGenerationService(items,
-                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger)}), Logger);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),

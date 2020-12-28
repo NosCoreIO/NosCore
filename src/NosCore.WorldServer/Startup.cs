@@ -62,7 +62,6 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
 using NosCore.GameObject;
-using NosCore.GameObject.Event;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -75,7 +74,7 @@ using Serializer = NosCore.Packets.Serializer;
 using NosCore.Dao;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Holders;
-using NosCore.GameObject.Services.EventRunnerService;
+using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Attributes;
@@ -290,7 +289,7 @@ namespace NosCore.WorldServer
                 .AsSelf();
 
             containerBuilder
-                .RegisterGeneric(typeof(EventRunnerService<,,>));
+                .RegisterGeneric(typeof(EventLoaderService<,,>));
 
             containerBuilder
                 .RegisterAssemblyTypes(typeof(IEventHandler<,>).Assembly)

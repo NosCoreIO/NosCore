@@ -28,7 +28,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using Serilog;
 
-namespace NosCore.GameObject.Event
+namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 {
     [UsedImplicitly]
     public class SaveAll : ITimedEventHandler

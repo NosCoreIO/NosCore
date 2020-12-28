@@ -20,7 +20,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Packets.Enumerations;
 using JetBrains.Annotations;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -28,8 +27,9 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.Enumerations;
 
-namespace NosCore.GameObject.Event
+namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 {
     [UsedImplicitly]
     public class RemoveTimeoutStaticBonuses : ITimedEventHandler

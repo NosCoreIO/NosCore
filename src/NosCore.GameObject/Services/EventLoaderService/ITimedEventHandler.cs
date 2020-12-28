@@ -19,7 +19,7 @@
 
 using System;
 
-namespace NosCore.GameObject.Event
+namespace NosCore.GameObject.Services.EventLoaderService
 {
     public interface ITimedEventHandler : IEventHandler<Clock, DateTime>
     {

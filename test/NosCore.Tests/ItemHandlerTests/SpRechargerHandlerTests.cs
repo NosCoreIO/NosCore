@@ -32,13 +32,14 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
+using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Handlers;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Tests.Helpers;
 using Serilog;
-using NosCore.GameObject.Services.EventRunnerService;
+
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -60,7 +61,7 @@ namespace NosCore.Tests.ItemHandlerTests
             {
                 new Item {VNum = 1, ItemType = ItemType.Special, EffectValue = 1},
             };
-            _itemProvider = new ItemGenerationService(items, new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
+            _itemProvider = new ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger);
         }
         [TestMethod]

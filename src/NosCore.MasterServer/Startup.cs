@@ -174,7 +174,7 @@ namespace NosCore.MasterServer
                 };
             });
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
-            containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
+            containerBuilder.RegisterType<AuthController>();
             containerBuilder.RegisterLogger();
 
             containerBuilder.RegisterAssemblyTypes(typeof(FriendRequestHolder).Assembly)
@@ -187,7 +187,7 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces()
-                .PropertiesAutowired();
+                ;
 
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);

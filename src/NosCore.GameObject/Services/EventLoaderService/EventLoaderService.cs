@@ -25,7 +25,7 @@ using System.Reactive.Subjects;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 
-namespace NosCore.GameObject.Services.EventRunnerService
+namespace NosCore.GameObject.Services.EventLoaderService
 {
     public class EventLoaderService<T1, T2, TEventType> : IEventLoaderService<T1, T2> 
     where T1 : IRequestableEntity<T2>

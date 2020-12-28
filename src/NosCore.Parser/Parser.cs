@@ -109,8 +109,8 @@ namespace NosCore.Parser
                     containerBuilder.RegisterAssemblyTypes(typeof(CardParser).Assembly)
                         .Where(t => t.Name.EndsWith("Parser") && !t.IsGenericType)
                         .AsSelf()
-                        .PropertiesAutowired();
-                    containerBuilder.RegisterType<ImportFactory>().PropertiesAutowired();
+                        ;
+                    containerBuilder.RegisterType<ImportFactory>();
                     var registerDatabaseObject = typeof(Parser).GetMethod(nameof(RegisterDatabaseObject));
                     var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
                     var assemblyDb = typeof(Account).Assembly.GetTypes();

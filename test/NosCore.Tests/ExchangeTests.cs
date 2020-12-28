@@ -30,12 +30,12 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Holders;
+using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using Serilog;
-using NosCore.GameObject.Services.EventRunnerService;
 
 namespace NosCore.Tests
 {
@@ -66,7 +66,7 @@ namespace NosCore.Tests
                 new Item {Type = NoscorePocketType.Main, VNum = 1013}
             };
 
-            _itemProvider = new ItemGenerationService(items, new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
+            _itemProvider = new ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
             _exchangeProvider = new ExchangeService(_itemProvider, _worldConfiguration, Logger, new ExchangeRequestHolder());
         }
 
