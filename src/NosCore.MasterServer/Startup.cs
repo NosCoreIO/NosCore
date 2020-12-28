@@ -43,7 +43,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using NosCore.Core;
-using NosCore.Core.Configuration;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -55,19 +54,20 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
+using NosCore.GameObject.Providers.BazaarService;
+using NosCore.GameObject.Providers.FriendService;
 using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.MasterServer.Controllers;
-using NosCore.MasterServer.DataHolders;
+using NosCore.GameObject.Providers.MailService;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using ILogger = Serilog.ILogger;
 using NosCore.Shared.I18N;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
+using FriendController = NosCore.MasterServer.Controllers.FriendController;
 
 namespace NosCore.MasterServer
 {
@@ -84,6 +84,14 @@ namespace NosCore.MasterServer
 
         private static void RegisterDto(ContainerBuilder containerBuilder)
         {
+            containerBuilder.Register(c => c.Resolve<IEnumerable<IDao<IDto>>>().OfType<IDao<II18NDto>>().ToDictionary(
+                    x => x.GetType().GetGenericArguments()[1], y => y.LoadAll().GroupBy(x => x!.Key ?? "")
+                        .ToDictionary(x => x.Key,
+                            x => x.ToList().ToDictionary(o => o!.RegionType, o => o!))))
+                .AsImplementedInterfaces()
+                .SingleInstance()
+                .AutoActivate();
+
             var registerDatabaseObject = typeof(Startup).GetMethod(nameof(RegisterDatabaseObject));
             var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
             var assemblyDb = typeof(Account).Assembly.GetTypes();
@@ -109,41 +117,33 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<Dao<ItemInstance, IItemInstanceDto?, Guid>>().As<IDao<IItemInstanceDto?, Guid>>().SingleInstance();
 
             containerBuilder.Register(c =>
+            {
+                var dic = c.Resolve<IDictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>>();
+                var items = c.Resolve<IDao<ItemDto, short>>().LoadAll().ToList();
+                var props = StaticDtoExtension.GetI18NProperties(typeof(ItemDto));
+
+                var regions = Enum.GetValues(typeof(RegionType));
+                var accessors = TypeAccessor.Create(typeof(ItemDto));
+                Parallel.ForEach(items, s => s.InjectI18N(props, dic, regions, accessors));
+                var staticMetaDataAttribute = typeof(ItemDto).GetCustomAttribute<StaticMetaDataAttribute>();
+                if ((items.Count != 0) || (staticMetaDataAttribute == null) ||
+                    (staticMetaDataAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))
                 {
-                    var dic = new Dictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>
+                    if ((items.Count != 0) && (staticMetaDataAttribute != null))
                     {
-                        {
-                            typeof(I18NItemDto),
-                            c.Resolve<IDao<I18NItemDto, int>>().LoadAll().GroupBy(x => x.Key).ToDictionary(x => x.Key ?? "",
-                                x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        }
-                    };
-
-                    var items = c.Resolve<IDao<ItemDto, short>>().LoadAll().ToList();
-                    var props = StaticDtoExtension.GetI18NProperties(typeof(ItemDto));
-
-                    var regions = Enum.GetValues(typeof(RegionType));
-                    var accessors = TypeAccessor.Create(typeof(ItemDto));
-                    Parallel.ForEach(items, s => s.InjectI18N(props, dic, regions, accessors));
-                    var staticMetaDataAttribute = typeof(ItemDto).GetCustomAttribute<StaticMetaDataAttribute>();
-                    if ((items.Count != 0) || (staticMetaDataAttribute == null) ||
-                        (staticMetaDataAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))
-                    {
-                        if ((items.Count != 0) && (staticMetaDataAttribute != null))
-                        {
-                            c.Resolve<ILogger>().Information(
-                                LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.LoadedMessage),
-                                items.Count);
-                        }
+                        c.Resolve<ILogger>().Information(
+                            LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.LoadedMessage),
+                            items.Count);
                     }
-                    else
-                    {
-                        c.Resolve<ILogger>()
-                            .Error(LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.EmptyMessage));
-                    }
+                }
+                else
+                {
+                    c.Resolve<ILogger>()
+                        .Error(LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.EmptyMessage));
+                }
 
-                    return items;
-                })
+                return items;
+            })
                 .As<List<ItemDto>>()
                 .SingleInstance()
                 .AutoActivate();
@@ -151,7 +151,7 @@ namespace NosCore.MasterServer
 
         public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder) where TDb : class where TPk : struct
         {
-            containerBuilder.RegisterType<Dao<TDb, TDto, TPk>>().As<IDao<TDto, TPk>>().SingleInstance();
+            containerBuilder.RegisterType<Dao<TDb, TDto, TPk>>().As<IDao<TDto, TPk>>().As<IDao<IDto>>().SingleInstance();
         }
 
         private ContainerBuilder InitializeContainer(IServiceCollection services)
@@ -184,6 +184,10 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<IncommingMailHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ItemProvider>().AsImplementedInterfaces();
+            containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
+                .Where(t => t.Name.EndsWith("Service"))
+                .AsImplementedInterfaces()
+                .PropertiesAutowired();
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);
             return containerBuilder;

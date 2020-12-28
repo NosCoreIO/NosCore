@@ -17,15 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Json.Patch;
+using NosCore.Data.WebApi;
 
-namespace NosCore.WebApi
+namespace NosCore.GameObject.Providers.MailService
 {
-    public static class LoginServerBootstrap
+    public interface IMailService
     {
-        public static Task Main(string[] args)
-        {
-            return Task.CompletedTask;
-        }
+        List<MailData> GetMails(long id, long characterId, bool senderCopy);
+
+        Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy);
+
+        Task<MailData?> EditMailAsync(long id, JsonPatch mailData);
+
+        Task<bool> SendMailAsync(MailRequest mail);
     }
 }

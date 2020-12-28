@@ -22,10 +22,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
-using NosCore.Dao.Interfaces;
-using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Providers.WarehouseService;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.MasterServer.Controllers
@@ -34,86 +33,20 @@ namespace NosCore.MasterServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class WarehouseController : Controller
     {
-        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
-        private readonly IDao<WarehouseDto, Guid> _warehouseDao;
-        private readonly IDao<WarehouseItemDto, Guid> _warehouseItemDao;
+        private readonly IWarehouseService _warehouseService;
 
-        public WarehouseController(IDao<WarehouseItemDto, Guid> warehouseItemDao,
-            IDao<WarehouseDto, Guid> warehouseDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao)
+        public WarehouseController(IWarehouseService warehouseService)
         {
-            _itemInstanceDao = itemInstanceDao;
-            _warehouseItemDao = warehouseItemDao;
-            _warehouseDao = warehouseDao;
+            _warehouseService = warehouseService;
         }
 
         [HttpGet]
-        public List<WarehouseLink> GetWarehouseItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot)
-        {
-            var list = new List<WarehouseLink>();
-            if (id == null)
-            {
-                var warehouse = _warehouseDao.FirstOrDefaultAsync(s
-                    => s.Type == warehouseType
-                    && s.CharacterId == (warehouseType == WarehouseType.FamilyWareHouse ? null : ownerId)
-                    && s.FamilyId == (warehouseType == WarehouseType.FamilyWareHouse ? ownerId : null));
-                if (slot == null)
-                {
-                    //todo add
-                }
-                else
-                {
-                    //todo add
-                }
-            }
-            else
-            {
-                var warehouseLink = new WarehouseLink();
-                list.Add(warehouseLink);
-            }
-
-            return list;
-        }
-
+        public List<WarehouseLink> GetWarehouseItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot) => _warehouseService.GetItems(id, ownerId, warehouseType, slot);
 
         [HttpDelete]
-        public async Task<bool> DeleteWarehouseItemAsync(Guid id)
-        {
-            var item = await _warehouseItemDao.FirstOrDefaultAsync(s => s.Id == id).ConfigureAwait(false);
-            if (item == null)
-            {
-                return false;
-            }
-            await _warehouseItemDao.TryDeleteAsync(item.Id).ConfigureAwait(false);
-            await _warehouseDao.TryDeleteAsync(item.WarehouseId).ConfigureAwait(false);
-            await _itemInstanceDao.TryDeleteAsync(item.ItemInstanceId).ConfigureAwait(false);
-            return true;
-        }
+        public Task<bool> DeleteWarehouseItemAsync(Guid id) => _warehouseService.WithdrawItemAsync(id);
 
         [HttpPost]
-        public async Task<bool> AddWarehouseItemAsync([FromBody] WareHouseDepositRequest depositRequest)
-        {
-            var item = depositRequest.ItemInstance as IItemInstanceDto;
-            item!.Id = Guid.NewGuid();
-            item = await _itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(true);
-            var warehouse = new WarehouseDto
-            {
-                CharacterId = depositRequest.WarehouseType == WarehouseType.FamilyWareHouse ? null
-                    : (long?) depositRequest.OwnerId,
-                Id = Guid.NewGuid(),
-                FamilyId = depositRequest.WarehouseType == WarehouseType.FamilyWareHouse
-                    ? (long?) depositRequest.OwnerId : null,
-                Type = depositRequest.WarehouseType,
-            };
-            warehouse = await _warehouseDao.TryInsertOrUpdateAsync( warehouse).ConfigureAwait(true);
-            var warehouseItem = new WarehouseItemDto
-            {
-                Slot = depositRequest.Slot,
-                Id = Guid.NewGuid(),
-                ItemInstanceId = item!.Id,
-                WarehouseId = warehouse.Id
-            };
-            await _warehouseItemDao.TryInsertOrUpdateAsync(warehouseItem).ConfigureAwait(true);
-            return true;
-        }
+        public Task<bool> AddWarehouseItemAsync([FromBody] WareHouseDepositRequest depositRequest) => _warehouseService.DepositItemAsync(depositRequest);
     }
 }

@@ -19,20 +19,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
-using NosCore.Packets.ClientPackets.Drops;
-using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Packets.ClientPackets.Npcs;
-using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
@@ -51,7 +44,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Core;
@@ -66,27 +58,21 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.I18N;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Event;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Providers.ExchangeProvider;
 using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MapItemProvider;
 using NosCore.PacketHandlers.Login;
 using NosCore.WorldServer.Controllers;
 using Character = NosCore.GameObject.Character;
 using Deserializer = NosCore.Packets.Deserializer;
 using ILogger = Serilog.ILogger;
-using InventoryItemInstance = NosCore.GameObject.Providers.InventoryService.InventoryItemInstance;
-using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
 using Serializer = NosCore.Packets.Serializer;
 using NosCore.Dao;
 using NosCore.Data.Dto;
@@ -120,9 +106,10 @@ namespace NosCore.WorldServer
         }
 
         public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
-        where TDb : class where TPk : struct
+        where TDb : class
+        where TPk : struct
         {
-            containerBuilder.RegisterType<Dao<TDb, TDto, TPk>>().As<IDao<TDto, TPk>>().SingleInstance();
+            containerBuilder.RegisterType<Dao<TDb, TDto, TPk>>().As<IDao<IDto>>().As<IDao<TDto, TPk>>().SingleInstance();
             if (!isStatic)
             {
                 return;
@@ -184,75 +171,13 @@ namespace NosCore.WorldServer
 
         private static void RegisterDto(ContainerBuilder containerBuilder)
         {
-            containerBuilder.Register(c =>
-                {
-                    var dic = new Dictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>
-
-                    {
-                        {
-                            typeof(I18NActDescDto),
-                            c.Resolve<IDao<I18NActDescDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NBCardDto),
-                            c.Resolve<IDao<I18NBCardDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NCardDto),
-                            c.Resolve<IDao<I18NCardDto, int>>().LoadAll().GroupBy(x => x.Key ?? "").ToDictionary(x => x.Key,
-                                x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NItemDto),
-                            c.Resolve<IDao<I18NItemDto, int>>().LoadAll().GroupBy(x => x.Key ?? "").ToDictionary(x => x.Key,
-                                x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NMapIdDataDto),
-                            c.Resolve<IDao<I18NMapIdDataDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NMapPointDataDto),
-                            c.Resolve<IDao<I18NMapPointDataDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NNpcMonsterDto),
-                            c.Resolve<IDao<I18NNpcMonsterDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NNpcMonsterTalkDto),
-                            c.Resolve<IDao<I18NNpcMonsterTalkDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NQuestDto),
-                            c.Resolve<IDao<I18NQuestDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NSkillDto),
-                            c.Resolve<IDao<I18NSkillDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        }
-                    };
-                    return dic;
-                })
-                .AsImplementedInterfaces()
-                .SingleInstance()
-                .AutoActivate();
+            containerBuilder.Register(c => c.Resolve<IEnumerable<IDao<IDto>>>().OfType<IDao<II18NDto>>().ToDictionary(
+                    x => x.GetType().GetGenericArguments()[1], y => y.LoadAll().GroupBy(x => x!.Key ?? "")
+                        .ToDictionary(x => x.Key,
+                            x => x.ToList().ToDictionary(o => o!.RegionType, o => o!))))
+            .AsImplementedInterfaces()
+            .SingleInstance()
+            .AutoActivate();
 
             var registerDatabaseObject = typeof(Startup).GetMethod(nameof(RegisterDatabaseObject));
             var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
@@ -295,6 +220,7 @@ namespace NosCore.WorldServer
             containerBuilder.Register(c => new Serializer(listofpacket))
                 .AsImplementedInterfaces()
                 .SingleInstance();
+
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
@@ -307,23 +233,7 @@ namespace NosCore.WorldServer
 
             containerBuilder.Register(c =>
             {
-                var hasher = c.Resolve<IHasher>();
                 var configuration = c.Resolve<IOptions<WorldConfiguration>>();
-                var claims = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, "Server"),
-                    new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-                });
-                var keyByteArray = Encoding.Default.GetBytes(hasher.Hash(configuration.Value.MasterCommunication!.Password!, configuration.Value.MasterCommunication!.Salt));
-                var signinKey = new SymmetricSecurityKey(keyByteArray);
-                var handler = new JwtSecurityTokenHandler();
-                var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-                {
-                    Subject = claims,
-                    Issuer = "Issuer",
-                    Audience = "Audience",
-                    SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
-                });
                 return new Channel
                 {
                     MasterCommunication = configuration.Value.MasterCommunication,
@@ -337,7 +247,6 @@ namespace NosCore.WorldServer
                     StartInMaintenance = configuration.Value.StartInMaintenance,
                     Host = configuration.Value.Host!,
                     WebApi = configuration.Value.WebApi,
-                    Token = handler.WriteToken(securityToken)
                 };
             });
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
@@ -346,16 +255,12 @@ namespace NosCore.WorldServer
                 HashingType.Pbkdf2 => new Pbkdf2Hasher(),
                 _ => new Sha512Hasher()
             });
+
             //NosCore.Controllers
-            foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
-            {
-                if (typeof(IPacketHandler).IsAssignableFrom(type) && typeof(IWorldPacketHandler).IsAssignableFrom(type))
-                {
-                    containerBuilder.RegisterType(type)
-                        .AsImplementedInterfaces()
-                        .PropertiesAutowired();
-                }
-            }
+            containerBuilder.RegisterTypes(typeof(NoS0575PacketHandler).Assembly.GetTypes()
+                    .Where(type => typeof(IPacketHandler).IsAssignableFrom(type) && typeof(IWorldPacketHandler).IsAssignableFrom(type)).ToArray())
+                .AsImplementedInterfaces()
+                .PropertiesAutowired();
 
             //NosCore.Core
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
@@ -363,9 +268,6 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
 
             //NosCore.GameObject
-            TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
-            TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
-            TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<OctileDistanceHeuristic>().As<IHeuristic>();
             containerBuilder.RegisterType<NetworkManager>();
@@ -379,6 +281,7 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces()
                 .SingleInstance()
                 .PropertiesAutowired();
+
             RegisterDto(containerBuilder);
 
             containerBuilder.RegisterAssemblyTypes(typeof(Character).Assembly)
@@ -386,38 +289,14 @@ namespace NosCore.WorldServer
                 .AsSelf()
                 .PropertiesAutowired();
 
-
             containerBuilder.RegisterAssemblyTypes(typeof(IGlobalEvent).Assembly)
                 .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
 
             containerBuilder
-                .RegisterAssemblyTypes(typeof(IEventHandler<Item, Tuple<IItemInstance, UseItemPacket>>).Assembly)
-                .Where(t => typeof(IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>)
-                    .IsAssignableFrom(t))
-                .SingleInstance()
-                .AsImplementedInterfaces();
-
-            containerBuilder
-                .RegisterAssemblyTypes(typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>).Assembly)
-                .Where(t => typeof(IEventHandler<MapItem, Tuple<MapItem, GetPacket>>)
-                    .IsAssignableFrom(t))
-                .SingleInstance()
-                .AsImplementedInterfaces();
-
-            containerBuilder
-                .RegisterAssemblyTypes(
-                    typeof(IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>).Assembly)
-                .Where(t => typeof(IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>)
-                    .IsAssignableFrom(t))
-                .SingleInstance()
-                .AsImplementedInterfaces();
-
-            containerBuilder
-                .RegisterAssemblyTypes(typeof(IEventHandler<GuriPacket, GuriPacket>).Assembly)
-                .Where(t => typeof(IEventHandler<GuriPacket, GuriPacket>)
-                    .IsAssignableFrom(t))
+                .RegisterAssemblyTypes(typeof(IEventHandler<,>).Assembly)
+                .AsClosedTypesOf(typeof(IEventHandler<,>))
                 .SingleInstance()
                 .AsImplementedInterfaces();
         }
@@ -436,17 +315,11 @@ namespace NosCore.WorldServer
 
             var worldConfiguration = new WorldConfiguration();
             _configuration.Bind(worldConfiguration);
-            services.AddDbContext<NosCoreContext>(
-                conf => conf.UseNpgsql(worldConfiguration.Database!.ConnectionString));
-
+            services.AddDbContext<NosCoreContext>(conf => conf.UseNpgsql(worldConfiguration.Database!.ConnectionString));
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(worldConfiguration.WebApi.Port));
-
-            services.AddSwaggerGen(c =>
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
-
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
-
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             services.ConfigureOptions<ConfigureJwtBearerOptions>();
             services.AddAuthorization(o =>
@@ -465,13 +338,13 @@ namespace NosCore.WorldServer
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddHostedService<WorldServer>();
 
-            TypeAdapterConfig.GlobalSettings
-                .ForDestinationType<I18NString>()
-                .BeforeMapping(s => s.Clear());
-            TypeAdapterConfig.GlobalSettings.Default
-                 .IgnoreMember((member, side) => ((side == MemberSide.Destination) && member.Type.GetInterfaces().Contains(typeof(IEntity))) || (member.Type.GetGenericArguments().Any() && member.Type.GetGenericArguments()[0].GetInterfaces().Contains(typeof(IEntity))));
-            TypeAdapterConfig.GlobalSettings
-                .When(s => !s.SourceType.IsAssignableFrom(s.DestinationType) && typeof(IStaticDto).IsAssignableFrom(s.DestinationType))
+            TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
+            TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<I18NString>().BeforeMapping(s => s.Clear());
+            TypeAdapterConfig.GlobalSettings.Default.IgnoreMember((member, side)
+                => ((side == MemberSide.Destination) && member.Type.GetInterfaces().Contains(typeof(IEntity))) || (member.Type.GetGenericArguments().Any() && member.Type.GetGenericArguments()[0].GetInterfaces().Contains(typeof(IEntity))));
+            TypeAdapterConfig.GlobalSettings.When(s => !s.SourceType.IsAssignableFrom(s.DestinationType) && typeof(IStaticDto).IsAssignableFrom(s.DestinationType))
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
             TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
@@ -480,7 +353,6 @@ namespace NosCore.WorldServer
             containerBuilder.Populate(services);
             var container = containerBuilder.Build();
             RegisterGo(container);
-
 
             return new AutofacServiceProvider(container);
         }

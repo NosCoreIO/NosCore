@@ -17,15 +17,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.Miniland;
+using NosCore.Data.WebApi;
 
-namespace NosCore.WebApi
+namespace NosCore.GameObject.Providers.WarehouseService
 {
-    public static class LoginServerBootstrap
+    public interface IWarehouseService
     {
-        public static Task Main(string[] args)
-        {
-            return Task.CompletedTask;
-        }
+        List<WarehouseLink> GetItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot);
+
+        Task<bool> WithdrawItemAsync(Guid id);
+
+        Task<bool> DepositItemAsync(WareHouseDepositRequest depositRequest);
     }
 }

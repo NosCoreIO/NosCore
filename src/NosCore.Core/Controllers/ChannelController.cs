@@ -32,8 +32,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NosCore.Core.Configuration;
-using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
@@ -41,7 +39,6 @@ using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using Serilog;
-using HashingType = NosCore.Data.Enumerations.HashingType;
 
 namespace NosCore.Core.Controllers
 {
@@ -121,7 +118,6 @@ namespace NosCore.Core.Controllers
                 WebApi = data.WebApi,
                 LastPing = SystemTime.Now(),
                 Type = data.ClientType,
-                Token = data.Token
             };
 
             MasterClientListSingleton.Instance.Channels.Add(serv);
@@ -143,7 +139,6 @@ namespace NosCore.Core.Controllers
                 (s.Name == data.ClientName) && (s.Host == data.Host) && (s.Port == data.Port));
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TOKEN_UPDATED), channel.Id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
-            channel.Token = data.Token;
             return Ok(new ConnectionInfo { Token = GenerateToken(), ChannelInfo = data });
         }
 

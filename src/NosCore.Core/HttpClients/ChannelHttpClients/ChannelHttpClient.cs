@@ -19,23 +19,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Json.Patch;
-using Microsoft.IdentityModel.Tokens;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Shared.Authentication;
-using NosCore.Shared.Enumerations;
 using Polly;
 using Serilog;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -49,14 +43,12 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
         private readonly ILogger _logger;
         private DateTime _lastUpdateToken;
         private string? _token;
-        private readonly IHasher _hasher;
 
-        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger, IHasher hasher)
+        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger)
         {
             _httpClientFactory = httpClientFactory;
             _channel = channel;
             _logger = logger;
-            _hasher = hasher;
         }
 
         public async Task ConnectAsync()
@@ -135,24 +127,6 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-            var password = _hasher.Hash(_channel.MasterCommunication.Password!, _channel.MasterCommunication.Salt);
-
-            var keyByteArray = Encoding.Default.GetBytes(password);
-            var signinKey = new SymmetricSecurityKey(keyByteArray);
-            var handler = new JwtSecurityTokenHandler();
-            var claims = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, "Server"),
-                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-            });
-            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-            {
-                Subject = claims,
-                Issuer = "Issuer",
-                Audience = "Audience",
-                SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
-            });
-            _channel.Token = handler.WriteToken(securityToken);
             using var content = new StringContent(JsonSerializer.Serialize(_channel),
                 Encoding.Default, "application/json");
             var message = client.PutAsync(new Uri($"{client.BaseAddress}api/channel"), content);

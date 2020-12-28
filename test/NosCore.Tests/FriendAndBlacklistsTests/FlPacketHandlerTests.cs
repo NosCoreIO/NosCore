@@ -29,13 +29,13 @@ using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.MasterServer.Controllers;
-using NosCore.MasterServer.DataHolders;
+using NosCore.GameObject.Providers.FriendService;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
 using NosCore.Shared.Configuration;
+using FriendController = NosCore.MasterServer.Controllers.FriendController;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
 {
@@ -80,8 +80,8 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
-            using var friend = new FriendController(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                friendRequestHolder, TestHelpers.Instance.ConnectedAccountHttpClient.Object);
+            using var friend = new FriendController(new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
+                friendRequestHolder, TestHelpers.Instance.ConnectedAccountHttpClient.Object));
             TestHelpers.Instance.FriendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(new FriendShipRequest
                 {

@@ -27,7 +27,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 
-namespace NosCore.MasterServer.DataHolders
+namespace NosCore.GameObject.Providers.MailService
 {
     public class ParcelHolder : ConcurrentDictionary<long,
         ConcurrentDictionary<bool, ConcurrentDictionary<long, MailData>>>

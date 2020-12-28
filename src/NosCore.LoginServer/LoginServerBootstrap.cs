@@ -106,6 +106,7 @@ namespace NosCore.LoginServer
                 .Where(t => t.Name.EndsWith("HttpClient"))
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
+
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication.HashingType switch
             {
                 HashingType.BCrypt => new BcryptHasher(),
@@ -124,15 +125,11 @@ namespace NosCore.LoginServer
                     Host = conf.Value.Host!
                 };
             });
-            foreach (var type in typeof(NoS0575PacketHandler).Assembly.GetTypes())
-            {
-                if (typeof(IPacketHandler).IsAssignableFrom(type) && typeof(ILoginPacketHandler).IsAssignableFrom(type))
-                {
-                    containerBuilder.RegisterType(type)
-                        .AsImplementedInterfaces()
-                        .PropertiesAutowired();
-                }
-            }
+
+            containerBuilder.RegisterTypes(typeof(NoS0575PacketHandler).Assembly.GetTypes().Where(type => typeof(IPacketHandler).IsAssignableFrom(type) && typeof(ILoginPacketHandler).IsAssignableFrom(type)).ToArray())
+                .Where(t => typeof(IPacketHandler).IsAssignableFrom(t) && typeof(ILoginPacketHandler).IsAssignableFrom(t))
+                .AsImplementedInterfaces()
+                .PropertiesAutowired();
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() == null || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) != 0) && p.IsClass && !p.IsAbstract).ToList();

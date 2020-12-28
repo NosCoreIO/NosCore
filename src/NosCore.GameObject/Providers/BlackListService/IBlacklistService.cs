@@ -20,33 +20,15 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using NosCore.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Providers.FriendService;
-using NosCore.Shared.Enumerations;
 
-namespace NosCore.MasterServer.Controllers
+namespace NosCore.GameObject.Providers.BlackListService
 {
-    [Route("api/[controller]")]
-    [AuthorizeRole(AuthorityType.GameMaster)]
-    public class FriendController : Controller
+    public interface IBlacklistService
     {
-        private readonly IFriendService _friendService;
-
-        public FriendController(IFriendService friendService)
-        {
-            _friendService = friendService;
-        }
-
-        [HttpPost]
-        public Task<LanguageKey> AddFriendAsync([FromBody] FriendShipRequest friendPacket) => _friendService.AddFriendAsync(friendPacket);
-
-        [HttpGet]
-        public Task<List<CharacterRelationStatus>> GetFriendsAsync(long id) => _friendService.GetFriendsAsync(id);
-
-        [HttpDelete]
-        public async Task<IActionResult> DeleteAsync(Guid id) => await _friendService.DeleteAsync(id) ? (IActionResult)Ok() : NotFound();
+        Task<LanguageKey> BlacklistPlayerAsync(BlacklistRequest blacklistRequest);
+        Task<List<CharacterRelationStatus>> GetBlacklistedListAsync(long id);
+        Task<bool> UnblacklistAsync(Guid id);
     }
 }

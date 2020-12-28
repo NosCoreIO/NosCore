@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using NosCore.Core.Configuration;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 
@@ -55,9 +54,5 @@ namespace NosCore.Core
         public int ConnectedAccountLimit { get; set; }
 
         public ServerConfiguration? WebApi { get; set; }
-
-        public RegionType UserLanguage { get; set; }
-
-        public string? Token { get; set; }
     }
 }

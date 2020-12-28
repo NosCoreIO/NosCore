@@ -19,16 +19,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Packets.Enumerations;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Dao.Interfaces;
-using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Providers.BlackListService;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.MasterServer.Controllers
@@ -37,93 +33,19 @@ namespace NosCore.MasterServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class BlacklistController : Controller
     {
-        private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IDao<CharacterRelationDto, Guid> _characterRelationDao;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IBlacklistService _blacklistService;
 
-        public BlacklistController(IConnectedAccountHttpClient connectedAccountHttpClient,
-            IDao<CharacterRelationDto, Guid> characterRelationDao, IDao<CharacterDto, long> characterDao)
+        public BlacklistController(IBlacklistService blacklistService)
         {
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _characterRelationDao = characterRelationDao;
-            _characterDao = characterDao;
+            _blacklistService = blacklistService;
         }
 
         [HttpPost]
-        public async Task<LanguageKey> AddBlacklistAsync([FromBody] BlacklistRequest blacklistRequest)
-        {
-            var character = await _connectedAccountHttpClient.GetCharacterAsync(blacklistRequest.CharacterId, null).ConfigureAwait(false);
-            var targetCharacter = await
-                _connectedAccountHttpClient.GetCharacterAsync(blacklistRequest.BlInsPacket?.CharacterId, null).ConfigureAwait(false);
-            if ((character.Item2 == null) || (targetCharacter.Item2 == null))
-            {
-                throw new ArgumentException();
-            }
-
-            var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId)?
-                .ToList() ?? new List<CharacterRelationDto>();
-            if (relations.Any(s =>
-                (s.RelatedCharacterId == blacklistRequest.BlInsPacket?.CharacterId) &&
-                (s.RelationType != CharacterRelationType.Blocked)))
-            {
-                return LanguageKey.CANT_BLOCK_FRIEND;
-            }
-
-            if (relations.Any(s =>
-                (s.RelatedCharacterId == blacklistRequest.BlInsPacket?.CharacterId) &&
-                (s.RelationType == CharacterRelationType.Blocked)))
-            {
-                return LanguageKey.ALREADY_BLACKLISTED;
-            }
-
-            var data = new CharacterRelationDto
-            {
-                CharacterId = character.Item2.ConnectedCharacter!.Id,
-                RelatedCharacterId = targetCharacter.Item2.ConnectedCharacter!.Id,
-                RelationType = CharacterRelationType.Blocked
-            };
-
-            await _characterRelationDao.TryInsertOrUpdateAsync(data).ConfigureAwait(false);
-            return LanguageKey.BLACKLIST_ADDED;
-
-        }
+        public Task<LanguageKey> AddBlacklistAsync([FromBody] BlacklistRequest blacklistRequest) => _blacklistService.BlacklistPlayerAsync(blacklistRequest);
 
         [HttpGet]
-        public async Task<List<CharacterRelationStatus>> GetBlacklistedAsync(long id)
-        {
-            var charList = new List<CharacterRelationStatus>();
-            var list = _characterRelationDao
-                .Where(s => (s.CharacterId == id) && (s.RelationType == CharacterRelationType.Blocked));
-            if (list == null)
-            {
-                return charList;
-            }
-            foreach (var rel in list)
-            {
-                charList.Add(new CharacterRelationStatus
-                {
-                    CharacterName = (await _characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId).ConfigureAwait(false))?.Name ?? "",
-                    CharacterId = rel.RelatedCharacterId,
-                    IsConnected = (await _connectedAccountHttpClient.GetCharacterAsync(rel.RelatedCharacterId, null).ConfigureAwait(false)).Item1 != null,
-                    RelationType = rel.RelationType,
-                    CharacterRelationId = rel.CharacterRelationId
-                });
-            }
+        public Task<List<CharacterRelationStatus>> GetBlacklistedAsync(long id) => _blacklistService.GetBlacklistedListAsync(id);
 
-            return charList;
-        }
-
-        [HttpDelete]
-        public async Task<IActionResult> DeleteAsync(Guid id)
-        {
-            var rel = await _characterRelationDao.FirstOrDefaultAsync(s =>
-                (s.CharacterRelationId == id) && (s.RelationType == CharacterRelationType.Blocked)).ConfigureAwait(false);
-            if (rel == null)
-            {
-                return NotFound();
-            }
-            await _characterRelationDao.TryDeleteAsync(rel.CharacterRelationId).ConfigureAwait(false);
-            return Ok();
-        }
+        public async Task<IActionResult> DeleteAsync(Guid id) => await _blacklistService.UnblacklistAsync(id) ? (IActionResult)Ok() : NotFound();
     }
 }

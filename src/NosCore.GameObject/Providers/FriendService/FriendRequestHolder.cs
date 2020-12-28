@@ -17,15 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
+using System;
+using System.Collections.Concurrent;
 
-namespace NosCore.WebApi
+namespace NosCore.GameObject.Providers.FriendService
 {
-    public static class LoginServerBootstrap
+    public class FriendRequestHolder
     {
-        public static Task Main(string[] args)
-        {
-            return Task.CompletedTask;
-        }
+        public ConcurrentDictionary<Guid, Tuple<long, long>> FriendRequestCharacters { get; set; } =
+            new ConcurrentDictionary<Guid, Tuple<long, long>>();
     }
 }
