@@ -120,9 +120,10 @@ namespace NosCore.WorldServer
         }
 
         public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
-        where TDb : class where TPk : struct
+        where TDb : class
+        where TPk : struct
         {
-            containerBuilder.RegisterType<Dao<TDb, TDto, TPk>>().As<IDao<TDto, TPk>>().SingleInstance();
+            containerBuilder.RegisterType<Dao<TDb, TDto, TPk>>().As<IDao<IDto>>().As<IDao<TDto, TPk>>().SingleInstance();
             if (!isStatic)
             {
                 return;
@@ -184,75 +185,13 @@ namespace NosCore.WorldServer
 
         private static void RegisterDto(ContainerBuilder containerBuilder)
         {
-            containerBuilder.Register(c =>
-                {
-                    var dic = new Dictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>
-
-                    {
-                        {
-                            typeof(I18NActDescDto),
-                            c.Resolve<IDao<I18NActDescDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NBCardDto),
-                            c.Resolve<IDao<I18NBCardDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NCardDto),
-                            c.Resolve<IDao<I18NCardDto, int>>().LoadAll().GroupBy(x => x.Key ?? "").ToDictionary(x => x.Key,
-                                x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NItemDto),
-                            c.Resolve<IDao<I18NItemDto, int>>().LoadAll().GroupBy(x => x.Key ?? "").ToDictionary(x => x.Key,
-                                x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NMapIdDataDto),
-                            c.Resolve<IDao<I18NMapIdDataDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NMapPointDataDto),
-                            c.Resolve<IDao<I18NMapPointDataDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NNpcMonsterDto),
-                            c.Resolve<IDao<I18NNpcMonsterDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NNpcMonsterTalkDto),
-                            c.Resolve<IDao<I18NNpcMonsterTalkDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NQuestDto),
-                            c.Resolve<IDao<I18NQuestDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        },
-                        {
-                            typeof(I18NSkillDto),
-                            c.Resolve<IDao<I18NSkillDto, int>>().LoadAll().GroupBy(x => x.Key ?? "")
-                                .ToDictionary(x => x.Key,
-                                    x => x.ToList().ToDictionary(o => o.RegionType, o => (II18NDto) o))
-                        }
-                    };
-                    return dic;
-                })
-                .AsImplementedInterfaces()
-                .SingleInstance()
-                .AutoActivate();
+            containerBuilder.Register(c => c.Resolve<IEnumerable<IDao<IDto>>>().OfType<IDao<II18NDto>>().ToDictionary(
+                    x => x.GetType().GetGenericArguments()[1], y => y.LoadAll().GroupBy(x => x!.Key ?? "")
+                        .ToDictionary(x => x.Key,
+                            x => x.ToList().ToDictionary(o => o!.RegionType, o => o!))))
+            .AsImplementedInterfaces()
+            .SingleInstance()
+            .AutoActivate();
 
             var registerDatabaseObject = typeof(Startup).GetMethod(nameof(RegisterDatabaseObject));
             var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
@@ -295,6 +234,7 @@ namespace NosCore.WorldServer
             containerBuilder.Register(c => new Serializer(listofpacket))
                 .AsImplementedInterfaces()
                 .SingleInstance();
+
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
@@ -331,7 +271,6 @@ namespace NosCore.WorldServer
             });
 
             //NosCore.Controllers
-
             containerBuilder.RegisterTypes(typeof(NoS0575PacketHandler).Assembly.GetTypes()
                     .Where(type => typeof(IPacketHandler).IsAssignableFrom(type) && typeof(IWorldPacketHandler).IsAssignableFrom(type)).ToArray())
                 .AsImplementedInterfaces()
@@ -356,6 +295,7 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces()
                 .SingleInstance()
                 .PropertiesAutowired();
+
             RegisterDto(containerBuilder);
 
             containerBuilder.RegisterAssemblyTypes(typeof(Character).Assembly)
@@ -427,7 +367,6 @@ namespace NosCore.WorldServer
             containerBuilder.Populate(services);
             var container = containerBuilder.Build();
             RegisterGo(container);
-
 
             return new AutofacServiceProvider(container);
         }
