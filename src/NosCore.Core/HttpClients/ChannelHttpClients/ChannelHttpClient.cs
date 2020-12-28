@@ -19,22 +19,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Json.Patch;
-using Microsoft.IdentityModel.Tokens;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Shared.Enumerations;
 using Polly;
 using Serilog;
 using JsonSerializer = System.Text.Json.JsonSerializer;

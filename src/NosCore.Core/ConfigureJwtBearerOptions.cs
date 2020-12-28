@@ -3,9 +3,6 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NosCore.Core.Configuration;
-using NosCore.Core.Encryption;
-using NosCore.Data.Enumerations;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 

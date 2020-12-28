@@ -20,7 +20,6 @@
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Core.Encryption;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
