@@ -17,23 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
-using NosCore.Packets.ClientPackets.Drops;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
-using NosCore.GameObject.Providers.MapItemProvider;
+using NosCore.GameObject.Services.EventLoaderService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.PacketHandlers.CharacterScreen;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
@@ -67,8 +67,8 @@ namespace NosCore.Tests.PacketHandlerTests
             await _session!.SetCharacterAsync(_chara).ConfigureAwait(false);
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
-                    new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    Logger, new List<IMapInstanceEventHandler>());
+                    new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>())),
+                    Logger);
             const string name = "TestCharacter2";
             await _session!.HandlePacketsAsync(new[] { new CharRenamePacket
             {

@@ -17,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -33,7 +29,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
@@ -42,6 +38,10 @@ using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.Tests.MinilandTests
@@ -52,7 +52,7 @@ namespace NosCore.Tests.MinilandTests
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
         private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
-        private Mock<IMinilandProvider>? _minilandProvider;
+        private Mock<IMinilandService>? _minilandProvider;
         private MJoinPacketHandler? _mjoinPacketHandler;
 
         private ClientSession? _session;
@@ -67,7 +67,7 @@ namespace NosCore.Tests.MinilandTests
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _minilandProvider = new Mock<IMinilandProvider>();
+            _minilandProvider = new Mock<IMinilandService>();
             _mjoinPacketHandler = new MJoinPacketHandler(_friendHttpClient.Object, _minilandProvider.Object);
         }
 
@@ -92,7 +92,7 @@ namespace NosCore.Tests.MinilandTests
                 VisualId = _targetSession!.Character.CharacterId,
                 Type = VisualType.Player
             };
-           await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session!).ConfigureAwait(false);
+            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session!).ConfigureAwait(false);
 
             Assert.IsFalse(_session!.Character.MapInstance.Map.MapId == 20001);
         }
@@ -111,12 +111,12 @@ namespace NosCore.Tests.MinilandTests
                     new ServerConfiguration(),
                     new ConnectedAccount
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character {Id = _targetSession.Character.CharacterId}
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
                     }));
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_session!.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
-                        {ChannelId = 1, ConnectedCharacter = new Character {Id = _session!.Character.CharacterId}}));
+                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }));
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new CharacterRelationStatus
@@ -128,10 +128,10 @@ namespace NosCore.Tests.MinilandTests
                 }
             });
             _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland
-                {MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Lock});
-           await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session).ConfigureAwait(false);
+            { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Lock });
+            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session).ConfigureAwait(false);
 
-            var lastpacket = (InfoPacket?) _session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(lastpacket?.Message,
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND, _session.Account.Language));
             Assert.IsFalse(_session.Character.MapInstance.Map.MapId == 20001);
@@ -146,7 +146,7 @@ namespace NosCore.Tests.MinilandTests
                 Type = VisualType.Player
             };
             _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland
-                {MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Open});
+            { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Open });
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new CharacterRelationStatus
@@ -162,12 +162,12 @@ namespace NosCore.Tests.MinilandTests
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character {Id = _targetSession.Character.CharacterId}
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
                     }));
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_session!.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
-                        {ChannelId = 1, ConnectedCharacter = new Character {Id = _session!.Character.CharacterId}}));
+                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }));
 
             Assert.IsTrue(_session.Character.MapInstance.Map.MapId == 20001);
         }

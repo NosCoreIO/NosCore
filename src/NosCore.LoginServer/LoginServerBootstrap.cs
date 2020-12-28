@@ -17,17 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
-using NosCore.Packets;
-using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using FastExpressionCompiler;
@@ -47,6 +39,7 @@ using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -58,14 +51,21 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers.Login;
-using Serilog;
-using ILogger = Serilog.ILogger;
-using NosCore.Dao;
+using NosCore.Packets;
 using NosCore.Packets.Attributes;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
+using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using ILogger = Serilog.ILogger;
 
 namespace NosCore.LoginServer
 {
@@ -104,8 +104,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
                 .Where(t => t.Name.EndsWith("HttpClient"))
-                .AsImplementedInterfaces()
-                .PropertiesAutowired();
+                .AsImplementedInterfaces();
 
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication.HashingType switch
             {
@@ -129,7 +128,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterTypes(typeof(NoS0575PacketHandler).Assembly.GetTypes().Where(type => typeof(IPacketHandler).IsAssignableFrom(type) && typeof(ILoginPacketHandler).IsAssignableFrom(type)).ToArray())
                 .Where(t => typeof(IPacketHandler).IsAssignableFrom(t) && typeof(ILoginPacketHandler).IsAssignableFrom(t))
                 .AsImplementedInterfaces()
-                .PropertiesAutowired();
+                ;
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() == null || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) != 0) && p.IsClass && !p.IsAbstract).ToList();

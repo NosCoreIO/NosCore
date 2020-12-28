@@ -17,6 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Data.WebApi;
+using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,10 +28,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Data.WebApi;
-using NosCore.Shared.Configuration;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 {

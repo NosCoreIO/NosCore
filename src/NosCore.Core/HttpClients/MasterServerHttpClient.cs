@@ -17,15 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Core.HttpClients.ChannelHttpClients;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
 using System.Text.Json;
-using NosCore.Core.HttpClients.ChannelHttpClients;
+using System.Threading.Tasks;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NosCore.Core.HttpClients

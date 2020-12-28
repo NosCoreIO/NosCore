@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
@@ -26,6 +24,8 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.Configuration;
 using Serilog;
+using System;
+using System.Threading.Tasks;
 using ILogger = Serilog.ILogger;
 
 namespace NosCore.WorldServer

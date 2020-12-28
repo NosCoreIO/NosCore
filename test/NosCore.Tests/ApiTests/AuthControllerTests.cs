@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,6 +12,12 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Configuration;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text.Json;
+using System.Threading.Tasks;
 using TwoFactorAuthNet;
 
 namespace NosCore.Tests.ApiTests
@@ -56,7 +56,7 @@ namespace NosCore.Tests.ApiTests
                 Locale = "en-GB"
             });
 
-            _logger.Verify(o=>o.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_API_SUCCESS),
+            _logger.Verify(o => o.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_API_SUCCESS),
                 _session.Account.Name, It.IsAny<Guid>(), "en-GB"), Times.Once());
         }
 

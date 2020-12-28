@@ -17,22 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Relations;
-using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.BlackListService;
+using NosCore.GameObject.Services.BlackListService;
 using NosCore.MasterServer.Controllers;
 using NosCore.PacketHandlers.Friend;
+using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.Enumerations;
+using NosCore.Shared.Configuration;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System;
+using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
-using NosCore.Shared.Configuration;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
 {
@@ -55,11 +55,11 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 .Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
-                        {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
+                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             TestHelpers.Instance.ConnectedAccountHttpClient.Setup(s => s.GetCharacterAsync(null, _session.Character.Name))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
-                        {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
+                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
         }
 
         [TestMethod]
@@ -86,7 +86,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character {Id = targetSession.Character.CharacterId}
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId }
                     }));
             using var blacklist = new BlacklistController(new BlacklistService(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
                 TestHelpers.Instance.CharacterRelationDao, TestHelpers.Instance.CharacterDao));
@@ -104,7 +104,7 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 CharacterId = targetSession.Character.CharacterId
             };
 
-           await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session).ConfigureAwait(false);
+            await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session).ConfigureAwait(false);
             Assert.IsNotNull(
                 TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s => (_session.Character.CharacterId == s.CharacterId)
                     && (targetSession.Character.CharacterId == s.RelatedCharacterId) &&

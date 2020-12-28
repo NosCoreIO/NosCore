@@ -17,12 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Json.Patch;
-using NosCore.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -30,7 +25,12 @@ using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.HttpClients.MailHttpClient
 {

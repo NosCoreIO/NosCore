@@ -17,15 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
 using NosCore.Core.Extensions;
 using NosCore.Core.Networking;
+using NosCore.Packets.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Core.Encryption
 {
@@ -52,18 +52,18 @@ namespace NosCore.Core.Encryption
                 var strBytes = region!.GetBytes(_serializer.Serialize(packet)).AsSpan();
                 var bytesLength = strBytes.Length;
 
-                var encryptedData = new byte[bytesLength + (int) Math.Ceiling((decimal) bytesLength / 0x7E) + 1];
+                var encryptedData = new byte[bytesLength + (int)Math.Ceiling((decimal)bytesLength / 0x7E) + 1];
 
                 var j = 0;
                 for (var i = 0; i < bytesLength; i++)
                 {
                     if (i % 0x7E == 0)
                     {
-                        encryptedData[i + j] = (byte) (bytesLength - i > 0x7E ? 0x7E : bytesLength - i);
+                        encryptedData[i + j] = (byte)(bytesLength - i > 0x7E ? 0x7E : bytesLength - i);
                         j++;
                     }
 
-                    encryptedData[i + j] = (byte) ~strBytes[i];
+                    encryptedData[i + j] = (byte)~strBytes[i];
                 }
 
                 encryptedData[^1] = 0xFF;

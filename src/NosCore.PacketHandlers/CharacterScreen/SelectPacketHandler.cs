@@ -17,13 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
-using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
@@ -34,11 +27,18 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.QuestProvider;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.QuestService;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Serilog;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -47,9 +47,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
-        private readonly IItemProvider _itemProvider;
+        private readonly IItemGenerationService _itemProvider;
         private readonly ILogger _logger;
-        private readonly IMapInstanceProvider _mapInstanceProvider;
+        private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
         private readonly IDao<QuicklistEntryDto, Guid> _quickListEntriesDao;
         private readonly IDao<StaticBonusDto, long> _staticBonusDao;
         private readonly IDao<TitleDto, Guid> _titleDao;
@@ -59,15 +59,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly List<QuestDto> _quests;
 
         public SelectPacketHandler(IDao<CharacterDto, long> characterDao, ILogger logger,
-            IItemProvider itemProvider,
-            IMapInstanceProvider mapInstanceProvider, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
+            IItemGenerationService itemProvider,
+            IMapInstanceAccessorService mapInstanceAccessorService, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives)
         {
             _characterDao = characterDao;
             _logger = logger;
-            _mapInstanceProvider = mapInstanceProvider;
+            _mapInstanceAccessorService = mapInstanceAccessorService;
             _itemProvider = itemProvider;
             _itemInstanceDao = itemInstanceDao;
             _inventoryItemInstanceDao = inventoryItemInstanceDao;
@@ -92,7 +92,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 {
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHARACTER_SLOT_EMPTY), new
                     {
-                        clientSession.Account.AccountId, 
+                        clientSession.Account.AccountId,
                         packet.Slot
                     });
                     return;
@@ -100,8 +100,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 var character = characterDto.Adapt<Character>();
 
-                character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId(character.MapId);
-                character.MapInstance = _mapInstanceProvider.GetMapInstance(character.MapInstanceId)!;
+                character.MapInstanceId = _mapInstanceAccessorService.GetBaseMapInstanceIdByMapId(character.MapId);
+                character.MapInstance = _mapInstanceAccessorService.GetMapInstance(character.MapInstanceId)!;
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Direction = 2;
@@ -137,7 +137,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 clientSession.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(quests.ToDictionary(x => x.Id, x =>
                     {
                         var charquest = x.Adapt<CharacterQuest>();
-                        charquest.Quest = _quests.First(s => s.QuestId == charquest.QuestId).Adapt<GameObject.Providers.QuestProvider.Quest>();
+                        charquest.Quest = _quests.First(s => s.QuestId == charquest.QuestId).Adapt<GameObject.Services.QuestService.Quest>();
                         charquest.Quest.QuestObjectives =
                             _questObjectives.Where(s => s.QuestId == charquest.QuestId).ToList();
                         return charquest;

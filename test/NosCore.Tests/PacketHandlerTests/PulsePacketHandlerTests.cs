@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Movement;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Game;
+using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Tests.Helpers;
+using System.Threading.Tasks;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

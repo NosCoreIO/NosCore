@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Packets.ClientPackets.Inventory;
 using System;
 using System.Threading.Tasks;
-using NosCore.GameObject;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 
 namespace NosCore.Tests.ItemHandlerTests
 {

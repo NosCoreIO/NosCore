@@ -17,16 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Auction;
-using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Core;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Auction;
+using NosCore.Packets.ServerPackets.Inventory;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
@@ -51,14 +51,14 @@ namespace NosCore.PacketHandlers.Bazaar
                 int amount = bz.BazaarItem.Amount;
                 var isNosbazar = bz.BazaarItem.MedalUsed;
                 var price = bz.BazaarItem.Price;
-                var minutesLeft = (long) (bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration) - SystemTime.Now())
+                var minutesLeft = (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration) - SystemTime.Now())
                     .TotalMinutes;
                 var status = minutesLeft >= 0 ? soldedAmount < amount ? BazaarStatusType.OnSale
                     : BazaarStatusType.Solded : BazaarStatusType.DelayExpired;
                 if (status == BazaarStatusType.DelayExpired)
                 {
                     minutesLeft =
-                        (long) (bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration).AddDays(isNosbazar ? 30 : 7) -
+                        (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration).AddDays(isNosbazar ? 30 : 7) -
                             SystemTime.Now()).TotalMinutes;
                 }
 

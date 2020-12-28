@@ -17,30 +17,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.NRunProvider;
+using NosCore.GameObject.Services.NRunService;
+using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using Serilog;
+using System;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
 {
     public class NrunPacketHandler : PacketHandler<NrunPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        private readonly INrunProvider _nRunProvider;
+        private readonly INrunService _nRunRunnerService;
 
-        public NrunPacketHandler(ILogger logger, INrunProvider nRunProvider)
+        public NrunPacketHandler(ILogger logger, INrunService nRunRunnerService)
         {
             _logger = logger;
-            _nRunProvider = nRunProvider;
+            _nRunRunnerService = nRunRunnerService;
         }
 
         public override async Task ExecuteAsync(NrunPacket nRunPacket, ClientSession clientSession)
@@ -72,7 +72,7 @@ namespace NosCore.PacketHandlers.Shops
                 return;
             }
 
-            await _nRunProvider.NRunLaunchAsync(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity!, nRunPacket)).ConfigureAwait(false);
+            await _nRunRunnerService.NRunLaunchAsync(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity!, nRunPacket)).ConfigureAwait(false);
         }
     }
 }

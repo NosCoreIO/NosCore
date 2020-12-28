@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.GameObject.Services.InventoryService;
 using System.Collections.Concurrent;
-using NosCore.GameObject.Providers.InventoryService;
 
 namespace NosCore.GameObject
 {

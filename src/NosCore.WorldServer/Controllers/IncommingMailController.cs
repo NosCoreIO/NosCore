@@ -17,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Threading.Tasks;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Parcel;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Core.I18N;
@@ -28,7 +24,11 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Shared.Enumerations;
+using System;
+using System.Threading.Tasks;
 
 namespace NosCore.WorldServer.Controllers
 {
@@ -58,7 +58,7 @@ namespace NosCore.WorldServer.Controllers
                         data.ItemInstance.Amount), SayColorType.Green)).ConfigureAwait(false);
             }
 
-            await session.GenerateMailAsync(new[] {data}).ConfigureAwait(false);
+            await session.GenerateMailAsync(new[] { data }).ConfigureAwait(false);
             return Ok();
         }
 

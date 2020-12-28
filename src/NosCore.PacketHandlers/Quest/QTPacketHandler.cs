@@ -1,20 +1,20 @@
-﻿using System;
+﻿using NosCore.GameObject;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.QuestService;
+using NosCore.Packets.ClientPackets.Quest;
+using NosCore.Packets.Enumerations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.QuestProvider;
-using NosCore.Packets.ClientPackets.Quest;
-using NosCore.Packets.Enumerations;
 
 namespace NosCore.PacketHandlers.Quest
 {
     public class QtPacketHandler : PacketHandler<QtPacket>, IWorldPacketHandler
     {
-        private readonly IQuestProvider _questProvider;
+        private readonly IQuestService _questProvider;
 
-        public QtPacketHandler(IQuestProvider questProvider)
+        public QtPacketHandler(IQuestService questProvider)
         {
             _questProvider = questProvider;
         }

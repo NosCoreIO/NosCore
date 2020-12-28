@@ -17,14 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Mapster;
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Data.WebApi;
 using System;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Mapster;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Data.WebApi;
 
 namespace NosCore.Core.HttpClients.AuthHttpClients
 {

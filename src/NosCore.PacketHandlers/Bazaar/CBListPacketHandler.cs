@@ -17,17 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Packets.ServerPackets.Auction;
-using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Core;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.ServerPackets.Auction;
+using NosCore.Packets.ServerPackets.Inventory;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using static NosCore.Packets.ServerPackets.Auction.RcbListPacket;
 
 namespace NosCore.PacketHandlers.Bazaar

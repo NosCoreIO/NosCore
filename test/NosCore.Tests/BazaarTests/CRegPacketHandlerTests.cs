@@ -17,13 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.I18N;
@@ -39,13 +32,21 @@ using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.EventLoaderService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.PacketHandlers.Bazaar;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -58,7 +59,7 @@ namespace NosCore.Tests.BazaarTests
         private CRegPacketHandler? _cregPacketHandler;
         private Mock<IDao<InventoryItemInstanceDto, Guid>>? _inventoryItemInstanceDao;
         private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
-        private ItemProvider? _itemProvider;
+        private ItemGenerationService? _itemProvider;
         private ClientSession? _session;
         private readonly ILogger _logger = new Mock<ILogger>().Object;
 
@@ -82,8 +83,8 @@ namespace NosCore.Tests.BazaarTests
                 new Item {Type = NoscorePocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist},
                 new Item {Type = NoscorePocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
-            _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger);
+            _itemProvider = new ItemGenerationService(items,
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger);
             _cregPacketHandler = new CRegPacketHandler(TestHelpers.Instance.WorldConfiguration,
                 _bazaarHttpClient.Object, _itemInstanceDao.Object, _inventoryItemInstanceDao.Object);
             _itemInstanceDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))

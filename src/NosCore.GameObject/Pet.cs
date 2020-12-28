@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Shared.Enumerations;
+using System;
 
 namespace NosCore.GameObject
 {

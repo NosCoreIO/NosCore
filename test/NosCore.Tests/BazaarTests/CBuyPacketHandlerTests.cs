@@ -17,12 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Packets.ServerPackets.Chats;
-using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.I18N;
@@ -34,13 +28,19 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.PacketHandlers.Bazaar;
+using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -51,7 +51,7 @@ namespace NosCore.Tests.BazaarTests
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CBuyPacketHandler? _cbuyPacketHandler;
         private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
-        private Mock<IItemProvider>? _itemProvider;
+        private Mock<IItemGenerationService>? _itemProvider;
         private ClientSession? _session;
 
         [TestInitialize]
@@ -62,7 +62,7 @@ namespace NosCore.Tests.BazaarTests
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
             _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
-            _itemProvider = new Mock<IItemProvider>();
+            _itemProvider = new Mock<IItemGenerationService>();
             _cbuyPacketHandler = new CBuyPacketHandler(_bazaarHttpClient.Object, _itemProvider.Object, Logger,
                 _itemInstanceDao.Object);
 

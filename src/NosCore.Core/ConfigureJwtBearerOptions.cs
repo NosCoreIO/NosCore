@@ -1,10 +1,10 @@
-﻿using System;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
+using System;
+using System.Text;
 
 namespace NosCore.Core
 {

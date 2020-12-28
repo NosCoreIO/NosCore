@@ -1,14 +1,14 @@
-﻿using System;
+﻿using FastMember;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
+using Serilog;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FastMember;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
-using Serilog;
 
 namespace NosCore.Parser.Parsers.Generic
 {

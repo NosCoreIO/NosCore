@@ -17,13 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Mapster;
-using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
-using NosCore.Packets.ClientPackets.Drops;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.HpService;
@@ -34,13 +28,19 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
-using NosCore.GameObject.Providers.MapItemProvider;
+using NosCore.GameObject.Services.EventLoaderService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.PacketHandlers.CharacterScreen;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Tests.Helpers;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
@@ -57,8 +57,8 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _charNewPacketHandler =
-                new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.MinilandDao, new Mock<IItemProvider>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
-                    new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(),  TestHelpers.Instance.WorldConfiguration);
+                new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.MinilandDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
+                    new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), TestHelpers.Instance.WorldConfiguration);
             _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { _charNewPacketHandler }).ConfigureAwait(false);
             _chara = _session.Character;
             TypeAdapterConfig<CharacterDto, GameObject.Character>.NewConfig().ConstructUsing(src => _chara);
@@ -71,8 +71,8 @@ namespace NosCore.Tests.PacketHandlerTests
             await _session!.SetCharacterAsync(_chara).ConfigureAwait(false);
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
-                    new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()),
-                    Logger, new List<IMapInstanceEventHandler>());
+                    new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>())),
+                    Logger);
             const string name = "TestCharacter";
             await _session!.HandlePacketsAsync(new[] {new CharNewPacket
             {

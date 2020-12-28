@@ -17,16 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using NosCore.Packets.Attributes;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.Interfaces;
-using NosCore.Packets.ServerPackets.Map;
 using DotNetty.Transport.Channels;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
@@ -44,14 +34,25 @@ using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Providers.ExchangeProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MinilandService;
+using NosCore.Packets.Attributes;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using NosCore.Packets.ClientPackets.UI;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Map;
 using NosCore.Shared.Enumerations;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
@@ -60,13 +61,14 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic =
             new Dictionary<Type, PacketHeaderAttribute>();
 
-        private readonly IExchangeProvider _exchangeProvider = null!;
+        private readonly IExchangeService _exchangeProvider = null!;
         private readonly IFriendHttpClient _friendHttpClient;
         private readonly SemaphoreSlim _handlingPacketLock = new SemaphoreSlim(1, 1);
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
-        private readonly IMapInstanceProvider _mapInstanceProvider = null!;
-        private readonly IMinilandProvider _minilandProvider = null!;
+        private readonly IMapInstanceAccessorService _mapInstanceAccessorService = null!;
+        private readonly IMapInstanceGeneratorService _mapInstanceGeneratorService = null!;
+        private readonly IMinilandService _minilandProvider = null!;
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
@@ -98,16 +100,17 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
         }
 
-        public ClientSession(IOptions<WorldConfiguration> configuration, IMapInstanceProvider? mapInstanceProvider,
-            IExchangeProvider? exchangeProvider, ILogger logger,
+        public ClientSession(IOptions<WorldConfiguration> configuration, IMapInstanceAccessorService mapInstanceAccessorService,
+            IExchangeService? exchangeService, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
-            IMinilandProvider? minilandProvider) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
+            IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
         {
-            _mapInstanceProvider = mapInstanceProvider!;
-            _exchangeProvider = exchangeProvider!;
+            _mapInstanceAccessorService = mapInstanceAccessorService;
+            _exchangeProvider = exchangeService!;
             _minilandProvider = minilandProvider!;
             _isWorldClient = true;
+            _mapInstanceGeneratorService = mapInstanceGeneratorService;
         }
 
         public bool GameStarted { get; set; }
@@ -157,7 +160,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
 
             Character.Session = this;
-            return _minilandProvider.InitializeAsync(character);
+            return _minilandProvider.InitializeAsync(character, _mapInstanceGeneratorService);
         }
 
 #pragma warning disable VSTHRD100 // Avoid async void methods
@@ -216,7 +219,11 @@ namespace NosCore.GameObject.Networking.ClientSession
                     await Character.MapInstance.SendPacketAsync(Character.GenerateOut()).ConfigureAwait(false);
                     await Character.SaveAsync().ConfigureAwait(false);
 
-                    await _minilandProvider.DeleteMinilandAsync(Character.CharacterId).ConfigureAwait(false);
+                    var minilandId = await _minilandProvider.DeleteMinilandAsync(Character.CharacterId).ConfigureAwait(false);
+                    if (minilandId != null)
+                    {
+                        _mapInstanceGeneratorService.RemoveMap((Guid)minilandId);
+                    }
                 }
 
                 Broadcaster.Instance.UnregisterSession(this);
@@ -242,12 +249,12 @@ namespace NosCore.GameObject.Networking.ClientSession
 
             if (mapId != null)
             {
-                Character.MapInstanceId = _mapInstanceProvider.GetBaseMapInstanceIdByMapId((short)mapId);
+                Character.MapInstanceId = _mapInstanceAccessorService.GetBaseMapInstanceIdByMapId((short)mapId);
             }
 
             try
             {
-                _mapInstanceProvider.GetMapInstance(Character.MapInstanceId);
+                _mapInstanceAccessorService.GetMapInstance(Character.MapInstanceId);
             }
             catch
             {
@@ -291,7 +298,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 Character.MapInstanceId = mapInstanceId;
-                Character.MapInstance = _mapInstanceProvider.GetMapInstance(mapInstanceId)!;
+                Character.MapInstance = _mapInstanceAccessorService.GetMapInstance(mapInstanceId)!;
 
                 if (Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
@@ -375,7 +382,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.MapInstance.Sessions.Add(Channel);
                 }
 
-                Character.MapInstance.Requests[MapInstanceEventType.Entrance]
+                Character.MapInstance.Requests[typeof(IMapInstanceEntranceEventHandler)]?
                     .OnNext(new RequestData<MapInstance>(Character.Session, Character.MapInstance));
 
                 Character.IsChangingMapInstance = false;

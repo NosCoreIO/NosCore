@@ -17,19 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.UI;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.GuriProvider;
+using NosCore.GameObject.Services.GuriRunnerService;
+using NosCore.Packets.ClientPackets.UI;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Game
 {
     public class GuriPacketHandler : PacketHandler<GuriPacket>, IWorldPacketHandler
     {
-        private readonly IGuriProvider _guriProvider;
+        private readonly IGuriRunnerService _guriProvider;
 
-        public GuriPacketHandler(IGuriProvider guriProvider)
+        public GuriPacketHandler(IGuriRunnerService guriProvider)
         {
             _guriProvider = guriProvider;
         }

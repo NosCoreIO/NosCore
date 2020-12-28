@@ -17,16 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
-using NosCore.Packets.Interfaces;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using FastExpressionCompiler;
@@ -54,38 +47,45 @@ using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.DataAttributes;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
 using NosCore.GameObject;
-using NosCore.GameObject.Event;
+using NosCore.GameObject.Holders;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ExchangeProvider;
-using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Services.EventLoaderService;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.PacketHandlers.Login;
-using NosCore.WorldServer.Controllers;
-using Character = NosCore.GameObject.Character;
-using Deserializer = NosCore.Packets.Deserializer;
-using ILogger = Serilog.ILogger;
-using Serializer = NosCore.Packets.Serializer;
-using NosCore.Dao;
-using NosCore.Data.Dto;
 using NosCore.Packets.Attributes;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
-using ItemInstance = NosCore.Database.Entities.ItemInstance;
-using NosCore.Shared.I18N;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
+using NosCore.WorldServer.Controllers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using Character = NosCore.GameObject.Character;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
+using Deserializer = NosCore.Packets.Deserializer;
+using ILogger = Serilog.ILogger;
+using ItemInstance = NosCore.Database.Entities.ItemInstance;
+using Serializer = NosCore.Packets.Serializer;
 
 namespace NosCore.WorldServer
 {
@@ -208,7 +208,7 @@ namespace NosCore.WorldServer
         private void InitializeContainer(ContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
-            containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces().PropertiesAutowired();
+            containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() == null
                     || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) == 0) && p.IsClass && !p.IsAbstract).ToList();
@@ -228,8 +228,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
                 .Where(t => t.Name.EndsWith("HttpClient"))
-                .AsImplementedInterfaces()
-                .PropertiesAutowired();
+                .AsImplementedInterfaces();
 
             containerBuilder.Register(c =>
             {
@@ -259,40 +258,37 @@ namespace NosCore.WorldServer
             //NosCore.Controllers
             containerBuilder.RegisterTypes(typeof(NoS0575PacketHandler).Assembly.GetTypes()
                     .Where(type => typeof(IPacketHandler).IsAssignableFrom(type) && typeof(IWorldPacketHandler).IsAssignableFrom(type)).ToArray())
-                .AsImplementedInterfaces()
-                .PropertiesAutowired();
+                .AsImplementedInterfaces();
 
             //NosCore.Core
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
-            containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
+            containerBuilder.RegisterType<AuthController>();
 
             //NosCore.GameObject
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<OctileDistanceHeuristic>().As<IHeuristic>();
             containerBuilder.RegisterType<NetworkManager>();
+            containerBuilder.RegisterType<Clock>();
+
             containerBuilder.RegisterType<PipelineFactory>();
+
             containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
-                .AsImplementedInterfaces()
-                .PropertiesAutowired();
-            containerBuilder.RegisterAssemblyTypes(typeof(IExchangeProvider).Assembly)
-                .Where(t => t.Name.EndsWith("Provider"))
-                .AsImplementedInterfaces()
-                .SingleInstance()
-                .PropertiesAutowired();
+                .AsImplementedInterfaces();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(MapInstanceHolder).Assembly)
+                .Where(t => t.Name.EndsWith("Holder"))
+                .SingleInstance();
 
             RegisterDto(containerBuilder);
 
             containerBuilder.RegisterAssemblyTypes(typeof(Character).Assembly)
                 .Where(t => typeof(IDto).IsAssignableFrom(t))
-                .AsSelf()
-                .PropertiesAutowired();
+                .AsSelf();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(IGlobalEvent).Assembly)
-                .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
-                .SingleInstance()
-                .AsImplementedInterfaces();
+            containerBuilder
+                .RegisterGeneric(typeof(EventLoaderService<,,>));
 
             containerBuilder
                 .RegisterAssemblyTypes(typeof(IEventHandler<,>).Assembly)

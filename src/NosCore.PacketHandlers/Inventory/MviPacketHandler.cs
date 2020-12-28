@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Inventory;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Inventory
         public override async Task ExecuteAsync(MviPacket mviPacket, ClientSession clientSession)
         {
             // actually move the item from source to destination
-            clientSession.Character.InventoryService.TryMoveItem((NoscorePocketType) mviPacket.InventoryType, mviPacket.Slot,
+            clientSession.Character.InventoryService.TryMoveItem((NoscorePocketType)mviPacket.InventoryType, mviPacket.Slot,
                 mviPacket.Amount,
                 mviPacket.DestinationSlot, out var previousInventory, out var newInventory);
             await clientSession.SendPacketAsync(

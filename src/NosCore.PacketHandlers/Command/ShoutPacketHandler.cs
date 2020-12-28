@@ -17,12 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.Interfaces;
-using NosCore.Packets.ServerPackets.Chats;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
@@ -31,7 +25,13 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Command
 
             var sayPostedPacket = new PostedPacket
             {
-                Packet = _packetSerializer.Serialize(new[] {sayPacket}),
+                Packet = _packetSerializer.Serialize(new[] { sayPacket }),
                 SenderCharacter = new Character
                 {
                     Name = session.Character.Name,
@@ -80,11 +80,11 @@ namespace NosCore.PacketHandlers.Command
 
             var msgPostedPacket = new PostedPacket
             {
-                Packet = _packetSerializer.Serialize(new[] {msgiPacket}),
+                Packet = _packetSerializer.Serialize(new[] { msgiPacket }),
                 ReceiverType = ReceiverType.All
             };
 
-            await _packetHttpClient.BroadcastPacketsAsync(new List<PostedPacket>(new[] {sayPostedPacket, msgPostedPacket})).ConfigureAwait(false);
+            await _packetHttpClient.BroadcastPacketsAsync(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket })).ConfigureAwait(false);
         }
     }
 }

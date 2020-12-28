@@ -17,10 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Visibility;
-using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -40,11 +40,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Direction = visualEntity.Direction,
                 InNonPlayerSubPacket = new InNonPlayerSubPacket
                 {
-                    Dialog = visualEntity is MapNpc npc ? npc.Dialog ?? 0 : (short) 0,
+                    Dialog = visualEntity is MapNpc npc ? npc.Dialog ?? 0 : (short)0,
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        Mp = (int) (visualEntity.Mp / (float) (visualEntity.NpcMonster?.MaxMp ?? 1) * 100),
-                        Hp = (int) (visualEntity.Hp / (float) (visualEntity.NpcMonster?.MaxHp ?? 1) * 100)
+                        Mp = (int)(visualEntity.Mp / (float)(visualEntity.NpcMonster?.MaxMp ?? 1) * 100),
+                        Hp = (int)(visualEntity.Hp / (float)(visualEntity.NpcMonster?.MaxHp ?? 1) * 100)
                     },
                     IsSitting = visualEntity.IsSitting,
                     SpawnEffect = SpawnEffectType.NoEffect,

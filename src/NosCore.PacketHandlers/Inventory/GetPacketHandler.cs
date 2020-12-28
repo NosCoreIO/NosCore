@@ -17,20 +17,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Drops;
-using NosCore.Packets.Enumerations;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MapItemProvider;
+using NosCore.GameObject.Services.MapItemGenerationService;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.Enumerations;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using Serilog;
+using System;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -85,7 +85,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            mapItem.Requests!.OnNext(new RequestData<Tuple<MapItem, GetPacket>>(clientSession,
+            mapItem.Requests[typeof(IGetMapItemEventHandler)].OnNext(new RequestData<Tuple<MapItem, GetPacket>>(clientSession,
                 new Tuple<MapItem, GetPacket>(mapItem, getPacket)));
 
             await Task.WhenAll(mapItem.HandlerTasks).ConfigureAwait(false);

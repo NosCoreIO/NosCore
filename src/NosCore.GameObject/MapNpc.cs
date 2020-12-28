@@ -17,37 +17,41 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Threading.Tasks;
 using Mapster;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.NRunService;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using Serilog;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject
 {
     public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity
     {
-        private readonly IItemProvider? _itemProvider;
+        private readonly IItemGenerationService? _itemProvider;
         private readonly ILogger _logger;
         private readonly IHeuristic _distanceCalculator;
         public NpcMonsterDto NpcMonster { get; private set; } = null!;
-        public MapNpc(IItemProvider? itemProvider, ILogger logger, IHeuristic distanceCalculator)
+        public MapNpc(IItemGenerationService? itemProvider, ILogger logger, IHeuristic distanceCalculator)
         {
             _itemProvider = itemProvider;
             _logger = logger;
-            Requests = new Subject<RequestData>();
+            Requests = new Dictionary<Type, Subject<RequestData>>()
+            {
+                [typeof(INrunEventHandler)] = new Subject<RequestData>()
+            };
             _distanceCalculator = distanceCalculator;
         }
 
@@ -67,7 +71,7 @@ namespace NosCore.GameObject
             {
                 return ShowDialogAsync(request);
             }
-            Requests?.Select(RequestExecAsync).Subscribe();
+            Requests[typeof(INrunEventHandler)]?.Select(RequestExecAsync).Subscribe();
             var shopObj = shopDto;
             if (shopObj == null)
             {
@@ -118,7 +122,7 @@ namespace NosCore.GameObject
         public byte HeroLevel { get; set; }
         public Shop? Shop { get; private set; }
 
-        public Subject<RequestData>? Requests { get; set; }
+        public Dictionary<Type, Subject<RequestData>> Requests { get; set; }
 
         private Task ShowDialogAsync(RequestData requestData)
         {

@@ -17,9 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
-using NosCore.Packets.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.Interfaces;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject
 {
@@ -47,7 +47,7 @@ namespace NosCore.GameObject
 
         public Task ExecuteAsync(IPacket packet, ClientSession clientSession)
         {
-            return ExecuteAsync((TPacket) packet, clientSession);
+            return ExecuteAsync((TPacket)packet, clientSession);
         }
     }
 }

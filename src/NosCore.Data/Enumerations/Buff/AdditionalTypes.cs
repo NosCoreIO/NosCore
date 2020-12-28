@@ -1059,8 +1059,8 @@ namespace NosCore.Data.Enumerations.Buff
             ZhephyrMagicalArrow = 51
         }
 
-        public enum Type90 : byte 
-        { 
+        public enum Type90 : byte
+        {
             DamageVsSealedAndReduceFireDamage = 00, // Yeah... SubType 0 and double Effect o_O
             //SubType 1 didn't exist
             IncreaseDamageVsSealed = 21,

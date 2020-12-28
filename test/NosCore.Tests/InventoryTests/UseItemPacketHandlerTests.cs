@@ -17,22 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Inventory;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Helpers;
+using System.Linq;
+using System.Threading.Tasks;
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -41,7 +41,7 @@ namespace NosCore.Tests.InventoryTests
     [TestClass]
     public class UseItemPacketHandlerTests
     {
-        private IItemProvider? _item;
+        private IItemGenerationService? _item;
         private ClientSession? _session;
         private UseItemPacketHandler? _useItemPacketHandler;
 
@@ -65,7 +65,7 @@ namespace NosCore.Tests.InventoryTests
         public async Task Test_BindingAsync()
         {
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
-            await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket {Slot = 0, Type = PocketType.Equipment, Mode = 1},
+            await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket { Slot = 0, Type = PocketType.Equipment, Mode = 1 },
                 _session).ConfigureAwait(false);
 
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
@@ -83,7 +83,7 @@ namespace NosCore.Tests.InventoryTests
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
-                Type = (PocketType) item.Value.Type,
+                Type = (PocketType)item.Value.Type,
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
@@ -101,12 +101,12 @@ namespace NosCore.Tests.InventoryTests
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
-                Type = (PocketType) item.Value.Type,
+                Type = (PocketType)item.Value.Type,
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
             }, _session).ConfigureAwait(false);
-            var packet = (MsgPacket?) _session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((_session.Character.SpAdditionPoint == TestHelpers.Instance.WorldConfiguration.Value.MaxAdditionalSpPoints) &&
                 (packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
                     _session.Account.Language)));
@@ -122,7 +122,7 @@ namespace NosCore.Tests.InventoryTests
             {
                 VisualType = VisualType.Player,
                 VisualId = 1,
-                Type = (PocketType) item.Value.Type,
+                Type = (PocketType)item.Value.Type,
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0

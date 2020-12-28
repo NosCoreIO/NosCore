@@ -17,13 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Bazaar;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -32,10 +25,17 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Bazaar;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
@@ -43,10 +43,10 @@ namespace NosCore.PacketHandlers.Bazaar
     {
         private readonly IBazaarHttpClient _bazaarHttpClient;
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
-        private readonly IItemProvider _itemProvider;
+        private readonly IItemGenerationService _itemProvider;
         private readonly ILogger _logger;
 
-        public CBuyPacketHandler(IBazaarHttpClient bazaarHttpClient, IItemProvider itemProvider, ILogger logger,
+        public CBuyPacketHandler(IBazaarHttpClient bazaarHttpClient, IItemGenerationService itemProvider, ILogger logger,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao)
         {
             _bazaarHttpClient = bazaarHttpClient;

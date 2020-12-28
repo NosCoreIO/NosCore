@@ -17,12 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
@@ -32,10 +28,14 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using Serilog;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -43,13 +43,13 @@ namespace NosCore.PacketHandlers.Command
 {
     public class CreateItemPackettHandler : PacketHandler<CreateItemPacket>, IWorldPacketHandler
     {
-        private readonly IItemProvider _itemProvider;
+        private readonly IItemGenerationService _itemProvider;
         private readonly List<ItemDto> _items;
         private readonly ILogger _logger;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
         public CreateItemPackettHandler(ILogger logger, List<ItemDto> items, IOptions<WorldConfiguration> worldConfiguration,
-            IItemProvider itemProvider)
+            IItemGenerationService itemProvider)
         {
             _logger = logger;
             _items = items;
@@ -116,7 +116,7 @@ namespace NosCore.PacketHandlers.Command
                     {
                         upgrade = (byte)createItemPacket.DesignOrAmount.Value;
                     }
-                    else if(iteminfo.EquipmentSlot == EquipmentType.Armor || iteminfo.EquipmentSlot == EquipmentType.MainWeapon || iteminfo.EquipmentSlot == EquipmentType.SecondaryWeapon)
+                    else if (iteminfo.EquipmentSlot == EquipmentType.Armor || iteminfo.EquipmentSlot == EquipmentType.MainWeapon || iteminfo.EquipmentSlot == EquipmentType.SecondaryWeapon)
                     {
                         rare = (sbyte)createItemPacket.DesignOrAmount.Value;
                     }

@@ -17,17 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using Serilog;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -94,7 +94,7 @@ namespace NosCore.PacketHandlers.Inventory
                     }
 
                     var item = clientSession.Character.InventoryService.DeleteFromTypeAndSlot(
-                        (NoscorePocketType) bIPacket.PocketType, bIPacket.Slot);
+                        (NoscorePocketType)bIPacket.PocketType, bIPacket.Slot);
                     await clientSession.SendPacketAsync(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot)).ConfigureAwait(false);
                     break;
                 default:

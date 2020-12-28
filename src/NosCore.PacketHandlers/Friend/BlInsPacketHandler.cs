@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Relations;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
@@ -27,8 +24,11 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using Serilog;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Friend
         public override async Task ExecuteAsync(BlInsPacket blinsPacket, ClientSession session)
         {
             var result = await _blacklistHttpClient.AddToBlacklistAsync(new BlacklistRequest
-                {CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket}).ConfigureAwait(false);
+            { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket }).ConfigureAwait(false);
             switch (result)
             {
                 case LanguageKey.CANT_BLOCK_FRIEND:

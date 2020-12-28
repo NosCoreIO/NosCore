@@ -17,25 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Movement;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.PacketHandlers.Movement;
+using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Tests.Helpers;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NosCore.Tests.PacketHandlerTests
 {
     [TestClass]
     public class PreqPacketHandlerTests
     {
-        private Mock<IMinilandProvider>? _minilandProvider;
+        private Mock<IMinilandService>? _minilandProvider;
         private PreqPacketHandler? _preqPacketHandler;
         private ClientSession? _session;
 
@@ -44,20 +44,20 @@ namespace NosCore.Tests.PacketHandlerTests
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _minilandProvider = new Mock<IMinilandProvider>();
+            _minilandProvider = new Mock<IMinilandService>();
             _minilandProvider.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<Portal>());
             _preqPacketHandler =
-                new PreqPacketHandler(TestHelpers.Instance.MapInstanceProvider, _minilandProvider.Object, TestHelpers.Instance.DistanceCalculator);
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetBaseMapById(0);
+                new PreqPacketHandler(TestHelpers.Instance.MapInstanceAccessorService, _minilandProvider.Object, TestHelpers.Instance.DistanceCalculator);
+            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0);
 
             _session.Character.MapInstance.Portals = new List<Portal>
             {
                 new Portal
                 {
                     DestinationMapId = 1,
-                    DestinationMapInstanceId = TestHelpers.Instance.MapInstanceProvider.GetBaseMapInstanceIdByMapId(1),
+                    DestinationMapInstanceId = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapInstanceIdByMapId(1),
                     DestinationX = 5, DestinationY = 5, SourceMapId = 0,
-                    SourceMapInstanceId = TestHelpers.Instance.MapInstanceProvider.GetBaseMapInstanceIdByMapId(0),
+                    SourceMapInstanceId = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapInstanceIdByMapId(0),
                     SourceX = 0, SourceY = 0
                 }
             };

@@ -17,10 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using NosCore.Packets.ClientPackets.Relations;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
+using NosCore.Core.HttpClients.ChannelHttpClients;
+using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
@@ -29,9 +27,11 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
+using System;
 using System.Threading.Tasks;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 
 namespace NosCore.PacketHandlers.Friend
 {
@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Friend
             if (targetCharacter != null)
             {
                 var result = await _friendHttpClient.AddFriendAsync(new FriendShipRequest
-                    {CharacterId = session.Character.CharacterId, FinsPacket = finsPacket}).ConfigureAwait(false);
+                { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket }).ConfigureAwait(false);
 
                 switch (result)
                 {
@@ -104,9 +104,9 @@ namespace NosCore.PacketHandlers.Friend
                                     session.Character.AccountLanguage),
                                 session.Character.Name),
                             YesPacket = new FinsPacket
-                                {Type = FinsPacketType.Accepted, CharacterId = session.Character.VisualId},
+                            { Type = FinsPacketType.Accepted, CharacterId = session.Character.VisualId },
                             NoPacket = new FinsPacket
-                                {Type = FinsPacketType.Rejected, CharacterId = session.Character.VisualId}
+                            { Type = FinsPacketType.Rejected, CharacterId = session.Character.VisualId }
                         }).ConfigureAwait(false);
                         break;
 

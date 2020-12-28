@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.ClientPackets.Inventory;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -32,12 +32,12 @@ namespace NosCore.PacketHandlers.Inventory
         public override async Task ExecuteAsync(MvePacket mvePacket, ClientSession clientSession)
         {
             var inv = clientSession.Character.InventoryService.MoveInPocket(mvePacket.Slot,
-                (NoscorePocketType) mvePacket.InventoryType,
-                (NoscorePocketType) mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
+                (NoscorePocketType)mvePacket.InventoryType,
+                (NoscorePocketType)mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
             await clientSession.SendPacketAsync(inv.GeneratePocketChange(mvePacket.DestinationInventoryType,
                 mvePacket.DestinationSlot)).ConfigureAwait(false);
             await clientSession.SendPacketAsync(
-                ((InventoryItemInstance?) null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot)).ConfigureAwait(false);
+                ((InventoryItemInstance?)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot)).ConfigureAwait(false);
         }
     }
 }

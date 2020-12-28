@@ -17,10 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
@@ -32,9 +28,13 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using Character = NosCore.Data.WebApi.Character;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Command
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateLevel,
-                Character = new Character {Name = levelPacket.Name},
+                Character = new Character { Name = levelPacket.Name },
                 Data = levelPacket.Level
             };
 

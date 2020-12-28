@@ -17,16 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
 using Mapster;
-using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Helpers;
+using System.Threading.Tasks;
 
 namespace NosCore.Tests.PacketHandlerTests
 {

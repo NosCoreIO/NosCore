@@ -17,12 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.Encryption;
@@ -38,11 +32,17 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Enumerations;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {

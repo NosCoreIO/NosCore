@@ -17,13 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Drops;
-using NosCore.Packets.ClientPackets.Inventory;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.Interfaces;
 using DotNetty.Transport.Channels;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +34,10 @@ using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Dao;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
@@ -50,40 +46,47 @@ using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
+using NosCore.GameObject.Holders;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ExchangeProvider;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Handlers;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MapInstanceProvider.Handlers;
-using NosCore.GameObject.Providers.MapItemProvider;
-using NosCore.GameObject.Providers.MapItemProvider.Handlers;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.EventLoaderService;
+using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Handlers;
+using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MapItemGenerationService;
+using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.PacketHandlers.Friend;
 using NosCore.PacketHandlers.Inventory;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.PathFinder.Heuristic;
+using NosCore.PathFinder.Interfaces;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Character = NosCore.Database.Entities.Character;
 using InventoryItemInstance = NosCore.Database.Entities.InventoryItemInstance;
-using Item = NosCore.GameObject.Providers.ItemProvider.Item.Item;
+using Item = NosCore.GameObject.Services.ItemGenerationService.Item.Item;
+using ItemInstance = NosCore.Database.Entities.ItemInstance;
 using Map = NosCore.GameObject.Map.Map;
 using MapMonster = NosCore.Database.Entities.MapMonster;
 using MapNpc = NosCore.Database.Entities.MapNpc;
 using Miniland = NosCore.Database.Entities.Miniland;
 using Portal = NosCore.Database.Entities.Portal;
 using ShopItem = NosCore.Database.Entities.ShopItem;
-using NosCore.Dao;
-using NosCore.Dao.Interfaces;
-using NosCore.Data.Enumerations;
-using NosCore.PathFinder.Heuristic;
-using NosCore.PathFinder.Interfaces;
 
 namespace NosCore.Tests.Helpers
 {
@@ -124,7 +127,7 @@ namespace NosCore.Tests.Helpers
         public IDao<CharacterDto, long> CharacterDao { get; private set; } = null!;
         public IDao<MinilandDto, Guid> MinilandDao { get; private set; } = null!;
         public IDao<MinilandObjectDto, Guid> MinilandObjectDao { get; private set; } = null!;
-        public MapItemProvider? MapItemProvider { get; set; }
+        public IMapItemGenerationService? MapItemProvider { get; set; }
         public Guid MinilandId { get; set; } = Guid.NewGuid();
 
         public IOptions<WorldConfiguration> WorldConfiguration { get; } = Options.Create(new WorldConfiguration
@@ -159,13 +162,15 @@ namespace NosCore.Tests.Helpers
             }
         };
 
-        public MapInstanceProvider MapInstanceProvider { get; set; } = null!;
+        public MapInstanceGeneratorService MapInstanceGeneratorService { get; set; } = null!;
+
+        public MapInstanceAccessorService MapInstanceAccessorService { get; set; } = null!;
         public IHeuristic DistanceCalculator { get; set; } = new OctileDistanceHeuristic();
 
-        private async Task<MapInstanceProvider> GenerateMapInstanceProviderAsync()
+        private async Task GenerateMapInstanceProviderAsync()
         {
-            MapItemProvider = new MapItemProvider(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
-                {new DropEventHandler(), new SpChargerEventHandler(), new GoldDropEventHandler(TestHelpers.Instance.WorldConfiguration)});
+            MapItemProvider = new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
+                {new DropEventHandler(), new SpChargerEventHandler(), new GoldDropEventHandler(TestHelpers.Instance.WorldConfiguration)}));
             var map = new Map
             {
                 MapId = 0,
@@ -217,27 +222,29 @@ namespace NosCore.Tests.Helpers
             };
             var npc = new MapNpcDto();
             await _mapNpcDao.TryInsertOrUpdateAsync(npc).ConfigureAwait(false);
-
-            var instanceAccessService = new MapInstanceProvider(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
+            var holder = new MapInstanceHolder();
+            MapInstanceAccessorService = new MapInstanceAccessorService(holder);
+            var instanceGeneratorService = new MapInstanceGeneratorService(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
                 MapItemProvider,
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, _shopItemDao, _logger);
-            await instanceAccessService.InitializeAsync().ConfigureAwait(false);
-            await instanceAccessService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
-                MapInstanceType.NormalInstance, MapItemProvider, _logger, new List<IMapInstanceEventHandler>())).ConfigureAwait(false);
-            return instanceAccessService;
+                _mapMonsterDao, _portalDao, _shopItemDao, _logger, new EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()), holder, MapInstanceAccessorService);
+            await instanceGeneratorService.InitializeAsync().ConfigureAwait(false);
+            await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
+                MapInstanceType.NormalInstance, MapItemProvider, _logger)).ConfigureAwait(false);
+            MapInstanceGeneratorService = instanceGeneratorService;
         }
 
-        public IItemProvider GenerateItemProvider()
+        public IItemGenerationService GenerateItemProvider()
         {
-            return new ItemProvider(ItemList,
+            return new ItemGenerationService(ItemList, new EventLoaderService<Item,
+                Tuple<GameObject.Services.InventoryService.InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
                 new List<IEventHandler<Item,
-                    Tuple<GameObject.Providers.InventoryService.InventoryItemInstance, UseItemPacket>>>
+                    Tuple<GameObject.Services.InventoryService.InventoryItemInstance, UseItemPacket>>>
                 {
                     new SpRechargerEventHandler(WorldConfiguration),
                     new VehicleEventHandler(_logger),
                     new WearEventHandler(_logger)
-                }, _logger);
+                }), _logger);
         }
 
         public void InitDatabase()
@@ -273,37 +280,38 @@ namespace NosCore.Tests.Helpers
             var acc = new AccountDto
             { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = new Sha512Hasher().Hash("test") };
             acc = await AccountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
-            var minilandProvider = new Mock<IMinilandProvider>();
+            var minilandProvider = new Mock<IMinilandService>();
             var session = new ClientSession(WorldConfiguration,
-                MapInstanceProvider,
-                new Mock<IExchangeProvider>().Object,
+                MapInstanceAccessorService,
+                new Mock<IExchangeService>().Object,
                 _logger,
                 packetHandlers ?? new List<IPacketHandler>
                 {
-                    new CharNewPacketHandler(CharacterDao, MinilandDao, new Mock<IItemProvider>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
+                    new CharNewPacketHandler(CharacterDao, MinilandDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
                             new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), WorldConfiguration),
                     new BlInsPackettHandler(BlacklistHttpClient.Object, _logger),
                     new UseItemPacketHandler(),
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
                         ConnectedAccountHttpClient.Object),
-                    new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemProvider>().Object, MapInstanceProvider,
+                    new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                         _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
                         new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>()),
                     new CSkillPacketHandler(),
-                    new CBuyPacketHandler(new Mock<IBazaarHttpClient>().Object, new Mock<IItemProvider>().Object, _logger, _itemInstanceDao),
+                    new CBuyPacketHandler(new Mock<IBazaarHttpClient>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao),
                     new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, _itemInstanceDao, _inventoryItemInstanceDao),
-                    new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, new Mock<IItemProvider>().Object, _logger, _itemInstanceDao)
+                    new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao)
                 },
                 FriendHttpClient.Object,
                 new Mock<ISerializer>().Object,
                 PacketHttpClient.Object,
-                minilandProvider.Object)
+                minilandProvider.Object,
+                MapInstanceGeneratorService)
             {
                 SessionId = _lastId
             };
 
             var chara = new GameObject.Character(new InventoryService(ItemList, WorldConfiguration, _logger),
-                new ExchangeProvider(new Mock<IItemProvider>().Object, WorldConfiguration, _logger), new Mock<IItemProvider>().Object, CharacterDao, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, AccountDao,
+                new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestHolder()), new Mock<IItemGenerationService>().Object, CharacterDao, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, AccountDao,
                 _logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, minilandProvider.Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
                 , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration)
             {
@@ -321,7 +329,7 @@ namespace NosCore.Tests.Helpers
             await CharacterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
             session.InitializeAccount(acc);
             await session.SetCharacterAsync(chara).ConfigureAwait(false);
-            session.Character.MapInstance = MapInstanceProvider.GetBaseMapById(0);
+            session.Character.MapInstance = MapInstanceAccessorService.GetBaseMapById(0);
             session.Account = acc;
             session.RegisterChannel(new Mock<IChannel>().Object);
             Broadcaster.Instance.RegisterSession(session);
@@ -332,7 +340,7 @@ namespace NosCore.Tests.Helpers
         {
             _lazy = new Lazy<TestHelpers>(() => new TestHelpers());
             Instance.InitDatabase();
-            Instance.MapInstanceProvider = await Instance.GenerateMapInstanceProviderAsync().ConfigureAwait(false);
+            await Instance.GenerateMapInstanceProviderAsync().ConfigureAwait(false);
         }
     }
 }

@@ -17,12 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
@@ -57,17 +51,21 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
-using NosCore.GameObject.Providers.BazaarService;
-using NosCore.GameObject.Providers.FriendService;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.MailService;
+using NosCore.GameObject.Holders;
+using NosCore.GameObject.Services.BazaarService;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
-using ILogger = Serilog.ILogger;
 using NosCore.Shared.I18N;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using FriendController = NosCore.MasterServer.Controllers.FriendController;
+using ILogger = Serilog.ILogger;
 
 namespace NosCore.MasterServer
 {
@@ -175,19 +173,21 @@ namespace NosCore.MasterServer
                 };
             });
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
-            containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
+            containerBuilder.RegisterType<AuthController>();
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
-            containerBuilder.RegisterType<BazaarItemsHolder>().SingleInstance();
-            containerBuilder.RegisterType<ParcelHolder>().SingleInstance();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(FriendRequestHolder).Assembly)
+                .Where(t => t.Name.EndsWith("Holder"))
+                .SingleInstance();
+
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<IncommingMailHttpClient>().AsImplementedInterfaces();
-            containerBuilder.RegisterType<ItemProvider>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces()
-                .PropertiesAutowired();
+                ;
+
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);
             return containerBuilder;

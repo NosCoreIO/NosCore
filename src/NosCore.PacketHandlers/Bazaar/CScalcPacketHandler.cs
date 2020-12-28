@@ -17,14 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Bazaar;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -33,10 +27,16 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Bazaar;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using Serilog;
+using System;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
@@ -44,12 +44,12 @@ namespace NosCore.PacketHandlers.Bazaar
     {
         private readonly IBazaarHttpClient _bazaarHttpClient;
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
-        private readonly IItemProvider _itemProvider;
+        private readonly IItemGenerationService _itemProvider;
         private readonly ILogger _logger;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
         public CScalcPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IBazaarHttpClient bazaarHttpClient,
-            IItemProvider itemProvider, ILogger logger, IDao<IItemInstanceDto?, Guid> itemInstanceDao)
+            IItemGenerationService itemProvider, ILogger logger, IDao<IItemInstanceDto?, Guid> itemInstanceDao)
         {
             _worldConfiguration = worldConfiguration;
             _bazaarHttpClient = bazaarHttpClient;
@@ -60,11 +60,11 @@ namespace NosCore.PacketHandlers.Bazaar
 
         public override async Task ExecuteAsync(CScalcPacket packet, ClientSession clientSession)
         {
-            var bz =  await _bazaarHttpClient.GetBazaarLinkAsync(packet.BazaarId).ConfigureAwait(false);
+            var bz = await _bazaarHttpClient.GetBazaarLinkAsync(packet.BazaarId).ConfigureAwait(false);
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name))
             {
                 var soldedamount = bz.BazaarItem!.Amount - bz.ItemInstance!.Amount;
-                var taxes = bz.BazaarItem.MedalUsed ? (short) 0 : (short) (bz.BazaarItem.Price * 0.10 * soldedamount);
+                var taxes = bz.BazaarItem.MedalUsed ? (short)0 : (short)(bz.BazaarItem.Price * 0.10 * soldedamount);
                 var price = bz.BazaarItem.Price * soldedamount - taxes;
                 if (clientSession.Character.InventoryService.CanAddItem(bz.ItemInstance.ItemVNum))
                 {
@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             {
                                 Type = VisualType.Player,
                                 Price = bz.BazaarItem.Price,
-                                RemainingAmount = (short) (bz.BazaarItem.Amount - bz.ItemInstance.Amount),
+                                RemainingAmount = (short)(bz.BazaarItem.Amount - bz.ItemInstance.Amount),
                                 Amount = bz.BazaarItem.Amount,
                                 Taxes = taxes,
                                 Total = price + taxes
@@ -133,7 +133,7 @@ namespace NosCore.PacketHandlers.Bazaar
             else
             {
                 await clientSession.SendPacketAsync(new RCScalcPacket
-                    {Type = VisualType.Player, Price = 0, RemainingAmount = 0, Amount = 0, Taxes = 0, Total = 0}).ConfigureAwait(false);
+                { Type = VisualType.Player, Price = 0, RemainingAmount = 0, Amount = 0, Taxes = 0, Total = 0 }).ConfigureAwait(false);
             }
         }
     }

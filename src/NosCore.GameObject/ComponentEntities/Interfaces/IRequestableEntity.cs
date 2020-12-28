@@ -17,21 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.GameObject.Networking.ClientSession;
+using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface IRequestableEntity<T>
     {
         List<Task> HandlerTasks { get; set; }
-        Subject<RequestData<T>>? Requests { get; set; }
+
+        Dictionary<Type, Subject<RequestData<T>>> Requests { get; set; }
     }
 
     public interface IRequestableEntity
     {
-        Subject<RequestData>? Requests { get; set; }
+        Dictionary<Type, Subject<RequestData>> Requests { get; set; }
     }
 }

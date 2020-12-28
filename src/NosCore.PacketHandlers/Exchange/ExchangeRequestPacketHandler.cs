@@ -17,13 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Packets.ClientPackets.Exchanges;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Exchanges;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -31,8 +24,15 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Services.ExchangeService;
+using NosCore.Packets.ClientPackets.Exchanges;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Exchanges;
+using NosCore.Packets.ServerPackets.UI;
 using Serilog;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -41,13 +41,13 @@ namespace NosCore.PacketHandlers.Exchange
     public class ExchangeRequestPackettHandler : PacketHandler<ExchangeRequestPacket>, IWorldPacketHandler
     {
         private readonly IBlacklistHttpClient _blacklistHttpClient;
-        private readonly IExchangeProvider _exchangeProvider;
+        private readonly IExchangeService _exchangeProvider;
         private readonly ILogger _logger;
 
-        public ExchangeRequestPackettHandler(IExchangeProvider exchangeProvider, ILogger logger,
+        public ExchangeRequestPackettHandler(IExchangeService exchangeService, ILogger logger,
             IBlacklistHttpClient blacklistHttpClient)
         {
-            _exchangeProvider = exchangeProvider;
+            _exchangeProvider = exchangeService;
             _logger = logger;
             _blacklistHttpClient = blacklistHttpClient;
         }
@@ -129,9 +129,9 @@ namespace NosCore.PacketHandlers.Exchange
                     await target.SendPacketAsync(new DlgPacket
                     {
                         YesPacket = new ExchangeRequestPacket
-                            { RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId },
+                        { RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId },
                         NoPacket = new ExchangeRequestPacket
-                            { RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId },
+                        { RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId },
                         Question = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
                             clientSession.Account.Language), clientSession.Character.Name)
                     }).ConfigureAwait(false);

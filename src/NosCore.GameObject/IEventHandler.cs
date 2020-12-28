@@ -17,15 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
 using NosCore.GameObject.Networking.ClientSession;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject
 {
-    public interface IEventHandler<in T, T2>
+    public interface IEventHandler<in T, T2> : IEventHandler
     {
         bool Condition(T condition);
 
         Task ExecuteAsync(RequestData<T2> requestData);
+    }
+
+    public interface IEventHandler
+    {
     }
 }

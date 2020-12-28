@@ -17,9 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Data.Enumerations.Audit;
 using System;
 using System.ComponentModel.DataAnnotations;
-using NosCore.Data.Enumerations.Audit;
 
 namespace NosCore.Database.Entities
 {
@@ -35,9 +35,9 @@ namespace NosCore.Database.Entities
         [Required]
         [MaxLength(32)]
         public string TargetType { get; set; } = "";
-        
+
         public DateTime Time { get; set; }
-        
+
         public AuditLogType AuditLogType { get; set; }
 
         [Required]

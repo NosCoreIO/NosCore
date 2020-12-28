@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
+using System.Collections.Generic;
 
 namespace NosCore.WorldServer.Controllers
 {

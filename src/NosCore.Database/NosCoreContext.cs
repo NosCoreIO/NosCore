@@ -30,7 +30,7 @@ namespace NosCore.Database
         }
 
         public virtual DbSet<Account>? Account { get; set; }
-        
+
         public virtual DbSet<AuditLog>? AuditLog { get; set; }
 
         public virtual DbSet<Script>? Script { get; set; }
@@ -166,15 +166,15 @@ namespace NosCore.Database
                 .HasValue<BoxInstance>("BoxInstance");
 
             modelBuilder.Entity<InventoryItemInstance>()
-                .HasIndex(e => new {e.CharacterId, e.Slot, e.Type})
+                .HasIndex(e => new { e.CharacterId, e.Slot, e.Type })
                 .IsUnique();
 
             modelBuilder.Entity<MapTypeMap>()
-                .HasIndex(e => new {e.MapId, e.MapTypeId})
+                .HasIndex(e => new { e.MapId, e.MapTypeId })
                 .IsUnique();
 
             modelBuilder.Entity<Account>()
-                .HasIndex(e => new {e.Name})
+                .HasIndex(e => new { e.Name })
                 .IsUnique();
 
             modelBuilder.Entity<Script>()
@@ -182,43 +182,43 @@ namespace NosCore.Database
                 .IsUnique();
 
             modelBuilder.Entity<I18NActDesc>()
-                .HasIndex(e => new {e.Key, e.RegionType})
+                .HasIndex(e => new { e.Key, e.RegionType })
                 .IsUnique();
 
             modelBuilder.Entity<I18NBCard>()
-                .HasIndex(e => new {e.Key, e.RegionType})
+                .HasIndex(e => new { e.Key, e.RegionType })
                 .IsUnique();
 
             modelBuilder.Entity<I18NCard>()
-                .HasIndex(e => new {e.Key, e.RegionType})
+                .HasIndex(e => new { e.Key, e.RegionType })
                 .IsUnique();
 
             modelBuilder.Entity<I18NItem>()
-                .HasIndex(e => new {e.Key, e.RegionType})
+                .HasIndex(e => new { e.Key, e.RegionType })
                 .IsUnique();
 
             modelBuilder.Entity<I18NMapIdData>()
-                .HasIndex(e => new {e.Key, e.RegionType})
+                .HasIndex(e => new { e.Key, e.RegionType })
                 .IsUnique();
 
             modelBuilder.Entity<I18NMapPointData>()
-                .HasIndex(e => new {e.Key, e.RegionType})
+                .HasIndex(e => new { e.Key, e.RegionType })
                 .IsUnique();
 
             modelBuilder.Entity<I18NNpcMonster>()
-                .HasIndex(e => new {e.Key, e.RegionType})
+                .HasIndex(e => new { e.Key, e.RegionType })
                 .IsUnique();
 
             modelBuilder.Entity<I18NNpcMonsterTalk>()
-                .HasIndex(e => new {e.Key, e.RegionType})
+                .HasIndex(e => new { e.Key, e.RegionType })
                 .IsUnique();
 
             modelBuilder.Entity<I18NQuest>()
-                .HasIndex(e => new {e.Key, e.RegionType})
+                .HasIndex(e => new { e.Key, e.RegionType })
                 .IsUnique();
 
             modelBuilder.Entity<I18NSkill>()
-                .HasIndex(e => new {e.Key, e.RegionType})
+                .HasIndex(e => new { e.Key, e.RegionType })
                 .IsUnique();
 
             modelBuilder.Entity<Title>()
@@ -604,7 +604,7 @@ namespace NosCore.Database
 
             modelBuilder.Entity<QuestQuestReward>()
                 .HasOne(e => e.Quest)
-                .WithMany(e=>e.QuestQuestReward)
+                .WithMany(e => e.QuestQuestReward)
                 .HasForeignKey(e => e.QuestId)
                 .OnDelete(DeleteBehavior.Restrict);
 

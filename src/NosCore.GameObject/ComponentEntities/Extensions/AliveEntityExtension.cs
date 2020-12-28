@@ -17,11 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
+using NosCore.Core;
+using NosCore.Data.Enumerations;
+using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
@@ -32,15 +33,14 @@ using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Movement;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Shop;
-using NosCore.Core;
-using NosCore.Data.Enumerations;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Providers.InventoryService;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
