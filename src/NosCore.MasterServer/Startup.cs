@@ -57,9 +57,9 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
+using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.BazaarService;
 using NosCore.GameObject.Services.FriendService;
-using NosCore.GameObject.Services.MailService;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
@@ -176,17 +176,19 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
             containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterType<FriendRequestHolder>().SingleInstance();
-            containerBuilder.RegisterType<BazaarItemsHolder>().SingleInstance();
-            containerBuilder.RegisterType<ParcelHolder>().SingleInstance();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(FriendRequestHolder).Assembly)
+                .Where(t => t.Name.EndsWith("Holder"))
+                .SingleInstance();
+
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<IncommingMailHttpClient>().AsImplementedInterfaces();
-            containerBuilder.RegisterType<ItemProvider>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces()
                 .PropertiesAutowired();
+
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);
             return containerBuilder;

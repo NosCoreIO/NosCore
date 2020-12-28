@@ -27,6 +27,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Holders;
 using NosCore.Packets.Enumerations;
 using Serilog;
 

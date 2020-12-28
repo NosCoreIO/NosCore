@@ -24,7 +24,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Services.MapInstanceAccessService;
 using Serilog;
 
 namespace NosCore.PacketHandlers.Command
@@ -32,12 +32,12 @@ namespace NosCore.PacketHandlers.Command
     public class TeleportPacketHandler : PacketHandler<TeleportPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        private readonly IMapInstanceProvider _mapInstanceProvider;
+        private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
 
-        public TeleportPacketHandler(ILogger logger, IMapInstanceProvider mapInstanceProvider)
+        public TeleportPacketHandler(ILogger logger, IMapInstanceAccessorService mapInstanceAccessorService)
         {
             _logger = logger;
-            _mapInstanceProvider = mapInstanceProvider;
+            _mapInstanceAccessorService = mapInstanceAccessorService;
         }
 
         public override Task ExecuteAsync(TeleportPacket teleportPacket, ClientSession session)
@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Command
 
             }
 
-            var mapInstance = _mapInstanceProvider.GetBaseMapById(mapId);
+            var mapInstance = _mapInstanceAccessorService.GetBaseMapById(mapId);
 
             if (mapInstance != null)
             {

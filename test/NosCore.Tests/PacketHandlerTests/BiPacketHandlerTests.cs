@@ -26,8 +26,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Tests.Helpers;
 using Serilog;
@@ -39,7 +39,7 @@ namespace NosCore.Tests.PacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private BiPacketHandler? _biPacketHandler;
-        private IItemProvider? _item;
+        private IItemGenerationService? _item;
         private ClientSession? _session;
 
         [TestCleanup]

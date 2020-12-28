@@ -36,8 +36,8 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
@@ -51,14 +51,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IDao<QuicklistEntryDto, Guid> _quicklistEntryDao;
         private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
-        private readonly IItemProvider _itemBuilderService;
+        private readonly IItemGenerationService _itemBuilderService;
         private readonly IHpService _hpService;
         private readonly IMpService _mpService;
         private readonly WorldConfiguration _worldConfiguration;
 
         public const string Nameregex =
             @"^[\u0021-\u007E\u00A1-\u00AC\u00AE-\u00FF\u4E00-\u9FA5\u0E01-\u0E3A\u0E3F-\u0E5B\u002E]*$";
-        public CharNewPacketHandler(IDao<CharacterDto, long> characterDao, IDao<MinilandDto, Guid> minilandDao, IItemProvider itemBuilderService,
+        public CharNewPacketHandler(IDao<CharacterDto, long> characterDao, IDao<MinilandDto, Guid> minilandDao, IItemGenerationService itemBuilderService,
             IDao<QuicklistEntryDto, Guid> quicklistEntryDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao, IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IHpService hpService, IMpService mpService, IOptions<WorldConfiguration> worldConfiguration)
         {
             _characterDao = characterDao;

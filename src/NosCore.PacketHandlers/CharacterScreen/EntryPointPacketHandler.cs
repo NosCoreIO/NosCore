@@ -38,7 +38,7 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Enumerations;

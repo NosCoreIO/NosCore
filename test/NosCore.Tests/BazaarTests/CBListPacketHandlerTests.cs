@@ -33,7 +33,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.Tests.Helpers;
 

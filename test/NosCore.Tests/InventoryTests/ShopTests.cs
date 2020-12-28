@@ -51,16 +51,17 @@ using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ExchangeProvider;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Tests.Helpers;
 using Serilog;
+using NosCore.GameObject.Services.EventRunnerService;
+using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.MinilandService;
 
 namespace NosCore.Tests.InventoryTests
 {
@@ -69,7 +70,7 @@ namespace NosCore.Tests.InventoryTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private IFriendHttpClient? _friendHttpClient;
-        private MapInstanceProvider? _instanceProvider;
+        private IMapInstanceAccessorService? _instanceProvider;
         private ClientSession? _session;
 
         [TestInitialize]
@@ -79,7 +80,7 @@ namespace NosCore.Tests.InventoryTests
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _friendHttpClient = new Mock<IFriendHttpClient>().Object;
             TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 3;
-            _instanceProvider = TestHelpers.Instance.MapInstanceProvider;
+            _instanceProvider = TestHelpers.Instance.MapInstanceAccessorService;
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
         }
 
@@ -92,8 +93,8 @@ namespace NosCore.Tests.InventoryTests
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
             };
-            var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
+            var itemBuilder = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -113,8 +114,8 @@ namespace NosCore.Tests.InventoryTests
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
             };
-            var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
+            var itemBuilder = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0, Amount = 98});
@@ -134,8 +135,8 @@ namespace NosCore.Tests.InventoryTests
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
             };
-            var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
+            var itemBuilder = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -158,8 +159,8 @@ namespace NosCore.Tests.InventoryTests
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000}
             };
-            var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
+            var itemBuilder = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
 
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -183,8 +184,8 @@ namespace NosCore.Tests.InventoryTests
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
             };
-            var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
+            var itemBuilder = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -216,8 +217,8 @@ namespace NosCore.Tests.InventoryTests
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
             };
-            var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
+            var itemBuilder = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0});
@@ -249,8 +250,8 @@ namespace NosCore.Tests.InventoryTests
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1}
             };
-            var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
+            var itemBuilder = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem {Slot = 0, ItemInstance = itemBuilder.Create(1), Type = 0});
@@ -276,15 +277,15 @@ namespace NosCore.Tests.InventoryTests
         private async Task<ClientSession> PrepareSessionShopAsync()
         {
             var conf = Options.Create(new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999});
-            var session2 = new ClientSession(conf, new Mock<IMapInstanceProvider>().Object, new Mock<IExchangeProvider>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object, new Mock<IMinilandProvider>().Object);
+            var session2 = new ClientSession(conf, new Mock<IMapInstanceAccessorService>().Object, new Mock<IExchangeService>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object, new Mock<IMinilandService>().Object, TestHelpers.Instance.MapInstanceGeneratorService);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto {Name = "AccountTest", Password = new Sha512Hasher().Hash("test")};
             session2.InitializeAccount(account);
             session2.SessionId = 1;
 
-            await session2.SetCharacterAsync(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeProvider>().Object, new Mock<IItemProvider>().Object,
-                new Mock<IDao<CharacterDto, long>>().Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new Mock<IDao<AccountDto, long>>().Object, Logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandProvider>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
+            await session2.SetCharacterAsync(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object,
+                new Mock<IDao<CharacterDto, long>>().Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new Mock<IDao<AccountDto, long>>().Object, Logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandService>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
                 , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration)
             {
                 CharacterId = 1,
@@ -304,8 +305,8 @@ namespace NosCore.Tests.InventoryTests
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
             };
-            var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
+            var itemBuilder = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             var it = itemBuilder.Create(1, 999);

@@ -27,6 +27,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Holders;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FriendService;

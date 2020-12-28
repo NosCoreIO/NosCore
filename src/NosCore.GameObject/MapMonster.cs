@@ -24,7 +24,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using Serilog;

@@ -20,7 +20,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.Miniland;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 
 namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
 {

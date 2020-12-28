@@ -32,11 +32,12 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Handlers;
-using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.EventRunnerService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Handlers;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.Tests.Helpers;
 using Serilog;
 
@@ -45,15 +46,15 @@ namespace NosCore.Tests.ItemHandlerTests
     [TestClass]
     public class MinilandBellHandlerTests : UseItemEventHandlerTestsBase
     {
-        private ItemProvider? _itemProvider;
-        private Mock<IMinilandProvider>? _minilandProvider;
+        private ItemGenerationService? _itemProvider;
+        private Mock<IMinilandService>? _minilandProvider;
         private readonly ILogger _logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _minilandProvider = new Mock<IMinilandProvider>();
+            _minilandProvider = new Mock<IMinilandService>();
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _minilandProvider.Setup(s => s.GetMiniland(Session.Character.CharacterId))
                 .Returns(new Miniland { MapInstanceId = TestHelpers.Instance.MinilandId });
@@ -62,14 +63,14 @@ namespace NosCore.Tests.ItemHandlerTests
             {
                 new Item {VNum = 1, Effect = ItemEffectType.Teleport, EffectValue = 2},
             };
-            _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger);
+            _itemProvider = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger);
         }
 
         [TestMethod]
         public async Task Test_Miniland_On_InstanceAsync()
         {
-            Session!.Character.MapInstance = TestHelpers.Instance.MapInstanceProvider.GetMapInstance(TestHelpers.Instance.MinilandId)!;
+            Session!.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetMapInstance(TestHelpers.Instance.MinilandId)!;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);

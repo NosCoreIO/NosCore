@@ -74,7 +74,9 @@ using ILogger = Serilog.ILogger;
 using Serializer = NosCore.Packets.Serializer;
 using NosCore.Dao;
 using NosCore.Data.Dto;
-using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Holders;
+using NosCore.GameObject.Services.EventRunnerService;
+using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Attributes;
 using NosCore.Packets.Enumerations;
@@ -208,7 +210,7 @@ namespace NosCore.WorldServer
         private void InitializeContainer(ContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
-            containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces().PropertiesAutowired();
+            containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() == null
                     || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) == 0) && p.IsClass && !p.IsAbstract).ToList();
@@ -228,8 +230,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
                 .Where(t => t.Name.EndsWith("HttpClient"))
-                .AsImplementedInterfaces()
-                .PropertiesAutowired();
+                .AsImplementedInterfaces();
 
             containerBuilder.Register(c =>
             {
@@ -259,40 +260,37 @@ namespace NosCore.WorldServer
             //NosCore.Controllers
             containerBuilder.RegisterTypes(typeof(NoS0575PacketHandler).Assembly.GetTypes()
                     .Where(type => typeof(IPacketHandler).IsAssignableFrom(type) && typeof(IWorldPacketHandler).IsAssignableFrom(type)).ToArray())
-                .AsImplementedInterfaces()
-                .PropertiesAutowired();
+                .AsImplementedInterfaces();
 
             //NosCore.Core
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
-            containerBuilder.RegisterType<AuthController>().PropertiesAutowired();
+            containerBuilder.RegisterType<AuthController>();
 
             //NosCore.GameObject
             containerBuilder.RegisterType<ClientSession>();
             containerBuilder.RegisterType<OctileDistanceHeuristic>().As<IHeuristic>();
             containerBuilder.RegisterType<NetworkManager>();
+            containerBuilder.RegisterType<Clock>();
+
             containerBuilder.RegisterType<PipelineFactory>();
+
             containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
-                .AsImplementedInterfaces()
-                .PropertiesAutowired();
-            containerBuilder.RegisterAssemblyTypes(typeof(IExchangeProvider).Assembly)
-                .Where(t => t.Name.EndsWith("Provider"))
-                .AsImplementedInterfaces()
-                .SingleInstance()
-                .PropertiesAutowired();
+                .AsImplementedInterfaces();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(MapInstanceHolder).Assembly)
+                .Where(t => t.Name.EndsWith("Holder"))
+                .SingleInstance();
 
             RegisterDto(containerBuilder);
 
             containerBuilder.RegisterAssemblyTypes(typeof(Character).Assembly)
                 .Where(t => typeof(IDto).IsAssignableFrom(t))
-                .AsSelf()
-                .PropertiesAutowired();
+                .AsSelf();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(IGlobalEvent).Assembly)
-                .Where(t => typeof(IGlobalEvent).IsAssignableFrom(t))
-                .SingleInstance()
-                .AsImplementedInterfaces();
+            containerBuilder
+                .RegisterGeneric(typeof(EventRunnerService<,,>));
 
             containerBuilder
                 .RegisterAssemblyTypes(typeof(IEventHandler<,>).Assembly)

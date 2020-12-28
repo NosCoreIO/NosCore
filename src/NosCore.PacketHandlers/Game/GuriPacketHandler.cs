@@ -21,15 +21,15 @@ using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.GuriProvider;
+using NosCore.GameObject.Services.GuriRunnerService;
 
 namespace NosCore.PacketHandlers.Game
 {
     public class GuriPacketHandler : PacketHandler<GuriPacket>, IWorldPacketHandler
     {
-        private readonly IGuriProvider _guriProvider;
+        private readonly IGuriRunnerService _guriProvider;
 
-        public GuriPacketHandler(IGuriProvider guriProvider)
+        public GuriPacketHandler(IGuriRunnerService guriProvider)
         {
             _guriProvider = guriProvider;
         }

@@ -28,10 +28,11 @@ using Moq;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Handlers;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.EventRunnerService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Handlers;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Tests.Helpers;
 using Serilog;
 
@@ -40,7 +41,7 @@ namespace NosCore.Tests.ItemHandlerTests
     [TestClass]
     public class SpeakerHandlerTests : UseItemEventHandlerTestsBase
     {
-        private ItemProvider? _itemProvider;
+        private ItemGenerationService? _itemProvider;
         private readonly ILogger _logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
@@ -53,8 +54,8 @@ namespace NosCore.Tests.ItemHandlerTests
             {
                 new Item {VNum = 1, ItemType = ItemType.Magical, Effect = ItemEffectType.Speaker, EffectValue = 0},
             };
-            _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger);
+            _itemProvider = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger);
         }
 
         [TestMethod]

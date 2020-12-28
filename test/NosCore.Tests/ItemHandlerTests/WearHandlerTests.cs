@@ -37,12 +37,13 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Handlers;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Handlers;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Tests.Helpers;
 using Serilog;
+using NosCore.GameObject.Services.EventRunnerService;
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -51,7 +52,7 @@ namespace NosCore.Tests.ItemHandlerTests
     [TestClass]
     public class WearEventHandlerTests : UseItemEventHandlerTestsBase
     {
-        private ItemProvider? _itemProvider;
+        private ItemGenerationService? _itemProvider;
         private Mock<ILogger>? _logger;
 
         [TestInitialize]
@@ -119,8 +120,8 @@ namespace NosCore.Tests.ItemHandlerTests
                     EquipmentSlot = EquipmentType.Amulet
                 }
             };
-            _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger.Object);
+            _itemProvider = new ItemGenerationService(items, new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger.Object);
         }
 
         [TestMethod]

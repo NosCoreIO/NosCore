@@ -29,19 +29,19 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Services.ExchangeService;
 using Serilog;
 
 namespace NosCore.PacketHandlers.Exchange
 {
     public class ExcListPacketHandler : PacketHandler<ExcListPacket>, IWorldPacketHandler
     {
-        private readonly IExchangeProvider _exchangeProvider;
+        private readonly IExchangeService _exchangeProvider;
         private readonly ILogger _logger;
 
-        public ExcListPacketHandler(IExchangeProvider exchangeProvider, ILogger logger)
+        public ExcListPacketHandler(IExchangeService exchangeService, ILogger logger)
         {
-            _exchangeProvider = exchangeProvider;
+            _exchangeProvider = exchangeService;
             _logger = logger;
         }
 

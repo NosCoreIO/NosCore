@@ -25,6 +25,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NRunService;
 using NosCore.Shared.Enumerations;
 using Serilog;
 
@@ -64,7 +65,7 @@ namespace NosCore.PacketHandlers.Shops
                 return Task.CompletedTask;
             }
 
-            requestableEntity.Requests!.OnNext(new RequestData(clientSession));
+            requestableEntity.Requests[typeof(INrunEventHandler)].OnNext(new RequestData(clientSession));
             return Task.CompletedTask;
         }
     }

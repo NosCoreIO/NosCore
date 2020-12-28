@@ -38,6 +38,7 @@ using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
 using NosCore.Dao.Interfaces;
+using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.FriendService;
 using NosCore.Shared.Configuration;
 using FriendController = NosCore.MasterServer.Controllers.FriendController;

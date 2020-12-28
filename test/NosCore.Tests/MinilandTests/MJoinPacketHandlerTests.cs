@@ -33,7 +33,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
@@ -52,7 +52,7 @@ namespace NosCore.Tests.MinilandTests
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
         private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
-        private Mock<IMinilandProvider>? _minilandProvider;
+        private Mock<IMinilandService>? _minilandProvider;
         private MJoinPacketHandler? _mjoinPacketHandler;
 
         private ClientSession? _session;
@@ -67,7 +67,7 @@ namespace NosCore.Tests.MinilandTests
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _minilandProvider = new Mock<IMinilandProvider>();
+            _minilandProvider = new Mock<IMinilandService>();
             _mjoinPacketHandler = new MJoinPacketHandler(_friendHttpClient.Object, _minilandProvider.Object);
         }
 

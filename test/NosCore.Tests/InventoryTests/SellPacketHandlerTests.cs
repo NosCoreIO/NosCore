@@ -33,10 +33,11 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MapInstanceProvider;
+using NosCore.GameObject.Services.EventRunnerService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Tests.Helpers;
 using Serilog;
@@ -46,7 +47,7 @@ namespace NosCore.Tests.InventoryTests
     [TestClass]
     public class SellPacketHandlerTests
     {
-        private MapInstanceProvider? _instanceProvider;
+        private MapInstanceAccessorService? _instanceProvider;
         private SellPacketHandler? _sellPacketHandler;
         private ClientSession? _session;
         private readonly ILogger _logger = new Mock<ILogger>().Object;
@@ -56,7 +57,7 @@ namespace NosCore.Tests.InventoryTests
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
-            _instanceProvider = TestHelpers.Instance.MapInstanceProvider;
+            _instanceProvider = TestHelpers.Instance.MapInstanceAccessorService;
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _sellPacketHandler = new SellPacketHandler(TestHelpers.Instance.WorldConfiguration);
         }
@@ -70,8 +71,8 @@ namespace NosCore.Tests.InventoryTests
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true}
             };
-            var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger);
+            var itemBuilder = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger);
 
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
@@ -94,8 +95,8 @@ namespace NosCore.Tests.InventoryTests
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = false}
             };
-            var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger);
+            var itemBuilder = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
@@ -121,8 +122,8 @@ namespace NosCore.Tests.InventoryTests
             {
                 new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
             };
-            var itemBuilder = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger);
+            var itemBuilder = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);

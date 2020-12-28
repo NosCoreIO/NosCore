@@ -24,15 +24,15 @@ using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.MinilandService;
 
 namespace NosCore.PacketHandlers.Miniland
 {
     public class MlEditPacketHandler : PacketHandler<MLEditPacket>, IWorldPacketHandler
     {
-        private readonly IMinilandProvider _minilandProvider;
+        private readonly IMinilandService _minilandProvider;
 
-        public MlEditPacketHandler(IMinilandProvider minilandProvider)
+        public MlEditPacketHandler(IMinilandService minilandProvider)
         {
             _minilandProvider = minilandProvider;
         }

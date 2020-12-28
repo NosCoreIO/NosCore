@@ -21,6 +21,11 @@ namespace NosCore.GameObject.Networking.ClientSession
 {
     public class RequestData<T> : RequestData
     {
+        public RequestData(T data)
+        {
+            Data = data;
+        }
+
         public RequestData(ClientSession clientSession, T data) : base(clientSession)
         {
             Data = data;
@@ -34,6 +39,11 @@ namespace NosCore.GameObject.Networking.ClientSession
         public RequestData(ClientSession clientSession)
         {
             ClientSession = clientSession;
+        }
+
+        public RequestData()
+        {
+            ClientSession = null!;
         }
 
         public ClientSession ClientSession { get; }

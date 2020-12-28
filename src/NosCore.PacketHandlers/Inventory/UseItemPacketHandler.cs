@@ -24,6 +24,7 @@ using NosCore.Data.Enumerations;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -35,10 +36,10 @@ namespace NosCore.PacketHandlers.Inventory
                 clientSession.Character.InventoryService.LoadBySlotAndType(useItemPacket.Slot,
                     (NoscorePocketType) useItemPacket.Type);
 
-            inv?.ItemInstance?.Requests?.OnNext(new RequestData<Tuple<InventoryItemInstance, UseItemPacket>>(clientSession,
+            inv?.ItemInstance?.Item?.Requests[typeof(IUseItemEventHandler)]?.OnNext(new RequestData<Tuple<InventoryItemInstance, UseItemPacket>>(clientSession,
                 new Tuple<InventoryItemInstance, UseItemPacket>(inv, useItemPacket)));
 
-            return inv?.ItemInstance?.Requests == null ? Task.CompletedTask : Task.WhenAll(inv.ItemInstance.HandlerTasks);
+            return inv?.ItemInstance?.Item?.Requests == null ? Task.CompletedTask : Task.WhenAll(inv.ItemInstance.Item.HandlerTasks);
         }
     }
 }

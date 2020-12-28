@@ -31,20 +31,21 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.Providers.GuriProvider.Handlers;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.GuriRunnerService.Handlers;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Tests.Helpers;
 using Serilog;
 using GuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
+using NosCore.GameObject.Services.EventRunnerService;
 
 namespace NosCore.Tests.GuriHandlerTests
 {
     [TestClass]
     public class TitleGuriHandlerTests : GuriEventHandlerTestsBase
     {
-        private IItemProvider? _itemProvider;
+        private IItemGenerationService? _itemProvider;
         private readonly ILogger _logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
@@ -54,8 +55,8 @@ namespace NosCore.Tests.GuriHandlerTests
             {
                 new Item {VNum = 1, ItemType = ItemType.Title, EffectValue = 0, Type =  NoscorePocketType.Main},
             };
-            _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), _logger);
+            _itemProvider = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger);
 
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             Handler = new TitleGuriHandler();

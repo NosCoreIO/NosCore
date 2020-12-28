@@ -30,18 +30,18 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 
 namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
 {
     public class WarehouseHttpClient : MasterServerHttpClient, IWarehouseHttpClient
     {
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
-        private readonly IItemProvider _itemProvider;
+        private readonly IItemGenerationService _itemProvider;
 
         public WarehouseHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
-            IChannelHttpClient channelHttpClient, IItemProvider itemProvider,
+            IChannelHttpClient channelHttpClient, IItemGenerationService itemProvider,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao)
             : base(httpClientFactory, channel, channelHttpClient)
         {

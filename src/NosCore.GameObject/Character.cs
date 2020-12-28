@@ -62,20 +62,21 @@ using NosCore.Shared.Enumerations;
 using Serilog;
 using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Configuration;
-using NosCore.GameObject.Providers.ExchangeProvider;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MinilandProvider;
-using NosCore.GameObject.Providers.QuestProvider;
+using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Services.NRunService;
+using NosCore.GameObject.Services.QuestService;
 
 //TODO stop using obsolete
 #pragma warning disable 618
 
 namespace NosCore.GameObject
 {
-    public class Character : CharacterDto, ICharacterEntity
+    public class Character : CharacterDto, ICharacterEntity, IRequestableEntity
     {
         private readonly IDao<AccountDto, long> _accountDao;
         private readonly IDao<CharacterDto, long> _characterDao;
@@ -83,7 +84,7 @@ namespace NosCore.GameObject
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly ILogger _logger;
         private readonly IDao<MinilandDto, Guid> _minilandDao;
-        private readonly IMinilandProvider _minilandProvider;
+        private readonly IMinilandService _minilandProvider;
         private readonly IDao<QuicklistEntryDto, Guid> _quicklistEntriesDao;
         private readonly IDao<StaticBonusDto, long> _staticBonusDao;
         private readonly IDao<TitleDto, Guid> _titleDao;
@@ -98,21 +99,20 @@ namespace NosCore.GameObject
         private readonly IDignityService _dignityService;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
-        public Character(IInventoryService inventory, IExchangeProvider exchangeProvider, IItemProvider itemProvider,
+        public Character(IInventoryService inventory, IExchangeService exchangeService, IItemGenerationService itemProvider,
             IDao<CharacterDto, long> characterDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<AccountDto, long> accountDao,
             ILogger logger, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quicklistEntriesDao, IDao<MinilandDto, Guid> minilandDao,
-            IMinilandProvider minilandProvider, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
+            IMinilandService minilandProvider, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
             IHpService hpService, IMpService mpService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpeedService speedService,
             IReputationService reputationService, IDignityService dignityService, IOptions<WorldConfiguration> worldConfiguration)
         {
             InventoryService = inventory;
-            ExchangeProvider = exchangeProvider;
+            ExchangeProvider = exchangeService;
             ItemProvider = itemProvider;
             GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
-            Requests = new Subject<RequestData>();
             _characterDao = characterDao;
             _itemInstanceDao = itemInstanceDao;
             _accountDao = accountDao;
@@ -150,7 +150,7 @@ namespace NosCore.GameObject
 
         public DateTime LastMove { get; set; }
 
-        public IItemProvider ItemProvider { get; set; }
+        public IItemGenerationService ItemProvider { get; set; }
 
         public bool UseSp { get; set; }
 
@@ -162,7 +162,7 @@ namespace NosCore.GameObject
 
         public byte? VehicleSpeed { get; set; }
 
-        public IExchangeProvider ExchangeProvider { get; }
+        public IExchangeService ExchangeProvider { get; }
 
         public bool InExchangeOrShop => InExchange || InShop;
 
@@ -180,7 +180,9 @@ namespace NosCore.GameObject
 
         public ConcurrentDictionary<Guid, CharacterQuest> Quests { get; set; } = null!;
 
-        public Subject<RequestData>? Requests { get; set; }
+        public Dictionary<Type, Subject<RequestData>> Requests { get; set; } = new Dictionary<Type, Subject<RequestData>> {
+            [typeof(INrunEventHandler)] = new Subject<RequestData>()
+        };
 
         public short Race => (byte)Class;
 

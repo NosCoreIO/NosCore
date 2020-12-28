@@ -26,7 +26,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.NRunProvider;
+using NosCore.GameObject.Services.NRunService;
 using NosCore.Shared.Enumerations;
 using Serilog;
 
@@ -35,12 +35,12 @@ namespace NosCore.PacketHandlers.Shops
     public class NrunPacketHandler : PacketHandler<NrunPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        private readonly INrunProvider _nRunProvider;
+        private readonly INrunService _nRunRunnerService;
 
-        public NrunPacketHandler(ILogger logger, INrunProvider nRunProvider)
+        public NrunPacketHandler(ILogger logger, INrunService nRunRunnerService)
         {
             _logger = logger;
-            _nRunProvider = nRunProvider;
+            _nRunRunnerService = nRunRunnerService;
         }
 
         public override async Task ExecuteAsync(NrunPacket nRunPacket, ClientSession clientSession)
@@ -72,7 +72,7 @@ namespace NosCore.PacketHandlers.Shops
                 return;
             }
 
-            await _nRunProvider.NRunLaunchAsync(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity!, nRunPacket)).ConfigureAwait(false);
+            await _nRunRunnerService.NRunLaunchAsync(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity!, nRunPacket)).ConfigureAwait(false);
         }
     }
 }

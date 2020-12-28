@@ -19,7 +19,7 @@
 
 using System;
 using NosCore.Data.Dto;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 
 namespace NosCore.GameObject.Services.InventoryService
 {

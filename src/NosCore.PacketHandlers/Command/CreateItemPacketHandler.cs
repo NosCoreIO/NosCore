@@ -32,9 +32,9 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using Serilog;
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -43,13 +43,13 @@ namespace NosCore.PacketHandlers.Command
 {
     public class CreateItemPackettHandler : PacketHandler<CreateItemPacket>, IWorldPacketHandler
     {
-        private readonly IItemProvider _itemProvider;
+        private readonly IItemGenerationService _itemProvider;
         private readonly List<ItemDto> _items;
         private readonly ILogger _logger;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
         public CreateItemPackettHandler(ILogger logger, List<ItemDto> items, IOptions<WorldConfiguration> worldConfiguration,
-            IItemProvider itemProvider)
+            IItemGenerationService itemProvider)
         {
             _logger = logger;
             _items = items;

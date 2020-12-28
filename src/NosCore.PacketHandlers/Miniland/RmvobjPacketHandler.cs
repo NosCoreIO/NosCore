@@ -27,7 +27,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.MinilandService;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -36,9 +36,9 @@ namespace NosCore.PacketHandlers.Miniland
 {
     public class RmvobjPacketHandler : PacketHandler<RmvobjPacket>, IWorldPacketHandler
     {
-        private readonly IMinilandProvider _minilandProvider;
+        private readonly IMinilandService _minilandProvider;
 
-        public RmvobjPacketHandler(IMinilandProvider minilandProvider)
+        public RmvobjPacketHandler(IMinilandService minilandProvider)
         {
             _minilandProvider = minilandProvider;
         }

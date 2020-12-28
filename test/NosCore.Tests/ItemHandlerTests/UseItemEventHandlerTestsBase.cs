@@ -22,8 +22,8 @@ using NosCore.GameObject.Networking.ClientSession;
 using System;
 using System.Threading.Tasks;
 using NosCore.GameObject;
-using NosCore.GameObject.Providers.ItemProvider.Item;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 
 namespace NosCore.Tests.ItemHandlerTests
 {

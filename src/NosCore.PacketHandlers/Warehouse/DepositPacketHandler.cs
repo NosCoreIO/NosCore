@@ -23,7 +23,7 @@ using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.WarehouseHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 
 namespace NosCore.PacketHandlers.Warehouse
 {

@@ -28,16 +28,16 @@ using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.MinilandService;
 
 namespace NosCore.PacketHandlers.Friend
 {
     public class MJoinPacketHandler : PacketHandler<MJoinPacket>, IWorldPacketHandler
     {
         private readonly IFriendHttpClient _friendHttpClient;
-        private readonly IMinilandProvider _minilandProvider;
+        private readonly IMinilandService _minilandProvider;
 
-        public MJoinPacketHandler(IFriendHttpClient friendHttpClient, IMinilandProvider minilandProvider)
+        public MJoinPacketHandler(IFriendHttpClient friendHttpClient, IMinilandService minilandProvider)
         {
             _friendHttpClient = friendHttpClient;
             _minilandProvider = minilandProvider;

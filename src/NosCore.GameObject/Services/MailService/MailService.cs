@@ -32,7 +32,8 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Holders;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Shared.Configuration;
 
 namespace NosCore.GameObject.Services.MailService
@@ -43,14 +44,14 @@ namespace NosCore.GameObject.Services.MailService
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IIncommingMailHttpClient _incommingMailHttpClient;
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
-        private readonly IItemProvider _itemProvider;
+        private readonly IItemGenerationService _itemProvider;
         private readonly List<ItemDto> _items;
         private readonly IDao<MailDto, long> _mailDao;
         private readonly ParcelHolder _parcelHolder;
 
         public MailService(IDao<MailDto, long> mailDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IConnectedAccountHttpClient connectedAccountHttpClient,
-            List<ItemDto> items, IItemProvider itemProvider, IIncommingMailHttpClient incommingMailHttpClient,
+            List<ItemDto> items, IItemGenerationService itemProvider, IIncommingMailHttpClient incommingMailHttpClient,
             ParcelHolder parcelHolder,
             IDao<CharacterDto, long> characterDto)
         {

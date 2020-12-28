@@ -30,8 +30,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MinilandService;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -40,9 +40,9 @@ namespace NosCore.PacketHandlers.Miniland
 {
     public class AddobjPacketHandler : PacketHandler<AddobjPacket>, IWorldPacketHandler
     {
-        private readonly IMinilandProvider _minilandProvider;
+        private readonly IMinilandService _minilandProvider;
 
-        public AddobjPacketHandler(IMinilandProvider minilandProvider)
+        public AddobjPacketHandler(IMinilandService minilandProvider)
         {
             _minilandProvider = minilandProvider;
         }

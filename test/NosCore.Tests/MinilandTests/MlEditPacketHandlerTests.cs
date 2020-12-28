@@ -28,10 +28,11 @@ using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
+using NosCore.GameObject.Holders;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.PacketHandlers.Miniland;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
@@ -49,7 +50,7 @@ namespace NosCore.Tests.MinilandTests
         private MlEditPacketHandler? _mlEditPacketHandler;
 
         private ClientSession? _session;
-        private MinilandProvider _minilandProvider = null!;
+        private IMinilandService _minilandProvider = null!;
         private ClientSession _session2 = null!;
 
         [TestInitialize]
@@ -79,7 +80,7 @@ namespace NosCore.Tests.MinilandTests
             {
                 OwnerId = _session.Character.CharacterId,
             });
-            _minilandProvider = new MinilandProvider(TestHelpers.Instance.MapInstanceProvider,
+            _minilandProvider = new MinilandService(TestHelpers.Instance.MapInstanceAccessorService,
                 TestHelpers.Instance.FriendHttpClient.Object,
                 new List<MapDto> {new Map
                 {
@@ -88,8 +89,8 @@ namespace NosCore.Tests.MinilandTests
                     Data = new byte[] {}
                 }},
                 TestHelpers.Instance.MinilandDao,
-                TestHelpers.Instance.MinilandObjectDao);
-            await _minilandProvider.InitializeAsync(_session.Character);
+                TestHelpers.Instance.MinilandObjectDao, new MinilandHolder());
+            await _minilandProvider.InitializeAsync(_session.Character, TestHelpers.Instance.MapInstanceGeneratorService);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
             await _session.ChangeMapInstanceAsync(miniland.MapInstanceId);
             await _session2.ChangeMapInstanceAsync(miniland.MapInstanceId);

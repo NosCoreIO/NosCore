@@ -32,10 +32,10 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.NRunProvider;
-using NosCore.GameObject.Providers.NRunProvider.Handlers;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.NRunService;
+using NosCore.GameObject.Services.NRunService.Handlers;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Helpers;
@@ -50,7 +50,7 @@ namespace NosCore.Tests.NRunTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
 
-        private IItemProvider? _item;
+        private IItemGenerationService? _item;
         private NrunPacketHandler? _nRunHandler;
         private ClientSession? _session;
 
@@ -60,7 +60,7 @@ namespace NosCore.Tests.NRunTests
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _nRunHandler = new NrunPacketHandler(Logger, new NrunProvider(
+            _nRunHandler = new NrunPacketHandler(Logger, new NrunService(
                 new List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
                     {new ChangeClassEventHandler()}));
         }

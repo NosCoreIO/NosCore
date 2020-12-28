@@ -27,8 +27,8 @@ using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Tests.Helpers;
 //TODO stop using obsolete
@@ -39,7 +39,7 @@ namespace NosCore.Tests.InventoryTests
     [TestClass]
     public class PutPacketHandlerTests
     {
-        private IItemProvider? _item;
+        private IItemGenerationService? _item;
         private PutPacketHandler? _putPacketHandler;
         private ClientSession? _session;
 

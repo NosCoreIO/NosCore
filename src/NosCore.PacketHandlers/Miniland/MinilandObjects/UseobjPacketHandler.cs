@@ -28,16 +28,16 @@ using NosCore.GameObject.Helper;
 using NosCore.GameObject.HttpClients.WarehouseHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using System.Threading.Tasks;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.MinilandService;
 
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
     public class UseobjPacketHandler : PacketHandler<UseObjPacket>, IWorldPacketHandler
     {
-        private readonly IMinilandProvider _minilandProvider;
+        private readonly IMinilandService _minilandProvider;
         private readonly IWarehouseHttpClient _warehouseHttpClient;
 
-        public UseobjPacketHandler(IMinilandProvider minilandProvider, IWarehouseHttpClient warehouseHttpClient)
+        public UseobjPacketHandler(IMinilandService minilandProvider, IWarehouseHttpClient warehouseHttpClient)
         {
             _minilandProvider = minilandProvider;
             _warehouseHttpClient = warehouseHttpClient;

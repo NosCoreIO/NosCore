@@ -31,7 +31,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ItemProvider;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Parcel;
 using NosCore.Tests.Helpers;
 
@@ -42,7 +42,7 @@ namespace NosCore.Tests.ParcelTests
     {
         private Mock<IMailHttpClient>? _mailHttpClient;
         private PclPacketHandler? _pclPacketHandler;
-        private IItemProvider? _item;
+        private IItemGenerationService? _item;
         private ClientSession? _session;
         private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
 

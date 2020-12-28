@@ -33,6 +33,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Services.NRunService;
 using NosCore.PathFinder.Interfaces;
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -161,7 +162,7 @@ namespace NosCore.PacketHandlers.Shops
                             clientSession.Account.Language)
                     }).ConfigureAwait(false);
 
-                    clientSession.Character.Requests?.Subscribe(data =>
+                    clientSession.Character.Requests[typeof(INrunEventHandler)].Subscribe(data =>
                         data.ClientSession.SendPacketAsync(
                             clientSession.Character.GenerateNpcReq(clientSession.Character.Shop.ShopId)));
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GeneratePFlag(),

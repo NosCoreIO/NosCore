@@ -30,9 +30,10 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.EventRunnerService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using Serilog;
 
 namespace NosCore.Tests.InventoryTests
@@ -41,7 +42,7 @@ namespace NosCore.Tests.InventoryTests
     public class InventoryTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private ItemProvider? _itemProvider;
+        private ItemGenerationService? _itemProvider;
 
         private IInventoryService? Inventory { get; set; }
 
@@ -57,8 +58,8 @@ namespace NosCore.Tests.InventoryTests
                 new Item {Type = NoscorePocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist},
                 new Item {Type = NoscorePocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
-            _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
+            _itemProvider = new ItemGenerationService(items,
+                new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
             Inventory = new InventoryService(items, Options.Create(new WorldConfiguration {BackpackSize = 3, MaxItemAmount = 999}),
                 Logger);
         }

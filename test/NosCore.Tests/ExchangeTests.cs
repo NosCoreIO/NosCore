@@ -29,11 +29,13 @@ using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.Providers.ExchangeProvider;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Holders;
+using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using Serilog;
+using NosCore.GameObject.Services.EventRunnerService;
 
 namespace NosCore.Tests
 {
@@ -41,9 +43,9 @@ namespace NosCore.Tests
     public class ExchangeTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private ExchangeProvider? _exchangeProvider;
+        private ExchangeService? _exchangeProvider;
 
-        private ItemProvider? _itemProvider;
+        private ItemGenerationService? _itemProvider;
 
         private IOptions<WorldConfiguration>? _worldConfiguration;
 
@@ -64,9 +66,8 @@ namespace NosCore.Tests
                 new Item {Type = NoscorePocketType.Main, VNum = 1013}
             };
 
-            _itemProvider = new ItemProvider(items,
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>(), Logger);
-            _exchangeProvider = new ExchangeProvider(_itemProvider, _worldConfiguration, Logger);
+            _itemProvider = new ItemGenerationService(items, new EventRunnerService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
+            _exchangeProvider = new ExchangeService(_itemProvider, _worldConfiguration, Logger, new ExchangeRequestHolder());
         }
 
         [TestMethod]

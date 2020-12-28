@@ -29,21 +29,21 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MinilandProvider;
+using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.PathFinder.Interfaces;
 
 namespace NosCore.PacketHandlers.Movement
 {
     public class PreqPacketHandler : PacketHandler<PreqPacket>, IWorldPacketHandler
     {
-        private readonly IMapInstanceProvider _mapInstanceProvider;
-        private readonly IMinilandProvider _minilandProvider;
+        private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
+        private readonly IMinilandService _minilandProvider;
         private readonly IHeuristic _distanceCalculator;
 
-        public PreqPacketHandler(IMapInstanceProvider mapInstanceProvider, IMinilandProvider minilandProvider, IHeuristic distanceCalculator)
+        public PreqPacketHandler(IMapInstanceAccessorService mapInstanceAccessorService, IMinilandService minilandProvider, IHeuristic distanceCalculator)
         {
-            _mapInstanceProvider = mapInstanceProvider;
+            _mapInstanceAccessorService = mapInstanceAccessorService;
             _minilandProvider = minilandProvider;
             _distanceCalculator = distanceCalculator;
         }
@@ -79,9 +79,9 @@ namespace NosCore.PacketHandlers.Movement
 
             session.Character.LastPortal = SystemTime.Now();
 
-            if ((_mapInstanceProvider.GetMapInstance(portal.SourceMapInstanceId)!.MapInstanceType
+            if ((_mapInstanceAccessorService.GetMapInstance(portal.SourceMapInstanceId)!.MapInstanceType
                     != MapInstanceType.BaseMapInstance)
-                && (_mapInstanceProvider.GetMapInstance(portal.DestinationMapInstanceId)!.MapInstanceType
+                && (_mapInstanceAccessorService.GetMapInstance(portal.DestinationMapInstanceId)!.MapInstanceType
                     == MapInstanceType.BaseMapInstance))
             {
                 await session.ChangeMapAsync(session.Character.MapId, session.Character.MapX, session.Character.MapY).ConfigureAwait(false);

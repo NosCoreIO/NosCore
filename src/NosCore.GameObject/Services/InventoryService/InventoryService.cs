@@ -26,7 +26,7 @@ using NosCore.Core.Configuration;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Providers.ItemProvider.Item;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using Serilog;
 
 namespace NosCore.GameObject.Services.InventoryService

@@ -31,7 +31,7 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Providers.ExchangeProvider;
+using NosCore.GameObject.Services.ExchangeService;
 using Serilog;
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -41,13 +41,13 @@ namespace NosCore.PacketHandlers.Exchange
     public class ExchangeRequestPackettHandler : PacketHandler<ExchangeRequestPacket>, IWorldPacketHandler
     {
         private readonly IBlacklistHttpClient _blacklistHttpClient;
-        private readonly IExchangeProvider _exchangeProvider;
+        private readonly IExchangeService _exchangeProvider;
         private readonly ILogger _logger;
 
-        public ExchangeRequestPackettHandler(IExchangeProvider exchangeProvider, ILogger logger,
+        public ExchangeRequestPackettHandler(IExchangeService exchangeService, ILogger logger,
             IBlacklistHttpClient blacklistHttpClient)
         {
-            _exchangeProvider = exchangeProvider;
+            _exchangeProvider = exchangeService;
             _logger = logger;
             _blacklistHttpClient = blacklistHttpClient;
         }

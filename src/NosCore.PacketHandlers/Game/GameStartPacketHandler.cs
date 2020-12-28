@@ -37,7 +37,7 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.GameObject.Providers.QuestProvider;
+using NosCore.GameObject.Services.QuestService;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -51,13 +51,13 @@ namespace NosCore.PacketHandlers.Game
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
-        private readonly IQuestProvider _questProvider;
+        private readonly IQuestService _questProvider;
 
         public GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IFriendHttpClient friendHttpClient,
             IChannelHttpClient channelHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient,
             IPacketHttpClient packetHttpClient,
-            ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestProvider questProvider)
+            ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider)
         {
             _worldConfiguration = worldConfiguration;
             _packetSerializer = packetSerializer;

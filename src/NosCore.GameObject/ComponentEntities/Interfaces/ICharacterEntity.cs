@@ -28,8 +28,8 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using System;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Providers.QuestProvider;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.QuestService;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces

@@ -32,10 +32,10 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
-using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.GameObject.Providers.MapInstanceProvider;
-using NosCore.GameObject.Providers.MinilandProvider;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MinilandService;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -44,14 +44,14 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
     public class MgPacketHandler : PacketHandler<MinigamePacket>, IWorldPacketHandler
     {
-        private readonly IItemProvider _itemProvider;
-        private readonly IMinilandProvider _minilandProvider;
+        private readonly IItemGenerationService _itemProvider;
+        private readonly IMinilandService _minilandProvider;
         private ClientSession? _clientSession;
         private MinigamePacket? _minigamePacket;
-        private GameObject.Providers.MinilandProvider.Miniland? _miniland;
+        private GameObject.Services.MinilandService.Miniland? _miniland;
         private MapDesignObject? _minilandObject;
 
-        public MgPacketHandler(IMinilandProvider minilandProvider, IItemProvider itemProvider)
+        public MgPacketHandler(IMinilandService minilandProvider, IItemGenerationService itemProvider)
         {
             _minilandProvider = minilandProvider;
             _itemProvider = itemProvider;
