@@ -37,13 +37,13 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.MasterServer.Controllers;
-using NosCore.MasterServer.DataHolders;
+using NosCore.GameObject.Providers.FriendService;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
 using NosCore.Shared.Configuration;
+using FriendController = NosCore.MasterServer.Controllers.FriendController;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
 {
@@ -77,8 +77,8 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
                 _connectedAccountHttpClient.Object);
             _characterDao = new Mock<IDao<CharacterDto, long>>();
-            _friendController = new FriendController(Logger, _characterRelationDao, _characterDao.Object,
-                new FriendRequestHolder(), _connectedAccountHttpClient.Object);
+            _friendController = new FriendController(new FriendService(Logger, _characterRelationDao, _characterDao.Object,
+                new FriendRequestHolder(), _connectedAccountHttpClient.Object));
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>()))
                 .Returns((long id) => _friendController.GetFriendsAsync(id));
             _friendHttpClient.Setup(s => s.DeleteFriendAsync(It.IsAny<Guid>()))

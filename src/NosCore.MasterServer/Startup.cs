@@ -57,15 +57,17 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
+using NosCore.GameObject.Providers.BazaarService;
+using NosCore.GameObject.Providers.FriendService;
 using NosCore.GameObject.Providers.ItemProvider;
-using NosCore.MasterServer.Controllers;
-using NosCore.MasterServer.DataHolders;
+using NosCore.GameObject.Providers.MailService;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using ILogger = Serilog.ILogger;
 using NosCore.Shared.I18N;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
+using FriendController = NosCore.MasterServer.Controllers.FriendController;
 
 namespace NosCore.MasterServer
 {
@@ -182,6 +184,10 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<IncommingMailHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ItemProvider>().AsImplementedInterfaces();
+            containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
+                .Where(t => t.Name.EndsWith("Service"))
+                .AsImplementedInterfaces()
+                .PropertiesAutowired();
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);
             return containerBuilder;

@@ -18,13 +18,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 
-namespace NosCore.MasterServer.DataHolders
+namespace NosCore.GameObject.Providers.FriendService
 {
-    public class FriendRequestHolder
+    public interface IFriendService
     {
-        public ConcurrentDictionary<Guid, Tuple<long, long>> FriendRequestCharacters { get; set; } =
-            new ConcurrentDictionary<Guid, Tuple<long, long>>();
+        Task<LanguageKey> AddFriendAsync(FriendShipRequest friendPacket);
+
+        Task<List<CharacterRelationStatus>> GetFriendsAsync(long id);
+
+        Task<bool> DeleteAsync(Guid id);
     }
 }

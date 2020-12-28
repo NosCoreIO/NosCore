@@ -40,6 +40,7 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
 using Serilog;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Providers.BlackListService;
 using NosCore.Shared.Configuration;
 
 namespace NosCore.Tests.FriendAndBlacklistsTests
@@ -67,12 +68,12 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(It.IsAny<long?>(), It.IsAny<string?>()))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
-                        { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
+                    { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
             _blackListHttpClient = TestHelpers.Instance.BlacklistHttpClient;
             _blDelPacketHandler = new BlDelPacketHandler(_blackListHttpClient.Object);
             _characterDao = new Mock<IDao<CharacterDto, long>>();
-            _blackListController = new BlacklistController(_connectedAccountHttpClient.Object, _characterRelationDao,
-                _characterDao.Object);
+            _blackListController = new BlacklistController(new BlacklistService(_connectedAccountHttpClient.Object, _characterRelationDao,
+                _characterDao.Object));
             _blackListHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
                 .Returns((long id) => _blackListController.GetBlacklistedAsync(id));
             _blackListHttpClient.Setup(s => s.DeleteFromBlacklistAsync(It.IsAny<Guid>()))

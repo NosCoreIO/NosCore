@@ -17,36 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using NosCore.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Providers.FriendService;
-using NosCore.Shared.Enumerations;
+using NosCore.Packets.Enumerations;
 
-namespace NosCore.MasterServer.Controllers
+namespace NosCore.GameObject.Providers.BazaarService
 {
-    [Route("api/[controller]")]
-    [AuthorizeRole(AuthorityType.GameMaster)]
-    public class FriendController : Controller
+    public interface IBazaarService
     {
-        private readonly IFriendService _friendService;
+        List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
+            byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter);
 
-        public FriendController(IFriendService friendService)
-        {
-            _friendService = friendService;
-        }
+        Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName);
 
-        [HttpPost]
-        public Task<LanguageKey> AddFriendAsync([FromBody] FriendShipRequest friendPacket) => _friendService.AddFriendAsync(friendPacket);
+        Task<LanguageKey> AddBazaarAsync(BazaarRequest bazaarRequest);
 
-        [HttpGet]
-        public Task<List<CharacterRelationStatus>> GetFriendsAsync(long id) => _friendService.GetFriendsAsync(id);
-
-        [HttpDelete]
-        public async Task<IActionResult> DeleteAsync(Guid id) => await _friendService.DeleteAsync(id) ? (IActionResult)Ok() : NotFound();
+        Task<BazaarLink?> ModifyBazaarAsync(long id, Json.Patch.JsonPatch bzMod);
     }
 }

@@ -26,6 +26,7 @@ using Moq;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.BlackListService;
 using NosCore.MasterServer.Controllers;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
@@ -87,8 +88,8 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                     {
                         ChannelId = 1, ConnectedCharacter = new Character {Id = targetSession.Character.CharacterId}
                     }));
-            using var blacklist = new BlacklistController(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
-                TestHelpers.Instance.CharacterRelationDao, TestHelpers.Instance.CharacterDao);
+            using var blacklist = new BlacklistController(new BlacklistService(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
+                TestHelpers.Instance.CharacterRelationDao, TestHelpers.Instance.CharacterDao));
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklistAsync(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.AddBlacklistAsync(new BlacklistRequest
                 {

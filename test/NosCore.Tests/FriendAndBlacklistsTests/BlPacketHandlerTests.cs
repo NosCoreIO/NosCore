@@ -28,6 +28,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Providers.BlackListService;
 using NosCore.MasterServer.Controllers;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Tests.Helpers;
@@ -56,11 +57,11 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 .Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
-                        {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
+                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             TestHelpers.Instance.ConnectedAccountHttpClient.Setup(s => s.GetCharacterAsync(null, _session.Character.Name))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
-                        {ChannelId = 1, ConnectedCharacter = new Character {Id = _session.Character.CharacterId}}));
+                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             _blPacketHandler = new BlPacketHandler();
         }
 
@@ -77,10 +78,10 @@ namespace NosCore.Tests.FriendAndBlacklistsTests
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character {Id = targetSession.Character.CharacterId}
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId }
                     }));
-            using var blacklist = new BlacklistController(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
-                _characterRelationDao!, TestHelpers.Instance.CharacterDao);
+            using var blacklist = new BlacklistController(new BlacklistService(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
+                _characterRelationDao!, TestHelpers.Instance.CharacterDao));
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklistAsync(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.AddBlacklistAsync(new BlacklistRequest
                 {

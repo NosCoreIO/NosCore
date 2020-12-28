@@ -30,8 +30,8 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.MasterServer.Controllers;
-using NosCore.MasterServer.DataHolders;
+using NosCore.GameObject.Providers.BazaarService;
+using BazaarController = NosCore.MasterServer.Controllers.BazaarController;
 
 namespace NosCore.Tests.BazaarTests
 {
@@ -57,8 +57,8 @@ namespace NosCore.Tests.BazaarTests
             var mockCharacterDao = new Mock<IDao<CharacterDto, long>>();
             _bazaarItemsHolder =
                 new BazaarItemsHolder(_mockBzDao.Object, _mockItemDao.Object, mockCharacterDao.Object);
-            _bazaarController = new BazaarController(_bazaarItemsHolder, _mockBzDao.Object, _mockItemDao.Object);
-            _mockItemDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?> ()))
+            _bazaarController = new BazaarController(new BazaarService(_bazaarItemsHolder, _mockBzDao.Object, _mockItemDao.Object));
+            _mockItemDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .Returns<IItemInstanceDto?>(Task.FromResult);
             _mockBzDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<BazaarItemDto>()))
                 .Returns<BazaarItemDto>(Task.FromResult);
@@ -284,18 +284,18 @@ namespace NosCore.Tests.BazaarTests
                     Id = _guid,
                     Amount = 99
                 });
-           await _bazaarController!.AddBazaarAsync(
-                new BazaarRequest
-                {
-                    Amount = 99,
-                    CharacterId = 1,
-                    CharacterName = "test",
-                    Duration = 3600,
-                    HasMedal = false,
-                    IsPackage = false,
-                    ItemInstanceId = _guid,
-                    Price = 50
-                }).ConfigureAwait(false);
+            await _bazaarController!.AddBazaarAsync(
+                 new BazaarRequest
+                 {
+                     Amount = 99,
+                     CharacterId = 1,
+                     CharacterName = "test",
+                     Duration = 3600,
+                     HasMedal = false,
+                     IsPackage = false,
+                     ItemInstanceId = _guid,
+                     Price = 50
+                 }).ConfigureAwait(false);
             Assert.AreEqual(false, await _bazaarController.DeleteBazaarAsync(0, 100, "test").ConfigureAwait(false));
         }
 
@@ -309,18 +309,18 @@ namespace NosCore.Tests.BazaarTests
                     Id = _guid,
                     Amount = 99
                 });
-             await _bazaarController!.AddBazaarAsync(
-                new BazaarRequest
-                {
-                    Amount = 99,
-                    CharacterId = 1,
-                    CharacterName = "test",
-                    Duration = 3600,
-                    HasMedal = false,
-                    IsPackage = false,
-                    ItemInstanceId = _guid,
-                    Price = 50
-                }).ConfigureAwait(false);
+            await _bazaarController!.AddBazaarAsync(
+               new BazaarRequest
+               {
+                   Amount = 99,
+                   CharacterId = 1,
+                   CharacterName = "test",
+                   Duration = 3600,
+                   HasMedal = false,
+                   IsPackage = false,
+                   ItemInstanceId = _guid,
+                   Price = 50
+               }).ConfigureAwait(false);
             Assert.AreEqual(true, await _bazaarController.DeleteBazaarAsync(0, 99, "test2").ConfigureAwait(false));
             Assert.AreEqual(1, _bazaarItemsHolder!.BazaarItems.Values.Count);
             Assert.AreEqual(0, _bazaarItemsHolder.BazaarItems[0].ItemInstance?.Amount ?? 0);
@@ -416,7 +416,7 @@ namespace NosCore.Tests.BazaarTests
                     Price = 50
                 }).ConfigureAwait(false);
             _bazaarItemsHolder!.BazaarItems[0].ItemInstance!.Amount--;
-            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<BazaarLink>(o=>o.BazaarItem!.Price), 10.AsJsonElement()));
+            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<BazaarLink>(o => o.BazaarItem!.Price), 10.AsJsonElement()));
             Assert.IsNull(await _bazaarController.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
             Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Price);
         }
