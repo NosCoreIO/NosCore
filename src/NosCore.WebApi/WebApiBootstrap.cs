@@ -23,7 +23,6 @@ namespace NosCore.WebApi
 {
     public static class LoginServerBootstrap
     {
-      
         public static Task Main(string[] args)
         {
             return Task.CompletedTask;

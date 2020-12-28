@@ -121,7 +121,6 @@ namespace NosCore.Core.Controllers
                 WebApi = data.WebApi,
                 LastPing = SystemTime.Now(),
                 Type = data.ClientType,
-                Token = data.Token
             };
 
             MasterClientListSingleton.Instance.Channels.Add(serv);
@@ -143,7 +142,6 @@ namespace NosCore.Core.Controllers
                 (s.Name == data.ClientName) && (s.Host == data.Host) && (s.Port == data.Port));
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TOKEN_UPDATED), channel.Id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
-            channel.Token = data.Token;
             return Ok(new ConnectionInfo { Token = GenerateToken(), ChannelInfo = data });
         }
 

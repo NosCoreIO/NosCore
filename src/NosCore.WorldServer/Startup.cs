@@ -307,23 +307,7 @@ namespace NosCore.WorldServer
 
             containerBuilder.Register(c =>
             {
-                var hasher = c.Resolve<IHasher>();
                 var configuration = c.Resolve<IOptions<WorldConfiguration>>();
-                var claims = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, "Server"),
-                    new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-                });
-                var keyByteArray = Encoding.Default.GetBytes(hasher.Hash(configuration.Value.MasterCommunication!.Password!, configuration.Value.MasterCommunication!.Salt));
-                var signinKey = new SymmetricSecurityKey(keyByteArray);
-                var handler = new JwtSecurityTokenHandler();
-                var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-                {
-                    Subject = claims,
-                    Issuer = "Issuer",
-                    Audience = "Audience",
-                    SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
-                });
                 return new Channel
                 {
                     MasterCommunication = configuration.Value.MasterCommunication,
@@ -337,7 +321,6 @@ namespace NosCore.WorldServer
                     StartInMaintenance = configuration.Value.StartInMaintenance,
                     Host = configuration.Value.Host!,
                     WebApi = configuration.Value.WebApi,
-                    Token = handler.WriteToken(securityToken)
                 };
             });
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
