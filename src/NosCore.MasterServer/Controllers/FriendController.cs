@@ -41,7 +41,7 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPost]
-        public Task<LanguageKey> AddFriendAsync([FromBody] FriendShipRequest friendPacket) => _friendService.AddFriendAsync(friendPacket);
+        public Task<LanguageKey> AddFriendAsync([FromBody] FriendShipRequest friendPacket) => _friendService.AddFriendAsync(friendPacket.CharacterId, friendPacket.FinsPacket!.CharacterId, friendPacket.FinsPacket.Type);
 
         [HttpGet]
         public Task<List<CharacterRelationStatus>> GetFriendsAsync(long id) => _friendService.GetFriendsAsync(id);

@@ -22,12 +22,13 @@ using NosCore.Data.WebApi;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Services.FriendService
 {
     public interface IFriendService
     {
-        Task<LanguageKey> AddFriendAsync(FriendShipRequest friendPacket);
+        Task<LanguageKey> AddFriendAsync(long characterId, long secondCharacterId, FinsPacketType friendsPacketType);
 
         Task<List<CharacterRelationStatus>> GetFriendsAsync(long id);
 

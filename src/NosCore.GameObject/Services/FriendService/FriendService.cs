@@ -52,10 +52,10 @@ namespace NosCore.GameObject.Services.FriendService
             _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
-        public async Task<LanguageKey> AddFriendAsync(FriendShipRequest friendPacket)
+        public async Task<LanguageKey> AddFriendAsync(long characterId, long secondCharacterId, FinsPacketType friendsPacketType)
         {
-            var character = await _connectedAccountHttpClient.GetCharacterAsync(friendPacket.CharacterId, null).ConfigureAwait(false);
-            var targetCharacter = await _connectedAccountHttpClient.GetCharacterAsync(friendPacket.FinsPacket?.CharacterId, null).ConfigureAwait(false);
+            var character = await _connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
+            var targetCharacter = await _connectedAccountHttpClient.GetCharacterAsync(secondCharacterId, null).ConfigureAwait(false);
             var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
                 (s.Value.Item2 == character.Item2?.ConnectedCharacter?.Id) &&
                 (s.Value.Item1 == targetCharacter.Item2?.ConnectedCharacter?.Id)).ToList();
@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Services.FriendService
                     throw new ArgumentException();
                 }
 
-                var relations = _characterRelationDao.Where(s => s.CharacterId == friendPacket.CharacterId)?.ToList() ?? new List<CharacterRelationDto>();
+                var relations = _characterRelationDao.Where(s => s.CharacterId == characterId)?.ToList() ?? new List<CharacterRelationDto>();
                 if (relations.Count(s => s.RelationType == CharacterRelationType.Friend) >= 80)
                 {
                     return LanguageKey.FRIENDLIST_FULL;
@@ -74,14 +74,14 @@ namespace NosCore.GameObject.Services.FriendService
 
                 if (relations.Any(s =>
                     (s.RelationType == CharacterRelationType.Blocked) &&
-                    (s.RelatedCharacterId == friendPacket.FinsPacket!.CharacterId)))
+                    (s.RelatedCharacterId == secondCharacterId)))
                 {
                     return LanguageKey.BLACKLIST_BLOCKED;
                 }
 
                 if (relations.Any(s =>
                     (s.RelationType == CharacterRelationType.Friend) &&
-                    (s.RelatedCharacterId == friendPacket.FinsPacket!.CharacterId)))
+                    (s.RelatedCharacterId == secondCharacterId)))
                 {
                     return LanguageKey.ALREADY_FRIEND;
                 }
@@ -100,7 +100,7 @@ namespace NosCore.GameObject.Services.FriendService
                     return LanguageKey.FRIEND_REQUEST_SENT;
                 }
 
-                switch (friendPacket.FinsPacket!.Type)
+                switch (friendsPacketType)
                 {
                     case FinsPacketType.Accepted:
                         var data = new CharacterRelationDto

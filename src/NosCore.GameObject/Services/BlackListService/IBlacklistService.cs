@@ -27,7 +27,7 @@ namespace NosCore.GameObject.Services.BlackListService
 {
     public interface IBlacklistService
     {
-        Task<LanguageKey> BlacklistPlayerAsync(BlacklistRequest blacklistRequest);
+        Task<LanguageKey> BlacklistPlayerAsync(long characterId, long secondCharacterId);
         Task<List<CharacterRelationStatus>> GetBlacklistedListAsync(long id);
         Task<bool> UnblacklistAsync(Guid id);
     }

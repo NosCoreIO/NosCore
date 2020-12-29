@@ -50,7 +50,8 @@ namespace NosCore.MasterServer.Controllers
         public Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName) => _bazaarService.DeleteBazaarAsync(id, count, requestCharacterName);
 
         [HttpPost]
-        public Task<LanguageKey> AddBazaarAsync([FromBody] BazaarRequest bazaarRequest) => _bazaarService.AddBazaarAsync(bazaarRequest);
+        public Task<LanguageKey> AddBazaarAsync([FromBody] BazaarRequest bazaarRequest) => _bazaarService.AddBazaarAsync(bazaarRequest.ItemInstanceId,
+            bazaarRequest.CharacterId, bazaarRequest.CharacterName, bazaarRequest.HasMedal, bazaarRequest.Price, bazaarRequest.IsPackage, bazaarRequest.Duration, bazaarRequest.Amount);
 
         [HttpPatch]
         public Task<BazaarLink?> ModifyBazaarAsync(long id, [FromBody] Json.Patch.JsonPatch bzMod) => _bazaarService.ModifyBazaarAsync(id, bzMod);

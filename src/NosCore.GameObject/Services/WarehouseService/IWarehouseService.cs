@@ -22,6 +22,7 @@ using NosCore.Data.WebApi;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.Services.WarehouseService
 {
@@ -31,6 +32,6 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         Task<bool> WithdrawItemAsync(Guid id);
 
-        Task<bool> DepositItemAsync(WareHouseDepositRequest depositRequest);
+        Task<bool> DepositItemAsync(long ownerId, WarehouseType warehouseType, ItemInstanceDto? itemInstance, short slot);
     }
 }

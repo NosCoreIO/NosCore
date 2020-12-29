@@ -47,6 +47,6 @@ namespace NosCore.MasterServer.Controllers
         public Task<bool> DeleteWarehouseItemAsync(Guid id) => _warehouseService.WithdrawItemAsync(id);
 
         [HttpPost]
-        public Task<bool> AddWarehouseItemAsync([FromBody] WareHouseDepositRequest depositRequest) => _warehouseService.DepositItemAsync(depositRequest);
+        public Task<bool> AddWarehouseItemAsync([FromBody] WareHouseDepositRequest depositRequest) => _warehouseService.DepositItemAsync(depositRequest.OwnerId, depositRequest.WarehouseType, depositRequest.ItemInstance, depositRequest.Slot);
     }
 }
