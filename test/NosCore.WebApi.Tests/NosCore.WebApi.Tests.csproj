@@ -17,6 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="coverlet.msbuild" Version="2.9.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <ProjectReference Include="..\..\src\NosCore.MasterServer\NosCore.MasterServer.csproj" />
     <ProjectReference Include="..\..\src\NosCore.WebApi\NosCore.WebApi.csproj" />
     <ProjectReference Include="..\..\src\NosCore.WorldServer\NosCore.WorldServer.csproj" />
