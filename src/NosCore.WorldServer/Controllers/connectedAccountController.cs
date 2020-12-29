@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Data.WebApi;
@@ -30,11 +31,21 @@ namespace NosCore.WorldServer.Controllers
     [AuthorizeRole(AuthorityType.GameMaster)]
     public class ConnectedAccountController : Controller
     {
+        private readonly Channel _channel;
+
+        public ConnectedAccountController(Channel channel)
+        {
+            _channel = channel;
+        }
         // GET api/connectedAccount
         [HttpGet]
         public List<ConnectedAccount> GetconnectedAccount()
         {
-            return Broadcaster.Instance.ConnectedAccounts();
+            return Broadcaster.Instance.ConnectedAccounts().Select(o =>
+            {
+                o.ChannelId = _channel.ChannelId;
+                return o;
+            }).ToList();
         }
     }
 }

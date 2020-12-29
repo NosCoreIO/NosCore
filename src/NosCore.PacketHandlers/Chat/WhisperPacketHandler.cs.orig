@@ -17,7 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+<<<<<<< HEAD
+=======
+using System;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using NosCore.Core;
+>>>>>>> b42c28bf... small cleanup
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -126,10 +133,17 @@ namespace NosCore.PacketHandlers.Chat
 
                 await _packetHttpClient.BroadcastPacketAsync(new PostedPacket
                 {
+<<<<<<< HEAD
                     Packet = _packetSerializer.Serialize(new[] { speakPacket }),
                     ReceiverCharacter = new Character { Name = receiverName },
                     SenderCharacter = new Character { Name = session.Character.Name },
+                    OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+=======
+                    Packet = _packetSerializer.Serialize(new[] {speakPacket}),
+                    ReceiverCharacter = new Character {Name = receiverName},
+                    SenderCharacter = new Character {Name = session.Character.Name},
                     OriginWorldId = _channel.ChannelId,
+>>>>>>> b42c28bf... small cleanup
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.Item2.ChannelId).ConfigureAwait(false);
 

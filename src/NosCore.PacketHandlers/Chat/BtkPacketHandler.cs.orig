@@ -17,7 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+<<<<<<< HEAD
+=======
+using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Core;
+>>>>>>> b42c28bf... small cleanup
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -106,8 +111,13 @@ namespace NosCore.PacketHandlers.Chat
                 ReceiverCharacter = new Character
                 { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name ?? "" },
                 SenderCharacter = new Character
+<<<<<<< HEAD
                 { Name = session.Character.Name, Id = session.Character.CharacterId },
+                OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+=======
+                    { Name = session.Character.Name, Id = session.Character.CharacterId },
                 OriginWorldId = _channel.ChannelId,
+>>>>>>> b42c28bf... small cleanup
                 ReceiverType = ReceiverType.OnlySomeone
             }, receiver.Item2.ChannelId).ConfigureAwait(false);
         }

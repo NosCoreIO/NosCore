@@ -17,21 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-
-namespace NosCore.Core.Networking
+namespace NosCore.PacketHandlers.Tests.Bazaar
 {
-    public sealed class MasterClientListSingleton
-    {
-        private static MasterClientListSingleton? _instance;
+    //[TestClass]
+    //public class CSListPacketHandlerTest
+    //{
+    //    private Mock<IBazaarHttpClient> _bazaarHttpClient;
+    //    private CSListPacketHandler _cSListPacketHandler;
+    //    private ClientSession _session;
 
-        private MasterClientListSingleton()
-        {
-        }
+    //    [TestInitialize]
+    //    public void Setup()
+    //    {
+    //        _cSListPacketHandler = new CSListPacketHandler(_bazaarHttpClient.Object);
+    //    }
 
-        public static MasterClientListSingleton Instance => _instance ??= new MasterClientListSingleton();
-
-        public List<ChannelInfo> Channels { get; } = new List<ChannelInfo>();
-        public int ConnectionCounter { get; set; }
-    }
+    //    //TODO list tests
+    //}
 }

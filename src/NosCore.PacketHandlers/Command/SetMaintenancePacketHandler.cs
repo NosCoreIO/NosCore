@@ -36,10 +36,12 @@ namespace NosCore.PacketHandlers.Command
     public class SetMaintenancePacketHandler : PacketHandler<SetMaintenancePacket>, IWorldPacketHandler
     {
         private readonly IChannelHttpClient _channelHttpClient;
+        private readonly Channel _channel;
 
-        public SetMaintenancePacketHandler(IChannelHttpClient channelHttpClient)
+        public SetMaintenancePacketHandler(IChannelHttpClient channelHttpClient, Channel channel)
         {
             _channelHttpClient = channelHttpClient;
+            _channel = channel;
         }
 
         public override async Task ExecuteAsync(SetMaintenancePacket setMaintenancePacket, ClientSession session)
@@ -50,7 +52,7 @@ namespace NosCore.PacketHandlers.Command
             var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<ChannelInfo>(o => o.IsMaintenance), setMaintenancePacket.MaintenanceMode.AsJsonElement()));
             if (setMaintenancePacket.IsGlobal == false)
             {
-                await _channelHttpClient.PatchAsync(MasterClientListSingleton.Instance.ChannelId, patch);
+                await _channelHttpClient.PatchAsync(_channel.ChannelId, patch);
             }
             else
             {

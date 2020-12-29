@@ -17,21 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
+using Mapster;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.Dto;
+using NosCore.Tests.Shared;
 
-namespace NosCore.Core.Networking
+namespace NosCore.PacketHandlers.Tests
 {
-    public sealed class MasterClientListSingleton
+    [TestClass]
+    public class SetupAssemblyInitializer
     {
-        private static MasterClientListSingleton? _instance;
-
-        private MasterClientListSingleton()
+        [AssemblyInitialize]
+        public static void AssemblyInit(TestContext _)
         {
+            TestHelpers.Instance.InitDatabase();
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
+                .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
         }
-
-        public static MasterClientListSingleton Instance => _instance ??= new MasterClientListSingleton();
-
-        public List<ChannelInfo> Channels { get; } = new List<ChannelInfo>();
-        public int ConnectionCounter { get; set; }
     }
 }

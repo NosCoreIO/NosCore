@@ -17,21 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
+using System.Threading.Tasks;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ClientPackets.UI;
 
-namespace NosCore.Core.Networking
+namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
 {
-    public sealed class MasterClientListSingleton
+    public abstract class GuriEventHandlerTestsBase
     {
-        private static MasterClientListSingleton? _instance;
+        protected IEventHandler<GuriPacket, GuriPacket>? Handler;
+        protected ClientSession? Session;
+        protected readonly UseItemPacket UseItem = new UseItemPacket();
 
-        private MasterClientListSingleton()
+        protected Task ExecuteGuriEventHandlerAsync(GuriPacket guriPacket)
         {
+            return Handler!.ExecuteAsync(
+                new RequestData<GuriPacket>(
+                    Session!,
+                    guriPacket));
         }
-
-        public static MasterClientListSingleton Instance => _instance ??= new MasterClientListSingleton();
-
-        public List<ChannelInfo> Channels { get; } = new List<ChannelInfo>();
-        public int ConnectionCounter { get; set; }
     }
 }
