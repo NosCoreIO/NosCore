@@ -77,7 +77,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             _token = result?.Token;
             _lastUpdateToken = SystemTime.Now();
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.REGISTRED_ON_MASTER));
-            MasterClientListSingleton.Instance.ChannelId = result?.ChannelInfo?.ChannelId ?? 0;
+            _channel.ChannelId = result?.ChannelInfo?.ChannelId ?? 0;
 
             await Policy
                 .HandleResult<HttpStatusCode>(ping => ping == HttpStatusCode.OK)
@@ -88,7 +88,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                 ).ExecuteAsync(() =>
                 {
                     var jsonPatch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/LastPing"), JsonDocument.Parse(JsonSerializer.Serialize(SystemTime.Now())).RootElement));
-                    return PatchAsync(MasterClientListSingleton.Instance.ChannelId, jsonPatch);
+                    return PatchAsync(_channel.ChannelId, jsonPatch);
                 }).ConfigureAwait(false);
             _logger.Error(
                 LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_PING_FAILED));

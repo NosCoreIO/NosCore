@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -47,15 +48,17 @@ namespace NosCore.PacketHandlers.Chat
         private readonly ILogger _logger;
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
+        private readonly Channel _channel;
 
         public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
-            IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
+            IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, Channel channel)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
             _friendHttpClient = friendHttpClient;
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _packetHttpClient = packetHttpClient;
+            _channel = channel;
         }
 
         public override async Task ExecuteAsync(BtkPacket btkPacket, ClientSession session)
@@ -104,7 +107,7 @@ namespace NosCore.PacketHandlers.Chat
                 { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name ?? "" },
                 SenderCharacter = new Character
                 { Name = session.Character.Name, Id = session.Character.CharacterId },
-                OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+                OriginWorldId = _channel.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
             }, receiver.Item2.ChannelId).ConfigureAwait(false);
         }

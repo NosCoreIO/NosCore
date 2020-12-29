@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Core;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -50,16 +51,18 @@ namespace NosCore.PacketHandlers.Chat
         private readonly ILogger _logger;
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
+        private readonly Channel _channel;
 
         public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer,
             IBlacklistHttpClient blacklistHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IPacketHttpClient packetHttpClient)
+            IConnectedAccountHttpClient connectedAccountHttpClient, IPacketHttpClient packetHttpClient, Channel channel)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
             _blacklistHttpClient = blacklistHttpClient;
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _packetHttpClient = packetHttpClient;
+            _channel = channel;
         }
 
         public override async Task ExecuteAsync(WhisperPacket whisperPacket, ClientSession session)
@@ -119,14 +122,14 @@ namespace NosCore.PacketHandlers.Chat
                 }
 
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
-                    $"{speakPacket.Message} <{GameLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Item2.Language)}: {MasterClientListSingleton.Instance.ChannelId}>";
+                    $"{speakPacket.Message} <{GameLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Item2.Language)}: {_channel.ChannelId}>";
 
                 await _packetHttpClient.BroadcastPacketAsync(new PostedPacket
                 {
                     Packet = _packetSerializer.Serialize(new[] { speakPacket }),
                     ReceiverCharacter = new Character { Name = receiverName },
                     SenderCharacter = new Character { Name = session.Character.Name },
-                    OriginWorldId = MasterClientListSingleton.Instance.ChannelId,
+                    OriginWorldId = _channel.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.Item2.ChannelId).ConfigureAwait(false);
 
