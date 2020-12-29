@@ -1,5 +1,5 @@
 coverage:
-  range: 28..100 #upgrade when code coverage is up
+  range: 35..100 #upgrade when code coverage is up
   round: down
   precision: 2
 ignore:
