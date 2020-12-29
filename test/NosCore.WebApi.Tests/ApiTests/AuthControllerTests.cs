@@ -16,10 +16,11 @@ using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Configuration;
+using NosCore.Tests.Shared;
 using Serilog;
 using TwoFactorAuthNet;
 
-namespace NosCore.Tests.Shared.ApiTests
+namespace NosCore.WebApi.Tests.ApiTests
 {
     [TestClass]
     public class AuthControllerTests

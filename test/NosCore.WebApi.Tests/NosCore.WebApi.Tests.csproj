@@ -17,9 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\NosCore.PacketHandlers\NosCore.PacketHandlers.csproj" />
-    <ProjectReference Include="..\..\test\NosCore.Tests\NosCore.Tests.Shared.csproj" />
+    <ProjectReference Include="..\..\src\NosCore.MasterServer\NosCore.MasterServer.csproj" />
+    <ProjectReference Include="..\..\src\NosCore.WebApi\NosCore.WebApi.csproj" />
+    <ProjectReference Include="..\..\src\NosCore.WorldServer\NosCore.WorldServer.csproj" />
     <ProjectReference Include="..\NosCore.GameObject.Tests\NosCore.GameObject.Tests.csproj" />
+    <ProjectReference Include="..\NosCore.Tests\NosCore.Tests.Shared.csproj" />
   </ItemGroup>
 
 </Project>

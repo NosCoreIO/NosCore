@@ -20,8 +20,9 @@
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
+using NosCore.Tests.Shared;
 
-namespace NosCore.Tests.Shared
+namespace NosCore.WebApi.Tests
 {
     [TestClass]
     public class SetupAssemblyInitializer

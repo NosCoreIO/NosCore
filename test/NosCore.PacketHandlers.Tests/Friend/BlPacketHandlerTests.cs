@@ -27,7 +27,6 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BlackListService;
-using NosCore.MasterServer.Controllers;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
@@ -80,17 +79,10 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId }
                     }));
-            using var blacklist = new BlacklistController(new BlacklistService(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
-                _characterRelationDao!, TestHelpers.Instance.CharacterDao));
+             var blacklist = new BlacklistService(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
+                _characterRelationDao!, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklistAsync(It.IsAny<BlacklistRequest>()))
-                .Returns(blacklist.AddBlacklistAsync(new BlacklistRequest
-                {
-                    CharacterId = _session!.Character.CharacterId,
-                    BlInsPacket = new BlInsPacket
-                    {
-                        CharacterId = targetSession.Character.VisualId
-                    }
-                }));
+                .Returns(blacklist.BlacklistPlayerAsync( _session!.Character.CharacterId, targetSession.Character.VisualId));
             await _blPacketHandler!.ExecuteAsync(blPacket, _session).ConfigureAwait(false);
             Assert.IsTrue(await _characterRelationDao!.FirstOrDefaultAsync(s =>
                 (s.CharacterId == _session.Character.CharacterId) &&

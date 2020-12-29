@@ -27,9 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\NosCore.LoginServer\NosCore.LoginServer.csproj" />
-    <ProjectReference Include="..\..\src\NosCore.MasterServer\NosCore.MasterServer.csproj" />
-    <ProjectReference Include="..\..\src\NosCore.WorldServer\NosCore.WorldServer.csproj" />
+    <ProjectReference Include="..\..\src\NosCore.PacketHandlers\NosCore.PacketHandlers.csproj" />
   </ItemGroup>
 
 </Project>

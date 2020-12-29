@@ -36,7 +36,6 @@ using NosCore.Shared.Configuration;
 using NosCore.Tests.Shared;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
-using FriendController = NosCore.MasterServer.Controllers.FriendController;
 
 namespace NosCore.PacketHandlers.Tests.Friend
 {
@@ -81,18 +80,13 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
-            using var friend = new FriendController(new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                friendRequestHolder, TestHelpers.Instance.ConnectedAccountHttpClient.Object));
+            var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
+                friendRequestHolder, TestHelpers.Instance.ConnectedAccountHttpClient.Object);
             TestHelpers.Instance.FriendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
-                .Returns(friend.AddFriendAsync(new FriendShipRequest
-                {
-                    CharacterId = _session.Character.CharacterId,
-                    FinsPacket = new FinsPacket
-                    {
-                        CharacterId = targetSession.Character.VisualId,
-                        Type = FinsPacketType.Accepted
-                    }
-                }));
+                .Returns(friend.AddFriendAsync(_session.Character.CharacterId,
+                    targetSession.Character.VisualId,
+                    FinsPacketType.Accepted
+        ));
 
             await _flPacketHandler!.ExecuteAsync(flPacket, _session).ConfigureAwait(false);
             Assert.IsTrue(await _characterRelationDao!.FirstOrDefaultAsync(s =>

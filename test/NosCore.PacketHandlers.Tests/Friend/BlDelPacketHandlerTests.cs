@@ -34,7 +34,6 @@ using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BlackListService;
-using NosCore.MasterServer.Controllers;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
@@ -49,7 +48,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
     public class BDelPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private BlacklistController? _blackListController;
+        private BlacklistService? _blackListController;
         private Mock<IBlacklistHttpClient>? _blackListHttpClient;
         private BlDelPacketHandler? _blDelPacketHandler;
         private Mock<IDao<CharacterDto, long>>? _characterDao;
@@ -72,12 +71,12 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _blackListHttpClient = TestHelpers.Instance.BlacklistHttpClient;
             _blDelPacketHandler = new BlDelPacketHandler(_blackListHttpClient.Object);
             _characterDao = new Mock<IDao<CharacterDto, long>>();
-            _blackListController = new BlacklistController(new BlacklistService(_connectedAccountHttpClient.Object, _characterRelationDao,
-                _characterDao.Object));
+            _blackListController = new BlacklistService(_connectedAccountHttpClient.Object, _characterRelationDao,
+                _characterDao.Object);
             _blackListHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
-                .Returns((long id) => _blackListController.GetBlacklistedAsync(id));
+                .Returns((long id) => _blackListController.GetBlacklistedListAsync(id));
             _blackListHttpClient.Setup(s => s.DeleteFromBlacklistAsync(It.IsAny<Guid>()))
-                .Callback((Guid id) => Task.FromResult(_blackListController.DeleteAsync(id)));
+                .Callback((Guid id) => Task.FromResult(_blackListController.UnblacklistAsync(id)));
         }
 
         [TestMethod]

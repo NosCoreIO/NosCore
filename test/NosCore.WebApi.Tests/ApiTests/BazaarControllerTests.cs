@@ -34,7 +34,7 @@ using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.BazaarService;
 using BazaarController = NosCore.MasterServer.Controllers.BazaarController;
 
-namespace NosCore.Tests.Shared.ApiTests
+namespace NosCore.WebApi.Tests.ApiTests
 {
     [TestClass]
     public class BazaarControllerTests
