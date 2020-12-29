@@ -20,7 +20,7 @@ script:
     - dotnet --version
     - dotnet restore
     - dotnet build
-    - dotnet test test/NosCore.Tests/NosCore.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
+    - dotnet test --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
 after_success:
     - curl -s https://codecov.io/bash | bash -s -- -t $(CODECOV_TOKEN)
 after_script:

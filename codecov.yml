@@ -2,3 +2,10 @@ coverage:
   range: 28..100 #upgrade when code coverage is up
   round: down
   precision: 2
+ignore:
+  - "src/NosCore.WorldServer/*"
+  - "src/NosCore.MasterServer/*"
+  - "src/NosCore.LoginServer/*"
+  - "src/NosCore.WebApi/*"
+  - "src/NosCore.Database/**/*"
+  - "src/NosCore.Data/**/*"
