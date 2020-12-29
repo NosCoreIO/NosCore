@@ -17,6 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Json.More;
 using Json.Patch;
 using Json.Pointer;
@@ -29,12 +32,9 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.BazaarService;
-using System;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
 using BazaarController = NosCore.MasterServer.Controllers.BazaarController;
 
-namespace NosCore.Tests.BazaarTests
+namespace NosCore.Tests.Shared.ApiTests
 {
     [TestClass]
     public class BazaarControllerTests

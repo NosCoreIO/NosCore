@@ -17,6 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -30,21 +34,17 @@ using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
-using NosCore.PacketHandlers.Friend;
+using NosCore.PacketHandlers.Miniland;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
-using NosCore.Tests.Helpers;
+using NosCore.Tests.Shared;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
 
-namespace NosCore.Tests.MinilandTests
+namespace NosCore.PacketHandlers.Tests.Miniland
 {
     [TestClass]
     public class MJoinPacketHandlerTests
@@ -127,7 +127,7 @@ namespace NosCore.Tests.MinilandTests
                     RelationType = CharacterRelationType.Friend
                 }
             });
-            _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland
+            _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new GameObject.Services.MinilandService.Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Lock });
             await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session).ConfigureAwait(false);
 
@@ -145,7 +145,7 @@ namespace NosCore.Tests.MinilandTests
                 VisualId = _targetSession!.Character.CharacterId,
                 Type = VisualType.Player
             };
-            _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland
+            _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new GameObject.Services.MinilandService.Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Open });
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
@@ -200,7 +200,7 @@ namespace NosCore.Tests.MinilandTests
                     RelationType = CharacterRelationType.Friend
                 }
             });
-            _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland
+            _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new GameObject.Services.MinilandService.Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
             await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session).ConfigureAwait(false);
 
@@ -235,7 +235,7 @@ namespace NosCore.Tests.MinilandTests
                     RelationType = CharacterRelationType.Blocked
                 }
             });
-            _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new Miniland
+            _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new GameObject.Services.MinilandService.Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
             await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session).ConfigureAwait(false);
 

@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
@@ -29,12 +31,10 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
-using NosCore.Tests.Helpers;
+using NosCore.Tests.Shared;
 using Serilog;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace NosCore.Tests.PacketHandlerTests
+namespace NosCore.PacketHandlers.Tests.CharacterScreen
 {
     [TestClass]
     public class DacPacketHandlerTests

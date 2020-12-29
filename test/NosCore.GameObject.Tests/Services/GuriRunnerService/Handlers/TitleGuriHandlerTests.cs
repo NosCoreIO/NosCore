@@ -17,13 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.GuriRunnerService.Handlers;
 using NosCore.GameObject.Services.InventoryService;
@@ -32,15 +35,11 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Tests.Helpers;
+using NosCore.Tests.Shared;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using GuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
 
-namespace NosCore.Tests.GuriHandlerTests
+namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
 {
     [TestClass]
     public class TitleGuriHandlerTests : GuriEventHandlerTestsBase
@@ -56,7 +55,7 @@ namespace NosCore.Tests.GuriHandlerTests
             {
                 new Item {VNum = 1, ItemType = ItemType.Title, EffectValue = 0, Type =  NoscorePocketType.Main},
             };
-            _itemProvider = new ItemGenerationService(items,
+            _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger);
 
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);

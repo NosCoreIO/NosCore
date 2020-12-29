@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -27,10 +29,8 @@ using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace NosCore.PacketHandlers.Friend
+namespace NosCore.PacketHandlers.Miniland
 {
     public class MJoinPacketHandler : PacketHandler<MJoinPacket>, IWorldPacketHandler
     {

@@ -31,7 +31,7 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.Enumerations;
 
-namespace NosCore.Tests
+namespace NosCore.Core.Tests
 {
     [TestClass]
     public class LogLanguageTests

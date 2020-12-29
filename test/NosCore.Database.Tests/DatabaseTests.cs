@@ -1,13 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Database;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace NosCore.Tests
+namespace NosCore.Database.Tests
 {
     [TestClass]
     public class DatabaseTests

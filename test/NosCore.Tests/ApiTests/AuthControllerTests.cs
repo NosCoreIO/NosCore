@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,17 +16,10 @@ using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Configuration;
-using NosCore.Tests.Helpers;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text.Json;
-using System.Threading.Tasks;
 using TwoFactorAuthNet;
 
-namespace NosCore.Tests.ApiTests
+namespace NosCore.Tests.Shared.ApiTests
 {
     [TestClass]
     public class AuthControllerTests

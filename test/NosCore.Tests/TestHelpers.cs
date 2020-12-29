@@ -17,6 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -74,9 +77,6 @@ using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Character = NosCore.Database.Entities.Character;
 using InventoryItemInstance = NosCore.Database.Entities.InventoryItemInstance;
 using Item = NosCore.GameObject.Services.ItemGenerationService.Item.Item;
@@ -88,7 +88,7 @@ using Miniland = NosCore.Database.Entities.Miniland;
 using Portal = NosCore.Database.Entities.Portal;
 using ShopItem = NosCore.Database.Entities.ShopItem;
 
-namespace NosCore.Tests.Helpers
+namespace NosCore.Tests.Shared
 {
     public class TestHelpers
     {

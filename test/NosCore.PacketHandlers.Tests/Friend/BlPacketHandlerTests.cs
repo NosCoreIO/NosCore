@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
@@ -30,13 +32,11 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Configuration;
-using NosCore.Tests.Helpers;
+using NosCore.Tests.Shared;
 using Serilog;
-using System;
-using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
 
-namespace NosCore.Tests.FriendAndBlacklistsTests
+namespace NosCore.PacketHandlers.Tests.Friend
 {
     [TestClass]
     public class BlPacketHandlerTests
