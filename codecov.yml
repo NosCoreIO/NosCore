@@ -9,3 +9,4 @@ ignore:
   - "src/NosCore.WebApi/*"
   - "src/NosCore.Database/**/*"
   - "src/NosCore.Data/**/*"
+  - "test/**/*"
