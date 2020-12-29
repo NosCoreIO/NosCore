@@ -81,24 +81,24 @@ namespace NosCore.GameObject.Services.WarehouseService
             return true;
         }
 
-        public async Task<bool> DepositItemAsync(WareHouseDepositRequest depositRequest)
+        public async Task<bool> DepositItemAsync(long ownerId, WarehouseType warehouseType, ItemInstanceDto? itemInstance, short slot)
         {
-            var item = depositRequest.ItemInstance as IItemInstanceDto;
+            var item = itemInstance as IItemInstanceDto;
             item!.Id = Guid.NewGuid();
             item = await _itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(true);
             var warehouse = new WarehouseDto
             {
-                CharacterId = depositRequest.WarehouseType == WarehouseType.FamilyWareHouse ? null
-                    : (long?)depositRequest.OwnerId,
+                CharacterId = warehouseType == WarehouseType.FamilyWareHouse ? null
+                    : (long?)ownerId,
                 Id = Guid.NewGuid(),
-                FamilyId = depositRequest.WarehouseType == WarehouseType.FamilyWareHouse
-                    ? (long?)depositRequest.OwnerId : null,
-                Type = depositRequest.WarehouseType,
+                FamilyId = warehouseType == WarehouseType.FamilyWareHouse
+                    ? (long?)ownerId : null,
+                Type = warehouseType,
             };
             warehouse = await _warehouseDao.TryInsertOrUpdateAsync(warehouse).ConfigureAwait(true);
             var warehouseItem = new WarehouseItemDto
             {
-                Slot = depositRequest.Slot,
+                Slot = slot,
                 Id = Guid.NewGuid(),
                 ItemInstanceId = item!.Id,
                 WarehouseId = warehouse.Id

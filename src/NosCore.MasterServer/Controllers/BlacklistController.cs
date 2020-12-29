@@ -41,7 +41,7 @@ namespace NosCore.MasterServer.Controllers
         }
 
         [HttpPost]
-        public Task<LanguageKey> AddBlacklistAsync([FromBody] BlacklistRequest blacklistRequest) => _blacklistService.BlacklistPlayerAsync(blacklistRequest);
+        public Task<LanguageKey> AddBlacklistAsync([FromBody] BlacklistRequest blacklistRequest) => _blacklistService.BlacklistPlayerAsync(blacklistRequest.CharacterId, blacklistRequest.BlInsPacket!.CharacterId);
 
         [HttpGet]
         public Task<List<CharacterRelationStatus>> GetBlacklistedAsync(long id) => _blacklistService.GetBlacklistedListAsync(id);

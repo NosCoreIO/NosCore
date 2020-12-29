@@ -49,6 +49,6 @@ namespace NosCore.MasterServer.Controllers
         public Task<MailData?> ViewMailAsync(long id, [FromBody] JsonPatch mailData) => _mailService.EditMailAsync(id, mailData);
 
         [HttpPost]
-        public Task<bool> SendMailAsync([FromBody] MailRequest mail) => _mailService.SendMailAsync(mail);
+        public Task<bool> SendMailAsync([FromBody] MailRequest mail) => _mailService.SendMailAsync(mail.Mail!, mail.VNum, mail.Amount, mail.Rare, mail.Upgrade);
     }
 }

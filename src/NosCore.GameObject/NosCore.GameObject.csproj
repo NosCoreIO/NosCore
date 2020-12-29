@@ -25,8 +25,4 @@
     <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Providers\" />
-  </ItemGroup>
-
 </Project>

@@ -104,7 +104,7 @@ namespace NosCore.GameObject.Services.MailService
             return true;
         }
 
-        public async Task<MailData?> EditMailAsync(long id, [FromBody] JsonPatch mailData)
+        public async Task<MailData?> EditMailAsync(long id, JsonPatch mailData)
         {
             var mail = await _mailDao.FirstOrDefaultAsync(s => s.MailId == id).ConfigureAwait(false);
             if (mail == null)
@@ -112,10 +112,9 @@ namespace NosCore.GameObject.Services.MailService
                 return null;
             }
 
-
             var result = mailData.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(mail)).RootElement);
-            var bz = JsonSerializer.Deserialize<MailDto>(result!.Result.GetRawText())!;
-            await _mailDao.TryInsertOrUpdateAsync(bz).ConfigureAwait(false);
+            mail = JsonSerializer.Deserialize<MailDto>(result!.Result.GetRawText())!;
+            await _mailDao.TryInsertOrUpdateAsync(mail).ConfigureAwait(false);
             var savedData =
                 _parcelHolder[mail.IsSenderCopy ? (long)mail.SenderId! : mail.ReceiverId][mail.IsSenderCopy]
                     .FirstOrDefault(s => s.Value.MailDto.MailId == id);
@@ -131,9 +130,9 @@ namespace NosCore.GameObject.Services.MailService
             return maildata;
 
         }
-        public async Task<bool> SendMailAsync([FromBody] MailRequest mail)
+        public async Task<bool> SendMailAsync(MailDto mail, short? vNum, short? amount, sbyte? rare, byte? upgrade)
         {
-            var mailref = mail.Mail!;
+            var mailref = mail;
             var receivdto = await _characterDto.FirstOrDefaultAsync(s => s.CharacterId == mailref.ReceiverId).ConfigureAwait(false);
             if (receivdto == null)
             {
@@ -141,9 +140,9 @@ namespace NosCore.GameObject.Services.MailService
             }
 
             var receiverName = receivdto.Name!;
-            var it = _items.Find(item => item.VNum == mail.VNum);
+            var it = _items.Find(item => item.VNum == vNum);
             IItemInstanceDto? itemInstance = null;
-            if ((mail.Mail?.ItemInstanceId == null) && (mail.VNum != null))
+            if ((mail?.ItemInstanceId == null) && (vNum != null))
             {
                 if (it == null)
                 {
@@ -153,36 +152,36 @@ namespace NosCore.GameObject.Services.MailService
                 if ((it.ItemType != ItemType.Weapon) && (it.ItemType != ItemType.Armor) &&
                     (it.ItemType != ItemType.Specialist))
                 {
-                    mail.Upgrade = 0;
+                    upgrade = 0;
                 }
                 else if ((it.ItemType != ItemType.Weapon) && (it.ItemType != ItemType.Armor))
                 {
-                    mail.Rare = 0;
+                    rare = 0;
                 }
 
-                if ((mail.Rare > 8) || (mail.Rare < -2))
+                if ((rare > 8) || (rare < -2))
                 {
-                    mail.Rare = 0;
+                    rare = 0;
                 }
 
-                if ((mail.Upgrade > 10) && (it.ItemType != ItemType.Specialist))
+                if ((upgrade > 10) && (it.ItemType != ItemType.Specialist))
                 {
-                    mail.Upgrade = 0;
+                    upgrade = 0;
                 }
-                else if ((it.ItemType == ItemType.Specialist) && (mail.Upgrade > 15))
+                else if ((it.ItemType == ItemType.Specialist) && (upgrade > 15))
                 {
-                    mail.Upgrade = 0;
-                }
-
-                if (mail.Amount == 0)
-                {
-                    mail.Amount = 1;
+                    upgrade = 0;
                 }
 
-                mail.Amount = (it.Type == NoscorePocketType.Etc) || (it.Type == NoscorePocketType.Main) ? mail.Amount
+                if (amount == 0)
+                {
+                    amount = 1;
+                }
+
+                amount = (it.Type == NoscorePocketType.Etc) || (it.Type == NoscorePocketType.Main) ? amount
                     : 1;
-                itemInstance = _itemProvider.Create((short)mail.VNum, mail.Amount ?? 1, mail.Rare ?? 0,
-                    mail.Upgrade ?? 0);
+                itemInstance = _itemProvider.Create((short)vNum, amount ?? 1, rare ?? 0,
+                    upgrade ?? 0);
 
                 itemInstance = await _itemInstanceDao.TryInsertOrUpdateAsync(itemInstance).ConfigureAwait(false);
                 mailref.ItemInstanceId = itemInstance?.Id;

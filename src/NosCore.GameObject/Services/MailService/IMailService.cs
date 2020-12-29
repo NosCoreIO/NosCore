@@ -21,6 +21,7 @@ using Json.Patch;
 using NosCore.Data.WebApi;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Data.Dto;
 
 namespace NosCore.GameObject.Services.MailService
 {
@@ -32,6 +33,6 @@ namespace NosCore.GameObject.Services.MailService
 
         Task<MailData?> EditMailAsync(long id, JsonPatch mailData);
 
-        Task<bool> SendMailAsync(MailRequest mail);
+        Task<bool> SendMailAsync(MailDto mail, short? vNum, short? amount, sbyte? rare, byte? upgrade);
     }
 }

@@ -24,7 +24,6 @@ namespace NosCore.GameObject.Holders
 {
     public class FriendRequestHolder
     {
-        public ConcurrentDictionary<Guid, Tuple<long, long>> FriendRequestCharacters { get; set; } =
-            new ConcurrentDictionary<Guid, Tuple<long, long>>();
+        public ConcurrentDictionary<Guid, Tuple<long, long>> FriendRequestCharacters { get; set; } = new ConcurrentDictionary<Guid, Tuple<long, long>>();
     }
 }

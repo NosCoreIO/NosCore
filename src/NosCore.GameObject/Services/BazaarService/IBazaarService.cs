@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.Packets.Enumerations;
@@ -32,7 +33,7 @@ namespace NosCore.GameObject.Services.BazaarService
 
         Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName);
 
-        Task<LanguageKey> AddBazaarAsync(BazaarRequest bazaarRequest);
+        Task<LanguageKey> AddBazaarAsync(Guid itemInstanceId, long characterId, string? characterName, bool hasMedal, long price, bool isPackage, short duration, short amount);
 
         Task<BazaarLink?> ModifyBazaarAsync(long id, Json.Patch.JsonPatch bzMod);
     }

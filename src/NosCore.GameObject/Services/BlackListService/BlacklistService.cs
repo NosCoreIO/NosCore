@@ -44,27 +44,27 @@ namespace NosCore.GameObject.Services.BlackListService
             _characterDao = characterDao;
         }
 
-        public async Task<LanguageKey> BlacklistPlayerAsync(BlacklistRequest blacklistRequest)
+        public async Task<LanguageKey> BlacklistPlayerAsync(long characterId, long secondCharacterId)
         {
-            var character = await _connectedAccountHttpClient.GetCharacterAsync(blacklistRequest.CharacterId, null).ConfigureAwait(false);
+            var character = await _connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
             var targetCharacter = await
-                _connectedAccountHttpClient.GetCharacterAsync(blacklistRequest.BlInsPacket?.CharacterId, null).ConfigureAwait(false);
+                _connectedAccountHttpClient.GetCharacterAsync(secondCharacterId, null).ConfigureAwait(false);
             if ((character.Item2 == null) || (targetCharacter.Item2 == null))
             {
                 throw new ArgumentException();
             }
 
-            var relations = _characterRelationDao.Where(s => s.CharacterId == blacklistRequest.CharacterId)?
+            var relations = _characterRelationDao.Where(s => s.CharacterId == characterId)?
                 .ToList() ?? new List<CharacterRelationDto>();
             if (relations.Any(s =>
-                (s.RelatedCharacterId == blacklistRequest.BlInsPacket?.CharacterId) &&
+                (s.RelatedCharacterId == secondCharacterId) &&
                 (s.RelationType != CharacterRelationType.Blocked)))
             {
                 return LanguageKey.CANT_BLOCK_FRIEND;
             }
 
             if (relations.Any(s =>
-                (s.RelatedCharacterId == blacklistRequest.BlInsPacket?.CharacterId) &&
+                (s.RelatedCharacterId == secondCharacterId) &&
                 (s.RelationType == CharacterRelationType.Blocked)))
             {
                 return LanguageKey.ALREADY_BLACKLISTED;
