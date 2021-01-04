@@ -28,6 +28,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
+using YamlDotNet.Core;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 {
@@ -51,7 +52,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 
         public async Task<Tuple<ServerConfiguration?, ConnectedAccount?>> GetCharacterAsync(long? characterId, string? characterName)
         {
-            var servers = await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false) ?? new List<ChannelInfo>();
+            var servers = await _channelHttpClient.GetChannelsAsync();
             foreach (var channel in servers.Where(c => c.Type == ServerType.WorldServer))
             {
                 var accounts = await GetConnectedAccountAsync(channel).ConfigureAwait(false);
@@ -63,7 +64,6 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
                     return new Tuple<ServerConfiguration?, ConnectedAccount?>(channel.WebApi, target);
                 }
             }
-
             return new Tuple<ServerConfiguration?, ConnectedAccount?>(null, null);
         }
 
@@ -76,7 +76,6 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 
             using var client = CreateClient();
             client.BaseAddress = new Uri(channel.WebApi?.ToString() ?? "");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
 
             var response = await client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}")).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
@@ -88,7 +87,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
                     })!;
             }
 
-            return new List<ConnectedAccount>();
+            throw new HttpRequestException();
         }
     }
 }

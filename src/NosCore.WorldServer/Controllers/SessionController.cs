@@ -27,7 +27,6 @@ using System.Threading.Tasks;
 namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
-    [AuthorizeRole(AuthorityType.GameMaster)]
     public class SessionController : Controller
     {
         // DELETE api/session

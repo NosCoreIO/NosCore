@@ -34,7 +34,6 @@ using System.Threading.Tasks;
 namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
-    [AuthorizeRole(AuthorityType.GameMaster)]
     public class StatController : Controller
     {
         private readonly ILogger _logger;

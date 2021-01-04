@@ -33,7 +33,6 @@ using System.Threading.Tasks;
 namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
-    [AuthorizeRole(AuthorityType.GameMaster)]
     public class IncommingMailController : Controller
     {
         [HttpPost]

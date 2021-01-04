@@ -28,7 +28,6 @@ using System.Collections.Generic;
 namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
-    [AuthorizeRole(AuthorityType.GameMaster)]
     public class ConnectedAccountController : Controller
     {
         private readonly Channel _channel;

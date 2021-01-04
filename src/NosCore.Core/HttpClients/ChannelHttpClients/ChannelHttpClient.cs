@@ -142,7 +142,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             return _token;
         }
 
-        public async Task<List<ChannelInfo>?> GetChannelsAsync()
+        public async Task<List<ChannelInfo>> GetChannelsAsync()
         {
             var channels = MasterClientListSingleton.Instance.Channels;
             if (MasterClientListSingleton.Instance.Channels.Any())
@@ -157,14 +157,19 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             var response = await client.GetAsync(new Uri($"{_channel.MasterCommunication}/api/channel")).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                channels = JsonSerializer.Deserialize<List<ChannelInfo>>(await response.Content.ReadAsStringAsync().ConfigureAwait(false)
+                var chan = JsonSerializer.Deserialize<List<ChannelInfo>>(await response.Content.ReadAsStringAsync()
                     , new JsonSerializerOptions
                     {
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                     });
+                if (chan != null)
+                {
+                    channels = chan;
+                    return channels;
+                }
             }
 
-            return channels;
+            throw new HttpRequestException();
         }
 
         public async Task<ChannelInfo?> GetChannelAsync(int channelId)

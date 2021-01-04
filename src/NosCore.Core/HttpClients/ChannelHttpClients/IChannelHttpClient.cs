@@ -29,7 +29,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
         Task ConnectAsync();
         Task<HttpStatusCode> PatchAsync(int channelId, JsonPatch patch);
         Task<string?> GetOrRefreshTokenAsync();
-        Task<List<ChannelInfo>?> GetChannelsAsync();
+        Task<List<ChannelInfo>> GetChannelsAsync();
         Task<ChannelInfo?> GetChannelAsync(int channelId);
     }
 }
