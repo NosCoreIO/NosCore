@@ -51,11 +51,14 @@ namespace NosCore.Core.Networking
         public int SessionId { get; set; }
         public ConcurrentQueue<IPacket?> LastPackets { get; }
 
-        public Task DisconnectAsync()
+        public async Task DisconnectAsync()
         {
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FORCED_DISCONNECTION),
                 SessionId);
-            return Channel == null ? Task.CompletedTask : Channel.DisconnectAsync();
+            if (Channel != null)
+            {
+                await Channel.DisconnectAsync();
+            }
         }
 
         public Task SendPacketAsync(IPacket? packet)

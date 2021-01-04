@@ -37,7 +37,8 @@ namespace NosCore.PacketHandlers.Movement
     {
         private readonly IHeuristic _distanceCalculator;
         private readonly ILogger _logger;
-
+        // this is used to avoid network issue to be counted as speed hack.
+        private readonly int _speedDiffAllowed = 1 / 3;
         public WalkPacketHandler(IHeuristic distanceCalculator, ILogger logger)
         {
             _logger = logger;
@@ -61,7 +62,7 @@ namespace NosCore.PacketHandlers.Movement
             }
 
             var travelTime = 2500 / walkPacket.Speed * distance;
-            if (travelTime > 1000)
+            if (travelTime > 1000 * (_speedDiffAllowed + 1))
             {
                 await session.DisconnectAsync();
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SPEED_INVALID), session.Character.VisualId);
