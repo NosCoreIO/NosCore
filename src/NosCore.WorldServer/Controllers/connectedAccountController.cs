@@ -24,6 +24,8 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Character = NosCore.GameObject.Character;
 
 namespace NosCore.WorldServer.Controllers
 {
@@ -45,6 +47,25 @@ namespace NosCore.WorldServer.Controllers
                 o.ChannelId = _channel.ChannelId;
                 return o;
             }).ToList();
+        }
+
+        // DELETE api/connectedAccount
+        [HttpDelete]
+        public async Task<IActionResult> DisconnectAsync(long id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var targetSession = Broadcaster.Instance.GetCharacter(s => s.VisualId == id) as Character;
+            if (targetSession?.Session == null)
+            {
+                return Ok(); // TODO : Handle 404 in WebApi
+            }
+
+            await targetSession.Session.DisconnectAsync().ConfigureAwait(false);
+            return Ok();
         }
     }
 }

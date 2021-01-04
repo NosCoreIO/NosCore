@@ -114,8 +114,12 @@ namespace NosCore.GameObject.Services.MinilandService
                 await _minilandObjectsDao.TryInsertOrUpdateAsync(obj).ConfigureAwait(false);
             }
 
-            _minilandHolder.Minilands.TryRemove(characterId, out _);
-            return _minilandHolder.Minilands[characterId].MapInstanceId;
+            if (_minilandHolder.Minilands.TryRemove(characterId, out var mapInstance))
+            {
+                return mapInstance.MapInstanceId;
+            }
+
+            return null;
         }
 
         public async Task<Miniland> InitializeAsync(Character character, IMapInstanceGeneratorService generator)
