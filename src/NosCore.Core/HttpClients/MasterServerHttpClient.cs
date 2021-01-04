@@ -78,7 +78,6 @@ namespace NosCore.Core.HttpClients
             }
 
             client.BaseAddress = new Uri(channel.WebApi!.ToString());
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channel.Token);
             return client;
         }
 

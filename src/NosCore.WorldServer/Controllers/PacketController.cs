@@ -34,7 +34,6 @@ using System.Threading.Tasks;
 namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
-    [AuthorizeRole(AuthorityType.GameMaster)]
     public class PacketController : Controller
     {
         private readonly IDeserializer _deserializer;

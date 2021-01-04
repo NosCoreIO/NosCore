@@ -184,7 +184,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         }
 
 #pragma warning disable VSTHRD100 // Avoid async void methods
-        public override async void ChannelUnregistered(IChannelHandlerContext context)
+        public override async void ChannelInactive(IChannelHandlerContext context)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
             try
@@ -202,7 +202,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                         Character.Hp = 1;
                     }
 
-                    await Character.SendFinfoAsync(_friendHttpClient, _packetHttpClient, _packetSerializer, false).ConfigureAwait(false);
+                    await Character.SendFinfoAsync(_friendHttpClient, _packetHttpClient, _packetSerializer, false)
+                        .ConfigureAwait(false);
 
                     var targetId = _exchangeProvider.GetTargetId(Character.VisualId);
                     if (targetId.HasValue)
@@ -219,18 +220,21 @@ namespace NosCore.GameObject.Networking.ClientSession
                     await Character.MapInstance.SendPacketAsync(Character.GenerateOut()).ConfigureAwait(false);
                     await Character.SaveAsync().ConfigureAwait(false);
 
-                    var minilandId = await _minilandProvider.DeleteMinilandAsync(Character.CharacterId).ConfigureAwait(false);
+                    var minilandId = await _minilandProvider.DeleteMinilandAsync(Character.CharacterId)
+                        .ConfigureAwait(false);
                     if (minilandId != null)
                     {
                         _mapInstanceGeneratorService.RemoveMap((Guid)minilandId);
                     }
                 }
-
-                Broadcaster.Instance.UnregisterSession(this);
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED));
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED), ex);
+            }
+            finally
+            {
+                Broadcaster.Instance.UnregisterSession(this);
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED));
             }
         }

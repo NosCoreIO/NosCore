@@ -130,22 +130,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            var accountobject = new AccountDto
-            {
-                AccountId = account.AccountId,
-                Name = account.Name,
-                Password = account.Password!.ToLower(),
-                Authority = account.Authority,
-                Language = account.Language,
-                MfaSecret = account.MfaSecret
-            };
             var sessionMapping = SessionFactory.Instance.Sessions
                 .FirstOrDefault(s => s.Value.SessionId == clientSession.SessionId);
             if (!sessionMapping.Equals(default(KeyValuePair<string, RegionTypeMapping>)))
             {
                 sessionMapping.Value.RegionType = account.Language;
             }
-            clientSession.InitializeAccount(accountobject);
+            clientSession.InitializeAccount(account);
             //todo Send Account Connected
         }
 
