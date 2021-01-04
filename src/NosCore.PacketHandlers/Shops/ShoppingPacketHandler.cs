@@ -78,8 +78,11 @@ namespace NosCore.PacketHandlers.Shops
                 return;
             }
 
-
-            await clientSession.SendPacketAsync(aliveEntity.GenerateNInv(percent, shoppingPacket.ShopType)).ConfigureAwait(false);
+            if (aliveEntity.Shop?.ShopItems.IsEmpty == false)
+            {
+                await clientSession.SendPacketAsync(aliveEntity.GenerateNInv(percent, shoppingPacket.ShopType))
+                    .ConfigureAwait(false);
+            }
         }
     }
 }

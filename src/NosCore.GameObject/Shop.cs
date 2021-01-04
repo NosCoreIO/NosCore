@@ -42,7 +42,7 @@ namespace NosCore.GameObject
 
         public int Size
         {
-            get => _size ?? ShopItems.Values.Max(s => s.Slot) + 1;
+            get => _size ?? ShopItems.Values.Select(s => s.Slot).DefaultIfEmpty().Max() + 1;
             set => _size = value;
         }
         public I18NString Name { get; set; }
