@@ -19,7 +19,6 @@
 
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
-using System;
 
 namespace NosCore.Core
 {
@@ -34,8 +33,6 @@ namespace NosCore.Core
         public int ConnectedAccountLimit { get; set; }
 
         public ServerConfiguration? WebApi { get; set; }
-
-        public DateTime LastPing { get; set; }
 
         public ServerType Type { get; set; }
         public bool IsMaintenance { get; set; }

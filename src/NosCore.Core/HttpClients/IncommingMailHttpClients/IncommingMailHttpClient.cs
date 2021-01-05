@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.WebApi;
 using System;
 using System.Net.Http;
@@ -30,9 +29,8 @@ namespace NosCore.Core.HttpClients.IncommingMailHttpClients
     public class IncommingMailHttpClient : MasterServerHttpClient, IIncommingMailHttpClient
     {
 
-        public IncommingMailHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
-            IChannelHttpClient channelHttpClient)
-            : base(httpClientFactory, channel, channelHttpClient)
+        public IncommingMailHttpClient(IHttpClientFactory httpClientFactory, Channel channel)
+            : base(httpClientFactory, channel)
         {
             ApiUrl = "api/incommingMail";
             RequireConnection = true;

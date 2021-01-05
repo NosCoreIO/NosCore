@@ -19,15 +19,10 @@
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using NosCore.Core;
 using NosCore.Core.I18N;
-using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
 using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,19 +42,6 @@ namespace NosCore.MasterServer
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (!Debugger.IsAttached)
-            {
-                Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => MasterClientListSingleton.Instance.Channels
-                    .Where(s =>
-                        (s.LastPing.AddSeconds(10) < SystemTime.Now()) && (s.WebApi != null)).Select(s => s.Id).ToList()
-                    .ForEach(id =>
-                    {
-                        _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),
-                            id.ToString());
-                        MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == id);
-                    }));
-            }
-
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

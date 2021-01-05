@@ -20,8 +20,6 @@
 using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
@@ -49,6 +47,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR.Client;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -187,17 +187,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         }
 
         public static async Task<FinitPacket> GenerateFinitAsync(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
-            IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
+           IChannelHubClient channelHubClient)
         {
             //same canal
-            var servers = (await channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
-                ?.Where(c => c.Type == ServerType.WorldServer).ToList();
-            var accounts = new List<ConnectedAccount>();
-            foreach (var server in servers ?? new List<ChannelInfo>())
-            {
-                accounts.AddRange(
-                    await connectedAccountHttpClient.GetConnectedAccountAsync(server).ConfigureAwait(false));
-            }
+            var accounts = _channelHubClient.GetConnectedAccount();
 
             var subpackets = new List<FinitSubPacket?>();
             var friendlist = await friendHttpClient.GetListFriendsAsync(visualEntity.VisualId).ConfigureAwait(false);

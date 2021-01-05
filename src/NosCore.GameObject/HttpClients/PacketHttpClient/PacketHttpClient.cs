@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.WebApi;
 using NosCore.Shared.Enumerations;
 using System;
@@ -34,52 +33,37 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
 {
     public class PacketHttpClient : IPacketHttpClient
     {
-        private readonly IChannelHttpClient _channelHttpClient;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public PacketHttpClient(IHttpClientFactory httpClientFactory, IChannelHttpClient channelHttpClient)
+        public PacketHttpClient(IHttpClientFactory httpClientFactory)
         {
-            _channelHttpClient = channelHttpClient;
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task BroadcastPacketAsync(PostedPacket packet, int channelId)
+        public Task BroadcastPacketAsync(PostedPacket packet, int channelId)
         {
-            var channel = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
-            if (channel != null)
-            {
-                await SendPacketToChannelAsync(packet, channel.WebApi!.ToString()).ConfigureAwait(false);
-            }
+            return Task.CompletedTask;
         }
 
-        public async Task BroadcastPacketAsync(PostedPacket packet)
+        public Task BroadcastPacketAsync(PostedPacket packet)
         {
-            var list = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
-                ?.Where(c => c.Type == ServerType.WorldServer) ?? new List<ChannelInfo>();
-            await Task.WhenAll(list.Select(channel => SendPacketToChannelAsync(packet, channel.WebApi!.ToString()))).ConfigureAwait(false);
+            return Task.CompletedTask;
 
         }
 
         public Task BroadcastPacketsAsync(List<PostedPacket> packets)
         {
-            return Task.WhenAll(packets.Select(packet => BroadcastPacketAsync(packet)));
+            return Task.CompletedTask;
         }
 
         public Task BroadcastPacketsAsync(List<PostedPacket> packets, int channelId)
         {
-            return Task.WhenAll(packets.Select(packet => BroadcastPacketAsync(packet, channelId)));
+            return Task.CompletedTask;
         }
 
-        private async Task SendPacketToChannelAsync(PostedPacket postedPacket, string channel)
+        private Task SendPacketToChannelAsync(PostedPacket postedPacket, string channel)
         {
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(channel);
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
-            var content = new StringContent(JsonSerializer.Serialize(postedPacket),
-                Encoding.Default, "application/json");
-
-            await client.PostAsync("api/packet", content).ConfigureAwait(false);
+            return Task.CompletedTask;
         }
     }
 }

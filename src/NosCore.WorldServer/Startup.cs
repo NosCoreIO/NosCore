@@ -44,8 +44,6 @@ using NosCore.Core.Configuration;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -80,6 +78,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR.Client;
+using NosCore.Core.HubInterfaces;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 using Character = NosCore.GameObject.Character;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using Deserializer = NosCore.Packets.Deserializer;
@@ -223,9 +224,7 @@ namespace NosCore.WorldServer
 
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
-            containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
                 .Where(t => t.Name.EndsWith("HttpClient"))
                 .AsImplementedInterfaces();
@@ -248,6 +247,11 @@ namespace NosCore.WorldServer
                     WebApi = configuration.Value.WebApi,
                 };
             });
+            containerBuilder.RegisterAssemblyTypes(typeof(ChannelHubClient).Assembly)
+                .Where(t => t.Name.EndsWith("HubClient"))
+                .SingleInstance()
+                .AsImplementedInterfaces();
+
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
             {
                 HashingType.BCrypt => new BcryptHasher(),

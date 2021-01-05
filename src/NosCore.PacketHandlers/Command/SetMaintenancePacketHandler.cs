@@ -21,14 +21,11 @@ using Json.More;
 using Json.Patch;
 using Json.Pointer;
 using NosCore.Core;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command

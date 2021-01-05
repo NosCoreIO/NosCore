@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
@@ -33,15 +32,12 @@ namespace NosCore.Core.HttpClients
     public class MasterServerHttpClient
     {
         private readonly Channel _channel;
-        private readonly IChannelHttpClient _channelHttpClient;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        protected MasterServerHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
-            IChannelHttpClient channelHttpClient)
+        protected MasterServerHttpClient(IHttpClientFactory httpClientFactory, Channel channel)
         {
             _httpClientFactory = httpClientFactory;
             _channel = channel;
-            _channelHttpClient = channelHttpClient;
         }
 
 #pragma warning disable CA1056 // Uri properties should not be strings
@@ -54,105 +50,47 @@ namespace NosCore.Core.HttpClients
             return _httpClientFactory.CreateClient();
         }
 
-        public virtual async Task<HttpClient> ConnectAsync()
+        public virtual Task<HttpClient> ConnectAsync()
         {
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
-
-            if (RequireConnection)
-            {
-                client.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
-            }
-
-            return client;
+            throw new NotImplementedException();
         }
 
-        public async Task<HttpClient?> ConnectAsync(int channelId)
+        public Task<HttpClient?> ConnectAsync(int channelId)
         {
-            using var client = _httpClientFactory.CreateClient();
-            var channel = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
-            if (channel == null)
-            {
-                return null;
-            }
-
-            client.BaseAddress = new Uri(channel.WebApi!.ToString());
-            return client;
+            throw new NotImplementedException();
         }
 
-        protected async Task<T> PostAsync<T>(object objectToPost)
+        protected Task<T> PostAsync<T>(object objectToPost)
         {
-            var client = await ConnectAsync().ConfigureAwait(false);
-            using var content = new StringContent(JsonSerializer.Serialize(objectToPost),
-                Encoding.Default, "application/json");
-            var response = await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
-            if (response.IsSuccessStatusCode)
-            {
-                return JsonSerializer.Deserialize<T>(await response.Content!.ReadAsStringAsync().ConfigureAwait(false),
-                    new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    }) ?? throw new InvalidOperationException();
-            }
-
-            throw new WebException();
+            throw new NotImplementedException();
         }
 
 
-        protected async Task<T> PatchAsync<T>(object id, object objectToPost)
+        protected Task<T> PatchAsync<T>(object id, object objectToPost)
         {
-            var client = await ConnectAsync().ConfigureAwait(false);
-            //todo replace when Json.Net support jsonpatch
-            using var content = new StringContent(JsonSerializer.Serialize(objectToPost), Encoding.Default,
-                "application/json-patch+json");
-
-            var response = await client.PatchAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}"), content).ConfigureAwait(false);
-            if (response.IsSuccessStatusCode)
-            {
-                return JsonSerializer.Deserialize<T>(await response.Content!.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                }) ?? throw new InvalidOperationException();
-            }
-
-            throw new WebException();
+            throw new NotImplementedException();
         }
 
-        protected async Task<HttpResponseMessage> PostAsync(object objectToPost)
+        protected Task<HttpResponseMessage> PostAsync(object objectToPost)
         {
-            var client = await ConnectAsync().ConfigureAwait(false);
-            using var content = new StringContent(JsonSerializer.Serialize(objectToPost),
-                Encoding.Default, "application/json");
-            return await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
+            throw new NotImplementedException();
         }
 
         [return: MaybeNull]
         protected Task<T> GetAsync<T>()
         {
-            return GetAsync<T>(null)!;
+            throw new NotImplementedException();
         }
 
         [return: MaybeNull]
-        protected async Task<T> GetAsync<T>(object? id)
+        protected Task<T> GetAsync<T>(object? id)
         {
-            var client = await ConnectAsync().ConfigureAwait(false);
-            var response = await client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}{(id != null ? $"?id={id}" : "")}")).ConfigureAwait(false);
-            if (response.IsSuccessStatusCode)
-            {
-                return JsonSerializer.Deserialize<T>(await response.Content!.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                }) ?? throw new InvalidOperationException();
-            }
-
-            throw new WebException();
+            throw new NotImplementedException();
         }
 
-        protected async Task<HttpResponseMessage> DeleteAsync(object id)
+        protected Task<HttpResponseMessage> DeleteAsync(object id)
         {
-            var client = await ConnectAsync().ConfigureAwait(false);
-            return await client.DeleteAsync(new Uri($"{client.BaseAddress}{ApiUrl}?id={id}")).ConfigureAwait(false);
+            throw new NotImplementedException();
         }
     }
 }

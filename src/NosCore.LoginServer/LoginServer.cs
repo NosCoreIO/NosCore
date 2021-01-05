@@ -21,7 +21,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database;
@@ -31,24 +30,31 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR.Client;
+using NosCore.Core;
+using NosCore.Core.HubInterfaces;
+using NosCore.GameObject.HubClients.ChannelHubClient;
+using Polly;
 
 namespace NosCore.LoginServer
 {
     public class LoginServer : BackgroundService
     {
-        private readonly IChannelHttpClient _channelHttpClient;
         private readonly ILogger _logger;
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly NetworkManager _networkManager;
         private readonly NosCoreContext _context;
+        private readonly Channel _channel; 
+        private readonly IChannelHubClient _channelHubClient;
 
-        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, NosCoreContext context)
+        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHubClient channelHubClient, NosCoreContext context, Channel channel)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
             _logger = logger;
-            _channelHttpClient = channelHttpClient;
+            _channel = channel;
             _context = context;
+            _channelHubClient = channelHubClient;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -71,7 +77,16 @@ namespace NosCore.LoginServer
                 throw;
             }
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _loginConfiguration.Value.Port);
-            await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
+            await Policy
+                .Handle<Exception>()
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (_, __, timeSpan) =>
+                        _logger.Error(
+                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
+                            timeSpan.TotalSeconds)
+                ).ExecuteAsync(() => _channelHubClient.StartAsync(stoppingToken));
+            await _channelHubClient.Subscribe(_channel);
+            await  _networkManager.RunServerAsync();
         }
     }
 }

@@ -20,7 +20,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking;
@@ -32,26 +31,33 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Core.HubInterfaces;
+using Polly;
+using Microsoft.AspNetCore.SignalR.Client;
+using NosCore.Core;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.WorldServer
 {
     public class WorldServer : BackgroundService
     {
-        private readonly IChannelHttpClient _channelHttpClient;
         private readonly ILogger _logger;
         private readonly NetworkManager _networkManager;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly IMapInstanceGeneratorService _mapInstanceGeneratorService;
         private readonly Clock _clock;
+        private readonly Channel _channel;
+        private readonly IChannelHubClient _channelHubClient;
 
-        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService)
+        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger logger, IMapInstanceGeneratorService mapInstanceGeneratorService,IChannelHubClient channelHubClient, Channel channel)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
             _logger = logger;
-            _channelHttpClient = channelHttpClient;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
             _clock = clock;
+            _channel = channel;
+            _channelHubClient = channelHubClient;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -73,7 +79,16 @@ namespace NosCore.WorldServer
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                 _worldConfiguration.Value.Port);
-            await Task.WhenAny(_clock.Run(stoppingToken), _channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
+            await Policy
+                .Handle<Exception>()
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (_, __, timeSpan) =>
+                        _logger.Error(
+                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
+                            timeSpan.TotalSeconds)
+                ).ExecuteAsync(() => _channelHubClient.StartAsync(stoppingToken));
+            await _channelHubClient.Subscribe(_channel);
+            await Task.WhenAny(_clock.Run(stoppingToken), _networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }
 }

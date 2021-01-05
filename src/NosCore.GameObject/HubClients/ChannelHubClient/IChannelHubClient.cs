@@ -17,19 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.WebApi;
-using NosCore.Shared.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Core.HubInterfaces;
+using NosCore.Data.WebApi;
+using NosCore.Shared.Configuration;
 
-namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
+namespace NosCore.GameObject.HubClients.ChannelHubClient
 {
-    public interface IConnectedAccountHttpClient
+    public interface IChannelHubClient : IChannelHub, IHubClient
     {
-        Task<List<ConnectedAccount>> GetConnectedAccountAsync(ChannelInfo channel);
-        Task DisconnectAsync(long connectedCharacterId);
+        Task<List<ConnectedAccount>> GetConnectedAccountAsync();
 
-        Task<Tuple<ServerConfiguration?, ConnectedAccount?>> GetCharacterAsync(long? characterId, string? characterName);
+        Task<Tuple<ServerConfiguration?, ConnectedAccount?>>
+            GetCharacterAsync(long? characterId, string? characterName);
     }
 }

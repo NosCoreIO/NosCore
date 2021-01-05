@@ -23,7 +23,7 @@ namespace NosCore.Data.WebApi
 {
     public class ConnectedAccount
     {
-        public string? Name { get; set; }
+        public string Name { get; set; } = null!;
         public RegionType Language { get; set; }
         public int ChannelId { get; set; }
         public Character? ConnectedCharacter { get; set; }

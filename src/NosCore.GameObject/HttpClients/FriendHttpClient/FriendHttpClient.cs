@@ -19,7 +19,6 @@
 
 using NosCore.Core;
 using NosCore.Core.HttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.Packets.Enumerations;
@@ -33,9 +32,8 @@ namespace NosCore.GameObject.HttpClients.FriendHttpClient
 {
     public class FriendHttpClient : MasterServerHttpClient, IFriendHttpClient
     {
-        public FriendHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
-            IChannelHttpClient channelHttpClient)
-            : base(httpClientFactory, channel, channelHttpClient)
+        public FriendHttpClient(IHttpClientFactory httpClientFactory, Channel channel)
+            : base(httpClientFactory, channel)
         {
             ApiUrl = "api/friend";
             RequireConnection = true;

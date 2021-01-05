@@ -21,8 +21,6 @@ using Mapster;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Dao.Interfaces;
@@ -42,8 +40,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using NosCore.Core.Configuration;
+using Microsoft.AspNetCore.SignalR.Client;
+using NosCore.Core.HubInterfaces;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -51,48 +50,27 @@ namespace NosCore.PacketHandlers.CharacterScreen
     {
         private readonly IDao<AccountDto, long> _accountDao;
         private readonly IAuthHttpClient _authHttpClient;
-        private readonly IChannelHttpClient _channelHttpClient;
         private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly ILogger _logger;
         private readonly IDao<MateDto, long> _mateDao;
-        private readonly IOptions<WorldConfiguration> _configuration;
+        private readonly IChannelHubClient _channelHubClient;
 
         public EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
-            IDao<MateDto, long> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient, IOptions<WorldConfiguration> configuration)
+            IDao<MateDto, long> mateDao, ILogger logger, IAuthHttpClient authHttpClient, IChannelHubClient channelHubClient)
         {
             _characterDao = characterDao;
             _accountDao = accountDao;
             _mateDao = mateDao;
             _logger = logger;
             _authHttpClient = authHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _channelHttpClient = channelHttpClient;
+            _channelHubClient = channelHubClient;
             _configuration = configuration;
         }
 
-        public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IDao<AccountDto, long> accountDao, IChannelHttpClient channelHttpClient, bool passwordLessConnection, string accountName, string password, int sessionId)
+        public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient, IDao<AccountDto, long> accountDao, bool passwordLessConnection, string accountName, string password, int sessionId, IChannelHubClient channelHubClient)
         {
-            var alreadyConnnected = false;
-            var servers = await channelHttpClient.GetChannelsAsync().ConfigureAwait(false) ?? new List<ChannelInfo>();
-            foreach (var channel in servers.Where(c => c.Type == ServerType.WorldServer))
-            {
-                var accounts = await connectedAccountHttpClient.GetConnectedAccountAsync(channel).ConfigureAwait(false);
-                var target = accounts.FirstOrDefault(s => s.Name == accountName);
-
-                if (target == null)
-                {
-                    continue;
-                }
-
-                alreadyConnnected = true;
-                break;
-            }
-
+            var alreadyConnnected =  (await channelHubClient.GetConnectedAccountAsync()).Any(s => s.Name == accountName);
             if (alreadyConnnected)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ALREADY_CONNECTED), new
@@ -148,9 +126,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
             if (clientSession.Account == null!) // we bypass this when create new char
             {
                 var passwordLessConnection = packet.Password == "thisisgfmode";
-                await VerifyConnectionAsync(clientSession, _logger, _authHttpClient, _connectedAccountHttpClient,
-                    _accountDao, _channelHttpClient, passwordLessConnection, packet.Name, packet.Password,
-                    clientSession.SessionId);
+                await VerifyConnectionAsync(clientSession, _logger, _authHttpClient,
+                    _accountDao, passwordLessConnection, packet.Name, packet.Password,
+                    clientSession.SessionId, _channelHubClient);
                 if (clientSession.Account == null!)
                 {
                     return;

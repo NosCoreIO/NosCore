@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Mapster;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.WebApi;
 using System;
 using System.Net.Http;
@@ -30,9 +29,8 @@ namespace NosCore.Core.HttpClients.AuthHttpClients
 {
     public class AuthHttpClient : MasterServerHttpClient, IAuthHttpClient
     {
-        public AuthHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
-            IChannelHttpClient channelHttpClient)
-            : base(httpClientFactory, channel, channelHttpClient)
+        public AuthHttpClient(IHttpClientFactory httpClientFactory, Channel channel)
+            : base(httpClientFactory, channel)
         {
             ApiUrl = "api/auth";
             RequireConnection = true;

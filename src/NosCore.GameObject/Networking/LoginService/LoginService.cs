@@ -21,8 +21,6 @@ using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.AuthHttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.Networking;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -35,7 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Data.Enumerations.Character;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.GameObject.Networking.LoginService
 {
@@ -47,23 +45,22 @@ namespace NosCore.GameObject.Networking.LoginService
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly IDao<CharacterDto, long> _characterDao;
+        private readonly IChannelHubClient _channelHubClient;
 
         public LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
-            IAuthHttpClient authHttpClient,
-            IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient,
+            IAuthHttpClient authHttpClient, IChannelHubClient channelHubClient)
             IDao<CharacterDto, long> characterDao)
         {
             _loginConfiguration = loginConfiguration;
             _accountDao = accountDao;
             _authHttpClient = authHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _channelHttpClient = channelHttpClient;
+            _channelHubClient = channelHubClient;
             _characterDao = characterDao;
         }
 
         public async Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId)
         {
-            var server = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
+            var server = await _channelHubClient.GetChannelAsync(channelId).ConfigureAwait(false);
             if (server == null || server.Type != ServerType.WorldServer)
             {
                 return;
@@ -150,7 +147,7 @@ namespace NosCore.GameObject.Networking.LoginService
                         }).ConfigureAwait(false);
                         break;
                     default:
-                        var servers = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
+                        var servers = (await _channelHubClient.GetChannels().ConfigureAwait(false))
                             ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();

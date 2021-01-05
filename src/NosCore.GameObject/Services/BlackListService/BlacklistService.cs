@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -27,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR.Client;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.GameObject.Services.BlackListService
 {
@@ -34,12 +35,12 @@ namespace NosCore.GameObject.Services.BlackListService
     {
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IDao<CharacterRelationDto, Guid> _characterRelationDao;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IChannelHubClient _channelHubClient;
 
-        public BlacklistService(IConnectedAccountHttpClient connectedAccountHttpClient,
+        public BlacklistService(IChannelHubClient channelHubClient,
             IDao<CharacterRelationDto, Guid> characterRelationDao, IDao<CharacterDto, long> characterDao)
         {
-            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHubClient = channelHubClient;
             _characterRelationDao = characterRelationDao;
             _characterDao = characterDao;
         }

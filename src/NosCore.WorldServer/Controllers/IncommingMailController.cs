@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Microsoft.AspNetCore.Mvc;
-using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
@@ -26,7 +25,6 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Parcel;
-using NosCore.Shared.Enumerations;
 using System;
 using System.Threading.Tasks;
 

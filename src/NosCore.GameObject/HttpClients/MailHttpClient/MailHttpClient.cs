@@ -20,7 +20,6 @@
 using Json.Patch;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -36,9 +35,8 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
 {
     public class MailHttpClient : MasterServerHttpClient, IMailHttpClient
     {
-        public MailHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
-            IChannelHttpClient channelHttpClient)
-            : base(httpClientFactory, channel, channelHttpClient)
+        public MailHttpClient(IHttpClientFactory httpClientFactory, Channel channel)
+            : base(httpClientFactory, channel)
         {
             ApiUrl = "api/mail";
             RequireConnection = true;

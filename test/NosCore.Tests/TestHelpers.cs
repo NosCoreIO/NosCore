@@ -35,8 +35,6 @@ using NosCore.Algorithm.ReputationService;
 using NosCore.Algorithm.SpeedService;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -54,6 +52,7 @@ using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -105,10 +104,9 @@ namespace NosCore.Tests.Shared
         private IDao<StaticBonusDto, long> _staticBonusDao = null!;
         private int _lastId = 100;
         public Mock<IBlacklistHttpClient> BlacklistHttpClient = new Mock<IBlacklistHttpClient>();
-        public Mock<IChannelHttpClient> ChannelHttpClient = new Mock<IChannelHttpClient>();
-        public Mock<IConnectedAccountHttpClient> ConnectedAccountHttpClient = new Mock<IConnectedAccountHttpClient>();
         public Mock<IFriendHttpClient> FriendHttpClient = new Mock<IFriendHttpClient>();
         public Mock<IPacketHttpClient> PacketHttpClient = new Mock<IPacketHttpClient>();
+        public Mock<IChannelHubClient> ChannelHubClient = new Mock<IChannelHubClient>();
 
         private TestHelpers()
         {
@@ -291,8 +289,7 @@ namespace NosCore.Tests.Shared
                             new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), WorldConfiguration),
                     new BlInsPackettHandler(BlacklistHttpClient.Object, _logger),
                     new UseItemPacketHandler(),
-                    new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
-                        ConnectedAccountHttpClient.Object),
+                    new FinsPacketHandler(FriendHttpClient.Object, ChannelHubClient.Object),
                     new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                         _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
                         new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration),

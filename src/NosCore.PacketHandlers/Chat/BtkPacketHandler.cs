@@ -18,9 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
-using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
@@ -37,13 +35,14 @@ using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
 {
     public class BtkPacketHandler : PacketHandler<BtkPacket>, IWorldPacketHandler
     {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IChannelHubClient _channelHubClient;
         private readonly IFriendHttpClient _friendHttpClient;
         private readonly ILogger _logger;
         private readonly IPacketHttpClient _packetHttpClient;
@@ -51,12 +50,12 @@ namespace NosCore.PacketHandlers.Chat
         private readonly Channel _channel;
 
         public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
-            IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, Channel channel)
+            IPacketHttpClient packetHttpClient, IChannelHubClient channelHubClient, Channel channel)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
             _friendHttpClient = friendHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHubClient = channelHubClient;
             _packetHttpClient = packetHttpClient;
             _channel = channel;
         }
@@ -89,7 +88,7 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(btkPacket.CharacterId, null).ConfigureAwait(false);
+            var receiver = await _channelHubClient.GetCharacterAsync(btkPacket.CharacterId, null).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {

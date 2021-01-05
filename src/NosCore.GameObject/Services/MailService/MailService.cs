@@ -18,8 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Json.Patch;
-using Microsoft.AspNetCore.Mvc;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -41,7 +39,6 @@ namespace NosCore.GameObject.Services.MailService
     public class MailService : IMailService
     {
         private readonly IDao<CharacterDto, long> _characterDto;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IIncommingMailHttpClient _incommingMailHttpClient;
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly IItemGenerationService _itemProvider;

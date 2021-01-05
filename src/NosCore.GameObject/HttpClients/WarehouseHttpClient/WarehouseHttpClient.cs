@@ -20,7 +20,6 @@
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Miniland;
@@ -40,10 +39,9 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly IItemGenerationService _itemProvider;
 
-        public WarehouseHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
-            IChannelHttpClient channelHttpClient, IItemGenerationService itemProvider,
+        public WarehouseHttpClient(IHttpClientFactory httpClientFactory, Channel channel, IItemGenerationService itemProvider,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao)
-            : base(httpClientFactory, channel, channelHttpClient)
+            : base(httpClientFactory, channel)
         {
             ApiUrl = "api/warehouse";
             RequireConnection = true;

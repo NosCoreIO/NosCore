@@ -166,7 +166,8 @@ namespace NosCore.Data.Enumerations.I18N
         CHARACTER_SELECTION_FAILED,
         ALREADY_CONNECTED,
         PACKET_HANDLING_ERROR,
-        MFA_INCORRECT
+        MFA_INCORRECT,
+        CHANNEL_CONNECTION_LOST
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

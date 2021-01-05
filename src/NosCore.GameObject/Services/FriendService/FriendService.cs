@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -30,6 +29,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR.Client;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.GameObject.Services.FriendService
 {
@@ -37,25 +38,24 @@ namespace NosCore.GameObject.Services.FriendService
     {
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IDao<CharacterRelationDto, Guid> _characterRelationDao;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly FriendRequestHolder _friendRequestHolder;
         private readonly ILogger _logger;
+        private readonly IChannelHubClient _channelHubClient;
 
         public FriendService(ILogger logger, IDao<CharacterRelationDto, Guid> characterRelationDao,
-            IDao<CharacterDto, long> characterDao, FriendRequestHolder friendRequestHolder,
-            IConnectedAccountHttpClient connectedAccountHttpClient)
+            IDao<CharacterDto, long> characterDao, FriendRequestHolder friendRequestHolder, IChannelHubClient channelHubClient)
         {
             _logger = logger;
             _characterRelationDao = characterRelationDao;
             _characterDao = characterDao;
             _friendRequestHolder = friendRequestHolder;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHubClient = channelHubClient;
         }
 
         public async Task<LanguageKey> AddFriendAsync(long characterId, long secondCharacterId, FinsPacketType friendsPacketType)
         {
-            var character = await _connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
-            var targetCharacter = await _connectedAccountHttpClient.GetCharacterAsync(secondCharacterId, null).ConfigureAwait(false);
+            var character = await _channelHubClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
+            var targetCharacter = await _channelHubClient.GetCharacterAsync(secondCharacterId, null).ConfigureAwait(false);
             var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
                 (s.Value.Item2 == character.Item2?.ConnectedCharacter?.Id) &&
                 (s.Value.Item1 == targetCharacter.Item2?.ConnectedCharacter?.Id)).ToList();
