@@ -175,6 +175,8 @@ namespace NosCore.LoginServer
                     var configuration =
                         ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" });
                     configuration.Bind(loginConfiguration);
+
+                    LogLanguage.Language = loginConfiguration.Language;
                     services.AddOptions<LoginConfiguration>().Bind(configuration).ValidateDataAnnotations();
                     services.AddOptions<ServerConfiguration>().Bind(configuration).ValidateDataAnnotations();
                     services.AddOptions<WebApiConfiguration>().Bind(configuration.GetSection(nameof(WorldConfiguration.MasterCommunication))).ValidateDataAnnotations();

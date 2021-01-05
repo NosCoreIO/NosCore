@@ -35,7 +35,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
 using NosCore.Core;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
@@ -208,8 +207,6 @@ namespace NosCore.MasterServer
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(masterConfiguration.WebApi.Port));
             services.AddDbContext<NosCoreContext>(
                 conf => conf.UseNpgsql(masterConfiguration.Database!.ConnectionString));
-            services.AddSwaggerGen(c =>
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
 
             services.ConfigureOptions<ConfigureJwtBearerOptions>();
             services.AddHttpClient();
