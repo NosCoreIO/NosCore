@@ -17,7 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using NosCore.Data.WebApi;
 
 namespace NosCore.Core.Networking
 {
@@ -28,10 +30,11 @@ namespace NosCore.Core.Networking
         private MasterClientListSingleton()
         {
         }
+        public readonly ConcurrentDictionary<string, ChannelInfo> Channels = new ConcurrentDictionary<string, ChannelInfo>();
+        public readonly ConcurrentDictionary<string, ConcurrentDictionary<string, ConnectedAccount>> ConnectedAccounts = new ConcurrentDictionary<string, ConcurrentDictionary<string, ConnectedAccount>>();
 
         public static MasterClientListSingleton Instance => _instance ??= new MasterClientListSingleton();
 
-        public List<ChannelInfo> Channels { get; } = new List<ChannelInfo>();
         public int ConnectionCounter { get; set; }
     }
 }

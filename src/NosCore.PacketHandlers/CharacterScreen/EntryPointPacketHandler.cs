@@ -34,14 +34,11 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Shared.Enumerations;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR.Client;
-using NosCore.Core.HubInterfaces;
 using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.PacketHandlers.CharacterScreen
@@ -70,7 +67,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient, IDao<AccountDto, long> accountDao, bool passwordLessConnection, string accountName, string password, int sessionId, IChannelHubClient channelHubClient)
         {
-            var alreadyConnnected =  (await channelHubClient.GetConnectedAccountAsync()).Any(s => s.Name == accountName);
+            var alreadyConnnected =  (await channelHubClient.GetConnectedAccountsAsync()).Any(s => s.Name == accountName);
             if (alreadyConnnected)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ALREADY_CONNECTED), new

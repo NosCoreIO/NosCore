@@ -30,7 +30,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR.Client;
 using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.PacketHandlers.Friend

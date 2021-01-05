@@ -27,19 +27,20 @@ using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class SetGoldCommandPacketHandler : PacketHandler<SetGoldCommandPacket>, IWorldPacketHandler
     {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IChannelHubClient _channelHubClient;
         private readonly IStatHttpClient _statHttpClient;
 
-        public SetGoldCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
+        public SetGoldCommandPacketHandler(IChannelHubClient channelHubClient,
             IStatHttpClient statHttpClient)
         {
-            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHubClient = channelHubClient;
             _statHttpClient = statHttpClient;
         }
 
@@ -52,9 +53,9 @@ namespace NosCore.PacketHandlers.Command
                 Data = goldPacket.Gold
             };
 
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, goldPacket.Name ?? session.Character.Name).ConfigureAwait(false);
+            var receiver = await _channelHubClient.GetCharacterAsync(null, goldPacket.Name ?? session.Character.Name).ConfigureAwait(false);
 
-            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
+            if (receiver == null) //TODO: Handle 404 in WebApi
             {
                 await session.SendPacketAsync(new InfoPacket
                 {
@@ -64,7 +65,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStatAsync(data, receiver.Item1!).ConfigureAwait(false);
+            await _statHttpClient.ChangeStatAsync(data, receiver.ChannelId!).ConfigureAwait(false);
         }
     }
 }

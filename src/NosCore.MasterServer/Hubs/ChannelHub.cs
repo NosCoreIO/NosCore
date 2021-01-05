@@ -13,15 +13,14 @@ using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 using Serilog;
 
 namespace NosCore.MasterServer.Hubs
 {
-    public class ChannelHub : Hub<IChannelHub>, IChannelHub
+    public class ChannelHub : Hub, IChannelHub
     {
-        private readonly ConcurrentDictionary<string, ChannelInfo> _channels = new ConcurrentDictionary<string, ChannelInfo>();
-        private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, ConnectedAccount>> _connectedAccounts = new ConcurrentDictionary<string, ConcurrentDictionary<string, ConnectedAccount>>();
-        private readonly ILogger _logger;
+         private readonly ILogger _logger;
         private readonly IOptions<WebApiConfiguration> _apiConfiguration;
 
         public ChannelHub(ILogger logger, IOptions<WebApiConfiguration> apiConfiguration)
@@ -32,15 +31,15 @@ namespace NosCore.MasterServer.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var data = _channels.ContainsKey(Context.ConnectionId) ? _channels[Context.ConnectionId] : null;
+            var data = MasterClientListSingleton.Instance.Channels.ContainsKey(Context.ConnectionId) ? MasterClientListSingleton.Instance.Channels[Context.ConnectionId] : null;
             if (data != null)
             {
                 _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHANNEL_CONNECTION_LOST),
                     data.Id.ToString(CultureInfo.CurrentCulture),
                     data.Name);
-                _channels.Remove(Context.ConnectionId, out _);
-                _connectedAccounts.Remove(Context.ConnectionId, out _);
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, "Channels");
+                MasterClientListSingleton.Instance.Channels.Remove(Context.ConnectionId, out _);
+                MasterClientListSingleton.Instance.ConnectedAccounts.Remove(Context.ConnectionId, out _);
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, data.Type.ToString());
             }
 
             await base.OnDisconnectedAsync(exception);
@@ -48,17 +47,11 @@ namespace NosCore.MasterServer.Hubs
 
         public Task<List<ChannelInfo>> GetChannels()
         {
-            return Task.FromResult(_channels.Values.ToList());
+            return Task.FromResult(MasterClientListSingleton.Instance.Channels.Values.ToList());
         }
 
         public async Task Subscribe(Channel data)
         {
-            if (data.MasterCommunication!.Password != _apiConfiguration.Value.Password)
-            {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_ERROR));
-                return;
-            }
-
             var id = ++MasterClientListSingleton.Instance.ConnectionCounter;
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_SUCCESS),
                 id.ToString(CultureInfo.CurrentCulture),
@@ -77,28 +70,52 @@ namespace NosCore.MasterServer.Hubs
                 WebApi = data.WebApi,
                 Type = data.ClientType,
             };
-            _channels.TryAdd(Context.ConnectionId, serv);
-            _connectedAccounts.TryAdd(Context.ConnectionId, new ConcurrentDictionary<string, ConnectedAccount>());
-            await Groups.AddToGroupAsync(Context.ConnectionId, "Channels");
+            MasterClientListSingleton.Instance.Channels.TryAdd(Context.ConnectionId, serv);
+            await Clients.Clients(Context.ConnectionId).SendAsync($"{nameof(SubscribedEvent)}Received", new SubscribedEvent());
+            MasterClientListSingleton.Instance.ConnectedAccounts.TryAdd(Context.ConnectionId, new ConcurrentDictionary<string, ConnectedAccount>());
+            await Groups.AddToGroupAsync(Context.ConnectionId, data.ClientType.ToString());
         }
 
         public Task RegisterAccount(ConnectedAccount account)
         {
-            if (_connectedAccounts[Context.ConnectionId].ContainsKey(account.Name))
+            if (MasterClientListSingleton.Instance.ConnectedAccounts[Context.ConnectionId].ContainsKey(account.Name))
             {
-                _connectedAccounts[Context.ConnectionId][account.Name] = account;
+                MasterClientListSingleton.Instance.ConnectedAccounts[Context.ConnectionId][account.Name] = account;
             }
             else
             {
-                _connectedAccounts[Context.ConnectionId].TryAdd(account.Name, account);
+                MasterClientListSingleton.Instance.ConnectedAccounts[Context.ConnectionId].TryAdd(account.Name, account);
             }
             return Task.CompletedTask;
         }
 
         public Task UnregisterAccount(string accountName)
         {
-            _connectedAccounts[Context.ConnectionId].TryRemove(accountName, out _);
+            MasterClientListSingleton.Instance.ConnectedAccounts[Context.ConnectionId].TryRemove(accountName, out _);
             return Task.CompletedTask;
+        }
+
+        public Task BroadcastEvent(Event<IEvent> channelEvent)
+        {
+            if (channelEvent.ChannelIds.Any())
+            {
+                var channels = MasterClientListSingleton.Instance.Channels.Where(o => channelEvent.ChannelIds.Contains(o.Value.Id)).ToList();
+                if (channels.Any())
+                {
+                    Clients.Clients(channels.Select(o => o.Key)).SendAsync("EventReceived", channelEvent.Content);
+                }
+            }
+            else
+            {
+                Clients.Group(ServerType.WorldServer.ToString()).SendAsync($"{channelEvent.Content.GetType().Name}Received", channelEvent.Content);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task<List<ConnectedAccount>> GetConnectedAccountsAsync()
+        {
+            return Task.FromResult(MasterClientListSingleton.Instance.ConnectedAccounts.Values.SelectMany(o => o.Values).ToList());
         }
     }
 }

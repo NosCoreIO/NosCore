@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.GameObject.Services.MailService
 {
@@ -45,16 +46,17 @@ namespace NosCore.GameObject.Services.MailService
         private readonly List<ItemDto> _items;
         private readonly IDao<MailDto, long> _mailDao;
         private readonly ParcelHolder _parcelHolder;
+        private readonly IChannelHubClient _channelHubClient;
 
         public MailService(IDao<MailDto, long> mailDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            IConnectedAccountHttpClient connectedAccountHttpClient,
+            IChannelHubClient channelHubClient,
             List<ItemDto> items, IItemGenerationService itemProvider, IIncommingMailHttpClient incommingMailHttpClient,
             ParcelHolder parcelHolder,
             IDao<CharacterDto, long> characterDto)
         {
             _mailDao = mailDao;
             _itemInstanceDao = itemInstanceDao;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHubClient = channelHubClient;
             _items = items;
             _itemProvider = itemProvider;
             _incommingMailHttpClient = incommingMailHttpClient;
@@ -96,7 +98,7 @@ namespace NosCore.GameObject.Services.MailService
             {
                 return false;
             }
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
+            var receiver = await _channelHubClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
             await NotifyAsync(1, receiver, maildata).ConfigureAwait(false);
             return true;
         }
@@ -184,9 +186,12 @@ namespace NosCore.GameObject.Services.MailService
                 mailref.ItemInstanceId = itemInstance?.Id;
             }
 
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(mailref.ReceiverId, null).ConfigureAwait(false);
-            var sender = await _connectedAccountHttpClient.GetCharacterAsync(mailref.SenderId, null).ConfigureAwait(false);
-
+            var receiver = await _channelHubClient.GetCharacterAsync(mailref.ReceiverId, null).ConfigureAwait(false);
+            var sender = await _channelHubClient.GetCharacterAsync(mailref.SenderId, null).ConfigureAwait(false);
+            if (receiver == null || sender == null)
+            {
+                return false;
+            }
             mailref = await _mailDao.TryInsertOrUpdateAsync(mailref).ConfigureAwait(false);
             if (itemInstance == null)
             {
@@ -233,12 +238,12 @@ namespace NosCore.GameObject.Services.MailService
             };
         }
 
-        private async Task NotifyAsync(byte notifyType, Tuple<ServerConfiguration?, ConnectedAccount?> receiver, MailData mailData)
+        private async Task NotifyAsync(byte notifyType, ConnectedAccount? receiver, MailData mailData)
         {
-            var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver.Item2?.Name)
+            var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver?.Name)
                 ? mailData.ItemInstance != null ? (byte)0 : (byte)1 : (byte)2;
 
-            if (receiver.Item2 == null)
+            if (receiver == null)
             {
                 return;
             }
@@ -246,11 +251,11 @@ namespace NosCore.GameObject.Services.MailService
             switch (notifyType)
             {
                 case 0:
-                    await _incommingMailHttpClient.NotifyIncommingMailAsync(receiver.Item2.ChannelId, mailData).ConfigureAwait(false);
+                    await _incommingMailHttpClient.NotifyIncommingMailAsync(receiver.ChannelId, mailData).ConfigureAwait(false);
                     break;
                 case 1:
-                    await _incommingMailHttpClient.DeleteIncommingMailAsync(receiver.Item2.ChannelId,
-                        receiver.Item2.ConnectedCharacter!.Id, (short)mailData.MailId, type).ConfigureAwait(false);
+                    await _incommingMailHttpClient.DeleteIncommingMailAsync(receiver.ChannelId,
+                        receiver.ConnectedCharacter!.Id, (short)mailData.MailId, type).ConfigureAwait(false);
                     break;
             }
         }

@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR.Client;
 using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.GameObject.Services.BlackListService
@@ -47,10 +46,10 @@ namespace NosCore.GameObject.Services.BlackListService
 
         public async Task<LanguageKey> BlacklistPlayerAsync(long characterId, long secondCharacterId)
         {
-            var character = await _connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
+            var character = await _channelHubClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
             var targetCharacter = await
-                _connectedAccountHttpClient.GetCharacterAsync(secondCharacterId, null).ConfigureAwait(false);
-            if ((character.Item2 == null) || (targetCharacter.Item2 == null))
+                _channelHubClient.GetCharacterAsync(secondCharacterId, null).ConfigureAwait(false);
+            if ((character == null) || (targetCharacter == null))
             {
                 throw new ArgumentException();
             }
@@ -73,8 +72,8 @@ namespace NosCore.GameObject.Services.BlackListService
 
             var data = new CharacterRelationDto
             {
-                CharacterId = character.Item2.ConnectedCharacter!.Id,
-                RelatedCharacterId = targetCharacter.Item2.ConnectedCharacter!.Id,
+                CharacterId = character.ConnectedCharacter!.Id,
+                RelatedCharacterId = targetCharacter.ConnectedCharacter!.Id,
                 RelationType = CharacterRelationType.Blocked
             };
 
@@ -98,7 +97,7 @@ namespace NosCore.GameObject.Services.BlackListService
                 {
                     CharacterName = (await _characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId).ConfigureAwait(false))?.Name ?? "",
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = (await _connectedAccountHttpClient.GetCharacterAsync(rel.RelatedCharacterId, null).ConfigureAwait(false)).Item1 != null,
+                    IsConnected = (await _channelHubClient.GetCharacterAsync(rel.RelatedCharacterId, null)) != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId
                 });

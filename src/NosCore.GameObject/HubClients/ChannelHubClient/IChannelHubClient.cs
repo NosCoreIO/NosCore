@@ -19,8 +19,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
+using Json.Patch;
 using NosCore.Core.HubInterfaces;
 using NosCore.Data.WebApi;
 using NosCore.Shared.Configuration;
@@ -29,9 +29,6 @@ namespace NosCore.GameObject.HubClients.ChannelHubClient
 {
     public interface IChannelHubClient : IChannelHub, IHubClient
     {
-        Task<List<ConnectedAccount>> GetConnectedAccountAsync();
-
-        Task<Tuple<ServerConfiguration?, ConnectedAccount?>>
-            GetCharacterAsync(long? characterId, string? characterName);
+        Task<ConnectedAccount?> GetCharacterAsync(long? characterId, string? characterName);
     }
 }

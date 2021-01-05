@@ -10,5 +10,7 @@ namespace NosCore.Core.HubInterfaces
         Task<List<ChannelInfo>> GetChannels();
         Task RegisterAccount(ConnectedAccount account);
         Task UnregisterAccount(string accountName);
+        Task BroadcastEvent(Event<IEvent> channelEvent);
+        Task<List<ConnectedAccount>> GetConnectedAccountsAsync();
     }
 }

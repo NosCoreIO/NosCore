@@ -28,21 +28,19 @@ using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.PacketHandlers.Friend
 {
     public class FdelPacketHandler : PacketHandler<FdelPacket>, IWorldPacketHandler
     {
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IChannelHubClient _channelHubClient;
         private readonly IFriendHttpClient _friendHttpClient;
 
-        public FdelPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient)
+        public FdelPacketHandler(IFriendHttpClient friendHttpClient, IChannelHubClient channelHubClient)
         {
             _friendHttpClient = friendHttpClient;
-            _channelHttpClient = channelHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHubClient = channelHubClient;
         }
 
         public override async Task ExecuteAsync(FdelPacket fdelPacket, ClientSession session)
@@ -57,11 +55,9 @@ namespace NosCore.PacketHandlers.Friend
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)
                 }).ConfigureAwait(false);
                 var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
-                await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
-                    _connectedAccountHttpClient).ConfigureAwait(false))).ConfigureAwait(false);
+                await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(_friendHttpClient, _channelHubClient).ConfigureAwait(false))).ConfigureAwait(false);
 
-                await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
-                    _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient, _channelHubClient).ConfigureAwait(false)).ConfigureAwait(false);
             }
             else
             {

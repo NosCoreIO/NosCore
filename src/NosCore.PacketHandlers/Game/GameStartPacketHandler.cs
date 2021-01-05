@@ -36,14 +36,14 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.PacketHandlers.Game
 {
     public class GameStartPacketHandler : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         private readonly IBlacklistHttpClient _blacklistHttpClient;
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IChannelHubClient _channelHubClient;
         private readonly IFriendHttpClient _friendHttpClient;
         private readonly IMailHttpClient _mailHttpClient;
         private readonly IPacketHttpClient _packetHttpClient;
@@ -52,16 +52,14 @@ namespace NosCore.PacketHandlers.Game
         private readonly IQuestService _questProvider;
 
         public GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IFriendHttpClient friendHttpClient,
-            IChannelHttpClient channelHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient,
+            IChannelHubClient channelHubClient, IBlacklistHttpClient blacklistHttpClient,
             IPacketHttpClient packetHttpClient,
             ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider)
         {
             _worldConfiguration = worldConfiguration;
             _packetSerializer = packetSerializer;
             _blacklistHttpClient = blacklistHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _channelHttpClient = channelHttpClient;
+            _channelHubClient = channelHubClient;
             _friendHttpClient = friendHttpClient;
             _packetHttpClient = packetHttpClient;
             _mailHttpClient = mailHttpClient;
@@ -175,8 +173,7 @@ namespace NosCore.PacketHandlers.Game
 
             await session.Character.SendFinfoAsync(_friendHttpClient, _packetHttpClient, _packetSerializer, true).ConfigureAwait(false);
 
-            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
-                _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient, _channelHubClient).ConfigureAwait(false)).ConfigureAwait(false);
             await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(_blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);

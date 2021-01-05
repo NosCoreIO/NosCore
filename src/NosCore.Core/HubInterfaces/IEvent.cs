@@ -17,29 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.WebApi;
-using NosCore.Shared.Configuration;
-using System;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace NosCore.GameObject.HttpClients.StatHttpClient
+namespace NosCore.Core.HubInterfaces
 {
-    public class StatHttpClient : IStatHttpClient
+    public class Event<T> where T : IEvent
     {
-        private const string ApiUrl = "api/stat";
-        private readonly IHttpClientFactory _httpClientFactory;
-
-        public StatHttpClient(IHttpClientFactory httpClientFactory)
+        public Event(in T content)
         {
-            _httpClientFactory = httpClientFactory;
+            Content = content;
         }
 
-        public Task ChangeStatAsync(StatData data, int channelId)
-        {
-            throw new NotImplementedException();
-        }
+        public List<long> ChannelIds { get; set; } = new List<long>();
+
+        public T Content { get; set; }
+    }
+    public interface IEvent
+    {
     }
 }

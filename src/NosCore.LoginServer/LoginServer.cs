@@ -30,9 +30,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR.Client;
 using NosCore.Core;
-using NosCore.Core.HubInterfaces;
 using NosCore.GameObject.HubClients.ChannelHubClient;
 using Polly;
 

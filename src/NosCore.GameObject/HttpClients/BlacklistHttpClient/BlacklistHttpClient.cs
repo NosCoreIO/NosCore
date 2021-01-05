@@ -30,9 +30,8 @@ namespace NosCore.GameObject.HttpClients.BlacklistHttpClient
 {
     public class BlacklistHttpClient : MasterServerHttpClient, IBlacklistHttpClient
     {
-        public BlacklistHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
-            IChannelHttpClient channelHttpClient)
-            : base(httpClientFactory, channel, channelHttpClient)
+        public BlacklistHttpClient(IHttpClientFactory httpClientFactory, Channel channel)
+            : base(httpClientFactory, channel)
         {
             ApiUrl = "api/blacklist";
             RequireConnection = true;

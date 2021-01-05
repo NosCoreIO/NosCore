@@ -52,7 +52,6 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private BlDelPacketHandler? _blDelPacketHandler;
         private Mock<IDao<CharacterDto, long>>? _characterDao;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
-        private Mock<IConnectedAccountHttpClient>? _connectedAccountHttpClient;
         private ClientSession? _session;
 
         [TestInitialize]
@@ -62,15 +61,14 @@ namespace NosCore.PacketHandlers.Tests.Friend
             Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(It.IsAny<long?>(), It.IsAny<string?>()))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
+            TestHelpers.Instance.ChannelHubClient.Setup(s => s.GetCharacterAsync(It.IsAny<long?>(), It.IsAny<string?>()))
+                .ReturnsAsync(
                     new ConnectedAccount
-                    { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
+                    { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } });
             _blackListHttpClient = TestHelpers.Instance.BlacklistHttpClient;
             _blDelPacketHandler = new BlDelPacketHandler(_blackListHttpClient.Object);
             _characterDao = new Mock<IDao<CharacterDto, long>>();
-            _blackListController = new BlacklistService(_connectedAccountHttpClient.Object, _characterRelationDao,
+            _blackListController = new BlacklistService(TestHelpers.Instance.ChannelHubClient.Object, _characterRelationDao,
                 _characterDao.Object);
             _blackListHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
                 .Returns((long id) => _blackListController.GetBlacklistedListAsync(id));

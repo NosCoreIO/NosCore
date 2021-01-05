@@ -78,8 +78,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR.Client;
-using NosCore.Core.HubInterfaces;
 using NosCore.GameObject.HubClients.ChannelHubClient;
 using Character = NosCore.GameObject.Character;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
@@ -360,17 +358,11 @@ namespace NosCore.WorldServer
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app)
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore World API"));
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
 
             LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<WorldConfiguration>>().Value.Language;
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
         }
     }
 }

@@ -27,26 +27,27 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class GiftPacketHandler : PacketHandler<GiftPacket>, IWorldPacketHandler
     {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IChannelHubClient _channelHubClient;
         private readonly IMailHttpClient _mailHttpClient;
 
-        public GiftPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient, IMailHttpClient mailHttpClient)
+        public GiftPacketHandler(IChannelHubClient channelHubClient, IMailHttpClient mailHttpClient)
         {
-            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHubClient = channelHubClient;
             _mailHttpClient = mailHttpClient;
         }
 
         public override async Task ExecuteAsync(GiftPacket giftPacket, ClientSession session)
         {
             var receiver =
-                await _connectedAccountHttpClient.GetCharacterAsync(null, giftPacket.CharacterName ?? session.Character.Name).ConfigureAwait(false);
+                await _channelHubClient.GetCharacterAsync(null, giftPacket.CharacterName ?? session.Character.Name).ConfigureAwait(false);
 
-            if (receiver.Item2 == null)
+            if (receiver == null)
             {
                 await session.SendPacketAsync(new InfoPacket
                 {
@@ -56,7 +57,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _mailHttpClient.SendGiftAsync(session.Character!, receiver.Item2.ConnectedCharacter!.Id, giftPacket.VNum,
+            await _mailHttpClient.SendGiftAsync(session.Character!, receiver.ConnectedCharacter!.Id, giftPacket.VNum,
                 giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false).ConfigureAwait(false);
             await session.SendPacketAsync(session.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(
                 LanguageKey.GIFT_SENT,

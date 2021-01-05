@@ -34,9 +34,8 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
 {
     public class BazaarHttpClient : MasterServerHttpClient, IBazaarHttpClient
     {
-        public BazaarHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
-            IChannelHttpClient channelHttpClient)
-            : base(httpClientFactory, channel, channelHttpClient)
+        public BazaarHttpClient(IHttpClientFactory httpClientFactory, Channel channel)
+            : base(httpClientFactory, channel)
         {
             ApiUrl = "api/bazaar";
             RequireConnection = true;

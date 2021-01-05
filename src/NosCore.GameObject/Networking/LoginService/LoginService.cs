@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.GameObject.HubClients.ChannelHubClient;
+using ServiceStack;
 
 namespace NosCore.GameObject.Networking.LoginService
 {
@@ -41,13 +42,12 @@ namespace NosCore.GameObject.Networking.LoginService
     {
         private readonly IDao<AccountDto, long> _accountDao;
         private readonly IAuthHttpClient _authHttpClient;
-        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly Microsoft.Extensions.Options.IOptions<LoginConfiguration> _loginConfiguration;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IChannelHubClient _channelHubClient;
 
-        public LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
+        public LoginService(Microsoft.Extensions.Options.IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
             IAuthHttpClient authHttpClient, IChannelHubClient channelHubClient)
             IDao<CharacterDto, long> characterDao)
         {
@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Networking.LoginService
 
         public async Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId)
         {
-            var server = await _channelHubClient.GetChannelAsync(channelId).ConfigureAwait(false);
+            var server = (await _channelHubClient.GetChannels()).FirstOrDefault(o => o.Id == channelId);
             if (server == null || server.Type != ServerType.WorldServer)
             {
                 return;
@@ -149,21 +149,9 @@ namespace NosCore.GameObject.Networking.LoginService
                     default:
                         var servers = (await _channelHubClient.GetChannels().ConfigureAwait(false))
                             ?.Where(c => c.Type == ServerType.WorldServer).ToList();
-                        var alreadyConnnected = false;
-                        var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
-                        var i = 1;
-                        foreach (var server in servers ?? new List<ChannelInfo>())
-                        {
-                            var channelList = await _connectedAccountHttpClient.GetConnectedAccountAsync(
-                                server).ConfigureAwait(false);
-                            connectedAccount.Add(i, channelList);
-                            i++;
-                            if (channelList.Any(a => a.Name == acc.Name))
-                            {
-                                alreadyConnnected = true;
-                            }
-                        }
 
+                        var connectedAccounts = await _channelHubClient.GetConnectedAccountsAsync();
+                        var alreadyConnnected = connectedAccounts.Any(s => s.Name == acc.Name);
                         if (alreadyConnnected)
                         {
                             await clientSession.SendPacketAsync(new FailcPacket
@@ -198,7 +186,7 @@ namespace NosCore.GameObject.Networking.LoginService
                         }
 
                         var subpacket = new List<NsTeStSubPacket?>();
-                        i = 1;
+                        var i = 1;
                         var nstest = new NsTestPacket
                         {
                             AccountName = username,
@@ -217,7 +205,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             }
 
                             var channelcolor =
-                                (int)Math.Round((double)connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
+                                (int)Math.Round((double)connectedAccounts.Count(o => o.ChannelId == i) / server.ConnectedAccountLimit * 20)
                                 + 1;
                             subpacket.Add(new NsTeStSubPacket
                             {

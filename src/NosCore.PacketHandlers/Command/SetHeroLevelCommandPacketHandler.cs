@@ -30,22 +30,21 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class SetHeroLevelCommandPacketHandler : PacketHandler<SetHeroLevelCommandPacket>, IWorldPacketHandler
     {
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IChannelHubClient _channelHubClient;
         private readonly IStatHttpClient _statHttpClient;
 
-        public SetHeroLevelCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient, IStatHttpClient statHttpClient)
+        public SetHeroLevelCommandPacketHandler(IChannelHubClient channelHubClient, IStatHttpClient statHttpClient)
         {
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _channelHttpClient = channelHttpClient;
+            _channelHubClient = channelHubClient;
             _statHttpClient = statHttpClient;
         }
 
@@ -64,27 +63,19 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var channels = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
+            var channels = (await _channelHubClient.GetChannels().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer);
 
-            ConnectedAccount? receiver = null;
-            ServerConfiguration? config = null;
 
-            foreach (var channel in channels ?? new List<ChannelInfo>())
+            var target = await
+                _channelHubClient.GetCharacterAsync(null, levelPacket.Name).ConfigureAwait(false);
+
+            if (target == null)
             {
-                var accounts = await
-                    _connectedAccountHttpClient.GetConnectedAccountAsync(channel).ConfigureAwait(false);
-
-                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Name == levelPacket.Name);
-
-                if (target == null)
-                {
-                    continue;
-                }
-
-                receiver = target;
-                config = channel.WebApi;
+                return;
             }
+
+            var receiver = target;
 
             if (receiver == null) //TODO: Handle 404 in WebApi
             {
@@ -96,7 +87,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStatAsync(data, config!).ConfigureAwait(false);
+            await _statHttpClient.ChangeStatAsync(data, target.ChannelId!).ConfigureAwait(false);
         }
     }
 }

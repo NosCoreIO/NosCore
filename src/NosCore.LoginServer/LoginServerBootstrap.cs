@@ -63,8 +63,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR.Client;
-using NosCore.Core.HubInterfaces;
 using NosCore.GameObject.HubClients.ChannelHubClient;
 using ILogger = Serilog.ILogger;
 
@@ -179,6 +177,8 @@ namespace NosCore.LoginServer
                     configuration.Bind(loginConfiguration);
                     services.AddOptions<LoginConfiguration>().Bind(configuration).ValidateDataAnnotations();
                     services.AddOptions<ServerConfiguration>().Bind(configuration).ValidateDataAnnotations();
+                    services.AddOptions<WebApiConfiguration>().Bind(configuration.GetSection(nameof(WorldConfiguration.MasterCommunication))).ValidateDataAnnotations();
+
                     InitializeConfiguration(args);
 
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));

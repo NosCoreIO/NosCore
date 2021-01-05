@@ -49,10 +49,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
     public class FDelPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private Mock<IChannelHttpClient>? _channelHttpClient;
         private Mock<IDao<CharacterDto, long>>? _characterDao;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
-        private Mock<IConnectedAccountHttpClient>? _connectedAccountHttpClient;
         private FdelPacketHandler? _fDelPacketHandler;
         private FriendService? _friendController;
         private Mock<IFriendHttpClient>? _friendHttpClient;
@@ -65,18 +63,15 @@ namespace NosCore.PacketHandlers.Tests.Friend
             Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
-            _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(It.IsAny<long?>(), It.IsAny<string?>()))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
+            TestHelpers.Instance.ChannelHubClient.Setup(s => s.GetCharacterAsync(It.IsAny<long?>(), It.IsAny<string?>()))
+                .ReturnsAsync(
                     new ConnectedAccount
-                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
+                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } });
             _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
-            _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
-                _connectedAccountHttpClient.Object);
+            _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, TestHelpers.Instance.ChannelHubClient.Object);
             _characterDao = new Mock<IDao<CharacterDto, long>>();
             _friendController = new FriendService(Logger, _characterRelationDao, _characterDao.Object,
-                new FriendRequestHolder(), _connectedAccountHttpClient.Object);
+                new FriendRequestHolder(), TestHelpers.Instance.ChannelHubClient.Object);
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>()))
                 .Returns((long id) => _friendController.GetFriendsAsync(id));
             _friendHttpClient.Setup(s => s.DeleteFriendAsync(It.IsAny<Guid>()))

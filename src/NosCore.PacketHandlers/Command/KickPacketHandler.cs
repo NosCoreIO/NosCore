@@ -24,8 +24,9 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR.Client;
+using NosCore.Core.HubInterfaces;
 using NosCore.GameObject.HubClients.ChannelHubClient;
+using NosCore.GameObject.HubClients.ChannelHubClient.Events;
 
 namespace NosCore.PacketHandlers.Command
 {
@@ -40,9 +41,9 @@ namespace NosCore.PacketHandlers.Command
 
         public override async Task ExecuteAsync(KickPacket kickPacket, ClientSession session)
         {
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, kickPacket.Name ?? session.Character.Name).ConfigureAwait(false);
+            var receiver = await _channelHubClient.GetCharacterAsync(null, kickPacket.Name ?? session.Character.Name).ConfigureAwait(false);
 
-            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
+            if (receiver == null) //TODO: Handle 404 in WebApi
             {
                 await session.SendPacketAsync(new InfoPacket
                 {
@@ -52,7 +53,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _connectedAccountHttpClient.DisconnectAsync(receiver.Item2.ConnectedCharacter!.Id).ConfigureAwait(false);
+            await _channelHubClient.BroadcastEvent(new Event<IEvent>(new KickEvent(receiver.ConnectedCharacter!.Id)));
         }
     }
 }

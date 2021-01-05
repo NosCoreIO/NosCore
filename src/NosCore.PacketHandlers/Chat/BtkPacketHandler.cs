@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Chat
 
             var receiver = await _channelHubClient.GetCharacterAsync(btkPacket.CharacterId, null).ConfigureAwait(false);
 
-            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
+            if (receiver == null) //TODO: Handle 404 in WebApi
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
@@ -103,12 +103,12 @@ namespace NosCore.PacketHandlers.Chat
             {
                 Packet = _packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character
-                { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name ?? "" },
+                { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name ?? "" },
                 SenderCharacter = new Character
                 { Name = session.Character.Name, Id = session.Character.CharacterId },
                 OriginWorldId = _channel.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
-            }, receiver.Item2.ChannelId).ConfigureAwait(false);
+            }, receiver.ChannelId).ConfigureAwait(false);
         }
     }
 }

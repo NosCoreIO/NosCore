@@ -38,6 +38,7 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.ChannelHubClient;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
@@ -45,20 +46,20 @@ namespace NosCore.PacketHandlers.Chat
     public class WhisperPacketHandler : PacketHandler<WhisperPacket>, IWorldPacketHandler
     {
         private readonly IBlacklistHttpClient _blacklistHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly ILogger _logger;
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly Channel _channel;
+        private readonly IChannelHubClient _channelHubClient;
 
         public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer,
             IBlacklistHttpClient blacklistHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IPacketHttpClient packetHttpClient, Channel channel)
+            IChannelHubClient channelHubClient, IPacketHttpClient packetHttpClient, Channel channel)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
             _blacklistHttpClient = blacklistHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
+            _channelHubClient = channelHubClient;
             _packetHttpClient = packetHttpClient;
             _channel = channel;
         }
@@ -97,9 +98,9 @@ namespace NosCore.PacketHandlers.Chat
                 var receiverSession =
                     Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
 
-                var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, receiverName).ConfigureAwait(false);
+                var receiver = await _channelHubClient.GetCharacterAsync(null, receiverName).ConfigureAwait(false);
 
-                if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
+                if (receiver == null) //TODO: Handle 404 in WebApi
                 {
                     await session.SendPacketAsync(session.Character.GenerateSay(
                         GameLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, session.Account.Language),
@@ -108,7 +109,7 @@ namespace NosCore.PacketHandlers.Chat
                 }
 
                 var blacklisteds = await _blacklistHttpClient.GetBlackListsAsync(session.Character.VisualId).ConfigureAwait(false);
-                if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter?.Id))
+                if (blacklisteds.Any(s => s.CharacterId == receiver.ConnectedCharacter?.Id))
                 {
                     await session.SendPacketAsync(new SayPacket
                     {
@@ -120,7 +121,7 @@ namespace NosCore.PacketHandlers.Chat
                 }
 
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
-                    $"{speakPacket.Message} <{GameLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Item2.Language)}: {_channel.ChannelId}>";
+                    $"{speakPacket.Message} <{GameLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Language)}: {_channel.ChannelId}>";
 
                 await _packetHttpClient.BroadcastPacketAsync(new PostedPacket
                 {
@@ -129,7 +130,7 @@ namespace NosCore.PacketHandlers.Chat
                     SenderCharacter = new Character { Name = session.Character.Name },
                     OriginWorldId = _channel.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
-                }, receiver.Item2.ChannelId).ConfigureAwait(false);
+                }, receiver.ChannelId).ConfigureAwait(false);
 
                 await session.SendPacketAsync(session.Character.GenerateSay(
                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,

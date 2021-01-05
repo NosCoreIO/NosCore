@@ -41,8 +41,6 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private DacPacketHandler _dacPacketHandler = null!;
         private ClientSession _session = null!;
         private Mock<IAuthHttpClient> _authHttpClient = null!;
-        private Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = null!;
-        private Mock<IChannelHttpClient> _channelHttpClient = null!;
         private string _accountName = null!;
 
         [TestInitialize]
@@ -55,10 +53,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_session.Character);
             await _session.SetCharacterAsync(null).ConfigureAwait(false);
             _authHttpClient = new Mock<IAuthHttpClient>();
-            _connectedAccountHttpClient = new Mock<IConnectedAccountHttpClient>();
-            _channelHttpClient = new Mock<IChannelHttpClient>();
             _dacPacketHandler =
-                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, _authHttpClient.Object, _connectedAccountHttpClient.Object, _channelHttpClient.Object);
+                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, _authHttpClient.Object, TestHelpers.Instance.ChannelHubClient.Object);
         }
 
         [TestMethod]
@@ -69,14 +65,14 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 Slot = 2,
                 AccountName = _accountName
             };
-            _channelHttpClient.Setup(o => o.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>()
+            TestHelpers.Instance.ChannelHubClient.Setup(o => o.GetChannels()).ReturnsAsync(new List<ChannelInfo>()
             {
                 new ChannelInfo
                 {
                     Id = 1,
                 }
             });
-            _connectedAccountHttpClient.Setup(o => o.GetConnectedAccountAsync(It.IsAny<ChannelInfo>())).ReturnsAsync(
+            TestHelpers.Instance.ChannelHubClient.Setup(o => o.GetConnectedAccountsAsync()).ReturnsAsync(
                 new List<ConnectedAccount>
                 {
                     new ConnectedAccount

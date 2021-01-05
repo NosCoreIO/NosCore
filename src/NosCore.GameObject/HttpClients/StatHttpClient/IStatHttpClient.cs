@@ -25,6 +25,6 @@ namespace NosCore.GameObject.HttpClients.StatHttpClient
 {
     public interface IStatHttpClient
     {
-        Task ChangeStatAsync(StatData data, ServerConfiguration item1);
+        Task ChangeStatAsync(StatData data, int channelId);
     }
 }

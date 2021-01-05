@@ -26,38 +26,34 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.HubInterfaces;
+using NosCore.GameObject.HubClients.ChannelHubClient;
+using NosCore.GameObject.HubClients.ChannelHubClient.Events;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class SetMaintenancePacketHandler : PacketHandler<SetMaintenancePacket>, IWorldPacketHandler
     {
-        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IChannelHubClient _channelHubClient;
         private readonly Channel _channel;
 
-        public SetMaintenancePacketHandler(IChannelHttpClient channelHttpClient, Channel channel)
+        public SetMaintenancePacketHandler(IChannelHubClient channelHubClient, Channel channel)
         {
-            _channelHttpClient = channelHttpClient;
+            _channelHubClient = channelHubClient;
             _channel = channel;
         }
 
         public override async Task ExecuteAsync(SetMaintenancePacket setMaintenancePacket, ClientSession session)
         {
-            var servers = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
-                ?.Where(c => c.Type == ServerType.WorldServer).ToList();
-
-            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<ChannelInfo>(o => o.IsMaintenance), setMaintenancePacket.MaintenanceMode.AsJsonElement()));
-            if (setMaintenancePacket.IsGlobal == false)
+            await _channelHubClient.BroadcastEvent(new Event<IEvent>(new MaintenanceEvent())
             {
-                await _channelHttpClient.PatchAsync(_channel.ChannelId, patch);
-            }
-            else
-            {
-                foreach (var server in servers ?? new List<ChannelInfo>())
+                ChannelIds = setMaintenancePacket.IsGlobal == false ? new List<long>
                 {
-                    await _channelHttpClient.PatchAsync(server.Id, patch);
-                }
-            }
+                    _channel.ChannelId
+                } : new List<long>()
+            });
         }
     }
 }
