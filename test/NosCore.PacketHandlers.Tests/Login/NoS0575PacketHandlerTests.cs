@@ -26,7 +26,6 @@ using Moq;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
@@ -45,7 +44,6 @@ namespace NosCore.PacketHandlers.Tests.Login
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private string _password = null!;
-        private Mock<IAuthHttpClient>? _authHttpClient;
         private IOptions<LoginConfiguration>? _loginConfiguration;
         private NoS0575PacketHandler? _noS0575PacketHandler;
         private ClientSession? _session;
@@ -56,11 +54,9 @@ namespace NosCore.PacketHandlers.Tests.Login
             _password = new Sha512Hasher().Hash("test");
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _authHttpClient = new Mock<IAuthHttpClient>();
             _loginConfiguration = Options.Create(new LoginConfiguration());
             _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration,
-                    TestHelpers.Instance.AccountDao,
-                    _authHttpClient.Object, TestHelpers.Instance.ChannelHubClient.Object),
+                    TestHelpers.Instance.AccountDao, TestHelpers.Instance.ChannelHubClient.Object),
                 _loginConfiguration, Logger);
         }
 

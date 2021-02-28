@@ -48,7 +48,6 @@ using NosCore.Algorithm.ExperienceService;
 using NosCore.Core;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
@@ -224,7 +223,6 @@ namespace NosCore.WorldServer
 
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
                 .Where(t => t.Name.EndsWith("HttpClient"))
                 .AsImplementedInterfaces();

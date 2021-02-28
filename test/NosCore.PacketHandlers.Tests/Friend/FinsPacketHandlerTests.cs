@@ -35,7 +35,6 @@ using NosCore.GameObject.Services.FriendService;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
-using NosCore.Shared.Configuration;
 using NosCore.Tests.Shared;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;

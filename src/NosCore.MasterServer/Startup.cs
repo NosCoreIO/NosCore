@@ -170,6 +170,7 @@ namespace NosCore.MasterServer
                     WebApi = configuration.Value.WebApi
                 };
             });
+            containerBuilder.RegisterType<MasterClientList>().SingleInstance();
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
             containerBuilder.RegisterType<AuthController>();
             containerBuilder.RegisterLogger();
@@ -181,8 +182,7 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<IncommingMailHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
-                .AsImplementedInterfaces()
-                ;
+                .AsImplementedInterfaces();
 
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);

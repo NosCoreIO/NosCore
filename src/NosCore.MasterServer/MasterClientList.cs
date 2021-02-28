@@ -18,22 +18,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Concurrent;
-using System.Collections.Generic;
+using NosCore.Core;
 using NosCore.Data.WebApi;
 
-namespace NosCore.Core.Networking
+namespace NosCore.MasterServer
 {
-    public sealed class MasterClientListSingleton
+    public class MasterClientList
     {
-        private static MasterClientListSingleton? _instance;
-
-        private MasterClientListSingleton()
-        {
-        }
         public readonly ConcurrentDictionary<string, ChannelInfo> Channels = new ConcurrentDictionary<string, ChannelInfo>();
         public readonly ConcurrentDictionary<string, ConcurrentDictionary<string, ConnectedAccount>> ConnectedAccounts = new ConcurrentDictionary<string, ConcurrentDictionary<string, ConnectedAccount>>();
-
-        public static MasterClientListSingleton Instance => _instance ??= new MasterClientListSingleton();
 
         public int ConnectionCounter { get; set; }
     }

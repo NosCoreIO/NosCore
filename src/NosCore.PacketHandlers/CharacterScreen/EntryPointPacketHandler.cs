@@ -20,7 +20,6 @@
 using Mapster;
 using NosCore.Core;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Dao.Interfaces;
@@ -46,7 +45,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
     public class EntryPointPacketHandler : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {
         private readonly IDao<AccountDto, long> _accountDao;
-        private readonly IAuthHttpClient _authHttpClient;
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly ILogger _logger;
         private readonly IDao<MateDto, long> _mateDao;
@@ -54,18 +52,17 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
-            IDao<MateDto, long> mateDao, ILogger logger, IAuthHttpClient authHttpClient, IChannelHubClient channelHubClient)
+            IDao<MateDto, long> mateDao, ILogger logger,  IChannelHubClient channelHubClient)
         {
             _characterDao = characterDao;
             _accountDao = accountDao;
             _mateDao = mateDao;
             _logger = logger;
-            _authHttpClient = authHttpClient;
             _channelHubClient = channelHubClient;
             _configuration = configuration;
         }
 
-        public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient, IDao<AccountDto, long> accountDao, bool passwordLessConnection, string accountName, string password, int sessionId, IChannelHubClient channelHubClient)
+        public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IDao<AccountDto, long> accountDao, bool passwordLessConnection, string accountName, string password, int sessionId, IChannelHubClient channelHubClient)
         {
             var alreadyConnnected =  (await channelHubClient.GetConnectedAccountsAsync()).Any(s => s.Name == accountName);
             if (alreadyConnnected)
@@ -123,7 +120,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             if (clientSession.Account == null!) // we bypass this when create new char
             {
                 var passwordLessConnection = packet.Password == "thisisgfmode";
-                await VerifyConnectionAsync(clientSession, _logger, _authHttpClient,
+                await VerifyConnectionAsync(clientSession, _logger,
                     _accountDao, passwordLessConnection, packet.Name, packet.Password,
                     clientSession.SessionId, _channelHubClient);
                 if (clientSession.Account == null!)

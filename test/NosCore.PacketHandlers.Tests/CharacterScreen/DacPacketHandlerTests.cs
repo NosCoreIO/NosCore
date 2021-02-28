@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
-using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
@@ -40,7 +39,6 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private static readonly Mock<ILogger> Logger = new Mock<ILogger>();
         private DacPacketHandler _dacPacketHandler = null!;
         private ClientSession _session = null!;
-        private Mock<IAuthHttpClient> _authHttpClient = null!;
         private string _accountName = null!;
 
         [TestInitialize]
@@ -52,9 +50,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             _session!.Account = null!;
             await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_session.Character);
             await _session.SetCharacterAsync(null).ConfigureAwait(false);
-            _authHttpClient = new Mock<IAuthHttpClient>();
             _dacPacketHandler =
-                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, _authHttpClient.Object, TestHelpers.Instance.ChannelHubClient.Object);
+                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, TestHelpers.Instance.ChannelHubClient.Object);
         }
 
         [TestMethod]

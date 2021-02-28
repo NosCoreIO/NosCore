@@ -27,7 +27,6 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.Shared.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;

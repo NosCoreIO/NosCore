@@ -29,7 +29,6 @@ using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.Networking;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
@@ -52,7 +51,6 @@ namespace NosCore.PacketHandlers.Tests.Login
         private readonly string _tokenGuid = Guid.NewGuid().ToString();
         private IHasher _encryption = null!;
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private readonly Mock<IAuthHttpClient> _authHttpClient = new Mock<IAuthHttpClient>();
         private readonly IOptions<LoginConfiguration> _loginConfiguration = Options.Create(new LoginConfiguration
         {
             MasterCommunication = new WebApiConfiguration()
@@ -71,8 +69,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration,
-                TestHelpers.Instance.AccountDao,
-                _authHttpClient.Object, TestHelpers.Instance.ChannelHubClient.Object));
+                TestHelpers.Instance.AccountDao, TestHelpers.Instance.ChannelHubClient.Object));
             var authController = new AuthController(Options.Create(_loginConfiguration.Value.MasterCommunication),
                 TestHelpers.Instance.AccountDao, Logger, _encryption);
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;

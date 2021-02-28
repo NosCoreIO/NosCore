@@ -17,14 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.Extensions.Options;
-using NosCore.Core;
 using NosCore.Core.Configuration;
-using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.Networking;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.Data.WebApi;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
@@ -34,26 +30,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.GameObject.HubClients.ChannelHubClient;
-using ServiceStack;
 
 namespace NosCore.GameObject.Networking.LoginService
 {
     public class LoginService : ILoginService
     {
         private readonly IDao<AccountDto, long> _accountDao;
-        private readonly IAuthHttpClient _authHttpClient;
         private readonly Microsoft.Extensions.Options.IOptions<LoginConfiguration> _loginConfiguration;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IChannelHubClient _channelHubClient;
 
-        public LoginService(Microsoft.Extensions.Options.IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
-            IAuthHttpClient authHttpClient, IChannelHubClient channelHubClient)
+        public LoginService(Microsoft.Extensions.Options.IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao, IChannelHubClient channelHubClient)
             IDao<CharacterDto, long> characterDao)
         {
             _loginConfiguration = loginConfiguration;
             _accountDao = accountDao;
-            _authHttpClient = authHttpClient;
             _channelHubClient = channelHubClient;
             _characterDao = characterDao;
         }

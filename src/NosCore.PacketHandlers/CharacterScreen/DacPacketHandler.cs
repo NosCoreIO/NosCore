@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -35,23 +34,21 @@ namespace NosCore.PacketHandlers.CharacterScreen
     public class DacPacketHandler : PacketHandler<DacPacket>, IWorldPacketHandler
     {
         private readonly IDao<AccountDto, long> _accountDao;
-        private readonly IAuthHttpClient _authHttpClient;
         private readonly ILogger _logger;
         private readonly IChannelHubClient _channelHubClient;
 
         public DacPacketHandler(IDao<AccountDto, long> accountDao,
-            ILogger logger, IAuthHttpClient authHttpClient,
+            ILogger logger, 
             IChannelHubClient channelHubClient)
         {
             _accountDao = accountDao;
             _logger = logger;
-            _authHttpClient = authHttpClient;
             _channelHubClient = channelHubClient;
         }
 
         public override async Task ExecuteAsync(DacPacket packet, ClientSession clientSession)
         {
-            await EntryPointPacketHandler.VerifyConnectionAsync(clientSession, _logger, _authHttpClient,
+            await EntryPointPacketHandler.VerifyConnectionAsync(clientSession, _logger,
                  _accountDao, true, packet.AccountName, "thisisgfmode", -1, _channelHubClient);
             if (clientSession.Account == null!)
             {

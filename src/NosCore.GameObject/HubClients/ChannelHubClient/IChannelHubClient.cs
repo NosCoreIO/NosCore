@@ -17,13 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Json.Patch;
 using NosCore.Core.HubInterfaces;
 using NosCore.Data.WebApi;
-using NosCore.Shared.Configuration;
 
 namespace NosCore.GameObject.HubClients.ChannelHubClient
 {

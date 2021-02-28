@@ -35,7 +35,6 @@ using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -103,7 +102,6 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
-            containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
                 .Where(t => t.Name.EndsWith("HttpClient"))
                 .AsImplementedInterfaces();
