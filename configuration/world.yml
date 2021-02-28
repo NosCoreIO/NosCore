@@ -19,6 +19,12 @@ DisplayPort: 1337
 ConnectedAccountLimit: 100
 SceneOnCreate: false
 StartInMaintenance: false
+#0-3 English / International
+#4-7 German
+#8-11 French
+#12-15 Italian
+#16-19 Polish
+#20-23 Spanish
 ServerGroup: 0
 WorldInformation: true
 WebApi:

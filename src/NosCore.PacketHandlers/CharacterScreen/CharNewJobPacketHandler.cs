@@ -26,23 +26,27 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class CharNewJobPacketHandler : PacketHandler<CharNewJobPacket>, IWorldPacketHandler
     {
         private readonly IDao<CharacterDto, long> _characterDao;
+        private readonly IOptions<WorldConfiguration> _configuration;
 
-        public CharNewJobPacketHandler(IDao<CharacterDto, long> characterDao)
+        public CharNewJobPacketHandler(IDao<CharacterDto, long> characterDao, IOptions<WorldConfiguration> configuration)
         {
             _characterDao = characterDao;
+            _configuration = configuration;
         }
 
         public override async Task ExecuteAsync(CharNewJobPacket packet, ClientSession clientSession)
         {
             //TODO add a flag on Account
             if (await _characterDao.FirstOrDefaultAsync(s =>
-                (s.Level >= 80) && (s.AccountId == clientSession.Account.AccountId) &&
+                (s.Level >= 80) && (s.AccountId == clientSession.Account.AccountId) && (s.ServerId == _configuration.Value.ServerGroup) &&
                 (s.State == CharacterState.Active)).ConfigureAwait(false) == null)
             {
                 //Needs at least a level 80 to create a martial artist

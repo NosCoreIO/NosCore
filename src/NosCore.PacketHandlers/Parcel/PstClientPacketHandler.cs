@@ -80,7 +80,7 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    var dest = await _characterDao.FirstOrDefaultAsync(s => s.Name == pstClientPacket.ReceiverName).ConfigureAwait(false);
+                    var dest = await _characterDao.FirstOrDefaultAsync(s => s.Name == pstClientPacket.ReceiverName && s.ServerId == clientSession.Character.ServerId).ConfigureAwait(false);
                     if (dest != null)
                     {
                         await _mailHttpClient.SendMessageAsync(clientSession.Character, dest.CharacterId, pstClientPacket.Title,

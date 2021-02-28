@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _charRenPacketHandler =
-                new CharRenPacketHandler(TestHelpers.Instance.CharacterDao);
+                new CharRenPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.WorldConfiguration);
             _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler>{
                 _charRenPacketHandler
             }).ConfigureAwait(false);

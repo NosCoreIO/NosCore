@@ -53,6 +53,8 @@ namespace NosCore.Database.Entities
 
         public virtual Account Account { get; set; } = null!;
 
+        public byte ServerId { get; set; }
+
         public long AccountId { get; set; }
 
         public int Act4Dead { get; set; }
