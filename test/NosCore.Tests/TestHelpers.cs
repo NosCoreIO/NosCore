@@ -295,7 +295,7 @@ namespace NosCore.Tests.Shared
                         ConnectedAccountHttpClient.Object),
                     new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                         _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
-                        new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>()),
+                        new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration),
                     new CSkillPacketHandler(),
                     new CBuyPacketHandler(new Mock<IBazaarHttpClient>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao),
                     new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, _itemInstanceDao, _inventoryItemInstanceDao),

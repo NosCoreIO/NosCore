@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _characterDeletePacketHandler =
-                new CharacterDeletePacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao, new Sha512Hasher());
+                new CharacterDeletePacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao, new Sha512Hasher(), TestHelpers.Instance.WorldConfiguration);
             _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler>{
                 _characterDeletePacketHandler
             }).ConfigureAwait(false);

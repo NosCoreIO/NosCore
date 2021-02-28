@@ -19,7 +19,13 @@ DisplayPort: 1337
 ConnectedAccountLimit: 100
 SceneOnCreate: false
 StartInMaintenance: false
-ServerGroup: 0
+#0-3 English / International
+#4-7 German
+#8-11 French
+#12-15 Italian
+#16-19 Polish
+#20-23 Spanish
+ServerId: 0
 WorldInformation: true
 WebApi:
   Host: ${WEBAPI_HOST,http://localhost}

@@ -35,6 +35,8 @@ namespace NosCore.Data.Dto
 	{
 		internal AccountDto Account { get; set; }
 
+	 	public byte ServerId { get; set; }
+
 	 	public long AccountId { get; set; }
 
 	 	public int Act4Dead { get; set; }

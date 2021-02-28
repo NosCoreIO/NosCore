@@ -36,13 +36,14 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Shared.Authentication;
 using NosCore.Shared.Enumerations;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -55,12 +56,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly ILogger _logger;
         private readonly IDao<MateDto, long> _mateDao;
+        private readonly IOptions<WorldConfiguration> _configuration;
 
         public EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
             IDao<MateDto, long> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient, IHasher hasher)
+            IChannelHttpClient channelHttpClient, IOptions<WorldConfiguration> configuration)
         {
             _characterDao = characterDao;
             _accountDao = accountDao;
@@ -69,6 +71,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _authHttpClient = authHttpClient;
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _channelHttpClient = channelHttpClient;
+            _configuration = configuration;
         }
 
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient,
@@ -174,7 +177,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             var characters = _characterDao.Where(s =>
-                (s.AccountId == clientSession.Account!.AccountId) && (s.State == CharacterState.Active));
+                (s.AccountId == clientSession.Account!.AccountId) && (s.State == CharacterState.Active) && s.ServerId == _configuration.Value.ServerGroup);
 
             // load characterlist packet for each character in Character
             await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 }).ConfigureAwait(false);

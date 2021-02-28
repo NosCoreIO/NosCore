@@ -28,6 +28,8 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Authentication;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -36,12 +38,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IDao<AccountDto, long> _accountDao;
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IHasher _hasher;
+        private readonly IOptions<WorldConfiguration> _configuration;
 
-        public CharacterDeletePacketHandler(IDao<CharacterDto, long> characterDao, IDao<AccountDto, long> accountDao, IHasher hasher)
+        public CharacterDeletePacketHandler(IDao<CharacterDto, long> characterDao, IDao<AccountDto, long> accountDao, IHasher hasher, IOptions<WorldConfiguration> configuration)
         {
             _characterDao = characterDao;
             _accountDao = accountDao;
             _hasher = hasher;
+            _configuration = configuration;
         }
 
         public override async Task ExecuteAsync(CharacterDeletePacket packet, ClientSession clientSession)
@@ -56,7 +60,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             if ((account.Password!.ToLower() == _hasher.Hash(packet.Password!)) || (account.Name == packet.Password))
             {
                 var character = await _characterDao.FirstOrDefaultAsync(s =>
-                    (s.AccountId == account.AccountId) && (s.Slot == packet.Slot)
+                    (s.AccountId == account.AccountId) && (s.Slot == packet.Slot) && (s.ServerId == _configuration.Value.ServerGroup)
                     && (s.State == CharacterState.Active)).ConfigureAwait(false);
                 if (character == null)
                 {

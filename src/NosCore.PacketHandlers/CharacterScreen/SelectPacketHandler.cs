@@ -39,6 +39,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -57,13 +59,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IDao<ScriptDto, Guid> _scriptDao;
         private readonly List<QuestObjectiveDto> _questObjectives;
         private readonly List<QuestDto> _quests;
+        private readonly IOptions<WorldConfiguration> _configuration;
 
         public SelectPacketHandler(IDao<CharacterDto, long> characterDao, ILogger logger,
             IItemGenerationService itemProvider,
             IMapInstanceAccessorService mapInstanceAccessorService, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
-            IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives)
+            IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives, IOptions<WorldConfiguration> configuration)
         {
             _characterDao = characterDao;
             _logger = logger;
@@ -78,6 +81,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _scriptDao = scriptDao;
             _quests = quests;
             _questObjectives = questObjectives;
+            _configuration = configuration;
         }
 
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -87,7 +91,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var characterDto = await
                     _characterDao.FirstOrDefaultAsync(s =>
                         (s.AccountId == clientSession.Account.AccountId) && (s.Slot == packet.Slot)
-                        && (s.State == CharacterState.Active)).ConfigureAwait(false);
+                        && (s.State == CharacterState.Active) && s.ServerId == _configuration.Value.ServerGroup).ConfigureAwait(false);
                 if (characterDto == null)
                 {
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHARACTER_SLOT_EMPTY), new

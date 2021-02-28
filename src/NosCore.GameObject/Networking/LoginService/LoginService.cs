@@ -35,6 +35,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.Character;
 
 namespace NosCore.GameObject.Networking.LoginService
 {
@@ -45,16 +46,19 @@ namespace NosCore.GameObject.Networking.LoginService
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
+        private readonly IDao<CharacterDto, long> _characterDao;
 
         public LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
             IAuthHttpClient authHttpClient,
-            IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
+            IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient,
+            IDao<CharacterDto, long> characterDao)
         {
             _loginConfiguration = loginConfiguration;
             _accountDao = accountDao;
             _authHttpClient = authHttpClient;
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _channelHttpClient = channelHttpClient;
+            _characterDao = characterDao;
         }
 
         public async Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId)
@@ -198,15 +202,21 @@ namespace NosCore.GameObject.Networking.LoginService
 
                         var subpacket = new List<NsTeStSubPacket?>();
                         i = 1;
-                        var servergroup = string.Empty;
-                        var worldCount = 1;
-                        foreach (var server in servers.OrderBy(s => s.Name))
+                        var nstest = new NsTestPacket
                         {
-                            if (server.Name != servergroup)
+                            AccountName = username,
+                            SubPacket = subpacket,
+                            SessionId = clientSession.SessionId,
+                            Unknown = useApiAuth ? 2 : (int?)null,
+                            RegionType = language
+                        };
+                        var serverId = 0;
+                        foreach (var server in servers.OrderBy(s => s.ServerId))
+                        {
+                            if (serverId != server.ServerId)
                             {
                                 i = 1;
-                                servergroup = server.Name ?? "";
-                                worldCount++;
+                                serverId = server.ServerId;
                             }
 
                             var channelcolor =
@@ -217,10 +227,16 @@ namespace NosCore.GameObject.Networking.LoginService
                                 Host = server.DisplayHost ?? server.Host,
                                 Port = server.DisplayPort ?? server.Port,
                                 Color = channelcolor,
-                                WorldCount = worldCount,
+                                WorldCount = serverId,
                                 WorldId = i,
                                 Name = server.Name,
                             });
+
+                            nstest.ServerCharacters[serverId].WorldId = i;
+                            nstest.ServerCharacters[serverId].CharacterCount = (byte)_characterDao.Where(o =>
+                                o.AccountId == acc.AccountId && o.State == CharacterState.Active &&
+                                o.ServerId == serverId)!.Count();
+
                             i++;
                         }
 
@@ -233,14 +249,8 @@ namespace NosCore.GameObject.Networking.LoginService
                             WorldId = 10000,
                             Name = useApiAuth ? "4" : "1"
                         }); //useless server to end the client reception
-                        await clientSession.SendPacketAsync(new NsTestPacket
-                        {
-                            AccountName = username,
-                            SubPacket = subpacket,
-                            SessionId = clientSession.SessionId,
-                            Unknown = useApiAuth ? 2 : (int?)null,
-                            RegionType = language
-                        }).ConfigureAwait(false);
+
+                        await clientSession.SendPacketAsync(nstest).ConfigureAwait(false);
                         return;
                 }
 

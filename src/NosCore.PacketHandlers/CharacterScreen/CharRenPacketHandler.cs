@@ -29,16 +29,20 @@ using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class CharRenPacketHandler : PacketHandler<CharRenamePacket>, IWorldPacketHandler
     {
         private readonly IDao<CharacterDto, long> _characterDao;
+        private readonly IOptions<WorldConfiguration> _configuration;
 
-        public CharRenPacketHandler(IDao<CharacterDto, long> characterDao)
+        public CharRenPacketHandler(IDao<CharacterDto, long> characterDao, IOptions<WorldConfiguration> configuration)
         {
             _characterDao = characterDao;
+            _configuration = configuration;
         }
 
         public override async Task ExecuteAsync(CharRenamePacket packet, ClientSession clientSession)
@@ -48,7 +52,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             var slot = packet.Slot;
             var characterName = packet.Name;
             var chara = await _characterDao.FirstOrDefaultAsync(s =>
-                    (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active))
+                    (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active) && (s.ServerId == _configuration.Value.ServerGroup))
                 .ConfigureAwait(false);
             if ((chara == null) || (chara.ShouldRename == false))
             {

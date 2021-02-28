@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NosCore.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -9,9 +10,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    partial class NosCoreContextModelSnapshot : ModelSnapshot
+    [Migration("20210228041639_Aphrodite4")]
+    partial class Aphrodite4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -433,8 +435,8 @@ namespace NosCore.Database.Migrations
                     b.Property<long>("Reput")
                         .HasColumnType("bigint");
 
-                    b.Property<byte>("ServerId")
-                        .HasColumnType("smallint");
+                    b.Property<long>("ServerId")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("ShouldRename")
                         .HasColumnType("boolean");
