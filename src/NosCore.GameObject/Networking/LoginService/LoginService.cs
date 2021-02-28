@@ -210,13 +210,13 @@ namespace NosCore.GameObject.Networking.LoginService
                             Unknown = useApiAuth ? 2 : (int?)null,
                             RegionType = language
                         };
-                        var currentGroup = 0;
-                        foreach (var server in servers.OrderBy(s => s.ServerGroup))
+                        var serverId = 0;
+                        foreach (var server in servers.OrderBy(s => s.ServerId))
                         {
-                            if (currentGroup != server.ServerGroup)
+                            if (serverId != server.ServerId)
                             {
                                 i = 1;
-                                currentGroup = server.ServerGroup;
+                                serverId = server.ServerId;
                             }
 
                             var channelcolor =
@@ -227,15 +227,15 @@ namespace NosCore.GameObject.Networking.LoginService
                                 Host = server.DisplayHost ?? server.Host,
                                 Port = server.DisplayPort ?? server.Port,
                                 Color = channelcolor,
-                                WorldCount = currentGroup,
+                                WorldCount = serverId,
                                 WorldId = i,
                                 Name = server.Name,
                             });
 
-                            nstest.ServerCharacters[currentGroup].WorldId = i;
-                            nstest.ServerCharacters[currentGroup].CharacterCount = (byte)_characterDao.Where(o =>
+                            nstest.ServerCharacters[serverId].WorldId = i;
+                            nstest.ServerCharacters[serverId].CharacterCount = (byte)_characterDao.Where(o =>
                                 o.AccountId == acc.AccountId && o.State == CharacterState.Active &&
-                                o.ServerId == currentGroup)!.Count();
+                                o.ServerId == serverId)!.Count();
 
                             i++;
                         }
