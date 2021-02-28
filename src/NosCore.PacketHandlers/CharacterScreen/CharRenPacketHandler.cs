@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             var slot = packet.Slot;
             var characterName = packet.Name;
             var chara = await _characterDao.FirstOrDefaultAsync(s =>
-                    (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active) && (s.ServerId == _configuration.Value.ServerGroup))
+                    (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active) && (s.ServerId == _configuration.Value.ServerId))
                 .ConfigureAwait(false);
             if ((chara == null) || (chara.ShouldRename == false))
             {

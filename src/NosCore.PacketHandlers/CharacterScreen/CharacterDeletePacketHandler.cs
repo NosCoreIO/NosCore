@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             if ((account.Password!.ToLower() == _hasher.Hash(packet.Password!)) || (account.Name == packet.Password))
             {
                 var character = await _characterDao.FirstOrDefaultAsync(s =>
-                    (s.AccountId == account.AccountId) && (s.Slot == packet.Slot) && (s.ServerId == _configuration.Value.ServerGroup)
+                    (s.AccountId == account.AccountId) && (s.Slot == packet.Slot) && (s.ServerId == _configuration.Value.ServerId)
                     && (s.State == CharacterState.Active)).ConfigureAwait(false);
                 if (character == null)
                 {

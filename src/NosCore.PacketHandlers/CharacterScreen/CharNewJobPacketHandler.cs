@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
         {
             //TODO add a flag on Account
             if (await _characterDao.FirstOrDefaultAsync(s =>
-                (s.Level >= 80) && (s.AccountId == clientSession.Account.AccountId) && (s.ServerId == _configuration.Value.ServerGroup) &&
+                (s.Level >= 80) && (s.AccountId == clientSession.Account.AccountId) && (s.ServerId == _configuration.Value.ServerId) &&
                 (s.State == CharacterState.Active)).ConfigureAwait(false) == null)
             {
                 //Needs at least a level 80 to create a martial artist

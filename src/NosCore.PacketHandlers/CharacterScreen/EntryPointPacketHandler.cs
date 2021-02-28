@@ -177,7 +177,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             var characters = _characterDao.Where(s =>
-                (s.AccountId == clientSession.Account!.AccountId) && (s.State == CharacterState.Active) && s.ServerId == _configuration.Value.ServerGroup);
+                (s.AccountId == clientSession.Account!.AccountId) && (s.State == CharacterState.Active) && s.ServerId == _configuration.Value.ServerId);
 
             // load characterlist packet for each character in Character
             await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 }).ConfigureAwait(false);
