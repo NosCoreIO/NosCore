@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var characterDto = await
                     _characterDao.FirstOrDefaultAsync(s =>
                         (s.AccountId == clientSession.Account.AccountId) && (s.Slot == packet.Slot)
-                        && (s.State == CharacterState.Active) && s.ServerId == _configuration.Value.ServerGroup).ConfigureAwait(false);
+                        && (s.State == CharacterState.Active) && s.ServerId == _configuration.Value.ServerId).ConfigureAwait(false);
                 if (characterDto == null)
                 {
                     _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHARACTER_SLOT_EMPTY), new

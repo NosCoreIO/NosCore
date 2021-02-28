@@ -113,7 +113,7 @@ namespace NosCore.Core.Controllers
                 DisplayPort = (ushort?)data.DisplayPort,
                 DisplayHost = data.DisplayHost,
                 IsMaintenance = data.StartInMaintenance,
-                ServerGroup = data.ServerGroup,
+                ServerId = data.ServerId,
                 Id = _id,
                 ConnectedAccountLimit = data.ConnectedAccountLimit,
                 WebApi = data.WebApi,

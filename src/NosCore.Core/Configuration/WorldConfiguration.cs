@@ -38,7 +38,7 @@ namespace NosCore.Core.Configuration
         [Range(1, short.MaxValue)]
         public short ConnectedAccountLimit { get; set; }
 
-        public byte ServerGroup { get; set; }
+        public byte ServerId { get; set; }
 
         public bool WorldInformation { get; set; }
 

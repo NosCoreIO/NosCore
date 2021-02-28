@@ -39,6 +39,6 @@ namespace NosCore.Core
 
         public ServerType Type { get; set; }
         public bool IsMaintenance { get; set; }
-        public byte ServerGroup { get; set; }
+        public byte ServerId { get; set; }
     }
 }

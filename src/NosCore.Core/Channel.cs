@@ -39,7 +39,7 @@ namespace NosCore.Core
 
         public ushort Port { get; set; }
 
-        public byte ServerGroup { get; set; }
+        public byte ServerId { get; set; }
 
         public int ChannelId { get; set; }
 

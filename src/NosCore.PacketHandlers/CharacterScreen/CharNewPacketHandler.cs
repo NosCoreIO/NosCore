@@ -79,7 +79,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             var slot = packet.Slot;
             var characterName = packet.Name;
             if (await _characterDao.FirstOrDefaultAsync(s =>
-                (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active) && (s.ServerId == _worldConfiguration.ServerGroup)).ConfigureAwait(false) != null)
+                (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active) && (s.ServerId == _worldConfiguration.ServerId)).ConfigureAwait(false) != null)
             {
                 return;
             }
@@ -89,7 +89,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 var character = await
                     _characterDao.FirstOrDefaultAsync(s =>
-                        (s.Name == characterName) && (s.State == CharacterState.Active) && (s.ServerId == _worldConfiguration.ServerGroup)).ConfigureAwait(false);
+                        (s.Name == characterName) && (s.State == CharacterState.Active) && (s.ServerId == _worldConfiguration.ServerId)).ConfigureAwait(false);
                 if (character == null)
                 {
                     var level = (byte)(packet.IsMartialArtist ? 81 : 1);
