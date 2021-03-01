@@ -38,6 +38,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
 using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.PacketHandlers.CharacterScreen
@@ -49,10 +51,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly ILogger _logger;
         private readonly IDao<MateDto, long> _mateDao;
         private readonly IChannelHubClient _channelHubClient;
+        private readonly IOptions<WorldConfiguration> _configuration;
 
         public EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
-            IDao<MateDto, long> mateDao, ILogger logger,  IChannelHubClient channelHubClient)
+            IDao<MateDto, long> mateDao, ILogger logger, IChannelHubClient channelHubClient, IOptions<WorldConfiguration> configuration)
         {
             _characterDao = characterDao;
             _accountDao = accountDao;
@@ -64,7 +67,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IDao<AccountDto, long> accountDao, bool passwordLessConnection, string accountName, string password, int sessionId, IChannelHubClient channelHubClient)
         {
-            var alreadyConnnected =  (await channelHubClient.GetConnectedAccountsAsync()).Any(s => s.Name == accountName);
+            var alreadyConnnected = (await channelHubClient.GetConnectedAccountsAsync()).Any(s => s.Name == accountName);
             if (alreadyConnnected)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ALREADY_CONNECTED), new
@@ -88,12 +91,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             var awaitingConnection =
-                (passwordLessConnection
-                    ? await authHttpClient
-                        .GetAwaitingConnectionAsync(accountName, password, sessionId)
-                        .ConfigureAwait(false) != null
-                    : account.Password?.Equals(new Sha512Hasher().Hash(password), StringComparison.OrdinalIgnoreCase) ==
-                    true);
+                //(passwordLessConnection
+                //    ? await authHttpClient
+                //        .GetAwaitingConnectionAsync(accountName, password, sessionId)
+                //        .ConfigureAwait(false) != null
+                //    :
+                account.Password?.Equals(new Sha512Hasher().Hash(password), StringComparison.OrdinalIgnoreCase) ==
+                    true;
 
             if (!awaitingConnection)
             {

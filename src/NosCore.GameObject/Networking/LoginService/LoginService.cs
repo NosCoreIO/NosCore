@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject.HubClients.ChannelHubClient;
 
 namespace NosCore.GameObject.Networking.LoginService
@@ -37,11 +38,10 @@ namespace NosCore.GameObject.Networking.LoginService
     {
         private readonly IDao<AccountDto, long> _accountDao;
         private readonly Microsoft.Extensions.Options.IOptions<LoginConfiguration> _loginConfiguration;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IChannelHubClient _channelHubClient;
+        private readonly IDao<CharacterDto, long> _characterDao;
 
-        public LoginService(Microsoft.Extensions.Options.IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao, IChannelHubClient channelHubClient)
+        public LoginService(Microsoft.Extensions.Options.IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao, IChannelHubClient channelHubClient,
             IDao<CharacterDto, long> characterDao)
         {
             _loginConfiguration = loginConfiguration;
@@ -69,7 +69,7 @@ namespace NosCore.GameObject.Networking.LoginService
                 Mode = 1
             });
 
-            await _authHttpClient.SetAwaitingConnectionAsync(-1, clientSession.Account.Name);
+            //await _authHttpClient.SetAwaitingConnectionAsync(-1, clientSession.Account.Name);
             await clientSession.Character.SaveAsync();
             await clientSession.DisconnectAsync();
         }
@@ -97,7 +97,7 @@ namespace NosCore.GameObject.Networking.LoginService
 
                 if (useApiAuth)
                 {
-                    username = await _authHttpClient.GetAwaitingConnectionAsync(null, passwordToken, clientSession.SessionId).ConfigureAwait(false);
+                    //username = await _authHttpClient.GetAwaitingConnectionAsync(null, passwordToken, clientSession.SessionId).ConfigureAwait(false);
                 }
 
                 var acc = await _accountDao.FirstOrDefaultAsync(s => s.Name.ToLower() == (username ?? "").ToLower()).ConfigureAwait(false);

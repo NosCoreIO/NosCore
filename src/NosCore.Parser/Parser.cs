@@ -122,7 +122,7 @@ namespace NosCore.Parser
                         {
                             var type = assemblyDb.First(tgo =>
                                 string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
+                            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseNpgsql(
                                 Guid.NewGuid().ToString());
                             var typepk = type.GetProperties()
                                 .Where(s => new NosCoreContext(optionsBuilder.Options).Model.FindEntityType(type)

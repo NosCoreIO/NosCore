@@ -48,7 +48,7 @@ namespace NosCore.Database.Tests
         [TestMethod]
         public void Test_All_NullableForeignKeyAreAssociatedToNullableEntity()
         {
-            using var ctx = new NosCoreContext(new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
+            using var ctx = new NosCoreContext(new DbContextOptionsBuilder<NosCoreContext>().UseNpgsql(
                 Guid.NewGuid().ToString()).Options);
             var nonNullNavigation = new StringBuilder();
             foreach (var entityType in ctx.Model.GetEntityTypes())

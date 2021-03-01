@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _loginConfiguration = Options.Create(new LoginConfiguration());
             _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration,
-                    TestHelpers.Instance.AccountDao, TestHelpers.Instance.ChannelHubClient.Object),
+                    TestHelpers.Instance.AccountDao, TestHelpers.Instance.ChannelHubClient.Object, TestHelpers.Instance.CharacterDao),
                 _loginConfiguration, Logger);
         }
 

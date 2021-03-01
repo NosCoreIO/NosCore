@@ -69,13 +69,13 @@ namespace NosCore.PacketHandlers.Tests.Login
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration,
-                TestHelpers.Instance.AccountDao, TestHelpers.Instance.ChannelHubClient.Object));
+                TestHelpers.Instance.AccountDao, TestHelpers.Instance.ChannelHubClient.Object, TestHelpers.Instance.CharacterDao));
             var authController = new AuthController(Options.Create(_loginConfiguration.Value.MasterCommunication),
                 TestHelpers.Instance.AccountDao, Logger, _encryption);
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
-                (string?)((OkObjectResult)authController.GetExpectingConnection(a, b, c)).Value);
+            //_authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
+            //    It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
+            //    (string?)((OkObjectResult)authController.GetExpectingConnection(a, b, c)).Value);
             SessionFactory.Instance.ReadyForAuth.Clear();
         }
 

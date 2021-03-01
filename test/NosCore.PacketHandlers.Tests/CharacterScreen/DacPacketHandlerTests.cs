@@ -117,9 +117,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 Slot = 0,
                 AccountName = _accountName
             };
-            _authHttpClient.Setup(authHttpClient => authHttpClient
-                    .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
-                .ReturnsAsync("123");
+            //_authHttpClient.Setup(authHttpClient => authHttpClient
+            //        .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
+            //    .ReturnsAsync("123");
             await _dacPacketHandler.ExecuteAsync(packet, _session);
             Assert.IsNotNull(_session!.Account);
         }

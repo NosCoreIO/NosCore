@@ -100,7 +100,7 @@ namespace NosCore.MasterServer
                     var type = assemblyDb.First(tgo =>
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                     var typepk = type.GetProperties()
-                        .Where(s => new NosCoreContext(new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
+                        .Where(s => new NosCoreContext(new DbContextOptionsBuilder<NosCoreContext>().UseNpgsql(
                             Guid.NewGuid().ToString()).Options).Model.FindEntityType(type)
                             .FindPrimaryKey().Properties.Select(x => x.Name)
                             .Contains(s.Name)
