@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _configuration = configuration;
         }
 
-        public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IDao<AccountDto, long> accountDao, bool passwordLessConnection, string accountName, string password, int sessionId, IChannelHubClient channelHubClient)
+        public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IDao<AccountDto, long> accountDao, string accountName, int sessionId, IChannelHubClient channelHubClient)
         {
             var alreadyConnnected = (await channelHubClient.GetConnectedAccountsAsync()).Any(s => s.Name == accountName);
             if (alreadyConnnected)
@@ -90,14 +90,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            var awaitingConnection =
-                //(passwordLessConnection
-                //    ? await authHttpClient
-                //        .GetAwaitingConnectionAsync(accountName, password, sessionId)
-                //        .ConfigureAwait(false) != null
-                //    :
-                account.Password?.Equals(new Sha512Hasher().Hash(password), StringComparison.OrdinalIgnoreCase) ==
-                    true;
+            var awaitingConnection = true; //await authHttpClient
+            //        .GetAwaitingConnectionAsync(accountName, password, sessionId)
+            //        .ConfigureAwait(false) != null;
 
             if (!awaitingConnection)
             {
@@ -123,21 +118,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
         {
             if (clientSession.Account == null!) // we bypass this when create new char
             {
-                var passwordLessConnection = packet.Password == "thisisgfmode";
                 await VerifyConnectionAsync(clientSession, _logger,
-                    _accountDao, passwordLessConnection, packet.Name, packet.Password,
+                    _accountDao, packet.Name,
                     clientSession.SessionId, _channelHubClient);
                 if (clientSession.Account == null!)
                 {
                     return;
                 }
 
-                if (passwordLessConnection)
-                {
-                    //MFA can be validated on launcher
-                    clientSession.MfaValidated = true;
-                }
-
+                clientSession.MfaValidated = true;
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
                     clientSession.Account!.Name);
                 if (!clientSession.MfaValidated && clientSession.Account.MfaSecret != null)

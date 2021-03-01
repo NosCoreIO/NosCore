@@ -461,7 +461,6 @@ namespace NosCore.GameObject.Networking.ClientSession
                                 Header = "EntryPoint",
                                 KeepAliveId = packet.KeepAliveId,
                                 Name = WaitForPacketList[0].Header!,
-                                Password = "thisisgfmode",
                             };
                         }
 

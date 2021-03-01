@@ -28,9 +28,6 @@ namespace NosCore.Data.CommandPackets
     {
         [PacketIndex(1)]
         public string Name { get; set; } = "";
-
-        [PacketIndex(2)]
-        public string Password { get; set; } = "";
     }
 
 }

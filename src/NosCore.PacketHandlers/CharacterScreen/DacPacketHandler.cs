@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
         public override async Task ExecuteAsync(DacPacket packet, ClientSession clientSession)
         {
             await EntryPointPacketHandler.VerifyConnectionAsync(clientSession, _logger,
-                 _accountDao, true, packet.AccountName, "thisisgfmode", -1, _channelHubClient);
+                 _accountDao, packet.AccountName, -1, _channelHubClient);
             if (clientSession.Account == null!)
             {
                 return;

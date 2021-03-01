@@ -1073,8 +1073,7 @@ namespace NosCore.GameObject
 
         public async Task ChangeSpAsync()
         {
-            if (!(InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is
-                SpecialistInstance sp))
+            if (InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is not SpecialistInstance sp)
             {
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.USE_SP_WITHOUT_SP_ERROR));
                 return;
