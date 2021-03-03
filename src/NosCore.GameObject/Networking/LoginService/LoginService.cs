@@ -69,7 +69,7 @@ namespace NosCore.GameObject.Networking.LoginService
                 Mode = 1
             });
 
-            //await _authHttpClient.SetAwaitingConnectionAsync(-1, clientSession.Account.Name);
+            await _channelHubClient.SetAwaitingConnectionAsync(-1, clientSession.Account.Name);
             await clientSession.Character.SaveAsync();
             await clientSession.DisconnectAsync();
         }
@@ -97,7 +97,7 @@ namespace NosCore.GameObject.Networking.LoginService
 
                 if (useApiAuth)
                 {
-                    //username = await _authHttpClient.GetAwaitingConnectionAsync(null, passwordToken, clientSession.SessionId).ConfigureAwait(false);
+                    username = await _channelHubClient.GetAwaitingConnectionAsync(null, passwordToken, clientSession.SessionId).ConfigureAwait(false);
                 }
 
                 var acc = await _accountDao.FirstOrDefaultAsync(s => s.Name.ToLower() == (username ?? "").ToLower()).ConfigureAwait(false);
@@ -227,6 +227,7 @@ namespace NosCore.GameObject.Networking.LoginService
                             Name = useApiAuth ? "4" : "1"
                         }); //useless server to end the client reception
 
+                        await _channelHubClient.SetAwaitingConnectionAsync(clientSession.SessionId, username!);
                         await clientSession.SendPacketAsync(nstest).ConfigureAwait(false);
                         return;
                 }

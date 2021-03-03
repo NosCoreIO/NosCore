@@ -29,5 +29,8 @@ namespace NosCore.MasterServer
         public readonly ConcurrentDictionary<string, ConcurrentDictionary<string, ConnectedAccount>> ConnectedAccounts = new ConcurrentDictionary<string, ConcurrentDictionary<string, ConnectedAccount>>();
 
         public int ConnectionCounter { get; set; }
+        public ConcurrentDictionary<string, long> ReadyForAuth { get; } = new ConcurrentDictionary<string, long>();
+
+        public ConcurrentDictionary<string, string> AuthCodes { get; } = new ConcurrentDictionary<string, string>();
     }
 }

@@ -90,9 +90,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            var awaitingConnection = true; //await authHttpClient
-            //        .GetAwaitingConnectionAsync(accountName, password, sessionId)
-            //        .ConfigureAwait(false) != null;
+            var awaitingConnection = await channelHubClient
+                    .GetAwaitingConnectionAsync(accountName, "thisisgfmode", sessionId)
+                    .ConfigureAwait(false) != null;
 
             if (!awaitingConnection)
             {

@@ -36,7 +36,6 @@ using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
-using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Core.I18N;
@@ -172,7 +171,6 @@ namespace NosCore.MasterServer
             });
             containerBuilder.RegisterType<MasterClientList>().SingleInstance();
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
-            containerBuilder.RegisterType<AuthController>();
             containerBuilder.RegisterLogger();
 
             containerBuilder.RegisterAssemblyTypes(typeof(FriendRequestHolder).Assembly)
@@ -224,7 +222,6 @@ namespace NosCore.MasterServer
 
             services
                 .AddControllers()
-                .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
             services.AddHostedService<MasterServer>();

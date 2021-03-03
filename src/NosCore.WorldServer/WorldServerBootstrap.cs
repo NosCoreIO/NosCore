@@ -46,7 +46,6 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Core;
-using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -265,7 +264,6 @@ namespace NosCore.WorldServer
             //NosCore.Core
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
-            containerBuilder.RegisterType<AuthController>();
 
             //NosCore.GameObject
             containerBuilder.RegisterType<ClientSession>();

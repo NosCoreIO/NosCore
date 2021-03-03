@@ -12,5 +12,7 @@ namespace NosCore.Core.HubInterfaces
         Task UnregisterAccount(string accountName);
         Task BroadcastEvent(Event<IEvent> channelEvent);
         Task<List<ConnectedAccount>> GetConnectedAccountsAsync();
+        Task<string?> GetAwaitingConnectionAsync(string? name, string packetPassword, int clientSessionSessionId);
+        Task SetAwaitingConnectionAsync(long sessionId, string accountName);
     }
 }

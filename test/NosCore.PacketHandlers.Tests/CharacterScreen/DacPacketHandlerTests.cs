@@ -50,6 +50,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             _session!.Account = null!;
             await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_session.Character);
             await _session.SetCharacterAsync(null).ConfigureAwait(false);
+            TestHelpers.Instance.ChannelHubClient.Setup(authHttpClient => authHttpClient
+                    .GetConnectedAccountsAsync())
+                .ReturnsAsync(new List<ConnectedAccount>());
             _dacPacketHandler =
                 new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, TestHelpers.Instance.ChannelHubClient.Object);
         }
@@ -117,9 +120,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 Slot = 0,
                 AccountName = _accountName
             };
-            //_authHttpClient.Setup(authHttpClient => authHttpClient
-            //        .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
-            //    .ReturnsAsync("123");
+            TestHelpers.Instance.ChannelHubClient.Setup(authHttpClient => authHttpClient
+                    .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync(_accountName);
             await _dacPacketHandler.ExecuteAsync(packet, _session);
             Assert.IsNotNull(_session!.Account);
         }

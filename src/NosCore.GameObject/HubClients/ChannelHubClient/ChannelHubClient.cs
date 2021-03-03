@@ -85,5 +85,15 @@ namespace NosCore.GameObject.HubClients.ChannelHubClient
             return (await GetConnectedAccountsAsync()).FirstOrDefault(o =>
                 o.ConnectedCharacter?.Id == characterId || o.ConnectedCharacter?.Name == characterName);
         }
+
+        public Task<string?> GetAwaitingConnectionAsync(string? name, string packetPassword, int clientSessionSessionId)
+        {
+            return _hubConnection.InvokeAsync<string?>(nameof(IChannelHub.GetAwaitingConnectionAsync), name, packetPassword, clientSessionSessionId);
+        }
+
+        public Task SetAwaitingConnectionAsync(long sessionId, string accountName)
+        {
+            return _hubConnection.SendAsync(nameof(IChannelHub.SetAwaitingConnectionAsync), sessionId , accountName);
+        }
     }
 }
