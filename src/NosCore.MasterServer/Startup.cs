@@ -248,6 +248,14 @@ namespace NosCore.MasterServer
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<ChannelHub>(nameof(ChannelHub));
+                endpoints.MapHub<BazaarHub>(nameof(BazaarHub));
+                endpoints.MapHub<ChannelHub>(nameof(ChannelHub));
+                endpoints.MapHub<BlacklistHub>(nameof(BlacklistHub));
+                endpoints.MapHub<FriendHub>(nameof(FriendHub));
+                endpoints.MapHub<MailHub>(nameof(MailHub));
+                endpoints.MapHub<PacketHub>(nameof(PacketHub));
+                endpoints.MapHub<StatHub>(nameof(StatHub));
+                endpoints.MapHub<WarehouseHub>(nameof(WarehouseHub));
             });
         }
     }
