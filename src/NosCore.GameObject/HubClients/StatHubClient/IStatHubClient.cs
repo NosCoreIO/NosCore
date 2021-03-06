@@ -17,18 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using NosCore.Core.HubInterfaces;
 
-namespace NosCore.GameObject.HttpClients.FriendHttpClient
+namespace NosCore.GameObject.HubClients.StatHubClient
 {
-    public interface IFriendHttpClient
+    public interface IStatHubClient : IStatHub, IHubClient
     {
-        Task<LanguageKey> AddFriendAsync(FriendShipRequest friendShipRequest);
-        Task<List<CharacterRelationStatus>> GetListFriendsAsync(long visualEntityVisualId);
-        Task DeleteFriendAsync(Guid characterRelationId);
+
     }
 }
