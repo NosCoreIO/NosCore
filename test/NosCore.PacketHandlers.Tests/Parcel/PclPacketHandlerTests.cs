@@ -27,7 +27,7 @@ using NosCore.Core;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.MailHttpClient;
+using NosCore.GameObject.HubClients.MailHubClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Parcel;
@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
     [TestClass]
     public class PclPacketHandlerTests
     {
-        private Mock<IMailHttpClient>? _mailHttpClient;
+        private Mock<IMailHubClient>? _mailHttpClient;
         private PclPacketHandler? _pclPacketHandler;
         private IItemGenerationService? _item;
         private ClientSession? _session;
@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             SystemTime.Freeze();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _mailHttpClient = new Mock<IMailHttpClient>();
+            _mailHttpClient = new Mock<IMailHubClient>();
             _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _pclPacketHandler = new PclPacketHandler(_mailHttpClient.Object, _item, _itemInstanceDao.Object);
         }

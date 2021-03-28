@@ -28,7 +28,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Holders;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.HubClients.FriendHubClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FriendService;
@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
         private FinsPacketHandler? _finsPacketHandler;
-        private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
+        private readonly Mock<IFriendHubClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
         private FriendRequestHolder? _friendRequestHolder;
 
         private ClientSession? _session;

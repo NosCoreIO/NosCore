@@ -27,7 +27,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
+using NosCore.GameObject.HubClients.BazaarHubClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class CbListPacketHandlerTest
     {
-        private Mock<IBazaarHttpClient>? _bazaarHttpClient;
+        private Mock<IBazaarHubClient>? _bazaarHttpClient;
         private CBListPacketHandler? _cblistPacketHandler;
         private ClientSession? _session;
 
@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _bazaarHttpClient = new Mock<IBazaarHttpClient>();
+            _bazaarHttpClient = new Mock<IBazaarHubClient>();
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Main, VNum = 1012, IsSoldable = true}

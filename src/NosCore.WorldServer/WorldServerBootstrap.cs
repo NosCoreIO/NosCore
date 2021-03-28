@@ -56,7 +56,6 @@ using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
 using NosCore.GameObject;
 using NosCore.GameObject.Holders;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -222,9 +221,6 @@ namespace NosCore.WorldServer
 
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
-                .Where(t => t.Name.EndsWith("HttpClient"))
-                .AsImplementedInterfaces();
 
             containerBuilder.Register(c =>
             {

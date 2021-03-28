@@ -20,7 +20,6 @@
 using NosCore.Core;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.ServerPackets.Auction;
@@ -28,16 +27,17 @@ using NosCore.Packets.ServerPackets.Inventory;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.BazaarHubClient;
 using static NosCore.Packets.ServerPackets.Auction.RcbListPacket;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
     public class CBListPacketHandler : PacketHandler<CBListPacket>, IWorldPacketHandler
     {
-        private readonly IBazaarHttpClient _bazaarHttpClient;
+        private readonly IBazaarHubClient _bazaarHttpClient;
         private readonly List<ItemDto> _items;
 
-        public CBListPacketHandler(IBazaarHttpClient bazaarHttpClient, List<ItemDto> items)
+        public CBListPacketHandler(IBazaarHubClient bazaarHttpClient, List<ItemDto> items)
         {
             _bazaarHttpClient = bazaarHttpClient;
             _items = items;

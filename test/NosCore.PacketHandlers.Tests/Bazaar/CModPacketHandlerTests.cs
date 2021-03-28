@@ -26,7 +26,7 @@ using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
+using NosCore.GameObject.HubClients.BazaarHubClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Bazaar;
@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     public class CModPacketHandlerTest
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private Mock<IBazaarHttpClient>? _bazaarHttpClient;
+        private Mock<IBazaarHubClient>? _bazaarHttpClient;
         private CModPacketHandler? _cmodPacketHandler;
         private ClientSession? _session;
 
@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _bazaarHttpClient = new Mock<IBazaarHttpClient>();
+            _bazaarHttpClient = new Mock<IBazaarHubClient>();
             _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, Logger);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(0)).ReturnsAsync(

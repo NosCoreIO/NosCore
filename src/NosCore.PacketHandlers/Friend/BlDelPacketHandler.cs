@@ -21,20 +21,20 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.BlacklistHubClient;
 
 namespace NosCore.PacketHandlers.Friend
 {
     public class BlDelPacketHandler : PacketHandler<BlDelPacket>, IWorldPacketHandler
     {
-        private readonly IBlacklistHttpClient _blacklistHttpClient;
+        private readonly IBlacklistHubClient _blacklistHttpClient;
 
-        public BlDelPacketHandler(IBlacklistHttpClient blacklistHttpClient)
+        public BlDelPacketHandler(IBlacklistHubClient blacklistHttpClient)
         {
             _blacklistHttpClient = blacklistHttpClient;
         }

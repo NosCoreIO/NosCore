@@ -24,7 +24,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
@@ -35,6 +34,8 @@ using Serilog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.BlacklistHubClient;
+
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -42,10 +43,10 @@ namespace NosCore.PacketHandlers.Group
 {
     public class PjoinPacketHandler : PacketHandler<PjoinPacket>, IWorldPacketHandler
     {
-        private readonly IBlacklistHttpClient _blacklistHttpCLient;
+        private readonly IBlacklistHubClient _blacklistHttpCLient;
         private readonly ILogger _logger;
 
-        public PjoinPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpCLient)
+        public PjoinPacketHandler(ILogger logger, IBlacklistHubClient blacklistHttpCLient)
         {
             _logger = logger;
             _blacklistHttpCLient = blacklistHttpCLient;

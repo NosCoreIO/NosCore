@@ -22,21 +22,21 @@ using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 using NosCore.GameObject.HubClients.ChannelHubClient;
+using NosCore.GameObject.HubClients.MailHubClient;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class GiftPacketHandler : PacketHandler<GiftPacket>, IWorldPacketHandler
     {
         private readonly IChannelHubClient _channelHubClient;
-        private readonly IMailHttpClient _mailHttpClient;
+        private readonly IMailHubClient _mailHttpClient;
 
-        public GiftPacketHandler(IChannelHubClient channelHubClient, IMailHttpClient mailHttpClient)
+        public GiftPacketHandler(IChannelHubClient channelHubClient, IMailHubClient mailHttpClient)
         {
             _channelHubClient = channelHubClient;
             _mailHttpClient = mailHttpClient;

@@ -25,22 +25,22 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.BazaarHubClient;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
     public class CModPacketHandler : PacketHandler<CModPacket>, IWorldPacketHandler
     {
-        private readonly IBazaarHttpClient _bazaarHttpClient;
+        private readonly IBazaarHubClient _bazaarHttpClient;
         private readonly ILogger _logger;
 
-        public CModPacketHandler(IBazaarHttpClient bazaarHttpClient, ILogger logger)
+        public CModPacketHandler(IBazaarHubClient bazaarHttpClient, ILogger logger)
         {
             _bazaarHttpClient = bazaarHttpClient;
             _logger = logger;

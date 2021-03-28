@@ -23,7 +23,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -32,6 +31,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.PacketHubClient;
 using Character = NosCore.Data.WebApi.Character;
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -40,10 +40,10 @@ namespace NosCore.PacketHandlers.Command
 {
     public class ShoutPacketHandler : PacketHandler<ShoutPacket>, IWorldPacketHandler
     {
-        private readonly IPacketHttpClient _packetHttpClient;
+        private readonly IPacketHubClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
 
-        public ShoutPacketHandler(ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
+        public ShoutPacketHandler(ISerializer packetSerializer, IPacketHubClient packetHttpClient)
         {
             _packetSerializer = packetSerializer;
             _packetHttpClient = packetHttpClient;

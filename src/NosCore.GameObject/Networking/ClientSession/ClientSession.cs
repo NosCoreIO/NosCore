@@ -30,7 +30,6 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ExchangeService;
@@ -52,6 +51,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.FriendHubClient;
+using NosCore.GameObject.HubClients.PacketHubClient;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
@@ -61,21 +62,21 @@ namespace NosCore.GameObject.Networking.ClientSession
             new Dictionary<Type, PacketHeaderAttribute>();
 
         private readonly IExchangeService _exchangeProvider = null!;
-        private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IFriendHubClient _friendHttpClient;
         private readonly SemaphoreSlim _handlingPacketLock = new SemaphoreSlim(1, 1);
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
         private readonly IMapInstanceAccessorService _mapInstanceAccessorService = null!;
         private readonly IMapInstanceGeneratorService _mapInstanceGeneratorService = null!;
         private readonly IMinilandService _minilandProvider = null!;
-        private readonly IPacketHttpClient _packetHttpClient;
+        private readonly IPacketHubClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
         private Character? _character;
         private int? _waitForPacketsAmount;
 
-        public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
+        public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHubClient friendHttpClient,
+            ISerializer packetSerializer, IPacketHubClient packetHttpClient)
             : base(logger)
         {
             _logger = logger;
@@ -94,15 +95,15 @@ namespace NosCore.GameObject.Networking.ClientSession
         }
 
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
-            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
+            IEnumerable<IPacketHandler> packetsHandlers, IFriendHubClient friendHttpClient,
+            ISerializer packetSerializer, IPacketHubClient packetHttpClient) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
         {
         }
 
         public ClientSession(IOptions<WorldConfiguration> configuration, IMapInstanceAccessorService mapInstanceAccessorService,
             IExchangeService? exchangeService, ILogger logger,
-            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
+            IEnumerable<IPacketHandler> packetsHandlers, IFriendHubClient friendHttpClient,
+            ISerializer packetSerializer, IPacketHubClient packetHttpClient,
             IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
         {
             _mapInstanceAccessorService = mapInstanceAccessorService;

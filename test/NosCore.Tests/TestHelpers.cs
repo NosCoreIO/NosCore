@@ -48,11 +48,11 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
 using NosCore.GameObject.Holders;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
+using NosCore.GameObject.HubClients.BazaarHubClient;
+using NosCore.GameObject.HubClients.BlacklistHubClient;
 using NosCore.GameObject.HubClients.ChannelHubClient;
+using NosCore.GameObject.HubClients.FriendHubClient;
+using NosCore.GameObject.HubClients.PacketHubClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -103,9 +103,9 @@ namespace NosCore.Tests.Shared
         private IDao<ShopItemDto, int> _shopItemDao = null!;
         private IDao<StaticBonusDto, long> _staticBonusDao = null!;
         private int _lastId = 100;
-        public Mock<IBlacklistHttpClient> BlacklistHttpClient = new Mock<IBlacklistHttpClient>();
-        public Mock<IFriendHttpClient> FriendHttpClient = new Mock<IFriendHttpClient>();
-        public Mock<IPacketHttpClient> PacketHttpClient = new Mock<IPacketHttpClient>();
+        public Mock<IBlacklistHubClient> BlacklistHttpClient = new Mock<IBlacklistHubClient>();
+        public Mock<IFriendHubClient> FriendHttpClient = new Mock<IFriendHubClient>();
+        public Mock<IPacketHubClient> PacketHttpClient = new Mock<IPacketHubClient>();
         public Mock<IChannelHubClient> ChannelHubClient = new Mock<IChannelHubClient>();
 
         private TestHelpers()
@@ -294,9 +294,9 @@ namespace NosCore.Tests.Shared
                         _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
                         new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration),
                     new CSkillPacketHandler(),
-                    new CBuyPacketHandler(new Mock<IBazaarHttpClient>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao),
-                    new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, _itemInstanceDao, _inventoryItemInstanceDao),
-                    new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao)
+                    new CBuyPacketHandler(new Mock<IBazaarHubClient>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao),
+                    new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHubClient>().Object, _itemInstanceDao, _inventoryItemInstanceDao),
+                    new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHubClient>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao)
                 },
                 FriendHttpClient.Object,
                 new Mock<ISerializer>().Object,

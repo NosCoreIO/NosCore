@@ -17,12 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Core.HubInterfaces;
+using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject.HubClients.PacketHubClient
 {
     public interface IPacketHubClient : IPacketHub, IHubClient
     {
-
+        Task BroadcastPacketAsync(PostedPacket packet, int channelId);
+        Task BroadcastPacketAsync(PostedPacket packet);
+        Task BroadcastPacketsAsync(List<PostedPacket> packets);
+        Task BroadcastPacketsAsync(List<PostedPacket> packets, int channelId);
     }
 }

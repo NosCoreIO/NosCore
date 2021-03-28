@@ -28,7 +28,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
+using NosCore.GameObject.HubClients.BazaarHubClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     public class CBuyPacketHandlerTest
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private Mock<IBazaarHttpClient>? _bazaarHttpClient;
+        private Mock<IBazaarHubClient>? _bazaarHttpClient;
         private CBuyPacketHandler? _cbuyPacketHandler;
         private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
         private Mock<IItemGenerationService>? _itemProvider;
@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _bazaarHttpClient = new Mock<IBazaarHttpClient>();
+            _bazaarHttpClient = new Mock<IBazaarHubClient>();
             _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _itemProvider = new Mock<IItemGenerationService>();
             _cbuyPacketHandler = new CBuyPacketHandler(_bazaarHttpClient.Object, _itemProvider.Object, Logger,

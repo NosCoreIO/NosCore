@@ -23,11 +23,11 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 using NosCore.GameObject.HubClients.ChannelHubClient;
+using NosCore.GameObject.HubClients.StatHubClient;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
@@ -35,10 +35,10 @@ namespace NosCore.PacketHandlers.Command
     public class SetGoldCommandPacketHandler : PacketHandler<SetGoldCommandPacket>, IWorldPacketHandler
     {
         private readonly IChannelHubClient _channelHubClient;
-        private readonly IStatHttpClient _statHttpClient;
+        private readonly IStatHubClient _statHttpClient;
 
         public SetGoldCommandPacketHandler(IChannelHubClient channelHubClient,
-            IStatHttpClient statHttpClient)
+            IStatHubClient statHttpClient)
         {
             _channelHubClient = channelHubClient;
             _statHttpClient = statHttpClient;

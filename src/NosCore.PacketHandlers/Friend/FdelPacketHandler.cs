@@ -21,7 +21,6 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Relations;
@@ -29,15 +28,16 @@ using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.GameObject.HubClients.ChannelHubClient;
+using NosCore.GameObject.HubClients.FriendHubClient;
 
 namespace NosCore.PacketHandlers.Friend
 {
     public class FdelPacketHandler : PacketHandler<FdelPacket>, IWorldPacketHandler
     {
         private readonly IChannelHubClient _channelHubClient;
-        private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IFriendHubClient _friendHttpClient;
 
-        public FdelPacketHandler(IFriendHttpClient friendHttpClient, IChannelHubClient channelHubClient)
+        public FdelPacketHandler(IFriendHubClient friendHttpClient, IChannelHubClient channelHubClient)
         {
             _friendHttpClient = friendHttpClient;
             _channelHubClient = channelHubClient;

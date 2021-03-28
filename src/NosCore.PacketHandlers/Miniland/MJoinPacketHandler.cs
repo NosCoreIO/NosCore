@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.HubClients.FriendHubClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
@@ -34,10 +34,10 @@ namespace NosCore.PacketHandlers.Miniland
 {
     public class MJoinPacketHandler : PacketHandler<MJoinPacket>, IWorldPacketHandler
     {
-        private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IFriendHubClient _friendHttpClient;
         private readonly IMinilandService _minilandProvider;
 
-        public MJoinPacketHandler(IFriendHttpClient friendHttpClient, IMinilandService minilandProvider)
+        public MJoinPacketHandler(IFriendHubClient friendHttpClient, IMinilandService minilandProvider)
         {
             _friendHttpClient = friendHttpClient;
             _minilandProvider = minilandProvider;

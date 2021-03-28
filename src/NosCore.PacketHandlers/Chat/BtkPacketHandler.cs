@@ -24,8 +24,6 @@ using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Chat;
@@ -36,6 +34,9 @@ using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.GameObject.HubClients.ChannelHubClient;
+using NosCore.GameObject.HubClients.FriendHubClient;
+using NosCore.GameObject.HubClients.PacketHubClient;
+using NosCore.GameObject.HubClients.StatHubClient;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
@@ -43,14 +44,14 @@ namespace NosCore.PacketHandlers.Chat
     public class BtkPacketHandler : PacketHandler<BtkPacket>, IWorldPacketHandler
     {
         private readonly IChannelHubClient _channelHubClient;
-        private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IFriendHubClient _friendHttpClient;
         private readonly ILogger _logger;
-        private readonly IPacketHttpClient _packetHttpClient;
+        private readonly IPacketHubClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly Channel _channel;
 
-        public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
-            IPacketHttpClient packetHttpClient, IChannelHubClient channelHubClient, Channel channel)
+        public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHubClient friendHttpClient,
+            IPacketHubClient packetHttpClient, IChannelHubClient channelHubClient, Channel channel)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;

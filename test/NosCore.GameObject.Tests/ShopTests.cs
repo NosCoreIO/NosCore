@@ -43,8 +43,8 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
+using NosCore.GameObject.HubClients.FriendHubClient;
+using NosCore.GameObject.HubClients.PacketHubClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Tests
     public class ShopTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private IFriendHttpClient? _friendHttpClient;
+        private IFriendHubClient? _friendHttpClient;
         private IMapInstanceAccessorService? _instanceProvider;
         private ClientSession? _session;
 
@@ -77,7 +77,7 @@ namespace NosCore.GameObject.Tests
         {
             Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _friendHttpClient = new Mock<IFriendHttpClient>().Object;
+            _friendHttpClient = new Mock<IFriendHubClient>().Object;
             TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 3;
             _instanceProvider = TestHelpers.Instance.MapInstanceAccessorService;
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
@@ -276,7 +276,7 @@ namespace NosCore.GameObject.Tests
         private async Task<ClientSession> PrepareSessionShopAsync()
         {
             var conf = Options.Create(new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 });
-            var session2 = new ClientSession(conf, new Mock<IMapInstanceAccessorService>().Object, new Mock<IExchangeService>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object, new Mock<IMinilandService>().Object, TestHelpers.Instance.MapInstanceGeneratorService);
+            var session2 = new ClientSession(conf, new Mock<IMapInstanceAccessorService>().Object, new Mock<IExchangeService>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHubClient>().Object, new Mock<IMinilandService>().Object, TestHelpers.Instance.MapInstanceGeneratorService);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto { Name = "AccountTest", Password = new Sha512Hasher().Hash("test") };

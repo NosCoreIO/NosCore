@@ -26,20 +26,20 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Parcel;
 using NosCore.Packets.Enumerations;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.MailHubClient;
 
 namespace NosCore.PacketHandlers.Parcel
 {
     public class PstClientPacketHandler : PacketHandler<PstClientPacket>, IWorldPacketHandler
     {
         private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IMailHttpClient _mailHttpClient;
+        private readonly IMailHubClient _mailHttpClient;
 
-        public PstClientPacketHandler(IMailHttpClient mailHttpClient, IDao<CharacterDto, long> characterDao)
+        public PstClientPacketHandler(IMailHubClient mailHttpClient, IDao<CharacterDto, long> characterDao)
         {
             _mailHttpClient = mailHttpClient;
             _characterDao = characterDao;

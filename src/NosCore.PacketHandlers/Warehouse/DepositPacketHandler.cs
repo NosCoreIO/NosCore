@@ -19,19 +19,19 @@
 
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.WarehouseHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Warehouse;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.WarehouseHubClient;
 
 namespace NosCore.PacketHandlers.Warehouse
 {
     public class DepositPacketHandler : PacketHandler<DepositPacket>, IWorldPacketHandler
     {
-        private readonly IWarehouseHttpClient _warehouseHttpClient;
+        private readonly IWarehouseHubClient _warehouseHttpClient;
 
-        public DepositPacketHandler(IWarehouseHttpClient warehouseHttpClient)
+        public DepositPacketHandler(IWarehouseHubClient warehouseHttpClient)
         {
             _warehouseHttpClient = warehouseHttpClient;
         }

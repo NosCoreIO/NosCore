@@ -33,19 +33,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.FriendHubClient;
 
 namespace NosCore.GameObject.Services.MinilandService
 {
     public class MinilandService : IMinilandService
     {
         private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
-        private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IFriendHubClient _friendHttpClient;
         private readonly List<MapDto> _maps;
         private readonly IDao<MinilandDto, Guid> _minilandDao;
         private readonly IDao<MinilandObjectDto, Guid> _minilandObjectsDao;
         private readonly MinilandHolder _minilandHolder;
 
-        public MinilandService(IMapInstanceAccessorService mapInstanceAccessorService, IFriendHttpClient friendHttpClient, List<MapDto> maps,
+        public MinilandService(IMapInstanceAccessorService mapInstanceAccessorService, IFriendHubClient friendHttpClient, List<MapDto> maps,
             IDao<MinilandDto, Guid> minilandDao, IDao<MinilandObjectDto, Guid> minilandObjectsDao, MinilandHolder minilandHolder)
         {
             _mapInstanceAccessorService = mapInstanceAccessorService;

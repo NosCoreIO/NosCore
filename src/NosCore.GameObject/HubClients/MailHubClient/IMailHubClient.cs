@@ -17,12 +17,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Json.Patch;
 using NosCore.Core.HubInterfaces;
+using NosCore.Data.Dto;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject.HubClients.MailHubClient
 {
     public interface IMailHubClient : IMailHub, IHubClient
     {
+        Task SendGiftAsync(ICharacterEntity characterEntity, long receiverId, IItemInstanceDto itemInstance, bool isNosmall);
 
+        Task SendGiftAsync(ICharacterEntity characterEntity, long receiverId, short vnum, short amount, sbyte rare,
+            byte upgrade, bool isNosmall);
+
+        Task<IEnumerable<MailData>> GetGiftsAsync(long characterId);
+        Task<MailData?> GetGiftAsync(long id, long characterId, bool isCopy);
+        Task DeleteGiftAsync(long giftId, long visualId, bool isCopy);
+        Task ViewGiftAsync(long giftId, JsonPatch mailData);
+        Task SendMessageAsync(ICharacterEntity character, long characterId, string title, string text);
+
+        Task NotifyIncommingMailAsync(int channelId, MailData mailRequest);
+        Task OpenIncommingMailAsync(int channelId, MailData mailData);
+        Task DeleteIncommingMailAsync(int channelId, long id, short mailId, byte postType);
     }
 }

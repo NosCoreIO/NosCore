@@ -19,7 +19,6 @@
 
 using NosCore.Core;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
@@ -27,14 +26,15 @@ using NosCore.Packets.ServerPackets.Auction;
 using NosCore.Packets.ServerPackets.Inventory;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.BazaarHubClient;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
     public class CSListPacketHandler : PacketHandler<CSListPacket>, IWorldPacketHandler
     {
-        private readonly IBazaarHttpClient _bazaarHttpClient;
+        private readonly IBazaarHubClient _bazaarHttpClient;
 
-        public CSListPacketHandler(IBazaarHttpClient bazaarHttpClient)
+        public CSListPacketHandler(IBazaarHubClient bazaarHttpClient)
         {
             _bazaarHttpClient = bazaarHttpClient;
         }

@@ -24,8 +24,6 @@ using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Chat;
@@ -38,23 +36,25 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.BlacklistHubClient;
 using NosCore.GameObject.HubClients.ChannelHubClient;
+using NosCore.GameObject.HubClients.PacketHubClient;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
 {
     public class WhisperPacketHandler : PacketHandler<WhisperPacket>, IWorldPacketHandler
     {
-        private readonly IBlacklistHttpClient _blacklistHttpClient;
+        private readonly IBlacklistHubClient _blacklistHttpClient;
         private readonly ILogger _logger;
-        private readonly IPacketHttpClient _packetHttpClient;
+        private readonly IPacketHubClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly Channel _channel;
         private readonly IChannelHubClient _channelHubClient;
 
         public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer,
-            IBlacklistHttpClient blacklistHttpClient,
-            IChannelHubClient channelHubClient, IPacketHttpClient packetHttpClient, Channel channel)
+            IBlacklistHubClient blacklistHttpClient,
+            IChannelHubClient channelHubClient, IPacketHubClient packetHttpClient, Channel channel)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;

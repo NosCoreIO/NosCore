@@ -28,7 +28,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Bazaar;
@@ -39,6 +38,8 @@ using NosCore.Shared.Enumerations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.BazaarHubClient;
+
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -46,12 +47,12 @@ namespace NosCore.PacketHandlers.Bazaar
 {
     public class CRegPacketHandler : PacketHandler<CRegPacket>, IWorldPacketHandler
     {
-        private readonly IBazaarHttpClient _bazaarHttpClient;
+        private readonly IBazaarHubClient _bazaarHttpClient;
         private readonly IOptions<WorldConfiguration> _configuration;
         private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
 
-        public CRegPacketHandler(IOptions<WorldConfiguration> configuration, IBazaarHttpClient bazaarHttpClient,
+        public CRegPacketHandler(IOptions<WorldConfiguration> configuration, IBazaarHubClient bazaarHttpClient,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao)
         {

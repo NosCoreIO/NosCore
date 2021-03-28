@@ -17,12 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Json.Patch;
 using NosCore.Core.HubInterfaces;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.HubClients.BazaarHubClient
 {
     public interface IBazaarHubClient : IBazaarHub, IHubClient
     {
+        Task<List<BazaarLink>> GetBazaarLinksAsync(int i, int packetIndex, int pagesize, BazaarListType packetTypeFilter,
+            byte packetSubTypeFilter, byte packetLevelFilter,
+            byte packetRareFilter, byte packetUpgradeFilter, long? sellerFilter);
 
+        Task<LanguageKey?> AddBazaarAsync(BazaarRequest bazaarRequest);
+        Task<BazaarLink?> GetBazaarLinkAsync(long bazaarId);
+        Task<bool> RemoveAsync(long bazaarId, int count, string requestCharacterName);
+        Task<BazaarLink> ModifyAsync(long bazaarId, JsonPatch patchBz);
     }
 }

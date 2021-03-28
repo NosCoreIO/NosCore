@@ -37,7 +37,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -176,8 +175,7 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterAssemblyTypes(typeof(FriendRequestHolder).Assembly)
                 .Where(t => t.Name.EndsWith("Holder"))
                 .SingleInstance();
-
-            containerBuilder.RegisterType<IncommingMailHttpClient>().AsImplementedInterfaces();
+            
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces();

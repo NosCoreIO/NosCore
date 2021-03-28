@@ -43,7 +43,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
@@ -102,9 +101,6 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
-            containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
-                .Where(t => t.Name.EndsWith("HttpClient"))
-                .AsImplementedInterfaces();
 
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication.HashingType switch
             {

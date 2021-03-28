@@ -17,12 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
 using NosCore.Core.HubInterfaces;
+using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject.HubClients.StatHubClient
 {
     public interface IStatHubClient : IStatHub, IHubClient
     {
-
+        Task ChangeStatAsync(StatData data, int channelId);
     }
 }

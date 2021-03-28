@@ -25,7 +25,6 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -37,18 +36,19 @@ using NosCore.Shared.Enumerations;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.BazaarHubClient;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
     public class CScalcPacketHandler : PacketHandler<CScalcPacket>, IWorldPacketHandler
     {
-        private readonly IBazaarHttpClient _bazaarHttpClient;
+        private readonly IBazaarHubClient _bazaarHttpClient;
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly IItemGenerationService _itemProvider;
         private readonly ILogger _logger;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
-        public CScalcPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IBazaarHttpClient bazaarHttpClient,
+        public CScalcPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IBazaarHubClient bazaarHttpClient,
             IItemGenerationService itemProvider, ILogger logger, IDao<IItemInstanceDto?, Guid> itemInstanceDao)
         {
             _worldConfiguration = worldConfiguration;

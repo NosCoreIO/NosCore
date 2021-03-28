@@ -29,7 +29,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
+using NosCore.GameObject.HubClients.BlacklistHubClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BlackListService;
@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private BlacklistService? _blackListController;
-        private Mock<IBlacklistHttpClient>? _blackListHttpClient;
+        private Mock<IBlacklistHubClient>? _blackListHttpClient;
         private BlDelPacketHandler? _blDelPacketHandler;
         private Mock<IDao<CharacterDto, long>>? _characterDao;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;

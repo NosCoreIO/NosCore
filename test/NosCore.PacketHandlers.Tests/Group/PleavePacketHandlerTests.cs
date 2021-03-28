@@ -24,7 +24,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
+using NosCore.GameObject.HubClients.BlacklistHubClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.Group;
 using NosCore.PacketHandlers.Group;
@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Tests.Group
 
             _pLeavePacketHandler = new PleavePacketHandler();
 
-            var mock = new Mock<IBlacklistHttpClient>();
+            var mock = new Mock<IBlacklistHubClient>();
             _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object);
         }
 

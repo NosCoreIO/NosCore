@@ -30,7 +30,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Holders;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.HubClients.FriendHubClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FriendService;
@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
         private FdelPacketHandler? _fDelPacketHandler;
         private FriendService? _friendController;
-        private Mock<IFriendHttpClient>? _friendHttpClient;
+        private Mock<IFriendHubClient>? _friendHttpClient;
         private ClientSession? _session;
 
         [TestInitialize]

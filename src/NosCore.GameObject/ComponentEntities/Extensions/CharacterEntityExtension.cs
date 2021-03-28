@@ -24,8 +24,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -45,7 +43,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.BlacklistHubClient;
 using NosCore.GameObject.HubClients.ChannelHubClient;
+using NosCore.GameObject.HubClients.FriendHubClient;
+using NosCore.GameObject.HubClients.PacketHubClient;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -162,7 +163,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         }
 
         public static async Task<BlinitPacket> GenerateBlinitAsync(this ICharacterEntity visualEntity,
-            IBlacklistHttpClient blacklistHttpClient)
+            IBlacklistHubClient blacklistHttpClient)
         {
             var subpackets = new List<BlinitSubPacket?>();
             var blackList = await blacklistHttpClient.GetBlackListsAsync(visualEntity.VisualId).ConfigureAwait(false);
@@ -183,7 +184,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new BlinitPacket { SubPackets = subpackets };
         }
 
-        public static async Task<FinitPacket> GenerateFinitAsync(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
+        public static async Task<FinitPacket> GenerateFinitAsync(this ICharacterEntity visualEntity, IFriendHubClient friendHttpClient,
            IChannelHubClient channelHubClient)
         {
             //same canal
@@ -209,8 +210,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new FinitPacket { SubPackets = subpackets };
         }
 
-        public static async Task SendFinfoAsync(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
-            IPacketHttpClient packetHttpClient, ISerializer packetSerializer, bool isConnected)
+        public static async Task SendFinfoAsync(this ICharacterEntity visualEntity, IFriendHubClient friendHttpClient,
+            IPacketHubClient packetHttpClient, ISerializer packetSerializer, bool isConnected)
         {
             var friendlist = await friendHttpClient.GetListFriendsAsync(visualEntity.VisualId).ConfigureAwait(false);
             await Task.WhenAll(friendlist.Select(friend =>

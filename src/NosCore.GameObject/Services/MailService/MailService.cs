@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Json.Patch;
-using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -33,13 +32,14 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using NosCore.GameObject.HubClients.ChannelHubClient;
+using NosCore.GameObject.HubClients.MailHubClient;
 
 namespace NosCore.GameObject.Services.MailService
 {
     public class MailService : IMailService
     {
         private readonly IDao<CharacterDto, long> _characterDto;
-        private readonly IIncommingMailHttpClient _incommingMailHttpClient;
+        private readonly IMailHubClient _incommingMailHttpClient;
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly IItemGenerationService _itemProvider;
         private readonly List<ItemDto> _items;
@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Services.MailService
 
         public MailService(IDao<MailDto, long> mailDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IChannelHubClient channelHubClient,
-            List<ItemDto> items, IItemGenerationService itemProvider, IIncommingMailHttpClient incommingMailHttpClient,
+            List<ItemDto> items, IItemGenerationService itemProvider, IMailHubClient incommingMailHttpClient,
             ParcelHolder parcelHolder,
             IDao<CharacterDto, long> characterDto)
         {

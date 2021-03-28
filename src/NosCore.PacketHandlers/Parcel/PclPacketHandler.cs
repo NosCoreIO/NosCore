@@ -23,7 +23,6 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -34,6 +33,7 @@ using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.MailHubClient;
 
 namespace NosCore.PacketHandlers.Parcel
 {
@@ -41,9 +41,9 @@ namespace NosCore.PacketHandlers.Parcel
     {
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly IItemGenerationService _itemProvider;
-        private readonly IMailHttpClient _mailHttpClient;
+        private readonly IMailHubClient _mailHttpClient;
 
-        public PclPacketHandler(IMailHttpClient mailHttpClient, IItemGenerationService itemProvider,
+        public PclPacketHandler(IMailHubClient mailHttpClient, IItemGenerationService itemProvider,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao)
         {
             _mailHttpClient = mailHttpClient;

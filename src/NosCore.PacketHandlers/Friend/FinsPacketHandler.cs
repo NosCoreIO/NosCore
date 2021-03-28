@@ -22,7 +22,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Relations;
@@ -31,15 +30,16 @@ using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Threading.Tasks;
 using NosCore.GameObject.HubClients.ChannelHubClient;
+using NosCore.GameObject.HubClients.FriendHubClient;
 
 namespace NosCore.PacketHandlers.Friend
 {
     public class FinsPacketHandler : PacketHandler<FinsPacket>, IWorldPacketHandler
     {
-        private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IFriendHubClient _friendHttpClient;
         private readonly IChannelHubClient _channelHubClient;
 
-        public FinsPacketHandler(IFriendHttpClient friendHttpClient, IChannelHubClient channelHubClient)
+        public FinsPacketHandler(IFriendHubClient friendHttpClient, IChannelHubClient channelHubClient)
         {
             _friendHttpClient = friendHttpClient;
             _channelHubClient = channelHubClient;

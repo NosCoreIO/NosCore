@@ -18,11 +18,22 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.HubInterfaces;
+using NosCore.Data.Enumerations.Miniland;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.HubClients.WarehouseHubClient
 {
     public interface IWarehouseHubClient : IWarehouseHub, IHubClient
     {
+        Task<List<WarehouseItem>> GetWarehouseItemsAsync(long characterId, WarehouseType warehouse);
 
+        Task<bool> DepositItemAsync(long characterCharacterId, WarehouseType warehouse, IItemInstance itemInstance, short slot);
+
+        Task DeleteWarehouseItemAsync(long characterId, WarehouseType warehouse, short slot);
+
+        Task<List<WarehouseItem>> MoveWarehouseItemAsync(long characterId, WarehouseType warehouse, short slot,
+            short destinationSlot);
     }
 }

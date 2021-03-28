@@ -24,10 +24,6 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.HttpClients.MailHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -36,25 +32,29 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.BlacklistHubClient;
 using NosCore.GameObject.HubClients.ChannelHubClient;
+using NosCore.GameObject.HubClients.FriendHubClient;
+using NosCore.GameObject.HubClients.MailHubClient;
+using NosCore.GameObject.HubClients.PacketHubClient;
 
 namespace NosCore.PacketHandlers.Game
 {
     public class GameStartPacketHandler : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
-        private readonly IBlacklistHttpClient _blacklistHttpClient;
+        private readonly IBlacklistHubClient _blacklistHttpClient;
         private readonly IChannelHubClient _channelHubClient;
-        private readonly IFriendHttpClient _friendHttpClient;
-        private readonly IMailHttpClient _mailHttpClient;
-        private readonly IPacketHttpClient _packetHttpClient;
+        private readonly IFriendHubClient _friendHttpClient;
+        private readonly IMailHubClient _mailHttpClient;
+        private readonly IPacketHubClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly IQuestService _questProvider;
 
-        public GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IFriendHttpClient friendHttpClient,
-            IChannelHubClient channelHubClient, IBlacklistHttpClient blacklistHttpClient,
-            IPacketHttpClient packetHttpClient,
-            ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider)
+        public GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IFriendHubClient friendHttpClient,
+            IChannelHubClient channelHubClient, IBlacklistHubClient blacklistHttpClient,
+            IPacketHubClient packetHttpClient,
+            ISerializer packetSerializer, IMailHubClient mailHttpClient, IQuestService questProvider)
         {
             _worldConfiguration = worldConfiguration;
             _packetSerializer = packetSerializer;

@@ -22,22 +22,22 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.GameObject.HubClients.BlacklistHubClient;
 
 namespace NosCore.PacketHandlers.Friend
 {
     public class BlInsPackettHandler : PacketHandler<BlInsPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        private readonly IBlacklistHttpClient _blacklistHttpClient;
+        private readonly IBlacklistHubClient _blacklistHttpClient;
 
-        public BlInsPackettHandler(IBlacklistHttpClient blacklistHttpClient, ILogger logger)
+        public BlInsPackettHandler(IBlacklistHubClient blacklistHttpClient, ILogger logger)
         {
             _blacklistHttpClient = blacklistHttpClient;
             _logger = logger;
