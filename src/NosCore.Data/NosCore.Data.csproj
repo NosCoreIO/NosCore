@@ -7,6 +7,10 @@
     <UseNETCoreGenerator>true</UseNETCoreGenerator>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- Enable output of generated files back into our Generated directory -->
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -18,6 +22,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\NosCore.DtoGenerator\NosCore.DtoGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <AdditionalFiles Include="..\NosCore.Database\NosCore.Database.csproj" />
+    <Compile Condition="Exists('$(CompilerGeneratedFilesOutputPath)\*\**\*.cs')" Remove="$(CompilerGeneratedFilesOutputPath)\*\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Dto\I18NGenerated\**" />
     <Compile Remove="Dto\StaticEntitiesGenerated\**" />
     <Compile Remove="StaticEntities\Text\**" />
@@ -27,13 +37,6 @@
     <None Remove="Dto\I18NGenerated\**" />
     <None Remove="Dto\StaticEntitiesGenerated\**" />
     <None Remove="StaticEntities\Text\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Dto\GenerateDtos.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>GenerateDtos.cs</LastGenOutput>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -59,20 +62,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Dto\GenerateDtos.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>GenerateDtos.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dto\Entities\" />
-    <Folder Include="Dto\I18N\" />
-    <Folder Include="Dto\StaticEntities\" />
     <Folder Include="Enumerations\Account\" />
   </ItemGroup>
 
