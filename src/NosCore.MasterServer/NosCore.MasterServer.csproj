@@ -20,10 +20,10 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
-    <PackageReference Include="FastExpressionCompiler" Version="3.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="5.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.4" />
+    <PackageReference Include="FastExpressionCompiler" Version="3.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="5.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
