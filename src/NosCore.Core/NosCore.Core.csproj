@@ -24,11 +24,11 @@
     <PackageReference Include="DotNetty.Codecs" Version="0.6.0" />
     <PackageReference Include="DotNetty.Common" Version="0.6.0" />
     <PackageReference Include="DotNetty.Transport" Version="0.6.0" />
-    <PackageReference Include="FastExpressionCompiler" Version="3.0.3" />
+    <PackageReference Include="FastExpressionCompiler" Version="3.0.4" />
     <PackageReference Include="JsonPatch.Net" Version="1.0.4" />
     <PackageReference Include="Mapster" Version="7.1.5" />
     <PackageReference Include="Mapster.JsonNet" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="NosCore.Dao" Version="1.7.0" />
@@ -41,7 +41,7 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.0" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
-    <PackageReference Include="System.Text.Json" Version="5.0.1" />
+    <PackageReference Include="System.Text.Json" Version="5.0.2" />
     <PackageReference Include="TwoFactorAuth.Net" Version="1.4.0" />
   </ItemGroup>
 

@@ -7,6 +7,10 @@
     <UseNETCoreGenerator>true</UseNETCoreGenerator>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- Enable output of generated files back into our Generated directory -->
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -16,6 +20,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>..\..\build\</OutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\NosCore.DtoGenerator\NosCore.DtoGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <AdditionalFiles Include="..\NosCore.Database\NosCore.Database.csproj" />
+    <Compile Condition="Exists('$(CompilerGeneratedFilesOutputPath)\*\**\*.cs')" Remove="$(CompilerGeneratedFilesOutputPath)\*\**\*.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="Dto\I18NGenerated\**" />
@@ -30,14 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Dto\GenerateDtos.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>GenerateDtos.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
     <PackageReference Include="Mapster" Version="7.1.5" />
     <PackageReference Include="Mapster.JsonNet" Version="1.1.0" />
     <PackageReference Include="NosCore.FastMember" Version="1.5.0" />
@@ -59,20 +62,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Dto\GenerateDtos.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>GenerateDtos.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dto\Entities\" />
-    <Folder Include="Dto\I18N\" />
-    <Folder Include="Dto\StaticEntities\" />
     <Folder Include="Enumerations\Account\" />
   </ItemGroup>
 
