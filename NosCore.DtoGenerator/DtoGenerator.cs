@@ -44,23 +44,29 @@ namespace NosCore.DtoGenerator
                     }
                     //var directory = "";
                     string classNamespace = "NosCore.Data.Dto";
-                    //int keyCount = 0;
+                    int keyCount = 0;
                     string dtoInterface = "IDto";
                     var propertyList = "";
                     var classSymbol = cc.BaseList?.Types.Select(s => semanticModel.GetTypeInfo(s.Type).Type!);
-                    if (classSymbol?.Any(s=>s.TypeKind != TypeKind.Interface) == true)
+                    if (classSymbol?.Any(s => s.TypeKind != TypeKind.Interface) == true)
                     {
                         if (classSymbol!.Any(s => s.Name.EndsWith("Instance")))
                         {
-                            dtoInterface = classSymbol.First(s=>s.Name.EndsWith("Instance")).Name + "Dto";
-                            //keyCount = 1;
+                            dtoInterface = classSymbol.First(s => s.Name.EndsWith("Instance")).Name + "Dto";
+                            keyCount = 1;
                         }
                         else
                         {
                             foreach (var symbol in classSymbol!.First().GetMembers()
                                 .Where(m => m.Kind == SymbolKind.Property))
                             {
-                                var prop = (IPropertySymbol) symbol;
+                                var prop = (IPropertySymbol)symbol;
+                                var keyAttribute = prop.GetAttributes().FirstOrDefault(o => o.AttributeClass?.Name == "KeyAttribute");
+                                if (keyAttribute != null)
+                                {
+                                    keyCount++;
+                                    propertyList += "       [Key]\n";
+                                }
                                 propertyList += $"       public {prop.Type} {prop.Name} {{get; set;}}\n\n";
                             }
                         }
@@ -84,7 +90,7 @@ namespace NosCore.DtoGenerator
                     }
 
                     var props = cc.DescendantNodes().OfType<PropertyDeclarationSyntax>();
-                  
+
                     foreach (var prop in props)
                     {
                         var protectionLevel = "public";
@@ -147,6 +153,12 @@ namespace NosCore.DtoGenerator
                             {
                                 namespaceType = "";
                             }
+                            var keyAttribute = prop.AttributeLists.SelectMany(o => o.Attributes).FirstOrDefault(o => o.Name.ToString() == "Key");
+                            if (keyAttribute != null)
+                            {
+                                keyCount++;
+                                propertyList += "       [Key]\n";
+                            }
 
                             propertyList += $"       {protectionLevel} {namespaceType}{dtoName} {prop.Identifier} {{get; set;}}\n";
                             if (nullableType)
@@ -158,6 +170,18 @@ namespace NosCore.DtoGenerator
                         propertyList += "\n";
                     }
 
+                    if (keyCount != 1)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            new DiagnosticDescriptor(
+                                "SG0001",
+                                "Missing primary key",
+                                $"Class {className} does not have a key.",
+                                "SourceGenerator",
+                                DiagnosticSeverity.Error,
+                                true), null));
+                    }
+                
                     var code = $@"//  __  _  __    __   ___ __  ___ ___  
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  
