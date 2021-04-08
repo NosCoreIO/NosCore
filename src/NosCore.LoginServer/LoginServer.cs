@@ -31,6 +31,9 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Core;
+using NosCore.Core.MessageQueue;
+using Polly;
 
 namespace NosCore.LoginServer
 {
@@ -41,14 +44,18 @@ namespace NosCore.LoginServer
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly NetworkManager _networkManager;
         private readonly NosCoreContext _context;
+        private readonly Channel _channel;
+        private readonly IPubSubHub _pubSubClient;
 
-        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, NosCoreContext context)
+        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, NosCoreContext context, Channel channel, IPubSubHub pubSubClient)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
             _logger = logger;
             _channelHttpClient = channelHttpClient;
             _context = context;
+            _channel = channel;
+            _pubSubClient = pubSubClient;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -70,6 +77,15 @@ namespace NosCore.LoginServer
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
                 throw;
             }
+            await Policy
+                .Handle<Exception>()
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (_, __, timeSpan) =>
+                        _logger.Error(
+                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
+                            timeSpan.TotalSeconds)
+                ).ExecuteAsync(() => _pubSubClient.BindAsync(_channel, stoppingToken));
+
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _loginConfiguration.Value.Port);
             await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
         }

@@ -65,6 +65,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 using ILogger = Serilog.ILogger;
 
 namespace NosCore.LoginServer
@@ -101,6 +102,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>();
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<PubSubHubClient>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
@@ -129,8 +131,7 @@ namespace NosCore.LoginServer
 
             containerBuilder.RegisterTypes(typeof(NoS0575PacketHandler).Assembly.GetTypes().Where(type => typeof(IPacketHandler).IsAssignableFrom(type) && typeof(ILoginPacketHandler).IsAssignableFrom(type)).ToArray())
                 .Where(t => typeof(IPacketHandler).IsAssignableFrom(t) && typeof(ILoginPacketHandler).IsAssignableFrom(t))
-                .AsImplementedInterfaces()
-                ;
+                .AsImplementedInterfaces();
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() == null || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) != 0) && p.IsClass && !p.IsAbstract).ToList();
@@ -177,6 +178,7 @@ namespace NosCore.LoginServer
                     configuration.Bind(loginConfiguration);
                     services.AddOptions<LoginConfiguration>().Bind(configuration).ValidateDataAnnotations();
                     services.AddOptions<ServerConfiguration>().Bind(configuration).ValidateDataAnnotations();
+                    services.AddOptions<WebApiConfiguration>().Bind(configuration.GetSection(nameof(LoginConfiguration.MasterCommunication))).ValidateDataAnnotations();
                     InitializeConfiguration(args);
 
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));

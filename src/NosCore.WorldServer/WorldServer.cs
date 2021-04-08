@@ -27,11 +27,14 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.EventLoaderService.Handlers;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using Polly;
 using Serilog;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Core;
+using NosCore.Core.MessageQueue;
 
 namespace NosCore.WorldServer
 {
@@ -43,8 +46,10 @@ namespace NosCore.WorldServer
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly IMapInstanceGeneratorService _mapInstanceGeneratorService;
         private readonly Clock _clock;
+        private readonly IPubSubHub _pubSubClient;
+        private readonly Channel _channel;
 
-        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService)
+        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService, Channel channel, IPubSubHub pubSubClient)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -52,6 +57,8 @@ namespace NosCore.WorldServer
             _channelHttpClient = channelHttpClient;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
             _clock = clock;
+            _pubSubClient = pubSubClient;
+            _channel = channel;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -70,6 +77,16 @@ namespace NosCore.WorldServer
             {
                 Console.Title += $@" - Port : {_worldConfiguration.Value.Port} - WebApi : {_worldConfiguration.Value.WebApi}";
             }
+
+          
+            await Policy
+                .Handle<Exception>()
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (_, __, timeSpan) =>
+                        _logger.Error(
+                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
+                            timeSpan.TotalSeconds)
+                ).ExecuteAsync(() => _pubSubClient.BindAsync(_channel, stoppingToken));
 
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
                 _worldConfiguration.Value.Port);
