@@ -24,6 +24,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -31,6 +32,7 @@ using Serilog;
 
 namespace NosCore.Core.MessageQueue
 {
+    [Authorize]
     public class PubSubHub : Hub, IPubSubHub
     {
         private readonly ILogger _logger;
