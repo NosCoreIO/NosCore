@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IPubSubHub connectedAccountHttpClient, IDao<AccountDto, long> accountDao, IChannelHttpClient channelHttpClient, bool passwordLessConnection, string accountName, string password, int sessionId)
         {
             var accounts = await connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
-            var alreadyConnnected = accounts.FirstOrDefault(s => s.Name == accountName) != null;
+            var alreadyConnnected = accounts?.FirstOrDefault(s => s.Name == accountName) != null;
 
             if (alreadyConnnected)
             {
