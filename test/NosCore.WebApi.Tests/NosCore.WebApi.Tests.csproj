@@ -25,7 +25,7 @@
     <ProjectReference Include="..\..\src\NosCore.WebApi\NosCore.WebApi.csproj" />
     <ProjectReference Include="..\..\src\NosCore.WorldServer\NosCore.WorldServer.csproj" />
     <ProjectReference Include="..\NosCore.GameObject.Tests\NosCore.GameObject.Tests.csproj" />
-    <ProjectReference Include="..\NosCore.Tests\NosCore.Tests.Shared.csproj" />
+    <ProjectReference Include="..\NosCore.Tests.Shared\NosCore.Tests.Shared.csproj" />
   </ItemGroup>
 
 </Project>
