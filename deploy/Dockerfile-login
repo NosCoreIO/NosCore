@@ -17,7 +17,7 @@ RUN wget -O dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Runtime/$DOTNET
 COPY ./build/net5.0/linux-musl-x64 /app/build/net5.0
 COPY ./configuration /app/configuration
 
-WORKDIR /app/build/bin
+WORKDIR /app/build/net5.0
 
 EXPOSE 4002
 
