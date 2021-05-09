@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Data.Enumerations.I18N;
@@ -37,13 +36,14 @@ using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
 {
     public class BtkPacketHandler : PacketHandler<BtkPacket>, IWorldPacketHandler
     {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPubSubHub _connectedAccountHttpClient;
         private readonly IFriendHttpClient _friendHttpClient;
         private readonly ILogger _logger;
         private readonly IPacketHttpClient _packetHttpClient;
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Chat
         private readonly Channel _channel;
 
         public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
-            IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, Channel channel)
+            IPacketHttpClient packetHttpClient, IPubSubHub connectedAccountHttpClient, Channel channel)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
@@ -88,10 +88,11 @@ namespace NosCore.PacketHandlers.Chat
                 await receiverSession.SendPacketAsync(session.Character.GenerateTalk(message)).ConfigureAwait(false);
                 return;
             }
-
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(btkPacket.CharacterId, null).ConfigureAwait(false);
-
-            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
+            var characters = await _connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
+            var receiver =
+                characters.FirstOrDefault(x => x.ConnectedCharacter?.Id == btkPacket.CharacterId);
+          
+            if (receiver == null) //TODO: Handle 404 in WebApi
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
@@ -104,12 +105,12 @@ namespace NosCore.PacketHandlers.Chat
             {
                 Packet = _packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character
-                { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name ?? "" },
+                { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name ?? "" },
                 SenderCharacter = new Character
                 { Name = session.Character.Name, Id = session.Character.CharacterId },
                 OriginWorldId = _channel.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
-            }, receiver.Item2.ChannelId).ConfigureAwait(false);
+            }, receiver.ChannelId).ConfigureAwait(false);
         }
     }
 }

@@ -153,15 +153,15 @@ namespace NosCore.GameObject.Networking.LoginService
                         var servers = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                             ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
-                        var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
                         var i = 1;
-                        foreach (var server in servers ?? new List<ChannelInfo>())
+                        var connectedAccounts = await _connectedAccountHttpClient.GetConnectedAccountAsync();
+                        var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
+                        foreach (var serverAccounts in connectedAccounts.GroupBy(x=>x.ChannelId))
                         {
-                            var channelList = await _connectedAccountHttpClient.GetConnectedAccountAsync(
-                                server).ConfigureAwait(false);
-                            connectedAccount.Add(i, channelList);
+                            var accounts = serverAccounts.ToList();
+                            connectedAccount.Add(i, accounts);
                             i++;
-                            if (channelList.Any(a => a.Name == acc.Name))
+                            if (accounts.Any(a => a.Name == acc.Name))
                             {
                                 alreadyConnnected = true;
                             }

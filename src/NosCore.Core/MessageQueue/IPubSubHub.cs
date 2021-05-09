@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Data.WebApi;
 
 namespace NosCore.Core.MessageQueue
 {
@@ -35,5 +36,6 @@ namespace NosCore.Core.MessageQueue
         Task SendMessageAsync(IMessage message);
 
         Task UpdateVisibilityTimeoutAsync(Guid messageId, TimeSpan visibilityTimeout);
+        Task<List<ConnectedAccount>> GetConnectedAccountAsync();
     }
 }

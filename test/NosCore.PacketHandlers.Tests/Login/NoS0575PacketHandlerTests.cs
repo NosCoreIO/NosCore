@@ -28,7 +28,7 @@ using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.MessageQueue;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         private string _password = null!;
         private Mock<IAuthHttpClient>? _authHttpClient;
         private Mock<IChannelHttpClient>? _channelHttpClient;
-        private Mock<IConnectedAccountHttpClient>? _connectedAccountHttpClient;
+        private Mock<IPubSubHub>? _connectedAccountHttpClient;
         private IOptions<LoginConfiguration>? _loginConfiguration;
         private NoS0575PacketHandler? _noS0575PacketHandler;
         private ClientSession? _session;
@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _authHttpClient = new Mock<IAuthHttpClient>();
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
-            _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
+            _connectedAccountHttpClient = TestHelpers.Instance.PubSubHubClient;
             _loginConfiguration = Options.Create(new LoginConfiguration());
             _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration,
                     TestHelpers.Instance.AccountDao,

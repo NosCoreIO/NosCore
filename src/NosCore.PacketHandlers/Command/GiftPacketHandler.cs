@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using System.Linq;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
@@ -28,15 +28,16 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class GiftPacketHandler : PacketHandler<GiftPacket>, IWorldPacketHandler
     {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPubSubHub _connectedAccountHttpClient;
         private readonly IMailHttpClient _mailHttpClient;
 
-        public GiftPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient, IMailHttpClient mailHttpClient)
+        public GiftPacketHandler(IPubSubHub connectedAccountHttpClient, IMailHttpClient mailHttpClient)
         {
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _mailHttpClient = mailHttpClient;
@@ -44,10 +45,11 @@ namespace NosCore.PacketHandlers.Command
 
         public override async Task ExecuteAsync(GiftPacket giftPacket, ClientSession session)
         {
+            var characters = await _connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
             var receiver =
-                await _connectedAccountHttpClient.GetCharacterAsync(null, giftPacket.CharacterName ?? session.Character.Name).ConfigureAwait(false);
-
-            if (receiver.Item2 == null)
+                characters.FirstOrDefault(x => x.ConnectedCharacter?.Name == (giftPacket.CharacterName ?? session.Character.Name));
+            
+            if (receiver == null)
             {
                 await session.SendPacketAsync(new InfoPacket
                 {
@@ -57,7 +59,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _mailHttpClient.SendGiftAsync(session.Character!, receiver.Item2.ConnectedCharacter!.Id, giftPacket.VNum,
+            await _mailHttpClient.SendGiftAsync(session.Character!, receiver.ConnectedCharacter!.Id, giftPacket.VNum,
                 giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false).ConfigureAwait(false);
             await session.SendPacketAsync(session.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(
                 LanguageKey.GIFT_SENT,

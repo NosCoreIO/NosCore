@@ -31,7 +31,7 @@ using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.MessageQueue;
 using NosCore.Core.Networking;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private readonly Mock<IAuthHttpClient> _authHttpClient = new Mock<IAuthHttpClient>();
         private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
-        private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
+        private readonly Mock<IPubSubHub> _connectedAccountHttpClient = TestHelpers.Instance.PubSubHubClient;
         private readonly IOptions<LoginConfiguration> _loginConfiguration = Options.Create(new LoginConfiguration
         {
             MasterCommunication = new WebApiConfiguration()
@@ -154,7 +154,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginAsync()
         {
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
@@ -169,7 +169,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginAlreadyConnectedAsync()
         {
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync())
                 .ReturnsAsync(new List<ConnectedAccount>
                     {new ConnectedAccount {Name = _session!.Account.Name}});
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
@@ -185,7 +185,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginNoServerAsync()
         {
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>());
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
@@ -212,7 +212,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginMaintenanceAsync()
         {
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo { IsMaintenance = true } });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
@@ -228,7 +228,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginMaintenanceGameMasterAsync()
         {
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo { IsMaintenance = true } });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
+            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
             _session!.Account.Authority = AuthorityType.GameMaster;
             await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session!.Account);

@@ -24,8 +24,8 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Core.MessageQueue;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private BlDelPacketHandler? _blDelPacketHandler;
         private Mock<IDao<CharacterDto, long>>? _characterDao;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
-        private Mock<IConnectedAccountHttpClient>? _connectedAccountHttpClient;
+        private Mock<IPubSubHub>? _connectedAccountHttpClient;
         private ClientSession? _session;
 
         [TestInitialize]
@@ -63,11 +63,11 @@ namespace NosCore.PacketHandlers.Tests.Friend
             Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(It.IsAny<long?>(), It.IsAny<string?>()))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
+            _connectedAccountHttpClient = TestHelpers.Instance.PubSubHubClient;
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<ConnectedAccount> { 
                     new ConnectedAccount
-                    { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
+                    { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }});
             _blackListHttpClient = TestHelpers.Instance.BlacklistHttpClient;
             _blDelPacketHandler = new BlDelPacketHandler(_blackListHttpClient.Object);
             _characterDao = new Mock<IDao<CharacterDto, long>>();

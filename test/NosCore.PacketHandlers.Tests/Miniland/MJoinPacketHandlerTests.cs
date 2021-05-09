@@ -24,8 +24,8 @@ using System.Threading.Tasks;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Core.MessageQueue;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
     public class MJoinPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
+        private readonly Mock<IPubSubHub> _connectedAccountHttpClient = TestHelpers.Instance.PubSubHubClient;
         private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
         private Mock<IMinilandService>? _minilandProvider;
         private MJoinPacketHandler? _mjoinPacketHandler;
@@ -106,17 +106,15 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 VisualId = _targetSession!.Character.CharacterId,
                 Type = VisualType.Player
             };
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_targetSession.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(
-                    new ServerConfiguration(),
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<ConnectedAccount>() { 
                     new ConnectedAccount
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
-                    }));
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_session!.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
+                    },
                     new ConnectedAccount
-                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }));
+                        { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }
+                });
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new CharacterRelationStatus

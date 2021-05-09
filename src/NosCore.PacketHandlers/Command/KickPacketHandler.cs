@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using System.Linq;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
@@ -25,23 +25,26 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class KickPacketHandler : PacketHandler<KickPacket>, IWorldPacketHandler
     {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPubSubHub _connectedAccountHttpClient;
 
-        public KickPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient)
+        public KickPacketHandler(IPubSubHub connectedAccountHttpClient)
         {
             _connectedAccountHttpClient = connectedAccountHttpClient;
         }
 
         public override async Task ExecuteAsync(KickPacket kickPacket, ClientSession session)
         {
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, kickPacket.Name ?? session.Character.Name).ConfigureAwait(false);
+            var characters = await _connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
+            var receiver =
+                characters.FirstOrDefault(x => x.ConnectedCharacter?.Name == (kickPacket.Name ?? session.Character.Name));
 
-            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
+            if (receiver == null) //TODO: Handle 404 in WebApi
             {
                 await session.SendPacketAsync(new InfoPacket
                 {
@@ -51,7 +54,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _connectedAccountHttpClient.DisconnectAsync(receiver.Item2.ConnectedCharacter!.Id).ConfigureAwait(false);
+            await _connectedAccountHttpClient.DisconnectAsync(receiver.ConnectedCharacter!.Id).ConfigureAwait(false);
         }
     }
 }

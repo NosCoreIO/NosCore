@@ -68,20 +68,20 @@ namespace NosCore.PacketHandlers.Tests.Friend
             {
                 CharacterName = targetSession.Character.Name
             };
-            TestHelpers.Instance.ConnectedAccountHttpClient
+            TestHelpers.Instance.PubSubHubClient
                 .Setup(s => s.GetCharacterAsync(targetSession.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId }
                     }));
-            TestHelpers.Instance.ConnectedAccountHttpClient
+            TestHelpers.Instance.PubSubHubClient
                 .Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                friendRequestHolder, TestHelpers.Instance.ConnectedAccountHttpClient.Object);
+                friendRequestHolder, TestHelpers.Instance.PubSubHubClient.Object);
             TestHelpers.Instance.FriendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session.Character.CharacterId,
                     targetSession.Character.VisualId,

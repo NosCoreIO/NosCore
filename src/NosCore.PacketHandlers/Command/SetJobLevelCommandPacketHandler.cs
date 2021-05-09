@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using System.Linq;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
@@ -28,16 +28,17 @@ using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class SetJobLevelCommandPacketHandler : PacketHandler<SetJobLevelCommandPacket>, IWorldPacketHandler
     {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPubSubHub _connectedAccountHttpClient;
         private readonly IStatHttpClient _statHttpClient;
 
-        public SetJobLevelCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
+        public SetJobLevelCommandPacketHandler(IPubSubHub connectedAccountHttpClient,
             IStatHttpClient statHttpClient)
         {
             _connectedAccountHttpClient = connectedAccountHttpClient;
@@ -59,9 +60,11 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, levelPacket.Name).ConfigureAwait(false);
-
-            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
+            var characters = await _connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
+            var receiver =
+                characters.FirstOrDefault(x => x.ConnectedCharacter?.Name == levelPacket.Name);
+            
+            if (receiver == null) //TODO: Handle 404 in WebApi
             {
                 await session.SendPacketAsync(new InfoPacket
                 {

@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -27,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 
 namespace NosCore.GameObject.Services.BlackListService
 {
@@ -34,9 +34,9 @@ namespace NosCore.GameObject.Services.BlackListService
     {
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly IDao<CharacterRelationDto, Guid> _characterRelationDao;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPubSubHub _connectedAccountHttpClient;
 
-        public BlacklistService(IConnectedAccountHttpClient connectedAccountHttpClient,
+        public BlacklistService(IPubSubHub connectedAccountHttpClient,
             IDao<CharacterRelationDto, Guid> characterRelationDao, IDao<CharacterDto, long> characterDao)
         {
             _connectedAccountHttpClient = connectedAccountHttpClient;
@@ -46,10 +46,10 @@ namespace NosCore.GameObject.Services.BlackListService
 
         public async Task<LanguageKey> BlacklistPlayerAsync(long characterId, long secondCharacterId)
         {
-            var character = await _connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
-            var targetCharacter = await
-                _connectedAccountHttpClient.GetCharacterAsync(secondCharacterId, null).ConfigureAwait(false);
-            if ((character.Item2 == null) || (targetCharacter.Item2 == null))
+            var characters = await _connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
+            var character = characters.FirstOrDefault(x => x.ConnectedCharacter?.Id == characterId);
+            var targetCharacter = characters.FirstOrDefault(x => x.ConnectedCharacter?.Id == secondCharacterId);
+            if ((character == null) || (targetCharacter == null))
             {
                 throw new ArgumentException();
             }
@@ -72,8 +72,8 @@ namespace NosCore.GameObject.Services.BlackListService
 
             var data = new CharacterRelationDto
             {
-                CharacterId = character.Item2.ConnectedCharacter!.Id,
-                RelatedCharacterId = targetCharacter.Item2.ConnectedCharacter!.Id,
+                CharacterId = character.ConnectedCharacter!.Id,
+                RelatedCharacterId = targetCharacter.ConnectedCharacter!.Id,
                 RelationType = CharacterRelationType.Blocked
             };
 
@@ -84,6 +84,7 @@ namespace NosCore.GameObject.Services.BlackListService
 
         public async Task<List<CharacterRelationStatus>> GetBlacklistedListAsync(long id)
         {
+            var characters = await _connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
             var charList = new List<CharacterRelationStatus>();
             var list = _characterRelationDao
                 .Where(s => (s.CharacterId == id) && (s.RelationType == CharacterRelationType.Blocked));
@@ -97,7 +98,7 @@ namespace NosCore.GameObject.Services.BlackListService
                 {
                     CharacterName = (await _characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId).ConfigureAwait(false))?.Name ?? "",
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = (await _connectedAccountHttpClient.GetCharacterAsync(rel.RelatedCharacterId, null).ConfigureAwait(false)).Item1 != null,
+                    IsConnected = characters.FirstOrDefault(x=>x.ConnectedCharacter?.Id == rel.RelatedCharacterId) != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId
                 });
