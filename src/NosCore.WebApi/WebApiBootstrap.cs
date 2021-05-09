@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.WebApi
 {
-    public static class LoginServerBootstrap
+    public static class WebApiBootstrap
     {
         public static Task Main(string[] args)
         {
