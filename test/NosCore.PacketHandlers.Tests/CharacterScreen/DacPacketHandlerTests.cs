@@ -24,8 +24,8 @@ using Moq;
 using NosCore.Core;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Core.MessageQueue;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private DacPacketHandler _dacPacketHandler = null!;
         private ClientSession _session = null!;
         private Mock<IAuthHttpClient> _authHttpClient = null!;
-        private Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = null!;
+        private Mock<IPubSubHub> _connectedAccountHttpClient = null!;
         private Mock<IChannelHttpClient> _channelHttpClient = null!;
         private string _accountName = null!;
 
@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_session.Character);
             await _session.SetCharacterAsync(null).ConfigureAwait(false);
             _authHttpClient = new Mock<IAuthHttpClient>();
-            _connectedAccountHttpClient = new Mock<IConnectedAccountHttpClient>();
+            _connectedAccountHttpClient = new Mock<IPubSubHub>();
             _channelHttpClient = new Mock<IChannelHttpClient>();
             _dacPacketHandler =
                 new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, _authHttpClient.Object, _connectedAccountHttpClient.Object, _channelHttpClient.Object);
@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                     Id = 1,
                 }
             });
-            _connectedAccountHttpClient.Setup(o => o.GetConnectedAccountAsync(It.IsAny<ChannelInfo>())).ReturnsAsync(
+            _connectedAccountHttpClient.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(
                 new List<ConnectedAccount>
                 {
                     new ConnectedAccount

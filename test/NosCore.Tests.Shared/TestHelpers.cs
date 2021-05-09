@@ -36,7 +36,7 @@ using NosCore.Algorithm.SpeedService;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.MessageQueue;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -106,7 +106,7 @@ namespace NosCore.Tests.Shared
         private int _lastId = 100;
         public Mock<IBlacklistHttpClient> BlacklistHttpClient = new Mock<IBlacklistHttpClient>();
         public Mock<IChannelHttpClient> ChannelHttpClient = new Mock<IChannelHttpClient>();
-        public Mock<IConnectedAccountHttpClient> ConnectedAccountHttpClient = new Mock<IConnectedAccountHttpClient>();
+        public Mock<IPubSubHub> PubSubHubClient = new Mock<IPubSubHub>();
         public Mock<IFriendHttpClient> FriendHttpClient = new Mock<IFriendHttpClient>();
         public Mock<IPacketHttpClient> PacketHttpClient = new Mock<IPacketHttpClient>();
 
@@ -292,7 +292,7 @@ namespace NosCore.Tests.Shared
                     new BlInsPackettHandler(BlacklistHttpClient.Object, _logger),
                     new UseItemPacketHandler(),
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
-                        ConnectedAccountHttpClient.Object),
+                        PubSubHubClient.Object),
                     new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                         _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
                         new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration),

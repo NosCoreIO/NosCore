@@ -141,7 +141,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginAsync()
         {
             _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
+            _connectedAccountHttpClient!.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
@@ -156,7 +156,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginAlreadyConnectedAsync()
         {
             _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>())).ReturnsAsync(
+            _connectedAccountHttpClient!.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(
                 new List<ConnectedAccount>
                     {new ConnectedAccount {Name = _session!.Account.Name}});
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
@@ -172,7 +172,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginNoServerAsync()
         {
             _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>());
-            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
+            _connectedAccountHttpClient!.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
 
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
@@ -201,7 +201,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginMaintenanceAsync()
         {
             _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo { IsMaintenance = true } });
-            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
+            _connectedAccountHttpClient!.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
@@ -217,7 +217,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginMaintenanceGameMasterAsync()
         {
             _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo { IsMaintenance = true } });
-            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
+            _connectedAccountHttpClient!.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
             _session!.Account.Authority = AuthorityType.GameMaster;
             await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session!.Account);

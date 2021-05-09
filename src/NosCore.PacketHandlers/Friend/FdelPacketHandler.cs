@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
@@ -30,17 +29,18 @@ using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 
 namespace NosCore.PacketHandlers.Friend
 {
     public class FdelPacketHandler : PacketHandler<FdelPacket>, IWorldPacketHandler
     {
         private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPubSubHub _connectedAccountHttpClient;
         private readonly IFriendHttpClient _friendHttpClient;
 
         public FdelPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient)
+            IPubSubHub connectedAccountHttpClient)
         {
             _friendHttpClient = friendHttpClient;
             _channelHttpClient = channelHttpClient;

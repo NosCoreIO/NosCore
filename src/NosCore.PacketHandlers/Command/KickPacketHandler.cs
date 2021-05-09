@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _connectedAccountHttpClient.DisconnectAsync(receiver.ConnectedCharacter!.Id).ConfigureAwait(false);
+            await _connectedAccountHttpClient.UnsubscriberAsync(receiver.ConnectedCharacter!.Id).ConfigureAwait(false);
         }
     }
 }

@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -51,14 +52,12 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _blInsPacketHandler = new BlInsPackettHandler(TestHelpers.Instance.BlacklistHttpClient.Object, Logger);
             TestHelpers.Instance.PubSubHubClient
-                .Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
+                .Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<ConnectedAccount> {
                     new ConnectedAccount
-                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
-            TestHelpers.Instance.PubSubHubClient.Setup(s => s.GetCharacterAsync(null, _session.Character.Name))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
-                    new ConnectedAccount
-                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
+                        { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } },
+                });
+
         }
 
         [TestMethod]
@@ -81,12 +80,13 @@ namespace NosCore.PacketHandlers.Tests.Friend
         {
             var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             TestHelpers.Instance.PubSubHubClient
-                .Setup(s => s.GetCharacterAsync(targetSession.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
+                .Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<ConnectedAccount> {
                     new ConnectedAccount
-                    {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId }
-                    }));
+                        { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } },
+                    new ConnectedAccount
+                        { ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId } },
+                });
             var blacklist = new BlacklistService(TestHelpers.Instance.PubSubHubClient.Object,
                 TestHelpers.Instance.CharacterRelationDao, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklistAsync(It.IsAny<BlacklistRequest>()))

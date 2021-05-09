@@ -25656,7 +25656,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="16" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.Game.GameStartPacketHandler::.ctor(Microsoft.Extensions.Options.IOptions`1&lt;NosCore.Core.Configuration.WorldConfiguration&gt;,NosCore.GameObject.HttpClients.FriendHttpClient.IFriendHttpClient,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient,NosCore.GameObject.HttpClients.BlacklistHttpClient.IBlacklistHttpClient,NosCore.GameObject.HttpClients.PacketHttpClient.IPacketHttpClient,NosCore.Packets.Interfaces.ISerializer,NosCore.GameObject.HttpClients.MailHttpClient.IMailHttpClient,NosCore.GameObject.Services.QuestService.IQuestService)</Name>
+              <Name>System.Void NosCore.PacketHandlers.Game.GameStartPacketHandler::.ctor(Microsoft.Extensions.Options.IOptions`1&lt;NosCore.Core.Configuration.WorldConfiguration&gt;,NosCore.GameObject.HttpClients.FriendHttpClient.IFriendHttpClient,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub,NosCore.GameObject.HttpClients.BlacklistHttpClient.IBlacklistHttpClient,NosCore.GameObject.HttpClients.PacketHttpClient.IPacketHttpClient,NosCore.Packets.Interfaces.ISerializer,NosCore.GameObject.HttpClients.MailHttpClient.IMailHttpClient,NosCore.GameObject.Services.QuestService.IQuestService)</Name>
               <FileRef uid="223" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="56" ordinal="0" sl="56" sc="1" el="56" ec="2" bec="0" bev="0" fileid="223" />
@@ -25818,7 +25818,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="7" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.Friend.FdelPacketHandler::.ctor(NosCore.GameObject.HttpClients.FriendHttpClient.IFriendHttpClient,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient)</Name>
+              <Name>System.Void NosCore.PacketHandlers.Friend.FdelPacketHandler::.ctor(NosCore.GameObject.HttpClients.FriendHttpClient.IFriendHttpClient,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub)</Name>
               <FileRef uid="229" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="42" ordinal="0" sl="42" sc="1" el="42" ec="2" bec="0" bev="0" fileid="229" />
@@ -25841,7 +25841,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="7" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.Friend.FinsPacketHandler::.ctor(NosCore.GameObject.HttpClients.FriendHttpClient.IFriendHttpClient,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient)</Name>
+              <Name>System.Void NosCore.PacketHandlers.Friend.FinsPacketHandler::.ctor(NosCore.GameObject.HttpClients.FriendHttpClient.IFriendHttpClient,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub)</Name>
               <FileRef uid="230" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="44" ordinal="0" sl="44" sc="1" el="44" ec="2" bec="0" bev="0" fileid="230" />
@@ -25941,7 +25941,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="6" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.Command.ChangeClassPacketHandler::.ctor(NosCore.GameObject.HttpClients.StatHttpClient.IStatHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient)</Name>
+              <Name>System.Void NosCore.PacketHandlers.Command.ChangeClassPacketHandler::.ctor(NosCore.GameObject.HttpClients.StatHttpClient.IStatHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub)</Name>
               <FileRef uid="234" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="40" ordinal="0" sl="40" sc="1" el="40" ec="2" bec="0" bev="0" fileid="234" />
@@ -26007,7 +26007,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="5" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.Command.GiftPacketHandler::.ctor(NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient,NosCore.GameObject.HttpClients.MailHttpClient.IMailHttpClient)</Name>
+              <Name>System.Void NosCore.PacketHandlers.Command.GiftPacketHandler::.ctor(NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub,NosCore.GameObject.HttpClients.MailHttpClient.IMailHttpClient)</Name>
               <FileRef uid="237" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="39" ordinal="0" sl="39" sc="1" el="39" ec="2" bec="0" bev="0" fileid="237" />
@@ -26049,7 +26049,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="4" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.Command.KickPacketHandler::.ctor(NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient)</Name>
+              <Name>System.Void NosCore.PacketHandlers.Command.KickPacketHandler::.ctor(NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub)</Name>
               <FileRef uid="239" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="35" ordinal="0" sl="35" sc="1" el="35" ec="2" bec="0" bev="0" fileid="239" />
@@ -26091,7 +26091,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="6" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.Command.SetGoldCommandPacketHandler::.ctor(NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient,NosCore.GameObject.HttpClients.StatHttpClient.IStatHttpClient)</Name>
+              <Name>System.Void NosCore.PacketHandlers.Command.SetGoldCommandPacketHandler::.ctor(NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub,NosCore.GameObject.HttpClients.StatHttpClient.IStatHttpClient)</Name>
               <FileRef uid="241" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="40" ordinal="0" sl="40" sc="1" el="40" ec="2" bec="0" bev="0" fileid="241" />
@@ -26113,7 +26113,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="7" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.Command.SetHeroLevelCommandPacketHandler::.ctor(NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.GameObject.HttpClients.StatHttpClient.IStatHttpClient)</Name>
+              <Name>System.Void NosCore.PacketHandlers.Command.SetHeroLevelCommandPacketHandler::.ctor(NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.GameObject.HttpClients.StatHttpClient.IStatHttpClient)</Name>
               <FileRef uid="242" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="47" ordinal="0" sl="47" sc="1" el="47" ec="2" bec="0" bev="0" fileid="242" />
@@ -26136,7 +26136,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="6" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.Command.SetJobLevelCommandPacketHandler::.ctor(NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient,NosCore.GameObject.HttpClients.StatHttpClient.IStatHttpClient)</Name>
+              <Name>System.Void NosCore.PacketHandlers.Command.SetJobLevelCommandPacketHandler::.ctor(NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub,NosCore.GameObject.HttpClients.StatHttpClient.IStatHttpClient)</Name>
               <FileRef uid="243" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="40" ordinal="0" sl="40" sc="1" el="40" ec="2" bec="0" bev="0" fileid="243" />
@@ -26158,7 +26158,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="7" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.Command.SetLevelCommandPacketHandler::.ctor(NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.GameObject.HttpClients.StatHttpClient.IStatHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient)</Name>
+              <Name>System.Void NosCore.PacketHandlers.Command.SetLevelCommandPacketHandler::.ctor(NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.GameObject.HttpClients.StatHttpClient.IStatHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub)</Name>
               <FileRef uid="244" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="47" ordinal="0" sl="47" sc="1" el="47" ec="2" bec="0" bev="0" fileid="244" />
@@ -26202,7 +26202,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="6" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.Command.SetReputationPacketHandler::.ctor(NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient,NosCore.GameObject.HttpClients.StatHttpClient.IStatHttpClient)</Name>
+              <Name>System.Void NosCore.PacketHandlers.Command.SetReputationPacketHandler::.ctor(NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub,NosCore.GameObject.HttpClients.StatHttpClient.IStatHttpClient)</Name>
               <FileRef uid="246" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="40" ordinal="0" sl="40" sc="1" el="40" ec="2" bec="0" bev="0" fileid="246" />
@@ -26390,7 +26390,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="10" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.Chat.BtkPacketHandler::.ctor(Serilog.ILogger,NosCore.Packets.Interfaces.ISerializer,NosCore.GameObject.HttpClients.FriendHttpClient.IFriendHttpClient,NosCore.GameObject.HttpClients.PacketHttpClient.IPacketHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient,NosCore.Core.Channel)</Name>
+              <Name>System.Void NosCore.PacketHandlers.Chat.BtkPacketHandler::.ctor(Serilog.ILogger,NosCore.Packets.Interfaces.ISerializer,NosCore.GameObject.HttpClients.FriendHttpClient.IFriendHttpClient,NosCore.GameObject.HttpClients.PacketHttpClient.IPacketHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub,NosCore.Core.Channel)</Name>
               <FileRef uid="251" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="53" ordinal="0" sl="53" sc="1" el="53" ec="2" bec="0" bev="0" fileid="251" />
@@ -26439,7 +26439,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="11" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.Chat.WhisperPacketHandler::.ctor(Serilog.ILogger,NosCore.Packets.Interfaces.ISerializer,NosCore.GameObject.HttpClients.BlacklistHttpClient.IBlacklistHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient,NosCore.GameObject.HttpClients.PacketHttpClient.IPacketHttpClient,NosCore.Core.Channel)</Name>
+              <Name>System.Void NosCore.PacketHandlers.Chat.WhisperPacketHandler::.ctor(Serilog.ILogger,NosCore.Packets.Interfaces.ISerializer,NosCore.GameObject.HttpClients.BlacklistHttpClient.IBlacklistHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub,NosCore.GameObject.HttpClients.PacketHttpClient.IPacketHttpClient,NosCore.Core.Channel)</Name>
               <FileRef uid="253" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="56" ordinal="0" sl="56" sc="1" el="56" ec="2" bec="0" bev="0" fileid="253" />
@@ -26557,7 +26557,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="11" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.CharacterScreen.DacPacketHandler::.ctor(NosCore.Dao.Interfaces.IDao`2&lt;NosCore.Data.Dto.AccountDto,System.Int64&gt;,Serilog.ILogger,NosCore.Core.HttpClients.AuthHttpClients.IAuthHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient)</Name>
+              <Name>System.Void NosCore.PacketHandlers.CharacterScreen.DacPacketHandler::.ctor(NosCore.Dao.Interfaces.IDao`2&lt;NosCore.Data.Dto.AccountDto,System.Int64&gt;,Serilog.ILogger,NosCore.Core.HttpClients.AuthHttpClients.IAuthHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient)</Name>
               <FileRef uid="258" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="44" ordinal="0" sl="44" sc="1" el="44" ec="2" bec="0" bev="0" fileid="258" />
@@ -26584,7 +26584,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="14" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.PacketHandlers.CharacterScreen.EntryPointPacketHandler::.ctor(NosCore.Dao.Interfaces.IDao`2&lt;NosCore.Data.Dto.CharacterDto,System.Int64&gt;,NosCore.Dao.Interfaces.IDao`2&lt;NosCore.Data.Dto.AccountDto,System.Int64&gt;,NosCore.Dao.Interfaces.IDao`2&lt;NosCore.Data.Dto.MateDto,System.Int64&gt;,Serilog.ILogger,NosCore.Core.HttpClients.AuthHttpClients.IAuthHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IConnectedAccountHttpClient,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.Shared.Authentication.IHasher)</Name>
+              <Name>System.Void NosCore.PacketHandlers.CharacterScreen.EntryPointPacketHandler::.ctor(NosCore.Dao.Interfaces.IDao`2&lt;NosCore.Data.Dto.CharacterDto,System.Int64&gt;,NosCore.Dao.Interfaces.IDao`2&lt;NosCore.Data.Dto.AccountDto,System.Int64&gt;,NosCore.Dao.Interfaces.IDao`2&lt;NosCore.Data.Dto.MateDto,System.Int64&gt;,Serilog.ILogger,NosCore.Core.HttpClients.AuthHttpClients.IAuthHttpClient,NosCore.Core.HttpClients.ConnectedAccountHttpClients.IPubSubHub,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.Shared.Authentication.IHasher)</Name>
               <FileRef uid="259" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="59" ordinal="0" sl="59" sc="1" el="59" ec="2" bec="0" bev="0" fileid="259" />

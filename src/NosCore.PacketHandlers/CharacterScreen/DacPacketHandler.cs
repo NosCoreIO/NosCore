@@ -19,7 +19,6 @@
 
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -30,6 +29,7 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -38,12 +38,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IDao<AccountDto, long> _accountDao;
         private readonly IAuthHttpClient _authHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPubSubHub _connectedAccountHttpClient;
         private readonly ILogger _logger;
 
         public DacPacketHandler(IDao<AccountDto, long> accountDao,
             ILogger logger, IAuthHttpClient authHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient,
+            IPubSubHub connectedAccountHttpClient,
             IChannelHttpClient channelHttpClient)
         {
             _accountDao = accountDao;

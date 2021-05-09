@@ -327,7 +327,7 @@ namespace NosCore.WorldServer
 
             services
                 .AddControllers()
-                .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
+                .AddApplicationPart(typeof(IncommingMailController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
 

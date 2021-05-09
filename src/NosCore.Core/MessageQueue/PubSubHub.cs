@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using Serilog;
 
 namespace NosCore.Core.MessageQueue
@@ -114,6 +115,16 @@ namespace NosCore.Core.MessageQueue
                 _messages[messageId].VisibilityTimeout = DateTime.Now.Add(visibilityTimeout);
             }
             return Task.CompletedTask;
+        }
+
+        public Task<List<ConnectedAccount>> GetSubscribersAsync()
+        {
+            return Task.FromResult(_masterClientList.ConnectedAccounts.SelectMany(x=>x.Value.Values).ToList());
+        }
+
+        public Task UnsubscriberAsync(long id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

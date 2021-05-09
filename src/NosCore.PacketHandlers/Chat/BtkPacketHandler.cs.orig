@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Chat
 {
     public class BtkPacketHandler : PacketHandler<BtkPacket>, IWorldPacketHandler
     {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPubSubHub _connectedAccountHttpClient;
         private readonly IFriendHttpClient _friendHttpClient;
         private readonly ILogger _logger;
         private readonly IPacketHttpClient _packetHttpClient;
@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Chat
         private readonly Channel _channel;
 
         public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
-            IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, Channel channel)
+            IPacketHttpClient packetHttpClient, IPubSubHub connectedAccountHttpClient, Channel channel)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;

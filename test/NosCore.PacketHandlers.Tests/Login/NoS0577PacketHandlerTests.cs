@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         {
             _encryption = new BcryptHasher();
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
             _session!.Account.NewAuthSalt = BCrypt.Net.BCrypt.GenerateSalt();
             _session.Account.NewAuthPassword = _encryption.Hash(_tokenGuid, _session.Account.NewAuthSalt);
@@ -111,7 +111,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         {
             _encryption = new Pbkdf2Hasher();
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
             _session!.Account.NewAuthPassword = _encryption.Hash(_tokenGuid, "MY_SUPER_SECRET_HASH");
             _session.Account.NewAuthSalt = "MY_SUPER_SECRET_HASH";
@@ -154,7 +154,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginAsync()
         {
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync())
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
@@ -169,7 +169,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginAlreadyConnectedAsync()
         {
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync())
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>
                     {new ConnectedAccount {Name = _session!.Account.Name}});
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
@@ -185,7 +185,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginNoServerAsync()
         {
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>());
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync())
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
@@ -212,7 +212,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginMaintenanceAsync()
         {
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo { IsMaintenance = true } });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync())
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
@@ -228,7 +228,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginMaintenanceGameMasterAsync()
         {
             _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo { IsMaintenance = true } });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync())
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>());
             _session!.Account.Authority = AuthorityType.GameMaster;
             await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session!.Account);

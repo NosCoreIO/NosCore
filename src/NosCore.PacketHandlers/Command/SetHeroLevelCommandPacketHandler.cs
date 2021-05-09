@@ -19,14 +19,12 @@
 
 using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Configuration;
@@ -34,6 +32,8 @@ using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
+using NosCore.GameObject.Messages;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
@@ -41,15 +41,13 @@ namespace NosCore.PacketHandlers.Command
     public class SetHeroLevelCommandPacketHandler : PacketHandler<SetHeroLevelCommandPacket>, IWorldPacketHandler
     {
         private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IStatHttpClient _statHttpClient;
+        private readonly IPubSubHub _connectedAccountHttpClient;
 
-        public SetHeroLevelCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient, IStatHttpClient statHttpClient)
+        public SetHeroLevelCommandPacketHandler(IPubSubHub connectedAccountHttpClient,
+            IChannelHttpClient channelHttpClient)
         {
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _channelHttpClient = channelHttpClient;
-            _statHttpClient = statHttpClient;
         }
 
         public override async Task ExecuteAsync(SetHeroLevelCommandPacket levelPacket, ClientSession session)
@@ -60,12 +58,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateHeroLevel,
-                Character = new Character { Name = levelPacket.Name },
-                Data = levelPacket.Level
-            };
+            var data = new UpdateHeroLevelMessage(levelPacket.Name, levelPacket.Level);
 
             var channels = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer);
@@ -76,7 +69,7 @@ namespace NosCore.PacketHandlers.Command
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
                 var accounts = await
-                    _connectedAccountHttpClient.GetConnectedAccountAsync(channel).ConfigureAwait(false);
+                    _connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Name == levelPacket.Name);
 
@@ -99,7 +92,8 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStatAsync(data, config!).ConfigureAwait(false);
+
+            await _connectedAccountHttpClient.SendMessageAsync(data);
         }
     }
 }

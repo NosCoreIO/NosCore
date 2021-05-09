@@ -20,7 +20,6 @@
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
@@ -38,6 +37,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Game
     {
         private readonly IBlacklistHttpClient _blacklistHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPubSubHub _connectedAccountHttpClient;
         private readonly IFriendHttpClient _friendHttpClient;
         private readonly IMailHttpClient _mailHttpClient;
         private readonly IPacketHttpClient _packetHttpClient;
@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Game
 
         public GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IFriendHttpClient friendHttpClient,
             IChannelHttpClient channelHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient,
+            IPubSubHub connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient,
             IPacketHttpClient packetHttpClient,
             ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider)
         {

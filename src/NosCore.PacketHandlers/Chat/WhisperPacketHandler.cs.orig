@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Chat
     public class WhisperPacketHandler : PacketHandler<WhisperPacket>, IWorldPacketHandler
     {
         private readonly IBlacklistHttpClient _blacklistHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPubSubHub _connectedAccountHttpClient;
         private readonly ILogger _logger;
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Chat
 
         public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer,
             IBlacklistHttpClient blacklistHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IPacketHttpClient packetHttpClient, Channel channel)
+            IPubSubHub connectedAccountHttpClient, IPacketHttpClient packetHttpClient, Channel channel)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;

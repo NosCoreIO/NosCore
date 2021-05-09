@@ -36,6 +36,9 @@ namespace NosCore.Core.MessageQueue
         Task SendMessageAsync(IMessage message);
 
         Task UpdateVisibilityTimeoutAsync(Guid messageId, TimeSpan visibilityTimeout);
-        Task<List<ConnectedAccount>> GetConnectedAccountAsync();
+
+        Task<List<ConnectedAccount>> GetSubscribersAsync();
+
+        Task UnsubscriberAsync(long id);
     }
 }

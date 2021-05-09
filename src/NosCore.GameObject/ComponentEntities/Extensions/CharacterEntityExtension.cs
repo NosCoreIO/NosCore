@@ -21,7 +21,6 @@ using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
@@ -49,6 +48,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -187,7 +187,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         }
 
         public static async Task<FinitPacket> GenerateFinitAsync(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
-            IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
+            IChannelHttpClient channelHttpClient, IPubSubHub connectedAccountHttpClient)
         {
             //same canal
             var servers = (await channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
@@ -196,7 +196,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
                 accounts.AddRange(
-                    await connectedAccountHttpClient.GetConnectedAccountAsync(server).ConfigureAwait(false));
+                    await connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false));
             }
 
             var subpackets = new List<FinitSubPacket?>();

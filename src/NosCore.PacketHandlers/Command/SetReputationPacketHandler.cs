@@ -24,11 +24,11 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 using NosCore.Core.MessageQueue;
+using NosCore.GameObject.Messages;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
@@ -36,13 +36,10 @@ namespace NosCore.PacketHandlers.Command
     public class SetReputationPacketHandler : PacketHandler<SetReputationPacket>, IWorldPacketHandler
     {
         private readonly IPubSubHub _connectedAccountHttpClient;
-        private readonly IStatHttpClient _statHttpClient;
 
-        public SetReputationPacketHandler(IPubSubHub connectedAccountHttpClient,
-            IStatHttpClient statHttpClient)
+        public SetReputationPacketHandler(IPubSubHub connectedAccountHttpClient)
         {
             _connectedAccountHttpClient = connectedAccountHttpClient;
-            _statHttpClient = statHttpClient;
         }
 
         public override async Task ExecuteAsync(SetReputationPacket setReputationPacket, ClientSession session)
@@ -53,12 +50,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateReputation,
-                Character = new Character { Name = setReputationPacket.Name },
-                Data = setReputationPacket.Reputation
-            };
+            var data = new UpdateReputationMessage(setReputationPacket.Name, setReputationPacket.Reputation);
 
             var characters = await _connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
             var receiver =
@@ -74,7 +66,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStatAsync(data, receiver.Item1!).ConfigureAwait(false);
+            await _connectedAccountHttpClient.SendMessageAsync(data);
         }
     }
 }

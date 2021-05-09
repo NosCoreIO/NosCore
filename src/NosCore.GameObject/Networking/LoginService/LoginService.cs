@@ -22,7 +22,6 @@ using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.Networking;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -35,6 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 using NosCore.Data.Enumerations.Character;
 
 namespace NosCore.GameObject.Networking.LoginService
@@ -44,13 +44,13 @@ namespace NosCore.GameObject.Networking.LoginService
         private readonly IDao<AccountDto, long> _accountDao;
         private readonly IAuthHttpClient _authHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPubSubHub _connectedAccountHttpClient;
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly IDao<CharacterDto, long> _characterDao;
 
         public LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
             IAuthHttpClient authHttpClient,
-            IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient,
+            IChannelHttpClient channelHttpClient, IPubSubHub connectedAccountHttpClient,
             IDao<CharacterDto, long> characterDao)
         {
             _loginConfiguration = loginConfiguration;
@@ -150,15 +150,15 @@ namespace NosCore.GameObject.Networking.LoginService
                         }).ConfigureAwait(false);
                         break;
                     default:
-                        var servers = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
-                            ?.Where(c => c.Type == ServerType.WorldServer).ToList();
+                        var servers = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))!.Where(c => c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
-                        var i = 1;
-                        var connectedAccounts = await _connectedAccountHttpClient.GetConnectedAccountAsync();
+                        byte i = 1;
+                        var connectedAccounts = await _connectedAccountHttpClient.GetSubscribersAsync();
+                        var serverAccounts = servers.GroupBy(x => x.ServerId).ToDictionary(x => x.Key, x => x.ToList());
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
-                        foreach (var serverAccounts in connectedAccounts.GroupBy(x=>x.ChannelId))
+                        foreach (var server in servers)
                         {
-                            var accounts = serverAccounts.ToList();
+                            var accounts = connectedAccounts.Where(x => x.ChannelId == server.ServerId).ToList();
                             connectedAccount.Add(i, accounts);
                             i++;
                             if (accounts.Any(a => a.Name == acc.Name))

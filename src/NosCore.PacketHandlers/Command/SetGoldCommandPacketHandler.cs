@@ -24,11 +24,11 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 using NosCore.Core.MessageQueue;
+using NosCore.GameObject.Messages;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
@@ -36,23 +36,15 @@ namespace NosCore.PacketHandlers.Command
     public class SetGoldCommandPacketHandler : PacketHandler<SetGoldCommandPacket>, IWorldPacketHandler
     {
         private readonly IPubSubHub _connectedAccountHttpClient;
-        private readonly IStatHttpClient _statHttpClient;
 
-        public SetGoldCommandPacketHandler(IPubSubHub connectedAccountHttpClient,
-            IStatHttpClient statHttpClient)
+        public SetGoldCommandPacketHandler(IPubSubHub connectedAccountHttpClient)
         {
             _connectedAccountHttpClient = connectedAccountHttpClient;
-            _statHttpClient = statHttpClient;
         }
 
         public override async Task ExecuteAsync(SetGoldCommandPacket goldPacket, ClientSession session)
         {
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateGold,
-                Character = new Character { Name = goldPacket.Name ?? session.Character.Name },
-                Data = goldPacket.Gold
-            };
+            var data = new UpdateGoldMessage(goldPacket.Name ?? session.Character.Name, goldPacket.Gold);
             var characters = await _connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
             var receiver =
                 characters.FirstOrDefault(x => x.ConnectedCharacter?.Name == (goldPacket.Name ?? session.Character.Name));
@@ -67,7 +59,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStatAsync(data, receiver.Item1!).ConfigureAwait(false);
+            await _connectedAccountHttpClient.SendMessageAsync(data);
         }
     }
 }

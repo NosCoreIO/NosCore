@@ -88,5 +88,15 @@ namespace NosCore.Core.MessageQueue
         {
             return _hubConnection.InvokeAsync(nameof(UpdateVisibilityTimeoutAsync), messageId, visibilityTimeout);
         }
+
+        public Task<List<ConnectedAccount>> GetSubscribersAsync()
+        {
+            return _hubConnection.InvokeAsync<List<ConnectedAccount>>(nameof(GetSubscribersAsync));
+        }
+
+        public Task UnsubscriberAsync(long id)
+        {
+            return _hubConnection.InvokeAsync(nameof(UnsubscriberAsync), id);
+        }
     }
 }

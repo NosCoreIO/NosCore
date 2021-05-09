@@ -22,7 +22,6 @@ using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
 using NosCore.Dao.Interfaces;
@@ -44,6 +43,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
+using NosCore.Core.MessageQueue;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IAuthHttpClient _authHttpClient;
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
+        private readonly IPubSubHub _connectedAccountHttpClient;
         private readonly ILogger _logger;
         private readonly IDao<MateDto, long> _mateDao;
         private readonly IOptions<WorldConfiguration> _configuration;
@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
         public EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
             IDao<MateDto, long> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient,
+            IPubSubHub connectedAccountHttpClient,
             IChannelHttpClient channelHttpClient, IOptions<WorldConfiguration> configuration)
         {
             _characterDao = characterDao;
@@ -75,13 +75,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
         }
 
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IDao<AccountDto, long> accountDao, IChannelHttpClient channelHttpClient, bool passwordLessConnection, string accountName, string password, int sessionId)
+            IPubSubHub connectedAccountHttpClient, IDao<AccountDto, long> accountDao, IChannelHttpClient channelHttpClient, bool passwordLessConnection, string accountName, string password, int sessionId)
         {
             var alreadyConnnected = false;
             var servers = await channelHttpClient.GetChannelsAsync().ConfigureAwait(false) ?? new List<ChannelInfo>();
             foreach (var channel in servers.Where(c => c.Type == ServerType.WorldServer))
             {
-                var accounts = await connectedAccountHttpClient.GetConnectedAccountAsync(channel).ConfigureAwait(false);
+                var accounts = await connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
                 var target = accounts.FirstOrDefault(s => s.Name == accountName);
 
                 if (target == null)
