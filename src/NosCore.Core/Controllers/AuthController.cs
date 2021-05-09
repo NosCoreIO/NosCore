@@ -81,8 +81,8 @@ namespace NosCore.Core.Controllers
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT));
             }
 
-            if (account.Password!.ToLower(CultureInfo.CurrentCulture) != (_hasher.Hash(session.Password))
-                && account.NewAuthPassword!.ToLower(CultureInfo.CurrentCulture) != (_hasher.Hash(session.Password, account.NewAuthSalt!)))
+            if (account.Password?.ToLower(CultureInfo.CurrentCulture) != (_hasher.Hash(session.Password))
+                && account.NewAuthPassword?.ToLower(CultureInfo.CurrentCulture) != (_hasher.Hash(session.Password, account.NewAuthSalt!)))
             {
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
             }

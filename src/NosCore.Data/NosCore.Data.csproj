@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\NosCore.DtoGenerator\NosCore.DtoGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\tools\NosCore.DtoGenerator\NosCore.DtoGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <AdditionalFiles Include="..\NosCore.Database\NosCore.Database.csproj" />
     <Compile Condition="Exists('$(CompilerGeneratedFilesOutputPath)\*\**\*.cs')" Remove="$(CompilerGeneratedFilesOutputPath)\*\**\*.cs" />
   </ItemGroup>

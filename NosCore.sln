@@ -40,7 +40,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.Database.Tests", "t
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NosCore.WebApi.Tests", "test\NosCore.WebApi.Tests\NosCore.WebApi.Tests.csproj", "{5C60F99A-1BA8-4A82-9973-7150D4BE57A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.DtoGenerator", "NosCore.DtoGenerator\NosCore.DtoGenerator.csproj", "{3F7C2822-BF7B-4BC9-8AA3-3ED2E2F0351C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.DtoGenerator", "tools\NosCore.DtoGenerator\NosCore.DtoGenerator.csproj", "{3F7C2822-BF7B-4BC9-8AA3-3ED2E2F0351C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -230,7 +230,8 @@ namespace NosCore.WebApi.Tests.ApiTests
         [TestMethod]
         public async Task HasMfaEnabledReturnTrueWhenTokenNotNull()
         {
-            _session.Account.MfaSecret = null;
+            _session.Account.MfaSecret = "12345";
+            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session.Account);
             var result = await _controller.HasMfaEnabled(_session.Account.Name);
             Assert.AreEqual(true, ((OkObjectResult)result).Value);
         }
@@ -239,7 +240,7 @@ namespace NosCore.WebApi.Tests.ApiTests
         public async Task HasMfaEnabledReturnFalseWhenTokenNull()
         {
             var result = await _controller.HasMfaEnabled(_session.Account.Name);
-            Assert.AreEqual(true, ((OkObjectResult)result).Value);
+            Assert.AreEqual(false, ((OkObjectResult)result).Value);
         }
 
     }
