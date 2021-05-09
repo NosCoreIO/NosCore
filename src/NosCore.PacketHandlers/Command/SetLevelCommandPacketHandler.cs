@@ -59,40 +59,15 @@ namespace NosCore.PacketHandlers.Command
             }
 
             var data = new UpdateLevelMessage(levelPacket.Name, levelPacket.Level);
-
-            var channels = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
-                ?.Where(c => c.Type == ServerType.WorldServer);
-
-            ConnectedAccount? receiver = null;
-            ServerConfiguration? config = null;
-
-            foreach (var channel in channels ?? new List<ChannelInfo>())
-            {
-                var accounts = await
-                    _connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
-
-                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Name == levelPacket.Name);
-
-                if (target == null)
-                {
-                    continue;
-                }
-
-                receiver = target;
-                config = channel.WebApi;
-            }
-
-            if (receiver == null) //TODO: Handle 404 in WebApi
+            var result = await _connectedAccountHttpClient.SendMessageAsync(data);
+            if (!result)
             {
                 await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 }).ConfigureAwait(false);
-                return;
             }
-
-            await _connectedAccountHttpClient.SendMessageAsync(data);
         }
     }
 }

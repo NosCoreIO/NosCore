@@ -86,13 +86,9 @@ namespace NosCore.Core.MessageQueue
             return Task.CompletedTask;
         }
 
-        public Task<List<IMessage>> ReceiveMessagesAsync(int maxNumberOfMessages = 10, TimeSpan? visibilityTimeout = null)
+        public Task<List<IMessage>> ReceiveMessagesAsync(int maxNumberOfMessages = 100)
         {
-            var messages = _messages.Values.Where(m=>m.VisibilityTimeout > DateTime.Now).Take(maxNumberOfMessages).ToList();
-            foreach(var message in messages)
-            {
-                message.VisibilityTimeout = DateTime.Now.Add(visibilityTimeout ?? TimeSpan.FromSeconds(5));
-            }
+            var messages = _messages.Values.Take(maxNumberOfMessages).ToList();
             return Task.FromResult(messages);
         }
 
@@ -102,27 +98,30 @@ namespace NosCore.Core.MessageQueue
             return Task.CompletedTask;
         }
 
-        public Task SendMessageAsync(IMessage message)
+        public async Task<bool> SendMessageAsync(IMessage message)
         {
             _messages.TryAdd(message.Id, message);
-            return Task.CompletedTask;
-        }
 
-        public Task UpdateVisibilityTimeoutAsync(Guid messageId, TimeSpan visibilityTimeout)
-        {
-            if (_messages.ContainsKey(messageId))
+            for (var i = 0; i < 10; i++)
             {
-                _messages[messageId].VisibilityTimeout = DateTime.Now.Add(visibilityTimeout);
-            }
-            return Task.CompletedTask;
+                if (_messages.ContainsKey(message.Id))
+                {
+                    await Task.Delay(100);
+                    continue;
+                }
+                return true;
+            };
+
+            _messages.TryRemove(message.Id, out _);
+            return false;
         }
 
         public Task<List<ConnectedAccount>> GetSubscribersAsync()
         {
-            return Task.FromResult(_masterClientList.ConnectedAccounts.SelectMany(x=>x.Value.Values).ToList());
+            return Task.FromResult(_masterClientList.ConnectedAccounts.SelectMany(x => x.Value.Values).ToList());
         }
 
-        public Task UnsubscriberAsync(long id)
+        public Task UnsubscribeAsync(long id)
         {
             throw new NotImplementedException();
         }

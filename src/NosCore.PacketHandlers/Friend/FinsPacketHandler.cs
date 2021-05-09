@@ -22,7 +22,6 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -32,6 +31,7 @@ using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Threading.Tasks;
 using NosCore.Core.MessageQueue;
+using NosCore.GameObject.ComponentEntities.Extensions;
 
 namespace NosCore.PacketHandlers.Friend
 {
@@ -122,10 +122,9 @@ namespace NosCore.PacketHandlers.Friend
                                 session.Character.AccountLanguage)
                         }).ConfigureAwait(false);
 
-                        await targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
+                        await targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(_friendHttpClient,
                             _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
-                        await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient,
-                            _channelHttpClient, _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                        await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient, _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
                         break;
 
                     case LanguageKey.FRIEND_REJECTED:

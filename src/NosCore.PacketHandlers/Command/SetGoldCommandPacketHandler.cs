@@ -45,21 +45,15 @@ namespace NosCore.PacketHandlers.Command
         public override async Task ExecuteAsync(SetGoldCommandPacket goldPacket, ClientSession session)
         {
             var data = new UpdateGoldMessage(goldPacket.Name ?? session.Character.Name, goldPacket.Gold);
-            var characters = await _connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
-            var receiver =
-                characters.FirstOrDefault(x => x.ConnectedCharacter?.Name == (goldPacket.Name ?? session.Character.Name));
-            
-            if (receiver == null) //TODO: Handle 404 in WebApi
+            var result = await _connectedAccountHttpClient.SendMessageAsync(data);
+            if (!result)
             {
                 await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 }).ConfigureAwait(false);
-                return;
             }
-
-            await _connectedAccountHttpClient.SendMessageAsync(data);
         }
     }
 }

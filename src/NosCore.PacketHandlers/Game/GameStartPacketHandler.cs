@@ -177,7 +177,7 @@ namespace NosCore.PacketHandlers.Game
 
             await session.Character.SendFinfoAsync(_friendHttpClient, _packetHttpClient, _packetSerializer, true).ConfigureAwait(false);
 
-            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
+            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient,
                 _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(_blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             //            Session.SendPacket(clinit);

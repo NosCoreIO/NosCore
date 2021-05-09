@@ -21,7 +21,6 @@ using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -30,6 +29,7 @@ using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.MessageQueue;
+using NosCore.GameObject.ComponentEntities.Extensions;
 
 namespace NosCore.PacketHandlers.Friend
 {
@@ -59,10 +59,10 @@ namespace NosCore.PacketHandlers.Friend
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)
                 }).ConfigureAwait(false);
                 var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
-                await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
+                await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(_friendHttpClient,
                     _connectedAccountHttpClient).ConfigureAwait(false))).ConfigureAwait(false);
 
-                await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
+                await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient,
                     _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             }
             else

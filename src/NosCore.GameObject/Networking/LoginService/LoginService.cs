@@ -154,7 +154,6 @@ namespace NosCore.GameObject.Networking.LoginService
                         var alreadyConnnected = false;
                         byte i = 1;
                         var connectedAccounts = await _connectedAccountHttpClient.GetSubscribersAsync();
-                        var serverAccounts = servers.GroupBy(x => x.ServerId).ToDictionary(x => x.Key, x => x.ToList());
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
                         foreach (var server in servers)
                         {

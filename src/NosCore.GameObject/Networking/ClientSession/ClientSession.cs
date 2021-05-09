@@ -160,6 +160,8 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
 
             Character.Session = this;
+
+            //todo update character on pubsub
             return _minilandProvider.InitializeAsync(character, _mapInstanceGeneratorService);
         }
 

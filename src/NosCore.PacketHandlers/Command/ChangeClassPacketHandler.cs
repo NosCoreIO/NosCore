@@ -51,22 +51,15 @@ namespace NosCore.PacketHandlers.Command
             }
 
             var data = new UpdateClassMessage(changeClassPacket.Name, changeClassPacket.ClassType);
-
-            var characters = await _connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
-            var receiver =
-                characters.FirstOrDefault(x => x.ConnectedCharacter?.Name == changeClassPacket.Name);
-           
-            if (receiver == null) //TODO: Handle 404 in WebApi
+            var result = await _connectedAccountHttpClient.SendMessageAsync(data);
+            if (!result)
             {
                 await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 }).ConfigureAwait(false);
-                return;
             }
-
-            await _connectedAccountHttpClient.SendMessageAsync(data);
         }
     }
 }

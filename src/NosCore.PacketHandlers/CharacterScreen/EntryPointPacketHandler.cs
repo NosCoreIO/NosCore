@@ -77,21 +77,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient,
             IPubSubHub connectedAccountHttpClient, IDao<AccountDto, long> accountDao, IChannelHttpClient channelHttpClient, bool passwordLessConnection, string accountName, string password, int sessionId)
         {
-            var alreadyConnnected = false;
-            var servers = await channelHttpClient.GetChannelsAsync().ConfigureAwait(false) ?? new List<ChannelInfo>();
-            foreach (var channel in servers.Where(c => c.Type == ServerType.WorldServer))
-            {
-                var accounts = await connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
-                var target = accounts.FirstOrDefault(s => s.Name == accountName);
-
-                if (target == null)
-                {
-                    continue;
-                }
-
-                alreadyConnnected = true;
-                break;
-            }
+            var accounts = await connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
+            var alreadyConnnected = accounts.FirstOrDefault(s => s.Name == accountName) != null;
 
             if (alreadyConnnected)
             {

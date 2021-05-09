@@ -25,6 +25,5 @@ namespace NosCore.Core.MessageQueue
     {
         public Guid Id { get; set; }
         public string Body { get; set; }
-        public DateTime VisibilityTimeout { get; set; }
     }
 }

@@ -57,7 +57,6 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
             var list = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer) ?? new List<ChannelInfo>();
             await Task.WhenAll(list.Select(channel => SendPacketToChannelAsync(packet, channel.WebApi!.ToString()))).ConfigureAwait(false);
-
         }
 
         public Task BroadcastPacketsAsync(List<PostedPacket> packets)

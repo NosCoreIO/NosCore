@@ -17,6 +17,5 @@ namespace NosCore.GameObject.Messages
         
         public Guid Id { get; set; }
         public string Body { get; set; }
-        public DateTime VisibilityTimeout { get; set; }
     }
 }

@@ -29,16 +29,14 @@ namespace NosCore.Core.MessageQueue
     {
         Task BindAsync(Channel data, CancellationToken stoppingToken);
 
-        Task<List<IMessage>> ReceiveMessagesAsync(int maxNumberOfMessages, TimeSpan? visibilityTimeout = null);
+        Task<List<IMessage>> ReceiveMessagesAsync(int maxNumberOfMessages);
 
         Task DeleteMessageAsync(Guid messageId);
 
-        Task SendMessageAsync(IMessage message);
-
-        Task UpdateVisibilityTimeoutAsync(Guid messageId, TimeSpan visibilityTimeout);
+        Task<bool> SendMessageAsync(IMessage message);
 
         Task<List<ConnectedAccount>> GetSubscribersAsync();
 
-        Task UnsubscriberAsync(long id);
+        Task UnsubscribeAsync(long id);
     }
 }

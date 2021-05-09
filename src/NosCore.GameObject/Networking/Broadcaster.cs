@@ -58,6 +58,7 @@ namespace NosCore.GameObject.Networking
             {
                 Sessions.Remove(clientSession.Channel);
             }
+            //todo unsubscribe
         }
 
         public void RegisterSession(ClientSession.ClientSession clientSession)
@@ -68,6 +69,7 @@ namespace NosCore.GameObject.Networking
             }
 
             ClientSessions.TryAdd(clientSession.SessionId, clientSession);
+            //todo subscribe
         }
 
         public IEnumerable<ICharacterEntity> GetCharacters()
@@ -90,21 +92,6 @@ namespace NosCore.GameObject.Networking
         public static void Reset()
         {
             _instance = null;
-        }
-
-        public List<ConnectedAccount> ConnectedAccounts()
-        {
-            return ClientSessions.Values.Select(s =>
-                new ConnectedAccount
-                {
-                    Name = s.Account.Name,
-                    Language = s.Account.Language,
-                    ConnectedCharacter = s.Character == null ? null : new Data.WebApi.Character
-                    {
-                        Name = s.Character.Name, Id = s.Character.CharacterId,
-                        FriendRequestBlocked = s.Character.FriendRequestBlocked
-                    }
-                }).ToList();
         }
     }
 }

@@ -8,17 +8,17 @@ using NosCore.Core.MessageQueue;
 
 namespace NosCore.GameObject.Messages
 {
-    public class UpdateHeroLevelMessage : IMessage
+    public class KickMessage : IMessage
     {
-        public UpdateHeroLevelMessage(string characterName, byte level)
+        public KickMessage(string characterName)
         {
-            Body = JsonSerializer.Serialize(new {
-                CharacterName = characterName,
-                Level = level,
+            Body = JsonSerializer.Serialize(new
+            {
+                CharacterName = characterName
             });
             Id = Guid.NewGuid();
         }
-        
+
         public Guid Id { get; set; }
         public string Body { get; set; }
     }

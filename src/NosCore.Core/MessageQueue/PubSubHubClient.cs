@@ -69,9 +69,9 @@ namespace NosCore.Core.MessageQueue
             }
         }
 
-        public Task<List<IMessage>> ReceiveMessagesAsync(int maxNumberOfMessages = 10, TimeSpan? visibilityTimeout = null)
+        public Task<List<IMessage>> ReceiveMessagesAsync(int maxNumberOfMessages = 10)
         {
-            return _hubConnection.InvokeAsync<List<IMessage>>(nameof(ReceiveMessagesAsync), maxNumberOfMessages, visibilityTimeout);
+            return _hubConnection.InvokeAsync<List<IMessage>>(nameof(ReceiveMessagesAsync), maxNumberOfMessages);
         }
 
         public Task DeleteMessageAsync(Guid messageId)
@@ -79,14 +79,9 @@ namespace NosCore.Core.MessageQueue
             return _hubConnection.InvokeAsync(nameof(DeleteMessageAsync), messageId);
         }
 
-        public Task SendMessageAsync(IMessage message)
+        public Task<bool> SendMessageAsync(IMessage message)
         {
-            return _hubConnection.InvokeAsync(nameof(ReceiveMessagesAsync), message);
-        }
-
-        public Task UpdateVisibilityTimeoutAsync(Guid messageId, TimeSpan visibilityTimeout)
-        {
-            return _hubConnection.InvokeAsync(nameof(UpdateVisibilityTimeoutAsync), messageId, visibilityTimeout);
+            return _hubConnection.InvokeAsync<bool>(nameof(ReceiveMessagesAsync), message);
         }
 
         public Task<List<ConnectedAccount>> GetSubscribersAsync()
@@ -94,9 +89,9 @@ namespace NosCore.Core.MessageQueue
             return _hubConnection.InvokeAsync<List<ConnectedAccount>>(nameof(GetSubscribersAsync));
         }
 
-        public Task UnsubscriberAsync(long id)
+        public Task UnsubscribeAsync(long id)
         {
-            return _hubConnection.InvokeAsync(nameof(UnsubscriberAsync), id);
+            return _hubConnection.InvokeAsync(nameof(UnsubscribeAsync), id);
         }
     }
 }

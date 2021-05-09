@@ -26,6 +26,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 using NosCore.Core.MessageQueue;
+using NosCore.GameObject.Messages;
 
 namespace NosCore.PacketHandlers.Command
 {
@@ -40,21 +41,15 @@ namespace NosCore.PacketHandlers.Command
 
         public override async Task ExecuteAsync(KickPacket kickPacket, ClientSession session)
         {
-            var characters = await _connectedAccountHttpClient.GetSubscribersAsync().ConfigureAwait(false);
-            var receiver =
-                characters.FirstOrDefault(x => x.ConnectedCharacter?.Name == (kickPacket.Name ?? session.Character.Name));
-
-            if (receiver == null) //TODO: Handle 404 in WebApi
+            var result = await _connectedAccountHttpClient.SendMessageAsync(new KickMessage(kickPacket.Name ?? session.Character.Name)); 
+            if (!result)
             {
                 await session.SendPacketAsync(new InfoPacket
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
                         session.Account.Language)
                 }).ConfigureAwait(false);
-                return;
             }
-
-            await _connectedAccountHttpClient.UnsubscriberAsync(receiver.ConnectedCharacter!.Id).ConfigureAwait(false);
         }
     }
 }
