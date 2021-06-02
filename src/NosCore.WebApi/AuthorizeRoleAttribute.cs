@@ -24,7 +24,6 @@ using System.Linq;
 
 namespace NosCore.Core
 {
-    //todo remove
     public class AuthorizeRoleAttribute : AuthorizeAttribute
     {
         public AuthorizeRoleAttribute(AuthorityType allowedRole)
