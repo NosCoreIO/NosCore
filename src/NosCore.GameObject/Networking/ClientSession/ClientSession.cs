@@ -147,11 +147,17 @@ namespace NosCore.GameObject.Networking.ClientSession
             private set => _character = value;
         }
 
-        public void InitializeAccount(AccountDto accountDto)
+        public async Task InitializeAccount(AccountDto accountDto)
         {
             Account = accountDto;
             IsAuthenticated = true;
             Broadcaster.Instance.RegisterSession(this);
+            await _pubSubHub.SubscribeAsync(new ConnectedAccount(accountDto.AccountId)
+            {
+                Name = Account.Name,
+                Language = Account.Language
+            });
+
         }
 
         public async Task SetCharacterAsync(Character? character)
@@ -252,7 +258,11 @@ namespace NosCore.GameObject.Networking.ClientSession
             finally
             {
                 Broadcaster.Instance.UnregisterSession(this);
-                await _pubSubHub.UnsubscribeAsync(Account.AccountId);
+
+                if (Account != null!)
+                {
+                    await _pubSubHub.UnsubscribeAsync(Account.AccountId);
+                }
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED));
             }
         }

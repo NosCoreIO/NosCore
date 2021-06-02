@@ -126,7 +126,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 sessionMapping.Value.RegionType = account.Language;
             }
-            clientSession.InitializeAccount(account);
+            await clientSession.InitializeAccount(account);
             //todo Send Account Connected
         }
 

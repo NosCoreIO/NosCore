@@ -151,27 +151,5 @@ namespace NosCore.Core.Controllers
         {
             return id != null ? MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList() : MasterClientListSingleton.Instance.Channels;
         }
-
-        [HttpPatch]
-        public HttpStatusCode PingUpdate(int id, [FromBody] JsonPatch data)
-        {
-            var chann = MasterClientListSingleton.Instance.Channels.FirstOrDefault(s => s.Id == id);
-            if (chann == null)
-            {
-                return HttpStatusCode.NotFound;
-            }
-
-            if ((chann.LastPing.AddSeconds(10) < SystemTime.Now()) && !Debugger.IsAttached)
-            {
-                MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
-                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),
-                    _id.ToString(CultureInfo.CurrentCulture));
-                return HttpStatusCode.RequestTimeout;
-            }
-
-            var result = data?.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(chann)).RootElement);
-            MasterClientListSingleton.Instance.Channels[MasterClientListSingleton.Instance.Channels.FindIndex(s => s.Id == id)] = JsonSerializer.Deserialize<ChannelInfo>(result!.Result.GetRawText())!;
-            return HttpStatusCode.OK;
-        }
     }
 }

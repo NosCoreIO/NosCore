@@ -34,8 +34,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.I18N;
 using NosCore.Core.MessageQueue;
 using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.I18N;
+using Serilog;
 
 namespace NosCore.GameObject.Networking.LoginService
 {
@@ -47,11 +50,12 @@ namespace NosCore.GameObject.Networking.LoginService
         private readonly IPubSubHub _connectedAccountHttpClient;
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly IDao<CharacterDto, long> _characterDao;
+        private readonly ILogger _logger;
 
         public LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
             IAuthHttpClient authHttpClient,
             IChannelHttpClient channelHttpClient, IPubSubHub connectedAccountHttpClient,
-            IDao<CharacterDto, long> characterDao)
+            IDao<CharacterDto, long> characterDao, ILogger logger)
         {
             _loginConfiguration = loginConfiguration;
             _accountDao = accountDao;
@@ -59,6 +63,7 @@ namespace NosCore.GameObject.Networking.LoginService
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _channelHttpClient = channelHttpClient;
             _characterDao = characterDao;
+            _logger = logger;
         }
 
         public async Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId)
@@ -179,6 +184,7 @@ namespace NosCore.GameObject.Networking.LoginService
                         acc.Language = language;
 
                         acc = await _accountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
+
                         if (servers == null || servers.Count <= 0)
                         {
                             await clientSession.SendPacketAsync(new FailcPacket
@@ -255,13 +261,14 @@ namespace NosCore.GameObject.Networking.LoginService
 
                 await clientSession.DisconnectAsync().ConfigureAwait(false);
             }
-            catch
+            catch(Exception ex)
             {
                 await clientSession.SendPacketAsync(new FailcPacket
                 {
                     Type = LoginFailType.UnhandledError
                 }).ConfigureAwait(false);
                 await clientSession.DisconnectAsync().ConfigureAwait(false);
+                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION),ex);
             }
         }
     }

@@ -37,6 +37,7 @@ using NosCore.Algorithm.SpeedService;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
+using NosCore.Core.MessageQueue;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -276,11 +277,11 @@ namespace NosCore.GameObject.Tests
         private async Task<ClientSession> PrepareSessionShopAsync()
         {
             var conf = Options.Create(new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 });
-            var session2 = new ClientSession(conf, new Mock<IMapInstanceAccessorService>().Object, new Mock<IExchangeService>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object, new Mock<IMinilandService>().Object, TestHelpers.Instance.MapInstanceGeneratorService);
+            var session2 = new ClientSession(conf, new Mock<IMapInstanceAccessorService>().Object, new Mock<IExchangeService>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object, new Mock<IMinilandService>().Object, TestHelpers.Instance.MapInstanceGeneratorService, new Mock<IPubSubHub>().Object);
             var channelMock = new Mock<IChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto { Name = "AccountTest", Password = new Sha512Hasher().Hash("test") };
-            session2.InitializeAccount(account);
+            await session2.InitializeAccount(account);
             session2.SessionId = 1;
 
             await session2.SetCharacterAsync(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object,

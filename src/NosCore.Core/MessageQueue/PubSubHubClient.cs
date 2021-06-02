@@ -59,14 +59,7 @@ namespace NosCore.Core.MessageQueue
         public async Task BindAsync(Channel data, CancellationToken stoppingToken)
         {
             await _hubConnection.StartAsync(stoppingToken);
-            try
-            {
-                await _hubConnection.InvokeAsync(nameof(BindAsync), data, stoppingToken, stoppingToken);
-            }
-            finally
-            {
-                await _hubConnection.StopAsync(stoppingToken);
-            }
+            await _hubConnection.InvokeAsync(nameof(BindAsync), data, stoppingToken, stoppingToken);
         }
 
         public Task<List<IMessage>> ReceiveMessagesAsync(int maxNumberOfMessages = 10)

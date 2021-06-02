@@ -31,6 +31,6 @@ namespace NosCore.GameObject.Networking.ClientSession
         bool IsAuthenticated { get; set; }
 
         Task SetCharacterAsync(Character character);
-        void InitializeAccount(AccountDto accountDto);
+        Task InitializeAccount(AccountDto accountDto);
     }
 }

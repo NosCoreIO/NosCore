@@ -68,7 +68,8 @@ namespace NosCore.Core.MessageQueue
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_SUCCESS),
                 id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
-
+            _masterClientList.ConnectedAccounts.TryAdd(Context.ConnectionId,
+                new ConcurrentDictionary<long, ConnectedAccount>());
             var serv = new ChannelInfo
             {
                 Name = data.ClientName,

@@ -305,7 +305,8 @@ namespace NosCore.Tests.Shared
                 new Mock<ISerializer>().Object,
                 PacketHttpClient.Object,
                 minilandProvider.Object,
-                MapInstanceGeneratorService)
+                MapInstanceGeneratorService,
+                new Mock<IPubSubHub>().Object)
             {
                 SessionId = _lastId
             };
@@ -327,7 +328,7 @@ namespace NosCore.Tests.Shared
                 Titles = new List<TitleDto>()
             };
             await CharacterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
-            session.InitializeAccount(acc);
+            await session.InitializeAccount(acc);
             await session.SetCharacterAsync(chara).ConfigureAwait(false);
             session.Character.MapInstance = MapInstanceAccessorService.GetBaseMapById(0);
             session.Account = acc;
