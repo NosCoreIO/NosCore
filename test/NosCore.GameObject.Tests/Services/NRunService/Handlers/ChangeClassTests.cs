@@ -68,8 +68,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         [DataRow(CharacterClassType.Archer)]
         [DataRow(CharacterClassType.Mage)]
         [DataRow(CharacterClassType.Swordsman)]
-        public async Task UserCantChangeClassLowLevelAsync(CharacterClassType characterClass)
+        public async Task UserCantChangeClassLowLevelAsync(int characterClassInt)
         {
+            var characterClass = (CharacterClassType)characterClassInt;
             _session!.Character.Level = 15;
             await _nrRunService.NRunLaunchAsync(_session, new Tuple<IAliveEntity, NrunPacket>(_session.Character, (new NrunPacket
             {
@@ -87,8 +88,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         [DataRow(CharacterClassType.Archer)]
         [DataRow(CharacterClassType.Mage)]
         [DataRow(CharacterClassType.Swordsman)]
-        public async Task UserCantChangeClassLowJobLevelAsync(CharacterClassType characterClass)
+        public async Task UserCantChangeClassLowJobLevelAsync(int characterClassInt)
         {
+            var characterClass = (CharacterClassType)characterClassInt;
             _session!.Character.JobLevel = 20;
             await _nrRunService.NRunLaunchAsync(_session, new Tuple<IAliveEntity, NrunPacket>(_session.Character, (new NrunPacket
             {
@@ -106,8 +108,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         [DataRow(CharacterClassType.Archer)]
         [DataRow(CharacterClassType.Mage)]
         [DataRow(CharacterClassType.Swordsman)]
-        public async Task UserCantChangeBadClassAsync(CharacterClassType characterClass)
+        public async Task UserCantChangeBadClassAsync(int characterClassInt)
         {
+            var characterClass = (CharacterClassType)characterClassInt;
             _session!.Character.Class = characterClass;
             await _nrRunService.NRunLaunchAsync(_session, new Tuple<IAliveEntity, NrunPacket>(_session.Character, (new NrunPacket
             {
@@ -124,8 +127,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         [DataTestMethod]
         [DataRow(CharacterClassType.MartialArtist)]
         [DataRow(CharacterClassType.Adventurer)]
-        public async Task UserCantChangeToBadClassAsync(CharacterClassType characterClass)
+        public async Task UserCantChangeToBadClassAsync(int characterClassInt)
         {
+            var characterClass = (CharacterClassType)characterClassInt;
             _session!.Character.Level = 15;
             _session.Character.JobLevel = 20;
             await _nrRunService.NRunLaunchAsync(_session, new Tuple<IAliveEntity, NrunPacket>(_session.Character, (new NrunPacket
@@ -145,8 +149,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         [DataRow(CharacterClassType.Archer)]
         [DataRow(CharacterClassType.Mage)]
         [DataRow(CharacterClassType.Swordsman)]
-        public async Task UserCanChangeClassAsync(CharacterClassType characterClass)
+        public async Task UserCanChangeClassAsync(int characterClassInt)
         {
+            var characterClass = (CharacterClassType)characterClassInt;
             _session!.Character.Level = 15;
             _session.Character.JobLevel = 20;
             await _nrRunService.NRunLaunchAsync(_session, new Tuple<IAliveEntity, NrunPacket>(_session.Character, (new NrunPacket
@@ -165,8 +170,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         [DataRow(CharacterClassType.Archer)]
         [DataRow(CharacterClassType.Mage)]
         [DataRow(CharacterClassType.Swordsman)]
-        public async Task UserCanNotChangeClassWhenEquipmentAsync(CharacterClassType characterClass)
+        public async Task UserCanNotChangeClassWhenEquipmentAsync(int characterClassInt)
         {
+            var characterClass = (CharacterClassType)characterClassInt;
             _session!.Character.Level = 15;
             _session.Character.JobLevel = 20;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));

@@ -92,8 +92,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [DataRow(EquipmentType.CostumeHat)]
         [DataRow(EquipmentType.WeaponSkin)]
         [DataRow(EquipmentType.WingSkin)]
-        public async Task Test_Wear_Put_Item_CorrectSlotAsync(EquipmentType type)
+        public async Task Test_Wear_Put_Item_CorrectSlotAsync(int typeInt)
         {
+            var type = (EquipmentType)typeInt;
             var items = new List<ItemDto>
             {
                 new Item
@@ -119,8 +120,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [DataRow(CharacterClassType.Mage)]
         [DataRow(CharacterClassType.MartialArtist)]
         [DataRow(CharacterClassType.Swordsman)]
-        public async Task Test_Wear_Put_Item_BadClassAsync(CharacterClassType classToTest)
+        public async Task Test_Wear_Put_Item_BadClassAsync(int characterClassInt)
         {
+            var classToTest = (CharacterClassType)characterClassInt;
             _session!.Character.Class = classToTest;
             var items = new List<ItemDto>
             {
@@ -158,8 +160,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [DataTestMethod]
         [DataRow(GenderType.Female)]
         [DataRow(GenderType.Male)]
-        public async Task Test_Wear_Put_Item_BadGenderAsync(GenderType genderToTest)
+        public async Task Test_Wear_Put_Item_BadGenderAsync(int genderToTestInt)
         {
+            var genderToTest = (GenderType)genderToTestInt;
             _session!.Character.Gender = genderToTest;
             var items = new List<ItemDto>
             {
