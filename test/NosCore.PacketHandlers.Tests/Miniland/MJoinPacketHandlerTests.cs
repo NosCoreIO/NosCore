@@ -108,11 +108,11 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             };
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>() { 
-                    new ConnectedAccount
+                    new ConnectedAccount(_targetSession.Account.AccountId)
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
                     },
-                    new ConnectedAccount
+                    new ConnectedAccount(_session!.Account.AccountId)
                         { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }
                 });
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
@@ -158,11 +158,11 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session!).ConfigureAwait(false);
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>() {
-                    new ConnectedAccount
+                    new ConnectedAccount(_targetSession.Account.AccountId)
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
                     },
-                    new ConnectedAccount
+                    new ConnectedAccount(_session!.Account.AccountId)
                         { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }
                 });
             Assert.IsTrue(_session.Character.MapInstance.Map.MapId == 20001);
@@ -178,11 +178,11 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             };
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>() {
-                    new ConnectedAccount
+                    new ConnectedAccount(_targetSession!.Account.AccountId)
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
                     },
-                    new ConnectedAccount
+                    new ConnectedAccount(_session!.Account.AccountId)
                         { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }
                 });
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
@@ -212,11 +212,11 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             };
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount>() {
-                    new ConnectedAccount
+                    new ConnectedAccount(_targetSession.Account.AccountId)
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
                     },
-                    new ConnectedAccount
+                    new ConnectedAccount(_session!.Account.AccountId)
                         { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }
                 });
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>

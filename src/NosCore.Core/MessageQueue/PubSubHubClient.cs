@@ -89,6 +89,11 @@ namespace NosCore.Core.MessageQueue
             return _hubConnection.InvokeAsync<List<ConnectedAccount>>(nameof(GetSubscribersAsync));
         }
 
+        public Task SubscribeAsync(ConnectedAccount connectedAccount)
+        {
+            return _hubConnection.InvokeAsync(nameof(SubscribeAsync), connectedAccount);
+        }
+
         public Task UnsubscribeAsync(long id)
         {
             return _hubConnection.InvokeAsync(nameof(UnsubscribeAsync), id);

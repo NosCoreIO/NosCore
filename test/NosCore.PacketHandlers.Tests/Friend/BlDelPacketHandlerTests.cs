@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _connectedAccountHttpClient = TestHelpers.Instance.PubSubHubClient;
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount> { 
-                    new ConnectedAccount
+                    new ConnectedAccount(_session.Account.AccountId)
                     { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }});
             _blackListHttpClient = TestHelpers.Instance.BlacklistHttpClient;
             _blDelPacketHandler = new BlDelPacketHandler(_blackListHttpClient.Object);

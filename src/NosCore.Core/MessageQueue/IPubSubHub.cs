@@ -37,6 +37,7 @@ namespace NosCore.Core.MessageQueue
 
         Task<List<ConnectedAccount>> GetSubscribersAsync();
 
+        Task SubscribeAsync(ConnectedAccount connectedAccount);
         Task UnsubscribeAsync(long id);
     }
 }

@@ -25,7 +25,7 @@ namespace NosCore.Core.MessageQueue
     public class MasterClientList
     {
         public readonly ConcurrentDictionary<string, ChannelInfo> Channels = new ConcurrentDictionary<string, ChannelInfo>();
-        public readonly ConcurrentDictionary<string, ConcurrentDictionary<string, ConnectedAccount>> ConnectedAccounts = new ConcurrentDictionary<string, ConcurrentDictionary<string, ConnectedAccount>>();
+        public readonly ConcurrentDictionary<string, ConcurrentDictionary<long, ConnectedAccount>> ConnectedAccounts = new ConcurrentDictionary<string, ConcurrentDictionary<long, ConnectedAccount>>();
 
         public int ConnectionCounter { get; set; }
         public ConcurrentDictionary<string, long> ReadyForAuth { get; } = new ConcurrentDictionary<string, long>();

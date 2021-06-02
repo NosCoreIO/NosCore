@@ -158,7 +158,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
             _connectedAccountHttpClient!.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(
                 new List<ConnectedAccount>
-                    {new ConnectedAccount {Name = _session!.Account.Name}});
+                    {new ConnectedAccount(_session!.Account.AccountId) {Name = _session!.Account.Name}});
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,

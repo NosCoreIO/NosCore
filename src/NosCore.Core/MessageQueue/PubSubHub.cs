@@ -121,9 +121,16 @@ namespace NosCore.Core.MessageQueue
             return Task.FromResult(_masterClientList.ConnectedAccounts.SelectMany(x => x.Value.Values).ToList());
         }
 
+        public Task SubscribeAsync(ConnectedAccount connectedAccount)
+        {
+            _masterClientList.ConnectedAccounts[Context.ConnectionId].AddOrUpdate(connectedAccount.Id, connectedAccount, (_,_) => connectedAccount);
+            return Task.FromResult(_masterClientList.ConnectedAccounts.SelectMany(x => x.Value.Values).ToList());
+        }
+
         public Task UnsubscribeAsync(long id)
         {
-            throw new NotImplementedException();
+            _masterClientList.ConnectedAccounts[Context.ConnectionId].TryRemove(id, out _);
+            return Task.CompletedTask;
         }
     }
 }

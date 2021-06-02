@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _connectedAccountHttpClient = TestHelpers.Instance.PubSubHubClient;
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount> {
-                    new ConnectedAccount
+                    new ConnectedAccount(_session.Account.AccountId)
                         { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }});
             _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
             _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,

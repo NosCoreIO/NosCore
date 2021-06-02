@@ -72,9 +72,9 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _friendRequestHolder = new FriendRequestHolder();
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount> {
-                    new ConnectedAccount
+                    new ConnectedAccount(_session.Account.AccountId)
                         { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } },
-                    new ConnectedAccount
+                    new ConnectedAccount(_targetSession.Account.AccountId)
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
                     },

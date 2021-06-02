@@ -81,7 +81,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             _connectedAccountHttpClient.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(
                 new List<ConnectedAccount>
                 {
-                    new ConnectedAccount
+                    new ConnectedAccount(_session.Account.AccountId)
                     {
                         ChannelId = 1,
                         Name = _accountName

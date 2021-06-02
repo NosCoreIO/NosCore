@@ -53,6 +53,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
+using NosCore.Data.WebApi;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
@@ -74,9 +76,10 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
         private Character? _character;
         private int? _waitForPacketsAmount;
+        private IPubSubHub _pubSubHub;
 
         public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, IPubSubHub pubSubHub)
             : base(logger)
         {
             _logger = logger;
@@ -84,6 +87,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             _friendHttpClient = friendHttpClient;
             _packetSerializer = packetSerializer;
             _packetHttpClient = packetHttpClient;
+            _pubSubHub = pubSubHub;
             foreach (var handler in _packetsHandlers)
             {
                 var type = handler.GetType().BaseType?.GenericTypeArguments[0]!;
@@ -96,7 +100,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, IPubSubHub pubSubHub) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, pubSubHub)
         {
         }
 
@@ -104,7 +108,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             IExchangeService? exchangeService, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
-            IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
+            IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, IPubSubHub pubSubHub) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, pubSubHub)
         {
             _mapInstanceAccessorService = mapInstanceAccessorService;
             _exchangeProvider = exchangeService!;
@@ -150,19 +154,30 @@ namespace NosCore.GameObject.Networking.ClientSession
             Broadcaster.Instance.RegisterSession(this);
         }
 
-        public Task SetCharacterAsync(Character? character)
+        public async Task SetCharacterAsync(Character? character)
         {
             _character = character;
             HasSelectedCharacter = character != null;
+
+            await _pubSubHub.SubscribeAsync(new ConnectedAccount(Account.AccountId)
+            {
+                Name = Account.Name,
+                Language = Account.Language,
+                ConnectedCharacter = character == null ? null : new Data.WebApi.Character
+                {
+                    Name = character.Name, Id = character.CharacterId,
+                    FriendRequestBlocked = character.FriendRequestBlocked
+                }
+            });
+
             if (character == null)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             Character.Session = this;
 
-            //todo update character on pubsub
-            return _minilandProvider.InitializeAsync(character, _mapInstanceGeneratorService);
+            await _minilandProvider.InitializeAsync(character, _mapInstanceGeneratorService);
         }
 
 #pragma warning disable VSTHRD100 // Avoid async void methods
@@ -237,6 +252,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             finally
             {
                 Broadcaster.Instance.UnregisterSession(this);
+                await _pubSubHub.UnsubscribeAsync(Account.AccountId);
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED));
             }
         }

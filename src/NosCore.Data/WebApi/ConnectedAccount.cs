@@ -23,6 +23,12 @@ namespace NosCore.Data.WebApi
 {
     public class ConnectedAccount
     {
+        public ConnectedAccount(long id)
+        {
+            Id = id;
+        }
+
+        public long Id { get; set; }
         public string? Name { get; set; }
         public RegionType Language { get; set; }
         public int ChannelId { get; set; }

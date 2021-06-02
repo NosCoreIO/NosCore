@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             TestHelpers.Instance.PubSubHubClient
                 .Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount> {
-                    new ConnectedAccount
+                    new ConnectedAccount(_session.Account.AccountId)
                         { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } },
                 });
 
@@ -82,9 +82,9 @@ namespace NosCore.PacketHandlers.Tests.Friend
             TestHelpers.Instance.PubSubHubClient
                 .Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<ConnectedAccount> {
-                    new ConnectedAccount
+                    new ConnectedAccount(_session!.Account.AccountId)
                         { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } },
-                    new ConnectedAccount
+                    new ConnectedAccount(targetSession.Account.AccountId)
                         { ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId } },
                 });
             var blacklist = new BlacklistService(TestHelpers.Instance.PubSubHubClient.Object,
