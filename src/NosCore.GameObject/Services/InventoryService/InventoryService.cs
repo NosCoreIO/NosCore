@@ -486,6 +486,41 @@ namespace NosCore.GameObject.Services.InventoryService
             return null;
         }
 
+        public List<InventoryItemInstance>? RemoveItemAmountFromInventory(short amount, short vnum)
+        {
+            var result = new List<InventoryItemInstance>();
+            var amountRemaining = amount;
+            foreach (var item in this.Where(w => w.Value.ItemInstance!.ItemVNum == vnum).ToList())
+            {
+                if (amountRemaining == 0)
+                {
+                    break;
+                }
+                var inv = this[item.Key];
+                if (inv?.ItemInstance != null)
+                {
+                    if (item.Value.ItemInstance!.Amount > amountRemaining)
+                    {
+                        inv.ItemInstance.Amount -= amountRemaining;
+                        result.Add(inv);
+                    }
+                    else if(TryRemove(inv.ItemInstanceId, out var removed))
+                    {
+                        amountRemaining -= item.Value.ItemInstance!.Amount;
+                        removed!.ItemInstance!.Amount = 0;
+                        result.Add(removed);
+                    }
+                } else
+                {
+                    var e = new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!");
+                    _logger.Error(e.Message, e);
+                    result = null;
+                    break;
+                }
+            }
+            return result;
+        }
+
         private short? GetFreeSlot(NoscorePocketType type)
         {
             var itemInstanceSlotsByType = this.Select(s => s.Value).Where(i => i.Type == type).OrderBy(i => i.Slot)

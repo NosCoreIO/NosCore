@@ -53,5 +53,6 @@ namespace NosCore.GameObject.Services.InventoryService
 
         bool EnoughPlace(List<IItemInstance> itemInstances, NoscorePocketType type);
         InventoryItemInstance? RemoveItemAmountFromInventory(short amount, Guid id);
+        List<InventoryItemInstance>? RemoveItemAmountFromInventory(short amount, short vnum);
     }
 }
