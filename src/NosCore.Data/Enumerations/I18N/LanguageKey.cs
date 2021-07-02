@@ -167,8 +167,7 @@ namespace NosCore.Data.Enumerations.I18N
         ALREADY_CONNECTED,
         PACKET_HANDLING_ERROR,
         MFA_INCORRECT,
-        UPGRADE_PACKET_SLOT2_NULL,
-        UPGRADE_PACKET_NULL_OBJECT
+        UPGRADE_PACKET_SLOT2_NULL
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
