@@ -26,13 +26,17 @@ namespace NosCore.Data.Enumerations.Character
         FamilyRequestBlocked = 3,
         WhisperBlocked = 4,
         GroupRequestBlocked = 5,
+        PetAutoRelive = 6,
+        PartnerAutoRelive = 7,
         GroupSharing = 8,
         MouseAimLock = 9,
         HeroChatBlocked = 10,
-        EmoticonsBlocked = 12,
         QuickGetUp = 11,
+        EmoticonsBlocked = 12,
         HpBlocked = 13,
         BuffBlocked = 14,
-        MinilandInviteBlocked = 15
+        MinilandInviteBlocked = 15,
+        HatInVisible = 16,
+        LockInterface = 17
     }
 }
