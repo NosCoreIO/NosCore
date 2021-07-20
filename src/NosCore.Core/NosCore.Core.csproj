@@ -31,7 +31,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
-    <PackageReference Include="NosCore.Dao" Version="1.7.2" />
+    <PackageReference Include="NosCore.Dao" Version="1.7.4" />
     <PackageReference Include="NosCore.PathFinder" Version="0.0.13" />
     <PackageReference Include="NosCore.Shared" Version="1.14.4" />
     <PackageReference Include="Polly" Version="7.2.2" />
