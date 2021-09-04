@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NosCore.Algorithm" Version="0.6.2" />
+    <PackageReference Include="NosCore.Algorithm" Version="0.6.3" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>
 
