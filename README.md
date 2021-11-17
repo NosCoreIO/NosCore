@@ -37,18 +37,17 @@ This Website and Project is in no way affiliated with, authorized, maintained, s
 ## Disclaimer ##
 This project is a community project not for commercial use. The emulator itself is proof of concept of our idea to try out anything what's not possible on original servers. The result is to learn and program together for prove the study. 
 
-### Contribution is only possible with Visual Studio 2019 ###
+### Contribution is only possible with Visual Studio 2022 ###
 We recommend usage of : 
 * [Roslynator extension](https://github.com/JosefPihrt/Roslynator).
 * [Resharper](https://www.jetbrains.com/resharper/)
-* [Fortea Resharper extension for T4 Development](https://plugins.jetbrains.com/plugin/11634-fortea)
-* [SwitchStartupProject extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-141975.SwitchStartupProjectForVS2019)
+* [SwitchStartupProject extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-141975.SwitchStartupProjectForVS2022)
 
 
 # Building the code #
 
-## 1. Install .Net 5 ##
-- https://dotnet.microsoft.com/download/dotnet/5.0
+## 1. Install .Net 6 ##
+- https://dotnet.microsoft.com/download/dotnet/6.0
 - Visual Studio > Tools > Options > Preview Features > Use previews of the .NET CORE SDK
 - Restart
 

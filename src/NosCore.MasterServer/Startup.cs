@@ -103,9 +103,9 @@ namespace NosCore.MasterServer
                         string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
                     var typepk = type.GetProperties()
                         .Where(s => new NosCoreContext(new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
-                            Guid.NewGuid().ToString()).Options).Model.FindEntityType(type)
-                            .FindPrimaryKey().Properties.Select(x => x.Name)
-                            .Contains(s.Name)
+                            Guid.NewGuid().ToString()).Options).Model.FindEntityType(type)?
+                            .FindPrimaryKey()?.Properties.Select(x => x.Name)
+                            .Contains(s.Name) ?? false
                         ).ToArray()[0];
                     registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType)
                         .Invoke(null, new object?[] { containerBuilder });
