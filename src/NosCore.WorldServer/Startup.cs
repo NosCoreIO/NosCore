@@ -194,9 +194,9 @@ namespace NosCore.WorldServer
                     var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                         Guid.NewGuid().ToString());
                     var typepk = type.GetProperties()
-                        .Where(s => new NosCoreContext(optionsBuilder.Options).Model.FindEntityType(type)
-                            .FindPrimaryKey().Properties.Select(x => x.Name)
-                            .Contains(s.Name)
+                        .Where(s => new NosCoreContext(optionsBuilder.Options).Model.FindEntityType(type)?
+                            .FindPrimaryKey()?.Properties.Select(x => x.Name)
+                            .Contains(s.Name) ?? false
                         ).ToArray()[0];
                     registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType).Invoke(null,
                         new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });

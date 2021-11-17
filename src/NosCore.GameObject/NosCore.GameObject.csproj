@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NosCore.Algorithm" Version="0.6.3" />
+    <PackageReference Include="NosCore.Algorithm" Version="1.0.0" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>
 

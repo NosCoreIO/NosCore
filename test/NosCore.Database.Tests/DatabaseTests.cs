@@ -55,8 +55,8 @@ namespace NosCore.Database.Tests
             {
                 foreach (var navigation in entityType.GetNavigations())
                 {
-                    var foreignKey = navigation.ForeignKey.Properties[0].PropertyInfo.PropertyType;
-                    if (navigation.IsCollection || foreignKey == null || !foreignKey.IsGenericType ||
+                    var foreignKey = navigation.ForeignKey.Properties[0].PropertyInfo?.PropertyType;
+                    if (navigation.IsCollection || navigation.PropertyInfo == null || foreignKey == null || !foreignKey.IsGenericType ||
                         foreignKey.GetGenericTypeDefinition() != typeof(Nullable<>))
                     {
                         continue;
