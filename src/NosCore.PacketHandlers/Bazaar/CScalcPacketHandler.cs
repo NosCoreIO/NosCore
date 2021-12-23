@@ -112,7 +112,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         await clientSession.SendPacketAsync(new MsgiPacket
                         {
                             Message = Game18NConstString.MaxGoldReached,
-                            Type = MessageType.Whisper
+                            Type = MessageType.Default
                         }).ConfigureAwait(false);
                     }
                 }

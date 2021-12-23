@@ -68,7 +68,7 @@ namespace NosCore.PacketHandlers.Shops
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID,
                         clientSession.Account.Language),
-                    Type = MessageType.White
+                    Type = MessageType.Center
                 }).ConfigureAwait(false);
                 return;
             }
@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Shops
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {
                     Message = Game18NConstString.UseCommercialMapToShop,
-                    Type = MessageType.White
+                    Type = MessageType.Center
                 }).ConfigureAwait(false);
                 return;
             }

@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Chat
         public override Task ExecuteAsync(ClientSayPacket clientSayPacket, ClientSession session)
         {
             //TODO: Add a penalty check when it will be ready
-            const SayColorType type = SayColorType.White;
+            const SayColorType type = SayColorType.Default;
             return session.Character.MapInstance.SendPacketAsync(session.Character.GenerateSay(new SayPacket
             {
                 Message = clientSayPacket.Message,

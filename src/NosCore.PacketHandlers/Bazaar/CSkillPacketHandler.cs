@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR,
                         clientSession.Account.Language),
-                    Type = MessageType.Whisper
+                    Type = MessageType.Default
                 }).ConfigureAwait(false);
                 await clientSession.SendPacketAsync(new WopenPacket
                 {

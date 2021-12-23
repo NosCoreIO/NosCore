@@ -117,7 +117,7 @@ namespace NosCore.PacketHandlers.Group
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
                             targetsession.AccountLanguage),
-                        Type = MessageType.White
+                        Type = MessageType.Center
                     }).ConfigureAwait(false);
 
                     await targetsession.LeaveGroupAsync().ConfigureAwait(false);

@@ -30,9 +30,9 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
-    public class FlPacketHandler : PacketHandler<FlPacket>, IWorldPacketHandler
+    public class FlCommandPacketHandler : PacketHandler<FlCommandPacket>, IWorldPacketHandler
     {
-        public override async Task ExecuteAsync(FlPacket flPacket, ClientSession session)
+        public override async Task ExecuteAsync(FlCommandPacket flPacket, ClientSession session)
         {
             var target =
                 Broadcaster.Instance.GetCharacter(s => s.Name == flPacket.CharacterName);

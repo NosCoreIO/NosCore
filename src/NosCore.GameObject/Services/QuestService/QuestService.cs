@@ -204,7 +204,7 @@ namespace NosCore.GameObject.Services.QuestService
 
                 await character.SendPacketAsync(new MsgPacket()
                 {
-                    Type = MessageType.Whisper,
+                    Type = MessageType.Default,
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.QUEST_FINISHED, character.AccountLanguage)
                 }).ConfigureAwait(false);
                 await character.SendPacketAsync(characterQuest.Value.GenerateQstiPacket(false)).ConfigureAwait(false);
@@ -231,7 +231,7 @@ namespace NosCore.GameObject.Services.QuestService
             {
                 await character.SendPacketAsync(new MsgiPacket
                 {
-                    Type = MessageType.Whisper,
+                    Type = MessageType.Default,
                     Message = Game18NConstString.LevelTooLow
                 }).ConfigureAwait(false);
                 return false;
@@ -241,7 +241,7 @@ namespace NosCore.GameObject.Services.QuestService
             {
                 await character.SendPacketAsync(new MsgiPacket
                 {
-                    Type = MessageType.Whisper,
+                    Type = MessageType.Default,
                     Message = Game18NConstString.LevelTooHigh
                 }).ConfigureAwait(false);
                 return false;
@@ -251,7 +251,7 @@ namespace NosCore.GameObject.Services.QuestService
             {
                 await character.SendPacketAsync(new MsgPacket
                 {
-                    Type = MessageType.Whisper,
+                    Type = MessageType.Default,
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.QUEST_ALREADY_DONE, character.AccountLanguage)
                 }).ConfigureAwait(false);
                 return false;

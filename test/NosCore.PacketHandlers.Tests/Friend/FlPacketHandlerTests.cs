@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
-        private FlPacketHandler? _flPacketHandler;
+        private FlCommandPacketHandler? _flPacketHandler;
         private ClientSession? _session;
 
         [TestInitialize]
@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _flPacketHandler = new FlPacketHandler();
+            _flPacketHandler = new FlCommandPacketHandler();
         }
 
         [TestMethod]

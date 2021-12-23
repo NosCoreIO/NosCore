@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Exchange
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE,
                                 clientSession.Account.Language),
-                            Type = MessageType.White
+                            Type = MessageType.Center
                         }).ConfigureAwait(false);
                         return;
                     }
@@ -92,7 +92,7 @@ namespace NosCore.PacketHandlers.Exchange
                         await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
                             GameLanguage.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED,
                                 clientSession.Account.Language),
-                            SayColorType.Purple)).ConfigureAwait(false);
+                            SayColorType.Red)).ConfigureAwait(false);
                         return;
                     }
 
@@ -114,7 +114,7 @@ namespace NosCore.PacketHandlers.Exchange
                             Message =
                                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED,
                                     clientSession.Account.Language),
-                            Type = MessageType.White
+                            Type = MessageType.Center
                         }).ConfigureAwait(false);
                         return;
                     }

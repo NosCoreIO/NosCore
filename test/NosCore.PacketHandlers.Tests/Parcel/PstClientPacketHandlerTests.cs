@@ -156,7 +156,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         //    //    clientSession.Character.GenerateSay(
         //    //        Language.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED,
         //    //            clientSession.Account.Language),
-        //    //        SayColorType.Purple));
+        //    //        SayColorType.Red));
         //}
     }
 }

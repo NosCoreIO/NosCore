@@ -72,7 +72,7 @@ namespace NosCore.PacketHandlers.Parcel
                         clientSession.Character.GenerateSay(
                             GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED,
                                 clientSession.Account.Language),
-                            SayColorType.Purple)).ConfigureAwait(false);
+                            SayColorType.Red)).ConfigureAwait(false);
                     break;
                 case 1:
                     if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))

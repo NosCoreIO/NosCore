@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Command
         public override async Task ExecuteAsync(HelpPacket helpPacket, ClientSession session)
         {
             await session.SendPacketAsync(session.Character.GenerateSay("-------------Help command-------------",
-                SayColorType.Purple)).ConfigureAwait(false);
+                SayColorType.Red)).ConfigureAwait(false);
             var classes = helpPacket.GetType().Assembly.GetTypes().Where(t =>
                     typeof(ICommandPacket).IsAssignableFrom(t)
                     && (t.GetCustomAttribute<CommandPacketHeaderAttribute>()?.Authority <= session.Account.Authority))
