@@ -77,9 +77,11 @@ using NosCore.WorldServer.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using NosCore.Data;
 using Character = NosCore.GameObject.Character;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using Deserializer = NosCore.Packets.Deserializer;
@@ -99,12 +101,7 @@ namespace NosCore.WorldServer
         {
             _configuration = configuration;
         }
-
-        public static void RegisterMapper<TGameObject, TDto>(IContainer container) where TGameObject : notnull
-        {
-            TypeAdapterConfig<TDto, TGameObject>.NewConfig().ConstructUsing(src => container.Resolve<TGameObject>());
-        }
-
+        
         public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
         where TDb : class
         where TPk : struct
@@ -151,23 +148,7 @@ namespace NosCore.WorldServer
                 .SingleInstance()
                 .AutoActivate();
         }
-
-        private static void RegisterGo(IContainer container)
-        {
-            var registerMapper = typeof(Startup).GetMethod(nameof(RegisterMapper));
-            var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
-            var assemblyGo = typeof(Character).Assembly.GetTypes();
-
-            assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && p.IsClass)
-                .ToList()
-                .ForEach(t =>
-                {
-                    assemblyGo.Where(t.IsAssignableFrom).ToList().ForEach(tgo =>
-                    {
-                        registerMapper?.MakeGenericMethod(tgo, t).Invoke(null, new object?[] { container });
-                    });
-                });
-        }
+        
 
         private static void RegisterDto(ContainerBuilder containerBuilder)
         {
@@ -182,6 +163,22 @@ namespace NosCore.WorldServer
             var registerDatabaseObject = typeof(Startup).GetMethod(nameof(RegisterDatabaseObject));
             var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
             var assemblyDb = typeof(Account).Assembly.GetTypes();
+
+            var assemblyGo = typeof(Character).Assembly.GetTypes();
+
+            assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && p.IsClass)
+                .ToList()
+                .ForEach(t =>
+                {
+                    assemblyGo.Where(t.IsAssignableFrom).ToList().ForEach(tgo =>
+                    {
+                        containerBuilder.RegisterType(tgo);
+                        containerBuilder
+                            .RegisterType(typeof(GameObjectMapper<,>).MakeGenericType(t, tgo))
+                            .As(typeof(IGameObjectMapper<>).MakeGenericType(t))
+                            .AutoActivate();
+                    });
+                });
 
             assemblyDto.Where(p =>
                     typeof(IDto).IsAssignableFrom(p) &&
@@ -348,8 +345,6 @@ namespace NosCore.WorldServer
             InitializeContainer(containerBuilder);
             containerBuilder.Populate(services);
             var container = containerBuilder.Build();
-            RegisterGo(container);
-
             return new AutofacServiceProvider(container);
         }
 

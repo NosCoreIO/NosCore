@@ -69,7 +69,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
                         requestData.ClientSession.Account.Language),
-                    Type = MessageType.White
+                    Type = MessageType.Default
                 }).ConfigureAwait(false);
             }
         }

@@ -314,7 +314,7 @@ namespace NosCore.PacketHandlers.Group
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ACCEPTED_SHARE,
                             clientSession.Account.Language),
-                        Type = MessageType.White
+                        Type = MessageType.Center
                     }).ConfigureAwait(false);
 
                     //TODO: add a way to change respawn points when system will be done

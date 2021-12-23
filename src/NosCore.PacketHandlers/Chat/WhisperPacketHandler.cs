@@ -135,7 +135,7 @@ namespace NosCore.PacketHandlers.Chat
 
                 await session.SendPacketAsync(session.Character.GenerateSay(
                     GameLanguage.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
-                        session.Account.Language), SayColorType.Purple)).ConfigureAwait(false);
+                        session.Account.Language), SayColorType.Red)).ConfigureAwait(false);
             }
             catch (Exception e)
             {

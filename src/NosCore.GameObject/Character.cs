@@ -292,7 +292,7 @@ namespace NosCore.GameObject
             await GenerateLevelupPacketsAsync().ConfigureAwait(false);
             await SendPacketAsync(new MsgPacket
             {
-                Type = MessageType.White,
+                Type = MessageType.Center,
                 Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.HERO_LEVEL_CHANGED, Session.Account.Language)
             }).ConfigureAwait(false);
         }
@@ -315,7 +315,7 @@ namespace NosCore.GameObject
             })).ConfigureAwait(false);
             await SendPacketAsync(new MsgPacket
             {
-                Type = MessageType.White,
+                Type = MessageType.Center,
                 Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.JOB_LEVEL_CHANGED, Session.Account.Language)
             }).ConfigureAwait(false);
         }
@@ -358,7 +358,7 @@ namespace NosCore.GameObject
                     {
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
                             groupMember.AccountLanguage),
-                        Type = MessageType.White
+                        Type = MessageType.Center
                     }).ConfigureAwait(false);
                 }
 
@@ -439,7 +439,7 @@ namespace NosCore.GameObject
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
                         AccountLanguage),
-                    Type = MessageType.White
+                    Type = MessageType.Center
                 }).ConfigureAwait(false);
                 return;
             }
@@ -496,7 +496,7 @@ namespace NosCore.GameObject
             await SendPacketAsync(new MsgPacket
             {
                 Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CLASS_CHANGED, Session.Account.Language),
-                Type = MessageType.White
+                Type = MessageType.Center
             }).ConfigureAwait(false);
 
             QuicklistEntries = new List<QuicklistEntryDto>
@@ -547,7 +547,7 @@ namespace NosCore.GameObject
             await SendPacketAsync(this.GenerateGold()).ConfigureAwait(false);
             await SendPacketAsync(this.GenerateSay(
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.UPDATE_GOLD, Session.Account.Language),
-                SayColorType.Purple)).ConfigureAwait(false);
+                SayColorType.Red)).ConfigureAwait(false);
         }
 
         public async Task SetReputationAsync(long reput)
@@ -556,7 +556,7 @@ namespace NosCore.GameObject
             await SendPacketAsync(this.GenerateFd()).ConfigureAwait(false);
             await SendPacketAsync(this.GenerateSay(
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language),
-                SayColorType.Purple)).ConfigureAwait(false);
+                SayColorType.Red)).ConfigureAwait(false);
         }
         public async Task GenerateMailAsync(IEnumerable<MailData> mails)
         {
@@ -712,7 +712,7 @@ namespace NosCore.GameObject
                     await SendPacketAsync(this.GenerateFd()).ConfigureAwait(false);
                     await SendPacketAsync(this.GenerateSay(
                         GameLanguage.Instance.GetMessageFromKey(LanguageKey.REPUT_DECREASED, Session.Account.Language),
-                        SayColorType.Purple)).ConfigureAwait(false);
+                        SayColorType.Red)).ConfigureAwait(false);
                 }
             }
             else
@@ -813,7 +813,7 @@ namespace NosCore.GameObject
             await GenerateLevelupPacketsAsync().ConfigureAwait(false);
             await SendPacketAsync(new MsgPacket
             {
-                Type = MessageType.White,
+                Type = MessageType.Center,
                 Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.LEVEL_CHANGED, Session.Account.Language)
             }).ConfigureAwait(false);
         }
@@ -1048,7 +1048,7 @@ namespace NosCore.GameObject
             SpCooldown = 30;
             await SendPacketAsync(this.GenerateSay(
                 string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.STAY_TIME, Session.Account.Language), SpCooldown),
-                SayColorType.Purple)).ConfigureAwait(false);
+                SayColorType.Red)).ConfigureAwait(false);
             await SendPacketAsync(new SdPacket { Cooldown = SpCooldown }).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(new GuriPacket
@@ -1064,7 +1064,7 @@ namespace NosCore.GameObject
                 await SendPacketAsync(this.GenerateSay(
                     string.Format(
                         GameLanguage.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_DISAPPEAR, Session.Account.Language),
-                        SpCooldown), SayColorType.Purple)).ConfigureAwait(false);
+                        SpCooldown), SayColorType.Red)).ConfigureAwait(false);
                 await SendPacketAsync(new SdPacket { Cooldown = 0 }).ConfigureAwait(false);
             }
 

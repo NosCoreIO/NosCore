@@ -10,7 +10,7 @@ using NosCore.Packets.Enumerations;
 namespace NosCore.Data.CommandPackets
 {
     [PacketHeader("$fl", Scope.InTrade | Scope.InGame)]
-    public class FlPacket : CommandPacket
+    public class FlCommandPacket : CommandPacket
     {
         [PacketIndex(0)]
         public string? CharacterName { get; set; }

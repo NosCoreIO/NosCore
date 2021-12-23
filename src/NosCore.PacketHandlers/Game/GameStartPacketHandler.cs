@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Game
                 await session.SendPacketAsync(session.Character.GenerateSay("-------------------[NosCore]---------------",
                     SayColorType.Yellow)).ConfigureAwait(false);
                 await session.SendPacketAsync(session.Character.GenerateSay("Github : https://github.com/NosCoreIO/NosCore/",
-                    SayColorType.Purple)).ConfigureAwait(false);
+                    SayColorType.Red)).ConfigureAwait(false);
                 await session.SendPacketAsync(session.Character.GenerateSay("-----------------------------------------------",
                     SayColorType.Yellow)).ConfigureAwait(false);
             }
@@ -221,7 +221,7 @@ namespace NosCore.PacketHandlers.Game
             int mailcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId == null && !mail.IsOpened);
             if (giftcount > 0)
             {
-                await session.SendPacketAsync(session.Character.GenerateSay(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.GIFTED, session.Account.Language), giftcount), SayColorType.Purple)).ConfigureAwait(false);
+                await session.SendPacketAsync(session.Character.GenerateSay(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.GIFTED, session.Account.Language), giftcount), SayColorType.Red)).ConfigureAwait(false);
             }
             if (mailcount > 0)
             {

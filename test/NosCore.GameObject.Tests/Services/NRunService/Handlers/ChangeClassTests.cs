@@ -81,7 +81,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
             })));
 
             var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Message == Game18NConstString.CanNotChangeJobAtThisLevel && packet.Type == MessageType.White);
+            Assert.IsTrue(packet?.Message == Game18NConstString.CanNotChangeJobAtThisLevel && packet.Type == MessageType.Center);
         }
 
         [DataTestMethod]
@@ -101,7 +101,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
             })));
          
             var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Message == Game18NConstString.CanNotChangeJobAtThisLevel && packet.Type == MessageType.White);
+            Assert.IsTrue(packet?.Message == Game18NConstString.CanNotChangeJobAtThisLevel && packet.Type == MessageType.Center);
         }
 
         [DataTestMethod]
@@ -121,7 +121,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
             })));
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
-                _session.Account.Language)) && (packet.Type == MessageType.White));
+                _session.Account.Language)) && (packet.Type == MessageType.Center));
         }
 
         [DataTestMethod]
@@ -188,7 +188,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
 
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
-                _session.Account.Language)) && (packet.Type == MessageType.White));
+                _session.Account.Language)) && (packet.Type == MessageType.Center));
         }
     }
 }
