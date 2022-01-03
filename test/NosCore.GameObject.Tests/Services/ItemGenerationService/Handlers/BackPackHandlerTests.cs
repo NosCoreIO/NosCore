@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            Handler = new BackPackHandler(Options.Create(new WorldConfiguration { MaxAdditionalSpPoints = 1 }));
+            Handler = new BackPackHandler(Options.Create(new WorldConfiguration { MaxAdditionalSpPoints = 1 }), TestHelpers.Instance.Clock);
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, ItemType = ItemType.Special, Effect = ItemEffectType.InventoryTicketUpgrade, EffectValue = 0},

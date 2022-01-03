@@ -32,6 +32,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.BazaarService;
+using NosCore.Tests.Shared;
 using BazaarController = NosCore.MasterServer.Controllers.BazaarController;
 
 namespace NosCore.WebApi.Tests.ApiTests
@@ -58,7 +59,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             var mockCharacterDao = new Mock<IDao<CharacterDto, long>>();
             _bazaarItemsHolder =
                 new BazaarItemsHolder(_mockBzDao.Object, _mockItemDao.Object, mockCharacterDao.Object);
-            _bazaarController = new BazaarController(new BazaarService(_bazaarItemsHolder, _mockBzDao.Object, _mockItemDao.Object));
+            _bazaarController = new BazaarController(new BazaarService(_bazaarItemsHolder, _mockBzDao.Object, _mockItemDao.Object, TestHelpers.Instance.Clock));
             _mockItemDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .Returns<IItemInstanceDto?>(Task.FromResult);
             _mockBzDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<BazaarItemDto>()))

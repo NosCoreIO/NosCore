@@ -65,6 +65,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using NodaTime;
 using NosCore.Core.Networking;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
@@ -86,7 +87,7 @@ namespace NosCore.LoginServer
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
             var loginConfiguration = new LoginConfiguration();
             ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" }).Bind(loginConfiguration);
-            optionsBuilder.UseNpgsql(loginConfiguration.Database!.ConnectionString);
+            optionsBuilder.UseNpgsql(loginConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); });
         }
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
@@ -104,6 +105,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces();
+            containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
 
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
@@ -185,7 +187,7 @@ namespace NosCore.LoginServer
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);
                     services.AddDbContext<NosCoreContext>(
-                        conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString));
+                        conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
                     services.AddHostedService<LoginServer>();
                     TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();

@@ -20,6 +20,7 @@
 using NosCore.Data.Enumerations.Audit;
 using System;
 using System.ComponentModel.DataAnnotations;
+using NodaTime;
 
 namespace NosCore.Database.Entities
 {
@@ -36,7 +37,7 @@ namespace NosCore.Database.Entities
         [MaxLength(32)]
         public string TargetType { get; set; } = "";
 
-        public DateTime Time { get; set; }
+        public Instant Time { get; set; }
 
         public AuditLogType AuditLogType { get; set; }
 

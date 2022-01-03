@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             {
                 new Item {Type = NoscorePocketType.Main, VNum = 1012, IsSoldable = true}
             };
-            _cblistPacketHandler = new CBListPacketHandler(_bazaarHttpClient.Object, items);
+            _cblistPacketHandler = new CBListPacketHandler(_bazaarHttpClient.Object, items, TestHelpers.Instance.Clock);
         }
 
         [TestMethod]
@@ -100,7 +100,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 {
                     SellerName = "test",
                     BazaarItem = new BazaarItemDto
-                        {Price = 50, Amount = 1, DateStart = SystemTime.Now(), Duration = 200},
+                        {Price = 50, Amount = 1, DateStart = TestHelpers.Instance.Clock.GetCurrentInstant(), Duration = 200},
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 }
             });

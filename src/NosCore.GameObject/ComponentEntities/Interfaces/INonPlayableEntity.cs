@@ -19,6 +19,7 @@
 
 using NosCore.Data.StaticEntities;
 using System;
+using NodaTime;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
@@ -34,6 +35,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         NpcMonsterDto NpcMonster { get; }
 
-        DateTime LastMove { get; set; }
+        Instant LastMove { get; set; }
     }
 }

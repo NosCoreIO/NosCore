@@ -41,7 +41,6 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ExchangeService;
@@ -70,6 +69,8 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using NodaTime;
+using NosCore.Core.Networking.ChannelMatcher;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -106,7 +107,7 @@ namespace NosCore.GameObject
             IDao<QuicklistEntryDto, Guid> quicklistEntriesDao, IDao<MinilandDto, Guid> minilandDao,
             IMinilandService minilandProvider, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
             IHpService hpService, IMpService mpService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpeedService speedService,
-            IReputationService reputationService, IDignityService dignityService, IOptions<WorldConfiguration> worldConfiguration)
+            IReputationService reputationService, IDignityService dignityService, IOptions<WorldConfiguration> worldConfiguration, IClock clock)
         {
             InventoryService = inventory;
             ExchangeProvider = exchangeService;
@@ -134,27 +135,30 @@ namespace NosCore.GameObject
             _reputationService = reputationService;
             _dignityService = dignityService;
             _worldConfiguration = worldConfiguration;
+            LastSp = clock.GetCurrentInstant();
+            _clock = clock;
         }
 
         private byte _speed;
+        private readonly IClock _clock;
 
         public ScriptDto? Script { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
 
-        public DateTime LastPortal { get; set; }
+        public Instant LastPortal { get; set; }
 
         public ClientSession Session { get; set; } = null!;
 
-        public DateTime LastSpeedChange { get; set; }
+        public Instant LastSpeedChange { get; set; }
 
-        public DateTime LastMove { get; set; }
+        public Instant LastMove { get; set; }
 
         public IItemGenerationService ItemProvider { get; set; }
 
         public bool UseSp { get; set; }
 
-        public DateTime LastSp { get; set; } = SystemTime.Now();
+        public Instant LastSp { get; set; }
 
         public short SpCooldown { get; set; }
 
@@ -197,7 +201,7 @@ namespace NosCore.GameObject
 
         public Group? Group { get; set; }
 
-        public DateTime? LastGroupRequest { get; set; } = null;
+        public Instant? LastGroupRequest { get; set; } = null;
 
         public ReputationType ReputIcon => _reputationService.GetLevelFromReputation(Reput);
 
@@ -246,7 +250,7 @@ namespace NosCore.GameObject
 
             set
             {
-                LastSpeedChange = SystemTime.Now();
+                LastSpeedChange = _clock.GetCurrentInstant();
                 _speed = value > 59 ? (byte)59 : value;
             }
         }
@@ -1102,7 +1106,7 @@ namespace NosCore.GameObject
                 return;
             }
 
-            LastSp = SystemTime.Now();
+            LastSp = _clock.GetCurrentInstant();
             UseSp = true;
             Morph = sp.Item.Morph;
             MorphUpgrade = sp.Upgrade;

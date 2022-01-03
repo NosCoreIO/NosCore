@@ -33,16 +33,19 @@ using NosCore.Packets.Enumerations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
     public class BackPackHandler : IUseItemEventHandler
     {
         private readonly IOptions<WorldConfiguration> _conf;
+        private readonly IClock _clock;
 
-        public BackPackHandler(IOptions<WorldConfiguration> conf)
+        public BackPackHandler(IOptions<WorldConfiguration> conf, IClock clock)
         {
             _conf = conf;
+            _clock = clock;
         }
 
         public bool Condition(Item.Item item)
@@ -69,7 +72,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto
             {
                 CharacterId = requestData.ClientSession.Character.CharacterId,
-                DateEnd = itemInstance.ItemInstance.Item.EffectValue == 0 ? (DateTime?)null : SystemTime.Now().AddDays(itemInstance.ItemInstance.Item.EffectValue),
+                DateEnd = itemInstance.ItemInstance.Item.EffectValue == 0 ? (Instant?)null : _clock.GetCurrentInstant().Plus(Duration.FromDays(itemInstance.ItemInstance.Item.EffectValue)),
                 StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.InventoryTicketUpgrade ? StaticBonusType.InventoryTicketUpgrade : StaticBonusType.BackPack
             });
 

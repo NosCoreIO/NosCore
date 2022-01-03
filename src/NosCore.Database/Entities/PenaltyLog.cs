@@ -21,6 +21,7 @@ using NosCore.Data.Enumerations.Interaction;
 using NosCore.Database.Entities.Base;
 using System;
 using System.ComponentModel.DataAnnotations;
+using NodaTime;
 
 namespace NosCore.Database.Entities
 {
@@ -33,9 +34,9 @@ namespace NosCore.Database.Entities
         [Required]
         public string AdminName { get; set; } = "";
 
-        public DateTime DateEnd { get; set; }
+        public Instant DateEnd { get; set; }
 
-        public DateTime DateStart { get; set; }
+        public Instant DateStart { get; set; }
 
         public PenaltyType Penalty { get; set; }
 

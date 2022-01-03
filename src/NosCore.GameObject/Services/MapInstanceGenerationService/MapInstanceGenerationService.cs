@@ -34,6 +34,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
@@ -53,10 +54,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler> _entranceRunnerService;
         private readonly MapInstanceHolder _holder;
         private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
+        private readonly IClock _clock;
 
         public MapInstanceGeneratorService(List<MapDto> maps, List<NpcMonsterDto> npcMonsters, List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos,
             IMapItemGenerationService mapItemGenerationService, IDao<MapNpcDto, int> mapNpcs,
-            IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems, ILogger logger, EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler> entranceRunnerService, MapInstanceHolder holder, IMapInstanceAccessorService mapInstanceAccessorService)
+            IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems, ILogger logger, EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler> entranceRunnerService, MapInstanceHolder holder, IMapInstanceAccessorService mapInstanceAccessorService, IClock clock)
         {
             _mapItemGenerationService = mapItemGenerationService;
             _npcTalks = npcTalks;
@@ -71,6 +73,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _entranceRunnerService = entranceRunnerService;
             _holder = holder;
             _mapInstanceAccessorService = mapInstanceAccessorService;
+            _clock = clock;
         }
 
         public Task AddMapInstanceAsync(MapInstance mapInstance)
@@ -147,7 +150,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)
         {
-            return new MapInstance(map, guid, shopAllowed, normalInstance, _mapItemGenerationService, _logger);
+            return new MapInstance(map, guid, shopAllowed, normalInstance, _mapItemGenerationService, _logger, _clock);
         }
 
         private async Task LoadPortalsAsync(MapInstance mapInstance, List<PortalDto> portals)

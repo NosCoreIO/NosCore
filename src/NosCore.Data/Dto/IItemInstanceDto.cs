@@ -19,6 +19,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using NodaTime;
 
 namespace NosCore.Data.Dto
 {
@@ -35,7 +36,7 @@ namespace NosCore.Data.Dto
 
         int DurabilityPoint { get; set; }
 
-        DateTime? ItemDeleteTime { get; set; }
+        Instant? ItemDeleteTime { get; set; }
 
         short ItemVNum { get; set; }
 

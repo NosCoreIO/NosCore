@@ -24,6 +24,7 @@ using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
 using System;
+using System.Globalization;
 
 namespace NosCore.Data.WebApi
 {
@@ -86,7 +87,7 @@ namespace NosCore.Data.WebApi
                         {
                             TitleType = MailDto.Title == "NOSMALL" ? (byte)1 : (byte)4,
                             Unknown2 = 0,
-                            Date = MailDto.Date.ToString("yyMMddHHmm"),
+                            Date = MailDto.Date.ToString("yyMMddHHmm", new DateTimeFormatInfo()),
                             Title = MailDto.Title,
                             AttachmentVNum = ItemInstance.ItemVNum,
                             AttachmentAmount = ItemInstance.Amount,
@@ -102,7 +103,7 @@ namespace NosCore.Data.WebApi
                         Id = (short)MailId,
                         Unknown = 0,
                         IsOpened = MailDto.IsOpened,
-                        DateTime = MailDto.Date.ToString("yyMMddHHmm"),
+                        DateTime = MailDto.Date.ToString("yyMMddHHmm", new DateTimeFormatInfo()),
                         SenderName = type == 2 ? ReceiverName : SenderName,
                         Title = MailDto.Title,
                         Message = MailDto.Message

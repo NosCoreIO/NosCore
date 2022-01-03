@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
 using NosCore.Core;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
@@ -49,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            Handler = new BazaarMedalsHandler();
+            Handler = new BazaarMedalsHandler(TestHelpers.Instance.Clock);
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, Effect = ItemEffectType.GoldNosMerchantUpgrade, EffectValue = 1},
@@ -65,7 +66,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             Session.Character.StaticBonusList.Add(new StaticBonusDto
             {
                 CharacterId = Session.Character.CharacterId,
-                DateEnd = SystemTime.Now().AddDays(1),
+                DateEnd = TestHelpers.Instance.Clock.GetCurrentInstant().Plus(Duration.FromDays(1)),
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
@@ -80,7 +81,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             Session.Character.StaticBonusList.Add(new StaticBonusDto
             {
                 CharacterId = Session.Character.CharacterId,
-                DateEnd = SystemTime.Now().AddDays(1),
+                DateEnd = TestHelpers.Instance.Clock.GetCurrentInstant().Plus(Duration.FromDays(1)),
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);

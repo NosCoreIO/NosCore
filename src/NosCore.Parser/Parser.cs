@@ -82,7 +82,7 @@ namespace NosCore.Parser
             try
             {
                 var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-                optionsBuilder.UseNpgsql(parserConfiguration.Database!.ConnectionString);
+                optionsBuilder.UseNpgsql(parserConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); });
                 try
                 {
                     Logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ENTER_PATH));

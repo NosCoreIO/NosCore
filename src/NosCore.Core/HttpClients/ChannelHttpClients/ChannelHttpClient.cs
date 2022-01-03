@@ -32,6 +32,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NodaTime;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClients
@@ -41,14 +42,16 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
         private readonly Channel _channel;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
-        private DateTime _lastUpdateToken;
+        private Instant _lastUpdateToken;
         private string? _token;
+        private readonly IClock _clock;
 
-        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger)
+        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger, IClock clock)
         {
             _httpClientFactory = httpClientFactory;
             _channel = channel;
             _logger = logger;
+            _clock = clock;
         }
 
         public async Task ConnectAsync()
@@ -75,7 +78,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
             _token = result?.Token;
-            _lastUpdateToken = SystemTime.Now();
+            _lastUpdateToken = _clock.GetCurrentInstant();
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.REGISTRED_ON_MASTER));
             _channel.ChannelId = result?.ChannelInfo?.ChannelId ?? 0;
 
@@ -87,7 +90,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                             LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_PING))
                 ).ExecuteAsync(() =>
                 {
-                    var jsonPatch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/LastPing"), JsonDocument.Parse(JsonSerializer.Serialize(SystemTime.Now())).RootElement));
+                    var jsonPatch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/LastPing"), JsonDocument.Parse(JsonSerializer.Serialize(_clock.GetCurrentInstant())).RootElement));
                     return PatchAsync(_channel.ChannelId, jsonPatch);
                 }).ConfigureAwait(false);
             _logger.Error(
@@ -119,7 +122,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
 
         public async Task<string?> GetOrRefreshTokenAsync()
         {
-            if (_lastUpdateToken.AddMinutes(25) >= SystemTime.Now())
+            if (_lastUpdateToken.Plus(Duration.FromMinutes(25)) >= _clock.GetCurrentInstant())
             {
                 return _token;
             }
@@ -136,7 +139,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
             _token = result?.Token;
-            _lastUpdateToken = SystemTime.Now();
+            _lastUpdateToken = _clock.GetCurrentInstant();
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SECURITY_TOKEN_UPDATED));
 
             return _token;

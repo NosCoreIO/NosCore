@@ -31,6 +31,7 @@ using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.MasterServer
 {
@@ -38,11 +39,13 @@ namespace NosCore.MasterServer
     {
         private readonly ILogger _logger;
         private readonly MasterConfiguration _masterConfiguration;
+        private readonly IClock _clock;
 
-        public MasterServer(IOptions<MasterConfiguration> masterConfiguration, ILogger logger)
+        public MasterServer(IOptions<MasterConfiguration> masterConfiguration, ILogger logger, IClock clock)
         {
             _masterConfiguration = masterConfiguration.Value;
             _logger = logger;
+            _clock = clock;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -51,7 +54,7 @@ namespace NosCore.MasterServer
             {
                 Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => MasterClientListSingleton.Instance.Channels
                     .Where(s =>
-                        (s.LastPing.AddSeconds(10) < SystemTime.Now()) && (s.WebApi != null)).Select(s => s.Id).ToList()
+                        (s.LastPing.Plus(Duration.FromSeconds(10)) < _clock.GetCurrentInstant()) && (s.WebApi != null)).Select(s => s.Id).ToList()
                     .ForEach(id =>
                     {
                         _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),

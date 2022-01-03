@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.GameObject.Services.BazaarService
 {
@@ -40,13 +41,15 @@ namespace NosCore.GameObject.Services.BazaarService
         private readonly IDao<BazaarItemDto, long> _bazaarItemDao;
         private readonly BazaarItemsHolder _holder;
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
+        private readonly IClock _clock;
 
         public BazaarService(BazaarItemsHolder holder, IDao<BazaarItemDto, long> bazaarItemDao,
-            IDao<IItemInstanceDto?, Guid> itemInstanceDao)
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao, IClock clock)
         {
             _bazaarItemDao = bazaarItemDao;
             _itemInstanceDao = itemInstanceDao;
             _holder = holder;
+            _clock = clock;
         }
         public List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
             byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter)
@@ -234,7 +237,7 @@ namespace NosCore.GameObject.Services.BazaarService
             var bazaarItem = new BazaarItemDto
             {
                 Amount = amount,
-                DateStart = SystemTime.Now(),
+                DateStart = _clock.GetCurrentInstant(),
                 Duration = duration,
                 IsPackage = isPackage,
                 MedalUsed = hasMedal,

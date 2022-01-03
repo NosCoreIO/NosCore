@@ -20,7 +20,7 @@
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Groups;
 
-namespace NosCore.GameObject.Networking.ChannelMatcher
+namespace NosCore.Core.Networking.ChannelMatcher
 {
     public class Only : IChannelMatcher
     {

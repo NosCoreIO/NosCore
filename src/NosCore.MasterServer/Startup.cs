@@ -63,6 +63,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using NodaTime;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using FriendController = NosCore.MasterServer.Controllers.FriendController;
 using ILogger = Serilog.ILogger;
@@ -176,6 +177,7 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<AuthController>();
             containerBuilder.RegisterLogger();
 
+            containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
             containerBuilder.RegisterAssemblyTypes(typeof(FriendRequestHolder).Assembly)
                 .Where(t => t.Name.EndsWith("Holder"))
                 .SingleInstance();
@@ -210,7 +212,7 @@ namespace NosCore.MasterServer
 
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(masterConfiguration.WebApi.Port));
             services.AddDbContext<NosCoreContext>(
-                conf => conf.UseNpgsql(masterConfiguration.Database!.ConnectionString));
+                conf => conf.UseNpgsql(masterConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore Master API", Version = "v1" }));
 

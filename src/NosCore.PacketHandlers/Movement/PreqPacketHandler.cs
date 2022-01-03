@@ -32,6 +32,7 @@ using NosCore.PathFinder.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.PacketHandlers.Movement
 {
@@ -40,17 +41,19 @@ namespace NosCore.PacketHandlers.Movement
         private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
         private readonly IMinilandService _minilandProvider;
         private readonly IHeuristic _distanceCalculator;
+        private readonly IClock _clock;
 
-        public PreqPacketHandler(IMapInstanceAccessorService mapInstanceAccessorService, IMinilandService minilandProvider, IHeuristic distanceCalculator)
+        public PreqPacketHandler(IMapInstanceAccessorService mapInstanceAccessorService, IMinilandService minilandProvider, IHeuristic distanceCalculator, IClock clock)
         {
             _mapInstanceAccessorService = mapInstanceAccessorService;
             _minilandProvider = minilandProvider;
             _distanceCalculator = distanceCalculator;
+            _clock = clock;
         }
 
         public override async Task ExecuteAsync(PreqPacket _, ClientSession session)
         {
-            if (((SystemTime.Now() - session.Character.LastPortal).TotalSeconds < 4) ||
+            if (((_clock.GetCurrentInstant() - session.Character.LastPortal).TotalSeconds < 4) ||
                 (session.Character.LastPortal > session.Character.LastMove))
             {
                 await session.SendPacketAsync(session.Character.GenerateSay(
@@ -77,7 +80,7 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
-            session.Character.LastPortal = SystemTime.Now();
+            session.Character.LastPortal = _clock.GetCurrentInstant();
 
             if ((_mapInstanceAccessorService.GetMapInstance(portal.SourceMapInstanceId)!.MapInstanceType
                     != MapInstanceType.BaseMapInstance)

@@ -27,6 +27,7 @@ using Serilog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 {
@@ -35,18 +36,21 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
     {
         private readonly ILogger _logger;
 
-        public SaveAll(ILogger logger)
+        public SaveAll(ILogger logger, IClock clock)
         {
             _logger = logger;
+            _clock = clock;
+            _lastRun = _clock.GetCurrentInstant();
         }
 
-        private DateTime _lastRun = SystemTime.Now();
+        private Instant _lastRun;
+        private readonly IClock _clock;
 
-        public bool Condition(Clock condition) => condition.LastTick - _lastRun >= TimeSpan.FromMinutes(5);
+        public bool Condition(Clock condition) => condition.LastTick.Minus(_lastRun).ToTimeSpan() >= TimeSpan.FromMinutes(5);
 
-        public Task ExecuteAsync() => ExecuteAsync(new RequestData<DateTime>(SystemTime.Now()));
+        public Task ExecuteAsync() => ExecuteAsync(new RequestData<Instant>(_clock.GetCurrentInstant()));
 
-        public async Task ExecuteAsync(RequestData<DateTime> runTime)
+        public async Task ExecuteAsync(RequestData<Instant> runTime)
         {
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SAVING_ALL));
             await Task.WhenAll(Broadcaster.Instance.GetCharacters().Select(session => session.SaveAsync()));

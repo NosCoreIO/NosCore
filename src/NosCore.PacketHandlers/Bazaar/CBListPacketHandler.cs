@@ -28,6 +28,7 @@ using NosCore.Packets.ServerPackets.Inventory;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 using static NosCore.Packets.ServerPackets.Auction.RcbListPacket;
 
 namespace NosCore.PacketHandlers.Bazaar
@@ -36,11 +37,13 @@ namespace NosCore.PacketHandlers.Bazaar
     {
         private readonly IBazaarHttpClient _bazaarHttpClient;
         private readonly List<ItemDto> _items;
+        private readonly IClock _clock;
 
-        public CBListPacketHandler(IBazaarHttpClient bazaarHttpClient, List<ItemDto> items)
+        public CBListPacketHandler(IBazaarHttpClient bazaarHttpClient, List<ItemDto> items, IClock clock)
         {
             _bazaarHttpClient = bazaarHttpClient;
             _items = items;
+            _clock = clock;
         }
 
         public override async Task ExecuteAsync(CBListPacket packet, ClientSession clientSession)
@@ -79,8 +82,8 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 PageIndex = packet.Index,
                 Items = definitivelist
-                    .Where(s => ((s.BazaarItem!.DateStart.AddHours(s.BazaarItem.Duration) - SystemTime.Now())
-                        .TotalMinutes > 0) && (s.ItemInstance!.Amount > 0))
+                    .Where(s => ((s.BazaarItem!.DateStart.Plus(Duration.FromHours(s.BazaarItem.Duration))
+                         > _clock.GetCurrentInstant()) && (s.ItemInstance!.Amount > 0)))
                     .Select(bzlink => new RcbListElementPacket
                     {
                         AuctionId = bzlink.BazaarItem!.BazaarItemId,
@@ -91,7 +94,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         IsPackage = bzlink.BazaarItem.IsPackage,
                         Price = bzlink.BazaarItem.Price,
                         MinutesLeft =
-                            (long)(bzlink.BazaarItem.DateStart.AddHours(bzlink.BazaarItem.Duration) - SystemTime.Now())
+                            (long)(bzlink.BazaarItem.DateStart.Plus(Duration.FromHours(bzlink.BazaarItem.Duration)).Minus(_clock.GetCurrentInstant()))
                             .TotalMinutes,
                         Unknown1 = false,
                         Unknown = 2,

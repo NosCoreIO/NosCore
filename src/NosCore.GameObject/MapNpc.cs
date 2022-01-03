@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.GameObject
 {
@@ -43,8 +44,9 @@ namespace NosCore.GameObject
         private readonly IItemGenerationService? _itemProvider;
         private readonly ILogger _logger;
         private readonly IHeuristic _distanceCalculator;
+        private readonly IClock _clock;
         public NpcMonsterDto NpcMonster { get; private set; } = null!;
-        public MapNpc(IItemGenerationService? itemProvider, ILogger logger, IHeuristic distanceCalculator)
+        public MapNpc(IItemGenerationService? itemProvider, ILogger logger, IHeuristic distanceCalculator, IClock clock)
         {
             _itemProvider = itemProvider;
             _logger = logger;
@@ -53,6 +55,7 @@ namespace NosCore.GameObject
                 [typeof(INrunEventHandler)] = new Subject<RequestData>()
             };
             _distanceCalculator = distanceCalculator;
+            _clock = clock;
         }
 
         public IDisposable? Life { get; private set; }
@@ -108,7 +111,7 @@ namespace NosCore.GameObject
         public short PositionX { get; set; }
         public short PositionY { get; set; }
         public MapInstance MapInstance { get; set; } = null!;
-        public DateTime LastMove { get; set; }
+        public Instant LastMove { get; set; }
         public bool IsAlive { get; set; }
 
         public short Race => NpcMonster.Race;
@@ -157,7 +160,7 @@ namespace NosCore.GameObject
 
         private Task MonsterLifeAsync()
         {
-            return this.MoveAsync(_distanceCalculator);
+            return this.MoveAsync(_distanceCalculator, _clock);
         }
     }
 }

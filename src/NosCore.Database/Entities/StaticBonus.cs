@@ -21,6 +21,7 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.Database.Entities.Base;
 using System;
 using System.ComponentModel.DataAnnotations;
+using NodaTime;
 
 namespace NosCore.Database.Entities
 {
@@ -30,7 +31,7 @@ namespace NosCore.Database.Entities
 
         public long CharacterId { get; set; }
 
-        public DateTime? DateEnd { get; set; }
+        public Instant? DateEnd { get; set; }
 
         [Key]
         public long StaticBonusId { get; set; }

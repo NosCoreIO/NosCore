@@ -43,16 +43,9 @@ namespace NosCore.PacketHandlers.Tests.Group
         private readonly Dictionary<int, Character> _characters = new Dictionary<int, Character>();
         private PjoinPacketHandler? _pJoinPacketHandler;
 
-        [TestCleanup]
-        public void Cleanup()
-        {
-            SystemTime.Freeze(SystemTime.Now());
-        }
-
         [TestInitialize]
         public async Task SetupAsync()
         {
-            SystemTime.Freeze();
             Broadcaster.Reset();
             GroupAccess.Instance.Groups = new ConcurrentDictionary<long, GameObject.Group>();
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
@@ -64,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             }
 
             var mock = new Mock<IBlacklistHttpClient>();
-            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object);
+            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock);
         }
 
         [TestMethod]
@@ -169,7 +162,6 @@ namespace NosCore.PacketHandlers.Tests.Group
         [TestMethod]
         public async Task Test_Two_Request_Less_5_Sec_DelayAsync()
         {
-            SystemTime.Freeze(SystemTime.Now());
             for (var i = 1; i < 3; i++)
             {
                 var pjoinPacket = new PjoinPacket
@@ -177,8 +169,7 @@ namespace NosCore.PacketHandlers.Tests.Group
                     RequestType = GroupRequestType.Invited,
                     CharacterId = _characters[i].CharacterId
                 };
-
-                SystemTime.Freeze(SystemTime.Now().AddSeconds(1));
+                TestHelpers.Instance.Clock.AdvanceSeconds(1);
                 await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             }
 
@@ -198,7 +189,7 @@ namespace NosCore.PacketHandlers.Tests.Group
 
                 if (i == 2)
                 {
-                    SystemTime.Freeze(SystemTime.Now().AddSeconds(6));
+                    TestHelpers.Instance.Clock.AdvanceMinutes(6);
                 }
 
                 await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);

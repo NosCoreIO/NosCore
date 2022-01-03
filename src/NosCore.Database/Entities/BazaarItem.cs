@@ -20,6 +20,7 @@
 using NosCore.Database.Entities.Base;
 using System;
 using System.ComponentModel.DataAnnotations;
+using NodaTime;
 
 namespace NosCore.Database.Entities
 {
@@ -32,7 +33,7 @@ namespace NosCore.Database.Entities
         [Key]
         public long BazaarItemId { get; set; }
 
-        public DateTime DateStart { get; set; }
+        public Instant DateStart { get; set; }
 
         public short Duration { get; set; }
 

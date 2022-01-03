@@ -32,6 +32,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using NodaTime;
 using NosCore.Networking;
 
 namespace NosCore.WorldServer
@@ -44,8 +45,9 @@ namespace NosCore.WorldServer
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly IMapInstanceGeneratorService _mapInstanceGeneratorService;
         private readonly Clock _clock;
+        private readonly IClock _nodatimeClock;
 
-        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService)
+        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService, IClock nodatimeClock)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -53,6 +55,7 @@ namespace NosCore.WorldServer
             _channelHttpClient = channelHttpClient;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
             _clock = clock;
+            _nodatimeClock = nodatimeClock;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -61,7 +64,7 @@ namespace NosCore.WorldServer
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
-                var eventSaveAll = new SaveAll(_logger);
+                var eventSaveAll = new SaveAll(_logger, _nodatimeClock);
                 _ = eventSaveAll.ExecuteAsync();
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHANNEL_WILL_EXIT));
                 Thread.Sleep(30000);

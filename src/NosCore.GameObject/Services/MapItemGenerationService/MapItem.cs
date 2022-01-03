@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService
 {
@@ -47,7 +48,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
         public IItemInstance? ItemInstance { get; set; }
 
         public long? OwnerId { get; set; }
-        public DateTime DroppedAt { get; set; }
+        public Instant DroppedAt { get; set; }
 
         public long VisualId
         {
