@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using NosCore.Networking;
 
 namespace NosCore.Core.Networking
 {

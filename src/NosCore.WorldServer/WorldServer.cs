@@ -32,6 +32,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Networking;
 
 namespace NosCore.WorldServer
 {
@@ -39,12 +40,12 @@ namespace NosCore.WorldServer
     {
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly ILogger _logger;
-        private readonly NetworkManager _networkManager;
+        private readonly GameObject.Networking.NetworkManager _networkManager;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly IMapInstanceGeneratorService _mapInstanceGeneratorService;
         private readonly Clock _clock;
 
-        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService)
+        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, GameObject.Networking.NetworkManager networkManager, Clock clock, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -71,8 +72,6 @@ namespace NosCore.WorldServer
                 Console.Title += $@" - Port : {_worldConfiguration.Value.Port} - WebApi : {_worldConfiguration.Value.WebApi}";
             }
 
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT),
-                _worldConfiguration.Value.Port);
             await Task.WhenAny(_clock.Run(stoppingToken), _channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }

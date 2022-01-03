@@ -65,6 +65,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using NosCore.Core.Networking;
+using NosCore.Networking;
+using NosCore.Networking.Encoding;
 using ILogger = Serilog.ILogger;
 
 namespace NosCore.LoginServer
@@ -94,12 +97,14 @@ namespace NosCore.LoginServer
                 .SingleInstance();
             containerBuilder.RegisterType<Dao<Database.Entities.Character, CharacterDto, long>>().As<IDao<CharacterDto, long>>()
                 .SingleInstance();
-            containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
-            containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
-            containerBuilder.RegisterType<ClientSession>();
+            containerBuilder.RegisterType<Core.Encryption.LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
+            containerBuilder.RegisterType<Core.Encryption.LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
 
-            containerBuilder.RegisterType<NetworkManager>();
-            containerBuilder.RegisterType<PipelineFactory>();
+            containerBuilder.RegisterType<ClientSession>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
+            containerBuilder.RegisterType<GameObject.Networking.NetworkManager>();
+            containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces();
+
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
@@ -157,11 +162,7 @@ namespace NosCore.LoginServer
         private static IHost BuildHost(string[] args)
         {
             return new HostBuilder()
-                .ConfigureLogging(logging =>
-                {
-                    logging.ClearProviders();
-                    logging.AddSerilog();
-                })
+                .UseSerilog()
                 .UseConsoleLifetime()
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)

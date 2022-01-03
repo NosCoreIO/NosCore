@@ -32,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NosCore.Networking.Extensions;
 
 namespace NosCore.Core.Encryption
 {

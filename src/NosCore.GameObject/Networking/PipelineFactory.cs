@@ -26,19 +26,22 @@ using NosCore.Core.Networking;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.Configuration;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using NosCore.Networking;
+using NosCore.Networking.SessionRef;
 
 namespace NosCore.GameObject.Networking
 {
-    public class PipelineFactory
+    public class PipelineFactory : IPipelineFactory
     {
         private readonly ISocketChannel _channel;
-        private readonly ClientSession.ClientSession _clientSession;
+        private readonly INetworkClient _clientSession;
         private readonly IOptions<ServerConfiguration> _configuration;
         private readonly MessageToMessageDecoder<IByteBuffer> _decoder;
         private readonly MessageToMessageEncoder<IEnumerable<IPacket>> _encoder;
 
         public PipelineFactory(ISocketChannel channel, MessageToMessageDecoder<IByteBuffer> decoder,
-            MessageToMessageEncoder<IEnumerable<IPacket>> encoder, ClientSession.ClientSession clientSession,
+            MessageToMessageEncoder<IEnumerable<IPacket>> encoder, INetworkClient clientSession,
             IOptions<ServerConfiguration> configuration)
         {
             _channel = channel;

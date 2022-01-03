@@ -201,9 +201,6 @@
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client connected, SessionId: {0}</value>
   </data>
-  <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>New client connected. ClientId = {0}</value>
-  </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Client disconnected. ClientId = {0}</value>
   </data>
@@ -228,18 +225,11 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>There are too many items on this map! Try again later!</value>
   </data>
-  <data name="ENCODE_ERROR" xml:space="preserve">
-    <value>Encode Error: {0}</value>
-  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Please enter the directory of files to parse</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Character changed while changing map. Do not abuse Commands. {0}</value>
-  </data>
-  <data name="ERROR_DECODING" xml:space="preserve">
-    <value>Decoding error {0}</value>
-    <comment>insert missing type data</comment>
   </data>
   <data name="EQ_NOT_EMPTY" xml:space="preserve">
     <value>To change of class dequip all your items please.</value>
@@ -360,9 +350,6 @@
   </data>
   <data name="LEVEL_CHANGED" xml:space="preserve">
     <value>Your level has changed!</value>
-  </data>
-  <data name="LISTENING_PORT" xml:space="preserve">
-    <value>Listening Port {0}</value>
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>This SP requires more Job Level to use it.</value>

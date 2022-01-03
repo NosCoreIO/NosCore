@@ -247,9 +247,6 @@
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client connesso, SessionId: {0}</value>
   </data>
-  <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>Un nuovo client si è connesso. ClientId = {0}</value>
-  </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Client disconesso.</value>
   </data>
@@ -283,9 +280,6 @@
   <data name="EFFECT_ACTIVATED" xml:space="preserve">
     <value>Sei sotto l'effetto {0}!</value>
   </data>
-  <data name="ENCODE_ERROR" xml:space="preserve">
-    <value>Errore di codifica: {0}</value>
-  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Immetti la directory dei file da sincronizzare</value>
   </data>
@@ -294,12 +288,6 @@
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Personaggio cambiato durante la modifica della mappa. Non abusare dei comandi.</value>
-  </data>
-  <data name="ERROR_DECODING" xml:space="preserve">
-    <value>Errore di decodifica</value>
-  </data>
-  <data name="ERROR_SESSIONID" xml:space="preserve">
-    <value>Errore SessionId</value>
   </data>
   <data name="EXCEPTION" xml:space="preserve">
     <value>È stata generato un errore: {0}</value>
@@ -483,9 +471,6 @@
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Non puoi aggiungere altri oggetti al NosBazar perché hai raggiunto il limite.</value>
-  </data>
-  <data name="LISTENING_PORT" xml:space="preserve">
-    <value>Ascolto della porta {0}</value>
   </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Caricamento MapInstances...</value>

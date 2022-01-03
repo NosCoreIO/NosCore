@@ -198,9 +198,6 @@
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Klient podłączony. SessionId: {0}</value>
   </data>
-  <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>Nowy klient podłączony. ClientId = {0}</value>
-  </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Klient rozłączony. ClientId = {0}</value>
   </data>
@@ -225,18 +222,11 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Na mapie jest zbyt wiele przedmiotów! Spróbuj ponownie później!</value>
   </data>
-  <data name="ENCODE_ERROR" xml:space="preserve">
-    <value>Błąd Encode: {0}</value>
-  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Wprowadź katalog plików do wprowadzenia:</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Postać zmieniona podczas zmiany mapy. Nie nadużywaj poleceń. {0}</value>
-  </data>
-  <data name="ERROR_DECODING" xml:space="preserve">
-    <value>Błąd decoding: {0}</value>
-    <comment>insert missing type data</comment>
   </data>
   <data name="EQ_NOT_EMPTY" xml:space="preserve">
     <value>Aby zmienić klasę, zdejmij wszystkie swoje przedmioty.</value>
@@ -354,9 +344,6 @@
   </data>
   <data name="LEVEL_CHANGED" xml:space="preserve">
     <value>Twój poziom został zmieniony!</value>
-  </data>
-  <data name="LISTENING_PORT" xml:space="preserve">
-    <value>Port nasłuchu: {0}</value>
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Twoja profesja jest zbyt niska, aby założyć tą Kartę Specjalisty!</value>

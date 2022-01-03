@@ -22,21 +22,22 @@ using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using Microsoft.Extensions.Options;
 using NosCore.Shared.Configuration;
-using Serilog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using NosCore.Networking;
 
 namespace NosCore.GameObject.Networking
 {
     public class NetworkManager
     {
         private readonly IOptions<ServerConfiguration> _configuration;
-        private readonly ILogger _logger;
-        private readonly Func<ISocketChannel, PipelineFactory> _pipelineFactory;
+        private readonly ILogger<NetworkManager> _logger;
+        private readonly Func<ISocketChannel, IPipelineFactory> _pipelineFactory;
 
         public NetworkManager(IOptions<ServerConfiguration> configuration,
-            Func<ISocketChannel, PipelineFactory> pipelineFactory, ILogger logger)
+            Func<ISocketChannel, IPipelineFactory> pipelineFactory, ILogger<NetworkManager> logger)
         {
             _configuration = configuration;
             _pipelineFactory = pipelineFactory;
@@ -69,7 +70,7 @@ namespace NosCore.GameObject.Networking
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message);
+                _logger.LogError(ex.Message);
             }
             finally
             {

@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
+using DotNetty.Transport.Channels.Sockets;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -37,6 +38,7 @@ using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.Networking;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -331,7 +333,7 @@ namespace NosCore.Tests.Shared
             await session.SetCharacterAsync(chara).ConfigureAwait(false);
             session.Character.MapInstance = MapInstanceAccessorService.GetBaseMapById(0);
             session.Account = acc;
-            session.RegisterChannel(new Mock<IChannel>().Object);
+            session.RegisterChannel(new Mock<ISocketChannel>().Object);
             Broadcaster.Instance.RegisterSession(session);
             return session;
         }

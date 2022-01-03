@@ -44,6 +44,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
+using NosCore.Networking;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {

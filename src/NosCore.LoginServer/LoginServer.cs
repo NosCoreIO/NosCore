@@ -31,6 +31,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Networking;
 
 namespace NosCore.LoginServer
 {
@@ -39,10 +40,10 @@ namespace NosCore.LoginServer
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly ILogger _logger;
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
-        private readonly NetworkManager _networkManager;
+        private readonly GameObject.Networking.NetworkManager _networkManager;
         private readonly NosCoreContext _context;
 
-        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, NosCoreContext context)
+        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, GameObject.Networking.NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, NosCoreContext context)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
@@ -70,7 +71,6 @@ namespace NosCore.LoginServer
                 _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
                 throw;
             }
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LISTENING_PORT), _loginConfiguration.Value.Port);
             await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }

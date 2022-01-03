@@ -81,7 +81,10 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using NosCore.Core.Networking;
 using NosCore.Data;
+using NosCore.Networking;
+using NosCore.Networking.Encoding;
 using Character = NosCore.GameObject.Character;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using Deserializer = NosCore.Packets.Deserializer;
@@ -112,7 +115,7 @@ namespace NosCore.WorldServer
                 return;
             }
 
-            var staticMetaDataAttribute = typeof(TDto).GetCustomAttribute<StaticMetaDataAttribute>();
+            var staticMetaDataAttribute = typeof(TDb).GetCustomAttribute<StaticMetaDataAttribute>();
             containerBuilder.Register(c =>
                 {
                     var dic = c.Resolve<IDictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>>();
@@ -258,17 +261,18 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces();
 
             //NosCore.Core
-            containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
-            containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
+            containerBuilder.RegisterType<Core.Encryption.WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
+            containerBuilder.RegisterType<Core.Encryption.WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<AuthController>();
 
-            //NosCore.GameObject
-            containerBuilder.RegisterType<ClientSession>();
-            containerBuilder.RegisterType<OctileDistanceHeuristic>().As<IHeuristic>();
-            containerBuilder.RegisterType<NetworkManager>();
-            containerBuilder.RegisterType<Clock>();
+            containerBuilder.RegisterType<ClientSession>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
+            containerBuilder.RegisterType<GameObject.Networking.NetworkManager>();
+            containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces();
 
-            containerBuilder.RegisterType<PipelineFactory>();
+            //NosCore.GameObject
+            containerBuilder.RegisterType<OctileDistanceHeuristic>().As<IHeuristic>();
+            containerBuilder.RegisterType<Clock>();
 
             containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))

@@ -199,9 +199,6 @@
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Cliente ha llegado con SessionId = {0}</value>
   </data>
-  <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>Nuevo cliente conectado con ClientId = {0}</value>
-  </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Conexión cerrada.</value>
   </data>
@@ -226,18 +223,11 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>¡Hay demasiados objetos en este mapa! Intentelo de nuevo más tarde.</value>
   </data>
-  <data name="ENCODE_ERROR" xml:space="preserve">
-    <value>Error al encodificar: {0}</value>
-  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Por favor, introduzca el directorio de los archivos para comenzar el análisis.</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>El personaje cambio mientras se estaba cambiando el mapa. No abuse de los comandos. {0}</value>
-  </data>
-  <data name="ERROR_DECODING" xml:space="preserve">
-    <value>Error al descodificar</value>
-    <comment>insert missing type data</comment>
   </data>
   <data name="EQ_NOT_EMPTY" xml:space="preserve">
     <value>Para cambiar de clase desequipate todos los objetos.</value>
@@ -358,9 +348,6 @@
   </data>
   <data name="LEVEL_CHANGED" xml:space="preserve">
     <value>Tu nivel ha sido modificado.</value>
-  </data>
-  <data name="LISTENING_PORT" xml:space="preserve">
-    <value>Escuchando el puerto: {0}</value>
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Esta SP require de más Nivel de Profesión para usarla.</value>
