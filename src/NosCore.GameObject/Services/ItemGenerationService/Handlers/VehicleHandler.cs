@@ -61,7 +61,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             {
                 await requestData.ClientSession.SendPacketAsync(new DelayPacket
                 {
-                    Type = 3,
+                    Type = DelayPacketType.Locomotion,
                     Delay = 3000,
                     Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type,
                         itemInstance.Slot,

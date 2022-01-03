@@ -76,7 +76,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                     {
                         YesPacket = requestData.ClientSession.Character.GenerateUseItem(
                             (PocketType)itemInstance.Type,
-                            itemInstance.Slot, 1, (byte)packet.Parameter),
+                            itemInstance.Slot, 1, (byte)(packet.Parameter ?? 0)),
                         Question = requestData.ClientSession.GetMessageFromKey(LanguageKey.ASK_BIND)
                     }).ConfigureAwait(false);
                 return;
