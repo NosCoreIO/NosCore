@@ -33,6 +33,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Core.Services.IdService;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClients
@@ -45,13 +46,15 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
         private Instant _lastUpdateToken;
         private string? _token;
         private readonly IClock _clock;
+        private readonly IIdService<ChannelInfo> _channelIdService;
 
-        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger, IClock clock)
+        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger, IClock clock, IIdService<ChannelInfo> channelIdService)
         {
             _httpClientFactory = httpClientFactory;
             _channel = channel;
             _logger = logger;
             _clock = clock;
+            _channelIdService = channelIdService;
         }
 
         public async Task ConnectAsync()
@@ -98,7 +101,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             Environment.Exit(0);
         }
 
-        public async Task<HttpStatusCode> PatchAsync(int channelId, Json.Patch.JsonPatch patch)
+        public async Task<HttpStatusCode> PatchAsync(long channelId, Json.Patch.JsonPatch patch)
         {
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
@@ -147,8 +150,8 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
 
         public async Task<List<ChannelInfo>> GetChannelsAsync()
         {
-            var channels = MasterClientListSingleton.Instance.Channels;
-            if (MasterClientListSingleton.Instance.Channels.Any())
+            var channels = _channelIdService.Items.Values.ToList();
+            if (channels.Any())
             {
                 return channels;
             }
@@ -175,10 +178,10 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             throw new HttpRequestException();
         }
 
-        public async Task<ChannelInfo?> GetChannelAsync(int channelId)
+        public async Task<ChannelInfo?> GetChannelAsync(long channelId)
         {
-            var channels = MasterClientListSingleton.Instance.Channels;
-            if (MasterClientListSingleton.Instance.Channels.Any())
+            var channels = _channelIdService.Items.Values.ToList();
+            if (channels.Any())
             {
                 return channels?.FirstOrDefault(s => s.Id == channelId);
             }

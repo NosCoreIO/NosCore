@@ -39,6 +39,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using NodaTime;
+using NosCore.Core.Services.IdService;
 
 namespace NosCore.Core.Controllers
 {
@@ -48,16 +49,18 @@ namespace NosCore.Core.Controllers
     {
         private readonly IOptions<WebApiConfiguration> _apiConfiguration;
         private readonly ILogger _logger;
-        private int _id;
+        private long _id;
         private readonly IHasher _hasher;
         private readonly IClock _clock;
+        private readonly IIdService<ChannelInfo> _channelInfoIdService;
 
-        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger, IHasher hasher, IClock clock)
+        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger, IHasher hasher, IClock clock, IIdService<ChannelInfo> channelInfoIdService)
         {
             _logger = logger;
             _apiConfiguration = apiConfiguration;
             _hasher = hasher;
             _clock = clock;
+            _channelInfoIdService = channelInfoIdService;
         }
 
         private string GenerateToken()
@@ -103,7 +106,7 @@ namespace NosCore.Core.Controllers
                 return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
             }
 
-            _id = ++MasterClientListSingleton.Instance.ConnectionCounter;
+            _id = _channelInfoIdService.GetNextId();
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_SUCCESS), _id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
 
@@ -123,7 +126,7 @@ namespace NosCore.Core.Controllers
                 Type = data.ClientType,
             };
 
-            MasterClientListSingleton.Instance.Channels.Add(serv);
+            _channelInfoIdService.Items[_id] = serv;
             data.ChannelId = _id;
 
 
@@ -138,7 +141,7 @@ namespace NosCore.Core.Controllers
                 throw new ArgumentNullException(nameof(data));
             }
 
-            var channel = MasterClientListSingleton.Instance.Channels.First(s =>
+            var channel = _channelInfoIdService.Items.Values.First(s =>
                 (s.Name == data.ClientName) && (s.Host == data.Host) && (s.Port == data.Port));
             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TOKEN_UPDATED), channel.Id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
@@ -151,13 +154,13 @@ namespace NosCore.Core.Controllers
         public List<ChannelInfo> GetChannels(long? id)
 #pragma warning restore CA1822 // Mark members as static
         {
-            return id != null ? MasterClientListSingleton.Instance.Channels.Where(s => s.Id == id).ToList() : MasterClientListSingleton.Instance.Channels;
+            return id != null ? _channelInfoIdService.Items.Values.Where(s => s.Id == id).ToList() : _channelInfoIdService.Items.Values.ToList();
         }
 
         [HttpPatch]
         public HttpStatusCode PingUpdate(int id, [FromBody] JsonPatch data)
         {
-            var chann = MasterClientListSingleton.Instance.Channels.FirstOrDefault(s => s.Id == id);
+            var chann = _channelInfoIdService.Items.Values.FirstOrDefault(s => s.Id == id);
             if (chann == null)
             {
                 return HttpStatusCode.NotFound;
@@ -165,14 +168,14 @@ namespace NosCore.Core.Controllers
 
             if ((chann.LastPing.Plus(Duration.FromSeconds(10)) < _clock.GetCurrentInstant()) && !Debugger.IsAttached)
             {
-                MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
+                _channelInfoIdService.Items.TryRemove(_id, out _);
                 _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),
                     _id.ToString(CultureInfo.CurrentCulture));
                 return HttpStatusCode.RequestTimeout;
             }
 
             var result = data?.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(chann)).RootElement);
-            MasterClientListSingleton.Instance.Channels[MasterClientListSingleton.Instance.Channels.FindIndex(s => s.Id == id)] = JsonSerializer.Deserialize<ChannelInfo>(result!.Result.GetRawText())!;
+            _channelInfoIdService.Items[_channelInfoIdService.Items.First(s => s.Value.Id == id).Key] = JsonSerializer.Deserialize<ChannelInfo>(result!.Result.GetRawText())!;
             return HttpStatusCode.OK;
         }
     }

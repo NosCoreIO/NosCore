@@ -67,7 +67,6 @@ namespace NosCore.Data.Enumerations.I18N
         CHARACTER_NOT_INIT,
         ERROR_CHANGE_MAP,
         AUTH_INCORRECT,
-        FORCED_DISCONNECTION,
         CLIENT_ARRIVED,
         CORRUPTED_KEEPALIVE,
         INVALID_PASSWORD,

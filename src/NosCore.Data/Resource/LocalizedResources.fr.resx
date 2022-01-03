@@ -222,9 +222,6 @@
   <data name="AUTH_ERROR" xml:space="preserve">
     <value>Erreur d'authentification.</value>
   </data>
-  <data name="FORCED_DISCONNECTION" xml:space="preserve">
-    <value>Déconnexion forcée. ClientId = {0}</value>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client arrivé.</value>
   </data>

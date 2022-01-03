@@ -234,9 +234,6 @@
   <data name="EXCEPTION" xml:space="preserve">
     <value>Wyrzucono wyjątek: {0}</value>
   </data>
-  <data name="FORCED_DISCONNECTION" xml:space="preserve">
-    <value>Wymuszone odłączenie klienta {0}.</value>
-  </data>
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>Twoja lista przyjaciół jest pełna!</value>
   </data>

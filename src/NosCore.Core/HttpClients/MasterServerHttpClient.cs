@@ -68,7 +68,7 @@ namespace NosCore.Core.HttpClients
             return client;
         }
 
-        public async Task<HttpClient?> ConnectAsync(int channelId)
+        public async Task<HttpClient?> ConnectAsync(long channelId)
         {
             using var client = _httpClientFactory.CreateClient();
             var channel = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);

@@ -27,9 +27,9 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
     public interface IChannelHttpClient
     {
         Task ConnectAsync();
-        Task<HttpStatusCode> PatchAsync(int channelId, JsonPatch patch);
+        Task<HttpStatusCode> PatchAsync(long channelId, JsonPatch patch);
         Task<string?> GetOrRefreshTokenAsync();
         Task<List<ChannelInfo>> GetChannelsAsync();
-        Task<ChannelInfo?> GetChannelAsync(int channelId);
+        Task<ChannelInfo?> GetChannelAsync(long channelId);
     }
 }

@@ -310,9 +310,6 @@
     <value>Ты отклонил(а) запрос на обмен</value>
     <comment>Нужно уточнение контекста. В оригинале "You refused your exchange request.", но как возможно отклонить свой же запрос на обмен?</comment>
   </data>
-  <data name="FORCED_DISCONNECTION" xml:space="preserve">
-    <value>Принудительное отключение клиента {0}.</value>
-  </data>
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>Список друзей переполнен!</value>
   </data>

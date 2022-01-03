@@ -65,7 +65,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NodaTime;
-
+using NosCore.Core.Services.IdService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
 using NosCore.Networking.Encoding.Filter;
@@ -112,6 +112,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
+            containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
             containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
                 .Where(t => t.Name.EndsWith("HttpClient"))
