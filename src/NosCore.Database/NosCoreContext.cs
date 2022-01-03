@@ -163,6 +163,14 @@ namespace NosCore.Database
 
         public virtual DbSet<NpcTalk>? NpcTalk { get; set; }
 
+        public virtual DbSet<BattlepassBearing>? BattlepassBearing { get; set; }
+
+        public virtual DbSet<BattlepassQuest>? BattlepassQuest { get; set; }
+
+        public virtual DbSet<BattlepassItem>? BattlepassItem { get; set; }
+
+        public virtual DbSet<CharacterBattlepass>? CharacterBattlepass { get; set; }
+
         static void HasPostgresEnum(ModelBuilder modelBuilder, Type type)
         {
             var translator = NpgsqlConnection.GlobalTypeMapper.DefaultNameTranslator;

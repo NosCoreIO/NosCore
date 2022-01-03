@@ -204,6 +204,11 @@ namespace NosCore.Database.Entities
         public int TalentWin { get; set; }
 
         public bool WhisperBlocked { get; set; }
+
         public virtual ICollection<Warehouse> Warehouses { get; set; }
+
+        public int BattlePassPoints { get; set; }
+
+        public bool IsBattelPassPremimum { get; set; }
     }
 }

@@ -188,8 +188,7 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<IncommingMailHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
-                .AsImplementedInterfaces()
-                ;
+                .AsImplementedInterfaces();
 
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);
