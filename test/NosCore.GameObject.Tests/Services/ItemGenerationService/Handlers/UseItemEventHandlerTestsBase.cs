@@ -30,7 +30,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
     {
         protected IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>? Handler;
         protected ClientSession? Session;
-        protected readonly UseItemPacket UseItem = new UseItemPacket();
+        protected readonly UseItemPacket UseItem = new();
 
         protected Task ExecuteInventoryItemInstanceEventHandlerAsync(InventoryItemInstance item)
         {

@@ -26,8 +26,7 @@ namespace NosCore.Core.Extensions
 {
     public static class TypeExtension
     {
-        private static readonly ConcurrentDictionary<Type, Func<object>> Constructors =
-            new ConcurrentDictionary<Type, Func<object>>();
+        private static readonly ConcurrentDictionary<Type, Func<object>> Constructors = new();
 
         public static Func<TBase> GetConstructorDelegate<TBase>(this Type type)
         {

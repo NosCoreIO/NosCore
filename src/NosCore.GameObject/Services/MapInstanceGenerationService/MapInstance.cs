@@ -19,7 +19,6 @@
 
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
-using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -40,6 +39,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Core.Networking;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
@@ -55,8 +55,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         private ConcurrentDictionary<int, MapNpc> _npcs;
 
-        public ConcurrentDictionary<Guid, MapDesignObject> MapDesignObjects =
-            new ConcurrentDictionary<Guid, MapDesignObject>();
+        public ConcurrentDictionary<Guid, MapDesignObject> MapDesignObjects = new();
 
         private readonly IClock _clock;
 
@@ -83,7 +82,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _logger = logger;
             Requests = new Dictionary<Type, Subject<RequestData<MapInstance>>>
             {
-                [typeof(IMapInstanceEntranceEventHandler)] = new Subject<RequestData<MapInstance>>()
+                [typeof(IMapInstanceEntranceEventHandler)] = new()
             };
         }
 
@@ -151,7 +150,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public ConcurrentQueue<IPacket> LastPackets { get; }
         public Dictionary<Type, Subject<RequestData<MapInstance>>> Requests { get; set; }
-        public List<Task> HandlerTasks { get; set; } = new List<Task>();
+        public List<Task> HandlerTasks { get; set; } = new();
 
         public void Dispose()
         {

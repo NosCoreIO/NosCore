@@ -64,7 +64,7 @@ namespace NosCore.GameObject.Services.MinilandService
             var miniland = _mapInstanceAccessorService.GetMapInstance(_minilandHolder.Minilands[characterId].MapInstanceId);
             return new List<Portal>
             {
-                new Portal
+                new()
                 {
                     SourceX = 48,
                     SourceY = 132,
@@ -76,7 +76,7 @@ namespace NosCore.GameObject.Services.MinilandService
                     DestinationMapInstanceId = miniland!.MapInstanceId,
                     SourceMapInstanceId = nosville!.MapInstanceId
                 },
-                new Portal
+                new()
                 {
                     SourceX = 9,
                     SourceY = 171,

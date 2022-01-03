@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
         {
             Requests = new Dictionary<Type, Subject<RequestData<Tuple<MapItem, GetPacket>>>>
             {
-                [typeof(IGetMapItemEventHandler)] = new Subject<RequestData<Tuple<MapItem, GetPacket>>>()
+                [typeof(IGetMapItemEventHandler)] = new()
             };
         }
 
@@ -77,7 +77,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
         public short PositionY { get; set; }
         public MapInstance MapInstance { get; set; } = null!;
 
-        public List<Task> HandlerTasks { get; set; } = new List<Task>();
+        public List<Task> HandlerTasks { get; set; } = new();
         public Dictionary<Type, Subject<RequestData<Tuple<MapItem, GetPacket>>>> Requests { get; set; }
 
         public DropPacket GenerateDrop()

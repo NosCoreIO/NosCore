@@ -119,7 +119,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }));
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
-                new CharacterRelationStatus
+                new()
                 {
                     CharacterId = _targetSession.Character.CharacterId,
                     IsConnected = true,
@@ -149,7 +149,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Open });
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
-                new CharacterRelationStatus
+                new()
                 {
                     CharacterId = _targetSession.Character.CharacterId,
                     IsConnected = true,
@@ -192,7 +192,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }));
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
-                new CharacterRelationStatus
+                new()
                 {
                     CharacterId = _targetSession.Character.CharacterId,
                     IsConnected = true,
@@ -227,7 +227,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }));
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
-                new CharacterRelationStatus
+                new()
                 {
                     CharacterId = _targetSession.Character.CharacterId,
                     IsConnected = true,

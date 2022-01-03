@@ -22,7 +22,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
@@ -30,6 +29,7 @@ using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using NosCore.Core.Networking;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {

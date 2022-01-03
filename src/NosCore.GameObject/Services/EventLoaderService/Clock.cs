@@ -1,5 +1,4 @@
-﻿using NosCore.Core;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+﻿using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using System;
 using System.Collections.Generic;
@@ -34,9 +33,9 @@ namespace NosCore.GameObject.Services.EventLoaderService
             }
         }
 
-        public List<Task> HandlerTasks { get; set; } = new List<Task>();
+        public List<Task> HandlerTasks { get; set; } = new();
 
-        public Dictionary<Type, Subject<RequestData<Instant>>> Requests { get; set; } = new Dictionary<Type, Subject<RequestData<Instant>>>
+        public Dictionary<Type, Subject<RequestData<Instant>>> Requests { get; set; } = new()
         {
             [typeof(ITimedEventHandler)] = new Subject<RequestData<Instant>>()
         };

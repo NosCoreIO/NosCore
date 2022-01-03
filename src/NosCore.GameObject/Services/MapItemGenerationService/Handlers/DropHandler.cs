@@ -23,7 +23,6 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
@@ -32,6 +31,7 @@ using NosCore.Shared.Enumerations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.Networking;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {

@@ -80,7 +80,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
         public async Task Test_TitleGuriHandlerWhenDuplicateAsync()
         {
             Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
-            Session.Character.Titles = new List<TitleDto> { new TitleDto { TitleType = 1 } };
+            Session.Character.Titles = new List<TitleDto> { new() { TitleType = 1 } };
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
                 Type = GuriPacketType.Title,

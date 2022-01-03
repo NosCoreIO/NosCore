@@ -19,13 +19,12 @@
 
 using System;
 using System.Collections.Concurrent;
-using NosCore.Networking;
 
 namespace NosCore.Core.Networking
 {
     public sealed class SessionFactory
     {
-        private static readonly Lazy<SessionFactory> Lazy = new Lazy<SessionFactory>(() => new SessionFactory());
+        private static readonly Lazy<SessionFactory> Lazy = new(() => new SessionFactory());
 
         private SessionFactory()
         {

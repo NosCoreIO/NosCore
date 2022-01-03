@@ -18,18 +18,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Microsoft.AspNetCore.Mvc;
-using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.Group;
 using NosCore.Packets.Interfaces;
-using NosCore.Shared.Enumerations;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.Core.Networking;
 
 namespace NosCore.WorldServer.Controllers
 {

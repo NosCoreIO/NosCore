@@ -19,7 +19,6 @@
 
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Database.Entities.Base;
-using System;
 using System.ComponentModel.DataAnnotations;
 using NodaTime;
 

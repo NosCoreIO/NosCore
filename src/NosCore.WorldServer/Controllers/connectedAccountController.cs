@@ -22,7 +22,6 @@ using Microsoft.AspNetCore.Mvc;
 using NosCore.Core;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
-using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Character = NosCore.GameObject.Character;

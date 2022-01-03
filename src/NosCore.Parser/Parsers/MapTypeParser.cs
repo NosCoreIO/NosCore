@@ -42,7 +42,7 @@ namespace NosCore.Parser.Parsers
 
         internal async Task InsertMapTypesAsync()
         {
-            var mts = new List<MapTypeDto> { new MapTypeDto
+            var mts = new List<MapTypeDto> { new()
                 {
                     MapTypeId = (short) MapTypeType.Act1,
                     MapTypeName = "Act1",
@@ -50,7 +50,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct1,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Act2,
                     MapTypeName = "Act2",
@@ -58,7 +58,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct1,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Act3,
                     MapTypeName = "Act3",
@@ -66,13 +66,13 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct1,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Act4,
                     MapTypeName = "Act4",
                     PotionDelay = 5000
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Act51,
                     MapTypeName = "Act5.1",
@@ -80,7 +80,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct5,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct5
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Act52,
                     MapTypeName = "Act5.2",
@@ -88,7 +88,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct5,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct5
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Act61,
                     MapTypeName = "Act6.1",
@@ -96,7 +96,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct6,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Act62,
                     MapTypeName = "Act6.2",
@@ -104,7 +104,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct6,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Act61A,
                     MapTypeName = "Act6.1a", // angel camp
@@ -112,7 +112,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct6,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Act61D,
                     MapTypeName = "Act6.1d", // demon camp
@@ -120,7 +120,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct6,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.CometPlain,
                     MapTypeName = "CometPlain",
@@ -128,7 +128,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct1,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Mine1,
                     MapTypeName = "Mine1",
@@ -136,7 +136,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct1,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Mine2,
                     MapTypeName = "Mine2",
@@ -144,7 +144,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct1,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.MeadowOfMine,
                     MapTypeName = "MeadownOfPlain",
@@ -152,7 +152,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct1,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.SunnyPlain,
                     MapTypeName = "SunnyPlain",
@@ -160,7 +160,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct1,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Fernon,
                     MapTypeName = "Fernon",
@@ -168,7 +168,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct1,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.FernonF,
                     MapTypeName = "FernonF",
@@ -176,7 +176,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct1,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Cliff,
                     MapTypeName = "Cliff",
@@ -184,37 +184,37 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultAct1,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct1
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.LandOfTheDead,
                     MapTypeName = "LandOfTheDead",
                     PotionDelay = 300
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Act32,
                     MapTypeName = "Act 3.2",
                     PotionDelay = 300
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.CleftOfDarkness,
                     MapTypeName = "Cleft of Darkness",
                     PotionDelay = 300
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.CitadelAngel,
                     MapTypeName = "AngelCitadel",
                     PotionDelay = 300
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.CitadelDemon,
                     MapTypeName = "DemonCitadel",
                     PotionDelay = 300
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Oasis,
                     MapTypeName = "Oasis",
@@ -222,7 +222,7 @@ namespace NosCore.Parser.Parsers
                     RespawnMapTypeId = (long) RespawnType.DefaultOasis,
                     ReturnMapTypeId = (long) RespawnType.DefaultOasis
                 },
-                new MapTypeDto
+                new()
                 {
                     MapTypeId = (short) MapTypeType.Act42,
                     MapTypeName = "Act42",

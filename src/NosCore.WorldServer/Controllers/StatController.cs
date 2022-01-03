@@ -19,7 +19,6 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;

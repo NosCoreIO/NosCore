@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
-using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
@@ -53,7 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
 
             _session.Character.MapInstance.Portals = new List<Portal>
             {
-                new Portal
+                new()
                 {
                     DestinationMapId = 1,
                     DestinationMapInstanceId = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapInstanceIdByMapId(1),

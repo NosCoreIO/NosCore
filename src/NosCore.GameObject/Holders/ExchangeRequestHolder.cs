@@ -23,8 +23,8 @@ namespace NosCore.GameObject.Holders
 {
     public class ExchangeRequestHolder
     {
-        public readonly ConcurrentDictionary<long, ExchangeData> ExchangeDatas = new ConcurrentDictionary<long, ExchangeData>();
+        public readonly ConcurrentDictionary<long, ExchangeData> ExchangeDatas = new();
 
-        public readonly ConcurrentDictionary<long, long> ExchangeRequests = new ConcurrentDictionary<long, long>();
+        public readonly ConcurrentDictionary<long, long> ExchangeRequests = new();
     }
 }

@@ -33,8 +33,7 @@ namespace NosCore.GameObject.Networking.Group
 
         public static GroupAccess Instance => _instance ??= new GroupAccess();
 
-        public ConcurrentDictionary<long, GameObject.Group> Groups { get; set; } =
-            new ConcurrentDictionary<long, GameObject.Group>();
+        public ConcurrentDictionary<long, GameObject.Group> Groups { get; set; } = new();
 
         public long GetNextGroupId()
         {

@@ -23,7 +23,6 @@ using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.EventLoaderService.Handlers;
 using NosCore.GameObject.Services.MapInstanceGenerationService;

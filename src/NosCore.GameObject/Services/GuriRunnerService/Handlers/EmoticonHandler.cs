@@ -19,11 +19,11 @@
 
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using System;
 using System.Threading.Tasks;
+using NosCore.Core.Networking;
 
 namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 {

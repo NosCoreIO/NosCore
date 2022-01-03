@@ -129,8 +129,8 @@ namespace NosCore.WebApi.Tests.ApiTests
         {
             var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Sid, "123"),
-                new Claim(ClaimTypes.NameIdentifier, _session.Account.Name),
+                new(ClaimTypes.Sid, "123"),
+                new(ClaimTypes.NameIdentifier, _session.Account.Name),
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
             _controller.ControllerContext = new ControllerContext
@@ -153,8 +153,8 @@ namespace NosCore.WebApi.Tests.ApiTests
         {
             var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Sid, "124"),
-                new Claim(ClaimTypes.NameIdentifier, _session.Account.Name),
+                new(ClaimTypes.Sid, "124"),
+                new(ClaimTypes.NameIdentifier, _session.Account.Name),
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
 

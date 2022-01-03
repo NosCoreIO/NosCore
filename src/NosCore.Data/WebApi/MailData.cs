@@ -33,7 +33,7 @@ namespace NosCore.Data.WebApi
         public string? ReceiverName { get; set; }
         public string? SenderName { get; set; }
         public long MailId { get; set; }
-        public MailDto MailDto { get; set; } = new MailDto();
+        public MailDto MailDto { get; set; } = new();
         public ItemInstanceDto? ItemInstance { get; set; }
         public short ItemType { get; set; }
 

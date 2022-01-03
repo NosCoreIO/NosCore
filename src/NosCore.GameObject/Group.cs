@@ -22,7 +22,6 @@ using DotNetty.Transport.Channels.Groups;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Groups;
@@ -32,6 +31,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Core.Networking;
 
 namespace NosCore.GameObject
 {

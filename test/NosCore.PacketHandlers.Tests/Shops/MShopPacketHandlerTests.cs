@@ -53,14 +53,14 @@ namespace NosCore.PacketHandlers.Tests.Shops
     public class MShopPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private readonly MShopPacket _shopPacket = new MShopPacket
+        private readonly MShopPacket _shopPacket = new()
         {
             Type = CreateShopPacketType.Open,
             ItemList = new List<MShopItemSubPacket?>
             {
-                new MShopItemSubPacket {Type = PocketType.Etc, Slot = 0, Amount = 1, Price = 10000},
-                new MShopItemSubPacket {Type = PocketType.Etc, Slot = 1, Amount = 2, Price = 20000},
-                new MShopItemSubPacket {Type = PocketType.Etc, Slot = 2, Amount = 3, Price = 30000}
+                new() {Type = PocketType.Etc, Slot = 0, Amount = 1, Price = 10000},
+                new() {Type = PocketType.Etc, Slot = 1, Amount = 2, Price = 20000},
+                new() {Type = PocketType.Etc, Slot = 2, Amount = 3, Price = 30000}
             },
             Name = "TEST SHOP"
         };
@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _session.Character.MapInstance.Portals = new List<Portal>
             {
-                new Portal
+                new()
                 {
                     DestinationMapId = _session.Character.MapInstance.Map.MapId,
                     Type = PortalType.Open,

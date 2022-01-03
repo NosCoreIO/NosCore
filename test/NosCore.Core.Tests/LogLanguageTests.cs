@@ -36,7 +36,7 @@ namespace NosCore.Core.Tests
     [TestClass]
     public class LogLanguageTests
     {
-        private readonly Dictionary<string, int> _dict = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> _dict = new();
 
         public LogLanguageTests()
         {

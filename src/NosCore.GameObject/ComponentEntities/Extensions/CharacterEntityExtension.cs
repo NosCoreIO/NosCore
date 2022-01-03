@@ -232,7 +232,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                        {
                            FriendList = new List<FinfoSubPackets?>
                            {
-                               new FinfoSubPackets
+                               new()
                                {
                                    CharacterId = visualEntity.VisualId,
                                    IsConnected = isConnected
@@ -341,7 +341,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static InEquipmentSubPacket GetEquipmentSubPacket(this ICharacterEntity visualEntity) => new InEquipmentSubPacket
+        public static InEquipmentSubPacket GetEquipmentSubPacket(this ICharacterEntity visualEntity) => new()
         {
             Armor = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear)?.ItemInstance?
                 .ItemVNum,

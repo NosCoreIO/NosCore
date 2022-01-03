@@ -24,6 +24,6 @@ namespace NosCore.GameObject.Holders
 {
     public class MinilandHolder
     {
-        public ConcurrentDictionary<long, Miniland> Minilands { get; set; } = new ConcurrentDictionary<long, Miniland>();
+        public ConcurrentDictionary<long, Miniland> Minilands { get; set; } = new();
     }
 }

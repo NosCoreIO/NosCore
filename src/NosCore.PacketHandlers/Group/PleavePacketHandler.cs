@@ -32,6 +32,8 @@ using NosCore.Packets.ServerPackets.UI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.Networking;
+
 //TODO stop using obsolete
 #pragma warning disable 618
 

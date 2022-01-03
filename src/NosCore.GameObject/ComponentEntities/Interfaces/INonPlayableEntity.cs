@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.StaticEntities;
-using System;
 using NodaTime;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces

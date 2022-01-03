@@ -86,7 +86,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             var list = new List<CharacterDto>
             {
                 _session!.Character!,
-                new CharacterDto {CharacterId = 2, Name = "test"}
+                new() {CharacterId = 2, Name = "test"}
             };
             _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile()))!);
