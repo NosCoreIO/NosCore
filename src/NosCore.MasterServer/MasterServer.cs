@@ -32,6 +32,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Core;
+using NosCore.Core.Services.IdService;
 
 namespace NosCore.MasterServer
 {
@@ -40,26 +41,28 @@ namespace NosCore.MasterServer
         private readonly ILogger _logger;
         private readonly MasterConfiguration _masterConfiguration;
         private readonly IClock _clock;
+        private readonly IIdService<ChannelInfo> _channelIdService;
 
-        public MasterServer(IOptions<MasterConfiguration> masterConfiguration, ILogger logger, IClock clock)
+        public MasterServer(IOptions<MasterConfiguration> masterConfiguration, ILogger logger, IClock clock, IIdService<ChannelInfo> channelIdService)
         {
             _masterConfiguration = masterConfiguration.Value;
             _logger = logger;
             _clock = clock;
+            _channelIdService = channelIdService;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (!Debugger.IsAttached)
             {
-                Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => MasterClientListSingleton.Instance.Channels
+                Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => _channelIdService.Items.Values
                     .Where(s =>
                         (s.LastPing.Plus(Duration.FromSeconds(10)) < _clock.GetCurrentInstant()) && (s.WebApi != null)).Select(s => s.Id).ToList()
                     .ForEach(id =>
                     {
                         _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),
                             id.ToString());
-                        MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == id);
+                        _channelIdService.Items.TryRemove(id, out var _);
                     }));
             }
 

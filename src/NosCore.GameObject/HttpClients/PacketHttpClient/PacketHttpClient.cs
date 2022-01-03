@@ -43,7 +43,7 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task BroadcastPacketAsync(PostedPacket packet, int channelId)
+        public async Task BroadcastPacketAsync(PostedPacket packet, long channelId)
         {
             var channel = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
             if (channel != null)
@@ -65,7 +65,7 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
             return Task.WhenAll(packets.Select(packet => BroadcastPacketAsync(packet)));
         }
 
-        public Task BroadcastPacketsAsync(List<PostedPacket> packets, int channelId)
+        public Task BroadcastPacketsAsync(List<PostedPacket> packets, long channelId)
         {
             return Task.WhenAll(packets.Select(packet => BroadcastPacketAsync(packet, channelId)));
         }

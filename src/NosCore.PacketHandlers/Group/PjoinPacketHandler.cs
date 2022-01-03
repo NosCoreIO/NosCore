@@ -33,8 +33,7 @@ using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
-
-using NosCore.GameObject.Services.IdService;
+using NosCore.Core.Services.IdService;
 using NosCore.Networking;
 
 //TODO stop using obsolete

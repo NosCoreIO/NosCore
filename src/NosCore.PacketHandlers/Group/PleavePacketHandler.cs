@@ -31,8 +31,7 @@ using NosCore.Packets.ServerPackets.UI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using NosCore.GameObject.Services.IdService;
+using NosCore.Core.Services.IdService;
 using NosCore.Networking;
 
 //TODO stop using obsolete

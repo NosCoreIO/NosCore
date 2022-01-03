@@ -64,6 +64,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Core.Services.IdService;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using FriendController = NosCore.MasterServer.Controllers.FriendController;
 using ILogger = Serilog.ILogger;
@@ -174,7 +175,7 @@ namespace NosCore.MasterServer
                 };
             });
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
-            containerBuilder.RegisterType<AuthController>();
+            containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
             containerBuilder.RegisterLogger();
 
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();

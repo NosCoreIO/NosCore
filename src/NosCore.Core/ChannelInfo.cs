@@ -25,7 +25,7 @@ namespace NosCore.Core
 {
     public class ChannelInfo
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string? Name { get; set; }
         public string Host { get; set; } = null!;
         public ushort Port { get; set; }

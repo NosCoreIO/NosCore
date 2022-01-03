@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 
-namespace NosCore.GameObject.Services.IdService
+namespace NosCore.Core.Services.IdService
 {
     public class IdService<T> : IIdService<T>
     {

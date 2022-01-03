@@ -41,7 +41,7 @@ namespace NosCore.Core
 
         public byte ServerId { get; set; }
 
-        public int ChannelId { get; set; }
+        public long ChannelId { get; set; }
 
         public string? DisplayHost { get; set; }
 

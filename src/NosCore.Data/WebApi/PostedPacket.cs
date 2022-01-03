@@ -29,7 +29,7 @@ namespace NosCore.Data.WebApi
 
         public Character? ReceiverCharacter { get; set; }
 
-        public int OriginWorldId { get; set; }
+        public long OriginWorldId { get; set; }
 
         public ReceiverType ReceiverType { get; set; }
     }
