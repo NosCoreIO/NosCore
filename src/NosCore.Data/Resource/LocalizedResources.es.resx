@@ -272,9 +272,6 @@
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>No se pudo encontrar la implementación del "controlador" (Handler) para el paquete con cabezera: {0}</value>
   </data>
-  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
-    <value>Tu nivel de héroe ha sido modificado.</value>
-  </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>¡{0} I18N ActDescs Analizadas! Región: {1}</value>
   </data>
@@ -333,18 +330,12 @@
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>¡No puedes soltar ese objeto aquí!</value>
   </data>
-  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
-    <value>Tu nivel de profesión ha sido modificado.</value>
-  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Has entrado al grupo.</value>
   </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Lenguaje faltante</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="LEVEL_CHANGED" xml:space="preserve">
-    <value>Tu nivel ha sido modificado.</value>
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Esta SP require de más Nivel de Profesión para usarla.</value>
@@ -385,9 +376,6 @@
   <data name="NEW_LEADER" xml:space="preserve">
     <value>¡Ahora eres el nuevo líder del grupo!</value>
   </data>
-  <data name="NOT_ADVENTURER" xml:space="preserve">
-    <value>Para cambiar de clase debes ser un Aventurero.</value>
-  </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>¡No tienes suficiente oro para comprar ese objeto!</value>
   </data>
@@ -399,9 +387,6 @@
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>¡Este Item no es tuyo!</value>
-  </data>
-  <data name="NO_ITEM" xml:space="preserve">
-    <value>¡El Item no existe!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>¡El servidor necesita al menos el Mapa (MAP) de Nosville para funcionar!</value>
@@ -505,9 +490,6 @@
   <data name="SAVING_ALL" xml:space="preserve">
     <value>¡Guardando todos los datos!</value>
   </data>
-  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>¡Tu objeto {0} ha sido vendido! {1}</value>
-  </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Has rechazado compartir el punto de regreso con los miembros del grupo.</value>
   </data>
@@ -550,17 +532,11 @@
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>¡No tienes suficientes puntos de SP para transformarte!</value>
   </data>
-  <data name="STAY_TIME" xml:space="preserve">
-    <value>Tiempo de los efectos secundarios de la transofrmación: {0} segundos</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>¡Cargado exitosamente!</value>
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>¿Estas seguro que deseas eliminar este objeto?</value>
-  </data>
-  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>Los efectos secundarios de la transformación han terminado. {0}</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>El vendedor no tiene suficiente espacio para recibir tus oros.</value>

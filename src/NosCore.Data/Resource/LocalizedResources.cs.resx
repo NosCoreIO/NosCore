@@ -291,12 +291,6 @@
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Nelze najít Obsluhu implementace pro balíček s hlavičkou {0}</value>
   </data>
-  <data name="HAS_SHOP_OPENED" xml:space="preserve">
-    <value>Nemůžeš vyměňovat s někým kdo má otevřený obchod.</value>
-  </data>
-  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
-    <value>Tvá úroveň šampiona byla změněna.</value>
-  </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>{0} I18N ActDescs Nahráno! Region: {1}</value>
   </data>
@@ -375,9 +369,6 @@
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Životnost Předmětu vypršela!</value>
   </data>
-  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
-    <value>Tvá úroveň práce byla změněna.</value>
-  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Vstoupil si do skupiny!</value>
   </data>
@@ -386,9 +377,6 @@
   </data>
   <data name="LEAVE_GROUP" xml:space="preserve">
     <value>[{0}] Opustil skupinu!</value>
-  </data>
-  <data name="LEVEL_CHANGED" xml:space="preserve">
-    <value>Tvá úroveň byla změněna.</value>
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Nemůžeš přidat více předmětů do Bazaru protože jsi překročil limit předmětů.</value>
@@ -426,9 +414,6 @@
   <data name="NEW_LEADER" xml:space="preserve">
     <value>Jsi nový vedoucí skupiny!</value>
   </data>
-  <data name="NOT_ADVENTURER" xml:space="preserve">
-    <value>Nejsi dobrodruh!</value>
-  </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Nemáš dostatek financí ke koupení tohoto předmětu!</value>
   </data>
@@ -443,9 +428,6 @@
   </data>
   <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
     <value>Nemáš medaili NosKupce.</value>
-  </data>
-  <data name="NO_ITEM" xml:space="preserve">
-    <value>Nebyly nalezeny žádné předměty!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Nebyly nalezeny žádné mapy. K chodu serveru potřebujete minimálně mapu Nosville.</value>
@@ -540,9 +522,6 @@
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Prosím čekej před teleportováním.</value>
   </data>
-  <data name="PRICE_EXCEEDED" xml:space="preserve">
-    <value>Cena byla překročena!</value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrováno na Master Serveru</value>
     <comment>check</comment>
@@ -598,12 +577,6 @@
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Nemáš dostatek SP Bodů pro změnu.</value>
   </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>Body SP Byly přidány! {0}</value>
-  </data>
-  <data name="STAY_TIME" xml:space="preserve">
-    <value>Zbývající čas sekundárních efektů: {0} sekund</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Úspeštně načtena!</value>
   </data>
@@ -615,9 +588,6 @@
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Obchodník má příliš mnoho zlata pro to aby mohl vzít další od tebe-</value>
-  </data>
-  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>Sekundární efekty skončily. {0}</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Nemožné požádat o skupinu</value>

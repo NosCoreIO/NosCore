@@ -387,14 +387,8 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Pas présent dans votre liste noire.</value>
   </data>
-  <data name="NO_ITEM" xml:space="preserve">
-    <value>Aucun objet n'a été trouvé.</value>
-  </data>
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Tout sauvegarder.</value>
-  </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>{0} points de spécialiste ont été ajoutés.</value>
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Êtes-vous sûr de vouloir supprimer ?</value>
@@ -462,20 +456,11 @@
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Type Visuel inconnu.</value>
   </data>
-  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
-    <value>Votre niveau de métier a augementé.</value>
-  </data>
-  <data name="LEVEL_CHANGED" xml:space="preserve">
-    <value>Votre niveau a augmenté.</value>
-  </data>
   <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
     <value>Fermeture du serveur dans {0} secondes.</value>
   </data>
   <data name="CONNECTION_LOST" xml:space="preserve">
     <value>La connection au serveur à été perdue.</value>
-  </data>
-  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
-    <value>Ton niveau héroïque a augementé.</value>
   </data>
   <data name="MASTER_SERVER_PING" xml:space="preserve">
     <value>Ping vers le master server.</value>
@@ -513,9 +498,6 @@
   <data name="LOW_REP" xml:space="preserve">
     <value>Vous manquez de réputation pour équiper cette carte SP.</value>
   </data>
-  <data name="NOT_ADVENTURER" xml:space="preserve">
-    <value>Impossible d'équiper cet objet en tant qu'aventurier.</value>
-  </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Vous n'avez pas assez d'argent.</value>
   </data>
@@ -530,9 +512,6 @@
   </data>
   <data name="REPUT_DECREASED" xml:space="preserve">
     <value>Votre réputation a diminuée.</value>
-  </data>
-  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>{0} a été vendu {1}.</value>
   </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>{0} ShopItem chargés.</value>
@@ -570,14 +549,8 @@
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Impossible de porter la SP, car vous n'avez plus de points.</value>
   </data>
-  <data name="STAY_TIME" xml:space="preserve">
-    <value>Effet restant avant de pouvoir se transformer à nouveau : {0} secondes.</value>
-  </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Impossible d'acheter l'objet car le propiétaire ne peut pas collecter tout l'or.</value>
-  </data>
-  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>L'effet secondaire de la transformation a disparu. Vous pouvez de nouveau équiper une SP. {0}</value>
   </data>
   <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve">
     <value>Une carte SP invalide a été détéctée.</value>
@@ -602,9 +575,6 @@
   </data>
   <data name="EXCHANGE_BLOCKED" xml:space="preserve">
     <value>Le joueur à bloqué les échanges.</value>
-  </data>
-  <data name="HAS_SHOP_OPENED" xml:space="preserve">
-    <value>Le joueur ciblé à un magasin déjà ouvert.</value>
   </data>
   <data name="INVALID_EXCHANGE" xml:space="preserve">
     <value>Impossible de conclure l'échange, il esciste des objets invendable dans l'échange.</value>
@@ -695,9 +665,6 @@
   </data>
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Patiente avant de prendre le portail !</value>
-  </data>
-  <data name="PRICE_EXCEEDED" xml:space="preserve">
-    <value>La limite de prix est dépassée.</value>
   </data>
   <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
     <value>La vente est terminée. Or : {0}.</value>

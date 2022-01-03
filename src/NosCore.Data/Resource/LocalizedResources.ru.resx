@@ -366,13 +366,6 @@
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Не удается найти реализацию обработчика для пакета с заголовком {0}</value>
   </data>
-  <data name="HAS_SHOP_OPENED" xml:space="preserve">
-    <value>Нельзя обмениваться с владельцем магазина</value>
-  </data>
-  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
-    <value>Твой Героический Уровень изменился</value>
-    <comment>Какая-то ересь. Возможно, "Ваш Уровень Героя повышен" звучало бы лучше, но не ясно, используется ли это сообщение только при повышении уровня. (Возможно, что оно отображается при изменении уровня через команду администратора, а в таком случае, он может быть и понижен).</comment>
-  </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>Импортировано {0} I18N ActDescs! Регион: {1}</value>
     <comment>Пока не уверен, что именно в данном контексте подразумевается под "регионом".</comment>
@@ -472,10 +465,6 @@
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Предмет больше не действителен.</value>
   </data>
-  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
-    <value>Твой рабочий уровень изменился!</value>
-    <comment>Возможно, что он повысился, а не изменился, нужно проверять в игре</comment>
-  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Вы присоединились к группе</value>
   </data>
@@ -486,9 +475,6 @@
   <data name="LEAVE_GROUP" xml:space="preserve">
     <value>[{0}] покинул группу!</value>
     <comment>Check</comment>
-  </data>
-  <data name="LEVEL_CHANGED" xml:space="preserve">
-    <value>Твой Уровень изменился!</value>
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Лимит превышен</value>
@@ -560,9 +546,6 @@
   <data name="NEW_MAIL" xml:space="preserve">
     <value>Новых писем: {0}</value>
   </data>
-  <data name="NOT_ADVENTURER" xml:space="preserve">
-    <value>Вы не Искатель приключений.</value>
-  </data>
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
     <value>Недостаточно очков прочности.</value>
   </data>
@@ -589,10 +572,6 @@
   </data>
   <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
     <value>У Вас нет медали НосТорговца.</value>
-  </data>
-  <data name="NO_ITEM" xml:space="preserve">
-    <value>Предмет не существует!</value>
-    <comment>или отсутствует?</comment>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Для работы сервера необходимо установить хотя бы карту НосВилля.</value>
@@ -694,9 +673,6 @@
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Портал перезаряжается, нужно немножко потерпеть.</value>
   </data>
-  <data name="PRICE_EXCEEDED" xml:space="preserve">
-    <value>Значение цены превышено</value>
-  </data>
   <data name="QUESTS_PARSED" xml:space="preserve">
     <value>Импортировано {0} квест(ов).</value>
   </data>
@@ -727,9 +703,6 @@
   </data>
   <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
     <value>Токен безопасности обновлен.</value>
-  </data>
-  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>Продано: {0} х{1}</value>
   </data>
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
     <value>Сообщение отправлено.</value>
@@ -782,16 +755,8 @@
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Недостаточно ОС для трансформации!</value>
   </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>ОС восполнены на {0}!</value>
-    <comment>Check</comment>
-  </data>
   <data name="STATE_CHANGED_BAZAAR" xml:space="preserve">
     <value>Лот обновлен.</value>
-  </data>
-  <data name="STAY_TIME" xml:space="preserve">
-    <value>Время действия вторичных эффектов: {0} сек.</value>
-    <comment>Что за вторичные эффекты? Те, которые эффекты после возраждения?</comment>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Загрузка завершена успешно!</value>
@@ -807,10 +772,6 @@
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>У продавца слишком много денег.</value>
-  </data>
-  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>Время действия вторичных эффектов закончилось. {0}</value>
-    <comment>Что за вторичные эффекты? Те, которые эффекты после возраждения?</comment>
   </data>
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Попробуйте использователь старый метод аутентификации {0}</value>

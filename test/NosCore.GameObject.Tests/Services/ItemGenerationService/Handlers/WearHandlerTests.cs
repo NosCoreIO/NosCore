@@ -206,7 +206,6 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (SayiPacket?)Session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED, Session.Account.Language),lastpacket?.Message);
             Assert.AreEqual(lastpacket?.VisualType == VisualType.Player, lastpacket?.VisualId == Session.Character.CharacterId);
             Assert.AreEqual(lastpacket?.Type == SayColorType.Yellow, lastpacket?.Message == Game18NConstString.SpecialistCardsCannotBeTradedWhileTransformed);
         }

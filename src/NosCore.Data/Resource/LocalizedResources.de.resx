@@ -357,12 +357,6 @@
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Konnte keine Handler implementierung für das Paket mit dem Header {0} finden</value>
   </data>
-  <data name="HAS_SHOP_OPENED" xml:space="preserve">
-    <value>Du hast deinen Shop eröffnet!</value>
-  </data>
-  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
-    <value>Dein Helden Level hat sich geändert!</value>
-  </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>{0} I18N ActDescs geladen! Region: {1}</value>
   </data>
@@ -457,9 +451,6 @@
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Item ist nicht mehr benutzbar.</value>
   </data>
-  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
-    <value>Dein Job Level hat sich geändert!</value>
-  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Du bist der Gruppe beigetreten!</value>
   </data>
@@ -469,9 +460,6 @@
   </data>
   <data name="LEAVE_GROUP" xml:space="preserve">
     <value>Ein Spieler hat die Gruppe verlassen! {0}</value>
-  </data>
-  <data name="LEVEL_CHANGED" xml:space="preserve">
-    <value>Dein Level hat sich geändert!</value>
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Du hast die Itemmenge überschritten.</value>
@@ -540,9 +528,6 @@
     <value>Du hast {0} neue Nachrichten!</value>
     <comment>check</comment>
   </data>
-  <data name="NOT_ADVENTURER" xml:space="preserve">
-    <value>Du bist kein Abenteurer</value>
-  </data>
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
     <value>Du hast nicht genügend Haltbarkeitspunkte.</value>
   </data>
@@ -569,9 +554,6 @@
   </data>
   <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
     <value>Du hast keine Bazaar Medalie aktiv.</value>
-  </data>
-  <data name="NO_ITEM" xml:space="preserve">
-    <value>Item existiert nicht!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Server benötigt mindestens die nosville Karte um zu funktionieren!</value>
@@ -674,9 +656,6 @@
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Bitte warte bevor du dich teleportieren willst!</value>
   </data>
-  <data name="PRICE_EXCEEDED" xml:space="preserve">
-    <value>Maximal Preis überstiegen!</value>
-  </data>
   <data name="QUESTS_PARSED" xml:space="preserve">
     <value>{0} Quests wurden geparsed.</value>
   </data>
@@ -707,9 +686,6 @@
   </data>
   <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
     <value>Sicherheitstoken geändert!</value>
-  </data>
-  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>Dein {0} wurde verkauft! {1}</value>
   </data>
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
     <value>Nachricht an Empfänger gesendet.</value>
@@ -766,14 +742,8 @@
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Du hast nicht genügend SP Punkte um dich zu verwandeln!</value>
   </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>Du hast SP Points erhalten! {0}</value>
-  </data>
   <data name="STATE_CHANGED_BAZAAR" xml:space="preserve">
     <value />
-  </data>
-  <data name="STAY_TIME" xml:space="preserve">
-    <value>Verbleibende Zeit: {0} sekunden</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Erfolgreich geladen!</value>
@@ -789,10 +759,6 @@
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Der Verkäufer besitzt zu viel Gold!</value>
-  </data>
-  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>Die Sekundären Effekte sind abgeklungen. {0}</value>
-    <comment>The secondary effects have finished. {0}</comment>
   </data>
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Alte Authentikation versuchen</value>

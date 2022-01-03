@@ -186,7 +186,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Price = 100000001
             }, _session).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.NotExceedMaxPrice && lastpacket?.FirstArgument == 4 && lastpacket?.SecondArgument == 100000001);
+            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.NotExceedMaxPrice && lastpacket?.FirstArgument == 4 && lastpacket?.SecondArgument == 1000000);
         }
 
         [TestMethod]

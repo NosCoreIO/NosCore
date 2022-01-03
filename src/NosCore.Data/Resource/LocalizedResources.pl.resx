@@ -270,9 +270,6 @@
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Nie można znaleźć Handler wdrożenie dla Packet z Header {0}</value>
   </data>
-  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
-    <value>Twój poziom bohatera się zmienił!</value>
-  </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>{0} I18N ActDescs wprowadzono! Region: {1}</value>
   </data>
@@ -330,17 +327,11 @@
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Nie możesz upuścić tego przedmiotu tutaj!</value>
   </data>
-  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
-    <value>Twoja profesja została zmieniona!</value>
-  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Dołączyłeś do grupy</value>
   </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Brakujący język</value>
-  </data>
-  <data name="LEVEL_CHANGED" xml:space="preserve">
-    <value>Twój poziom został zmieniony!</value>
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Twoja profesja jest zbyt niska, aby założyć tą Kartę Specjalisty!</value>
@@ -381,9 +372,6 @@
   <data name="NEW_LEADER" xml:space="preserve">
     <value>Zostałeś nowym liderem grupy!</value>
   </data>
-  <data name="NOT_ADVENTURER" xml:space="preserve">
-    <value>Nie jesteś Poszukiwaczem Przygód.</value>
-  </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Nie masz wystarczająco złota, aby kupić ten przedmiot.</value>
   </data>
@@ -395,9 +383,6 @@
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>Ten przedmiot nie jest Twój!</value>
-  </data>
-  <data name="NO_ITEM" xml:space="preserve">
-    <value>Przedmiot nie istnieje!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Serwer potrzebuje przynajmniej mapy NosVille do poprawnego działania!</value>
@@ -501,9 +486,6 @@
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Zapisywanie wszystkich danych!</value>
   </data>
-  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>Twój przedmiot {0} został sprzedany! {1}</value>
-  </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Odmówiłeś dzielenia punktu powrotu z członkami grupy</value>
   </data>
@@ -546,17 +528,11 @@
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Nie masz wystarczającej liczby punktów SP do transformacji!</value>
   </data>
-  <data name="STAY_TIME" xml:space="preserve">
-    <value>Pozostały czas efektów ubocznych: {0} sekund</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Pomyślnie załadowano!</value>
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Czy na pewno chcesz usunąć ten przedmiot?</value>
-  </data>
-  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>Efekty uboczne zakończyły się. {0}</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Sprzedający nie ma wystarczającej ilości miejsca do trzymania Twoich pieniędzy.</value>
@@ -596,9 +572,6 @@
   </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Ładowanie MapInstances...</value>
-  </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>Punkty SP zwiększone o {0}!</value>
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Wsparcie</value>
