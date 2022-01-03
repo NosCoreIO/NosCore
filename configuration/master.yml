@@ -6,6 +6,6 @@ Language: en
 Database:
   Host: ${DB_HOST,localhost}
   Port: 5432
-  Database: postgres
+  Database: noscore
   Username: postgres
   Password: password

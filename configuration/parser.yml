@@ -2,6 +2,6 @@ Language: en
 Database:
   Host: localhost
   Port: 5432
-  Database: postgres
+  Database: noscore
   Username: postgres
   Password: password
