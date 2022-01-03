@@ -39,21 +39,23 @@ namespace NosCore.GameObject.Networking
         private readonly IOptions<ServerConfiguration> _configuration;
         private readonly MessageToMessageDecoder<IByteBuffer> _decoder;
         private readonly MessageToMessageEncoder<IEnumerable<IPacket>> _encoder;
+        private readonly ISessionRefHolder _sessionRefHolder;
 
         public PipelineFactory(ISocketChannel channel, MessageToMessageDecoder<IByteBuffer> decoder,
             MessageToMessageEncoder<IEnumerable<IPacket>> encoder, INetworkClient clientSession,
-            IOptions<ServerConfiguration> configuration)
+            IOptions<ServerConfiguration> configuration, ISessionRefHolder sessionRefHolder)
         {
             _channel = channel;
             _decoder = decoder;
             _encoder = encoder;
             _clientSession = clientSession;
             _configuration = configuration;
+            _sessionRefHolder = sessionRefHolder;
         }
 
         public void CreatePipeline()
         {
-            SessionFactory.Instance.Sessions[_channel.Id.AsLongText()] =
+            _sessionRefHolder[_channel.Id.AsLongText()] =
                 new RegionTypeMapping(0, _configuration.Value.Language);
             var pipeline = _channel.Pipeline;
             pipeline.AddLast(_decoder);

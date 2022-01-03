@@ -97,12 +97,12 @@ namespace NosCore.LoginServer
                 .SingleInstance();
             containerBuilder.RegisterType<Dao<Database.Entities.Character, CharacterDto, long>>().As<IDao<CharacterDto, long>>()
                 .SingleInstance();
-            containerBuilder.RegisterType<Core.Encryption.LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
-            containerBuilder.RegisterType<Core.Encryption.LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
+            containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
+            containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
 
             containerBuilder.RegisterType<ClientSession>().AsImplementedInterfaces();
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
-            containerBuilder.RegisterType<GameObject.Networking.NetworkManager>();
+            containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces();
 
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();

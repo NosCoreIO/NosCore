@@ -36,6 +36,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.Character;
+using NosCore.Networking.SessionRef;
 
 namespace NosCore.GameObject.Networking.LoginService
 {
@@ -47,11 +48,12 @@ namespace NosCore.GameObject.Networking.LoginService
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly IDao<CharacterDto, long> _characterDao;
+        private readonly ISessionRefHolder _sessionRefHolder;
 
         public LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
             IAuthHttpClient authHttpClient,
             IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient,
-            IDao<CharacterDto, long> characterDao)
+            IDao<CharacterDto, long> characterDao, ISessionRefHolder sessionRefHolder)
         {
             _loginConfiguration = loginConfiguration;
             _accountDao = accountDao;
@@ -59,6 +61,7 @@ namespace NosCore.GameObject.Networking.LoginService
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _channelHttpClient = channelHttpClient;
             _characterDao = characterDao;
+            _sessionRefHolder = sessionRefHolder;
         }
 
         public async Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId)
@@ -91,7 +94,7 @@ namespace NosCore.GameObject.Networking.LoginService
             try
             {
                 clientSession.SessionId = clientSession.Channel?.Id != null
-                    ? SessionFactory.Instance.Sessions[clientSession.Channel.Id.AsLongText()].SessionId : 0;
+                    ? _sessionRefHolder[clientSession.Channel.Id.AsLongText()].SessionId : 0;
 
 
                 if (((_loginConfiguration.Value.ClientVersion != null) &&

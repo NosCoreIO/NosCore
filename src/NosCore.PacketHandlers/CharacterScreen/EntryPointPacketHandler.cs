@@ -45,6 +45,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Networking;
+using NosCore.Networking.SessionRef;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -58,12 +59,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly ILogger _logger;
         private readonly IDao<MateDto, long> _mateDao;
         private readonly IOptions<WorldConfiguration> _configuration;
+        private readonly ISessionRefHolder _sessionRefHolder;
 
         public EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
             IDao<MateDto, long> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient, IOptions<WorldConfiguration> configuration)
+            IChannelHttpClient channelHttpClient, IOptions<WorldConfiguration> configuration, ISessionRefHolder sessionRefHolder)
         {
             _characterDao = characterDao;
             _accountDao = accountDao;
@@ -73,10 +75,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _channelHttpClient = channelHttpClient;
             _configuration = configuration;
+            _sessionRefHolder = sessionRefHolder;
         }
 
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IDao<AccountDto, long> accountDao, IChannelHttpClient channelHttpClient, bool passwordLessConnection, string accountName, string password, int sessionId)
+            IConnectedAccountHttpClient connectedAccountHttpClient, IDao<AccountDto, long> accountDao, IChannelHttpClient channelHttpClient, bool passwordLessConnection, string accountName, string password, int sessionId, ISessionRefHolder sessionRefHolder)
         {
             var alreadyConnnected = false;
             var servers = await channelHttpClient.GetChannelsAsync().ConfigureAwait(false) ?? new List<ChannelInfo>();
@@ -134,7 +137,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            var sessionMapping = SessionFactory.Instance.Sessions
+            var sessionMapping = sessionRefHolder
                 .FirstOrDefault(s => s.Value.SessionId == clientSession.SessionId);
             if (!sessionMapping.Equals(default(KeyValuePair<string, RegionTypeMapping>)))
             {
@@ -151,7 +154,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var passwordLessConnection = packet.Password == "thisisgfmode";
                 await VerifyConnectionAsync(clientSession, _logger, _authHttpClient, _connectedAccountHttpClient,
                     _accountDao, _channelHttpClient, passwordLessConnection, packet.Name, packet.Password,
-                    clientSession.SessionId);
+                    clientSession.SessionId, _sessionRefHolder);
                 if (clientSession.Account == null!)
                 {
                     return;

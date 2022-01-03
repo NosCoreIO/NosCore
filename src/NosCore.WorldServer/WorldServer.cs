@@ -40,12 +40,12 @@ namespace NosCore.WorldServer
     {
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly ILogger _logger;
-        private readonly GameObject.Networking.NetworkManager _networkManager;
+        private readonly NetworkManager _networkManager;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly IMapInstanceGeneratorService _mapInstanceGeneratorService;
         private readonly Clock _clock;
 
-        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, GameObject.Networking.NetworkManager networkManager, Clock clock, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService)
+        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;

@@ -40,10 +40,10 @@ namespace NosCore.LoginServer
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly ILogger _logger;
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
-        private readonly GameObject.Networking.NetworkManager _networkManager;
+        private readonly NetworkManager _networkManager;
         private readonly NosCoreContext _context;
 
-        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, GameObject.Networking.NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, NosCoreContext context)
+        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, NosCoreContext context)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;

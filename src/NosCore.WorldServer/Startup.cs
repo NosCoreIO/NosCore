@@ -261,13 +261,13 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces();
 
             //NosCore.Core
-            containerBuilder.RegisterType<Core.Encryption.WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
-            containerBuilder.RegisterType<Core.Encryption.WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
+            containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
+            containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<AuthController>();
 
             containerBuilder.RegisterType<ClientSession>().AsImplementedInterfaces();
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
-            containerBuilder.RegisterType<GameObject.Networking.NetworkManager>();
+            containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces();
 
             //NosCore.GameObject

@@ -53,6 +53,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Networking.SessionRef;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
@@ -74,9 +75,10 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
         private Character? _character;
         private int? _waitForPacketsAmount;
+        private readonly ISessionRefHolder _sessionRefHolder;
 
         public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder)
             : base(logger)
         {
             _logger = logger;
@@ -84,6 +86,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             _friendHttpClient = friendHttpClient;
             _packetSerializer = packetSerializer;
             _packetHttpClient = packetHttpClient;
+            _sessionRefHolder = sessionRefHolder;
             foreach (var handler in _packetsHandlers)
             {
                 var type = handler.GetType().BaseType?.GenericTypeArguments[0]!;
@@ -96,7 +99,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder)
         {
         }
 
@@ -104,7 +107,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             IExchangeService? exchangeService, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
-            IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
+            IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, ISessionRefHolder sessionRefHolder) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder)
         {
             _mapInstanceAccessorService = mapInstanceAccessorService;
             _exchangeProvider = exchangeService!;
@@ -429,7 +432,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                         if (!_waitForPacketsAmount.HasValue && (LastKeepAliveIdentity == 0))
                         {
-                            SessionId = SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId;
+                            SessionId = _sessionRefHolder[contex.Channel.Id.AsLongText()].SessionId;
                             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED),
                                 SessionId);
 
