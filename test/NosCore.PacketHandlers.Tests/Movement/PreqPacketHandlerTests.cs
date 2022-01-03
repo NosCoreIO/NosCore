@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
@@ -47,7 +48,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
             _minilandProvider = new Mock<IMinilandService>();
             _minilandProvider.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<Portal>());
             _preqPacketHandler =
-                new PreqPacketHandler(TestHelpers.Instance.MapInstanceAccessorService, _minilandProvider.Object, TestHelpers.Instance.DistanceCalculator);
+                new PreqPacketHandler(TestHelpers.Instance.MapInstanceAccessorService, _minilandProvider.Object, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock);
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0);
 
             _session.Character.MapInstance.Portals = new List<Portal>
@@ -79,8 +80,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
 
-            var time = SystemTime.Now();
-            SystemTime.Freeze(time);
+            var time = TestHelpers.Instance.Clock.GetCurrentInstant();
             await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.LastPortal == time);
         }
@@ -90,9 +90,8 @@ namespace NosCore.PacketHandlers.Tests.Movement
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            var time = SystemTime.Now();
-            SystemTime.Freeze(time);
-            _session.Character.LastPortal = time.AddMinutes(1);
+            var time = TestHelpers.Instance.Clock.GetCurrentInstant();
+            _session.Character.LastPortal = time.Plus(Duration.FromMinutes(1));
             _session.Character.LastMove = time;
             await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
             Assert.IsTrue((_session.Character.PositionY == 0) && (_session.Character.PositionX == 0) &&
@@ -104,8 +103,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            var time = SystemTime.Now();
-            SystemTime.Freeze(time);
+            var time = TestHelpers.Instance.Clock.GetCurrentInstant();
             _session.Character.LastPortal = time;
             await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
             Assert.IsTrue((_session.Character.PositionY == 0) && (_session.Character.PositionX == 0) &&

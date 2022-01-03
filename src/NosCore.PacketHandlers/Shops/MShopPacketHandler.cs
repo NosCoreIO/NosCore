@@ -23,7 +23,6 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.NRunService;
@@ -35,6 +34,8 @@ using NosCore.PathFinder.Interfaces;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.Networking.ChannelMatcher;
+
 //TODO stop using obsolete
 #pragma warning disable 618
 

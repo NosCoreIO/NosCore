@@ -28,6 +28,7 @@ using Serilog;
 using System;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.GameObject
 {
@@ -36,11 +37,13 @@ namespace NosCore.GameObject
         private readonly ILogger _logger;
 
         private readonly IHeuristic _distanceCalculator;
+        private readonly IClock _clock;
         public NpcMonsterDto NpcMonster { get; private set; } = null!;
-        public MapMonster(ILogger logger, IHeuristic distanceCalculator)
+        public MapMonster(ILogger logger, IHeuristic distanceCalculator, IClock clock)
         {
             _logger = logger;
             _distanceCalculator = distanceCalculator;
+            _clock = clock;
         }
 
         public IDisposable? Life { get; private set; }
@@ -78,7 +81,7 @@ namespace NosCore.GameObject
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
         public MapInstance MapInstance { get; set; } = null!;
-        public DateTime LastMove { get; set; }
+        public Instant LastMove { get; set; }
         public bool IsAlive { get; set; }
         public int MaxHp => NpcMonster.MaxHp;
 
@@ -120,7 +123,7 @@ namespace NosCore.GameObject
 
         private Task MonsterLifeAsync()
         {
-            return this.MoveAsync(_distanceCalculator);
+            return this.MoveAsync(_distanceCalculator, _clock);
         }
     }
 }

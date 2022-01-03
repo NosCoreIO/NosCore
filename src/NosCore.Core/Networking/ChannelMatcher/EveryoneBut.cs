@@ -17,19 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Shared.Enumerations;
+using DotNetty.Transport.Channels;
+using DotNetty.Transport.Channels.Groups;
 
-namespace NosCore.Core
+namespace NosCore.Core.Networking.ChannelMatcher
 {
-    public class RegionTypeMapping
+    public class EveryoneBut : IChannelMatcher
     {
-        public RegionTypeMapping(int sessionId, RegionType regionType)
+        private readonly IChannelId _id;
+
+        public EveryoneBut(IChannelId id)
         {
-            SessionId = sessionId;
-            RegionType = regionType;
+            _id = id;
         }
 
-        public int SessionId { get; set; }
-        public RegionType RegionType { get; set; }
+        public bool Matches(IChannel channel)
+        {
+            return channel.Id != _id;
+        }
     }
 }

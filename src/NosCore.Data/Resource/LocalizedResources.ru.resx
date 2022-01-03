@@ -256,10 +256,6 @@
     <value>Клиент прибыл на сервер, SessionId: {0}</value>
     <comment>Проверить контекст, возможно, нужно использователь "Пользователь"</comment>
   </data>
-  <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>Новый клиент подключился. ClientId = {0}</value>
-    <comment>Проверить контекст, возможно, нужно использователь "Пользователь"</comment>
-  </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Клиент отключился. ClientId = {0}</value>
     <comment>Проверить контекст, возможно, нужно использователь "Пользователь"</comment>
@@ -294,10 +290,6 @@
   <data name="EFFECT_ACTIVATED" xml:space="preserve">
     <value>Эффект {0} был активирован!</value>
   </data>
-  <data name="ENCODE_ERROR" xml:space="preserve">
-    <value>Ошибка кодирования: {0}</value>
-    <comment>Возможно, что тут подразумевается "ошибка шифрования"</comment>
-  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Пожалуйста, введите адрес директории с файлами для импорта</value>
   </data>
@@ -306,14 +298,6 @@
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Персонаж изменен во время перехода на карту. Не злоупотребляйте командами. {0}</value>
-  </data>
-  <data name="ERROR_DECODING" xml:space="preserve">
-    <value>Ошибка декодирования: {0}</value>
-    <comment>insert missing type data</comment>
-  </data>
-  <data name="ERROR_SESSIONID" xml:space="preserve">
-    <value>Ошибка SessionId</value>
-    <comment>insert missing type data</comment>
   </data>
   <data name="EXCEPTION" xml:space="preserve">
     <value>Вызвано исключение: {0}</value>
@@ -511,9 +495,6 @@
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Лимит превышен</value>
-  </data>
-  <data name="LISTENING_PORT" xml:space="preserve">
-    <value>Слушаю порт {0}</value>
   </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Загрузка MapInstances...</value>

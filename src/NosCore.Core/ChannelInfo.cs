@@ -20,6 +20,7 @@
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using System;
+using NodaTime;
 
 namespace NosCore.Core
 {
@@ -35,7 +36,7 @@ namespace NosCore.Core
 
         public ServerConfiguration? WebApi { get; set; }
 
-        public DateTime LastPing { get; set; }
+        public Instant LastPing { get; set; }
 
         public ServerType Type { get; set; }
         public bool IsMaintenance { get; set; }

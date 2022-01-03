@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NodaTime;
 using NosCore.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -17,9 +18,37 @@ namespace NosCore.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "6.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "audit_log_type", new[] { "account_creation", "character_creation", "email_update" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "authority_type", new[] { "user", "moderator", "game_master", "administrator", "root", "closed", "banned", "unconfirmed" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "character_class_type", new[] { "adventurer", "swordsman", "archer", "mage", "martial_artist" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "character_relation_type", new[] { "friend", "hidden_spouse", "spouse", "blocked" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "character_state", new[] { "active", "inactive" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_type", new[] { "neutral", "fire", "water", "light", "dark" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "equipment_type", new[] { "main_weapon", "armor", "hat", "gloves", "boots", "secondary_weapon", "necklace", "ring", "bracelet", "mask", "fairy", "amulet", "sp", "costume_suit", "costume_hat", "weapon_skin", "wing_skin" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_authority", new[] { "head", "assistant", "manager", "member" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_authority_type", new[] { "none", "put", "all" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_log_type", new[] { "daily_message", "raid_won", "rainbow_battle", "family_xp", "family_level_up", "level_up", "item_upgraded", "right_changed", "authority_changed", "family_managed", "user_managed", "ware_house_added", "ware_house_removed" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_member_rank", new[] { "nothing", "old_uncle", "old_aunt", "father", "mother", "uncle", "aunt", "brother", "sister", "spouse", "brother2", "sister2", "old_son", "old_daugter", "middle_son", "middle_daughter", "young_son", "young_daugter", "old_little_son", "old_little_daughter", "little_son", "little_daughter", "middle_little_son", "middle_little_daugter" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "gender_type", new[] { "male", "female" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "hair_color_type", new[] { "dark_purple", "yellow", "blue", "purple", "orange", "brown", "green", "dark_grey", "light_blue", "pink_red", "light_yellow", "light_pink", "light_green", "light_grey", "sky_blue", "black", "dark_orange", "dark_orange_variant2", "dark_orange_variant3", "dark_orange_variant4", "dark_orange_variant5", "dark_orange_variant6", "light_orange", "light_light_orange", "light_light_light_orange", "light_light_light_light_orange", "super_light_orange", "dark_yellow", "light_light_yellow", "kaki_yellow", "super_light_yellow", "super_light_yellow2", "super_light_yellow3", "little_dark_yellow", "yellow_variant", "yellow_variant1", "yellow_variant2", "yellow_variant3", "yellow_variant4", "yellow_variant5", "yellow_variant6", "yellow_variant7", "yellow_variant8", "yellow_variant9", "green_variant", "green_variant1", "dark_green_variant", "green_more_dark_variant", "green_variant2", "green_variant3", "green_variant4", "green_variant5", "green_variant6", "green_variant7", "green_variant8", "green_variant9", "green_variant10", "green_variant11", "green_variant12", "green_variant13", "green_variant14", "green_variant15", "green_variant16", "green_variant17", "green_variant18", "green_variant19", "green_variant20", "light_blue_variant1", "light_blue_variant2", "light_blue_variant3", "light_blue_variant4", "light_blue_variant5", "light_blue_variant6", "light_blue_variant7", "light_blue_variant8", "light_blue_variant9", "light_blue_variant10", "light_blue_variant11", "light_blue_variant12", "light_blue_variant13", "dark_black", "light_blue_variant14", "light_blue_variant15", "light_blue_variant16", "light_blue_variant17", "blue_variant", "blue_variant_dark", "blue_variant_dark_dark", "blue_variant_dark_dark2", "flash_blue", "flash_blue_dark", "flash_blue_dark2", "flash_blue_dark3", "flash_blue_dark4", "flash_blue_dark5", "flash_blue_dark6", "flash_blue_dark7", "flash_blue_dark8", "flash_blue_dark9", "white", "flash_blue_dark10", "flash_blue1", "flash_blue2", "flash_blue3", "flash_blue4", "flash_blue5", "flash_purple", "flash_light_purple", "flash_light_purple2", "flash_light_purple3", "flash_light_purple4", "flash_light_purple5", "light_purple", "purple_variant1", "purple_variant2", "purple_variant3", "purple_variant4", "purple_variant5", "purple_variant6", "purple_variant7", "purple_variant8", "purple_variant9", "purple_variant10", "purple_variant11", "purple_variant12", "purple_variant13", "purple_variant14", "purple_variant15" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "hair_style_type", new[] { "hair_style_a", "hair_style_b", "hair_style_c", "hair_style_d", "no_hair" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "item_effect_type", new[] { "no_effect", "teleport", "apply_hair_die", "speaker", "marriage_proposal", "undefined", "sp_charger", "dropped_sp_recharger", "premium_sp_recharger", "crafted_sp_recharger", "specialist_medal", "apply_skin_partner", "change_gender", "point_initialisation", "sealed_tarot_card", "tarot_card", "red_amulet", "blue_amulet", "reinforcement_amulet", "heroic", "random_heroic", "attack_amulet", "defense_amulet", "speed_booster", "box_effect", "vehicle", "gold_nos_merchant_upgrade", "silver_nos_merchant_upgrade", "inventory_upgrade", "pet_space_upgrade", "pet_basket_upgrade", "pet_backpack_upgrade", "inventory_ticket_upgrade", "buff_potions", "marriage_separation" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "item_type", new[] { "weapon", "armor", "fashion", "jewelery", "specialist", "box", "shell", "main", "upgrade", "production", "map", "special", "potion", "event", "title", "quest1", "sell", "food", "snack", "magical", "part", "teacher", "ammo", "quest2", "house", "garden", "minigame", "terrace", "miniland_theme" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "mate_type", new[] { "partner", "pet" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "miniland_state", new[] { "open", "private", "lock" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "monster_type", new[] { "unknown", "partner", "npc", "well", "portal", "boss", "elite", "peapod", "special", "gem_space_time" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "noscore_pocket_type", new[] { "equipment", "main", "etc", "miniland", "specialist", "costume", "wear" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "penalty_type", new[] { "muted", "banned", "block_exp", "block_f_exp", "block_rep", "warning" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "portal_type", new[] { "ts_normal", "closed", "open", "miniland", "ts_end", "ts_end_closed", "exit", "exit_closed", "raid", "effect", "blue_raid", "dark_raid", "time_space", "shop_teleport", "map_portal" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "quest_type", new[] { "hunt", "special_collect", "collect_in_raid", "brings", "capture_without_getting_the_monster", "capture", "times_space", "product", "number_of_kill", "target_reput", "ts_point", "dialog1", "collect_in_ts", "required", "wear", "needed", "collect", "transmit_gold", "go_to", "collect_map_entity", "use", "dialog2", "un_know", "inspect", "win_raid", "flower_quest" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "region_type", new[] { "en", "de", "fr", "it", "pl", "es", "ru", "cs", "tr" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "scripted_instance_type", new[] { "time_space", "raid", "raid_act4" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "static_bonus_type", new[] { "bazaar_medal_gold", "bazaar_medal_silver", "back_pack", "pet_basket", "pet_back_pack", "inventory_ticket_upgrade" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "teleporter_type", new[] { "teleporter", "teleporter_on_map" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "warehouse_type", new[] { "warehouse", "family_ware_house", "pet_warehouse" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("NosCore.Database.Entities.Account", b =>
@@ -142,7 +171,7 @@ namespace NosCore.Database.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
 
-                    b.Property<DateTime>("Time")
+                    b.Property<Instant>("Time")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Value")
@@ -166,7 +195,7 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("Amount")
                         .HasColumnType("smallint");
 
-                    b.Property<DateTime>("DateStart")
+                    b.Property<Instant>("DateStart")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<short>("Duration")
@@ -509,7 +538,7 @@ namespace NosCore.Database.Migrations
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("CompletedOn")
+                    b.Property<Instant?>("CompletedOn")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<short>("QuestId")
@@ -768,7 +797,7 @@ namespace NosCore.Database.Migrations
                     b.Property<byte>("FamilyLogType")
                         .HasColumnType("smallint");
 
-                    b.Property<DateTime>("Timestamp")
+                    b.Property<Instant>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("FamilyLogId");
@@ -1345,7 +1374,7 @@ namespace NosCore.Database.Migrations
                     b.Property<int>("DurabilityPoint")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("ItemDeleteTime")
+                    b.Property<Instant?>("ItemDeleteTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<short>("ItemVNum")
@@ -1385,7 +1414,7 @@ namespace NosCore.Database.Migrations
                     b.Property<short?>("CostumeSuit")
                         .HasColumnType("smallint");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<Instant>("Date")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<short?>("Fairy")
@@ -1967,10 +1996,10 @@ namespace NosCore.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("DateEnd")
+                    b.Property<Instant>("DateEnd")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("DateStart")
+                    b.Property<Instant>("DateStart")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<byte>("Penalty")
@@ -2631,7 +2660,7 @@ namespace NosCore.Database.Migrations
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("DateEnd")
+                    b.Property<Instant?>("DateEnd")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<byte>("StaticBonusType")

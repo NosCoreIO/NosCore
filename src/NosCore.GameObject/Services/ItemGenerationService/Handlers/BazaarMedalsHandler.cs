@@ -31,11 +31,18 @@ using NosCore.Packets.Enumerations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
     public class BazaarMedalsHandler : IUseItemEventHandler
     {
+        private readonly IClock _clock;
+
+        public BazaarMedalsHandler(IClock clock)
+        {
+            _clock = clock;
+        }
         public bool Condition(Item.Item item)
         {
             return (item.Effect == ItemEffectType.SilverNosMerchantUpgrade)
@@ -55,7 +62,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto
             {
                 CharacterId = requestData.ClientSession.Character.CharacterId,
-                DateEnd = SystemTime.Now().AddDays(itemInstance.ItemInstance!.Item!.EffectValue),
+                DateEnd = _clock.GetCurrentInstant().Plus(Duration.FromDays(itemInstance.ItemInstance!.Item!.EffectValue)),
                 StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.SilverNosMerchantUpgrade
                     ? StaticBonusType.BazaarMedalSilver : StaticBonusType.BazaarMedalGold
             });

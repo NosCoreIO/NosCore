@@ -20,20 +20,20 @@
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Groups;
 
-namespace NosCore.GameObject.Networking.ChannelMatcher
+namespace NosCore.Core.Networking.ChannelMatcher
 {
-    public class EveryoneBut : IChannelMatcher
+    public class Only : IChannelMatcher
     {
         private readonly IChannelId _id;
 
-        public EveryoneBut(IChannelId id)
+        public Only(IChannelId id)
         {
             _id = id;
         }
 
         public bool Matches(IChannel channel)
         {
-            return channel.Id != _id;
+            return channel.Id == _id;
         }
     }
 }

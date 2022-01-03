@@ -31,6 +31,7 @@ using NosCore.Shared.Enumerations;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -38,11 +39,13 @@ namespace NosCore.PacketHandlers.Inventory
     {
         private readonly ILogger _logger;
         private readonly IHeuristic _distanceCalculator;
+        private readonly IClock _clock;
 
-        public GetPacketHandler(ILogger logger, IHeuristic distanceCalculator)
+        public GetPacketHandler(ILogger logger, IHeuristic distanceCalculator, IClock clock)
         {
             _logger = logger;
             _distanceCalculator = distanceCalculator;
+            _clock = clock;
         }
 
         public override async Task ExecuteAsync(GetPacket getPacket, ClientSession clientSession)
@@ -76,7 +79,7 @@ namespace NosCore.PacketHandlers.Inventory
             }
 
             //TODO add group drops
-            if ((mapItem.OwnerId != null) && (mapItem.DroppedAt.AddSeconds(30) > SystemTime.Now()) &&
+            if ((mapItem.OwnerId != null) && (mapItem.DroppedAt.Plus(Duration.FromSeconds(30)) > _clock.GetCurrentInstant()) &&
                 (mapItem.OwnerId != clientSession.Character.CharacterId))
             {
                 await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(

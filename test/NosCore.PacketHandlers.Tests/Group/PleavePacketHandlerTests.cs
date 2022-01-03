@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             _pLeavePacketHandler = new PleavePacketHandler();
 
             var mock = new Mock<IBlacklistHttpClient>();
-            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object);
+            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock);
         }
 
         [TestMethod]

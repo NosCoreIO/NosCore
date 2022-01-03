@@ -17,9 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Dao.Extensions;
 using NosCore.Database.Entities;
+using Npgsql;
 
 namespace NosCore.Database
 {
@@ -27,6 +30,15 @@ namespace NosCore.Database
     {
         public NosCoreContext(DbContextOptions options) : base(options)
         {
+            typeof(NosCoreContext).Assembly
+                .GetTypes()
+                .Where(t => t.IsEnum && t.IsPublic)
+                .ToList().ForEach(t =>
+                {
+                    var method = NpgsqlConnection.GlobalTypeMapper.GetType().GetMethods().First(o => o.Name == nameof(NpgsqlConnection.GlobalTypeMapper.MapEnum));
+                    var generic = method.MakeGenericMethod(t);
+                    generic.Invoke(NpgsqlConnection.GlobalTypeMapper, new object?[] { null, null });
+                });
         }
 
         public virtual DbSet<Account>? Account { get; set; }
@@ -151,9 +163,24 @@ namespace NosCore.Database
 
         public virtual DbSet<NpcTalk>? NpcTalk { get; set; }
 
+        static void HasPostgresEnum(ModelBuilder modelBuilder, Type type)
+        {
+            var translator = NpgsqlConnection.GlobalTypeMapper.DefaultNameTranslator;
+            modelBuilder.HasPostgresEnum(translator.TranslateTypeName(type.Name), Enum.GetNames(type)
+                .Select(x => translator.TranslateMemberName(x)).ToArray());
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            typeof(NosCoreContext).Assembly
+                .GetTypes()
+                .SelectMany(t => t.GetProperties())
+                .Where(t => t.PropertyType.IsEnum && t.PropertyType.IsPublic)
+                .Select(t=>t.PropertyType)
+                .Distinct()
+                .ToList().ForEach(t => HasPostgresEnum(modelBuilder, t));
+
+
             // remove automatic pluralization
             modelBuilder.RemovePluralizingTableNameConvention();
 

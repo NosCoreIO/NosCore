@@ -28,20 +28,29 @@ using NosCore.Packets.Enumerations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 {
     [UsedImplicitly]
     public class RemoveTimeoutStaticBonuses : ITimedEventHandler
     {
-        private DateTime _lastRun = SystemTime.Now();
-        public bool Condition(Clock condition) => condition.LastTick - _lastRun >= TimeSpan.FromMinutes(5);
+        public RemoveTimeoutStaticBonuses(IClock clock)
+        {
+            _clock = clock;
+            _lastRun = _clock.GetCurrentInstant();
+        }
 
-        public Task ExecuteAsync(RequestData<DateTime> runTime)
+        private Instant _lastRun;
+        private readonly IClock _clock;
+        
+        public bool Condition(Clock condition) => condition.LastTick.Minus(_lastRun).ToTimeSpan() >= TimeSpan.FromMinutes(5);
+
+        public Task ExecuteAsync(RequestData<Instant> runTime)
         {
             return Task.WhenAll(Broadcaster.Instance.GetCharacters().Select(session =>
             {
-                if (session.StaticBonusList.RemoveAll(s => s.DateEnd != null && s.DateEnd < SystemTime.Now()) > 0)
+                if (session.StaticBonusList.RemoveAll(s => s.DateEnd != null && s.DateEnd < _clock.GetCurrentInstant()) > 0)
                 {
                     return session.SendPacketAsync(session.GenerateSay(
                         GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_TIMEOUT, session.AccountLanguage),

@@ -30,6 +30,7 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.Networking.SessionRef;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -40,23 +41,25 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly ILogger _logger;
+        private readonly ISessionRefHolder _sessionRefHolder;
 
         public DacPacketHandler(IDao<AccountDto, long> accountDao,
             ILogger logger, IAuthHttpClient authHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient)
+            IChannelHttpClient channelHttpClient, ISessionRefHolder sessionRefHolder)
         {
             _accountDao = accountDao;
             _logger = logger;
             _authHttpClient = authHttpClient;
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _channelHttpClient = channelHttpClient;
+            _sessionRefHolder = sessionRefHolder;
         }
 
         public override async Task ExecuteAsync(DacPacket packet, ClientSession clientSession)
         {
             await EntryPointPacketHandler.VerifyConnectionAsync(clientSession, _logger, _authHttpClient,
-                _connectedAccountHttpClient, _accountDao, _channelHttpClient, true, packet.AccountName, "thisisgfmode", -1);
+                _connectedAccountHttpClient, _accountDao, _channelHttpClient, true, packet.AccountName, "thisisgfmode", -1, _sessionRefHolder);
             if (clientSession.Account == null!)
             {
                 return;

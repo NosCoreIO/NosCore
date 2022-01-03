@@ -35,7 +35,6 @@ namespace NosCore.WebApi.Tests.ApiTests
         {
             SessionFactory.Instance.AuthCodes.Clear();
             SessionFactory.Instance.ReadyForAuth.Clear();
-            SessionFactory.Instance.Sessions.Clear();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _logger = new Mock<ILogger>();

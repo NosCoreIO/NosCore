@@ -27,16 +27,19 @@ using NosCore.Packets.ServerPackets.Auction;
 using NosCore.Packets.ServerPackets.Inventory;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
     public class CSListPacketHandler : PacketHandler<CSListPacket>, IWorldPacketHandler
     {
         private readonly IBazaarHttpClient _bazaarHttpClient;
+        private readonly IClock _clock;
 
-        public CSListPacketHandler(IBazaarHttpClient bazaarHttpClient)
+        public CSListPacketHandler(IBazaarHttpClient bazaarHttpClient, IClock clock)
         {
             _bazaarHttpClient = bazaarHttpClient;
+            _clock = clock;
         }
 
         public override async Task ExecuteAsync(CSListPacket packet, ClientSession clientSession)
@@ -51,15 +54,15 @@ namespace NosCore.PacketHandlers.Bazaar
                 int amount = bz.BazaarItem.Amount;
                 var isNosbazar = bz.BazaarItem.MedalUsed;
                 var price = bz.BazaarItem.Price;
-                var minutesLeft = (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration) - SystemTime.Now())
+                var minutesLeft = (long)(bz.BazaarItem.DateStart.Plus(Duration.FromHours(bz.BazaarItem.Duration)) - _clock.GetCurrentInstant())
                     .TotalMinutes;
                 var status = minutesLeft >= 0 ? soldedAmount < amount ? BazaarStatusType.OnSale
                     : BazaarStatusType.Solded : BazaarStatusType.DelayExpired;
                 if (status == BazaarStatusType.DelayExpired)
                 {
                     minutesLeft =
-                        (long)(bz.BazaarItem.DateStart.AddHours(bz.BazaarItem.Duration).AddDays(isNosbazar ? 30 : 7) -
-                            SystemTime.Now()).TotalMinutes;
+                        (long)(bz.BazaarItem.DateStart.Plus(Duration.FromHours(bz.BazaarItem.Duration)).Plus(Duration.FromDays(isNosbazar ? 30 : 7)) -
+                            _clock.GetCurrentInstant()).TotalMinutes;
                 }
 
                 var info = new EInfoPacket();

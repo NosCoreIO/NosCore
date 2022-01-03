@@ -22,6 +22,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using System;
 using System.ComponentModel.DataAnnotations;
+using NodaTime;
 
 namespace NosCore.Database.Entities
 {
@@ -47,7 +48,7 @@ namespace NosCore.Database.Entities
 
         public short? WingSkin { get; set; }
 
-        public DateTime Date { get; set; }
+        public Instant Date { get; set; }
 
         public bool IsOpened { get; set; }
 

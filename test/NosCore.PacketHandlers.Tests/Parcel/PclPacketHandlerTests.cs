@@ -50,7 +50,6 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
-            SystemTime.Freeze();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _mailHttpClient = new Mock<IMailHttpClient>();

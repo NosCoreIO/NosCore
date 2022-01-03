@@ -30,6 +30,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Threading.Tasks;
+using NodaTime;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -38,6 +39,12 @@ namespace NosCore.PacketHandlers.Inventory
 {
     public class SpTransformPacketHandler : PacketHandler<SpTransformPacket>, IWorldPacketHandler
     {
+        private readonly IClock _clock;
+
+        public SpTransformPacketHandler(IClock clock)
+        {
+            _clock = clock;
+        }
         public override async Task ExecuteAsync(SpTransformPacket spTransformPacket, ClientSession clientSession)
         {
             if (spTransformPacket.Type == SlPacketType.ChangePoints)
@@ -71,11 +78,11 @@ namespace NosCore.PacketHandlers.Inventory
                     return;
                 }
 
-                var currentRunningSeconds = (SystemTime.Now() - clientSession.Character.LastSp).TotalSeconds;
+                var currentRunningSeconds = (_clock.GetCurrentInstant() - clientSession.Character.LastSp).TotalSeconds;
 
                 if (clientSession.Character.UseSp)
                 {
-                    clientSession.Character.LastSp = SystemTime.Now();
+                    clientSession.Character.LastSp = _clock.GetCurrentInstant();
                     await clientSession.Character.RemoveSpAsync().ConfigureAwait(false);
                 }
                 else

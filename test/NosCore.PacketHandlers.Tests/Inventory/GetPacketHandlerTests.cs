@@ -21,6 +21,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -45,21 +46,14 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private GetPacketHandler? _getPacketHandler;
         private IItemGenerationService? _item;
         private ClientSession? _session;
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            SystemTime.Freeze(SystemTime.Now());
-        }
-
+        
         [TestInitialize]
         public async Task SetupAsync()
         {
-            SystemTime.Freeze();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _getPacketHandler = new GetPacketHandler(Logger, TestHelpers.Instance.DistanceCalculator);
+            _getPacketHandler = new GetPacketHandler(Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock);
         }
 
 
@@ -148,7 +142,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                     1);
             mapItem.VisualId = 1012;
             mapItem.OwnerId = 2;
-            mapItem.DroppedAt = SystemTime.Now();
+            mapItem.DroppedAt = TestHelpers.Instance.Clock.GetCurrentInstant();
             _session.Character.MapInstance.MapItems.TryAdd(100001, mapItem);
 
             await _getPacketHandler!.ExecuteAsync(new GetPacket
@@ -174,7 +168,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                     1);
             mapItem.VisualId = 1012;
             mapItem.OwnerId = 2;
-            mapItem.DroppedAt = SystemTime.Now().AddSeconds(-30);
+            mapItem.DroppedAt = TestHelpers.Instance.Clock.GetCurrentInstant().Plus(Duration.FromSeconds(-30));
             _session.Character.MapInstance.MapItems.TryAdd(100001, mapItem);
 
             await _getPacketHandler!.ExecuteAsync(new GetPacket

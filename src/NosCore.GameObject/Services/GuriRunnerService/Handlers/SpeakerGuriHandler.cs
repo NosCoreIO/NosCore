@@ -23,7 +23,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.InventoryService;
@@ -33,6 +32,7 @@ using Serilog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.Networking.ChannelMatcher;
 
 namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 {

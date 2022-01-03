@@ -39,6 +39,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using NodaTime;
 
 namespace NosCore.Core.Controllers
 {
@@ -50,12 +51,14 @@ namespace NosCore.Core.Controllers
         private readonly ILogger _logger;
         private int _id;
         private readonly IHasher _hasher;
+        private readonly IClock _clock;
 
-        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger, IHasher hasher)
+        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger, IHasher hasher, IClock clock)
         {
             _logger = logger;
             _apiConfiguration = apiConfiguration;
             _hasher = hasher;
+            _clock = clock;
         }
 
         private string GenerateToken()
@@ -117,7 +120,7 @@ namespace NosCore.Core.Controllers
                 Id = _id,
                 ConnectedAccountLimit = data.ConnectedAccountLimit,
                 WebApi = data.WebApi,
-                LastPing = SystemTime.Now(),
+                LastPing = _clock.GetCurrentInstant(),
                 Type = data.ClientType,
             };
 
@@ -161,7 +164,7 @@ namespace NosCore.Core.Controllers
                 return HttpStatusCode.NotFound;
             }
 
-            if ((chann.LastPing.AddSeconds(10) < SystemTime.Now()) && !Debugger.IsAttached)
+            if ((chann.LastPing.Plus(Duration.FromSeconds(10)) < _clock.GetCurrentInstant()) && !Debugger.IsAttached)
             {
                 MasterClientListSingleton.Instance.Channels.RemoveAll(s => s.Id == _id);
                 _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),

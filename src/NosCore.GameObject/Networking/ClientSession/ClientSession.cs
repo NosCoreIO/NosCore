@@ -32,7 +32,6 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
-using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -53,6 +52,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using NodaTime;
+using NosCore.Core.Networking.ChannelMatcher;
+using NosCore.Networking.SessionRef;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
@@ -74,9 +76,11 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
         private Character? _character;
         private int? _waitForPacketsAmount;
+        private readonly ISessionRefHolder _sessionRefHolder;
+        private readonly IClock _clock;
 
         public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock)
             : base(logger)
         {
             _logger = logger;
@@ -84,6 +88,8 @@ namespace NosCore.GameObject.Networking.ClientSession
             _friendHttpClient = friendHttpClient;
             _packetSerializer = packetSerializer;
             _packetHttpClient = packetHttpClient;
+            _sessionRefHolder = sessionRefHolder;
+            _clock = clock;
             foreach (var handler in _packetsHandlers)
             {
                 var type = handler.GetType().BaseType?.GenericTypeArguments[0]!;
@@ -96,7 +102,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, clock)
         {
         }
 
@@ -104,7 +110,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             IExchangeService? exchangeService, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
-            IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient)
+            IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, ISessionRefHolder sessionRefHolder, IClock clock) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, clock)
         {
             _mapInstanceAccessorService = mapInstanceAccessorService;
             _exchangeProvider = exchangeService!;
@@ -289,7 +295,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     Character.MapInstance.Sessions.Remove(Channel);
                 }
 
-                Character.MapInstance.LastUnregister = SystemTime.Now();
+                Character.MapInstance.LastUnregister = _clock.GetCurrentInstant();
                 await LeaveMapAsync().ConfigureAwait(false);
                 if (Character.MapInstance.Sessions.Count == 0)
                 {
@@ -429,7 +435,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                         if (!_waitForPacketsAmount.HasValue && (LastKeepAliveIdentity == 0))
                         {
-                            SessionId = SessionFactory.Instance.Sessions[contex.Channel.Id.AsLongText()].SessionId;
+                            SessionId = _sessionRefHolder[contex.Channel.Id.AsLongText()].SessionId;
                             _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED),
                                 SessionId);
 

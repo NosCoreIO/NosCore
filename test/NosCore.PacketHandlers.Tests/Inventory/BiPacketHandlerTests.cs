@@ -41,17 +41,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private BiPacketHandler? _biPacketHandler;
         private IItemGenerationService? _item;
         private ClientSession? _session;
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            SystemTime.Freeze(SystemTime.Now());
-        }
-
+        
         [TestInitialize]
         public async Task SetupAsync()
         {
-            SystemTime.Freeze();
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();

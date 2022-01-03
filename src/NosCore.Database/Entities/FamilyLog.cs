@@ -21,6 +21,7 @@ using NosCore.Data.Enumerations.Family;
 using NosCore.Database.Entities.Base;
 using System;
 using System.ComponentModel.DataAnnotations;
+using NodaTime;
 
 namespace NosCore.Database.Entities
 {
@@ -38,6 +39,6 @@ namespace NosCore.Database.Entities
 
         public FamilyLogType FamilyLogType { get; set; }
 
-        public DateTime Timestamp { get; set; }
+        public Instant Timestamp { get; set; }
     }
 }

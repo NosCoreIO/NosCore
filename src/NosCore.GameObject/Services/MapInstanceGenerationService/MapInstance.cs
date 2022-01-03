@@ -39,6 +39,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
@@ -57,8 +58,10 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public ConcurrentDictionary<Guid, MapDesignObject> MapDesignObjects =
             new ConcurrentDictionary<Guid, MapDesignObject>();
 
+        private readonly IClock _clock;
+
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
-            IMapItemGenerationService mapItemGenerationService, ILogger logger)
+            IMapItemGenerationService mapItemGenerationService, ILogger logger, IClock clock)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -72,7 +75,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _npcs = new ConcurrentDictionary<int, MapNpc>();
             MapItems = new ConcurrentDictionary<long, MapItem>();
             _isSleeping = true;
-            LastUnregister = SystemTime.Now().AddMinutes(-1);
+            _clock = clock;
+            LastUnregister = _clock.GetCurrentInstant().Plus(Duration.FromMinutes(-1));
             ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
             Sessions = new DefaultChannelGroup(executor);
             _mapItemGenerationService = mapItemGenerationService;
@@ -83,7 +87,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             };
         }
 
-        public DateTime LastUnregister { get; set; }
+        public Instant LastUnregister { get; set; }
 
         public ConcurrentDictionary<long, MapItem> MapItems { get; }
 
@@ -91,7 +95,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         {
             get
             {
-                if (!_isSleepingRequest || _isSleeping || (LastUnregister.AddSeconds(30) >= SystemTime.Now()))
+                if (!_isSleepingRequest || _isSleeping || (LastUnregister.Plus(Duration.FromSeconds(30)) >= _clock.GetCurrentInstant()))
                 {
                     return _isSleeping;
                 }

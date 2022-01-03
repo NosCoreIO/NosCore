@@ -19,6 +19,7 @@
 
 using NosCore.Database.Entities.Base;
 using System;
+using NodaTime;
 
 namespace NosCore.Database.Entities
 {
@@ -32,6 +33,6 @@ namespace NosCore.Database.Entities
 
         public short QuestId { get; set; }
 
-        public DateTime? CompletedOn { get; set; }
+        public Instant? CompletedOn { get; set; }
     }
 }

@@ -23614,7 +23614,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="8" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.LoginServer.LoginServer::.ctor(Microsoft.Extensions.Options.IOptions`1&lt;NosCore.Core.Configuration.LoginConfiguration&gt;,NosCore.GameObject.Networking.NetworkManager,Serilog.ILogger,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.Database.NosCoreContext)</Name>
+              <Name>System.Void NosCore.LoginServer.LoginServer::.ctor(Microsoft.Extensions.Options.IOptions`1&lt;NosCore.Core.Configuration.LoginConfiguration&gt;,NosCore.NetworkManager,Serilog.ILogger,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.Database.NosCoreContext)</Name>
               <FileRef uid="171" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="45" ordinal="0" sl="45" sc="1" el="45" ec="2" bec="0" bev="0" fileid="171" />
@@ -32495,7 +32495,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="9" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void NosCore.WorldServer.WorldServer::.ctor(Microsoft.Extensions.Options.IOptions`1&lt;NosCore.Core.Configuration.WorldConfiguration&gt;,NosCore.GameObject.Networking.NetworkManager,NosCore.GameObject.Services.EventLoaderService.Clock,Serilog.ILogger,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService)</Name>
+              <Name>System.Void NosCore.WorldServer.WorldServer::.ctor(Microsoft.Extensions.Options.IOptions`1&lt;NosCore.Core.Configuration.WorldConfiguration&gt;,NosCore.NetworkManager,NosCore.GameObject.Services.EventLoaderService.Clock,Serilog.ILogger,NosCore.Core.HttpClients.ChannelHttpClients.IChannelHttpClient,NosCore.GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService)</Name>
               <FileRef uid="327" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="47" ordinal="0" sl="47" sc="1" el="47" ec="2" bec="0" bev="0" fileid="327" />

@@ -33,6 +33,7 @@ using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using NodaTime;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -42,10 +43,12 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
     public class WearEventHandler : IUseItemEventHandler
     {
         private readonly ILogger _logger;
+        private readonly IClock _clock;
 
-        public WearEventHandler(ILogger logger)
+        public WearEventHandler(ILogger logger, IClock clock)
         {
             _logger = logger;
+            _clock = clock;
         }
 
         public bool Condition(Item.Item item)
@@ -119,7 +122,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
             {
                 var timeSpanSinceLastSpUsage =
-                    (SystemTime.Now() - requestData.ClientSession.Character.LastSp).TotalSeconds;
+                    (_clock.GetCurrentInstant().Minus(requestData.ClientSession.Character.LastSp)).TotalSeconds;
                 var sp = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(
                     (byte)EquipmentType.Sp, NoscorePocketType.Wear);
                 if ((timeSpanSinceLastSpUsage < requestData.ClientSession.Character.SpCooldown) && (sp != null))
@@ -196,7 +199,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 (itemInstance.ItemInstance.BoundCharacterId != null))
             {
                 itemInstance.ItemInstance.ItemDeleteTime =
-                    SystemTime.Now().AddSeconds(itemInstance.ItemInstance.Item.ItemValidTime);
+                    _clock.GetCurrentInstant().Plus(Duration.FromSeconds(itemInstance.ItemInstance.Item.ItemValidTime));
             }
         }
     }

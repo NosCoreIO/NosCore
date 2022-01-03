@@ -225,9 +225,6 @@
   <data name="FORCED_DISCONNECTION" xml:space="preserve">
     <value>Déconnexion forcée. ClientId = {0}</value>
   </data>
-  <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>Client connecté. ClientId = {0}</value>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client arrivé.</value>
   </data>
@@ -242,9 +239,6 @@
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Tentative de reconnexion au serveur master dans {0} secondes.</value>
-  </data>
-  <data name="LISTENING_PORT" xml:space="preserve">
-    <value>Écoute du port</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Aucune Map n'a été trouvé.</value>
@@ -411,9 +405,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Le joueur est déjà dans ta liste noire.</value>
   </data>
-  <data name="ENCODE_ERROR" xml:space="preserve">
-    <value>Erreur d'encodage.</value>
-  </data>
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Invitation d'amitié envoyée.</value>
   </data>
@@ -452,9 +443,6 @@
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>Vous ne pouvez pas récuperer cet objet. veuillez patienter un peu.</value>
-  </data>
-  <data name="ERROR_DECODING" xml:space="preserve">
-    <value>Erreur de décodage.</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Type de groupe</value>
@@ -761,9 +749,6 @@
   </data>
   <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
     <value>Un accès direct à l'objet a été détecté: {0} - {1}.</value>
-  </data>
-  <data name="ERROR_SESSIONID" xml:space="preserve">
-    <value>Erreur SessionId</value>
   </data>
   <data name="GIFTED" xml:space="preserve">
     <value>Colis reçus: {0} pcs.</value>

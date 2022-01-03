@@ -23,6 +23,7 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Shared.Enumerations;
 using System;
+using NodaTime;
 
 namespace NosCore.GameObject
 {
@@ -32,7 +33,7 @@ namespace NosCore.GameObject
         public NpcMonsterDto NpcMonster { get; private set; } = null!;
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
-        public DateTime LastMove { get; set; }
+        public Instant LastMove { get; set; }
         public bool IsSitting { get; set; }
         public byte Speed { get; set; }
         public byte Size { get; set; }

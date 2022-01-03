@@ -23,6 +23,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
 using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
@@ -62,7 +63,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             _logger = new Mock<ILogger>();
             TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 40;
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            Handler = new WearEventHandler(_logger.Object);
+            Handler = new WearEventHandler(_logger.Object, TestHelpers.Instance.Clock);
             var items = new List<ItemDto>
             {
                 new Item
@@ -182,8 +183,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_SpLoadingAsync()
         {
             UseItem.Mode = 1;
-            SystemTime.Freeze();
-            Session!.Character.LastSp = SystemTime.Now();
+            Session!.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
             Session.Character.SpCooldown = 300;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
@@ -216,7 +216,6 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_UseDestroyedSpAsync()
         {
             UseItem.Mode = 1;
-            SystemTime.Freeze();
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             itemInstance.ItemInstance!.Rare = -2;
@@ -230,7 +229,6 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_Use_BadJobLevelAsync()
         {
             UseItem.Mode = 1;
-            SystemTime.Freeze();
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(6), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
@@ -243,7 +241,6 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_Use_SPAsync()
         {
             UseItem.Mode = 1;
-            SystemTime.Freeze();
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
@@ -255,7 +252,6 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_Use_FairyAsync()
         {
             UseItem.Mode = 1;
-            SystemTime.Freeze();
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
@@ -267,13 +263,12 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_Use_AmuletAsync()
         {
             UseItem.Mode = 1;
-            SystemTime.Freeze();
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(7), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (EffectPacket?)Session.LastPackets.FirstOrDefault(s => s is EffectPacket);
             Assert.IsNotNull(lastpacket);
-            Assert.AreEqual(SystemTime.Now().AddSeconds(itemInstance.ItemInstance!.Item!.ItemValidTime), itemInstance.ItemInstance.ItemDeleteTime);
+            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant().Plus(Duration.FromSeconds(itemInstance.ItemInstance!.Item!.ItemValidTime)), itemInstance.ItemInstance.ItemDeleteTime);
         }
     }
 }

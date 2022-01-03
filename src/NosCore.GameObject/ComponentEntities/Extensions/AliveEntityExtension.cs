@@ -41,6 +41,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -119,7 +120,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static Task MoveAsync(this INonPlayableEntity nonPlayableEntity, IHeuristic distanceCalculator)
+        public static Task MoveAsync(this INonPlayableEntity nonPlayableEntity, IHeuristic distanceCalculator, IClock clock)
         {
             if (!nonPlayableEntity.IsAlive)
             {
@@ -131,7 +132,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return Task.CompletedTask;
             }
 
-            var time = (SystemTime.Now() - nonPlayableEntity.LastMove).TotalMilliseconds;
+            var time = (clock.GetCurrentInstant().Minus(nonPlayableEntity.LastMove)).TotalMilliseconds;
 
             if (!(time > RandomHelper.Instance.RandomNumber(400, 3200)))
             {
@@ -157,7 +158,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                         nonPlayableEntity.PositionY = mapY;
                     });
 
-            nonPlayableEntity.LastMove = SystemTime.Now().AddMilliseconds(value);
+            nonPlayableEntity.LastMove = clock.GetCurrentInstant().Plus(Duration.FromMilliseconds(value));
             return nonPlayableEntity.MapInstance.SendPacketAsync(
                 nonPlayableEntity.GenerateMove(mapX, mapY));
         }

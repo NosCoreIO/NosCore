@@ -198,9 +198,6 @@
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>İstemci bağlandı, ID {0}</value>
   </data>
-  <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>Yeni bir istemci bağlandı. Id = {0}</value>
-  </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>İstemci bağlantısı koptu. tId = {0}</value>
   </data>
@@ -225,17 +222,11 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Bu haritada çok fazla eşya var. Lütfen daha sonra tekrar deneyiniz.</value>
   </data>
-  <data name="ENCODE_ERROR" xml:space="preserve">
-    <value>Birleştirme hatası: {0}</value>
-  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Lütfen parse etmek (işlemek) istediğiniz dosyaların konumunu giriniz.</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Harita değiştirilirken karakter de değişti. Komutları kötüye kullanmayınız. {0}</value>
-  </data>
-  <data name="ERROR_DECODING" xml:space="preserve">
-    <value>Decode (ayrıştırma/çözümleme) hatası: {0}</value>
   </data>
   <data name="EQ_NOT_EMPTY" xml:space="preserve">
     <value>Sınıf değiştirmek için tüm ekipmanlarını çıkarmalısın.</value>
@@ -353,9 +344,6 @@
   </data>
   <data name="LEVEL_CHANGED" xml:space="preserve">
     <value>Seviyen yükseldi!</value>
-  </data>
-  <data name="LISTENING_PORT" xml:space="preserve">
-    <value>{0} Portu Dinleniyor</value>
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Meslek seviyen uzmanlık kartını giymek için yeterli değil.</value>

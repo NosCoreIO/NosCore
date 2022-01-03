@@ -19,32 +19,23 @@
 
 using System;
 using System.Collections.Concurrent;
+using NosCore.Networking;
 
 namespace NosCore.Core.Networking
 {
     public sealed class SessionFactory
     {
         private static readonly Lazy<SessionFactory> Lazy = new Lazy<SessionFactory>(() => new SessionFactory());
-        private int _sessionCounter;
 
         private SessionFactory()
         {
-            Sessions = new ConcurrentDictionary<string, RegionTypeMapping>();
             AuthCodes = new ConcurrentDictionary<string, string>();
             ReadyForAuth = new ConcurrentDictionary<string, long>();
         }
 
         public static SessionFactory Instance => Lazy.Value;
 
-        public ConcurrentDictionary<string, RegionTypeMapping> Sessions { get; }
-
         public ConcurrentDictionary<string, string> AuthCodes { get; }
         public ConcurrentDictionary<string, long> ReadyForAuth { get; }
-
-        public int GenerateSessionId()
-        {
-            _sessionCounter += 2;
-            return _sessionCounter;
-        }
     }
 }

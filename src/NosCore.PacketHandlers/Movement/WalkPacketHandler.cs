@@ -23,13 +23,14 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ChannelMatcher;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.Group;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.PathFinder.Interfaces;
 using Serilog;
 using System.Threading.Tasks;
+using NodaTime;
+using NosCore.Core.Networking.ChannelMatcher;
 
 namespace NosCore.PacketHandlers.Movement
 {
@@ -39,17 +40,20 @@ namespace NosCore.PacketHandlers.Movement
         private readonly ILogger _logger;
         // this is used to avoid network issue to be counted as speed hack.
         private readonly int _speedDiffAllowed = 1 / 3;
-        public WalkPacketHandler(IHeuristic distanceCalculator, ILogger logger)
+        private readonly IClock _clock;
+
+        public WalkPacketHandler(IHeuristic distanceCalculator, ILogger logger, IClock clock)
         {
             _logger = logger;
             _distanceCalculator = distanceCalculator;
+            _clock = clock;
         }
         public override async Task ExecuteAsync(WalkPacket walkPacket, ClientSession session)
         {
             var distance = (int)_distanceCalculator.GetDistance((session.Character.PositionX, session.Character.PositionY), (walkPacket.XCoordinate, walkPacket.YCoordinate)) - 1;
 
             if (((session.Character.Speed < walkPacket.Speed)
-                && (session.Character.LastSpeedChange.AddSeconds(5) <= SystemTime.Now())) || (distance > session.Character.Speed / 2))
+                && (session.Character.LastSpeedChange.Plus(Duration.FromSeconds(5)) <= _clock.GetCurrentInstant())) || (distance > session.Character.Speed / 2))
             {
                 return;
             }
@@ -72,7 +76,7 @@ namespace NosCore.PacketHandlers.Movement
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateMove(),
                 new EveryoneBut(session.Channel!.Id)).ConfigureAwait(false);
 
-            session.Character.LastMove = SystemTime.Now();
+            session.Character.LastMove = _clock.GetCurrentInstant();
             if (session.Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
             {
                 session.Character.MapX = walkPacket.XCoordinate;

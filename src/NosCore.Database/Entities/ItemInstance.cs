@@ -21,6 +21,7 @@ using NosCore.Database.Entities.Base;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using NodaTime;
 
 namespace NosCore.Database.Entities
 {
@@ -55,7 +56,7 @@ namespace NosCore.Database.Entities
 
         public virtual Item Item { get; set; } = null!;
 
-        public DateTime? ItemDeleteTime { get; set; }
+        public Instant? ItemDeleteTime { get; set; }
 
         public short ItemVNum { get; set; }
 

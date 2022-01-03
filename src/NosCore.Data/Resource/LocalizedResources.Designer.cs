@@ -19,7 +19,7 @@ namespace NosCore.Data.Resource {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class LocalizedResources {
@@ -367,15 +367,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to New client connected. ClientId = {0}.
-        /// </summary>
-        public static string CLIENT_CONNECTED {
-            get {
-                return ResourceManager.GetString("CLIENT_CONNECTED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Client disconnected. ClientId = {0}.
         /// </summary>
         public static string CLIENT_DISCONNECTED {
@@ -466,15 +457,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Encode Error: {0}.
-        /// </summary>
-        public static string ENCODE_ERROR {
-            get {
-                return ResourceManager.GetString("ENCODE_ERROR", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Please enter the directory of files to parse.
         /// </summary>
         public static string ENTER_PATH {
@@ -498,15 +480,6 @@ namespace NosCore.Data.Resource {
         public static string ERROR_CHANGE_MAP {
             get {
                 return ResourceManager.GetString("ERROR_CHANGE_MAP", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Decoding error {0}.
-        /// </summary>
-        public static string ERROR_DECODING {
-            get {
-                return ResourceManager.GetString("ERROR_DECODING", resourceCulture);
             }
         }
         
@@ -1002,15 +975,6 @@ namespace NosCore.Data.Resource {
         public static string LIMIT_EXCEEDED {
             get {
                 return ResourceManager.GetString("LIMIT_EXCEEDED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Listening Port {0}.
-        /// </summary>
-        public static string LISTENING_PORT {
-            get {
-                return ResourceManager.GetString("LISTENING_PORT", resourceCulture);
             }
         }
         

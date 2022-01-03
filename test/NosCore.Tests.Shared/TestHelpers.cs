@@ -21,10 +21,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
+using DotNetty.Transport.Channels.Sockets;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Moq;
+using NodaTime;
+using NodaTime.Testing;
 using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
@@ -37,6 +40,7 @@ using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.Networking;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -109,7 +113,7 @@ namespace NosCore.Tests.Shared
         public Mock<IConnectedAccountHttpClient> ConnectedAccountHttpClient = new Mock<IConnectedAccountHttpClient>();
         public Mock<IFriendHttpClient> FriendHttpClient = new Mock<IFriendHttpClient>();
         public Mock<IPacketHttpClient> PacketHttpClient = new Mock<IPacketHttpClient>();
-
+        public FakeClock Clock = new FakeClock(Instant.FromUtc(2021,01,01,01,01,01)); 
         private TestHelpers()
         {
             BlacklistHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
@@ -227,10 +231,10 @@ namespace NosCore.Tests.Shared
             var instanceGeneratorService = new MapInstanceGeneratorService(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
                 MapItemProvider,
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, _shopItemDao, _logger, new EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()), holder, MapInstanceAccessorService);
+                _mapMonsterDao, _portalDao, _shopItemDao, _logger, new EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()), holder, MapInstanceAccessorService, TestHelpers.Instance.Clock);
             await instanceGeneratorService.InitializeAsync().ConfigureAwait(false);
             await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
-                MapInstanceType.NormalInstance, MapItemProvider, _logger)).ConfigureAwait(false);
+                MapInstanceType.NormalInstance, MapItemProvider, _logger, Clock)).ConfigureAwait(false);
             MapInstanceGeneratorService = instanceGeneratorService;
         }
 
@@ -243,7 +247,7 @@ namespace NosCore.Tests.Shared
                 {
                     new SpRechargerEventHandler(WorldConfiguration),
                     new VehicleEventHandler(_logger),
-                    new WearEventHandler(_logger)
+                    new WearEventHandler(_logger, TestHelpers.Instance.Clock)
                 }), _logger);
         }
 
@@ -268,9 +272,9 @@ namespace NosCore.Tests.Shared
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig()
-                .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _logger, TestHelpers.Instance.DistanceCalculator));
+                .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
             TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig()
-                .ConstructUsing(src => new GameObject.MapMonster(_logger, TestHelpers.Instance.DistanceCalculator));
+                .ConstructUsing(src => new GameObject.MapMonster(_logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
 
         }
 
@@ -296,7 +300,7 @@ namespace NosCore.Tests.Shared
                     new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                         _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
                         new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration),
-                    new CSkillPacketHandler(),
+                    new CSkillPacketHandler(TestHelpers.Instance.Clock),
                     new CBuyPacketHandler(new Mock<IBazaarHttpClient>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao),
                     new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, _itemInstanceDao, _inventoryItemInstanceDao),
                     new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao)
@@ -305,7 +309,7 @@ namespace NosCore.Tests.Shared
                 new Mock<ISerializer>().Object,
                 PacketHttpClient.Object,
                 minilandProvider.Object,
-                MapInstanceGeneratorService)
+                MapInstanceGeneratorService, new SessionRefHolder(), Clock)
             {
                 SessionId = _lastId
             };
@@ -313,7 +317,7 @@ namespace NosCore.Tests.Shared
             var chara = new GameObject.Character(new InventoryService(ItemList, WorldConfiguration, _logger),
                 new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestHolder()), new Mock<IItemGenerationService>().Object, CharacterDao, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, AccountDao,
                 _logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, minilandProvider.Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
-                , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration)
+                , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, Clock)
             {
                 CharacterId = _lastId,
                 Name = "TestExistingCharacter" + _lastId,
@@ -331,7 +335,7 @@ namespace NosCore.Tests.Shared
             await session.SetCharacterAsync(chara).ConfigureAwait(false);
             session.Character.MapInstance = MapInstanceAccessorService.GetBaseMapById(0);
             session.Account = acc;
-            session.RegisterChannel(new Mock<IChannel>().Object);
+            session.RegisterChannel(new Mock<ISocketChannel>().Object);
             Broadcaster.Instance.RegisterSession(session);
             return session;
         }

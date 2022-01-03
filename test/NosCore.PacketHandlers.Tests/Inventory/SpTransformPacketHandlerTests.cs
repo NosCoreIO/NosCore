@@ -44,21 +44,14 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private IItemGenerationService? _item;
         private ClientSession? _session;
         private SpTransformPacketHandler? _spTransformPacketHandler;
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            SystemTime.Freeze(SystemTime.Now());
-        }
-
+        
         [TestInitialize]
         public async Task SetupAsync()
         {
-            SystemTime.Freeze();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _spTransformPacketHandler = new SpTransformPacketHandler();
+            _spTransformPacketHandler = new SpTransformPacketHandler(TestHelpers.Instance.Clock);
         }
 
 
@@ -162,7 +155,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task Test_TransformBefore_CooldownAsync()
         {
             _session!.Character.SpPoint = 1;
-            _session.Character.LastSp = SystemTime.Now();
+            _session.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
             _session.Character.SpCooldown = 30;
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
@@ -179,7 +172,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestMethod]
         public async Task Test_Transform_OutOfSpPointAsync()
         {
-            _session!.Character.LastSp = SystemTime.Now();
+            _session!.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
@@ -195,7 +188,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task Test_Transform_DelayAsync()
         {
             _session!.Character.SpPoint = 1;
-            _session.Character.LastSp = SystemTime.Now();
+            _session.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
             _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();

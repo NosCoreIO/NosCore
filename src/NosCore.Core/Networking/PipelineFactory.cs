@@ -17,40 +17,42 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels.Sockets;
 using Microsoft.Extensions.Options;
-using NosCore.Core;
-using NosCore.Core.Networking;
+using NosCore.Networking;
+using NosCore.Networking.SessionRef;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.Configuration;
-using System.Collections.Generic;
 
-namespace NosCore.GameObject.Networking
+namespace NosCore.Core.Networking
 {
-    public class PipelineFactory
+    public class PipelineFactory : IPipelineFactory
     {
         private readonly ISocketChannel _channel;
-        private readonly ClientSession.ClientSession _clientSession;
+        private readonly INetworkClient _clientSession;
         private readonly IOptions<ServerConfiguration> _configuration;
         private readonly MessageToMessageDecoder<IByteBuffer> _decoder;
         private readonly MessageToMessageEncoder<IEnumerable<IPacket>> _encoder;
+        private readonly ISessionRefHolder _sessionRefHolder;
 
         public PipelineFactory(ISocketChannel channel, MessageToMessageDecoder<IByteBuffer> decoder,
-            MessageToMessageEncoder<IEnumerable<IPacket>> encoder, ClientSession.ClientSession clientSession,
-            IOptions<ServerConfiguration> configuration)
+            MessageToMessageEncoder<IEnumerable<IPacket>> encoder, INetworkClient clientSession,
+            IOptions<ServerConfiguration> configuration, ISessionRefHolder sessionRefHolder)
         {
             _channel = channel;
             _decoder = decoder;
             _encoder = encoder;
             _clientSession = clientSession;
             _configuration = configuration;
+            _sessionRefHolder = sessionRefHolder;
         }
 
         public void CreatePipeline()
         {
-            SessionFactory.Instance.Sessions[_channel.Id.AsLongText()] =
+            _sessionRefHolder[_channel.Id.AsLongText()] =
                 new RegionTypeMapping(0, _configuration.Value.Language);
             var pipeline = _channel.Pipeline;
             pipeline.AddLast(_decoder);

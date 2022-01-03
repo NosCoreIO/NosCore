@@ -28,6 +28,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using DotNetty.Transport.Channels.Sockets;
+using NosCore.Networking;
 
 namespace NosCore.Core.Networking
 {
@@ -84,7 +86,7 @@ namespace NosCore.Core.Networking
             await Channel.WriteAndFlushAsync(packetDefinitions).ConfigureAwait(false);
         }
 
-        public void RegisterChannel(IChannel? channel)
+        public void RegisterChannel(ISocketChannel? channel)
         {
             Channel = channel;
         }

@@ -35,6 +35,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -48,16 +49,18 @@ namespace NosCore.GameObject.Services.QuestService
         private readonly List<QuestObjectiveDto> _questObjectives;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly ILogger _logger;
+        private readonly IClock _clock;
 
 
         public QuestService(List<ScriptDto> scripts,
-            IOptions<WorldConfiguration> worldConfiguration, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives, ILogger logger)
+            IOptions<WorldConfiguration> worldConfiguration, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives, ILogger logger, IClock clock)
         {
             _scripts = scripts;
             _quests = quests;
             _worldConfiguration = worldConfiguration;
             _logger = logger;
             _questObjectives = questObjectives;
+            _clock = clock;
         }
 
         public Task RunScriptAsync(ICharacterEntity character) => RunScriptAsync(character, null);
@@ -84,7 +87,7 @@ namespace NosCore.GameObject.Services.QuestService
                     var quest = character.Quests.Values.FirstOrDefault(s => s.Quest.QuestId == packet.FirstArgument);
                     if (quest != null)
                     {
-                        quest.CompletedOn = DateTime.Now;
+                        quest.CompletedOn = _clock.GetCurrentInstant();
                         await character.SendPacketAsync(quest.GenerateQstiPacket(false)).ConfigureAwait(false);
                     }
                 }
@@ -247,7 +250,7 @@ namespace NosCore.GameObject.Services.QuestService
                 return false;
             }
 
-            if (quest.IsDaily && (characterQuest.Value?.CompletedOn?.AddDays(1) > DateTime.Now))
+            if (quest.IsDaily && (characterQuest.Value?.CompletedOn?.Plus(Duration.FromDays(1)) > _clock.GetCurrentInstant()))
             {
                 await character.SendPacketAsync(new MsgPacket
                 {

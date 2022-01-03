@@ -31,17 +31,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace NosCore.GameObject.HttpClients.MailHttpClient
 {
     public class MailHttpClient : MasterServerHttpClient, IMailHttpClient
     {
+        private readonly IClock _clock;
+
         public MailHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
-            IChannelHttpClient channelHttpClient)
+            IChannelHttpClient channelHttpClient, IClock clock)
             : base(httpClientFactory, channel, channelHttpClient)
         {
             ApiUrl = "api/mail";
             RequireConnection = true;
+            _clock = clock;
         }
 
         public Task SendGiftAsync(ICharacterEntity characterEntity, long receiverId, IItemInstanceDto itemInstance,
@@ -93,7 +97,7 @@ namespace NosCore.GameObject.HttpClients.MailHttpClient
             var mail = new MailDto
             {
                 IsOpened = false,
-                Date = SystemTime.Now(),
+                Date = _clock.GetCurrentInstant(),
                 ReceiverId = receiverId,
                 IsSenderCopy = false,
                 ItemInstanceId = itemInstance?.Id,

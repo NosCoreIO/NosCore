@@ -46,16 +46,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private ClientSession? _session;
         private UseItemPacketHandler? _useItemPacketHandler;
 
-        [TestCleanup]
-        public void Cleanup()
-        {
-            SystemTime.Freeze(SystemTime.Now());
-        }
-
         [TestInitialize]
         public async Task SetupAsync()
         {
-            SystemTime.Freeze();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);

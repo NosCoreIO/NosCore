@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _session.Character.StaticBonusList = new List<StaticBonusDto>();
-            _cskillPacketHandler = new CSkillPacketHandler();
+            _cskillPacketHandler = new CSkillPacketHandler(TestHelpers.Instance.Clock);
         }
 
         [TestMethod]

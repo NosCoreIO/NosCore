@@ -35,6 +35,8 @@ using Serilog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
+
 //TODO stop using obsolete
 #pragma warning disable 618
 
@@ -44,11 +46,13 @@ namespace NosCore.PacketHandlers.Group
     {
         private readonly IBlacklistHttpClient _blacklistHttpCLient;
         private readonly ILogger _logger;
+        private readonly IClock _clock;
 
-        public PjoinPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpCLient)
+        public PjoinPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpCLient, IClock clock)
         {
             _logger = logger;
             _blacklistHttpCLient = blacklistHttpCLient;
+            _clock = clock;
         }
 
         public override async Task ExecuteAsync(PjoinPacket pjoinPacket, ClientSession clientSession)
@@ -113,7 +117,7 @@ namespace NosCore.PacketHandlers.Group
 
                     if (clientSession.Character.LastGroupRequest != null)
                     {
-                        var diffTimeSpan = ((DateTime)clientSession.Character.LastGroupRequest).AddSeconds(5) - SystemTime.Now();
+                        var diffTimeSpan = ((Instant)clientSession.Character.LastGroupRequest).Plus(Duration.FromSeconds(5)) - _clock.GetCurrentInstant();
                         if (diffTimeSpan.Seconds > 0 && diffTimeSpan.Seconds <= 5)
                         {
                             await clientSession.SendPacketAsync(new InfoPacket
@@ -127,7 +131,7 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     clientSession.Character.GroupRequestCharacterIds.TryAdd(pjoinPacket.CharacterId, pjoinPacket.CharacterId);
-                    clientSession.Character.LastGroupRequest = SystemTime.Now();
+                    clientSession.Character.LastGroupRequest = _clock.GetCurrentInstant();
 
                     if (((clientSession.Character.Group!.Count == 1) ||
                             (clientSession.Character.Group.Type == GroupType.Group))

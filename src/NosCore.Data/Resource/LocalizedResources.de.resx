@@ -252,9 +252,6 @@
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client verbunden, SessionId: {0}</value>
   </data>
-  <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>Neuer Client verbunden. ClientId = {0}</value>
-  </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Verbindung geschlossen!</value>
   </data>
@@ -289,9 +286,6 @@
   <data name="EFFECT_ACTIVATED" xml:space="preserve">
     <value>Effekt {0} aktiviert!</value>
   </data>
-  <data name="ENCODE_ERROR" xml:space="preserve">
-    <value>Encodierungs fehler: {0}</value>
-  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Bitte gib das Verzeichnis mit den Dateien zum laden an.</value>
   </data>
@@ -300,14 +294,6 @@
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Charakter während des Kartenwechseln geändert. Missbrauche keine Befehle.{0}</value>
-  </data>
-  <data name="ERROR_DECODING" xml:space="preserve">
-    <value>Entschlüsselungs fehler {0}.</value>
-    <comment>insert missing type data</comment>
-  </data>
-  <data name="ERROR_SESSIONID" xml:space="preserve">
-    <value>SessionId fehler ID {0}.</value>
-    <comment>insert missing type data</comment>
   </data>
   <data name="EXCEPTION" xml:space="preserve">
     <value>Eine Ausnahme wurde ausgelöst!</value>
@@ -492,9 +478,6 @@
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Du hast die Itemmenge überschritten.</value>
-  </data>
-  <data name="LISTENING_PORT" xml:space="preserve">
-    <value>Listening Port {0}</value>
   </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Lade MapInstanzen</value>

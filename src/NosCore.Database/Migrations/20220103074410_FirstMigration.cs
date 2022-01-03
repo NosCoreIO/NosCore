@@ -1,30 +1,64 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using System;
+
+#nullable disable
 
 namespace NosCore.Database.Migrations
 {
-    public partial class Aphrodite1 : Migration
+    public partial class FirstMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:Enum:audit_log_type", "account_creation,character_creation,email_update")
+                .Annotation("Npgsql:Enum:authority_type", "user,moderator,game_master,administrator,root,closed,banned,unconfirmed")
+                .Annotation("Npgsql:Enum:character_class_type", "adventurer,swordsman,archer,mage,martial_artist")
+                .Annotation("Npgsql:Enum:character_relation_type", "friend,hidden_spouse,spouse,blocked")
+                .Annotation("Npgsql:Enum:character_state", "active,inactive")
+                .Annotation("Npgsql:Enum:element_type", "neutral,fire,water,light,dark")
+                .Annotation("Npgsql:Enum:equipment_type", "main_weapon,armor,hat,gloves,boots,secondary_weapon,necklace,ring,bracelet,mask,fairy,amulet,sp,costume_suit,costume_hat,weapon_skin,wing_skin")
+                .Annotation("Npgsql:Enum:family_authority", "head,assistant,manager,member")
+                .Annotation("Npgsql:Enum:family_authority_type", "none,put,all")
+                .Annotation("Npgsql:Enum:family_log_type", "daily_message,raid_won,rainbow_battle,family_xp,family_level_up,level_up,item_upgraded,right_changed,authority_changed,family_managed,user_managed,ware_house_added,ware_house_removed")
+                .Annotation("Npgsql:Enum:family_member_rank", "nothing,old_uncle,old_aunt,father,mother,uncle,aunt,brother,sister,spouse,brother2,sister2,old_son,old_daugter,middle_son,middle_daughter,young_son,young_daugter,old_little_son,old_little_daughter,little_son,little_daughter,middle_little_son,middle_little_daugter")
+                .Annotation("Npgsql:Enum:gender_type", "male,female")
+                .Annotation("Npgsql:Enum:hair_color_type", "dark_purple,yellow,blue,purple,orange,brown,green,dark_grey,light_blue,pink_red,light_yellow,light_pink,light_green,light_grey,sky_blue,black,dark_orange,dark_orange_variant2,dark_orange_variant3,dark_orange_variant4,dark_orange_variant5,dark_orange_variant6,light_orange,light_light_orange,light_light_light_orange,light_light_light_light_orange,super_light_orange,dark_yellow,light_light_yellow,kaki_yellow,super_light_yellow,super_light_yellow2,super_light_yellow3,little_dark_yellow,yellow_variant,yellow_variant1,yellow_variant2,yellow_variant3,yellow_variant4,yellow_variant5,yellow_variant6,yellow_variant7,yellow_variant8,yellow_variant9,green_variant,green_variant1,dark_green_variant,green_more_dark_variant,green_variant2,green_variant3,green_variant4,green_variant5,green_variant6,green_variant7,green_variant8,green_variant9,green_variant10,green_variant11,green_variant12,green_variant13,green_variant14,green_variant15,green_variant16,green_variant17,green_variant18,green_variant19,green_variant20,light_blue_variant1,light_blue_variant2,light_blue_variant3,light_blue_variant4,light_blue_variant5,light_blue_variant6,light_blue_variant7,light_blue_variant8,light_blue_variant9,light_blue_variant10,light_blue_variant11,light_blue_variant12,light_blue_variant13,dark_black,light_blue_variant14,light_blue_variant15,light_blue_variant16,light_blue_variant17,blue_variant,blue_variant_dark,blue_variant_dark_dark,blue_variant_dark_dark2,flash_blue,flash_blue_dark,flash_blue_dark2,flash_blue_dark3,flash_blue_dark4,flash_blue_dark5,flash_blue_dark6,flash_blue_dark7,flash_blue_dark8,flash_blue_dark9,white,flash_blue_dark10,flash_blue1,flash_blue2,flash_blue3,flash_blue4,flash_blue5,flash_purple,flash_light_purple,flash_light_purple2,flash_light_purple3,flash_light_purple4,flash_light_purple5,light_purple,purple_variant1,purple_variant2,purple_variant3,purple_variant4,purple_variant5,purple_variant6,purple_variant7,purple_variant8,purple_variant9,purple_variant10,purple_variant11,purple_variant12,purple_variant13,purple_variant14,purple_variant15")
+                .Annotation("Npgsql:Enum:hair_style_type", "hair_style_a,hair_style_b,hair_style_c,hair_style_d,no_hair")
+                .Annotation("Npgsql:Enum:item_effect_type", "no_effect,teleport,apply_hair_die,speaker,marriage_proposal,undefined,sp_charger,dropped_sp_recharger,premium_sp_recharger,crafted_sp_recharger,specialist_medal,apply_skin_partner,change_gender,point_initialisation,sealed_tarot_card,tarot_card,red_amulet,blue_amulet,reinforcement_amulet,heroic,random_heroic,attack_amulet,defense_amulet,speed_booster,box_effect,vehicle,gold_nos_merchant_upgrade,silver_nos_merchant_upgrade,inventory_upgrade,pet_space_upgrade,pet_basket_upgrade,pet_backpack_upgrade,inventory_ticket_upgrade,buff_potions,marriage_separation")
+                .Annotation("Npgsql:Enum:item_type", "weapon,armor,fashion,jewelery,specialist,box,shell,main,upgrade,production,map,special,potion,event,title,quest1,sell,food,snack,magical,part,teacher,ammo,quest2,house,garden,minigame,terrace,miniland_theme")
+                .Annotation("Npgsql:Enum:mate_type", "partner,pet")
+                .Annotation("Npgsql:Enum:miniland_state", "open,private,lock")
+                .Annotation("Npgsql:Enum:monster_type", "unknown,partner,npc,well,portal,boss,elite,peapod,special,gem_space_time")
+                .Annotation("Npgsql:Enum:noscore_pocket_type", "equipment,main,etc,miniland,specialist,costume,wear")
+                .Annotation("Npgsql:Enum:penalty_type", "muted,banned,block_exp,block_f_exp,block_rep,warning")
+                .Annotation("Npgsql:Enum:portal_type", "ts_normal,closed,open,miniland,ts_end,ts_end_closed,exit,exit_closed,raid,effect,blue_raid,dark_raid,time_space,shop_teleport,map_portal")
+                .Annotation("Npgsql:Enum:quest_type", "hunt,special_collect,collect_in_raid,brings,capture_without_getting_the_monster,capture,times_space,product,number_of_kill,target_reput,ts_point,dialog1,collect_in_ts,required,wear,needed,collect,transmit_gold,go_to,collect_map_entity,use,dialog2,un_know,inspect,win_raid,flower_quest")
+                .Annotation("Npgsql:Enum:region_type", "en,de,fr,it,pl,es,ru,cs,tr")
+                .Annotation("Npgsql:Enum:scripted_instance_type", "time_space,raid,raid_act4")
+                .Annotation("Npgsql:Enum:static_bonus_type", "bazaar_medal_gold,bazaar_medal_silver,back_pack,pet_basket,pet_back_pack,inventory_ticket_upgrade")
+                .Annotation("Npgsql:Enum:teleporter_type", "teleporter,teleporter_on_map")
+                .Annotation("Npgsql:Enum:warehouse_type", "warehouse,family_ware_house,pet_warehouse");
+
             migrationBuilder.CreateTable(
                 name: "Account",
                 columns: table => new
                 {
-                    AccountId = table.Column<long>(nullable: false)
+                    AccountId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Authority = table.Column<short>(nullable: false),
-                    Email = table.Column<string>(maxLength: 255, nullable: true),
-                    Name = table.Column<string>(maxLength: 255, nullable: false),
-                    Password = table.Column<string>(unicode: false, maxLength: 255, nullable: true),
-                    NewAuthPassword = table.Column<string>(maxLength: 255, nullable: true),
-                    NewAuthSalt = table.Column<string>(maxLength: 255, nullable: true),
-                    RegistrationIp = table.Column<string>(maxLength: 45, nullable: true),
-                    VerificationToken = table.Column<string>(maxLength: 32, nullable: true),
-                    Language = table.Column<int>(nullable: false),
-                    BankMoney = table.Column<long>(nullable: false),
-                    ItemShopMoney = table.Column<long>(nullable: false)
+                    Authority = table.Column<short>(type: "smallint", nullable: false),
+                    Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Password = table.Column<string>(type: "character varying(255)", unicode: false, maxLength: 255, nullable: true),
+                    NewAuthPassword = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    NewAuthSalt = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    RegistrationIp = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: true),
+                    VerificationToken = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
+                    Language = table.Column<int>(type: "integer", nullable: false),
+                    BankMoney = table.Column<long>(type: "bigint", nullable: false),
+                    ItemShopMoney = table.Column<long>(type: "bigint", nullable: false),
+                    MfaSecret = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -35,9 +69,9 @@ namespace NosCore.Database.Migrations
                 name: "Act",
                 columns: table => new
                 {
-                    ActId = table.Column<byte>(nullable: false),
-                    Title = table.Column<string>(maxLength: 255, nullable: false),
-                    Scene = table.Column<byte>(nullable: false)
+                    ActId = table.Column<byte>(type: "smallint", nullable: false),
+                    Title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Scene = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -48,12 +82,12 @@ namespace NosCore.Database.Migrations
                 name: "AuditLog",
                 columns: table => new
                 {
-                    AuditId = table.Column<Guid>(nullable: false),
-                    TargetId = table.Column<string>(maxLength: 80, nullable: false),
-                    TargetType = table.Column<string>(maxLength: 32, nullable: false),
-                    Time = table.Column<DateTime>(nullable: false),
-                    AuditLogType = table.Column<int>(nullable: false),
-                    Value = table.Column<string>(maxLength: 255, nullable: false)
+                    AuditId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TargetId = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
+                    TargetType = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    Time = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
+                    AuditLogType = table.Column<int>(type: "integer", nullable: false),
+                    Value = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -64,16 +98,16 @@ namespace NosCore.Database.Migrations
                 name: "Card",
                 columns: table => new
                 {
-                    CardId = table.Column<short>(nullable: false),
-                    Duration = table.Column<int>(nullable: false),
-                    EffectId = table.Column<int>(nullable: false),
-                    Level = table.Column<byte>(nullable: false),
-                    Name = table.Column<string>(maxLength: 255, nullable: false),
-                    Delay = table.Column<int>(nullable: false),
-                    TimeoutBuff = table.Column<short>(nullable: false),
-                    TimeoutBuffChance = table.Column<byte>(nullable: false),
-                    BuffType = table.Column<byte>(nullable: false),
-                    Propability = table.Column<byte>(nullable: false)
+                    CardId = table.Column<short>(type: "smallint", nullable: false),
+                    Duration = table.Column<int>(type: "integer", nullable: false),
+                    EffectId = table.Column<int>(type: "integer", nullable: false),
+                    Level = table.Column<byte>(type: "smallint", nullable: false),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Delay = table.Column<int>(type: "integer", nullable: false),
+                    TimeoutBuff = table.Column<short>(type: "smallint", nullable: false),
+                    TimeoutBuffChance = table.Column<byte>(type: "smallint", nullable: false),
+                    BuffType = table.Column<byte>(type: "smallint", nullable: false),
+                    Propability = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -84,23 +118,23 @@ namespace NosCore.Database.Migrations
                 name: "Family",
                 columns: table => new
                 {
-                    FamilyId = table.Column<long>(nullable: false)
+                    FamilyId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    FamilyExperience = table.Column<int>(nullable: false),
-                    FamilyHeadGender = table.Column<byte>(nullable: false),
-                    FamilyLevel = table.Column<byte>(nullable: false),
-                    FamilyFaction = table.Column<byte>(nullable: false),
-                    FamilyMessage = table.Column<string>(maxLength: 255, nullable: true),
-                    ManagerAuthorityType = table.Column<int>(nullable: false),
-                    ManagerCanGetHistory = table.Column<bool>(nullable: false),
-                    ManagerCanInvite = table.Column<bool>(nullable: false),
-                    ManagerCanNotice = table.Column<bool>(nullable: false),
-                    ManagerCanShout = table.Column<bool>(nullable: false),
-                    MaxSize = table.Column<byte>(nullable: false),
-                    MemberAuthorityType = table.Column<int>(nullable: false),
-                    MemberCanGetHistory = table.Column<bool>(nullable: false),
-                    Name = table.Column<string>(maxLength: 255, nullable: false),
-                    WarehouseSize = table.Column<byte>(nullable: false)
+                    FamilyExperience = table.Column<int>(type: "integer", nullable: false),
+                    FamilyHeadGender = table.Column<byte>(type: "smallint", nullable: false),
+                    FamilyLevel = table.Column<byte>(type: "smallint", nullable: false),
+                    FamilyFaction = table.Column<byte>(type: "smallint", nullable: false),
+                    FamilyMessage = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    ManagerAuthorityType = table.Column<int>(type: "integer", nullable: false),
+                    ManagerCanGetHistory = table.Column<bool>(type: "boolean", nullable: false),
+                    ManagerCanInvite = table.Column<bool>(type: "boolean", nullable: false),
+                    ManagerCanNotice = table.Column<bool>(type: "boolean", nullable: false),
+                    ManagerCanShout = table.Column<bool>(type: "boolean", nullable: false),
+                    MaxSize = table.Column<byte>(type: "smallint", nullable: false),
+                    MemberAuthorityType = table.Column<int>(type: "integer", nullable: false),
+                    MemberCanGetHistory = table.Column<bool>(type: "boolean", nullable: false),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    WarehouseSize = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -111,11 +145,11 @@ namespace NosCore.Database.Migrations
                 name: "I18NActDesc",
                 columns: table => new
                 {
-                    I18NActDescId = table.Column<int>(nullable: false)
+                    I18NActDescId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Key = table.Column<string>(nullable: false),
-                    RegionType = table.Column<int>(nullable: false),
-                    Text = table.Column<string>(nullable: false)
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    RegionType = table.Column<int>(type: "integer", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -126,11 +160,11 @@ namespace NosCore.Database.Migrations
                 name: "I18NBCard",
                 columns: table => new
                 {
-                    I18NbCardId = table.Column<int>(nullable: false)
+                    I18NbCardId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Key = table.Column<string>(nullable: false),
-                    RegionType = table.Column<int>(nullable: false),
-                    Text = table.Column<string>(nullable: false)
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    RegionType = table.Column<int>(type: "integer", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -141,11 +175,11 @@ namespace NosCore.Database.Migrations
                 name: "I18NCard",
                 columns: table => new
                 {
-                    I18NCardId = table.Column<int>(nullable: false)
+                    I18NCardId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Key = table.Column<string>(nullable: false),
-                    RegionType = table.Column<int>(nullable: false),
-                    Text = table.Column<string>(nullable: false)
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    RegionType = table.Column<int>(type: "integer", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -156,11 +190,11 @@ namespace NosCore.Database.Migrations
                 name: "I18NItem",
                 columns: table => new
                 {
-                    I18NItemId = table.Column<int>(nullable: false)
+                    I18NItemId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Key = table.Column<string>(nullable: false),
-                    RegionType = table.Column<int>(nullable: false),
-                    Text = table.Column<string>(nullable: false)
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    RegionType = table.Column<int>(type: "integer", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -171,11 +205,11 @@ namespace NosCore.Database.Migrations
                 name: "I18NMapIdData",
                 columns: table => new
                 {
-                    I18NMapIdDataId = table.Column<int>(nullable: false)
+                    I18NMapIdDataId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Key = table.Column<string>(nullable: false),
-                    RegionType = table.Column<int>(nullable: false),
-                    Text = table.Column<string>(nullable: false)
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    RegionType = table.Column<int>(type: "integer", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -186,11 +220,11 @@ namespace NosCore.Database.Migrations
                 name: "I18NMapPointData",
                 columns: table => new
                 {
-                    I18NMapPointDataId = table.Column<int>(nullable: false)
+                    I18NMapPointDataId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Key = table.Column<string>(nullable: false),
-                    RegionType = table.Column<int>(nullable: false),
-                    Text = table.Column<string>(nullable: false)
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    RegionType = table.Column<int>(type: "integer", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -201,11 +235,11 @@ namespace NosCore.Database.Migrations
                 name: "I18NNpcMonster",
                 columns: table => new
                 {
-                    I18NNpcMonsterId = table.Column<int>(nullable: false)
+                    I18NNpcMonsterId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Key = table.Column<string>(nullable: false),
-                    RegionType = table.Column<int>(nullable: false),
-                    Text = table.Column<string>(nullable: false)
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    RegionType = table.Column<int>(type: "integer", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -216,11 +250,11 @@ namespace NosCore.Database.Migrations
                 name: "I18NNpcMonsterTalk",
                 columns: table => new
                 {
-                    I18NNpcMonsterTalkId = table.Column<int>(nullable: false)
+                    I18NNpcMonsterTalkId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Key = table.Column<string>(nullable: false),
-                    RegionType = table.Column<int>(nullable: false),
-                    Text = table.Column<string>(nullable: false)
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    RegionType = table.Column<int>(type: "integer", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -231,11 +265,11 @@ namespace NosCore.Database.Migrations
                 name: "I18NQuest",
                 columns: table => new
                 {
-                    I18NQuestId = table.Column<int>(nullable: false)
+                    I18NQuestId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Key = table.Column<string>(nullable: false),
-                    RegionType = table.Column<int>(nullable: false),
-                    Text = table.Column<string>(nullable: false)
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    RegionType = table.Column<int>(type: "integer", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -246,11 +280,11 @@ namespace NosCore.Database.Migrations
                 name: "I18NSkill",
                 columns: table => new
                 {
-                    I18NSkillId = table.Column<int>(nullable: false)
+                    I18NSkillId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Key = table.Column<string>(nullable: false),
-                    RegionType = table.Column<int>(nullable: false),
-                    Text = table.Column<string>(nullable: false)
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    RegionType = table.Column<int>(type: "integer", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -261,85 +295,85 @@ namespace NosCore.Database.Migrations
                 name: "Item",
                 columns: table => new
                 {
-                    VNum = table.Column<short>(nullable: false),
-                    BasicUpgrade = table.Column<byte>(nullable: false),
-                    Flag1 = table.Column<bool>(nullable: false),
-                    Flag2 = table.Column<bool>(nullable: false),
-                    Flag3 = table.Column<bool>(nullable: false),
-                    Flag4 = table.Column<bool>(nullable: false),
-                    RequireBinding = table.Column<bool>(nullable: false),
-                    Flag6 = table.Column<bool>(nullable: false),
-                    Flag7 = table.Column<bool>(nullable: false),
-                    Flag8 = table.Column<bool>(nullable: false),
-                    CellonLvl = table.Column<byte>(nullable: false),
-                    Class = table.Column<byte>(nullable: false),
-                    CloseDefence = table.Column<short>(nullable: false),
-                    Color = table.Column<byte>(nullable: false),
-                    Concentrate = table.Column<short>(nullable: false),
-                    CriticalLuckRate = table.Column<byte>(nullable: false),
-                    CriticalRate = table.Column<short>(nullable: false),
-                    DamageMaximum = table.Column<short>(nullable: false),
-                    DamageMinimum = table.Column<short>(nullable: false),
-                    DarkElement = table.Column<byte>(nullable: false),
-                    DarkResistance = table.Column<short>(nullable: false),
-                    DefenceDodge = table.Column<short>(nullable: false),
-                    DistanceDefence = table.Column<short>(nullable: false),
-                    DistanceDefenceDodge = table.Column<short>(nullable: false),
-                    Effect = table.Column<int>(nullable: false),
-                    EffectValue = table.Column<int>(nullable: false),
-                    Element = table.Column<int>(nullable: false),
-                    ElementRate = table.Column<short>(nullable: false),
-                    EquipmentSlot = table.Column<byte>(nullable: false),
-                    FireElement = table.Column<byte>(nullable: false),
-                    FireResistance = table.Column<short>(nullable: false),
-                    Height = table.Column<byte>(nullable: false),
-                    HitRate = table.Column<short>(nullable: false),
-                    Hp = table.Column<short>(nullable: false),
-                    HpRegeneration = table.Column<short>(nullable: false),
-                    IsMinilandActionable = table.Column<bool>(nullable: false),
-                    IsColored = table.Column<bool>(nullable: false),
-                    IsConsumable = table.Column<bool>(nullable: false),
-                    IsDroppable = table.Column<bool>(nullable: false),
-                    IsHeroic = table.Column<bool>(nullable: false),
-                    Flag9 = table.Column<bool>(nullable: false),
-                    IsWarehouse = table.Column<bool>(nullable: false),
-                    IsSoldable = table.Column<bool>(nullable: false),
-                    IsTradable = table.Column<bool>(nullable: false),
-                    ItemSubType = table.Column<byte>(nullable: false),
-                    ItemType = table.Column<byte>(nullable: false),
-                    ItemValidTime = table.Column<long>(nullable: false),
-                    LevelJobMinimum = table.Column<byte>(nullable: false),
-                    LevelMinimum = table.Column<byte>(nullable: false),
-                    LightElement = table.Column<byte>(nullable: false),
-                    LightResistance = table.Column<short>(nullable: false),
-                    MagicDefence = table.Column<short>(nullable: false),
-                    MaxCellon = table.Column<byte>(nullable: false),
-                    MaxCellonLvl = table.Column<byte>(nullable: false),
-                    MaxElementRate = table.Column<short>(nullable: false),
-                    MaximumAmmo = table.Column<byte>(nullable: false),
-                    MinilandObjectPoint = table.Column<int>(nullable: false),
-                    MoreHp = table.Column<short>(nullable: false),
-                    MoreMp = table.Column<short>(nullable: false),
-                    Morph = table.Column<short>(nullable: false),
-                    SecondMorph = table.Column<short>(nullable: false),
-                    Mp = table.Column<short>(nullable: false),
-                    MpRegeneration = table.Column<short>(nullable: false),
-                    Name = table.Column<string>(maxLength: 255, nullable: false),
-                    Price = table.Column<long>(nullable: false),
-                    PvpDefence = table.Column<short>(nullable: false),
-                    PvpStrength = table.Column<byte>(nullable: false),
-                    ReduceOposantResistance = table.Column<short>(nullable: false),
-                    ReputationMinimum = table.Column<byte>(nullable: false),
-                    ReputPrice = table.Column<long>(nullable: false),
-                    SecondaryElement = table.Column<int>(nullable: false),
-                    Sex = table.Column<byte>(nullable: false),
-                    Speed = table.Column<byte>(nullable: false),
-                    SpType = table.Column<byte>(nullable: false),
-                    Type = table.Column<byte>(nullable: false),
-                    WaitDelay = table.Column<short>(nullable: false),
-                    WaterElement = table.Column<byte>(nullable: false),
-                    WaterResistance = table.Column<short>(nullable: false),
-                    Width = table.Column<byte>(nullable: false)
+                    VNum = table.Column<short>(type: "smallint", nullable: false),
+                    BasicUpgrade = table.Column<byte>(type: "smallint", nullable: false),
+                    Flag1 = table.Column<bool>(type: "boolean", nullable: false),
+                    Flag2 = table.Column<bool>(type: "boolean", nullable: false),
+                    Flag3 = table.Column<bool>(type: "boolean", nullable: false),
+                    Flag4 = table.Column<bool>(type: "boolean", nullable: false),
+                    RequireBinding = table.Column<bool>(type: "boolean", nullable: false),
+                    Flag6 = table.Column<bool>(type: "boolean", nullable: false),
+                    Flag7 = table.Column<bool>(type: "boolean", nullable: false),
+                    Flag8 = table.Column<bool>(type: "boolean", nullable: false),
+                    CellonLvl = table.Column<byte>(type: "smallint", nullable: false),
+                    Class = table.Column<byte>(type: "smallint", nullable: false),
+                    CloseDefence = table.Column<short>(type: "smallint", nullable: false),
+                    Color = table.Column<byte>(type: "smallint", nullable: false),
+                    Concentrate = table.Column<short>(type: "smallint", nullable: false),
+                    CriticalLuckRate = table.Column<byte>(type: "smallint", nullable: false),
+                    CriticalRate = table.Column<short>(type: "smallint", nullable: false),
+                    DamageMaximum = table.Column<short>(type: "smallint", nullable: false),
+                    DamageMinimum = table.Column<short>(type: "smallint", nullable: false),
+                    DarkElement = table.Column<byte>(type: "smallint", nullable: false),
+                    DarkResistance = table.Column<short>(type: "smallint", nullable: false),
+                    DefenceDodge = table.Column<short>(type: "smallint", nullable: false),
+                    DistanceDefence = table.Column<short>(type: "smallint", nullable: false),
+                    DistanceDefenceDodge = table.Column<short>(type: "smallint", nullable: false),
+                    Effect = table.Column<int>(type: "integer", nullable: false),
+                    EffectValue = table.Column<int>(type: "integer", nullable: false),
+                    Element = table.Column<int>(type: "integer", nullable: false),
+                    ElementRate = table.Column<short>(type: "smallint", nullable: false),
+                    EquipmentSlot = table.Column<byte>(type: "smallint", nullable: false),
+                    FireElement = table.Column<byte>(type: "smallint", nullable: false),
+                    FireResistance = table.Column<short>(type: "smallint", nullable: false),
+                    Height = table.Column<byte>(type: "smallint", nullable: false),
+                    HitRate = table.Column<short>(type: "smallint", nullable: false),
+                    Hp = table.Column<short>(type: "smallint", nullable: false),
+                    HpRegeneration = table.Column<short>(type: "smallint", nullable: false),
+                    IsMinilandActionable = table.Column<bool>(type: "boolean", nullable: false),
+                    IsColored = table.Column<bool>(type: "boolean", nullable: false),
+                    IsConsumable = table.Column<bool>(type: "boolean", nullable: false),
+                    IsDroppable = table.Column<bool>(type: "boolean", nullable: false),
+                    IsHeroic = table.Column<bool>(type: "boolean", nullable: false),
+                    Flag9 = table.Column<bool>(type: "boolean", nullable: false),
+                    IsWarehouse = table.Column<bool>(type: "boolean", nullable: false),
+                    IsSoldable = table.Column<bool>(type: "boolean", nullable: false),
+                    IsTradable = table.Column<bool>(type: "boolean", nullable: false),
+                    ItemSubType = table.Column<byte>(type: "smallint", nullable: false),
+                    ItemType = table.Column<byte>(type: "smallint", nullable: false),
+                    ItemValidTime = table.Column<long>(type: "bigint", nullable: false),
+                    LevelJobMinimum = table.Column<byte>(type: "smallint", nullable: false),
+                    LevelMinimum = table.Column<byte>(type: "smallint", nullable: false),
+                    LightElement = table.Column<byte>(type: "smallint", nullable: false),
+                    LightResistance = table.Column<short>(type: "smallint", nullable: false),
+                    MagicDefence = table.Column<short>(type: "smallint", nullable: false),
+                    MaxCellon = table.Column<byte>(type: "smallint", nullable: false),
+                    MaxCellonLvl = table.Column<byte>(type: "smallint", nullable: false),
+                    MaxElementRate = table.Column<short>(type: "smallint", nullable: false),
+                    MaximumAmmo = table.Column<byte>(type: "smallint", nullable: false),
+                    MinilandObjectPoint = table.Column<int>(type: "integer", nullable: false),
+                    MoreHp = table.Column<short>(type: "smallint", nullable: false),
+                    MoreMp = table.Column<short>(type: "smallint", nullable: false),
+                    Morph = table.Column<short>(type: "smallint", nullable: false),
+                    SecondMorph = table.Column<short>(type: "smallint", nullable: false),
+                    Mp = table.Column<short>(type: "smallint", nullable: false),
+                    MpRegeneration = table.Column<short>(type: "smallint", nullable: false),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Price = table.Column<long>(type: "bigint", nullable: false),
+                    PvpDefence = table.Column<short>(type: "smallint", nullable: false),
+                    PvpStrength = table.Column<byte>(type: "smallint", nullable: false),
+                    ReduceOposantResistance = table.Column<short>(type: "smallint", nullable: false),
+                    ReputationMinimum = table.Column<byte>(type: "smallint", nullable: false),
+                    ReputPrice = table.Column<long>(type: "bigint", nullable: false),
+                    SecondaryElement = table.Column<int>(type: "integer", nullable: false),
+                    Sex = table.Column<byte>(type: "smallint", nullable: false),
+                    Speed = table.Column<byte>(type: "smallint", nullable: false),
+                    SpType = table.Column<byte>(type: "smallint", nullable: false),
+                    Type = table.Column<byte>(type: "smallint", nullable: false),
+                    WaitDelay = table.Column<short>(type: "smallint", nullable: false),
+                    WaterElement = table.Column<byte>(type: "smallint", nullable: false),
+                    WaterResistance = table.Column<short>(type: "smallint", nullable: false),
+                    Width = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -350,11 +384,11 @@ namespace NosCore.Database.Migrations
                 name: "Map",
                 columns: table => new
                 {
-                    MapId = table.Column<short>(nullable: false),
-                    Data = table.Column<byte[]>(nullable: false),
-                    Music = table.Column<int>(nullable: false),
-                    Name = table.Column<string>(maxLength: 255, nullable: false),
-                    ShopAllowed = table.Column<bool>(nullable: false)
+                    MapId = table.Column<short>(type: "smallint", nullable: false),
+                    Data = table.Column<byte[]>(type: "bytea", nullable: false),
+                    Music = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    ShopAllowed = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -365,51 +399,51 @@ namespace NosCore.Database.Migrations
                 name: "NpcMonster",
                 columns: table => new
                 {
-                    NpcMonsterVNum = table.Column<short>(nullable: false),
-                    AmountRequired = table.Column<byte>(nullable: false),
-                    AttackClass = table.Column<byte>(nullable: false),
-                    AttackUpgrade = table.Column<byte>(nullable: false),
-                    BasicArea = table.Column<byte>(nullable: false),
-                    BasicCooldown = table.Column<short>(nullable: false),
-                    BasicRange = table.Column<byte>(nullable: false),
-                    BasicSkill = table.Column<short>(nullable: false),
-                    CloseDefence = table.Column<short>(nullable: false),
-                    Concentrate = table.Column<short>(nullable: false),
-                    CriticalChance = table.Column<byte>(nullable: false),
-                    CriticalRate = table.Column<short>(nullable: false),
-                    DamageMaximum = table.Column<short>(nullable: false),
-                    DamageMinimum = table.Column<short>(nullable: false),
-                    DarkResistance = table.Column<short>(nullable: false),
-                    DefenceDodge = table.Column<short>(nullable: false),
-                    DefenceUpgrade = table.Column<byte>(nullable: false),
-                    DistanceDefence = table.Column<short>(nullable: false),
-                    DistanceDefenceDodge = table.Column<short>(nullable: false),
-                    Element = table.Column<byte>(nullable: false),
-                    ElementRate = table.Column<short>(nullable: false),
-                    FireResistance = table.Column<short>(nullable: false),
-                    HeroLevel = table.Column<byte>(nullable: false),
-                    HeroXp = table.Column<int>(nullable: false),
-                    IsHostile = table.Column<bool>(nullable: false),
-                    JobXp = table.Column<int>(nullable: false),
-                    Level = table.Column<byte>(nullable: false),
-                    LightResistance = table.Column<short>(nullable: false),
-                    MagicDefence = table.Column<short>(nullable: false),
-                    MaxHp = table.Column<int>(nullable: false),
-                    MaxMp = table.Column<int>(nullable: false),
-                    MonsterType = table.Column<byte>(nullable: false),
-                    Name = table.Column<string>(maxLength: 255, nullable: false),
-                    NoAggresiveIcon = table.Column<bool>(nullable: false),
-                    NoticeRange = table.Column<byte>(nullable: false),
-                    Race = table.Column<byte>(nullable: false),
-                    RaceType = table.Column<byte>(nullable: false),
-                    RespawnTime = table.Column<int>(nullable: false),
-                    Speed = table.Column<byte>(nullable: false),
-                    VNumRequired = table.Column<short>(nullable: false),
-                    WaterResistance = table.Column<short>(nullable: false),
-                    Xp = table.Column<int>(nullable: false),
-                    IsPercent = table.Column<bool>(nullable: false),
-                    TakeDamages = table.Column<int>(nullable: false),
-                    GiveDamagePercentage = table.Column<int>(nullable: false)
+                    NpcMonsterVNum = table.Column<short>(type: "smallint", nullable: false),
+                    AmountRequired = table.Column<byte>(type: "smallint", nullable: false),
+                    AttackClass = table.Column<byte>(type: "smallint", nullable: false),
+                    AttackUpgrade = table.Column<byte>(type: "smallint", nullable: false),
+                    BasicArea = table.Column<byte>(type: "smallint", nullable: false),
+                    BasicCooldown = table.Column<short>(type: "smallint", nullable: false),
+                    BasicRange = table.Column<byte>(type: "smallint", nullable: false),
+                    BasicSkill = table.Column<short>(type: "smallint", nullable: false),
+                    CloseDefence = table.Column<short>(type: "smallint", nullable: false),
+                    Concentrate = table.Column<short>(type: "smallint", nullable: false),
+                    CriticalChance = table.Column<byte>(type: "smallint", nullable: false),
+                    CriticalRate = table.Column<short>(type: "smallint", nullable: false),
+                    DamageMaximum = table.Column<short>(type: "smallint", nullable: false),
+                    DamageMinimum = table.Column<short>(type: "smallint", nullable: false),
+                    DarkResistance = table.Column<short>(type: "smallint", nullable: false),
+                    DefenceDodge = table.Column<short>(type: "smallint", nullable: false),
+                    DefenceUpgrade = table.Column<byte>(type: "smallint", nullable: false),
+                    DistanceDefence = table.Column<short>(type: "smallint", nullable: false),
+                    DistanceDefenceDodge = table.Column<short>(type: "smallint", nullable: false),
+                    Element = table.Column<byte>(type: "smallint", nullable: false),
+                    ElementRate = table.Column<short>(type: "smallint", nullable: false),
+                    FireResistance = table.Column<short>(type: "smallint", nullable: false),
+                    HeroLevel = table.Column<byte>(type: "smallint", nullable: false),
+                    HeroXp = table.Column<int>(type: "integer", nullable: false),
+                    IsHostile = table.Column<bool>(type: "boolean", nullable: false),
+                    JobXp = table.Column<int>(type: "integer", nullable: false),
+                    Level = table.Column<byte>(type: "smallint", nullable: false),
+                    LightResistance = table.Column<short>(type: "smallint", nullable: false),
+                    MagicDefence = table.Column<short>(type: "smallint", nullable: false),
+                    MaxHp = table.Column<int>(type: "integer", nullable: false),
+                    MaxMp = table.Column<int>(type: "integer", nullable: false),
+                    MonsterType = table.Column<byte>(type: "smallint", nullable: false),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    NoAggresiveIcon = table.Column<bool>(type: "boolean", nullable: false),
+                    NoticeRange = table.Column<byte>(type: "smallint", nullable: false),
+                    Race = table.Column<byte>(type: "smallint", nullable: false),
+                    RaceType = table.Column<byte>(type: "smallint", nullable: false),
+                    RespawnTime = table.Column<int>(type: "integer", nullable: false),
+                    Speed = table.Column<byte>(type: "smallint", nullable: false),
+                    VNumRequired = table.Column<short>(type: "smallint", nullable: false),
+                    WaterResistance = table.Column<short>(type: "smallint", nullable: false),
+                    Xp = table.Column<int>(type: "integer", nullable: false),
+                    IsPercent = table.Column<bool>(type: "boolean", nullable: false),
+                    TakeDamages = table.Column<int>(type: "integer", nullable: false),
+                    GiveDamagePercentage = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -420,9 +454,9 @@ namespace NosCore.Database.Migrations
                 name: "NpcTalk",
                 columns: table => new
                 {
-                    DialogId = table.Column<short>(nullable: false)
+                    DialogId = table.Column<short>(type: "smallint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(maxLength: 255, nullable: false)
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -433,23 +467,23 @@ namespace NosCore.Database.Migrations
                 name: "Quest",
                 columns: table => new
                 {
-                    QuestId = table.Column<short>(nullable: false),
-                    QuestType = table.Column<short>(nullable: false),
-                    LevelMin = table.Column<byte>(nullable: false),
-                    LevelMax = table.Column<byte>(nullable: false),
-                    StartDialogId = table.Column<int>(nullable: true),
-                    EndDialogId = table.Column<int>(nullable: true),
-                    TargetMap = table.Column<short>(nullable: true),
-                    TargetX = table.Column<short>(nullable: true),
-                    TargetY = table.Column<short>(nullable: true),
-                    NextQuestId = table.Column<short>(nullable: true),
-                    IsDaily = table.Column<bool>(nullable: false),
-                    AutoFinish = table.Column<bool>(nullable: false),
-                    IsSecondary = table.Column<bool>(nullable: false),
-                    SpecialData = table.Column<int>(nullable: true),
-                    RequiredQuestId = table.Column<short>(nullable: true),
-                    Title = table.Column<string>(maxLength: 255, nullable: false),
-                    Desc = table.Column<string>(maxLength: 255, nullable: false)
+                    QuestId = table.Column<short>(type: "smallint", nullable: false),
+                    QuestType = table.Column<short>(type: "smallint", nullable: false),
+                    LevelMin = table.Column<byte>(type: "smallint", nullable: false),
+                    LevelMax = table.Column<byte>(type: "smallint", nullable: false),
+                    StartDialogId = table.Column<int>(type: "integer", nullable: true),
+                    EndDialogId = table.Column<int>(type: "integer", nullable: true),
+                    TargetMap = table.Column<short>(type: "smallint", nullable: true),
+                    TargetX = table.Column<short>(type: "smallint", nullable: true),
+                    TargetY = table.Column<short>(type: "smallint", nullable: true),
+                    NextQuestId = table.Column<short>(type: "smallint", nullable: true),
+                    IsDaily = table.Column<bool>(type: "boolean", nullable: false),
+                    AutoFinish = table.Column<bool>(type: "boolean", nullable: false),
+                    IsSecondary = table.Column<bool>(type: "boolean", nullable: false),
+                    SpecialData = table.Column<int>(type: "integer", nullable: true),
+                    RequiredQuestId = table.Column<short>(type: "smallint", nullable: true),
+                    Title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Desc = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -460,14 +494,14 @@ namespace NosCore.Database.Migrations
                 name: "QuestReward",
                 columns: table => new
                 {
-                    QuestRewardId = table.Column<short>(nullable: false)
+                    QuestRewardId = table.Column<short>(type: "smallint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    RewardType = table.Column<byte>(nullable: false),
-                    Data = table.Column<int>(nullable: false),
-                    Design = table.Column<byte>(nullable: false),
-                    Rarity = table.Column<byte>(nullable: false),
-                    Upgrade = table.Column<byte>(nullable: false),
-                    Amount = table.Column<int>(nullable: false)
+                    RewardType = table.Column<byte>(type: "smallint", nullable: false),
+                    Data = table.Column<int>(type: "integer", nullable: false),
+                    Design = table.Column<byte>(type: "smallint", nullable: false),
+                    Rarity = table.Column<byte>(type: "smallint", nullable: false),
+                    Upgrade = table.Column<byte>(type: "smallint", nullable: false),
+                    Amount = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -478,14 +512,14 @@ namespace NosCore.Database.Migrations
                 name: "Script",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    ScriptId = table.Column<byte>(nullable: false),
-                    ScriptStepId = table.Column<short>(nullable: false),
-                    StepType = table.Column<string>(nullable: false),
-                    StringArgument = table.Column<string>(nullable: true),
-                    Argument1 = table.Column<short>(nullable: true),
-                    Argument2 = table.Column<short>(nullable: true),
-                    Argument3 = table.Column<short>(nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ScriptId = table.Column<byte>(type: "smallint", nullable: false),
+                    ScriptStepId = table.Column<short>(type: "smallint", nullable: false),
+                    StepType = table.Column<string>(type: "text", nullable: false),
+                    StringArgument = table.Column<string>(type: "text", nullable: true),
+                    Argument1 = table.Column<short>(type: "smallint", nullable: true),
+                    Argument2 = table.Column<short>(type: "smallint", nullable: true),
+                    Argument3 = table.Column<short>(type: "smallint", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -496,36 +530,36 @@ namespace NosCore.Database.Migrations
                 name: "Skill",
                 columns: table => new
                 {
-                    SkillVNum = table.Column<short>(nullable: false),
-                    AttackAnimation = table.Column<short>(nullable: false),
-                    CastAnimation = table.Column<short>(nullable: false),
-                    CastEffect = table.Column<short>(nullable: false),
-                    CastId = table.Column<short>(nullable: false),
-                    CastTime = table.Column<short>(nullable: false),
-                    Class = table.Column<byte>(nullable: false),
-                    Cooldown = table.Column<short>(nullable: false),
-                    CpCost = table.Column<byte>(nullable: false),
-                    Duration = table.Column<short>(nullable: false),
-                    Effect = table.Column<short>(nullable: false),
-                    Element = table.Column<byte>(nullable: false),
-                    HitType = table.Column<byte>(nullable: false),
-                    ItemVNum = table.Column<short>(nullable: false),
-                    Level = table.Column<byte>(nullable: false),
-                    LevelMinimum = table.Column<byte>(nullable: false),
-                    MinimumAdventurerLevel = table.Column<byte>(nullable: false),
-                    MinimumArcherLevel = table.Column<byte>(nullable: false),
-                    MinimumMagicianLevel = table.Column<byte>(nullable: false),
-                    MinimumSwordmanLevel = table.Column<byte>(nullable: false),
-                    MpCost = table.Column<short>(nullable: false),
-                    Name = table.Column<string>(maxLength: 255, nullable: false),
-                    Price = table.Column<int>(nullable: false),
-                    Range = table.Column<byte>(nullable: false),
-                    SkillType = table.Column<byte>(nullable: false),
-                    TargetRange = table.Column<byte>(nullable: false),
-                    TargetType = table.Column<byte>(nullable: false),
-                    Type = table.Column<byte>(nullable: false),
-                    UpgradeSkill = table.Column<short>(nullable: false),
-                    UpgradeType = table.Column<short>(nullable: false)
+                    SkillVNum = table.Column<short>(type: "smallint", nullable: false),
+                    AttackAnimation = table.Column<short>(type: "smallint", nullable: false),
+                    CastAnimation = table.Column<short>(type: "smallint", nullable: false),
+                    CastEffect = table.Column<short>(type: "smallint", nullable: false),
+                    CastId = table.Column<short>(type: "smallint", nullable: false),
+                    CastTime = table.Column<short>(type: "smallint", nullable: false),
+                    Class = table.Column<byte>(type: "smallint", nullable: false),
+                    Cooldown = table.Column<short>(type: "smallint", nullable: false),
+                    CpCost = table.Column<byte>(type: "smallint", nullable: false),
+                    Duration = table.Column<short>(type: "smallint", nullable: false),
+                    Effect = table.Column<short>(type: "smallint", nullable: false),
+                    Element = table.Column<byte>(type: "smallint", nullable: false),
+                    HitType = table.Column<byte>(type: "smallint", nullable: false),
+                    ItemVNum = table.Column<short>(type: "smallint", nullable: false),
+                    Level = table.Column<byte>(type: "smallint", nullable: false),
+                    LevelMinimum = table.Column<byte>(type: "smallint", nullable: false),
+                    MinimumAdventurerLevel = table.Column<byte>(type: "smallint", nullable: false),
+                    MinimumArcherLevel = table.Column<byte>(type: "smallint", nullable: false),
+                    MinimumMagicianLevel = table.Column<byte>(type: "smallint", nullable: false),
+                    MinimumSwordmanLevel = table.Column<byte>(type: "smallint", nullable: false),
+                    MpCost = table.Column<short>(type: "smallint", nullable: false),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Price = table.Column<int>(type: "integer", nullable: false),
+                    Range = table.Column<byte>(type: "smallint", nullable: false),
+                    SkillType = table.Column<byte>(type: "smallint", nullable: false),
+                    TargetRange = table.Column<byte>(type: "smallint", nullable: false),
+                    TargetType = table.Column<byte>(type: "smallint", nullable: false),
+                    Type = table.Column<byte>(type: "smallint", nullable: false),
+                    UpgradeSkill = table.Column<short>(type: "smallint", nullable: false),
+                    UpgradeType = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -536,14 +570,14 @@ namespace NosCore.Database.Migrations
                 name: "PenaltyLog",
                 columns: table => new
                 {
-                    PenaltyLogId = table.Column<int>(nullable: false)
+                    PenaltyLogId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    AccountId = table.Column<long>(nullable: false),
-                    AdminName = table.Column<string>(nullable: false),
-                    DateEnd = table.Column<DateTime>(nullable: false),
-                    DateStart = table.Column<DateTime>(nullable: false),
-                    Penalty = table.Column<byte>(nullable: false),
-                    Reason = table.Column<string>(maxLength: 255, nullable: false)
+                    AccountId = table.Column<long>(type: "bigint", nullable: false),
+                    AdminName = table.Column<string>(type: "text", nullable: false),
+                    DateEnd = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
+                    DateStart = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
+                    Penalty = table.Column<byte>(type: "smallint", nullable: false),
+                    Reason = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -560,10 +594,10 @@ namespace NosCore.Database.Migrations
                 name: "ActPart",
                 columns: table => new
                 {
-                    ActPartId = table.Column<byte>(nullable: false),
-                    ActPartNumber = table.Column<byte>(nullable: false),
-                    ActId = table.Column<byte>(nullable: false),
-                    MaxTs = table.Column<byte>(nullable: false)
+                    ActPartId = table.Column<byte>(type: "smallint", nullable: false),
+                    ActPartNumber = table.Column<byte>(type: "smallint", nullable: false),
+                    ActId = table.Column<byte>(type: "smallint", nullable: false),
+                    MaxTs = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -580,12 +614,12 @@ namespace NosCore.Database.Migrations
                 name: "FamilyLog",
                 columns: table => new
                 {
-                    FamilyLogId = table.Column<long>(nullable: false)
+                    FamilyLogId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    FamilyId = table.Column<long>(nullable: false),
-                    FamilyLogData = table.Column<string>(maxLength: 255, nullable: true),
-                    FamilyLogType = table.Column<byte>(nullable: false),
-                    Timestamp = table.Column<DateTime>(nullable: false)
+                    FamilyId = table.Column<long>(type: "bigint", nullable: false),
+                    FamilyLogData = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    FamilyLogType = table.Column<byte>(type: "smallint", nullable: false),
+                    Timestamp = table.Column<Instant>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -602,18 +636,18 @@ namespace NosCore.Database.Migrations
                 name: "RollGeneratedItem",
                 columns: table => new
                 {
-                    RollGeneratedItemId = table.Column<short>(nullable: false)
+                    RollGeneratedItemId = table.Column<short>(type: "smallint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    OriginalItemDesign = table.Column<short>(nullable: false),
-                    OriginalItemVNum = table.Column<short>(nullable: false),
-                    Probability = table.Column<short>(nullable: false),
-                    ItemGeneratedAmount = table.Column<byte>(nullable: false),
-                    ItemGeneratedVNum = table.Column<short>(nullable: false),
-                    ItemGeneratedUpgrade = table.Column<byte>(nullable: false),
-                    IsRareRandom = table.Column<bool>(nullable: false),
-                    MinimumOriginalItemRare = table.Column<short>(nullable: false),
-                    MaximumOriginalItemRare = table.Column<short>(nullable: false),
-                    IsSuperReward = table.Column<bool>(nullable: false)
+                    OriginalItemDesign = table.Column<short>(type: "smallint", nullable: false),
+                    OriginalItemVNum = table.Column<short>(type: "smallint", nullable: false),
+                    Probability = table.Column<short>(type: "smallint", nullable: false),
+                    ItemGeneratedAmount = table.Column<byte>(type: "smallint", nullable: false),
+                    ItemGeneratedVNum = table.Column<short>(type: "smallint", nullable: false),
+                    ItemGeneratedUpgrade = table.Column<byte>(type: "smallint", nullable: false),
+                    IsRareRandom = table.Column<bool>(type: "boolean", nullable: false),
+                    MinimumOriginalItemRare = table.Column<short>(type: "smallint", nullable: false),
+                    MaximumOriginalItemRare = table.Column<short>(type: "smallint", nullable: false),
+                    IsSuperReward = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -636,16 +670,16 @@ namespace NosCore.Database.Migrations
                 name: "Portal",
                 columns: table => new
                 {
-                    PortalId = table.Column<int>(nullable: false)
+                    PortalId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    DestinationMapId = table.Column<short>(nullable: false),
-                    DestinationX = table.Column<short>(nullable: false),
-                    DestinationY = table.Column<short>(nullable: false),
-                    IsDisabled = table.Column<bool>(nullable: false),
-                    SourceMapId = table.Column<short>(nullable: false),
-                    SourceX = table.Column<short>(nullable: false),
-                    SourceY = table.Column<short>(nullable: false),
-                    Type = table.Column<short>(nullable: false)
+                    DestinationMapId = table.Column<short>(type: "smallint", nullable: false),
+                    DestinationX = table.Column<short>(type: "smallint", nullable: false),
+                    DestinationY = table.Column<short>(type: "smallint", nullable: false),
+                    IsDisabled = table.Column<bool>(type: "boolean", nullable: false),
+                    SourceMapId = table.Column<short>(type: "smallint", nullable: false),
+                    SourceX = table.Column<short>(type: "smallint", nullable: false),
+                    SourceY = table.Column<short>(type: "smallint", nullable: false),
+                    Type = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -668,11 +702,11 @@ namespace NosCore.Database.Migrations
                 name: "RespawnMapType",
                 columns: table => new
                 {
-                    RespawnMapTypeId = table.Column<long>(nullable: false),
-                    MapId = table.Column<short>(nullable: false),
-                    DefaultX = table.Column<short>(nullable: false),
-                    DefaultY = table.Column<short>(nullable: false),
-                    Name = table.Column<string>(maxLength: 255, nullable: true)
+                    RespawnMapTypeId = table.Column<long>(type: "bigint", nullable: false),
+                    MapId = table.Column<short>(type: "smallint", nullable: false),
+                    DefaultX = table.Column<short>(type: "smallint", nullable: false),
+                    DefaultY = table.Column<short>(type: "smallint", nullable: false),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -689,14 +723,14 @@ namespace NosCore.Database.Migrations
                 name: "ScriptedInstance",
                 columns: table => new
                 {
-                    ScriptedInstanceId = table.Column<short>(nullable: false)
+                    ScriptedInstanceId = table.Column<short>(type: "smallint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MapId = table.Column<short>(nullable: false),
-                    PositionX = table.Column<short>(nullable: false),
-                    PositionY = table.Column<short>(nullable: false),
-                    Label = table.Column<string>(nullable: true),
-                    Script = table.Column<string>(maxLength: 2147483647, nullable: true),
-                    Type = table.Column<byte>(nullable: false)
+                    MapId = table.Column<short>(type: "smallint", nullable: false),
+                    PositionX = table.Column<short>(type: "smallint", nullable: false),
+                    PositionY = table.Column<short>(type: "smallint", nullable: false),
+                    Label = table.Column<string>(type: "text", nullable: true),
+                    Script = table.Column<string>(type: "text", maxLength: 2147483647, nullable: true),
+                    Type = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -713,14 +747,14 @@ namespace NosCore.Database.Migrations
                 name: "MapMonster",
                 columns: table => new
                 {
-                    MapMonsterId = table.Column<int>(nullable: false),
-                    IsDisabled = table.Column<bool>(nullable: false),
-                    IsMoving = table.Column<bool>(nullable: false),
-                    MapId = table.Column<short>(nullable: false),
-                    MapX = table.Column<short>(nullable: false),
-                    MapY = table.Column<short>(nullable: false),
-                    VNum = table.Column<short>(nullable: false),
-                    Direction = table.Column<byte>(nullable: false)
+                    MapMonsterId = table.Column<int>(type: "integer", nullable: false),
+                    IsDisabled = table.Column<bool>(type: "boolean", nullable: false),
+                    IsMoving = table.Column<bool>(type: "boolean", nullable: false),
+                    MapId = table.Column<short>(type: "smallint", nullable: false),
+                    MapX = table.Column<short>(type: "smallint", nullable: false),
+                    MapY = table.Column<short>(type: "smallint", nullable: false),
+                    VNum = table.Column<short>(type: "smallint", nullable: false),
+                    Direction = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -743,28 +777,22 @@ namespace NosCore.Database.Migrations
                 name: "MapNpc",
                 columns: table => new
                 {
-                    MapNpcId = table.Column<int>(nullable: false),
-                    Dialog = table.Column<short>(nullable: true),
-                    Effect = table.Column<short>(nullable: false),
-                    EffectDelay = table.Column<short>(nullable: false),
-                    IsDisabled = table.Column<bool>(nullable: false),
-                    IsMoving = table.Column<bool>(nullable: false),
-                    IsSitting = table.Column<bool>(nullable: false),
-                    MapId = table.Column<short>(nullable: false),
-                    MapX = table.Column<short>(nullable: false),
-                    MapY = table.Column<short>(nullable: false),
-                    VNum = table.Column<short>(nullable: false),
-                    Direction = table.Column<byte>(nullable: false)
+                    MapNpcId = table.Column<int>(type: "integer", nullable: false),
+                    Dialog = table.Column<short>(type: "smallint", nullable: true),
+                    Effect = table.Column<short>(type: "smallint", nullable: false),
+                    EffectDelay = table.Column<short>(type: "smallint", nullable: false),
+                    IsDisabled = table.Column<bool>(type: "boolean", nullable: false),
+                    IsMoving = table.Column<bool>(type: "boolean", nullable: false),
+                    IsSitting = table.Column<bool>(type: "boolean", nullable: false),
+                    MapId = table.Column<short>(type: "smallint", nullable: false),
+                    MapX = table.Column<short>(type: "smallint", nullable: false),
+                    MapY = table.Column<short>(type: "smallint", nullable: false),
+                    VNum = table.Column<short>(type: "smallint", nullable: false),
+                    Direction = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MapNpc", x => x.MapNpcId);
-                    table.ForeignKey(
-                        name: "FK_MapNpc_NpcTalk_Dialog",
-                        column: x => x.Dialog,
-                        principalTable: "NpcTalk",
-                        principalColumn: "DialogId",
-                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_MapNpc_Map_MapId",
                         column: x => x.MapId,
@@ -777,18 +805,24 @@ namespace NosCore.Database.Migrations
                         principalTable: "NpcMonster",
                         principalColumn: "NpcMonsterVNum",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_MapNpc_NpcTalk_Dialog",
+                        column: x => x.Dialog,
+                        principalTable: "NpcTalk",
+                        principalColumn: "DialogId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
                 name: "QuestObjective",
                 columns: table => new
                 {
-                    QuestObjectiveId = table.Column<Guid>(nullable: false),
-                    FirstData = table.Column<int>(nullable: false),
-                    SecondData = table.Column<int>(nullable: true),
-                    ThirdData = table.Column<int>(nullable: true),
-                    FourthData = table.Column<int>(nullable: true),
-                    QuestId = table.Column<short>(nullable: false)
+                    QuestObjectiveId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FirstData = table.Column<int>(type: "integer", nullable: false),
+                    SecondData = table.Column<int>(type: "integer", nullable: true),
+                    ThirdData = table.Column<int>(type: "integer", nullable: true),
+                    FourthData = table.Column<int>(type: "integer", nullable: true),
+                    QuestId = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -805,9 +839,9 @@ namespace NosCore.Database.Migrations
                 name: "QuestQuestReward",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    QuestRewardId = table.Column<short>(nullable: false),
-                    QuestId = table.Column<short>(nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    QuestRewardId = table.Column<short>(type: "smallint", nullable: false),
+                    QuestId = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -830,62 +864,63 @@ namespace NosCore.Database.Migrations
                 name: "Character",
                 columns: table => new
                 {
-                    CharacterId = table.Column<long>(nullable: false)
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    AccountId = table.Column<long>(nullable: false),
-                    Act4Dead = table.Column<int>(nullable: false),
-                    Act4Kill = table.Column<int>(nullable: false),
-                    Act4Points = table.Column<int>(nullable: false),
-                    ArenaWinner = table.Column<int>(nullable: false),
-                    CurrentScriptId = table.Column<Guid>(nullable: true),
-                    Biography = table.Column<string>(maxLength: 255, nullable: true),
-                    BuffBlocked = table.Column<bool>(nullable: false),
-                    Class = table.Column<byte>(nullable: false),
-                    Compliment = table.Column<short>(nullable: false),
-                    Dignity = table.Column<short>(nullable: false),
-                    Elo = table.Column<int>(nullable: false),
-                    EmoticonsBlocked = table.Column<bool>(nullable: false),
-                    ExchangeBlocked = table.Column<bool>(nullable: false),
-                    ShouldRename = table.Column<bool>(nullable: false),
-                    Faction = table.Column<byte>(nullable: false),
-                    FamilyRequestBlocked = table.Column<bool>(nullable: false),
-                    FriendRequestBlocked = table.Column<bool>(nullable: false),
-                    Gender = table.Column<byte>(nullable: false),
-                    Gold = table.Column<long>(nullable: false),
-                    GroupRequestBlocked = table.Column<bool>(nullable: false),
-                    HairColor = table.Column<byte>(nullable: false),
-                    HairStyle = table.Column<byte>(nullable: false),
-                    HeroChatBlocked = table.Column<bool>(nullable: false),
-                    HeroLevel = table.Column<byte>(nullable: false),
-                    HeroXp = table.Column<long>(nullable: false),
-                    Hp = table.Column<int>(nullable: false),
-                    HpBlocked = table.Column<bool>(nullable: false),
-                    JobLevel = table.Column<byte>(nullable: false),
-                    JobLevelXp = table.Column<long>(nullable: false),
-                    Level = table.Column<byte>(nullable: false),
-                    LevelXp = table.Column<long>(nullable: false),
-                    MapId = table.Column<short>(nullable: false),
-                    MapX = table.Column<short>(nullable: false),
-                    MapY = table.Column<short>(nullable: false),
-                    MasterPoints = table.Column<int>(nullable: false),
-                    MasterTicket = table.Column<int>(nullable: false),
-                    MaxMateCount = table.Column<byte>(nullable: false),
-                    MinilandInviteBlocked = table.Column<bool>(nullable: false),
-                    MouseAimLock = table.Column<bool>(nullable: false),
-                    Mp = table.Column<int>(nullable: false),
-                    Prefix = table.Column<string>(maxLength: 25, nullable: true),
-                    Name = table.Column<string>(unicode: false, maxLength: 255, nullable: false),
-                    QuickGetUp = table.Column<bool>(nullable: false),
-                    RagePoint = table.Column<long>(nullable: false),
-                    Reput = table.Column<long>(nullable: false),
-                    Slot = table.Column<byte>(nullable: false),
-                    SpAdditionPoint = table.Column<int>(nullable: false),
-                    SpPoint = table.Column<int>(nullable: false),
-                    State = table.Column<byte>(nullable: false),
-                    TalentLose = table.Column<int>(nullable: false),
-                    TalentSurrender = table.Column<int>(nullable: false),
-                    TalentWin = table.Column<int>(nullable: false),
-                    WhisperBlocked = table.Column<bool>(nullable: false)
+                    ServerId = table.Column<byte>(type: "smallint", nullable: false),
+                    AccountId = table.Column<long>(type: "bigint", nullable: false),
+                    Act4Dead = table.Column<int>(type: "integer", nullable: false),
+                    Act4Kill = table.Column<int>(type: "integer", nullable: false),
+                    Act4Points = table.Column<int>(type: "integer", nullable: false),
+                    ArenaWinner = table.Column<int>(type: "integer", nullable: false),
+                    CurrentScriptId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Biography = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    BuffBlocked = table.Column<bool>(type: "boolean", nullable: false),
+                    Class = table.Column<byte>(type: "smallint", nullable: false),
+                    Compliment = table.Column<short>(type: "smallint", nullable: false),
+                    Dignity = table.Column<short>(type: "smallint", nullable: false),
+                    Elo = table.Column<int>(type: "integer", nullable: false),
+                    EmoticonsBlocked = table.Column<bool>(type: "boolean", nullable: false),
+                    ExchangeBlocked = table.Column<bool>(type: "boolean", nullable: false),
+                    ShouldRename = table.Column<bool>(type: "boolean", nullable: false),
+                    Faction = table.Column<byte>(type: "smallint", nullable: false),
+                    FamilyRequestBlocked = table.Column<bool>(type: "boolean", nullable: false),
+                    FriendRequestBlocked = table.Column<bool>(type: "boolean", nullable: false),
+                    Gender = table.Column<byte>(type: "smallint", nullable: false),
+                    Gold = table.Column<long>(type: "bigint", nullable: false),
+                    GroupRequestBlocked = table.Column<bool>(type: "boolean", nullable: false),
+                    HairColor = table.Column<byte>(type: "smallint", nullable: false),
+                    HairStyle = table.Column<byte>(type: "smallint", nullable: false),
+                    HeroChatBlocked = table.Column<bool>(type: "boolean", nullable: false),
+                    HeroLevel = table.Column<byte>(type: "smallint", nullable: false),
+                    HeroXp = table.Column<long>(type: "bigint", nullable: false),
+                    Hp = table.Column<int>(type: "integer", nullable: false),
+                    HpBlocked = table.Column<bool>(type: "boolean", nullable: false),
+                    JobLevel = table.Column<byte>(type: "smallint", nullable: false),
+                    JobLevelXp = table.Column<long>(type: "bigint", nullable: false),
+                    Level = table.Column<byte>(type: "smallint", nullable: false),
+                    LevelXp = table.Column<long>(type: "bigint", nullable: false),
+                    MapId = table.Column<short>(type: "smallint", nullable: false),
+                    MapX = table.Column<short>(type: "smallint", nullable: false),
+                    MapY = table.Column<short>(type: "smallint", nullable: false),
+                    MasterPoints = table.Column<int>(type: "integer", nullable: false),
+                    MasterTicket = table.Column<int>(type: "integer", nullable: false),
+                    MaxMateCount = table.Column<byte>(type: "smallint", nullable: false),
+                    MinilandInviteBlocked = table.Column<bool>(type: "boolean", nullable: false),
+                    MouseAimLock = table.Column<bool>(type: "boolean", nullable: false),
+                    Mp = table.Column<int>(type: "integer", nullable: false),
+                    Prefix = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: true),
+                    Name = table.Column<string>(type: "character varying(255)", unicode: false, maxLength: 255, nullable: false),
+                    QuickGetUp = table.Column<bool>(type: "boolean", nullable: false),
+                    RagePoint = table.Column<long>(type: "bigint", nullable: false),
+                    Reput = table.Column<long>(type: "bigint", nullable: false),
+                    Slot = table.Column<byte>(type: "smallint", nullable: false),
+                    SpAdditionPoint = table.Column<int>(type: "integer", nullable: false),
+                    SpPoint = table.Column<int>(type: "integer", nullable: false),
+                    State = table.Column<byte>(type: "smallint", nullable: false),
+                    TalentLose = table.Column<int>(type: "integer", nullable: false),
+                    TalentSurrender = table.Column<int>(type: "integer", nullable: false),
+                    TalentWin = table.Column<int>(type: "integer", nullable: false),
+                    WhisperBlocked = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -897,16 +932,16 @@ namespace NosCore.Database.Migrations
                         principalColumn: "AccountId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Character_Script_CurrentScriptId",
-                        column: x => x.CurrentScriptId,
-                        principalTable: "Script",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_Character_Map_MapId",
                         column: x => x.MapId,
                         principalTable: "Map",
                         principalColumn: "MapId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Character_Script_CurrentScriptId",
+                        column: x => x.CurrentScriptId,
+                        principalTable: "Script",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -914,20 +949,20 @@ namespace NosCore.Database.Migrations
                 name: "BCard",
                 columns: table => new
                 {
-                    BCardId = table.Column<short>(nullable: false)
+                    BCardId = table.Column<short>(type: "smallint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    SubType = table.Column<byte>(nullable: false),
-                    Type = table.Column<byte>(nullable: false),
-                    FirstData = table.Column<int>(nullable: false),
-                    SecondData = table.Column<int>(nullable: false),
-                    CardId = table.Column<short>(nullable: true),
-                    ItemVNum = table.Column<short>(nullable: true),
-                    SkillVNum = table.Column<short>(nullable: true),
-                    NpcMonsterVNum = table.Column<short>(nullable: true),
-                    CastType = table.Column<byte>(nullable: false),
-                    ThirdData = table.Column<int>(nullable: false),
-                    IsLevelScaled = table.Column<bool>(nullable: false),
-                    IsLevelDivided = table.Column<bool>(nullable: false)
+                    SubType = table.Column<byte>(type: "smallint", nullable: false),
+                    Type = table.Column<byte>(type: "smallint", nullable: false),
+                    FirstData = table.Column<int>(type: "integer", nullable: false),
+                    SecondData = table.Column<int>(type: "integer", nullable: false),
+                    CardId = table.Column<short>(type: "smallint", nullable: true),
+                    ItemVNum = table.Column<short>(type: "smallint", nullable: true),
+                    SkillVNum = table.Column<short>(type: "smallint", nullable: true),
+                    NpcMonsterVNum = table.Column<short>(type: "smallint", nullable: true),
+                    CastType = table.Column<byte>(type: "smallint", nullable: false),
+                    ThirdData = table.Column<int>(type: "integer", nullable: false),
+                    IsLevelScaled = table.Column<bool>(type: "boolean", nullable: false),
+                    IsLevelDivided = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -962,12 +997,12 @@ namespace NosCore.Database.Migrations
                 name: "Combo",
                 columns: table => new
                 {
-                    ComboId = table.Column<int>(nullable: false)
+                    ComboId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Animation = table.Column<short>(nullable: false),
-                    Effect = table.Column<short>(nullable: false),
-                    Hit = table.Column<short>(nullable: false),
-                    SkillVNum = table.Column<short>(nullable: false)
+                    Animation = table.Column<short>(type: "smallint", nullable: false),
+                    Effect = table.Column<short>(type: "smallint", nullable: false),
+                    Hit = table.Column<short>(type: "smallint", nullable: false),
+                    SkillVNum = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -984,11 +1019,11 @@ namespace NosCore.Database.Migrations
                 name: "NpcMonsterSkill",
                 columns: table => new
                 {
-                    NpcMonsterSkillId = table.Column<long>(nullable: false)
+                    NpcMonsterSkillId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    NpcMonsterVNum = table.Column<short>(nullable: false),
-                    Rate = table.Column<short>(nullable: false),
-                    SkillVNum = table.Column<short>(nullable: false)
+                    NpcMonsterVNum = table.Column<short>(type: "smallint", nullable: false),
+                    Rate = table.Column<short>(type: "smallint", nullable: false),
+                    SkillVNum = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1011,11 +1046,11 @@ namespace NosCore.Database.Migrations
                 name: "MapType",
                 columns: table => new
                 {
-                    MapTypeId = table.Column<short>(nullable: false),
-                    MapTypeName = table.Column<string>(nullable: false),
-                    PotionDelay = table.Column<short>(nullable: false),
-                    RespawnMapTypeId = table.Column<long>(nullable: true),
-                    ReturnMapTypeId = table.Column<long>(nullable: true)
+                    MapTypeId = table.Column<short>(type: "smallint", nullable: false),
+                    MapTypeName = table.Column<string>(type: "text", nullable: false),
+                    PotionDelay = table.Column<short>(type: "smallint", nullable: false),
+                    RespawnMapTypeId = table.Column<long>(type: "bigint", nullable: true),
+                    ReturnMapTypeId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1038,11 +1073,11 @@ namespace NosCore.Database.Migrations
                 name: "Recipe",
                 columns: table => new
                 {
-                    RecipeId = table.Column<short>(nullable: false)
+                    RecipeId = table.Column<short>(type: "smallint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Amount = table.Column<byte>(nullable: false),
-                    ItemVNum = table.Column<short>(nullable: false),
-                    MapNpcId = table.Column<int>(nullable: false)
+                    Amount = table.Column<byte>(type: "smallint", nullable: false),
+                    ItemVNum = table.Column<short>(type: "smallint", nullable: false),
+                    MapNpcId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1065,11 +1100,11 @@ namespace NosCore.Database.Migrations
                 name: "Shop",
                 columns: table => new
                 {
-                    ShopId = table.Column<int>(nullable: false)
+                    ShopId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MapNpcId = table.Column<int>(nullable: false),
-                    MenuType = table.Column<byte>(nullable: false),
-                    ShopType = table.Column<byte>(nullable: false)
+                    MapNpcId = table.Column<int>(type: "integer", nullable: false),
+                    MenuType = table.Column<byte>(type: "smallint", nullable: false),
+                    ShopType = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1086,14 +1121,14 @@ namespace NosCore.Database.Migrations
                 name: "Teleporter",
                 columns: table => new
                 {
-                    TeleporterId = table.Column<short>(nullable: false)
+                    TeleporterId = table.Column<short>(type: "smallint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Index = table.Column<short>(nullable: false),
-                    Type = table.Column<byte>(nullable: false),
-                    MapId = table.Column<short>(nullable: false),
-                    MapNpcId = table.Column<int>(nullable: false),
-                    MapX = table.Column<short>(nullable: false),
-                    MapY = table.Column<short>(nullable: false)
+                    Index = table.Column<short>(type: "smallint", nullable: false),
+                    Type = table.Column<byte>(type: "smallint", nullable: false),
+                    MapId = table.Column<short>(type: "smallint", nullable: false),
+                    MapNpcId = table.Column<int>(type: "integer", nullable: false),
+                    MapX = table.Column<short>(type: "smallint", nullable: false),
+                    MapY = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1116,9 +1151,9 @@ namespace NosCore.Database.Migrations
                 name: "CharacterActPart",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    CharacterId = table.Column<long>(nullable: false),
-                    ActPartId = table.Column<byte>(nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    ActPartId = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1141,10 +1176,10 @@ namespace NosCore.Database.Migrations
                 name: "CharacterQuest",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    CharacterId = table.Column<long>(nullable: false),
-                    QuestId = table.Column<short>(nullable: false),
-                    CompletedOn = table.Column<DateTime>(nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    QuestId = table.Column<short>(type: "smallint", nullable: false),
+                    CompletedOn = table.Column<Instant>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1167,10 +1202,10 @@ namespace NosCore.Database.Migrations
                 name: "CharacterRelation",
                 columns: table => new
                 {
-                    CharacterRelationId = table.Column<Guid>(nullable: false),
-                    CharacterId = table.Column<long>(nullable: false),
-                    RelatedCharacterId = table.Column<long>(nullable: false),
-                    RelationType = table.Column<short>(nullable: false)
+                    CharacterRelationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    RelatedCharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    RelationType = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1193,9 +1228,9 @@ namespace NosCore.Database.Migrations
                 name: "CharacterSkill",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    CharacterId = table.Column<long>(nullable: false),
-                    SkillVNum = table.Column<short>(nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    SkillVNum = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1218,14 +1253,14 @@ namespace NosCore.Database.Migrations
                 name: "FamilyCharacter",
                 columns: table => new
                 {
-                    FamilyCharacterId = table.Column<long>(nullable: false)
+                    FamilyCharacterId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Authority = table.Column<byte>(nullable: false),
-                    CharacterId = table.Column<long>(nullable: false),
-                    DailyMessage = table.Column<string>(maxLength: 255, nullable: true),
-                    Experience = table.Column<int>(nullable: false),
-                    FamilyId = table.Column<long>(nullable: false),
-                    Rank = table.Column<byte>(nullable: false)
+                    Authority = table.Column<byte>(type: "smallint", nullable: false),
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    DailyMessage = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    Experience = table.Column<int>(type: "integer", nullable: false),
+                    FamilyId = table.Column<long>(type: "bigint", nullable: false),
+                    Rank = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1248,64 +1283,64 @@ namespace NosCore.Database.Migrations
                 name: "ItemInstance",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    Amount = table.Column<short>(nullable: false),
-                    BoundCharacterId = table.Column<long>(nullable: true),
-                    CharacterId = table.Column<long>(nullable: false),
-                    Design = table.Column<short>(nullable: false),
-                    DurabilityPoint = table.Column<int>(nullable: false),
-                    ItemDeleteTime = table.Column<DateTime>(nullable: true),
-                    ItemVNum = table.Column<short>(nullable: false),
-                    Upgrade = table.Column<byte>(nullable: false),
-                    Rare = table.Column<short>(nullable: false),
-                    Discriminator = table.Column<string>(nullable: false),
-                    Hp = table.Column<short>(nullable: true),
-                    Mp = table.Column<short>(nullable: true),
-                    Ammo = table.Column<byte>(nullable: true),
-                    Cellon = table.Column<byte>(nullable: true),
-                    CloseDefence = table.Column<short>(nullable: true),
-                    Concentrate = table.Column<short>(nullable: true),
-                    CriticalDodge = table.Column<short>(nullable: true),
-                    CriticalLuckRate = table.Column<byte>(nullable: true),
-                    CriticalRate = table.Column<short>(nullable: true),
-                    DamageMaximum = table.Column<short>(nullable: true),
-                    DamageMinimum = table.Column<short>(nullable: true),
-                    DarkElement = table.Column<byte>(nullable: true),
-                    DarkResistance = table.Column<short>(nullable: true),
-                    DefenceDodge = table.Column<short>(nullable: true),
-                    DistanceDefence = table.Column<short>(nullable: true),
-                    DistanceDefenceDodge = table.Column<short>(nullable: true),
-                    ElementRate = table.Column<short>(nullable: true),
-                    FireElement = table.Column<byte>(nullable: true),
-                    FireResistance = table.Column<short>(nullable: true),
-                    HitRate = table.Column<short>(nullable: true),
-                    WearableInstance_Hp = table.Column<short>(nullable: true),
-                    IsEmpty = table.Column<bool>(nullable: true),
-                    IsFixed = table.Column<bool>(nullable: true),
-                    LightElement = table.Column<byte>(nullable: true),
-                    LightResistance = table.Column<short>(nullable: true),
-                    MagicDefence = table.Column<short>(nullable: true),
-                    MaxElementRate = table.Column<short>(nullable: true),
-                    WearableInstance_Mp = table.Column<short>(nullable: true),
-                    ShellRarity = table.Column<byte>(nullable: true),
-                    WaterElement = table.Column<byte>(nullable: true),
-                    WaterResistance = table.Column<short>(nullable: true),
-                    Xp = table.Column<long>(nullable: true),
-                    SlDamage = table.Column<short>(nullable: true),
-                    SlDefence = table.Column<short>(nullable: true),
-                    SlElement = table.Column<short>(nullable: true),
-                    SlHp = table.Column<short>(nullable: true),
-                    SpDamage = table.Column<byte>(nullable: true),
-                    SpDark = table.Column<byte>(nullable: true),
-                    SpDefence = table.Column<byte>(nullable: true),
-                    SpElement = table.Column<byte>(nullable: true),
-                    SpFire = table.Column<byte>(nullable: true),
-                    SpHp = table.Column<byte>(nullable: true),
-                    SpLevel = table.Column<byte>(nullable: true),
-                    SpLight = table.Column<byte>(nullable: true),
-                    SpStoneUpgrade = table.Column<byte>(nullable: true),
-                    SpWater = table.Column<byte>(nullable: true),
-                    HoldingVNum = table.Column<short>(nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Amount = table.Column<short>(type: "smallint", nullable: false),
+                    BoundCharacterId = table.Column<long>(type: "bigint", nullable: true),
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    Design = table.Column<short>(type: "smallint", nullable: false),
+                    DurabilityPoint = table.Column<int>(type: "integer", nullable: false),
+                    ItemDeleteTime = table.Column<Instant>(type: "timestamp with time zone", nullable: true),
+                    ItemVNum = table.Column<short>(type: "smallint", nullable: false),
+                    Upgrade = table.Column<byte>(type: "smallint", nullable: false),
+                    Rare = table.Column<short>(type: "smallint", nullable: false),
+                    Discriminator = table.Column<string>(type: "text", nullable: false),
+                    Hp = table.Column<short>(type: "smallint", nullable: true),
+                    Mp = table.Column<short>(type: "smallint", nullable: true),
+                    Ammo = table.Column<byte>(type: "smallint", nullable: true),
+                    Cellon = table.Column<byte>(type: "smallint", nullable: true),
+                    CloseDefence = table.Column<short>(type: "smallint", nullable: true),
+                    Concentrate = table.Column<short>(type: "smallint", nullable: true),
+                    CriticalDodge = table.Column<short>(type: "smallint", nullable: true),
+                    CriticalLuckRate = table.Column<byte>(type: "smallint", nullable: true),
+                    CriticalRate = table.Column<short>(type: "smallint", nullable: true),
+                    DamageMaximum = table.Column<short>(type: "smallint", nullable: true),
+                    DamageMinimum = table.Column<short>(type: "smallint", nullable: true),
+                    DarkElement = table.Column<byte>(type: "smallint", nullable: true),
+                    DarkResistance = table.Column<short>(type: "smallint", nullable: true),
+                    DefenceDodge = table.Column<short>(type: "smallint", nullable: true),
+                    DistanceDefence = table.Column<short>(type: "smallint", nullable: true),
+                    DistanceDefenceDodge = table.Column<short>(type: "smallint", nullable: true),
+                    ElementRate = table.Column<short>(type: "smallint", nullable: true),
+                    FireElement = table.Column<byte>(type: "smallint", nullable: true),
+                    FireResistance = table.Column<short>(type: "smallint", nullable: true),
+                    HitRate = table.Column<short>(type: "smallint", nullable: true),
+                    WearableInstance_Hp = table.Column<short>(type: "smallint", nullable: true),
+                    IsEmpty = table.Column<bool>(type: "boolean", nullable: true),
+                    IsFixed = table.Column<bool>(type: "boolean", nullable: true),
+                    LightElement = table.Column<byte>(type: "smallint", nullable: true),
+                    LightResistance = table.Column<short>(type: "smallint", nullable: true),
+                    MagicDefence = table.Column<short>(type: "smallint", nullable: true),
+                    MaxElementRate = table.Column<short>(type: "smallint", nullable: true),
+                    WearableInstance_Mp = table.Column<short>(type: "smallint", nullable: true),
+                    ShellRarity = table.Column<byte>(type: "smallint", nullable: true),
+                    WaterElement = table.Column<byte>(type: "smallint", nullable: true),
+                    WaterResistance = table.Column<short>(type: "smallint", nullable: true),
+                    Xp = table.Column<long>(type: "bigint", nullable: true),
+                    SlDamage = table.Column<short>(type: "smallint", nullable: true),
+                    SlDefence = table.Column<short>(type: "smallint", nullable: true),
+                    SlElement = table.Column<short>(type: "smallint", nullable: true),
+                    SlHp = table.Column<short>(type: "smallint", nullable: true),
+                    SpDamage = table.Column<byte>(type: "smallint", nullable: true),
+                    SpDark = table.Column<byte>(type: "smallint", nullable: true),
+                    SpDefence = table.Column<byte>(type: "smallint", nullable: true),
+                    SpElement = table.Column<byte>(type: "smallint", nullable: true),
+                    SpFire = table.Column<byte>(type: "smallint", nullable: true),
+                    SpHp = table.Column<byte>(type: "smallint", nullable: true),
+                    SpLevel = table.Column<byte>(type: "smallint", nullable: true),
+                    SpLight = table.Column<byte>(type: "smallint", nullable: true),
+                    SpStoneUpgrade = table.Column<byte>(type: "smallint", nullable: true),
+                    SpWater = table.Column<byte>(type: "smallint", nullable: true),
+                    HoldingVNum = table.Column<short>(type: "smallint", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1314,8 +1349,7 @@ namespace NosCore.Database.Migrations
                         name: "FK_ItemInstance_Character_BoundCharacterId",
                         column: x => x.BoundCharacterId,
                         principalTable: "Character",
-                        principalColumn: "CharacterId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "CharacterId");
                     table.ForeignKey(
                         name: "FK_ItemInstance_Item_ItemVNum",
                         column: x => x.ItemVNum,
@@ -1328,26 +1362,26 @@ namespace NosCore.Database.Migrations
                 name: "Mate",
                 columns: table => new
                 {
-                    MateId = table.Column<long>(nullable: false)
+                    MateId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Attack = table.Column<byte>(nullable: false),
-                    CanPickUp = table.Column<bool>(nullable: false),
-                    CharacterId = table.Column<long>(nullable: false),
-                    Defence = table.Column<byte>(nullable: false),
-                    Direction = table.Column<byte>(nullable: false),
-                    Experience = table.Column<long>(nullable: false),
-                    Hp = table.Column<int>(nullable: false),
-                    IsSummonable = table.Column<bool>(nullable: false),
-                    IsTeamMember = table.Column<bool>(nullable: false),
-                    Level = table.Column<byte>(nullable: false),
-                    Loyalty = table.Column<short>(nullable: false),
-                    MapX = table.Column<short>(nullable: false),
-                    MapY = table.Column<short>(nullable: false),
-                    MateType = table.Column<byte>(nullable: false),
-                    Mp = table.Column<int>(nullable: false),
-                    Name = table.Column<string>(maxLength: 255, nullable: true),
-                    VNum = table.Column<short>(nullable: false),
-                    Skin = table.Column<short>(nullable: false)
+                    Attack = table.Column<byte>(type: "smallint", nullable: false),
+                    CanPickUp = table.Column<bool>(type: "boolean", nullable: false),
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    Defence = table.Column<byte>(type: "smallint", nullable: false),
+                    Direction = table.Column<byte>(type: "smallint", nullable: false),
+                    Experience = table.Column<long>(type: "bigint", nullable: false),
+                    Hp = table.Column<int>(type: "integer", nullable: false),
+                    IsSummonable = table.Column<bool>(type: "boolean", nullable: false),
+                    IsTeamMember = table.Column<bool>(type: "boolean", nullable: false),
+                    Level = table.Column<byte>(type: "smallint", nullable: false),
+                    Loyalty = table.Column<short>(type: "smallint", nullable: false),
+                    MapX = table.Column<short>(type: "smallint", nullable: false),
+                    MapY = table.Column<short>(type: "smallint", nullable: false),
+                    MateType = table.Column<byte>(type: "smallint", nullable: false),
+                    Mp = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    VNum = table.Column<short>(type: "smallint", nullable: false),
+                    Skin = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1370,14 +1404,14 @@ namespace NosCore.Database.Migrations
                 name: "Miniland",
                 columns: table => new
                 {
-                    MinilandId = table.Column<Guid>(nullable: false),
-                    MinilandMessage = table.Column<string>(maxLength: 255, nullable: true),
-                    MinilandPoint = table.Column<long>(nullable: false),
-                    State = table.Column<byte>(nullable: false),
-                    OwnerId = table.Column<long>(nullable: false),
-                    DailyVisitCount = table.Column<int>(nullable: false),
-                    VisitCount = table.Column<int>(nullable: false),
-                    WelcomeMusicInfo = table.Column<short>(nullable: false)
+                    MinilandId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MinilandMessage = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    MinilandPoint = table.Column<long>(type: "bigint", nullable: false),
+                    State = table.Column<byte>(type: "smallint", nullable: false),
+                    OwnerId = table.Column<long>(type: "bigint", nullable: false),
+                    DailyVisitCount = table.Column<int>(type: "integer", nullable: false),
+                    VisitCount = table.Column<int>(type: "integer", nullable: false),
+                    WelcomeMusicInfo = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1394,14 +1428,14 @@ namespace NosCore.Database.Migrations
                 name: "QuicklistEntry",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    CharacterId = table.Column<long>(nullable: false),
-                    Morph = table.Column<short>(nullable: false),
-                    Pos = table.Column<short>(nullable: false),
-                    Q1 = table.Column<short>(nullable: false),
-                    Q2 = table.Column<short>(nullable: false),
-                    Slot = table.Column<short>(nullable: false),
-                    Type = table.Column<byte>(nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    Morph = table.Column<short>(type: "smallint", nullable: false),
+                    IconVNum = table.Column<short>(type: "smallint", nullable: false),
+                    QuickListIndex = table.Column<short>(type: "smallint", nullable: false),
+                    Slot = table.Column<short>(type: "smallint", nullable: false),
+                    IconType = table.Column<short>(type: "smallint", nullable: false),
+                    Type = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1418,13 +1452,13 @@ namespace NosCore.Database.Migrations
                 name: "Respawn",
                 columns: table => new
                 {
-                    RespawnId = table.Column<long>(nullable: false)
+                    RespawnId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CharacterId = table.Column<long>(nullable: false),
-                    MapId = table.Column<short>(nullable: false),
-                    RespawnMapTypeId = table.Column<long>(nullable: false),
-                    X = table.Column<short>(nullable: false),
-                    Y = table.Column<short>(nullable: false)
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    MapId = table.Column<short>(type: "smallint", nullable: false),
+                    RespawnMapTypeId = table.Column<long>(type: "bigint", nullable: false),
+                    X = table.Column<short>(type: "smallint", nullable: false),
+                    Y = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1453,11 +1487,11 @@ namespace NosCore.Database.Migrations
                 name: "StaticBonus",
                 columns: table => new
                 {
-                    StaticBonusId = table.Column<long>(nullable: false)
+                    StaticBonusId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CharacterId = table.Column<long>(nullable: false),
-                    DateEnd = table.Column<DateTime>(nullable: true),
-                    StaticBonusType = table.Column<byte>(nullable: false)
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    DateEnd = table.Column<Instant>(type: "timestamp with time zone", nullable: true),
+                    StaticBonusType = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1474,11 +1508,11 @@ namespace NosCore.Database.Migrations
                 name: "StaticBuff",
                 columns: table => new
                 {
-                    StaticBuffId = table.Column<long>(nullable: false)
+                    StaticBuffId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CharacterId = table.Column<long>(nullable: false),
-                    CardId = table.Column<short>(nullable: false),
-                    RemainingTime = table.Column<int>(nullable: false)
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    CardId = table.Column<short>(type: "smallint", nullable: false),
+                    RemainingTime = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1501,11 +1535,11 @@ namespace NosCore.Database.Migrations
                 name: "Title",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    CharacterId = table.Column<long>(nullable: false),
-                    Active = table.Column<bool>(nullable: false),
-                    Visible = table.Column<bool>(nullable: false),
-                    TitleType = table.Column<short>(nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    Active = table.Column<bool>(type: "boolean", nullable: false),
+                    Visible = table.Column<bool>(type: "boolean", nullable: false),
+                    TitleType = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1522,10 +1556,10 @@ namespace NosCore.Database.Migrations
                 name: "Warehouse",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    CharacterId = table.Column<long>(nullable: true),
-                    FamilyId = table.Column<long>(nullable: true),
-                    Type = table.Column<byte>(nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CharacterId = table.Column<long>(type: "bigint", nullable: true),
+                    FamilyId = table.Column<long>(type: "bigint", nullable: true),
+                    Type = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1548,17 +1582,23 @@ namespace NosCore.Database.Migrations
                 name: "Drop",
                 columns: table => new
                 {
-                    DropId = table.Column<short>(nullable: false)
+                    DropId = table.Column<short>(type: "smallint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Amount = table.Column<int>(nullable: false),
-                    DropChance = table.Column<int>(nullable: false),
-                    VNum = table.Column<short>(nullable: false),
-                    MapTypeId = table.Column<short>(nullable: true),
-                    MonsterVNum = table.Column<short>(nullable: true)
+                    Amount = table.Column<int>(type: "integer", nullable: false),
+                    DropChance = table.Column<int>(type: "integer", nullable: false),
+                    VNum = table.Column<short>(type: "smallint", nullable: false),
+                    MapTypeId = table.Column<short>(type: "smallint", nullable: true),
+                    MonsterVNum = table.Column<short>(type: "smallint", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Drop", x => x.DropId);
+                    table.ForeignKey(
+                        name: "FK_Drop_Item_VNum",
+                        column: x => x.VNum,
+                        principalTable: "Item",
+                        principalColumn: "VNum",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Drop_MapType_MapTypeId",
                         column: x => x.MapTypeId,
@@ -1571,22 +1611,16 @@ namespace NosCore.Database.Migrations
                         principalTable: "NpcMonster",
                         principalColumn: "NpcMonsterVNum",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Drop_Item_VNum",
-                        column: x => x.VNum,
-                        principalTable: "Item",
-                        principalColumn: "VNum",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
                 name: "MapTypeMap",
                 columns: table => new
                 {
-                    MapTypeMapId = table.Column<short>(nullable: false)
+                    MapTypeMapId = table.Column<short>(type: "smallint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MapId = table.Column<short>(nullable: false),
-                    MapTypeId = table.Column<short>(nullable: false)
+                    MapId = table.Column<short>(type: "smallint", nullable: false),
+                    MapTypeId = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1609,11 +1643,11 @@ namespace NosCore.Database.Migrations
                 name: "RecipeItem",
                 columns: table => new
                 {
-                    RecipeItemId = table.Column<short>(nullable: false)
+                    RecipeItemId = table.Column<short>(type: "smallint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Amount = table.Column<short>(nullable: false),
-                    ItemVNum = table.Column<short>(nullable: false),
-                    RecipeId = table.Column<short>(nullable: false)
+                    Amount = table.Column<short>(type: "smallint", nullable: false),
+                    ItemVNum = table.Column<short>(type: "smallint", nullable: false),
+                    RecipeId = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1636,15 +1670,15 @@ namespace NosCore.Database.Migrations
                 name: "ShopItem",
                 columns: table => new
                 {
-                    ShopItemId = table.Column<int>(nullable: false)
+                    ShopItemId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Color = table.Column<byte>(nullable: false),
-                    ItemVNum = table.Column<short>(nullable: false),
-                    Rare = table.Column<short>(nullable: false),
-                    ShopId = table.Column<int>(nullable: false),
-                    Slot = table.Column<byte>(nullable: false),
-                    Type = table.Column<byte>(nullable: false),
-                    Upgrade = table.Column<byte>(nullable: false)
+                    Color = table.Column<byte>(type: "smallint", nullable: false),
+                    ItemVNum = table.Column<short>(type: "smallint", nullable: false),
+                    Rare = table.Column<short>(type: "smallint", nullable: false),
+                    ShopId = table.Column<int>(type: "integer", nullable: false),
+                    Slot = table.Column<byte>(type: "smallint", nullable: false),
+                    Type = table.Column<byte>(type: "smallint", nullable: false),
+                    Upgrade = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1667,12 +1701,12 @@ namespace NosCore.Database.Migrations
                 name: "ShopSkill",
                 columns: table => new
                 {
-                    ShopSkillId = table.Column<int>(nullable: false)
+                    ShopSkillId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ShopId = table.Column<int>(nullable: false),
-                    SkillVNum = table.Column<short>(nullable: false),
-                    Slot = table.Column<byte>(nullable: false),
-                    Type = table.Column<byte>(nullable: false)
+                    ShopId = table.Column<int>(type: "integer", nullable: false),
+                    SkillVNum = table.Column<short>(type: "smallint", nullable: false),
+                    Slot = table.Column<byte>(type: "smallint", nullable: false),
+                    Type = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1695,31 +1729,31 @@ namespace NosCore.Database.Migrations
                 name: "BazaarItem",
                 columns: table => new
                 {
-                    BazaarItemId = table.Column<long>(nullable: false)
+                    BazaarItemId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Amount = table.Column<short>(nullable: false),
-                    DateStart = table.Column<DateTime>(nullable: false),
-                    Duration = table.Column<short>(nullable: false),
-                    IsPackage = table.Column<bool>(nullable: false),
-                    ItemInstanceId = table.Column<Guid>(nullable: false),
-                    MedalUsed = table.Column<bool>(nullable: false),
-                    Price = table.Column<long>(nullable: false),
-                    SellerId = table.Column<long>(nullable: false)
+                    Amount = table.Column<short>(type: "smallint", nullable: false),
+                    DateStart = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
+                    Duration = table.Column<short>(type: "smallint", nullable: false),
+                    IsPackage = table.Column<bool>(type: "boolean", nullable: false),
+                    ItemInstanceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MedalUsed = table.Column<bool>(type: "boolean", nullable: false),
+                    Price = table.Column<long>(type: "bigint", nullable: false),
+                    SellerId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BazaarItem", x => x.BazaarItemId);
                     table.ForeignKey(
-                        name: "FK_BazaarItem_ItemInstance_ItemInstanceId",
-                        column: x => x.ItemInstanceId,
-                        principalTable: "ItemInstance",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_BazaarItem_Character_SellerId",
                         column: x => x.SellerId,
                         principalTable: "Character",
                         principalColumn: "CharacterId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_BazaarItem_ItemInstance_ItemInstanceId",
+                        column: x => x.ItemInstanceId,
+                        principalTable: "ItemInstance",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -1727,11 +1761,11 @@ namespace NosCore.Database.Migrations
                 name: "EquipmentOption",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    Level = table.Column<byte>(nullable: false),
-                    Type = table.Column<byte>(nullable: false),
-                    Value = table.Column<int>(nullable: false),
-                    WearableInstanceId = table.Column<Guid>(nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Level = table.Column<byte>(type: "smallint", nullable: false),
+                    Type = table.Column<byte>(type: "smallint", nullable: false),
+                    Value = table.Column<int>(type: "integer", nullable: false),
+                    WearableInstanceId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1748,11 +1782,11 @@ namespace NosCore.Database.Migrations
                 name: "InventoryItemInstance",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    CharacterId = table.Column<long>(nullable: false),
-                    ItemInstanceId = table.Column<Guid>(nullable: false),
-                    Slot = table.Column<short>(nullable: false),
-                    Type = table.Column<byte>(nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CharacterId = table.Column<long>(type: "bigint", nullable: false),
+                    ItemInstanceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Slot = table.Column<short>(type: "smallint", nullable: false),
+                    Type = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1775,41 +1809,35 @@ namespace NosCore.Database.Migrations
                 name: "Mail",
                 columns: table => new
                 {
-                    MailId = table.Column<long>(nullable: false)
+                    MailId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Hat = table.Column<short>(nullable: true),
-                    Armor = table.Column<short>(nullable: true),
-                    MainWeapon = table.Column<short>(nullable: true),
-                    SecondaryWeapon = table.Column<short>(nullable: true),
-                    Mask = table.Column<short>(nullable: true),
-                    Fairy = table.Column<short>(nullable: true),
-                    CostumeSuit = table.Column<short>(nullable: true),
-                    CostumeHat = table.Column<short>(nullable: true),
-                    WeaponSkin = table.Column<short>(nullable: true),
-                    WingSkin = table.Column<short>(nullable: true),
-                    Date = table.Column<DateTime>(nullable: false),
-                    IsOpened = table.Column<bool>(nullable: false),
-                    IsSenderCopy = table.Column<bool>(nullable: false),
-                    ItemInstanceId = table.Column<Guid>(nullable: true),
-                    Message = table.Column<string>(maxLength: 255, nullable: false),
-                    ReceiverId = table.Column<long>(nullable: false),
-                    SenderId = table.Column<long>(nullable: true),
-                    SenderCharacterClass = table.Column<byte>(nullable: true),
-                    SenderGender = table.Column<byte>(nullable: true),
-                    SenderHairColor = table.Column<byte>(nullable: true),
-                    SenderHairStyle = table.Column<byte>(nullable: true),
-                    SenderMorphId = table.Column<short>(nullable: true),
-                    Title = table.Column<string>(maxLength: 255, nullable: false)
+                    Hat = table.Column<short>(type: "smallint", nullable: true),
+                    Armor = table.Column<short>(type: "smallint", nullable: true),
+                    MainWeapon = table.Column<short>(type: "smallint", nullable: true),
+                    SecondaryWeapon = table.Column<short>(type: "smallint", nullable: true),
+                    Mask = table.Column<short>(type: "smallint", nullable: true),
+                    Fairy = table.Column<short>(type: "smallint", nullable: true),
+                    CostumeSuit = table.Column<short>(type: "smallint", nullable: true),
+                    CostumeHat = table.Column<short>(type: "smallint", nullable: true),
+                    WeaponSkin = table.Column<short>(type: "smallint", nullable: true),
+                    WingSkin = table.Column<short>(type: "smallint", nullable: true),
+                    Date = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
+                    IsOpened = table.Column<bool>(type: "boolean", nullable: false),
+                    IsSenderCopy = table.Column<bool>(type: "boolean", nullable: false),
+                    ItemInstanceId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Message = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    ReceiverId = table.Column<long>(type: "bigint", nullable: false),
+                    SenderId = table.Column<long>(type: "bigint", nullable: true),
+                    SenderCharacterClass = table.Column<byte>(type: "smallint", nullable: true),
+                    SenderGender = table.Column<byte>(type: "smallint", nullable: true),
+                    SenderHairColor = table.Column<byte>(type: "smallint", nullable: true),
+                    SenderHairStyle = table.Column<byte>(type: "smallint", nullable: true),
+                    SenderMorphId = table.Column<short>(type: "smallint", nullable: true),
+                    Title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Mail", x => x.MailId);
-                    table.ForeignKey(
-                        name: "FK_Mail_ItemInstance_ItemInstanceId",
-                        column: x => x.ItemInstanceId,
-                        principalTable: "ItemInstance",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Mail_Character_ReceiverId",
                         column: x => x.ReceiverId,
@@ -1822,16 +1850,22 @@ namespace NosCore.Database.Migrations
                         principalTable: "Character",
                         principalColumn: "CharacterId",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Mail_ItemInstance_ItemInstanceId",
+                        column: x => x.ItemInstanceId,
+                        principalTable: "ItemInstance",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
                 name: "WarehouseItem",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    WarehouseId = table.Column<Guid>(nullable: false),
-                    ItemInstanceId = table.Column<Guid>(nullable: false),
-                    Slot = table.Column<short>(nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    WarehouseId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ItemInstanceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Slot = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1854,15 +1888,15 @@ namespace NosCore.Database.Migrations
                 name: "MinilandObject",
                 columns: table => new
                 {
-                    MinilandObjectId = table.Column<Guid>(nullable: false),
-                    InventoryItemInstanceId = table.Column<Guid>(nullable: true),
-                    Level1BoxAmount = table.Column<byte>(nullable: false),
-                    Level2BoxAmount = table.Column<byte>(nullable: false),
-                    Level3BoxAmount = table.Column<byte>(nullable: false),
-                    Level4BoxAmount = table.Column<byte>(nullable: false),
-                    Level5BoxAmount = table.Column<byte>(nullable: false),
-                    MapX = table.Column<short>(nullable: false),
-                    MapY = table.Column<short>(nullable: false)
+                    MinilandObjectId = table.Column<Guid>(type: "uuid", nullable: false),
+                    InventoryItemInstanceId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Level1BoxAmount = table.Column<byte>(type: "smallint", nullable: false),
+                    Level2BoxAmount = table.Column<byte>(type: "smallint", nullable: false),
+                    Level3BoxAmount = table.Column<byte>(type: "smallint", nullable: false),
+                    Level4BoxAmount = table.Column<byte>(type: "smallint", nullable: false),
+                    Level5BoxAmount = table.Column<byte>(type: "smallint", nullable: false),
+                    MapX = table.Column<short>(type: "smallint", nullable: false),
+                    MapY = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -2072,15 +2106,15 @@ namespace NosCore.Database.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_InventoryItemInstance_ItemInstanceId",
-                table: "InventoryItemInstance",
-                column: "ItemInstanceId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_InventoryItemInstance_CharacterId_Slot_Type",
                 table: "InventoryItemInstance",
                 columns: new[] { "CharacterId", "Slot", "Type" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryItemInstance_ItemInstanceId",
+                table: "InventoryItemInstance",
+                column: "ItemInstanceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ItemInstance_BoundCharacterId",
@@ -2143,15 +2177,15 @@ namespace NosCore.Database.Migrations
                 column: "ReturnMapTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MapTypeMap_MapTypeId",
-                table: "MapTypeMap",
-                column: "MapTypeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MapTypeMap_MapId_MapTypeId",
                 table: "MapTypeMap",
                 columns: new[] { "MapId", "MapTypeId" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MapTypeMap_MapTypeId",
+                table: "MapTypeMap",
+                column: "MapTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Mate_CharacterId",
@@ -2545,19 +2579,19 @@ namespace NosCore.Database.Migrations
                 name: "Item");
 
             migrationBuilder.DropTable(
-                name: "NpcTalk");
+                name: "NpcMonster");
 
             migrationBuilder.DropTable(
-                name: "NpcMonster");
+                name: "NpcTalk");
 
             migrationBuilder.DropTable(
                 name: "Account");
 
             migrationBuilder.DropTable(
-                name: "Script");
+                name: "Map");
 
             migrationBuilder.DropTable(
-                name: "Map");
+                name: "Script");
         }
     }
 }

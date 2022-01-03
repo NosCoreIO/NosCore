@@ -210,9 +210,6 @@
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Uživatel se připojil, SessionId: {0} </value>
   </data>
-  <data name="CLIENT_CONNECTED" xml:space="preserve">
-    <value>Nový hráč se připojil ClientId = {0}</value>
-  </data>
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Klient se Odpojil</value>
   </data>
@@ -237,9 +234,6 @@
   <data name="EFFECT_ACTIVATED" xml:space="preserve">
     <value>{0} efekt byl aktivován!</value>
   </data>
-  <data name="ENCODE_ERROR" xml:space="preserve">
-    <value>Chyba v kódování: {0}</value>
-  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Zadejte složku se soubory, které chcete nahrát</value>
   </data>
@@ -248,9 +242,6 @@
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Nastala chyba při změně mapy. Nezneužívejte příkazy. {0}</value>
-  </data>
-  <data name="ERROR_DECODING" xml:space="preserve">
-    <value>Chyba v Dekódování</value>
   </data>
   <data name="EXCHANGE_BLOCKED" xml:space="preserve">
     <value>Výměna blokována.</value>
@@ -404,9 +395,6 @@
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Nemůžeš přidat více předmětů do Bazaru protože jsi překročil limit předmětů.</value>
-  </data>
-  <data name="LISTENING_PORT" xml:space="preserve">
-    <value>Poslech Portu {0}</value>
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Na tuto SP potřebuješ větší Úroveň práce.</value>
