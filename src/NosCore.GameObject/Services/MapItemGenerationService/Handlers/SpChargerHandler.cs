@@ -45,17 +45,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
         public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             await requestData.ClientSession.Character.AddSpPointsAsync(requestData.Data.Item1.ItemInstance!.Item!.EffectValue).ConfigureAwait(false);
-
-            await requestData.ClientSession.SendPacketAsync(new MsgPacket
-            {
-                Message = string.Format(
-                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_POINTSADDED,
-                        requestData.ClientSession.Account.Language),
-                    requestData.Data.Item1.ItemInstance.Item.EffectValue),
-                Type = 0
-            }).ConfigureAwait(false);
             await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSpPoint()).ConfigureAwait(false);
-
             requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
             await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
                 requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId)).ConfigureAwait(false);

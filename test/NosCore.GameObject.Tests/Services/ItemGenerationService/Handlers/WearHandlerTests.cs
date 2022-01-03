@@ -41,6 +41,7 @@ using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -189,10 +190,9 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             var sp = InventoryItemInstance.Create(_itemProvider.Create(4), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
-            var lastpacket = (MsgPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
-                    Session.Account.Language),
-                Session.Character.SpCooldown), lastpacket?.Message);
+            var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.AreEqual(lastpacket?.Type == MessageType.Default, lastpacket?.Message == Game18NConstString.CantTrasformWithSideEffect);
+            Assert.AreEqual(lastpacket?.FirstArgument == 4, lastpacket?.SecondArgument == Session.Character.SpCooldown);
         }
 
         [TestMethod]
@@ -205,10 +205,10 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             var sp = InventoryItemInstance.Create(_itemProvider.Create(4), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
-            var lastpacket = (SayPacket?)Session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.AreEqual(
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED, Session.Account.Language),
-                lastpacket?.Message);
+            var lastpacket = (SayiPacket?)Session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED, Session.Account.Language),lastpacket?.Message);
+            Assert.AreEqual(lastpacket?.VisualType == VisualType.Player, lastpacket?.VisualId == Session.Character.CharacterId);
+            Assert.AreEqual(lastpacket?.Type == SayColorType.Yellow, lastpacket?.Message == Game18NConstString.SpecialistCardsCannotBeTradedWhileTransformed);
         }
 
         [TestMethod]

@@ -65,11 +65,10 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             }
             else
             {
-                await requestData.ClientSession.Character.SendPacketAsync(new MsgPacket
+                await requestData.ClientSession.Character.SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
-                        requestData.ClientSession.Account.Language),
-                    Type = MessageType.Default
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.CannotBeUsedExceedsCapacity
                 }).ConfigureAwait(false);
             }
         }

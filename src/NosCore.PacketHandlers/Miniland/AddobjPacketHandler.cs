@@ -67,10 +67,10 @@ namespace NosCore.PacketHandlers.Miniland
 
             if (_minilandProvider.GetMiniland(clientSession.Character.CharacterId).State != MinilandState.Lock)
             {
-                await clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_NEED_LOCK,
-                        clientSession.Account.Language)
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.InstallationOnlyLockMode
                 }).ConfigureAwait(false);
                 return;
             }

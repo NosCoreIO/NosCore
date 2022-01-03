@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -29,6 +27,7 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using System;
 using System.Threading.Tasks;
 
@@ -52,22 +51,24 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 
             if (requestData.ClientSession.Character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance)
             {
-                await requestData.ClientSession.Character.SendPacketAsync(new SayPacket
+                await requestData.ClientSession.Character.SendPacketAsync(new SayiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_USE,
-                        requestData.ClientSession.Account.Language),
-                    Type = SayColorType.Yellow
+                    VisualType = VisualType.Player,
+                    VisualId = requestData.ClientSession.Character.CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.CanNotBeUsedHere
                 }).ConfigureAwait(false);
                 return;
             }
 
             if (requestData.ClientSession.Character.IsVehicled)
             {
-                await requestData.ClientSession.Character.SendPacketAsync(new SayPacket
+                await requestData.ClientSession.Character.SendPacketAsync(new SayiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_USE_IN_VEHICLE,
-                        requestData.ClientSession.Account.Language),
-                    Type = SayColorType.Yellow
+                    VisualType = VisualType.Player,
+                    VisualId = requestData.ClientSession.Character.CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.OnlyPotionInVehicle
                 }).ConfigureAwait(false);
                 return;
             }
@@ -76,18 +77,15 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             {
                 await requestData.ClientSession.SendPacketAsync(new DelayPacket
                 {
-                    Type = DelayPacketType.Locomotion,
                     Delay = 5000,
-                    Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type,
-                        itemInstance.Slot,
-                        2, 0)
+                    Type = DelayPacketType.ItemInUse,
+                    Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, 2, 0)
                 }).ConfigureAwait(false);
                 return;
             }
 
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await requestData.ClientSession.SendPacketAsync(
-                itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
             var miniland = _minilandProvider.GetMiniland(requestData.ClientSession.Character.CharacterId);
             await requestData.ClientSession.ChangeMapInstanceAsync(miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
         }

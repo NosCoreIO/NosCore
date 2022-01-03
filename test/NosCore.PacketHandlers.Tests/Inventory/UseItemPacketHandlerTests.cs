@@ -99,10 +99,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Mode = 0,
                 Parameter = 0
             }, _session).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((_session.Character.SpAdditionPoint == TestHelpers.Instance.WorldConfiguration.Value.MaxAdditionalSpPoints) &&
-                (packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_ADDPOINTS_FULL,
-                    _session.Account.Language)));
+            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.CannotBeUsedExceedsCapacity);
         }
 
         [TestMethod]

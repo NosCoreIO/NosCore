@@ -41,6 +41,7 @@ using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -99,8 +100,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
         public async Task UserCanNotCreateShopCloseToPortalAsync()
         {
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session!).ConfigureAwait(false);
-            var packet = (MsgiPacket?)_session?.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Message == Game18NConstString.ShopIsNotAllowedHere);
+            var packet = (InfoiPacket?)_session?.LastPackets.FirstOrDefault(s => s is InfoiPacket);
+            Assert.IsTrue(packet?.Message == Game18NConstString.OpenShopAwayPortal);
             Assert.IsNull(_session?.Character.Shop);
         }
 
@@ -111,9 +112,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session.Character.PositionY = 7;
             _session.Character.Group = new GameObject.Group(GroupType.Team);
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
+            var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Red && packet?.Message == Game18NConstString.TeammateCanNotOpenShop);
             Assert.IsNull(_session.Character.Shop);
         }
 
@@ -135,7 +135,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
-            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            var packet = (InfoiPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
 
             Assert.IsTrue(packet?.Message == Game18NConstString.UseCommercialMapToShop);
             Assert.IsNull(_session.Character.Shop);
@@ -179,9 +179,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1);
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
             Assert.IsNull(_session.Character.Shop);
-            var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS, _session.Account.Language));
+            var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Red && packet?.Message == Game18NConstString.SomeItemsCannotBeTraded);
         }
 
         [TestMethod]
@@ -241,9 +240,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 Name = "TEST SHOP"
             }, _session).ConfigureAwait(false);
             Assert.IsNull(_session.Character.Shop);
-            var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, _session.Account.Language));
+            var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.NoItemToSell);
         }
     }
 }

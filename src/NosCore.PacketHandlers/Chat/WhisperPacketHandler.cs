@@ -33,6 +33,7 @@ using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using Serilog;
 using System;
@@ -111,11 +112,9 @@ namespace NosCore.PacketHandlers.Chat
                 var blacklisteds = await _blacklistHttpClient.GetBlackListsAsync(session.Character.VisualId).ConfigureAwait(false);
                 if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter?.Id))
                 {
-                    await session.SendPacketAsync(new SayPacket
+                    await session.SendPacketAsync(new InfoiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                            session.Account.Language),
-                        Type = SayColorType.Yellow
+                        Message = Game18NConstString.AlreadyBlacklisted
                     }).ConfigureAwait(false);
                     return;
                 }

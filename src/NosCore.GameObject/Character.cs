@@ -52,6 +52,7 @@ using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Quicklist;
@@ -293,17 +294,16 @@ namespace NosCore.GameObject
             HeroLevel = level;
             HeroXp = 0;
             await GenerateLevelupPacketsAsync().ConfigureAwait(false);
-            await SendPacketAsync(new MsgPacket
+            await SendPacketAsync(new MsgiPacket
             {
-                Type = MessageType.Center,
-                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.HERO_LEVEL_CHANGED, Session.Account.Language)
+                Type = MessageType.Default,
+                Message = Game18NConstString.HeroLevelIncreased
             }).ConfigureAwait(false);
         }
 
         public async Task SetJobLevelAsync(byte jobLevel)
         {
-            JobLevel = (byte)((Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20
-                : jobLevel);
+            JobLevel = (byte)((Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20 : jobLevel);
             JobLevelXp = 0;
             await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
             var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == MapInstance);
@@ -316,10 +316,10 @@ namespace NosCore.GameObject
 
                 return s.SendPacketAsync(this.GenerateEff(8));
             })).ConfigureAwait(false);
-            await SendPacketAsync(new MsgPacket
+            await SendPacketAsync(new MsgiPacket
             {
-                Type = MessageType.Center,
-                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.JOB_LEVEL_CHANGED, Session.Account.Language)
+                Type = MessageType.Default,
+                Message = Game18NConstString.JobLevelIncreased
             }).ConfigureAwait(false);
         }
 
@@ -357,11 +357,10 @@ namespace NosCore.GameObject
                 {
                     await groupMember.LeaveGroupAsync().ConfigureAwait(false);
                     await groupMember.SendPacketAsync(Group.GeneratePidx(groupMember)).ConfigureAwait(false);
-                    await groupMember.SendPacketAsync(new MsgPacket
+                    await groupMember.SendPacketAsync(new MsgiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
-                            groupMember.AccountLanguage),
-                        Type = MessageType.Center
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.PartyDisbanded
                     }).ConfigureAwait(false);
                 }
 
@@ -438,15 +437,15 @@ namespace NosCore.GameObject
 
             if (InventoryService.Any(s => s.Value.Type == NoscorePocketType.Wear))
             {
-                await SendPacketAsync(new MsgPacket
+                await SendPacketAsync(new SayiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
-                        AccountLanguage),
-                    Type = MessageType.Center
+                    VisualType = VisualType.Player,
+                    VisualId = CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.RemoveEquipment
                 }).ConfigureAwait(false);
                 return;
             }
-
 
             JobLevel = 1;
             JobLevelXp = 0;
@@ -496,10 +495,10 @@ namespace NosCore.GameObject
             await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
             await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
             await SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
-            await SendPacketAsync(new MsgPacket
+            await SendPacketAsync(new MsgiPacket
             {
-                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CLASS_CHANGED, Session.Account.Language),
-                Type = MessageType.Center
+                Type = MessageType.Default,
+                Message = Game18NConstString.ClassChanged
             }).ConfigureAwait(false);
 
             QuicklistEntries = new List<QuicklistEntryDto>
@@ -814,10 +813,10 @@ namespace NosCore.GameObject
         {
             this.SetLevel(level);
             await GenerateLevelupPacketsAsync().ConfigureAwait(false);
-            await SendPacketAsync(new MsgPacket
+            await SendPacketAsync(new MsgiPacket
             {
-                Type = MessageType.Center,
-                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.LEVEL_CHANGED, Session.Account.Language)
+                Type = MessageType.Default,
+                Message = Game18NConstString.LevelIncreased
             }).ConfigureAwait(false);
         }
 
@@ -1049,9 +1048,15 @@ namespace NosCore.GameObject
             await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
             await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
             SpCooldown = 30;
-            await SendPacketAsync(this.GenerateSay(
-                string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.STAY_TIME, Session.Account.Language), SpCooldown),
-                SayColorType.Red)).ConfigureAwait(false);
+            await SendPacketAsync(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = CharacterId,
+                Type = SayColorType.Red,
+                Message = Game18NConstString.DurationOfSideEffect,
+                FirstArgument = 4,
+                SecondArgument = SpCooldown
+            }).ConfigureAwait(false);
             await SendPacketAsync(new SdPacket { Cooldown = SpCooldown }).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(new GuriPacket
@@ -1064,10 +1069,13 @@ namespace NosCore.GameObject
 
             async Task CoolDown()
             {
-                await SendPacketAsync(this.GenerateSay(
-                    string.Format(
-                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.TRANSFORM_DISAPPEAR, Session.Account.Language),
-                        SpCooldown), SayColorType.Red)).ConfigureAwait(false);
+                await SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = CharacterId,
+                    Type = SayColorType.Red,
+                    Message = Game18NConstString.TransformationSideEffectGone
+                }).ConfigureAwait(false);
                 await SendPacketAsync(new SdPacket { Cooldown = 0 }).ConfigureAwait(false);
             }
 
@@ -1085,10 +1093,12 @@ namespace NosCore.GameObject
 
             if ((byte)ReputIcon < sp.Item!.ReputationMinimum)
             {
-                await SendPacketAsync(new MsgPacket
+                await SendPacketAsync(new SayiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOW_REP,
-                        Session.Account.Language)
+                    VisualType = VisualType.Player,
+                    VisualId = CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.CanNotBeWornReputationLow
                 }).ConfigureAwait(false);
                 return;
             }
@@ -1129,8 +1139,7 @@ namespace NosCore.GameObject
         {
             if (UseSp)
             {
-                var sp =
-                    InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear);
+                var sp = InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear);
                 if (sp != null)
                 {
                     Morph = sp.ItemInstance!.Item!.Morph;
