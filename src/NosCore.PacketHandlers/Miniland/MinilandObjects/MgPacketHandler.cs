@@ -339,7 +339,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             _miniland!.CurrentMinigame = 0;
             await _clientSession!.Character.MapInstance.SendPacketAsync(new GuriPacket
             {
-                Type = GuriPacketType.Unknow,
+                Type = GuriPacketType.Dance,
                 Value = 1,
                 EntityId = _clientSession.Character.CharacterId
             }).ConfigureAwait(false);
@@ -367,7 +367,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             _miniland!.CurrentMinigame = 0;
             return _clientSession!.Character.MapInstance.SendPacketAsync(new GuriPacket
             {
-                Type = GuriPacketType.Unknow,
+                Type = GuriPacketType.Dance,
                 Value = 1,
                 EntityId = _clientSession.Character.CharacterId
             });
@@ -405,7 +405,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
             await _clientSession!.Character.MapInstance.SendPacketAsync(new GuriPacket
             {
-                Type = GuriPacketType.Unknow,
+                Type = GuriPacketType.Dance,
                 Value = 1,
                 EntityId = _clientSession.Character.CharacterId
             }).ConfigureAwait(false);

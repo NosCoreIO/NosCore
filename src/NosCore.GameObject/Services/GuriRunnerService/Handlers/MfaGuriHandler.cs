@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
             {
                 await requestData.ClientSession.SendPacketAsync(new NosCore.Packets.ServerPackets.UI.GuriPacket
                 {
-                    Type = GuriPacketType.Effect,
+                    Type = GuriPacketType.TextInput,
                     Argument = 3,
                     EntityId = 0
                 }).ConfigureAwait(false);

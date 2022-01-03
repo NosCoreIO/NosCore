@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                 {
                     Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
                         requestData.ClientSession.Account.Language),
-                    Type = MessageType.Default
+                    Type = MessageType.Center
                 }).ConfigureAwait(false);
                 return;
             }
@@ -59,7 +59,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                 await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                 {
                     Message = Game18NConstString.CanNotChangeJobAtThisLevel,
-                    Type = MessageType.Default
+                    Type = MessageType.Center
                 }).ConfigureAwait(false);
                 return;
             }

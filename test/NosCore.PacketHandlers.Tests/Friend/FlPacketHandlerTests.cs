@@ -64,7 +64,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             var friendRequestHolder = new FriendRequestHolder();
             friendRequestHolder.FriendRequestCharacters.TryAdd(Guid.NewGuid(),
                 new Tuple<long, long>(targetSession.Character.CharacterId, _session!.Character.CharacterId));
-            var flPacket = new FlPacket
+            var flPacket = new FlCommandPacket
             {
                 CharacterName = targetSession.Character.Name
             };

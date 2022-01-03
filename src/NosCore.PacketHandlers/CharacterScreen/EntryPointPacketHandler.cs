@@ -168,7 +168,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 {
                     await clientSession.SendPacketAsync(new GuriPacket
                     {
-                        Type = GuriPacketType.Effect,
+                        Type = GuriPacketType.TextInput,
                         Argument = 3,
                         EntityId = 0
                     }).ConfigureAwait(false);

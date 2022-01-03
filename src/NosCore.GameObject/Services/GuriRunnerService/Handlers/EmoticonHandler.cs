@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
     {
         public bool Condition(GuriPacket packet)
         {
-            return (packet.Type == GuriPacketType.Effect) && (packet.Data >= 973) && (packet.Data <= 999);
+            return (packet.Type == GuriPacketType.TextInput) && (packet.Data >= 973) && (packet.Data <= 999);
         }
 
         public Task ExecuteAsync(RequestData<GuriPacket> requestData)

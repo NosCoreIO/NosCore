@@ -37,7 +37,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
         {
             await requestData.ClientSession.SendPacketAsync(new GuriPacket
             {
-                Type = GuriPacketType.Effect,
+                Type = GuriPacketType.TextInput,
                 Argument = 3,
                 SecondArgument = 1,
                 EntityId = requestData.Data.Item1.Slot

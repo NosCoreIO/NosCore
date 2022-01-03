@@ -100,7 +100,7 @@ namespace NosCore.PacketHandlers.Inventory
                         {
                             await clientSession.SendPacketAsync(new DelayPacket
                             {
-                                Type = 3,
+                                Type = DelayPacketType.Locomotion,
                                 Delay = 5000,
                                 Packet = new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }
                             }).ConfigureAwait(false);
