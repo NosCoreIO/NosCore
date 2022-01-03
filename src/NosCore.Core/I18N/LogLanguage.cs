@@ -28,7 +28,7 @@ namespace NosCore.Core.I18N
     {
         private static LogLanguage? _instance;
 
-        private static readonly CultureInfo ResourceCulture = new CultureInfo(Language.ToString());
+        private static readonly CultureInfo ResourceCulture = new(Language.ToString());
 
         private readonly ResourceManager _manager;
 

@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Services.InventoryService
             });
         }
 
-        public Dictionary<NoscorePocketType, byte> Expensions { get; set; } = new Dictionary<NoscorePocketType, byte>
+        public Dictionary<NoscorePocketType, byte> Expensions { get; set; } = new()
         {
             { NoscorePocketType.Costume, 0 },
             { NoscorePocketType.Equipment, 0 },

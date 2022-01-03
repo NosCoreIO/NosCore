@@ -19,7 +19,6 @@
 
 using DotNetty.Transport.Channels;
 using Microsoft.Extensions.Options;
-using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Core.Networking;
@@ -32,7 +31,6 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
-using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceAccessService;
@@ -58,14 +56,13 @@ using NosCore.Networking.SessionRef;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
-    public class ClientSession : NetworkClient, IClientSession
+    public class ClientSession : NetworkClient
     {
-        private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic =
-            new Dictionary<Type, PacketHeaderAttribute>();
+        private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic = new();
 
         private readonly IExchangeService _exchangeProvider = null!;
         private readonly IFriendHttpClient _friendHttpClient;
-        private readonly SemaphoreSlim _handlingPacketLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _handlingPacketLock = new(1, 1);
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
         private readonly IMapInstanceAccessorService _mapInstanceAccessorService = null!;

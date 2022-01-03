@@ -24,10 +24,10 @@ using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
 using NosCore.Shared.Enumerations;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.Core.Networking;
 
 namespace NosCore.PacketHandlers.Command
 {

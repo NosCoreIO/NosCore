@@ -141,7 +141,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginAsync()
         {
-            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
+            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() });
             _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
@@ -156,10 +156,10 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginAlreadyConnectedAsync()
         {
-            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo() });
+            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() });
             _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>())).ReturnsAsync(
                 new List<ConnectedAccount>
-                    {new ConnectedAccount {Name = _session!.Account.Name}});
+                    {new() {Name = _session!.Account.Name}});
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,
@@ -201,7 +201,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginMaintenanceAsync()
         {
-            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo { IsMaintenance = true } });
+            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
             _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
@@ -217,7 +217,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginMaintenanceGameMasterAsync()
         {
-            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new ChannelInfo { IsMaintenance = true } });
+            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
             _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
                 .ReturnsAsync(new List<ConnectedAccount>());
             _session!.Account.Authority = AuthorityType.GameMaster;

@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
@@ -40,7 +39,7 @@ namespace NosCore.PacketHandlers.Tests.Group
     public class PJoinPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private readonly Dictionary<int, Character> _characters = new Dictionary<int, Character>();
+        private readonly Dictionary<int, Character> _characters = new();
         private PjoinPacketHandler? _pJoinPacketHandler;
 
         [TestInitialize]

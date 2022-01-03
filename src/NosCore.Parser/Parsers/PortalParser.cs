@@ -32,11 +32,11 @@ namespace NosCore.Parser.Parsers
 {
     public class PortalParser
     {
-        private readonly List<PortalDto> _listPortals2 = new List<PortalDto>();
+        private readonly List<PortalDto> _listPortals2 = new();
         private readonly ILogger _logger;
         private readonly IDao<MapDto, short> _mapDao;
         private readonly IDao<PortalDto, int> _portalDao;
-        private List<PortalDto> _listPortals1 = new List<PortalDto>();
+        private List<PortalDto> _listPortals1 = new();
 
         public PortalParser(ILogger logger, IDao<MapDto, short> mapDao, IDao<PortalDto, int> portalDao)
         {

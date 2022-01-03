@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 .Setup(s => s.GetListFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>
                 {
-                    new CharacterRelationStatus
+                    new()
                     {
                         CharacterId = _session2.Character.CharacterId,
                         CharacterName = _session2.Character.Name,

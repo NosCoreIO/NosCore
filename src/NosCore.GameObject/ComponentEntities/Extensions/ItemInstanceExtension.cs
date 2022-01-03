@@ -74,7 +74,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Type = type,
                 IvnSubPackets = new List<IvnSubPacket?>
                 {
-                    new IvnSubPacket
+                    new()
                     {
                         Slot = slot,
                         VNum = itemInstance.ItemInstance!.ItemVNum,

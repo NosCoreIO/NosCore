@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
     {
         protected IEventHandler<GuriPacket, GuriPacket>? Handler;
         protected ClientSession? Session;
-        protected readonly UseItemPacket UseItem = new UseItemPacket();
+        protected readonly UseItemPacket UseItem = new();
 
         protected Task ExecuteGuriEventHandlerAsync(GuriPacket guriPacket)
         {

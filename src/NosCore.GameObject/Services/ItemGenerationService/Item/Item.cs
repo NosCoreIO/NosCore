@@ -31,9 +31,9 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
 {
     public class Item : ItemDto, IRequestableEntity<Tuple<InventoryItemInstance, UseItemPacket>>
     {
-        public List<Task> HandlerTasks { get; set; } = new List<Task>();
+        public List<Task> HandlerTasks { get; set; } = new();
 
-        public Dictionary<Type, Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>>> Requests { get; set; } = new Dictionary<Type, Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>>>
+        public Dictionary<Type, Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>>> Requests { get; set; } = new()
         {
             [typeof(IUseItemEventHandler)] = new Subject<RequestData<Tuple<InventoryItemInstance, UseItemPacket>>>()
         };

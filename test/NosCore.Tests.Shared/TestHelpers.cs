@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -96,8 +95,7 @@ namespace NosCore.Tests.Shared
 {
     public class TestHelpers
     {
-        private static Lazy<TestHelpers> _lazy =
-            new Lazy<TestHelpers>(() => new TestHelpers());
+        private static Lazy<TestHelpers> _lazy = new(() => new TestHelpers());
 
         private IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao = null!;
         private IDao<IItemInstanceDto?, Guid> _itemInstanceDao = null!;
@@ -108,12 +106,12 @@ namespace NosCore.Tests.Shared
         private IDao<ShopItemDto, int> _shopItemDao = null!;
         private IDao<StaticBonusDto, long> _staticBonusDao = null!;
         private int _lastId = 100;
-        public Mock<IBlacklistHttpClient> BlacklistHttpClient = new Mock<IBlacklistHttpClient>();
-        public Mock<IChannelHttpClient> ChannelHttpClient = new Mock<IChannelHttpClient>();
-        public Mock<IConnectedAccountHttpClient> ConnectedAccountHttpClient = new Mock<IConnectedAccountHttpClient>();
-        public Mock<IFriendHttpClient> FriendHttpClient = new Mock<IFriendHttpClient>();
-        public Mock<IPacketHttpClient> PacketHttpClient = new Mock<IPacketHttpClient>();
-        public FakeClock Clock = new FakeClock(Instant.FromUtc(2021,01,01,01,01,01)); 
+        public Mock<IBlacklistHttpClient> BlacklistHttpClient = new();
+        public Mock<IChannelHttpClient> ChannelHttpClient = new();
+        public Mock<IConnectedAccountHttpClient> ConnectedAccountHttpClient = new();
+        public Mock<IFriendHttpClient> FriendHttpClient = new();
+        public Mock<IPacketHttpClient> PacketHttpClient = new();
+        public FakeClock Clock = new(Instant.FromUtc(2021,01,01,01,01,01)); 
         private TestHelpers()
         {
             BlacklistHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
@@ -143,7 +141,7 @@ namespace NosCore.Tests.Shared
             MaxGoldAmount = 999_999_999
         });
 
-        public List<ItemDto> ItemList { get; } = new List<ItemDto>
+        public List<ItemDto> ItemList { get; } = new()
         {
             new Item {Type = NoscorePocketType.Main, VNum = 1012, IsDroppable = true},
             new Item {Type = NoscorePocketType.Main, VNum = 1013},

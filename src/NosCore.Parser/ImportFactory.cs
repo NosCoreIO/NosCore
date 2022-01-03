@@ -48,7 +48,7 @@ namespace NosCore.Parser
         private readonly QuestPrizeParser _questPrizeParser;
         private readonly MapTypeParser _mapTypeParser;
         private readonly NpcMonsterParser _npcMonsterParser;
-        private readonly List<string[]> _packetList = new List<string[]>();
+        private readonly List<string[]> _packetList = new();
         private readonly PortalParser _portalParser;
         private readonly RespawnMapTypeParser _respawnMapTypeParser;
         private readonly ShopItemParser _shopItemParser;

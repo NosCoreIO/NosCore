@@ -41,14 +41,13 @@ namespace NosCore.GameObject.Networking
             Sessions = new DefaultChannelGroup(executor);
         }
 
-        private ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; } =
-            new ConcurrentDictionary<long, ClientSession.ClientSession>();
+        private ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; } = new();
 
         public static Broadcaster Instance => _instance ??= new Broadcaster();
 
         public IChannelGroup Sessions { get; set; }
 
-        public ConcurrentQueue<IPacket> LastPackets { get; } = new ConcurrentQueue<IPacket>();
+        public ConcurrentQueue<IPacket> LastPackets { get; } = new();
 
         public void UnregisterSession(ClientSession.ClientSession clientSession)
         {

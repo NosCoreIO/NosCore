@@ -71,29 +71,28 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     IsFull = full,
                     MinigamePoints = new MloInfoPacketSubPacket[]
                     {
-                        new MloInfoPacketSubPacket
-                            {MinimumPoints = 0, MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0]},
-                        new MloInfoPacketSubPacket
+                        new() {MinimumPoints = 0, MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0]},
+                        new()
                         {
                             MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0] + 1,
                             MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][1]
                         },
-                        new MloInfoPacketSubPacket
+                        new()
                         {
                             MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][1] + 1,
                             MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][2]
                         },
-                        new MloInfoPacketSubPacket
+                        new()
                         {
                             MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][2] + 1,
                             MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][3]
                         },
-                        new MloInfoPacketSubPacket
+                        new()
                         {
                             MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][3] + 1,
                             MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][4]
                         },
-                        new MloInfoPacketSubPacket
+                        new()
                         {
                             MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][4] + 1,
                             MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][5]

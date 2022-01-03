@@ -17,11 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Concurrent;
 using DotNetty.Transport.Channels.Groups;
 using NosCore.Packets.Interfaces;
-using System.Collections.Concurrent;
 
-namespace NosCore.GameObject.Networking
+namespace NosCore.Core.Networking
 {
     public interface IBroadcastable
     {

@@ -22,7 +22,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
@@ -96,7 +95,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                     It.IsAny<long?>())
             ).ReturnsAsync(new List<BazaarLink>
             {
-                new BazaarLink
+                new()
                 {
                     SellerName = "test",
                     BazaarItem = new BazaarItemDto
@@ -125,7 +124,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                     It.IsAny<long?>())
             ).ReturnsAsync(new List<BazaarLink>
             {
-                new BazaarLink
+                new()
                 {
                     SellerName = "test",
                     BazaarItem = new BazaarItemDto {Price = 50, Amount = 1},

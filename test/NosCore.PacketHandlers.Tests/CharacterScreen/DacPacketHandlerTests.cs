@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class DacPacketHandlerTests
     {
-        private static readonly Mock<ILogger> Logger = new Mock<ILogger>();
+        private static readonly Mock<ILogger> Logger = new();
         private DacPacketHandler _dacPacketHandler = null!;
         private ClientSession _session = null!;
         private Mock<IAuthHttpClient> _authHttpClient = null!;
@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             };
             _channelHttpClient.Setup(o => o.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>()
             {
-                new ChannelInfo
+                new()
                 {
                     Id = 1,
                 }
@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             _connectedAccountHttpClient.Setup(o => o.GetConnectedAccountAsync(It.IsAny<ChannelInfo>())).ReturnsAsync(
                 new List<ConnectedAccount>
                 {
-                    new ConnectedAccount
+                    new()
                     {
                         ChannelId = 1,
                         Name = _accountName

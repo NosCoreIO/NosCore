@@ -45,7 +45,7 @@ namespace NosCore.Parser.Parsers
         {
             var respawnmaptypemaps = new List<RespawnMapTypeDto>
             {
-                new RespawnMapTypeDto
+                new()
                 {
                     RespawnMapTypeId = (long) RespawnType.DefaultAct1,
                     MapId = 1,
@@ -53,7 +53,7 @@ namespace NosCore.Parser.Parsers
                     DefaultY = 116,
                     Name = "Default"
                 },
-                new RespawnMapTypeDto
+                new()
                 {
                     RespawnMapTypeId = (long) RespawnType.ReturnAct1,
                     MapId = 0,
@@ -61,7 +61,7 @@ namespace NosCore.Parser.Parsers
                     DefaultY = 0,
                     Name = "Return"
                 },
-                new RespawnMapTypeDto
+                new()
                 {
                     RespawnMapTypeId = (long) RespawnType.DefaultAct5,
                     MapId = 170,
@@ -69,7 +69,7 @@ namespace NosCore.Parser.Parsers
                     DefaultY = 48,
                     Name = "DefaultAct5"
                 },
-                new RespawnMapTypeDto
+                new()
                 {
                     RespawnMapTypeId = (long) RespawnType.ReturnAct5,
                     MapId = 0,
@@ -77,7 +77,7 @@ namespace NosCore.Parser.Parsers
                     DefaultY = 0,
                     Name = "ReturnAct5"
                 },
-                new RespawnMapTypeDto
+                new()
                 {
                     RespawnMapTypeId = (long) RespawnType.DefaultAct6,
                     MapId = 228,
@@ -85,7 +85,7 @@ namespace NosCore.Parser.Parsers
                     DefaultY = 102,
                     Name = "DefaultAct6"
                 },
-                new RespawnMapTypeDto
+                new()
                 {
                     RespawnMapTypeId = (long) RespawnType.DefaultAct62,
                     MapId = 228,
@@ -93,7 +93,7 @@ namespace NosCore.Parser.Parsers
                     DefaultY = 102,
                     Name = "DefaultAct62"
                 },
-                new RespawnMapTypeDto
+                new()
                 {
                     RespawnMapTypeId = (long) RespawnType.DefaultOasis,
                     MapId = 261,

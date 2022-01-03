@@ -54,7 +54,7 @@ namespace NosCore.Core.Configuration
         public string? ServerName { get; set; }
 
 #pragma warning disable CA2227 // Collection properties should be read only
-        public FeatureFlags FeatureFlags { get; set; } = new FeatureFlags();
+        public FeatureFlags FeatureFlags { get; set; } = new();
 #pragma warning restore CA2227 // Collection properties should be read only
 
         public short MaxItemAmount { get; set; }
@@ -70,7 +70,7 @@ namespace NosCore.Core.Configuration
         public int MaxAdditionalSpPoints { get; set; }
 
 #pragma warning disable CA2227 // Collection properties should be read only
-        public Dictionary<string, List<BasicEquipment>> BasicEquipments { get; set; } = new Dictionary<string, List<BasicEquipment>>();
+        public Dictionary<string, List<BasicEquipment>> BasicEquipments { get; set; } = new();
 #pragma warning restore CA2227 // Collection properties should be read only
     }
 

@@ -21,8 +21,8 @@ using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
 using System.Threading.Tasks;
+using NosCore.Core.Networking;
 
 namespace NosCore.PacketHandlers.Command
 {

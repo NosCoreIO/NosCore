@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Database.Entities.Base;
-using System;
 using NodaTime;
 
 namespace NosCore.Database.Entities

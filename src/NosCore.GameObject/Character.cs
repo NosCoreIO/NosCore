@@ -27,7 +27,6 @@ using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.MpService;
 using NosCore.Algorithm.ReputationService;
 using NosCore.Algorithm.SpeedService;
-using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
@@ -42,7 +41,6 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -70,6 +68,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Core.Networking;
 using NosCore.Core.Networking.ChannelMatcher;
 
 //TODO stop using obsolete
@@ -184,7 +183,7 @@ namespace NosCore.GameObject
 
         public ConcurrentDictionary<Guid, CharacterQuest> Quests { get; set; } = null!;
 
-        public Dictionary<Type, Subject<RequestData>> Requests { get; set; } = new Dictionary<Type, Subject<RequestData>>
+        public Dictionary<Type, Subject<RequestData>> Requests { get; set; } = new()
         {
             [typeof(INrunEventHandler)] = new Subject<RequestData>()
         };
@@ -424,8 +423,8 @@ namespace NosCore.GameObject
         }
 
 
-        public List<StaticBonusDto> StaticBonusList { get; set; } = new List<StaticBonusDto>();
-        public List<TitleDto> Titles { get; set; } = new List<TitleDto>();
+        public List<StaticBonusDto> StaticBonusList { get; set; } = new();
+        public List<TitleDto> Titles { get; set; } = new();
         public bool IsDisconnecting { get; internal set; }
 
         public async Task ChangeClassAsync(CharacterClassType classType)
@@ -505,7 +504,7 @@ namespace NosCore.GameObject
 
             QuicklistEntries = new List<QuicklistEntryDto>
             {
-                new QuicklistEntryDto
+                new()
                 {
                     Id = Guid.NewGuid(),
                     CharacterId = CharacterId,
@@ -760,7 +759,7 @@ namespace NosCore.GameObject
                 ValueSold = Shop.Sell,
                 SellListSubPacket = new List<SellListSubPacket?>
                 {
-                    new SellListSubPacket
+                    new()
                     {
                         Amount = item?.Amount ?? 0,
                         Slot = slot,

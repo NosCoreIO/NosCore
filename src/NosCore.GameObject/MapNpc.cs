@@ -52,7 +52,7 @@ namespace NosCore.GameObject
             _logger = logger;
             Requests = new Dictionary<Type, Subject<RequestData>>()
             {
-                [typeof(INrunEventHandler)] = new Subject<RequestData>()
+                [typeof(INrunEventHandler)] = new()
             };
             _distanceCalculator = distanceCalculator;
             _clock = clock;
