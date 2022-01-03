@@ -29,7 +29,8 @@ using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 using System;
 using System.Threading.Tasks;
-using NosCore.Core.Networking;
+using NosCore.Networking;
+
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {

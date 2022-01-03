@@ -27,7 +27,8 @@ using NosCore.GameObject.Networking;
 using NosCore.Packets.Interfaces;
 using Serilog;
 using System.Threading.Tasks;
-using NosCore.Core.Networking;
+using NosCore.Networking;
+
 
 namespace NosCore.WorldServer.Controllers
 {

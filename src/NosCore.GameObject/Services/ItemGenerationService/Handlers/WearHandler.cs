@@ -32,7 +32,8 @@ using Serilog;
 using System;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.Core.Networking;
+using NosCore.Networking;
+
 
 //TODO stop using obsolete
 #pragma warning disable 618

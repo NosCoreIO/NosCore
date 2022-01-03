@@ -27,6 +27,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
+using NosCore.GameObject.Services.IdService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.PacketHandlers.CharacterScreen;
@@ -64,10 +65,11 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestMethod]
         public async Task RenameCharacterWhenInGame_Does_Not_Rename_CharacterAsync()
         {
+            var idServer = new IdService<MapItem>(1);
             await _session!.SetCharacterAsync(_chara).ConfigureAwait(false);
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
-                    new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>())),
+                    new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()), idServer),
                     Logger, TestHelpers.Instance.Clock);
             const string name = "TestCharacter2";
             await _session!.HandlePacketsAsync(new[] { new CharRenamePacket

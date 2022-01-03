@@ -39,7 +39,7 @@ using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Core.Networking;
+
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -61,6 +61,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.IdService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Handlers;
@@ -69,6 +70,7 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.PacketHandlers.Friend;
@@ -172,7 +174,7 @@ namespace NosCore.Tests.Shared
         private async Task GenerateMapInstanceProviderAsync()
         {
             MapItemProvider = new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
-                {new DropEventHandler(), new SpChargerEventHandler(), new GoldDropEventHandler(TestHelpers.Instance.WorldConfiguration)}));
+                {new DropEventHandler(), new SpChargerEventHandler(), new GoldDropEventHandler(TestHelpers.Instance.WorldConfiguration)}), new IdService<MapItem>(1));
             var map = new Map
             {
                 MapId = 0,

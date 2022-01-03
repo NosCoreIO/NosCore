@@ -80,10 +80,14 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.Core.Networking;
+
 using NosCore.Data;
+using NosCore.GameObject.Services.IdService;
+using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
+using NosCore.Networking.Encoding.Filter;
+using NosCore.Networking.SessionRef;
 using Character = NosCore.GameObject.Character;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using Deserializer = NosCore.Packets.Deserializer;
@@ -263,6 +267,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<AuthController>();
+            containerBuilder.Register(x => new List<RequestFilter>()).As<IEnumerable<RequestFilter>>();
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
             containerBuilder.RegisterType<ClientSession>().AsImplementedInterfaces();
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
@@ -272,6 +277,8 @@ namespace NosCore.WorldServer
             //NosCore.GameObject
             containerBuilder.RegisterType<OctileDistanceHeuristic>().As<IHeuristic>();
             containerBuilder.RegisterType<Clock>();
+            containerBuilder.Register<IIdService<Group>>(_ => new IdService<Group>(1)).SingleInstance();
+            containerBuilder.Register<IIdService<MapItem>>(_ => new IdService<MapItem>(100000)).SingleInstance();
 
             containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
@@ -335,12 +342,11 @@ namespace NosCore.WorldServer
             services.AddHostedService<WorldServer>();
 
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
-            TypeAdapterConfig.GlobalSettings.Default.IgnoreAttribute(typeof(I18NFromAttribute));
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
             TypeAdapterConfig.GlobalSettings.ForDestinationType<I18NString>().BeforeMapping(s => s.Clear());
             TypeAdapterConfig.GlobalSettings.Default.IgnoreMember((member, side)
                 => ((side == MemberSide.Destination) && member.Type.GetInterfaces().Contains(typeof(IEntity))) || (member.Type.GetGenericArguments().Any() && member.Type.GetGenericArguments()[0].GetInterfaces().Contains(typeof(IEntity))));
-            TypeAdapterConfig.GlobalSettings.When(s => !s.SourceType.IsAssignableFrom(s.DestinationType) && typeof(IStaticDto).IsAssignableFrom(s.DestinationType))
+            TypeAdapterConfig.GlobalSettings.When(s => !s.SourceType.IsAssignableFrom(s.DestinationType))
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
             TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();

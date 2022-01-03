@@ -17,23 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using DotNetty.Transport.Channels;
-using DotNetty.Transport.Channels.Groups;
+using System.Collections.Generic;
 
-namespace NosCore.Core.Networking.ChannelMatcher
+namespace NosCore.Core
 {
-    public class EveryoneBut : IChannelMatcher
+    public sealed class MasterClientListSingleton
     {
-        private readonly IChannelId _id;
+        private static MasterClientListSingleton? _instance;
 
-        public EveryoneBut(IChannelId id)
+        private MasterClientListSingleton()
         {
-            _id = id;
         }
 
-        public bool Matches(IChannel channel)
-        {
-            return channel.Id != _id;
-        }
+        public static MasterClientListSingleton Instance => _instance ??= new MasterClientListSingleton();
+
+        public List<ChannelInfo> Channels { get; } = new();
+        public int ConnectionCounter { get; set; }
     }
 }

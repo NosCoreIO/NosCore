@@ -37,7 +37,7 @@ using NosCore.Algorithm.SpeedService;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
-using NosCore.Core.Networking;
+
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -55,6 +55,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.Networking.SessionRef;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;

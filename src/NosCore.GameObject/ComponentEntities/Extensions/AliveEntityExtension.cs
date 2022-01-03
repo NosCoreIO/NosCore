@@ -40,7 +40,8 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.Core.Networking;
+using NosCore.Networking;
+
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

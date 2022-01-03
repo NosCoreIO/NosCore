@@ -23,7 +23,8 @@ using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using System;
 using System.Threading.Tasks;
-using NosCore.Core.Networking;
+using NosCore.Networking;
+
 
 namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 {

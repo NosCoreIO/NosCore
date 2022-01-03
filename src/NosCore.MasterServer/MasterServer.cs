@@ -20,7 +20,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Core.I18N;
-using NosCore.Core.Networking;
+
 using NosCore.Data.Enumerations.I18N;
 using Serilog;
 using System;
@@ -31,6 +31,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Core;
 
 namespace NosCore.MasterServer
 {

@@ -28,8 +28,8 @@ using NosCore.PathFinder.Interfaces;
 using Serilog;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.Core.Networking;
-using NosCore.Core.Networking.ChannelMatcher;
+using NosCore.Networking;
+using NosCore.Networking.ChannelMatcher;
 
 namespace NosCore.PacketHandlers.Movement
 {

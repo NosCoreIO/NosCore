@@ -27,7 +27,8 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Enumerations;
 using Serilog;
 using System.Threading.Tasks;
-using NosCore.Core.Networking;
+using NosCore.Networking;
+
 
 namespace NosCore.PacketHandlers.Command
 {

@@ -33,8 +33,8 @@ using NosCore.PathFinder.Interfaces;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.Networking;
-using NosCore.Core.Networking.ChannelMatcher;
+using NosCore.Networking;
+using NosCore.Networking.ChannelMatcher;
 
 //TODO stop using obsolete
 #pragma warning disable 618

@@ -65,9 +65,11 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.Core.Networking;
+
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
+using NosCore.Networking.Encoding.Filter;
+using NosCore.Networking.SessionRef;
 using ILogger = Serilog.ILogger;
 
 namespace NosCore.LoginServer
@@ -104,6 +106,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<SpamRequestFilter>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
 
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();

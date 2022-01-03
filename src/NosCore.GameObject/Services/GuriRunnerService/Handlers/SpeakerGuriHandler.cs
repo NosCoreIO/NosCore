@@ -31,8 +31,8 @@ using Serilog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.Networking;
-using NosCore.Core.Networking.ChannelMatcher;
+using NosCore.Networking;
+using NosCore.Networking.ChannelMatcher;
 
 namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 {
