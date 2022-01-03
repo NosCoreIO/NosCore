@@ -249,9 +249,6 @@
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Odmítl jsi žádost o výměnu.</value>
   </data>
-  <data name="FORCED_DISCONNECTION" xml:space="preserve">
-    <value>Vynucené odpojení Klienta {0}, příliž mnoho připojení</value>
-  </data>
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>Seznam Přátel je plný</value>
   </data>

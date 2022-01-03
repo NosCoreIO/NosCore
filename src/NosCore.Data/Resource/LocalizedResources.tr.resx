@@ -234,9 +234,6 @@
   <data name="EXCEPTION" xml:space="preserve">
     <value>Bir istisna atıldı. {0}</value>
   </data>
-  <data name="FORCED_DISCONNECTION" xml:space="preserve">
-    <value>{0} id'li istemcinin bağlantısı zorla koptu.</value>
-  </data>
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>Arkadaş listen dolu!</value>
   </data>

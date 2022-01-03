@@ -511,15 +511,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Forced disconnection of the client {0}..
-        /// </summary>
-        public static string FORCED_DISCONNECTION {
-            get {
-                return ResourceManager.GetString("FORCED_DISCONNECTION", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to [{0}] wants to be your friend! Do you accept the request?.
         /// </summary>
         public static string FRIEND_ADD {

@@ -235,9 +235,6 @@
   <data name="EXCEPTION" xml:space="preserve">
     <value>Se ha producido una excepción: {0}</value>
   </data>
-  <data name="FORCED_DISCONNECTION" xml:space="preserve">
-    <value>Se ha forzado la desconexión del cliente {0}, demasiadas conexiones.</value>
-  </data>
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>¡Tu lista de amigos está llena!</value>
   </data>

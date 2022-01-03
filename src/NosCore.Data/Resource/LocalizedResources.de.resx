@@ -304,9 +304,6 @@
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Deine Tauschanfrage wurde abgelehnt!</value>
   </data>
-  <data name="FORCED_DISCONNECTION" xml:space="preserve">
-    <value>Zwangsabmeldung vom Client {0}, zu viele bestehende Verbindungen.</value>
-  </data>
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>Deine Freundschaftsliste ist voll!</value>
   </data>

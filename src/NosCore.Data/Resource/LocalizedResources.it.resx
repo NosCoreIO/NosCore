@@ -298,9 +298,6 @@
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Commercio rifiutato</value>
   </data>
-  <data name="FORCED_DISCONNECTION" xml:space="preserve">
-    <value>Disconnessione forzata del client {0}, troppe connessioni</value>
-  </data>
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>La tua lista amici è piena!</value>
   </data>
