@@ -68,8 +68,8 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.Core.Networking;
-using NosCore.Core.Networking.ChannelMatcher;
+using NosCore.Networking;
+using NosCore.Networking.ChannelMatcher;
 
 //TODO stop using obsolete
 #pragma warning disable 618

@@ -27,7 +27,7 @@ using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.Networking;
+using NosCore.Networking;
 using GuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
 
 namespace NosCore.GameObject.Services.GuriRunnerService.Handlers

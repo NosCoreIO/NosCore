@@ -19,7 +19,7 @@
 
 using DotNetty.Common.Concurrency;
 using DotNetty.Transport.Channels.Groups;
-using NosCore.Core.Networking;
+
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.Interfaces;
@@ -27,6 +27,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Networking;
 
 namespace NosCore.GameObject.Networking
 {

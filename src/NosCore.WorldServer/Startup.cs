@@ -80,12 +80,14 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.Core.Networking;
+
 using NosCore.Data;
 using NosCore.GameObject.Services.IdService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
+using NosCore.Networking.Encoding.Filter;
+using NosCore.Networking.SessionRef;
 using Character = NosCore.GameObject.Character;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using Deserializer = NosCore.Packets.Deserializer;
@@ -265,6 +267,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
             containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
             containerBuilder.RegisterType<AuthController>();
+            containerBuilder.Register(x => new List<RequestFilter>()).As<IEnumerable<RequestFilter>>();
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
             containerBuilder.RegisterType<ClientSession>().AsImplementedInterfaces();
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();

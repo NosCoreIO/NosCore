@@ -29,7 +29,8 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System;
 using System.Threading.Tasks;
-using NosCore.Core.Networking;
+using NosCore.Networking;
+
 
 namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {

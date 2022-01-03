@@ -21,7 +21,6 @@ using DotNetty.Transport.Channels;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
-using NosCore.Core.Networking;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -51,7 +50,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.Core.Networking.ChannelMatcher;
+using NosCore.Networking;
+using NosCore.Networking.ChannelMatcher;
 using NosCore.Networking.SessionRef;
 
 namespace NosCore.GameObject.Networking.ClientSession

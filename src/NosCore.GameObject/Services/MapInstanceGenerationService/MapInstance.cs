@@ -39,7 +39,8 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.Core.Networking;
+using NosCore.Networking;
+
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {

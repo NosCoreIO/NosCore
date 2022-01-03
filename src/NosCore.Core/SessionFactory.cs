@@ -17,16 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Concurrent;
-using DotNetty.Transport.Channels.Groups;
-using NosCore.Packets.Interfaces;
 
-namespace NosCore.Core.Networking
+namespace NosCore.Core
 {
-    public interface IBroadcastable
+    public sealed class SessionFactory
     {
-        IChannelGroup Sessions { get; set; }
-        ConcurrentQueue<IPacket> LastPackets { get; }
-        short MaxPacketsBuffer { get; }
+        private static readonly Lazy<SessionFactory> Lazy = new(() => new SessionFactory());
+
+        private SessionFactory()
+        {
+            AuthCodes = new ConcurrentDictionary<string, string>();
+            ReadyForAuth = new ConcurrentDictionary<string, long>();
+        }
+
+        public static SessionFactory Instance => Lazy.Value;
+
+        public ConcurrentDictionary<string, string> AuthCodes { get; }
+        public ConcurrentDictionary<string, long> ReadyForAuth { get; }
     }
 }
