@@ -26,7 +26,7 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.Group;
+using NosCore.GameObject.Services.IdService;
 using NosCore.PacketHandlers.Group;
 using NosCore.Packets.ClientPackets.Groups;
 using NosCore.Packets.Enumerations;
@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Tests.Group
         public async Task SetupAsync()
         {
             Broadcaster.Reset();
-            GroupAccess.Instance.Groups = new ConcurrentDictionary<long, GameObject.Group>();
+            var idServer = new IdService<GameObject.Group>(1);
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
                 var session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
@@ -57,10 +57,10 @@ namespace NosCore.PacketHandlers.Tests.Group
                 session.Character.Group!.JoinGroup(session.Character);
             }
 
-            _pLeavePacketHandler = new PleavePacketHandler();
+            _pLeavePacketHandler = new PleavePacketHandler(idServer);
 
             var mock = new Mock<IBlacklistHttpClient>();
-            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock);
+            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer);
         }
 
         [TestMethod]

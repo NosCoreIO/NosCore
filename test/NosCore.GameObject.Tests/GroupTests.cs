@@ -34,8 +34,8 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject.Networking.Group;
 using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.IdService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MinilandService;
@@ -53,11 +53,10 @@ namespace NosCore.GameObject.Tests
         [TestInitialize]
         public void Setup()
         {
-            _group = new Group(GroupType.Group);
-
-            GroupAccess.Instance.Groups = new ConcurrentDictionary<long, Group>();
-
-            _group.GroupId = GroupAccess.Instance.GetNextGroupId();
+            _group = new Group(GroupType.Group)
+            {
+                GroupId = new IdService<Group>(1).GetNextId()
+            };
         }
 
         [TestMethod]

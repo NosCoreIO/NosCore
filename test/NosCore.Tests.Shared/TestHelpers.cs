@@ -61,6 +61,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.IdService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Handlers;
@@ -172,7 +173,7 @@ namespace NosCore.Tests.Shared
         private async Task GenerateMapInstanceProviderAsync()
         {
             MapItemProvider = new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
-                {new DropEventHandler(), new SpChargerEventHandler(), new GoldDropEventHandler(TestHelpers.Instance.WorldConfiguration)}));
+                {new DropEventHandler(), new SpChargerEventHandler(), new GoldDropEventHandler(TestHelpers.Instance.WorldConfiguration)}), new IdService<MapItem>(1));
             var map = new Map
             {
                 MapId = 0,

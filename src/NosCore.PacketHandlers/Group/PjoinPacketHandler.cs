@@ -26,7 +26,6 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Packets.ServerPackets.UI;
@@ -35,6 +34,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Core.Networking;
+using NosCore.GameObject.Services.IdService;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -46,9 +46,11 @@ namespace NosCore.PacketHandlers.Group
         private readonly IBlacklistHttpClient _blacklistHttpCLient;
         private readonly ILogger _logger;
         private readonly IClock _clock;
+        private readonly IIdService<GameObject.Group> _groupIdService;
 
-        public PjoinPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpCLient, IClock clock)
+        public PjoinPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpCLient, IClock clock, IIdService<GameObject.Group> groupIdService)
         {
+            _groupIdService = groupIdService;
             _logger = logger;
             _blacklistHttpCLient = blacklistHttpCLient;
             _clock = clock;
@@ -249,7 +251,7 @@ namespace NosCore.PacketHandlers.Group
                     }
                     else
                     {
-                        clientSession.Character.Group.GroupId = GroupAccess.Instance.GetNextGroupId();
+                        clientSession.Character.Group.GroupId = _groupIdService.GetNextId();
                         targetSession.JoinGroup(clientSession.Character.Group);
                         await clientSession.SendPacketAsync(new InfoPacket
                         {
@@ -283,7 +285,7 @@ namespace NosCore.PacketHandlers.Group
                         session?.SendPacketsAsync(currentGroup.GeneratePst().Where(p => p.VisualId != session.VisualId));
                     }
 
-                    GroupAccess.Instance.Groups[currentGroup.GroupId] = currentGroup;
+                    _groupIdService.Items[currentGroup.GroupId] = currentGroup;
                     await clientSession.Character.MapInstance.SendPacketAsync(
                         clientSession.Character.Group.GeneratePidx(clientSession.Character)).ConfigureAwait(false);
 

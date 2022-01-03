@@ -37,12 +37,13 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
     {
         private long _visualId;
 
-        public MapItem()
+        public MapItem(long visualId)
         {
             Requests = new Dictionary<Type, Subject<RequestData<Tuple<MapItem, GetPacket>>>>
             {
                 [typeof(IGetMapItemEventHandler)] = new()
             };
+            _visualId = visualId;
         }
 
         public IItemInstance? ItemInstance { get; set; }
@@ -52,15 +53,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
 
         public long VisualId
         {
-            get
-            {
-                if (_visualId == 0)
-                {
-                    _visualId = TransportFactory.Instance.GenerateTransportId();
-                }
-
-                return _visualId;
-            }
+            get => _visualId;
 
             set => _visualId = value;
         }

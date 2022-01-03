@@ -25,7 +25,6 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.Group;
 using NosCore.Packets.ClientPackets.Groups;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -33,6 +32,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Networking;
+using NosCore.GameObject.Services.IdService;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -41,6 +41,13 @@ namespace NosCore.PacketHandlers.Group
 {
     public class PleavePacketHandler : PacketHandler<PleavePacket>, IWorldPacketHandler
     {
+        private readonly IIdService<GameObject.Group> _groupIdService;
+
+        public PleavePacketHandler(IIdService<GameObject.Group> groupIdService)
+        {
+            _groupIdService = groupIdService;
+        }
+
         public override async Task ExecuteAsync(PleavePacket bIPacket, ClientSession clientSession)
         {
             var group = clientSession.Character.Group;
@@ -127,7 +134,7 @@ namespace NosCore.PacketHandlers.Group
                     await Broadcaster.Instance.SendPacketAsync(targetsession.Group.GeneratePidx(targetsession)).ConfigureAwait(false);
                 }
 
-                GroupAccess.Instance.Groups.TryRemove(group.GroupId, out _);
+                _groupIdService.Items.TryRemove(group.GroupId, out _);
             }
         }
     }

@@ -22,21 +22,24 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.ClientPackets.Drops;
 using System;
+using NosCore.GameObject.Services.IdService;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService
 {
     public class MapItemGenerationService : IMapItemGenerationService
     {
         private readonly IEventLoaderService<MapItem, Tuple<MapItem, GetPacket>> _runner;
+        private readonly IIdService<MapItem> _mapItemIdService;
 
-        public MapItemGenerationService(EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler> runner)
+        public MapItemGenerationService(EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler> runner, IIdService<MapItem> mapItemIdService)
         {
             _runner = runner;
+            _mapItemIdService = mapItemIdService;
         }
 
         public MapItem Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY)
         {
-            var mapItem = new MapItem
+            var mapItem = new MapItem(_mapItemIdService.GetNextId())
             {
                 MapInstance = mapInstance,
                 ItemInstance = itemInstance,
