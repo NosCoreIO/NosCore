@@ -45,6 +45,7 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Networking;
 using NosCore.Networking.SessionRef;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -59,12 +60,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IDao<MateDto, long> _mateDao;
         private readonly IOptions<WorldConfiguration> _configuration;
         private readonly ISessionRefHolder _sessionRefHolder;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
             IDao<MateDto, long> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient, IOptions<WorldConfiguration> configuration, ISessionRefHolder sessionRefHolder)
+            IChannelHttpClient channelHttpClient, IOptions<WorldConfiguration> configuration, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _characterDao = characterDao;
             _accountDao = accountDao;
@@ -75,10 +77,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _channelHttpClient = channelHttpClient;
             _configuration = configuration;
             _sessionRefHolder = sessionRefHolder;
+            _logLanguage = logLanguage;
         }
 
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IDao<AccountDto, long> accountDao, IChannelHttpClient channelHttpClient, bool passwordLessConnection, string accountName, string password, int sessionId, ISessionRefHolder sessionRefHolder)
+            IConnectedAccountHttpClient connectedAccountHttpClient, IDao<AccountDto, long> accountDao, IChannelHttpClient channelHttpClient, bool passwordLessConnection, string accountName, string password, int sessionId, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             var alreadyConnnected = false;
             var servers = await channelHttpClient.GetChannelsAsync().ConfigureAwait(false) ?? new List<ChannelInfo>();
@@ -98,7 +101,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             if (alreadyConnnected)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ALREADY_CONNECTED), new
+                _logger.Error(logLanguage[LogLanguageKey.ALREADY_CONNECTED], new
                 {
                     accountName
                 });
@@ -110,7 +113,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             if (account == null)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_ACCOUNT), new
+                _logger.Error(logLanguage[LogLanguageKey.INVALID_ACCOUNT], new
                 {
                     accountName
                 });
@@ -128,7 +131,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             if (!awaitingConnection)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_PASSWORD), new
+                _logger.Error(logLanguage[LogLanguageKey.INVALID_PASSWORD], new
                 {
                     accountName
                 });
@@ -153,7 +156,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var passwordLessConnection = packet.Password == "thisisgfmode";
                 await VerifyConnectionAsync(clientSession, _logger, _authHttpClient, _connectedAccountHttpClient,
                     _accountDao, _channelHttpClient, passwordLessConnection, packet.Name, packet.Password,
-                    clientSession.SessionId, _sessionRefHolder);
+                    clientSession.SessionId, _sessionRefHolder, _logLanguage);
                 if (clientSession.Account == null!)
                 {
                     return;
