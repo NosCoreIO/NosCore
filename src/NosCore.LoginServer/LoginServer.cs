@@ -31,6 +31,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NosCore.Networking;
+using NosCore.Shared.I18N;
 
 namespace NosCore.LoginServer
 {
@@ -41,13 +42,16 @@ namespace NosCore.LoginServer
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly NetworkManager _networkManager;
         private readonly NosCoreContext _context;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger, IChannelHttpClient channelHttpClient, NosCoreContext context)
+        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger,
+            IChannelHttpClient channelHttpClient, NosCoreContext context, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _loginConfiguration = loginConfiguration;
             _networkManager = networkManager;
             _logger = logger;
             _channelHttpClient = channelHttpClient;
+            _logLanguage = logLanguage;
             _context = context;
         }
 
@@ -62,12 +66,12 @@ namespace NosCore.LoginServer
             {
                 await _context.Database.MigrateAsync(stoppingToken);
                 await _context.Database.GetDbConnection().OpenAsync(stoppingToken);
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_INITIALIZED));
+                _logger.Information(_logLanguage[LogLanguageKey.DATABASE_INITIALIZED]);
             }
             catch (Exception ex)
             {
-                _logger.Error("Database Error", ex);
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DATABASE_NOT_UPTODATE));
+                _logger.Error(_logLanguage[LogLanguageKey.DATABASE_ERROR], ex);
+                _logger.Error(_logLanguage[LogLanguageKey.DATABASE_NOT_UPTODATE]);
                 throw;
             }
             await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
