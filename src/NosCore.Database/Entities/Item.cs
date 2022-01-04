@@ -42,9 +42,13 @@ namespace NosCore.Database.Entities
             ShopItem = new HashSet<ShopItem>();
             BCards = new HashSet<BCard>();
             ItemInstances = new HashSet<ItemInstance>();
+            BattlePassItem = new HashSet<BattlepassItem>();
         }
 
         public byte BasicUpgrade { get; set; }
+
+        public virtual ICollection<BattlepassItem> BattlePassItem { get; set; }
+
         public bool Flag1 { get; set; }
         public bool Flag2 { get; set; }
         public bool Flag3 { get; set; }

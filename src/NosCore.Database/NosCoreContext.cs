@@ -17,12 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Dao.Extensions;
 using NosCore.Database.Entities;
 using Npgsql;
+using System;
+using System.Linq;
 
 namespace NosCore.Database
 {
@@ -437,6 +437,12 @@ namespace NosCore.Database
                 .HasOne(e => e.Family)
                 .WithMany(e => e.FamilyCharacters)
                 .HasForeignKey(e => e.FamilyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Item>()
+                .HasMany(e => e.BattlePassItem)
+                .WithOne(e => e.Item)
+                .HasForeignKey(e => e.VNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Item>()

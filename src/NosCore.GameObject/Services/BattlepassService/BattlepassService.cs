@@ -1,5 +1,6 @@
-﻿using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Holders;
+﻿using NosCore.Dao.Interfaces;
+using NosCore.Data.Dto;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,23 +9,23 @@ namespace NosCore.GameObject.Services.BattlepassService
 {
     public class BattlepassService : IBattlepassService
     {
-        private readonly BattlepassHolder _holder;
+        private readonly IDao<BattlepassQuestDto, long> _battlePassQuestDao;
 
-        public BattlepassService(BattlepassHolder holder)
+        public BattlepassService(IDao<BattlepassQuestDto, long> battlePassQuestDao)
         {
-            _holder = holder;
+            _battlePassQuestDao = battlePassQuestDao;
         }
 
-        public async Task<bool> IncrementQuestObjectives(ICharacterEntity character, long questId, int toAdd)
+        public async Task IncrementQuestObjectives(ICharacterEntity character, long questId, int toAdd)
         {
-            var originalQuest = _holder.BattePassQuests.FirstOrDefault(s => s.Id == questId);
-            if (originalQuest == null) return false;
+            var originalQuest = await _battlePassQuestDao.FirstOrDefaultAsync(s => s.Id == questId);
+            if (originalQuest == null) return;
 
-            var quest = _holder.BattlepassLogs.Values.FirstOrDefault(s => s.Data == questId && !s.IsItem);
+            var quest = character.BattlepassLogs.Values.FirstOrDefault(s => s.Data == questId && !s.IsItem);
 
             if (quest == null)
             {
-                var questDto = new CharacterBattlepass
+                var questDto = new CharacterBattlepassDto
                 {
                     Id = Guid.NewGuid(),
                     CharacterId = character.VisualId,
@@ -32,17 +33,21 @@ namespace NosCore.GameObject.Services.BattlepassService
                     Data2 = toAdd
                 };
 
-                _holder.BattlepassLogs.TryAdd(questDto.Id, questDto);
-                await character.SendPacketAsync(_holder.BattlepassLogs[questDto.Id].GenerateBpmPacket(_holder, character.VisualId)).ConfigureAwait(false);
-                return true;
+                character.BattlepassLogs.TryAdd(questDto.Id, questDto);
+                // TODO : to fix
+                //await character.SendPacketAsync(character.BattlepassLogs[questDto.Id].GenerateBpmPacket(_holder, character.VisualId)).ConfigureAwait(false);
+                return;
             }
 
             var newAdvencement = quest.Data2 + toAdd;
-            if (newAdvencement > originalQuest.MaxObjectiveValue) newAdvencement = originalQuest.MaxObjectiveValue;
-            var toUpdate = _holder.BattlepassLogs[quest.Id];
+            if (newAdvencement > originalQuest.MaxObjectiveValue)
+            {
+                newAdvencement = originalQuest.MaxObjectiveValue;
+            }
+            var toUpdate = character.BattlepassLogs[quest.Id];
             toUpdate.Data2 = newAdvencement;
-            await character.SendPacketAsync(toUpdate.GenerateBpmPacket(_holder, character.VisualId)).ConfigureAwait(false);
-            return true;
+            // TODO : to fix
+            //await character.SendPacketAsync(toUpdate.GenerateBpmPacket(_holder, character.VisualId)).ConfigureAwait(false);
         }
     }
 }

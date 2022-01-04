@@ -115,6 +115,9 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         Task ChangeClassAsync(CharacterClassType classType);
 
         Task ChangeMapAsync(short mapId, short mapX, short mapY);
+
         string GetMessageFromKey(LanguageKey support);
+
+        public ConcurrentDictionary<Guid, CharacterBattlepassDto> BattlepassLogs { get; set; }
     }
 }

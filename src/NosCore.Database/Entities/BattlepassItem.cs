@@ -4,7 +4,9 @@ namespace NosCore.Database.Entities
 {
     public class BattlepassItem : SynchronizableBaseEntity
     {
-        public short ItemVNum { get; set; }
+        public virtual Item Item { get; set; } = null!;
+
+        public short VNum { get; set; }
 
         public short Amount { get; set; }
 

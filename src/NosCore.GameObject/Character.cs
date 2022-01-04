@@ -19,6 +19,7 @@
 
 using DotNetty.Transport.Channels;
 using Microsoft.Extensions.Options;
+using NodaTime;
 using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
@@ -49,6 +50,8 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.NRunService;
 using NosCore.GameObject.Services.QuestService;
+using NosCore.Networking;
+using NosCore.Networking.ChannelMatcher;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -67,9 +70,6 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using NodaTime;
-using NosCore.Networking;
-using NosCore.Networking.ChannelMatcher;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -104,7 +104,7 @@ namespace NosCore.GameObject
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<AccountDto, long> accountDao,
             ILogger logger, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quicklistEntriesDao, IDao<MinilandDto, Guid> minilandDao,
-            IMinilandService minilandProvider, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
+            IMinilandService minilandProvider, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao, IDao<CharacterBattlepassDto, Guid> characterBattlepassDao,
             IHpService hpService, IMpService mpService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpeedService speedService,
             IReputationService reputationService, IDignityService dignityService, IOptions<WorldConfiguration> worldConfiguration, IClock clock)
         {
@@ -136,10 +136,14 @@ namespace NosCore.GameObject
             _worldConfiguration = worldConfiguration;
             LastSp = clock.GetCurrentInstant();
             _clock = clock;
+            // TODO : Clean this
+            BattlepassLogs = new(characterBattlepassDao.LoadAll().Where(s => s.CharacterId == VisualId).ToDictionary(x => x.Id, x => x));
         }
 
         private byte _speed;
         private readonly IClock _clock;
+
+        public ConcurrentDictionary<Guid, CharacterBattlepassDto> BattlepassLogs { get; set; }
 
         public ScriptDto? Script { get; set; }
 

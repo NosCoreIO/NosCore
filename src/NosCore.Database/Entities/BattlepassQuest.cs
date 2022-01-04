@@ -20,7 +20,7 @@ namespace NosCore.Database.Entities
 
         public long MaxObjectiveValue { get; set; }
 
-        public short RewardAmount { get; set; }
+        public byte RewardAmount { get; set; }
 
         public Instant Start { get; set; }
     }

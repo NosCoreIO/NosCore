@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Database.Entities
 {
-    public class BattlepassBearing : IEntity
+    public class BattlepassBearing : IStaticEntity
     {
         [Key]
         public long Id { get; set; }

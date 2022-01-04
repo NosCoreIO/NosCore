@@ -222,10 +222,12 @@ namespace NosCore.Database.Migrations
                     b.Property<bool>("IsSuperReward")
                         .HasColumnType("boolean");
 
-                    b.Property<short>("ItemVNum")
+                    b.Property<short>("VNum")
                         .HasColumnType("smallint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("VNum");
 
                     b.ToTable("BattlepassItem");
                 });
@@ -253,7 +255,7 @@ namespace NosCore.Database.Migrations
                     b.Property<byte>("MissionType")
                         .HasColumnType("smallint");
 
-                    b.Property<short>("RewardAmount")
+                    b.Property<byte>("RewardAmount")
                         .HasColumnType("smallint");
 
                     b.Property<Instant>("Start")
@@ -494,7 +496,7 @@ namespace NosCore.Database.Migrations
                     b.Property<bool>("HpBlocked")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsBattelPassPremimum")
+                    b.Property<bool>("IsBattlePassPremimum")
                         .HasColumnType("boolean");
 
                     b.Property<byte>("JobLevel")
@@ -3098,6 +3100,17 @@ namespace NosCore.Database.Migrations
                     b.Navigation("Act");
                 });
 
+            modelBuilder.Entity("NosCore.Database.Entities.BattlepassItem", b =>
+                {
+                    b.HasOne("NosCore.Database.Entities.Item", "Item")
+                        .WithMany("BattlePassItem")
+                        .HasForeignKey("VNum")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+                });
+
             modelBuilder.Entity("NosCore.Database.Entities.BazaarItem", b =>
                 {
                     b.HasOne("NosCore.Database.Entities.ItemInstance", "ItemInstance")
@@ -3930,6 +3943,8 @@ namespace NosCore.Database.Migrations
             modelBuilder.Entity("NosCore.Database.Entities.Item", b =>
                 {
                     b.Navigation("BCards");
+
+                    b.Navigation("BattlePassItem");
 
                     b.Navigation("Drop");
 

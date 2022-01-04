@@ -79,7 +79,7 @@ namespace NosCore.Database.Migrations
                 defaultValue: 0);
 
             migrationBuilder.AddColumn<bool>(
-                name: "IsBattelPassPremimum",
+                name: "IsBattlePassPremimum",
                 table: "Character",
                 type: "boolean",
                 nullable: false,
@@ -104,7 +104,7 @@ namespace NosCore.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ItemVNum = table.Column<short>(type: "smallint", nullable: false),
+                    VNum = table.Column<short>(type: "smallint", nullable: false),
                     Amount = table.Column<short>(type: "smallint", nullable: false),
                     IsSuperReward = table.Column<bool>(type: "boolean", nullable: false),
                     IsPremium = table.Column<bool>(type: "boolean", nullable: false),
@@ -113,6 +113,12 @@ namespace NosCore.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BattlepassItem", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BattlepassItem_Item_VNum",
+                        column: x => x.VNum,
+                        principalTable: "Item",
+                        principalColumn: "VNum",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -126,7 +132,7 @@ namespace NosCore.Database.Migrations
                     Data = table.Column<short>(type: "smallint", nullable: false),
                     MinObjectiveValue = table.Column<long>(type: "bigint", nullable: false),
                     MaxObjectiveValue = table.Column<long>(type: "bigint", nullable: false),
-                    RewardAmount = table.Column<short>(type: "smallint", nullable: false),
+                    RewardAmount = table.Column<byte>(type: "smallint", nullable: false),
                     Start = table.Column<Instant>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -149,6 +155,11 @@ namespace NosCore.Database.Migrations
                 {
                     table.PrimaryKey("PK_CharacterBattlepass", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BattlepassItem_VNum",
+                table: "BattlepassItem",
+                column: "VNum");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -170,7 +181,7 @@ namespace NosCore.Database.Migrations
                 table: "Character");
 
             migrationBuilder.DropColumn(
-                name: "IsBattelPassPremimum",
+                name: "IsBattlePassPremimum",
                 table: "Character");
 
             migrationBuilder.AlterDatabase()

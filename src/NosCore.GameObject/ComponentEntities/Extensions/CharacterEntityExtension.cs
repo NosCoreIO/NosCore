@@ -54,12 +54,40 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class CharacterEntityExtension
     {
+        public static BpmPacket GenerateBpmPacket(this ICharacterEntity characterEntity, long advencement, IOptions<WorldConfiguration> conf)
+        {
+            List<BpmSubTypePacket> subPackets = new();
+            // TODO : fix it
+            foreach (var quest in holder.BattePassQuests)
+            {
+                var characterAdvencement = characterEntity.BattlepassLogs.Values.FirstOrDefault(s => s.CharacterId == characterEntity.VisualId && s.Data == advencement);
+                long actualAdvencement = characterAdvencement == null ? 0 : Convert.ToInt64(characterAdvencement.Data2);
+                subPackets.Add(new()
+                {
+                    QuestId = quest.Id,
+                    MissionType = quest.MissionType,
+                    FrequencyType = quest.FrequencyType,
+                    Advencement = actualAdvencement,
+                    MaxObjectiveValue = quest.MaxObjectiveValue,
+                    Reward = (byte)quest.RewardAmount,
+                    MissionMinutesRemaining = 1 // TODO
+                });
+            }
+
+            return new BpmPacket
+            {
+                IsBattlePassIconEnabled = conf.Value.IsBattlePassIconEnabled,
+                MaxBattlePassPoints = conf.Value.MaxBattlePassPoints,
+                QuestList = subPackets
+            };
+        }
+
         public static GoldPacket GenerateGold(this ICharacterEntity characterEntity)
         {
             return new GoldPacket { Gold = characterEntity.Gold };
         }
 
-        public static RsfiPacket GenerateRsfi(this ICharacterEntity characterEntity)
+        public static RsfiPacket GenerateRsfi(this ICharacterEntity _)
         {
             return new RsfiPacket
             {

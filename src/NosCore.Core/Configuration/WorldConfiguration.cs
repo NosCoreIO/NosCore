@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NodaTime;
 using NosCore.Data.Enumerations;
 using NosCore.Shared.Configuration;
 using System.Collections.Generic;
@@ -72,6 +73,12 @@ namespace NosCore.Core.Configuration
 #pragma warning disable CA2227 // Collection properties should be read only
         public Dictionary<string, List<BasicEquipment>> BasicEquipments { get; set; } = new();
 #pragma warning restore CA2227 // Collection properties should be read only
+
+        public bool IsBattlePassIconEnabled { get; set; }
+
+        public int MaxBattlePassPoints { get; set; }
+
+        public Instant EndSeason { get; set; }
     }
 
     public class BasicEquipment

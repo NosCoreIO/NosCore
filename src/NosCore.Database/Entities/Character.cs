@@ -209,6 +209,6 @@ namespace NosCore.Database.Entities
 
         public int BattlePassPoints { get; set; }
 
-        public bool IsBattelPassPremimum { get; set; }
+        public bool IsBattlePassPremimum { get; set; }
     }
 }
