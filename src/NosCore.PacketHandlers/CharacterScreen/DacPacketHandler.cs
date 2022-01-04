@@ -31,6 +31,7 @@ using NosCore.Packets.ClientPackets.Infrastructure;
 using Serilog;
 using System.Threading.Tasks;
 using NosCore.Networking.SessionRef;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -42,11 +43,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly ILogger _logger;
         private readonly ISessionRefHolder _sessionRefHolder;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public DacPacketHandler(IDao<AccountDto, long> accountDao,
             ILogger logger, IAuthHttpClient authHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient, ISessionRefHolder sessionRefHolder)
+            IChannelHttpClient channelHttpClient, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _accountDao = accountDao;
             _logger = logger;
@@ -54,12 +56,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _channelHttpClient = channelHttpClient;
             _sessionRefHolder = sessionRefHolder;
+            _logLanguage = logLanguage;
         }
 
         public override async Task ExecuteAsync(DacPacket packet, ClientSession clientSession)
         {
             await EntryPointPacketHandler.VerifyConnectionAsync(clientSession, _logger, _authHttpClient,
-                _connectedAccountHttpClient, _accountDao, _channelHttpClient, true, packet.AccountName, "thisisgfmode", -1, _sessionRefHolder);
+                _connectedAccountHttpClient, _accountDao, _channelHttpClient, true, packet.AccountName, "thisisgfmode", -1, _sessionRefHolder, _logLanguage);
             if (clientSession.Account == null!)
             {
                 return;
@@ -67,7 +70,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             await clientSession.HandlePacketsAsync(new[] { new SelectPacket { Slot = packet.Slot } })
                 .ConfigureAwait(false);
 
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
+            _logger.Information(_logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],
                 clientSession.Account!.Name);
         }
     }
