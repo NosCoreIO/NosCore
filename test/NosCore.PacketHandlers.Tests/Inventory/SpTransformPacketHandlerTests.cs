@@ -60,9 +60,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task Test_Transform_NoSpAsync()
         {
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSp }, _session!).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SP, _session.Account.Language));
+            var packet = (MsgiPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.NoSpecialistCardEquipped);
         }
 
         [TestMethod]
@@ -163,10 +162,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message ==
-                string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language),
-                    30));
+            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.CantTrasformWithSideEffect && packet?.FirstArgument == 4 && packet?.SecondArgument == 30);
         }
 
         [TestMethod]

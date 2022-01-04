@@ -218,9 +218,8 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             itemInstance.ItemInstance!.Rare = -2;
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
-            var lastpacket = (MsgPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
-                    Session.Account.Language), lastpacket?.Message);
+            var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.AreEqual(lastpacket?.Type == MessageType.Default, lastpacket?.Message == Game18NConstString.CantUseBecauseSoulDestroyed);
         }
 
         [TestMethod]

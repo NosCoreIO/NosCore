@@ -58,14 +58,13 @@ namespace NosCore.PacketHandlers.Inventory
                     return;
                 }
 
-                if (!(clientSession.Character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp,
-                    NoscorePocketType.Wear)?.ItemInstance is SpecialistInstance specialistInstance))
+                if (!(clientSession.Character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is SpecialistInstance specialistInstance))
                 {
-                    await clientSession.SendPacketAsync(new MsgPacket
+                    await clientSession.SendPacketAsync(new MsgiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_SP, clientSession.Account.Language)
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.NoSpecialistCardEquipped
                     }).ConfigureAwait(false);
-
                     return;
                 }
 
@@ -121,11 +120,12 @@ namespace NosCore.PacketHandlers.Inventory
                     }
                     else
                     {
-                        await clientSession.SendPacketAsync(new MsgPacket
+                        await clientSession.SendPacketAsync(new MsgiPacket
                         {
-                            Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
-                                    clientSession.Account.Language),
-                                clientSession.Character.SpCooldown - (int)Math.Round(currentRunningSeconds))
+                            Type = MessageType.Default,
+                            Message = Game18NConstString.CantTrasformWithSideEffect,
+                            FirstArgument = 4,
+                            SecondArgument = (short)(clientSession.Character.SpCooldown - (int)Math.Round(currentRunningSeconds))
                         }).ConfigureAwait(false);
                     }
                 }

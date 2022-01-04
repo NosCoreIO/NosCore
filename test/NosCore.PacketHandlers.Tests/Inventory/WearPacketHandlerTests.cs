@@ -351,9 +351,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
 
             Assert.IsTrue(_session.Character.InventoryService.Any(s => s.Value.Type == NoscorePocketType.Equipment));
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
-                _session.Account.Language));
+            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.CantUseBecauseSoulDestroyed);
         }
 
         [TestMethod]

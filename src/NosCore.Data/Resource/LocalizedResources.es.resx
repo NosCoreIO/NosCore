@@ -171,9 +171,6 @@
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>No puedes cambiarte a la misma clase.</value>
   </data>
-  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
-    <value>Â¡No puedes equiparte una SP destruida!</value>
-  </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Â¡No se ha podido encontrar a este personaje!</value>
   </data>
@@ -254,12 +251,6 @@
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Â¡Ahora eres el administrador del grupo!</value>
   </data>
-  <data name="GROUP_CLOSED" xml:space="preserve">
-    <value>Se ha disuelto el grupo.</value>
-  </data>
-  <data name="GROUP_LEFT" xml:space="preserve">
-    <value>Has abandonado el grupo.</value>
-  </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Has enviado una peticiÃ³n para compartir el punto de regreso con tus miembros del grupo.</value>
   </data>
@@ -314,12 +305,6 @@
   </data>
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Adquirido</value>
-  </data>
-  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
-    <value>Â¡No puedes soltar ese objeto!</value>
-  </data>
-  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
-    <value>Â¡No puedes soltar ese objeto aquÃ­!</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Has entrado al grupo.</value>
@@ -378,9 +363,6 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Â¡El servidor necesita al menos el Mapa (MAP) de Nosville para funcionar!</value>
-  </data>
-  <data name="NO_SP" xml:space="preserve">
-    <value>No hay ninguna tarjeta de especialista equipada.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Ningunas propiedades especiales equipables.</value>
@@ -504,9 +486,6 @@
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>Â¡{0} Skills Analizadas!</value>
-  </data>
-  <data name="SP_INLOADING" xml:space="preserve">
-    <value>Â¡No puedes transformarte debido a los efectos secundarios! Por favor espera {0}s</value>
   </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Â¡No tienes suficientes puntos de SP para transformarte!</value>

@@ -51,11 +51,10 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 var medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver;
                 var time = (int)(medalBonus.DateEnd == null ? 720 : (((Instant)medalBonus.DateEnd) - _clock.GetCurrentInstant()).TotalHours);
-                await clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR,
-                        clientSession.Account.Language),
-                    Type = MessageType.Default
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.AttackWhileBazar
                 }).ConfigureAwait(false);
                 await clientSession.SendPacketAsync(new WopenPacket
                 {

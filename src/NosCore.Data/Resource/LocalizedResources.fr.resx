@@ -378,12 +378,6 @@
   <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
     <value>L'objet {0} de la Terre des Mort a été acquis.</value>
   </data>
-  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
-    <value>Impossible de jeter l'objet.</value>
-  </data>
-  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
-    <value>Impossible de jeter l'objet ici.</value>
-  </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Pas présent dans votre liste noire.</value>
   </data>
@@ -401,9 +395,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Vous êtes le chef du groupe. Vous pouvez définir les condition d'obtention des objets.</value>
-  </data>
-  <data name="GROUP_CLOSED" xml:space="preserve">
-    <value>Le groupe a été dissous.</value>
   </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Tu ne peux pas modifier les options de partages des objets. Demandes au chef du groupe !</value>
@@ -480,9 +471,6 @@
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Vous avez déjà changé de classe, vous ne pouvez donc plus le refaire.</value>
   </data>
-  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
-    <value>Vous ne pouvez pas équiper une SP détruite. Seul une pierre de résurection d'âme peut rammener votre spécialiste à la vie.</value>
-  </data>
   <data name="EXCEPTION" xml:space="preserve">
     <value>Une exception à été générée.</value>
   </data>
@@ -491,9 +479,6 @@
   </data>
   <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
     <value>Vous n'avez pas assez de réputation !</value>
-  </data>
-  <data name="NO_SP" xml:space="preserve">
-    <value>Vous n'avez aucune SPéquipée.</value>
   </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Votre réputation a changée.</value>
@@ -522,9 +507,6 @@
   <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
     <value>Ouvrir le magasin maintenant ?</value>
   </data>
-  <data name="SP_INLOADING" xml:space="preserve">
-    <value>Transformation impossible. Délais avant réutilisation : {0} secondes.</value>
-  </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Impossible de porter la SP, car vous n'avez plus de points.</value>
   </data>
@@ -540,9 +522,6 @@
   <data name="BANK_FULL" xml:space="preserve">
     <value>Ton compte en banque est déjà remplit.</value>
   </data>
-  <data name="ALREADY_EXCHANGE" xml:space="preserve">
-    <value>Le joueur est déjà en commerce. Ressayez plus tard.</value>
-  </data>
   <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
     <value>Vous ne pouvez pas échanger des objets liés a votre compte.</value>
   </data>
@@ -551,9 +530,6 @@
   </data>
   <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Tu ne peux pas utiliser d'objet dans la boutique.</value>
-  </data>
-  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
-    <value>Le joueur à bloqué les échanges.</value>
   </data>
   <data name="INVALID_EXCHANGE" xml:space="preserve">
     <value>Impossible de conclure l'échange, il esciste des objets invendable dans l'échange.</value>
@@ -582,12 +558,6 @@
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>{0} t'a envoyé une demande d'échange.</value>
   </data>
-  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
-    <value>Tu as fait une demande d'échange avec {0}.</value>
-  </data>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>Tu as changé le point du retour commun au groupe.</value>
-  </data>
   <data name="BLACKLIST_BLOCKED" xml:space="preserve">
     <value>Vous êtes dans sa liste noire.</value>
   </data>
@@ -603,14 +573,8 @@
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Ta demande d'ami n'a pu être aboutie car l'utilisateur est déconnecté.</value>
   </data>
-  <data name="GROUP_LEFT" xml:space="preserve">
-    <value>Tu as quitté le groupe.</value>
-  </data>
   <data name="GROUP_REFUSED" xml:space="preserve">
     <value>Ton invitation a été refusé.</value>
-  </data>
-  <data name="INFO_BAZAAR" xml:space="preserve">
-    <value>Avec la médaille NosMarchand, tu peux utiliser le NosBazar à tout moment sur toutes les cartes générales.</value>
   </data>
   <data name="INVITED_YOU_GROUP" xml:space="preserve">
     <value>{0} t'a invité dans un groupe.</value>
@@ -623,9 +587,6 @@
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Groupe rejoint.</value>
-  </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>{0} a quitté le groupe.</value>
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Tu ne peux plus ajouter d'objet au NosBazard car tu as dépassé la limite autorisée.</value>

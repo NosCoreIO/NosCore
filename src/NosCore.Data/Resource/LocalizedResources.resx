@@ -173,9 +173,6 @@
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>You can not change to the same class.</value>
   </data>
-  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
-    <value>You can not equip a destroyed SP!</value>
-  </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Unable to find this character!</value>
   </data>
@@ -256,12 +253,6 @@
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>You are the group admin!</value>
   </data>
-  <data name="GROUP_CLOSED" xml:space="preserve">
-    <value>Group disbanded</value>
-  </data>
-  <data name="GROUP_LEFT" xml:space="preserve">
-    <value>You left the party</value>
-  </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>You sent a request to share the point of return with the members of your group</value>
   </data>
@@ -316,12 +307,6 @@
   </data>
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Acquired</value>
-  </data>
-  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
-    <value>You can not drop that item!</value>
-  </data>
-  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
-    <value>You can not drop that item here!</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>You joined the group</value>
@@ -380,9 +365,6 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Server need at least nosville MAP to work!</value>
-  </data>
-  <data name="NO_SP" xml:space="preserve">
-    <value>There is no specialist card equipped.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>No special properties wearable</value>
@@ -508,9 +490,6 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Parsed!</value>
   </data>
-  <data name="SP_INLOADING" xml:space="preserve">
-    <value>Your SP is still at cooldown! Please wait {0}s</value>
-  </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>You do not have sufficient SP points to transform!</value>
   </data>
@@ -573,24 +552,11 @@
     <value>[{0}] has invited you to a group! Do you accept?</value>
     <comment>Check</comment>
   </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>[{0}] left the party!</value>
-    <comment>Check</comment>
-  </data>
   <data name="UPDATE_GOLD" xml:space="preserve">
     <value>Your gold has been updated successfully!</value>
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Packet received without character being set {0}</value>
-  </data>
-  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
-    <value>You ask for an exchange with: {0}.</value>
-  </data>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>You accepted point share !</value>
-  </data>
-  <data name="ALREADY_EXCHANGE" xml:space="preserve">
-    <value>User is in exchange!</value>
   </data>
   <data name="BANK_FULL" xml:space="preserve">
     <value>Your bank account is full.</value>
@@ -607,9 +573,6 @@
   <data name="EFFECT_ACTIVATED" xml:space="preserve">
     <value>The {0} effect has been activated !</value>
   </data>
-  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
-    <value>Exchange blocked</value>
-  </data>
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>You refused your exchange request.</value>
   </data>
@@ -618,9 +581,6 @@
   </data>
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>{0} wants to exchange with you.</value>
-  </data>
-  <data name="INFO_BAZAAR" xml:space="preserve">
-    <value>With the NosMerchant medal, you can use the NosBazar at any time on all maps.</value>
   </data>
   <data name="INVALID_EXCHANGE" xml:space="preserve">
     <value>You can only exchange tradable items.</value>

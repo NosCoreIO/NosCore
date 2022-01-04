@@ -153,10 +153,10 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 
                 if (itemInstance.ItemInstance.Rare == -2)
                 {
-                    await requestData.ClientSession.SendPacketAsync(new MsgPacket
+                    await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_EQUIP_DESTROYED_SP,
-                            requestData.ClientSession.Account.Language)
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.CantUseBecauseSoulDestroyed
                     }).ConfigureAwait(false);
                     return;
                 }

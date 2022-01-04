@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>Du hast dem teilen eurer Punkte zugestimmt!</value>
-  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Account mit SessionId {0} ist angekommen.</value>
   </data>
@@ -131,9 +128,6 @@
   </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Bereits in der Blacklist.</value>
-  </data>
-  <data name="ALREADY_EXCHANGE" xml:space="preserve">
-    <value>Du befindest dich bereits im Tausch.</value>
   </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Ihr seid bereits Freunde.</value>
@@ -202,9 +196,6 @@
   </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Du kannst nicht zur gleichen Klasse wechseln</value>
-  </data>
-  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
-    <value>Du kannst eine kaputte Spezialisierung nicht ausrüsten!</value>
   </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Kann den Charakter nicht finden!</value>
@@ -280,9 +271,6 @@
   <data name="EXCEPTION" xml:space="preserve">
     <value>Eine Ausnahme wurde ausgelöst!</value>
   </data>
-  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
-    <value>Deine Tauschanfrage wurde blockiert!</value>
-  </data>
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Deine Tauschanfrage wurde abgelehnt!</value>
   </data>
@@ -322,12 +310,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Du bist nun der Gruppen-Admin</value>
-  </data>
-  <data name="GROUP_CLOSED" xml:space="preserve">
-    <value>Gruppe qurde aufgelöst</value>
-  </data>
-  <data name="GROUP_LEFT" xml:space="preserve">
-    <value>Du hast die Party verlassen!</value>
   </data>
   <data name="GROUP_REFUSED" xml:space="preserve">
     <value>Deine Gruppeneinladung wurde abgelehnt!</value>
@@ -372,9 +354,6 @@
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>Tausch von {0} akzeptieren?</value>
   </data>
-  <data name="INFO_BAZAAR" xml:space="preserve">
-    <value>Mit der NosMedalie kannst du überall den Bazaar öffnen.</value>
-  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Falsche ID!</value>
   </data>
@@ -415,12 +394,6 @@
   <data name="ITEM_GIFTED" xml:space="preserve">
     <value>{0} Item's wurde Verschenkt.</value>
   </data>
-  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
-    <value>Du kannst dieses Item nicht fallen lassen!</value>
-  </data>
-  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
-    <value>Du kannst dieses Item nicht fallen lassen!</value>
-  </data>
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Item wurde nicht gefunden!</value>
   </data>
@@ -436,9 +409,6 @@
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Fehlende Sprache/Übersetzung {0} !</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>Ein Spieler hat die Gruppe verlassen! {0}</value>
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Du hast die Itemmenge überschritten.</value>
@@ -527,9 +497,6 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Server benötigt mindestens die nosville Karte um zu funktionieren!</value>
-  </data>
-  <data name="NO_SP" xml:space="preserve">
-    <value>Du hast keine Spzialistenkarte ausgerüstet!</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Keine tragbare spezielle Eigenschaften</value>
@@ -694,9 +661,6 @@
   <data name="SPEAKER" xml:space="preserve">
     <value>Servernachricht</value>
   </data>
-  <data name="SP_INLOADING" xml:space="preserve">
-    <value>Deine SP ist zur Zeit am abklingen! Bitte warte {0}s</value>
-  </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Du hast nicht genügend SP Punkte um dich zu verwandeln!</value>
   </data>
@@ -764,8 +728,5 @@
   </data>
   <data name="WANT_ENABLE_TITLE" xml:space="preserve">
     <value>Möchtest du den Titel Aktivieren?</value>
-  </data>
-  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
-    <value>Du hast {0} nach einem Tausch gefragt.</value>
   </data>
 </root>

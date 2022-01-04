@@ -117,10 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>Обмен очками принят</value>
-    <comment>Что за очки? Надо глянуть...</comment>
-  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Аккаунт с SessionId {0} подключен.</value>
   </data>
@@ -132,9 +128,6 @@
   </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Уже в черном списке!</value>
-  </data>
-  <data name="ALREADY_EXCHANGE" xml:space="preserve">
-    <value>Игрок уже обменивается</value>
   </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Вы уже друзья!</value>
@@ -207,9 +200,6 @@
   </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Нельзя изменить класс на текущий!</value>
-  </data>
-  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
-    <value>Душа карты специалиста уничтожена, её нельзя экипировать!</value>
   </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Невозможно найти этого персонажа!</value>
@@ -284,10 +274,6 @@
   <data name="EXCEPTION" xml:space="preserve">
     <value>Вызвано исключение: {0}</value>
   </data>
-  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
-    <value>Игрок заблокировал обмен</value>
-    <comment>Перефразировать</comment>
-  </data>
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Ты отклонил(а) запрос на обмен</value>
     <comment>Нужно уточнение контекста. В оригинале "You refused your exchange request.", но как возможно отклонить свой же запрос на обмен?</comment>
@@ -330,12 +316,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Ты лидер группы!</value>
-  </data>
-  <data name="GROUP_CLOSED" xml:space="preserve">
-    <value>Группа распущена</value>
-  </data>
-  <data name="GROUP_LEFT" xml:space="preserve">
-    <value>Ты покинул группу.</value>
   </data>
   <data name="GROUP_REFUSED" xml:space="preserve">
     <value>Приглашение в группу отклонено!</value>
@@ -382,9 +362,6 @@
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>{0} хочет обменяться.</value>
   </data>
-  <data name="INFO_BAZAAR" xml:space="preserve">
-    <value>С медалью НосТорговца ты можешь использовать НосБазар в любое время, где бы ты не находился.</value>
-  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Неверный ID!</value>
   </data>
@@ -429,12 +406,6 @@
   <data name="ITEM_GIFTED" xml:space="preserve">
     <value>Подарков отправлено: {0} шт.</value>
   </data>
-  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
-    <value>Вы не можете выбросить данный предмет!</value>
-  </data>
-  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
-    <value>Вы не можете выбросить данный предмет тут!</value>
-  </data>
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Предмет не найден {0} {1}</value>
   </data>
@@ -450,10 +421,6 @@
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Перевод отсутствует</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>[{0}] покинул группу!</value>
-    <comment>Check</comment>
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Лимит превышен</value>
@@ -544,9 +511,6 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Для работы сервера необходимо установить хотя бы карту НосВилля.</value>
-  </data>
-  <data name="NO_SP" xml:space="preserve">
-    <value>Не экипирована карта специалиста</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>SP пригодные к экипировке отсутствуют</value>
@@ -706,9 +670,6 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>Импортировано {0} навык(ов)!</value>
   </data>
-  <data name="SP_INLOADING" xml:space="preserve">
-    <value>Карта специалиста перезаряжается! Пожалуйста, подождите {0} сек.</value>
-  </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Недостаточно ОС для трансформации!</value>
   </data>
@@ -776,8 +737,5 @@
   </data>
   <data name="WANT_ENABLE_TITLE" xml:space="preserve">
     <value>Активировать титул?</value>
-  </data>
-  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
-    <value>Запрошен обмен у {0}.</value>
   </data>
 </root>

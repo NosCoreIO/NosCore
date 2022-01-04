@@ -315,11 +315,10 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
-                    await clientSession.SendPacketAsync(new MsgPacket
+                    await clientSession.SendPacketAsync(new MsgiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ACCEPTED_SHARE,
-                            clientSession.Account.Language),
-                        Type = MessageType.Center
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.ChangedSamePointOfReturn
                     }).ConfigureAwait(false);
 
                     //TODO: add a way to change respawn points when system will be done

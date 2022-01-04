@@ -88,21 +88,9 @@ namespace NosCore.PacketHandlers.Group
                 {
                     var character = member.Item2 as ICharacterEntity;
                     await (character == null ? Task.CompletedTask : character.SendPacketAsync(character.Group!.GeneratePinit())).ConfigureAwait(false);
-                    await (character == null ? Task.CompletedTask : character.SendPacketAsync(new MsgPacket
-                    {
-                        Message = string.Format(
-                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.LEAVE_GROUP,
-                                clientSession.Account.Language),
-                            clientSession.Character.Name)
-                    })).ConfigureAwait(false);
                 }
 
                 await clientSession.SendPacketAsync(clientSession.Character.Group!.GeneratePinit()).ConfigureAwait(false);
-                await clientSession.SendPacketAsync(new MsgPacket
-                {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_LEFT,
-                        clientSession.Account.Language)
-                }).ConfigureAwait(false);
                 await clientSession.Character.MapInstance.SendPacketAsync(
                     clientSession.Character.Group.GeneratePidx(clientSession.Character)).ConfigureAwait(false);
             }
@@ -122,11 +110,10 @@ namespace NosCore.PacketHandlers.Group
                         continue;
                     }
 
-                    await targetsession.SendPacketAsync(new MsgPacket
+                    await targetsession.SendPacketAsync(new MsgiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_CLOSED,
-                            targetsession.AccountLanguage),
-                        Type = MessageType.Center
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.PartyDisbanded
                     }).ConfigureAwait(false);
 
                     await targetsession.LeaveGroupAsync().ConfigureAwait(false);
