@@ -205,10 +205,10 @@ namespace NosCore.GameObject.Services.QuestService
                     return false;
                 }
 
-                await character.SendPacketAsync(new MsgPacket()
+                await character.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.QUEST_FINISHED, character.AccountLanguage)
+                    Message = Game18NConstString.QuestComplete
                 }).ConfigureAwait(false);
                 await character.SendPacketAsync(characterQuest.Value.GenerateQstiPacket(false)).ConfigureAwait(false);
                 await character.SendPacketAsync(character.GenerateQuestPacket()).ConfigureAwait(false);
@@ -252,10 +252,10 @@ namespace NosCore.GameObject.Services.QuestService
 
             if (quest.IsDaily && (characterQuest.Value?.CompletedOn?.Plus(Duration.FromDays(1)) > _clock.GetCurrentInstant()))
             {
-                await character.SendPacketAsync(new MsgPacket
+                await character.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.QUEST_ALREADY_DONE, character.AccountLanguage)
+                    Message = Game18NConstString.DailyQuestOncePerDay
                 }).ConfigureAwait(false);
                 return false;
             }

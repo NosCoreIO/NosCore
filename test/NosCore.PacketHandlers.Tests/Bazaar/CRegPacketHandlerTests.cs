@@ -185,9 +185,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 MedalUsed = 0,
                 Price = 100000001
             }, _session).ConfigureAwait(false);
-            var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(lastpacket?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED, _session.Account.Language));
+            var lastpacket = (ModaliPacket?)_session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
+            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.NotExceedMaxPrice && lastpacket?.FirstArgument == 4 && lastpacket?.SecondArgument == 1000000);
         }
 
         [TestMethod]
@@ -212,10 +211,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 MedalUsed = 0,
                 Price = 10000000
             }, _session).ConfigureAwait(false);
-            var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(0, _session.Character.InventoryService.Count);
-            Assert.IsTrue(lastpacket?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
+            Assert.IsTrue(lastpacket?.Type == MessageType.Default && lastpacket?.Message == Game18NConstString.ItemAddedToBazar);
         }
 
         [TestMethod]
@@ -236,9 +234,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 MedalUsed = 0,
                 Price = TestHelpers.Instance.WorldConfiguration.Value.MaxGoldAmount + 1
             }, _session).ConfigureAwait(false);
-            var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(lastpacket?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED, _session.Account.Language));
+            var lastpacket = (ModaliPacket?)_session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
+            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.NotExceedMaxPrice && lastpacket?.FirstArgument == 4 && lastpacket?.SecondArgument == 1000000);
         }
 
         [TestMethod]
@@ -304,10 +301,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 MedalUsed = 0,
                 Price = 1
             }, _session!).ConfigureAwait(false);
-            var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (ModaliPacket?)_session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
             Assert.AreEqual(999, _session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance!.Amount);
-            Assert.IsTrue(lastpacket?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.LIMIT_EXCEEDED, _session.Account.Language));
+            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.ListedMaxItemsNumber);
         }
 
         [TestMethod]
@@ -328,10 +324,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 MedalUsed = 0,
                 Price = 1
             }, _session).ConfigureAwait(false);
-            var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(0, _session.Character.InventoryService.Count);
-            Assert.IsTrue(lastpacket?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
+            Assert.IsTrue(lastpacket?.Type == MessageType.Default && lastpacket?.Message == Game18NConstString.ItemAddedToBazar);
         }
 
         [TestMethod]
@@ -373,10 +368,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 MedalUsed = 0,
                 Price = 1
             }, _session).ConfigureAwait(false);
-            var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var lastpacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(50, _session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance!.Amount);
-            Assert.IsTrue(lastpacket?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR, _session.Account.Language));
+            Assert.IsTrue(lastpacket?.Type == MessageType.Default && lastpacket?.Message == Game18NConstString.ItemAddedToBazar);
         }
     }
 }

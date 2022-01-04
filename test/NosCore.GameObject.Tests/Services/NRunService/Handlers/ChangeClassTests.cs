@@ -34,6 +34,7 @@ using NosCore.GameObject.Services.NRunService;
 using NosCore.GameObject.Services.NRunService.Handlers;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -80,8 +81,8 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
                 Type = (byte)characterClass
             })));
 
-            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Message == Game18NConstString.CanNotChangeJobAtThisLevel && packet.Type == MessageType.Center);
+            var msgiPacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(msgiPacket?.Type == MessageType.Default && msgiPacket?.Message == Game18NConstString.CanNotChangeJobAtThisLevel);
         }
 
         [DataTestMethod]
@@ -100,8 +101,8 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
                 Type = (byte)characterClass
             })));
          
-            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Message == Game18NConstString.CanNotChangeJobAtThisLevel && packet.Type == MessageType.Center);
+            var msgiPacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(msgiPacket?.Type == MessageType.Default && msgiPacket?.Message == Game18NConstString.CanNotChangeJobAtThisLevel);
         }
 
         [DataTestMethod]
@@ -120,8 +121,6 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
                 Type = (byte)CharacterClassType.Swordsman
             })));
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
-                _session.Account.Language)) && (packet.Type == MessageType.Center));
         }
 
         [DataTestMethod]
@@ -186,9 +185,8 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
                 Type = (byte)characterClass
             })));
 
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.EQ_NOT_EMPTY,
-                _session.Account.Language)) && (packet.Type == MessageType.Center));
+            var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.RemoveEquipment);
         }
     }
 }

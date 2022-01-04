@@ -29,7 +29,9 @@ using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using Serilog;
 using System.Threading.Tasks;
 
@@ -54,11 +56,10 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 if (bz.BazaarItem?.Amount != bz.ItemInstance?.Amount)
                 {
-                    await clientSession.SendPacketAsync(new ModalPacket
+                    await clientSession.SendPacketAsync(new ModaliPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS,
-                            clientSession.Account.Language),
-                        Type = 1
+                        Type = 1,
+                        Message = Game18NConstString.CannotChangePriceSoldItems
                     }).ConfigureAwait(false);
                     return;
                 }
@@ -70,24 +71,26 @@ namespace NosCore.PacketHandlers.Bazaar
 
                     if ((bzMod != null) && (bzMod.BazaarItem?.Price != bz.BazaarItem.Price))
                     {
-                        await clientSession.HandlePacketsAsync(new[]
-                            {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}}).ConfigureAwait(false);
-                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
-                            string.Format(
-                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED,
-                                    clientSession.Account.Language),
-                                bz.BazaarItem.Price
-                            ), SayColorType.Yellow)).ConfigureAwait(false);
+                        await clientSession.HandlePacketsAsync(new[] {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}}).ConfigureAwait(false);
+                        await clientSession.SendPacketAsync(new SayiPacket
+                        {
+                            VisualType = VisualType.Player,
+                            VisualId = clientSession.Character.CharacterId,
+                            Type = SayColorType.Yellow,
+                            Message = Game18NConstString.NewSellingPrice,
+                            FirstArgument = 4,
+                            SecondArgument = (int)bz.BazaarItem.Price
+                        }).ConfigureAwait(false);
                         return;
                     }
                 }
 
-                await clientSession.SendPacketAsync(new ModalPacket
+                await clientSession.SendPacketAsync(new ModaliPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR,
-                        clientSession.Account.Language),
-                    Type = 1
+                    Type = 1,
+                    Message = Game18NConstString.OfferUpdated
                 }).ConfigureAwait(false);
+
             }
             else
             {

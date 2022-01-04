@@ -27,7 +27,9 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using Serilog;
 using System;
 using System.Threading.Tasks;
@@ -127,20 +129,25 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                     (byte)EquipmentType.Sp, NoscorePocketType.Wear);
                 if ((timeSpanSinceLastSpUsage < requestData.ClientSession.Character.SpCooldown) && (sp != null))
                 {
-                    await requestData.ClientSession.SendPacketAsync(new MsgPacket
+                    await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                     {
-                        Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING,
-                                requestData.ClientSession.Account.Language),
-                            requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage))
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.CantTrasformWithSideEffect,
+                        FirstArgument = 4,
+                        SecondArgument = (short)(requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage))
                     }).ConfigureAwait(false);
                     return;
                 }
 
                 if (requestData.ClientSession.Character.UseSp)
                 {
-                    await requestData.ClientSession.SendPacketAsync(
-                        requestData.ClientSession.Character.GenerateSay(
-                            requestData.ClientSession.GetMessageFromKey(LanguageKey.SP_BLOCKED), SayColorType.Yellow)).ConfigureAwait(false);
+                    await requestData.ClientSession.SendPacketAsync(new SayiPacket
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = requestData.ClientSession.Character.CharacterId,
+                        Type = SayColorType.Yellow,
+                        Message = Game18NConstString.SpecialistCardsCannotBeTradedWhileTransformed
+                    }).ConfigureAwait(false);
                     return;
                 }
 

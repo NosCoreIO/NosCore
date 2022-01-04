@@ -29,6 +29,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 
@@ -69,9 +70,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task OpenWhenNoMedalAsync()
         {
             await _cskillPacketHandler!.ExecuteAsync(new CSkillPacket(), _session!).ConfigureAwait(false);
-            var lastpacket = (InfoPacket?)_session!.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.IsTrue(lastpacket?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL, _session.Account.Language));
+            var lastpacket = (InfoiPacket?)_session!.LastPackets.FirstOrDefault(s => s is InfoiPacket);
+            Assert.IsTrue(lastpacket?.Message == Game18NConstString.NosMerchantMedaleAllowPlayerToUseNosbazarOnAllGeneralMaps);
         }
 
         [TestMethod]
@@ -82,9 +82,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
             await _cskillPacketHandler!.ExecuteAsync(new CSkillPacket(), _session).ConfigureAwait(false);
-            var lastpacket = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(lastpacket?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.INFO_BAZAAR, _session.Account.Language));
         }
     }
 }

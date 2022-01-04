@@ -34,6 +34,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System;
@@ -90,12 +91,16 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            if (price > (medal == null ? 100000000 : maxGold))
+            var maxPrice = medal == null ? 1000000 : maxGold;
+
+            if (price > maxPrice)
             {
-                await clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new ModaliPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.PRICE_EXCEEDED,
-                        clientSession.Account.Language)
+                    Type = 1,
+                    Message = Game18NConstString.NotExceedMaxPrice,
+                    FirstArgument = 4,
+                    SecondArgument = (int)maxPrice
                 }).ConfigureAwait(false);
                 return;
             }
@@ -152,10 +157,10 @@ namespace NosCore.PacketHandlers.Bazaar
             switch (result)
             {
                 case LanguageKey.LIMIT_EXCEEDED:
-                    await clientSession.SendPacketAsync(new MsgPacket
+                    await clientSession.SendPacketAsync(new ModaliPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.LIMIT_EXCEEDED,
-                            clientSession.Account.Language)
+                        Type = 1,
+                        Message = Game18NConstString.ListedMaxItemsNumber
                     }).ConfigureAwait(false);
                     break;
 
@@ -176,14 +181,17 @@ namespace NosCore.PacketHandlers.Bazaar
                         cRegPacket.Slot)).ConfigureAwait(false);
                     clientSession.Character.Gold -= tax;
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
-
-                    await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(
-                        LanguageKey.OBJECT_IN_BAZAAR,
-                        clientSession.Account.Language), SayColorType.Yellow)).ConfigureAwait(false);
-                    await clientSession.SendPacketAsync(new MsgPacket
+                    await clientSession.SendPacketAsync(new SayiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.OBJECT_IN_BAZAAR,
-                            clientSession.Account.Language)
+                        VisualType = VisualType.Player,
+                        VisualId = clientSession.Character.CharacterId,
+                        Type = SayColorType.Yellow,
+                        Message = Game18NConstString.ItemAddedToBazar
+                    }).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(new MsgiPacket
+                    {
+                        Type =  MessageType.Default,
+                        Message = Game18NConstString.ItemAddedToBazar
                     }).ConfigureAwait(false);
 
                     await clientSession.SendPacketAsync(new RCRegPacket { Type = VisualType.Player }).ConfigureAwait(false);

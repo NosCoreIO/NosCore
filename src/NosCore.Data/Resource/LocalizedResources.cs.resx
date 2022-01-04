@@ -204,9 +204,6 @@
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
     <value>Postava je Offline</value>
   </data>
-  <data name="CLASS_CHANGED" xml:space="preserve">
-    <value>Povolání změněno!</value>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Uživatel se připojil, SessionId: {0} </value>
   </data>
@@ -236,9 +233,6 @@
   </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Zadejte složku se soubory, které chcete nahrát</value>
-  </data>
-  <data name="EQ_NOT_EMPTY" xml:space="preserve">
-    <value>Pro změnu povolání sundej všechno vybavení!</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Nastala chyba při změně mapy. Nezneužívejte příkazy. {0}</value>
@@ -290,12 +284,6 @@
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Nelze najít Obsluhu implementace pro balíček s hlavičkou {0}</value>
-  </data>
-  <data name="HAS_SHOP_OPENED" xml:space="preserve">
-    <value>Nemůžeš vyměňovat s někým kdo má otevřený obchod.</value>
-  </data>
-  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
-    <value>Tvá úroveň šampiona byla změněna.</value>
   </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>{0} I18N ActDescs Nahráno! Region: {1}</value>
@@ -369,14 +357,8 @@
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>Tento předmět zde nejde vyhodit!</value>
   </data>
-  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
-    <value>Tento předmět nemůže být prodán!</value>
-  </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Životnost Předmětu vypršela!</value>
-  </data>
-  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
-    <value>Tvá úroveň práce byla změněna.</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Vstoupil si do skupiny!</value>
@@ -387,17 +369,11 @@
   <data name="LEAVE_GROUP" xml:space="preserve">
     <value>[{0}] Opustil skupinu!</value>
   </data>
-  <data name="LEVEL_CHANGED" xml:space="preserve">
-    <value>Tvá úroveň byla změněna.</value>
-  </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Nemůžeš přidat více předmětů do Bazaru protože jsi překročil limit předmětů.</value>
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Na tuto SP potřebuješ větší Úroveň práce.</value>
-  </data>
-  <data name="LOW_REP" xml:space="preserve">
-    <value>Nemáš potřebnou pověst pro tuto SP.</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MAPMONSTERS načteny</value>
@@ -426,9 +402,6 @@
   <data name="NEW_LEADER" xml:space="preserve">
     <value>Jsi nový vedoucí skupiny!</value>
   </data>
-  <data name="NOT_ADVENTURER" xml:space="preserve">
-    <value>Nejsi dobrodruh!</value>
-  </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Nemáš dostatek financí ke koupení tohoto předmětu!</value>
   </data>
@@ -440,12 +413,6 @@
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>Tento Item není tvůj!</value>
-  </data>
-  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
-    <value>Nemáš medaili NosKupce.</value>
-  </data>
-  <data name="NO_ITEM" xml:space="preserve">
-    <value>Nebyly nalezeny žádné předměty!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Nebyly nalezeny žádné mapy. K chodu serveru potřebujete minimálně mapu Nosville.</value>
@@ -540,9 +507,6 @@
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Prosím čekej před teleportováním.</value>
   </data>
-  <data name="PRICE_EXCEEDED" xml:space="preserve">
-    <value>Cena byla překročena!</value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrováno na Master Serveru</value>
     <comment>check</comment>
@@ -568,14 +532,8 @@
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Odmítl jsi sdílet místo návratu se skupinou!</value>
   </data>
-  <data name="SHOP_EMPTY" xml:space="preserve">
-    <value>Nemůžeš otevřít prázdný obchod!</value>
-  </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Nemůžeš otevřít obchod v nájezdu!</value>
-  </data>
-  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
-    <value>Můžeš obchodovat pouze obchodovatelné předměty! Podívej se na item, který chceš prodat.</value>
   </data>
   <data name="SHOP_OPEN" xml:space="preserve">
     <value>Obchod otevřen.</value>
@@ -586,23 +544,11 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Útoky byly úspěšně nahrány!</value>
   </data>
-  <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
-    <value>Máš plný počet dodatečných SP bodů!</value>
-  </data>
-  <data name="SP_BLOCKED" xml:space="preserve">
-    <value>Momentálně používáš SP. První sundej SP.</value>
-  </data>
   <data name="SP_INLOADING" xml:space="preserve">
     <value>Tvá SP stále načítá čekej {0}s.</value>
   </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Nemáš dostatek SP Bodů pro změnu.</value>
-  </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>Body SP Byly přidány! {0}</value>
-  </data>
-  <data name="STAY_TIME" xml:space="preserve">
-    <value>Zbývající čas sekundárních efektů: {0} sekund</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Úspeštně načtena!</value>
@@ -615,9 +561,6 @@
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Obchodník má příliš mnoho zlata pro to aby mohl vzít další od tebe-</value>
-  </data>
-  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>Sekundární efekty skončily. {0}</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Nemožné požádat o skupinu</value>

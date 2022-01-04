@@ -134,11 +134,10 @@ namespace NosCore.PacketHandlers.Bazaar
                 }
             }
 
-            await clientSession.SendPacketAsync(new ModalPacket
+            await clientSession.SendPacketAsync(new ModaliPacket
             {
-                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR,
-                    clientSession.Account.Language),
-                Type = 1
+                Type = 1,
+                Message = Game18NConstString.OfferUpdated
             }).ConfigureAwait(false);
         }
     }

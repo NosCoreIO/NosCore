@@ -56,11 +56,10 @@ namespace NosCore.PacketHandlers.Shops
 
             if (!inv.ItemInstance.Item!.IsSoldable)
             {
-                await clientSession.SendPacketAsync(new SMemoPacket
+                await clientSession.SendPacketAsync(new SMemoiPacket
                 {
                     Type = SMemoType.Error,
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE,
-                        clientSession.Account.Language)
+                    Message = Game18NConstString.ItemCanNotBeSold
                 }).ConfigureAwait(false);
                 return;
             }
@@ -79,15 +78,11 @@ namespace NosCore.PacketHandlers.Shops
             }
 
             clientSession.Character.Gold += price * sellPacket.Amount;
-            await clientSession.SendPacketAsync(new SMemoPacket
+
+            await clientSession.SendPacketAsync(new SMemoiPacket
             {
                 Type = SMemoType.Success,
-                Message = string.Format(
-                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.SELL_ITEM_VALIDE,
-                        clientSession.Account.Language),
-                    inv.ItemInstance.Item.Name[clientSession.Account.Language],
-                    sellPacket.Amount
-                )
+                Message = Game18NConstString.TradeSuccessfull
             }).ConfigureAwait(false);
 
             clientSession.Character.InventoryService.RemoveItemAmountFromInventory(sellPacket.Amount,

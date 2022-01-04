@@ -385,9 +385,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await _wearPacketHandler.ExecuteAsync(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance!.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));
-            var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_BLOCKED,
-                _session.Account.Language)) && (packet.Type == SayColorType.Yellow));
+            var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.SpecialistCardsCannotBeTradedWhileTransformed);
         }
 
         [TestMethod]
@@ -419,10 +418,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await _wearPacketHandler.ExecuteAsync(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance!.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message ==
-                string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_INLOADING, _session.Account.Language),
-                    30));
+            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.CantTrasformWithSideEffect && packet?.FirstArgument == 4 && packet?.SecondArgument == 30);
         }
 
 

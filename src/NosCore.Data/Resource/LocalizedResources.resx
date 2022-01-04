@@ -195,9 +195,6 @@
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
     <value>The Character is offline</value>
   </data>
-  <data name="CLASS_CHANGED" xml:space="preserve">
-    <value>Your class was changed succesfully!</value>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client connected, SessionId: {0}</value>
   </data>
@@ -230,9 +227,6 @@
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Character changed while changing map. Do not abuse Commands. {0}</value>
-  </data>
-  <data name="EQ_NOT_EMPTY" xml:space="preserve">
-    <value>To change of class dequip all your items please.</value>
   </data>
   <data name="EXCEPTION" xml:space="preserve">
     <value>An exception has been thrown : {0}</value>
@@ -274,9 +268,6 @@
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Could not found Handler implementation for Packet with Header {0}</value>
   </data>
-  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
-    <value>Your hero level have changed</value>
-  </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>{0} I18N ActDescs Parsed! Region: {1}</value>
   </data>
@@ -317,9 +308,6 @@
     <value>Unknown Invite type</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
-    <value>This item can not be sold!</value>
-  </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>{0} Items Loaded!</value>
   </data>
@@ -335,9 +323,6 @@
   <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
     <value>You can not drop that item here!</value>
   </data>
-  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
-    <value>Your job level has changed!</value>
-  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>You joined the group</value>
   </data>
@@ -345,14 +330,8 @@
     <value>Missing language</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="LEVEL_CHANGED" xml:space="preserve">
-    <value>Your level has changed!</value>
-  </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>This SP requires more Job Level to use it.</value>
-  </data>
-  <data name="LOW_REP" xml:space="preserve">
-    <value>This SP requires more Reputation to use it.</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MapMonsters Loaded!</value>
@@ -387,9 +366,6 @@
   <data name="NEW_LEADER" xml:space="preserve">
     <value>You are the new party leader!</value>
   </data>
-  <data name="NOT_ADVENTURER" xml:space="preserve">
-    <value>You are not an adventurer.</value>
-  </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>You do not have enough money to purchase that item!</value>
   </data>
@@ -401,9 +377,6 @@
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>The item is not yours!</value>
-  </data>
-  <data name="NO_ITEM" xml:space="preserve">
-    <value>Item does not exist!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Server need at least nosville MAP to work!</value>
@@ -508,20 +481,11 @@
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Saving all data!</value>
   </data>
-  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>Your item {0} has been sold! {1}</value>
-  </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>You refused to share the point of return with the group members</value>
   </data>
-  <data name="SHOP_EMPTY" xml:space="preserve">
-    <value>You can not open an empty shop!</value>
-  </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>You can not open a shop in a raid.</value>
-  </data>
-  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
-    <value>You can only sell tradable items! Please, check the items you want to sell.</value>
   </data>
   <data name="SHOP_OPEN" xml:space="preserve">
     <value>You have opened a shop.</value>
@@ -544,26 +508,17 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Parsed!</value>
   </data>
-  <data name="SP_BLOCKED" xml:space="preserve">
-    <value>You are actually using an SP! Please untransform first.</value>
-  </data>
   <data name="SP_INLOADING" xml:space="preserve">
     <value>Your SP is still at cooldown! Please wait {0}s</value>
   </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>You do not have sufficient SP points to transform!</value>
   </data>
-  <data name="STAY_TIME" xml:space="preserve">
-    <value>Time left of the secondary effects: {0} seconds</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Successfully Loaded!</value>
   </data>
   <data name="SURE_TO_DELETE" xml:space="preserve">
     <value>Are you sure you want to delete this item?</value>
-  </data>
-  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>The secondary effects have finished. {0}</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>The seller does not have sufficient space to handle your money.</value>
@@ -596,19 +551,12 @@
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown VisualType: {0}</value>
   </data>
-  <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
-    <value>You have reached the maximum quantity of Additional SPs!</value>
-  </data>
   <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
     <value>You can not trade not tradable items!</value>
     <comment>Check</comment>
   </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Loading MapInstances...</value>
-  </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>SP points increased by {0}!</value>
-    <comment>Check</comment>
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Support</value>
@@ -668,9 +616,6 @@
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Your friend request could not be completed because the user is disconnected.</value>
   </data>
-  <data name="HAS_SHOP_OPENED" xml:space="preserve">
-    <value>You can't exchange with shop keepers.</value>
-  </data>
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>{0} wants to exchange with you.</value>
   </data>
@@ -701,9 +646,6 @@
   <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
     <value>You don't have enough gold.</value>
   </data>
-  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
-    <value>You don't have the NosMarchand medal.</value>
-  </data>
   <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
     <value>Your item has been added on the bazaar !</value>
   </data>
@@ -712,9 +654,6 @@
   </data>
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Please wait before you teleport !</value>
-  </data>
-  <data name="PRICE_EXCEEDED" xml:space="preserve">
-    <value>The price limit is exceeded.</value>
   </data>
   <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
     <value>The sale is completed, you receive gold: {0}.</value>

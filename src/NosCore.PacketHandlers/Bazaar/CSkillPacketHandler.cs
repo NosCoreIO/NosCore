@@ -49,8 +49,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 (s.StaticBonusType == StaticBonusType.BazaarMedalSilver));
             if (medalBonus != null)
             {
-                var medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold
-                    : (byte)MedalType.Silver;
+                var medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver;
                 var time = (int)(medalBonus.DateEnd == null ? 720 : (((Instant)medalBonus.DateEnd) - _clock.GetCurrentInstant()).TotalHours);
                 await clientSession.SendPacketAsync(new MsgPacket
                 {
@@ -67,10 +66,9 @@ namespace NosCore.PacketHandlers.Bazaar
             }
             else
             {
-                await clientSession.SendPacketAsync(new InfoPacket
+                await clientSession.SendPacketAsync(new InfoiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_BAZAAR_MEDAL,
-                        clientSession.Account.Language)
+                    Message = Game18NConstString.NosMerchantMedaleAllowPlayerToUseNosbazarOnAllGeneralMaps
                 }).ConfigureAwait(false);
             }
         }

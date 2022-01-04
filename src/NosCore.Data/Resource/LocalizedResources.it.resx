@@ -210,17 +210,8 @@
   <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Non puoi muovere gli oggetto!</value>
   </data>
-  <data name="CANT_USE" xml:space="preserve">
-    <value>Non posso usarlo qui.</value>
-  </data>
-  <data name="CANT_USE_IN_VEHICLE" xml:space="preserve">
-    <value>Quando sei su una cavalcatura, puoi usare solo pozioni HP e MP.</value>
-  </data>
   <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Non puoi usare nessun oggetto nella bottega.</value>
-  </data>
-  <data name="CAN_NOT_MODIFY_SOLD_ITEMS" xml:space="preserve">
-    <value>Non puoi modificare il prezzo perché hai già venduto questi articoli. Sostituisci i tuoi articoli per modificarne il prezzo.</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>{0} Bcard Sincronizzate!</value>
@@ -240,9 +231,6 @@
   </data>
   <data name="CHUNK_FORMAT_INVALID" xml:space="preserve">
     <value>Formato blocco non valido.</value>
-  </data>
-  <data name="CLASS_CHANGED" xml:space="preserve">
-    <value>Hai cambiato la classe con successo!</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client connesso, SessionId: {0}</value>
@@ -282,9 +270,6 @@
   </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Immetti la directory dei file da sincronizzare</value>
-  </data>
-  <data name="EQ_NOT_EMPTY" xml:space="preserve">
-    <value>Devi togliere tutto l'equipaggiamento prima di cambiare classe.</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Personaggio cambiato durante la modifica della mappa. Non abusare dei comandi.</value>
@@ -349,12 +334,6 @@
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Non si può gestire il pacchetto con Intestazione: {0}</value>
-  </data>
-  <data name="HAS_SHOP_OPENED" xml:space="preserve">
-    <value>Non puoi commerciare con le botteghe.</value>
-  </data>
-  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
-    <value>Il tuo livello eroe è salito.</value>
   </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>{0} I18N ActDescs Sincronizzati! Regione: {1}</value>
@@ -441,17 +420,11 @@
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Non è stato trovato alcun item.</value>
   </data>
-  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
-    <value>Questo oggetto non può essere venduto.</value>
-  </data>
   <data name="ITEM_RECEIVED" xml:space="preserve">
     <value>Hai ricevuto {0} x {1}</value>
   </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Questo oggetto non è più valido.</value>
-  </data>
-  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
-    <value>Il tuo livello lavoro è salito!</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Ti sei unito al gruppo</value>
@@ -462,9 +435,6 @@
   </data>
   <data name="LEAVE_GROUP" xml:space="preserve">
     <value>[{0}] è uscito dal gruppo!</value>
-  </data>
-  <data name="LEVEL_CHANGED" xml:space="preserve">
-    <value>Il tuo livello è salito!</value>
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Non puoi aggiungere altri oggetti al NosBazar perché hai raggiunto il limite.</value>
@@ -477,9 +447,6 @@
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Questo specialista richiede un livello lavoro più alto.</value>
-  </data>
-  <data name="LOW_REP" xml:space="preserve">
-    <value>Questo specialista richiede una reputazione migliore.</value>
   </data>
   <data name="MAILED" xml:space="preserve">
     <value>Email inviata.</value>
@@ -517,9 +484,6 @@
   <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
     <value>La Mini-land del tuo amico è chiusa</value>
   </data>
-  <data name="MINILAND_NEED_LOCK" xml:space="preserve">
-    <value>La costruzione è possibile solo con la mini-land chiusa.</value>
-  </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Numero totale di visitatori: {0} visitatori di oggi: {1}</value>
   </data>
@@ -531,9 +495,6 @@
   </data>
   <data name="NEW_MAIL" xml:space="preserve">
     <value>Nuove email: {0}</value>
-  </data>
-  <data name="NOT_ADVENTURER" xml:space="preserve">
-    <value>Non sei un avventuriero.</value>
   </data>
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
     <value>I punti durabilità sono insufficienti.</value>
@@ -558,12 +519,6 @@
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>L'oggetto non ti appartiene!</value>
-  </data>
-  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
-    <value>Non hai la medaglia del NosMercante!</value>
-  </data>
-  <data name="NO_ITEM" xml:space="preserve">
-    <value>Questo oggetto non esiste!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Il server ha bisogno almeno della mappa di NosVille per poter funzionare!</value>
@@ -674,9 +629,6 @@
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Aspetta prima di usare un altro portale!</value>
   </data>
-  <data name="PRICE_EXCEEDED" xml:space="preserve">
-    <value>Il prezzo ha superato il limite.</value>
-  </data>
   <data name="QUESTOBJECTIVES_LOADED" xml:space="preserve">
     <value>{0} Obbiettivi delle Quest caricati !</value>
   </data>
@@ -688,12 +640,6 @@
   </data>
   <data name="QUESTS_PARSED" xml:space="preserve">
     <value>{0} Quests sincronizzate!</value>
-  </data>
-  <data name="QUEST_ALREADY_DONE" xml:space="preserve">
-    <value>Hai già completato questa Quest.</value>
-  </data>
-  <data name="QUEST_FINISHED" xml:space="preserve">
-    <value>Quest completata.</value>
   </data>
   <data name="QUEST_NOT_FOUND" xml:space="preserve">
     <value>Impossibile trovare la Quest.</value>
@@ -732,9 +678,6 @@
   <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
     <value>Token di sicurezza aggiornato.</value>
   </data>
-  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>Il tuo oggetto {0} è stato venduto! {1}</value>
-  </data>
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
     <value>Messaggio inviato all'utente</value>
   </data>
@@ -756,14 +699,8 @@
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>{0} Shops caricati!</value>
   </data>
-  <data name="SHOP_EMPTY" xml:space="preserve">
-    <value>Non puoi aprire una bottega vuota!</value>
-  </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Non puoi aprire una bottega durante un raid.</value>
-  </data>
-  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
-    <value>Controlla gli oggetti in vendita. Non tutti li puoi vendere.</value>
   </data>
   <data name="SHOP_OPEN" xml:space="preserve">
     <value>Hai aperto una bottega privata.</value>
@@ -777,23 +714,11 @@
   <data name="SPEAKER" xml:space="preserve">
     <value>Altoparlante</value>
   </data>
-  <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
-    <value>Hai raggiunto il massimo dei punto SP aggiuntivi!</value>
-  </data>
-  <data name="SP_BLOCKED" xml:space="preserve">
-    <value>Togli lo specialista prima.</value>
-  </data>
   <data name="SP_INLOADING" xml:space="preserve">
     <value>Aspetta {0} secondi per trasformarti.</value>
   </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Non hai abbastanza punti SP per trasformarti!</value>
-  </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>Punti SP aumentati di {0}!</value>
-  </data>
-  <data name="STAY_TIME" xml:space="preserve">
-    <value>Tempo rimanente per gli effetti secondari: {0} seccondi</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Caricato con successo!</value>
@@ -809,9 +734,6 @@
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Il negoziante non ha abbastanza spazio per ricevere il tuo oro.</value>
-  </data>
-  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>L'effetto secondario è terminato. {0}</value>
   </data>
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Ha provato ad utilizzare il vecchio metodo di autorizzazione {0}.</value>

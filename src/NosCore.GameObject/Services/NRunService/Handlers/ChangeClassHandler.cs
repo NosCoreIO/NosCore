@@ -23,6 +23,7 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System;
@@ -45,12 +46,6 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
         {
             if (requestData.ClientSession.Character.Class != (byte)CharacterClassType.Adventurer)
             {
-                await requestData.ClientSession.SendPacketAsync(new MsgPacket
-                {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ADVENTURER,
-                        requestData.ClientSession.Account.Language),
-                    Type = MessageType.Center
-                }).ConfigureAwait(false);
                 return;
             }
 
@@ -58,8 +53,15 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
             {
                 await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = Game18NConstString.CanNotChangeJobAtThisLevel,
-                    Type = MessageType.Center
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.CanNotChangeJobAtThisLevel
+                }).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = requestData.ClientSession.Character.CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.CanNotChangeJobAtThisJobLevel
                 }).ConfigureAwait(false);
                 return;
             }

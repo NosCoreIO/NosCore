@@ -27,8 +27,10 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.Packets.ClientPackets.Exchanges;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using Serilog;
 using System;
 using System.Linq;
@@ -78,6 +80,7 @@ namespace NosCore.PacketHandlers.Exchange
                     if (_exchangeProvider.CheckExchange(clientSession.Character.CharacterId) ||
                         _exchangeProvider.CheckExchange(target?.VisualId ?? 0))
                     {
+                        //TODO: add infoi2 packet infoi2 166 1 fadza 
                         await clientSession.SendPacketAsync(new MsgPacket
                         {
                             Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE,
@@ -89,6 +92,7 @@ namespace NosCore.PacketHandlers.Exchange
 
                     if (target?.ExchangeBlocked ?? true)
                     {
+                        //TODO: add infoi2 packet infoi2 167 1 fadza
                         await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
                             GameLanguage.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED,
                                 clientSession.Account.Language),
@@ -99,28 +103,28 @@ namespace NosCore.PacketHandlers.Exchange
                     var blacklisteds = await _blacklistHttpClient.GetBlackListsAsync(clientSession.Character.VisualId).ConfigureAwait(false);
                     if (blacklisteds.Any(s => s.CharacterId == target.VisualId))
                     {
-                        await clientSession.SendPacketAsync(new InfoPacket
+                        await clientSession.SendPacketAsync(new SayiPacket
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                                clientSession.Account.Language)
+                            VisualType = VisualType.Player,
+                            VisualId = clientSession.Character.CharacterId,
+                            Type = SayColorType.Yellow,
+                            Message = Game18NConstString.AlreadyBlacklisted
                         }).ConfigureAwait(false);
                         return;
                     }
 
                     if (clientSession.Character.InShop || target.InShop)
                     {
-                        await clientSession.SendPacketAsync(new MsgPacket
+                        await clientSession.SendPacketAsync(new InfoiPacket
                         {
-                            Message =
-                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.HAS_SHOP_OPENED,
-                                    clientSession.Account.Language),
-                            Type = MessageType.Center
+                            Message = Game18NConstString.CanNotTradeShopOwners
                         }).ConfigureAwait(false);
                         return;
                     }
 
                     await clientSession.SendPacketAsync(new ModalPacket
                     {
+                        //TODO: add infoi2 packet infoi2 170 1 feazfze 
                         Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE,
                             clientSession.Account.Language), target.Name),
                         Type = 0

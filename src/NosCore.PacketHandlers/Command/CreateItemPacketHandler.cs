@@ -72,10 +72,10 @@ namespace NosCore.PacketHandlers.Command
             var iteminfo = _items.Find(item => item.VNum == vnum);
             if (iteminfo == null)
             {
-                await session.SendPacketAsync(new MsgPacket
+                await session.SendPacketAsync(new MsgiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NO_ITEM, session.Account.Language),
-                    Type = 0
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.ItemDoesNotExist
                 }).ConfigureAwait(false);
                 return;
             }

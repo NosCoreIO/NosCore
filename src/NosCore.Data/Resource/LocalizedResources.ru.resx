@@ -186,9 +186,6 @@
   <data name="BAZAAR_MOD_ERROR" xml:space="preserve">
     <value>Ошибка изменения лота в НосБазаре.</value>
   </data>
-  <data name="BAZAAR_PRICE_CHANGED" xml:space="preserve">
-    <value>Цена успешно изменена на {0} золота.</value>
-  </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Игрок добавлен в черный список!</value>
   </data>
@@ -221,17 +218,8 @@
     <value>Ты не можешь перемещать предмет который выставлен на продажу!</value>
     <comment>Нужно уточнение</comment>
   </data>
-  <data name="CANT_USE" xml:space="preserve">
-    <value>Использование невозможно</value>
-  </data>
-  <data name="CANT_USE_IN_VEHICLE" xml:space="preserve">
-    <value>Использование в транспорте невозможно</value>
-  </data>
   <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Ты не можешь воспользоваться предметом который выставлен на продажу!</value>
-  </data>
-  <data name="CAN_NOT_MODIFY_SOLD_ITEMS" xml:space="preserve">
-    <value>Невозможно изменять проданные предметы</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>Импортировано {0} карт специалиста!</value>
@@ -248,9 +236,6 @@
   </data>
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
     <value>Персонаж не в сети</value>
-  </data>
-  <data name="CLASS_CHANGED" xml:space="preserve">
-    <value>Класс успешно изменен!</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Клиент прибыл на сервер, SessionId: {0}</value>
@@ -292,9 +277,6 @@
   </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Пожалуйста, введите адрес директории с файлами для импорта</value>
-  </data>
-  <data name="EQ_NOT_EMPTY" xml:space="preserve">
-    <value>Для смены класса необходимо снять всю экипировку.</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Персонаж изменен во время перехода на карту. Не злоупотребляйте командами. {0}</value>
@@ -365,13 +347,6 @@
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Не удается найти реализацию обработчика для пакета с заголовком {0}</value>
-  </data>
-  <data name="HAS_SHOP_OPENED" xml:space="preserve">
-    <value>Нельзя обмениваться с владельцем магазина</value>
-  </data>
-  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
-    <value>Твой Героический Уровень изменился</value>
-    <comment>Какая-то ересь. Возможно, "Ваш Уровень Героя повышен" звучало бы лучше, но не ясно, используется ли это сообщение только при повышении уровня. (Возможно, что оно отображается при изменении уровня через команду администратора, а в таком случае, он может быть и понижен).</comment>
   </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>Импортировано {0} I18N ActDescs! Регион: {1}</value>
@@ -463,18 +438,11 @@
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Предмет не найден {0} {1}</value>
   </data>
-  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
-    <value>Этот предмет нельзя продать!</value>
-  </data>
   <data name="ITEM_RECEIVED" xml:space="preserve">
     <value>Вы получили {0} {1}.</value>
   </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Предмет больше не действителен.</value>
-  </data>
-  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
-    <value>Твой рабочий уровень изменился!</value>
-    <comment>Возможно, что он повысился, а не изменился, нужно проверять в игре</comment>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Вы присоединились к группе</value>
@@ -487,9 +455,6 @@
     <value>[{0}] покинул группу!</value>
     <comment>Check</comment>
   </data>
-  <data name="LEVEL_CHANGED" xml:space="preserve">
-    <value>Твой Уровень изменился!</value>
-  </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Лимит превышен</value>
   </data>
@@ -501,10 +466,6 @@
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Слишком низкий рабочий уровень для использования данной Карты специалиста.</value>
-    <comment>Возможно нужно перефразировать</comment>
-  </data>
-  <data name="LOW_REP" xml:space="preserve">
-    <value>Недостаточно репутации для использования данной Карты специалиста.</value>
     <comment>Возможно нужно перефразировать</comment>
   </data>
   <data name="MAILED" xml:space="preserve">
@@ -545,9 +506,6 @@
   <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
     <value>Мини-страна друга закрыта</value>
   </data>
-  <data name="MINILAND_NEED_LOCK" xml:space="preserve">
-    <value>Строительство возможно только в закрытой Мини-стране</value>
-  </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Всего посетителей: {0} Посетителей за сегодня: {1}</value>
   </data>
@@ -559,9 +517,6 @@
   </data>
   <data name="NEW_MAIL" xml:space="preserve">
     <value>Новых писем: {0}</value>
-  </data>
-  <data name="NOT_ADVENTURER" xml:space="preserve">
-    <value>Вы не Искатель приключений.</value>
   </data>
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
     <value>Недостаточно очков прочности.</value>
@@ -586,13 +541,6 @@
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>Этот предмет не принадлежит тебе!</value>
-  </data>
-  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
-    <value>У Вас нет медали НосТорговца.</value>
-  </data>
-  <data name="NO_ITEM" xml:space="preserve">
-    <value>Предмет не существует!</value>
-    <comment>или отсутствует?</comment>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Для работы сервера необходимо установить хотя бы карту НосВилля.</value>
@@ -694,9 +642,6 @@
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Портал перезаряжается, нужно немножко потерпеть.</value>
   </data>
-  <data name="PRICE_EXCEEDED" xml:space="preserve">
-    <value>Значение цены превышено</value>
-  </data>
   <data name="QUESTS_PARSED" xml:space="preserve">
     <value>Импортировано {0} квест(ов).</value>
   </data>
@@ -728,9 +673,6 @@
   <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
     <value>Токен безопасности обновлен.</value>
   </data>
-  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>Продано: {0} х{1}</value>
-  </data>
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
     <value>Сообщение отправлено.</value>
   </data>
@@ -752,14 +694,8 @@
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>Импортировано {0} магазин(ов)!</value>
   </data>
-  <data name="SHOP_EMPTY" xml:space="preserve">
-    <value>Ты не можешь открыть пустой магазин!</value>
-  </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Нельзя открыть магазин в рейде.</value>
-  </data>
-  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
-    <value>Обнаружены предметы запрещенные к продаже. Пожалуйста, проверь список товаров.</value>
   </data>
   <data name="SHOP_OPEN" xml:space="preserve">
     <value>Ты открыл(а) магазин. Успешной торговли!</value>
@@ -770,28 +706,11 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>Импортировано {0} навык(ов)!</value>
   </data>
-  <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
-    <value>Достигнут максимум допольнительных ОС!</value>
-  </data>
-  <data name="SP_BLOCKED" xml:space="preserve">
-    <value>Сначала нужно отменить текущую трансформацию.</value>
-  </data>
   <data name="SP_INLOADING" xml:space="preserve">
     <value>Карта специалиста перезаряжается! Пожалуйста, подождите {0} сек.</value>
   </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Недостаточно ОС для трансформации!</value>
-  </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>ОС восполнены на {0}!</value>
-    <comment>Check</comment>
-  </data>
-  <data name="STATE_CHANGED_BAZAAR" xml:space="preserve">
-    <value>Лот обновлен.</value>
-  </data>
-  <data name="STAY_TIME" xml:space="preserve">
-    <value>Время действия вторичных эффектов: {0} сек.</value>
-    <comment>Что за вторичные эффекты? Те, которые эффекты после возраждения?</comment>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Загрузка завершена успешно!</value>
@@ -807,10 +726,6 @@
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>У продавца слишком много денег.</value>
-  </data>
-  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>Время действия вторичных эффектов закончилось. {0}</value>
-    <comment>Что за вторичные эффекты? Те, которые эффекты после возраждения?</comment>
   </data>
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Попробуйте использователь старый метод аутентификации {0}</value>

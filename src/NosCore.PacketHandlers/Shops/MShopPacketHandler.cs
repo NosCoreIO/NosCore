@@ -27,9 +27,11 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.NRunService;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.Enumerations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -51,36 +53,37 @@ namespace NosCore.PacketHandlers.Shops
         }
         public override async Task ExecuteAsync(MShopPacket mShopPacket, ClientSession clientSession)
         {
-            var portal = clientSession.Character.MapInstance.Portals.Find(port =>
-                _distanceCalculator.GetDistance((clientSession.Character.PositionX, clientSession.Character.PositionY), (port.SourceX, port.SourceY)) <= 6);
+            var portal = clientSession.Character.MapInstance.Portals.Find(port => 
+            _distanceCalculator.GetDistance((clientSession.Character.PositionX, clientSession.Character.PositionY), (port.SourceX, port.SourceY)) <= 6);
+
             if (portal != null)
             {
-                await clientSession.SendPacketAsync(new MsgiPacket
+                await clientSession.SendPacketAsync(new InfoiPacket
                 {
-                    Message = Game18NConstString.ShopIsNotAllowedHere,
-                    Type = 0
+                    Message = Game18NConstString.OpenShopAwayPortal
                 }).ConfigureAwait(false);
                 return;
             }
 
             if ((clientSession.Character.Group != null) && (clientSession.Character.Group?.Type != GroupType.Group))
             {
-                await clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new SayiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID,
-                        clientSession.Account.Language),
-                    Type = MessageType.Center
+                    VisualType = VisualType.Player,
+                    VisualId = clientSession.Character.CharacterId,
+                    Type = SayColorType.Red,
+                    Message = Game18NConstString.TeammateCanNotOpenShop
                 }).ConfigureAwait(false);
                 return;
             }
 
             if (!clientSession.Character.MapInstance.ShopAllowed)
             {
-                await clientSession.SendPacketAsync(new MsgiPacket
+                await clientSession.SendPacketAsync(new InfoiPacket
                 {
-                    Message = Game18NConstString.UseCommercialMapToShop,
-                    Type = MessageType.Center
+                    Message = Game18NConstString.UseCommercialMapToShop
                 }).ConfigureAwait(false);
+                await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop }).ConfigureAwait(false);
                 return;
             }
 
@@ -113,11 +116,14 @@ namespace NosCore.PacketHandlers.Shops
 
                         if (!inv.ItemInstance.Item!.IsTradable || (inv.ItemInstance.BoundCharacterId != null))
                         {
+                            await clientSession.SendPacketAsync(new SayiPacket
+                            {
+                                VisualType = VisualType.Player,
+                                VisualId = clientSession.Character.CharacterId,
+                                Type = SayColorType.Red,
+                                Message = Game18NConstString.SomeItemsCannotBeTraded
+                            }).ConfigureAwait(false);
                             await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop }).ConfigureAwait(false);
-                            await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
-                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_ONLY_TRADABLE_ITEMS,
-                                    clientSession.Account.Language),
-                                SayColorType.Yellow)).ConfigureAwait(false);
                             clientSession.Character.Shop = null;
                             return;
                         }
@@ -135,10 +141,14 @@ namespace NosCore.PacketHandlers.Shops
 
                     if (clientSession.Character.Shop.ShopItems.IsEmpty)
                     {
+                        await clientSession.SendPacketAsync(new SayiPacket
+                        {
+                            VisualType = VisualType.Player,
+                            VisualId = clientSession.Character.CharacterId,
+                            Type = SayColorType.Yellow,
+                            Message = Game18NConstString.NoItemToSell
+                        }).ConfigureAwait(false);
                         await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop }).ConfigureAwait(false);
-                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
-                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_EMPTY, clientSession.Account.Language),
-                            SayColorType.Yellow)).ConfigureAwait(false);
                         clientSession.Character.Shop = null;
                         return;
                     }

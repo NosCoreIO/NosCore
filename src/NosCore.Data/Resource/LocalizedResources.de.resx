@@ -182,9 +182,6 @@
   <data name="BAZAAR_MOD_ERROR" xml:space="preserve">
     <value />
   </data>
-  <data name="BAZAAR_PRICE_CHANGED" xml:space="preserve">
-    <value>Du hast dein Item Preis auf {0} geändert.</value>
-  </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Charakter wurde der Blacklist hinzugefügt!</value>
   </data>
@@ -215,17 +212,8 @@
   <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Du kannst ein Item im Shop nicht bewegen!</value>
   </data>
-  <data name="CANT_USE" xml:space="preserve">
-    <value>Du kannst es nicht benutzen.</value>
-  </data>
-  <data name="CANT_USE_IN_VEHICLE" xml:space="preserve">
-    <value>Du kannst das Item nicht benutzen wärend du auf einem Fortbewegungsmittel bist.</value>
-  </data>
   <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Du kannst ein Item nicht im Shop benutzen!</value>
-  </data>
-  <data name="CAN_NOT_MODIFY_SOLD_ITEMS" xml:space="preserve">
-    <value>Du kannst verkauft Items nicht mehr modifizieren!</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>{0} Karten geladen!</value>
@@ -245,9 +233,6 @@
   </data>
   <data name="CHUNK_FORMAT_INVALID" xml:space="preserve">
     <value>Das Chunkformat ist falsch.</value>
-  </data>
-  <data name="CLASS_CHANGED" xml:space="preserve">
-    <value>Deine Klasse wurde erfolgreich geändert!</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client verbunden, SessionId: {0}</value>
@@ -288,9 +273,6 @@
   </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Bitte gib das Verzeichnis mit den Dateien zum laden an.</value>
-  </data>
-  <data name="EQ_NOT_EMPTY" xml:space="preserve">
-    <value>Deine Ausrüstung ist nicht leer!</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Charakter während des Kartenwechseln geändert. Missbrauche keine Befehle.{0}</value>
@@ -356,12 +338,6 @@
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Konnte keine Handler implementierung für das Paket mit dem Header {0} finden</value>
-  </data>
-  <data name="HAS_SHOP_OPENED" xml:space="preserve">
-    <value>Du hast deinen Shop eröffnet!</value>
-  </data>
-  <data name="HERO_LEVEL_CHANGED" xml:space="preserve">
-    <value>Dein Helden Level hat sich geändert!</value>
   </data>
   <data name="I18N_ACTDESC_PARSED" xml:space="preserve">
     <value>{0} I18N ActDescs geladen! Region: {1}</value>
@@ -448,17 +424,11 @@
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Item wurde nicht gefunden!</value>
   </data>
-  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
-    <value>Das Item kann nicht verkauft werden!</value>
-  </data>
   <data name="ITEM_RECEIVED" xml:space="preserve">
     <value>Du hast {0} {1} erhalten.</value>
   </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Item ist nicht mehr benutzbar.</value>
-  </data>
-  <data name="JOB_LEVEL_CHANGED" xml:space="preserve">
-    <value>Dein Job Level hat sich geändert!</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Du bist der Gruppe beigetreten!</value>
@@ -469,9 +439,6 @@
   </data>
   <data name="LEAVE_GROUP" xml:space="preserve">
     <value>Ein Spieler hat die Gruppe verlassen! {0}</value>
-  </data>
-  <data name="LEVEL_CHANGED" xml:space="preserve">
-    <value>Dein Level hat sich geändert!</value>
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Du hast die Itemmenge überschritten.</value>
@@ -484,9 +451,6 @@
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Dieser Spezialist erfordert ein höheres Job Level um ihn zu benutzen!</value>
-  </data>
-  <data name="LOW_REP" xml:space="preserve">
-    <value>Dieser Spezialist erfordert mehr Ruf um ihn zu benutzen!</value>
   </data>
   <data name="MAILED" xml:space="preserve">
     <value>Nachricht verschickt!</value>
@@ -524,9 +488,6 @@
   <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
     <value>Miniland für Freunde geschlossen.</value>
   </data>
-  <data name="MINILAND_NEED_LOCK" xml:space="preserve">
-    <value>Dein Miniland muss geschlossen sein.</value>
-  </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Miniland Besucher: {0}, Tägliche Besucher: {1}</value>
   </data>
@@ -539,9 +500,6 @@
   <data name="NEW_MAIL" xml:space="preserve">
     <value>Du hast {0} neue Nachrichten!</value>
     <comment>check</comment>
-  </data>
-  <data name="NOT_ADVENTURER" xml:space="preserve">
-    <value>Du bist kein Abenteurer</value>
   </data>
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
     <value>Du hast nicht genügend Haltbarkeitspunkte.</value>
@@ -566,12 +524,6 @@
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>Das Item gehört dir nicht!</value>
-  </data>
-  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
-    <value>Du hast keine Bazaar Medalie aktiv.</value>
-  </data>
-  <data name="NO_ITEM" xml:space="preserve">
-    <value>Item existiert nicht!</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Server benötigt mindestens die nosville Karte um zu funktionieren!</value>
@@ -674,9 +626,6 @@
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Bitte warte bevor du dich teleportieren willst!</value>
   </data>
-  <data name="PRICE_EXCEEDED" xml:space="preserve">
-    <value>Maximal Preis überstiegen!</value>
-  </data>
   <data name="QUESTS_PARSED" xml:space="preserve">
     <value>{0} Quests wurden geparsed.</value>
   </data>
@@ -708,9 +657,6 @@
   <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
     <value>Sicherheitstoken geändert!</value>
   </data>
-  <data name="SELL_ITEM_VALIDE" xml:space="preserve">
-    <value>Dein {0} wurde verkauft! {1}</value>
-  </data>
   <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
     <value>Nachricht an Empfänger gesendet.</value>
   </data>
@@ -732,14 +678,8 @@
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>{0} Shops geparsed!</value>
   </data>
-  <data name="SHOP_EMPTY" xml:space="preserve">
-    <value>Du kannst keinen leeren Shop eröffnen!</value>
-  </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Du kannst in einem Raid keinen Shop öffnen!</value>
-  </data>
-  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
-    <value>Du kannst nur Tauschbare Items verkaufen, bitte schau nochmal nach deinem Item nach!</value>
   </data>
   <data name="SHOP_OPEN" xml:space="preserve">
     <value>Du hast deinen Shop eröffnet!</value>
@@ -754,26 +694,11 @@
   <data name="SPEAKER" xml:space="preserve">
     <value>Servernachricht</value>
   </data>
-  <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
-    <value>Du hast bereits die maximale Anzahl an Bonus SPs erreicht!</value>
-  </data>
-  <data name="SP_BLOCKED" xml:space="preserve">
-    <value>Du benutzt schon eine SP! Bitte verwandle dich zuerst um.</value>
-  </data>
   <data name="SP_INLOADING" xml:space="preserve">
     <value>Deine SP ist zur Zeit am abklingen! Bitte warte {0}s</value>
   </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Du hast nicht genügend SP Punkte um dich zu verwandeln!</value>
-  </data>
-  <data name="SP_POINTSADDED" xml:space="preserve">
-    <value>Du hast SP Points erhalten! {0}</value>
-  </data>
-  <data name="STATE_CHANGED_BAZAAR" xml:space="preserve">
-    <value />
-  </data>
-  <data name="STAY_TIME" xml:space="preserve">
-    <value>Verbleibende Zeit: {0} sekunden</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Erfolgreich geladen!</value>
@@ -789,10 +714,6 @@
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Der Verkäufer besitzt zu viel Gold!</value>
-  </data>
-  <data name="TRANSFORM_DISAPPEAR" xml:space="preserve">
-    <value>Die Sekundären Effekte sind abgeklungen. {0}</value>
-    <comment>The secondary effects have finished. {0}</comment>
   </data>
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Alte Authentikation versuchen</value>

@@ -29,7 +29,9 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Specialists;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 
 //TODO stop using obsolete
@@ -144,9 +146,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             item.Value.Type = NoscorePocketType.Wear;
             item.Value.Slot = (byte)EquipmentType.Sp;
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOW_REP, _session.Account.Language));
+            var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.CanNotBeWornReputationLow);
         }
 
 
