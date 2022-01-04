@@ -60,6 +60,7 @@ using NosCore.Shared.Enumerations;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -70,6 +71,7 @@ using NosCore.Networking;
 using NosCore.Networking.Encoding;
 using NosCore.Networking.Encoding.Filter;
 using NosCore.Networking.SessionRef;
+using NosCore.Shared.I18N;
 using ILogger = Serilog.ILogger;
 
 namespace NosCore.LoginServer
@@ -91,7 +93,7 @@ namespace NosCore.LoginServer
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
             _logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
             Shared.I18N.Logger.PrintHeader(ConsoleText);
-
+            CultureInfo.DefaultThreadCurrentCulture = new(loginConfiguration.Language.ToString());
         }
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
@@ -183,6 +185,7 @@ namespace NosCore.LoginServer
                     }
                
                     InitializeConfiguration(args, services);
+                    services.AddI18NLogs();
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
                     services.AddHttpClient();
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();

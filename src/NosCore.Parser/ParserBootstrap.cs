@@ -37,11 +37,13 @@ using NosCore.Shared.Configuration;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NosCore.Database.Entities.Base;
 using NosCore.Parser.Parsers;
+using NosCore.Shared.I18N;
 using ILogger = Serilog.ILogger;
 
 namespace NosCore.Parser
@@ -67,15 +69,15 @@ namespace NosCore.Parser
 
         private static void InitializeConfiguration(string[] args, IServiceCollection services)
         {
-            var loginConfiguration = new ParserConfiguration();
+            var parserConfiguration = new ParserConfiguration();
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "parser.yml" });
-            conf.Bind(loginConfiguration);
+            conf.Bind(parserConfiguration);
             services.AddDbContext<NosCoreContext>(
-                builder => builder.UseNpgsql(loginConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
+                builder => builder.UseNpgsql(parserConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<ParserConfiguration>().Bind(conf).ValidateDataAnnotations();
             _logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
             Shared.I18N.Logger.PrintHeader(ConsoleText);
-
+            CultureInfo.DefaultThreadCurrentCulture = new(parserConfiguration.Language.ToString());
         }
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)

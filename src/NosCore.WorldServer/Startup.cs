@@ -75,6 +75,7 @@ using NosCore.Shared.I18N;
 using NosCore.WorldServer.Controllers;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -337,6 +338,7 @@ namespace NosCore.WorldServer
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
 
+            services.AddI18NLogs();
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddHostedService<WorldServer>();
 
@@ -366,6 +368,7 @@ namespace NosCore.WorldServer
             app.UseAuthorization();
 
             LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<WorldConfiguration>>().Value.Language;
+            CultureInfo.DefaultThreadCurrentCulture = new(app.ApplicationServices.GetRequiredService<IOptions<WorldConfiguration>>().Value.Language.ToString());
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
