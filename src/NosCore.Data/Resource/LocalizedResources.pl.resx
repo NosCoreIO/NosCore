@@ -171,9 +171,6 @@
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Nie możesz zmienić na tę samą klasę.</value>
   </data>
-  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
-    <value>Nie możesz wyposażyć zniszczonej Karty Specjalisty!</value>
-  </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Nie można znaleźć tej postaci!</value>
   </data>
@@ -252,12 +249,6 @@
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Zostałeś liderem grupy!</value>
   </data>
-  <data name="GROUP_CLOSED" xml:space="preserve">
-    <value>Grupa rozwiązana</value>
-  </data>
-  <data name="GROUP_LEFT" xml:space="preserve">
-    <value>Opuściłeś grupę</value>
-  </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Wysłałeś prośbę o udostępnienie punktu powrotu członkom swojej grupy</value>
   </data>
@@ -311,12 +302,6 @@
   </data>
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Nabyto</value>
-  </data>
-  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
-    <value>Nie możesz upuścić tego przedmiotu!</value>
-  </data>
-  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
-    <value>Nie możesz upuścić tego przedmiotu tutaj!</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Dołączyłeś do grupy</value>
@@ -374,9 +359,6 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Serwer potrzebuje przynajmniej mapy NosVille do poprawnego działania!</value>
-  </data>
-  <data name="NO_SP" xml:space="preserve">
-    <value>Nie ma założonej Karty Specjalisty!</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Brak specjalnych właściwości do noszenia</value>
@@ -501,9 +483,6 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills wprowadzono!</value>
   </data>
-  <data name="SP_INLOADING" xml:space="preserve">
-    <value>Twoja Karta Specjalisty jest wciąż w stanie odnowienia! Poczekaj {0}s</value>
-  </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Nie masz wystarczającej liczby punktów SP do transformacji!</value>
   </data>
@@ -561,31 +540,19 @@
   <data name="INVITED_YOU_GROUP" xml:space="preserve">
     <value>[{0}] zaprosił Cię do grupy!</value>
   </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>[{0}] opuścił grupę!</value>
-  </data>
   <data name="UPDATE_GOLD" xml:space="preserve">
     <value>Twoje złoto zostało pomyślnie zaktualizowane!</value>
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Odebrano pakiet bez postaci: {0}</value>
   </data>
-  <data name="INFO_BAZAAR" xml:space="preserve">
-    <value>Potwory mogą cię atakować, gdy masz otwarte okno NosBazaru</value>
-  </data>
   <data name="EFFECT_ACTIVATED" xml:space="preserve">
     <value>Aktywowano przedmiot: {0}.</value>
-  </data>
-  <data name="ALREADY_EXCHANGE" xml:space="preserve">
-    <value>Gracz aktualnie się wymienia.</value>
   </data>
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Odrzucono wymianę.</value>
   </data>
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>Czy zaakceptować wymianę?: {0}</value>
-  </data>
-  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
-    <value>Poprosiłeś o wymianę: {0}.</value>
   </data>
 </root>

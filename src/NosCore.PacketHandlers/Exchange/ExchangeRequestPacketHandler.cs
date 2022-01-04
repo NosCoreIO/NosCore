@@ -80,23 +80,23 @@ namespace NosCore.PacketHandlers.Exchange
                     if (_exchangeProvider.CheckExchange(clientSession.Character.CharacterId) ||
                         _exchangeProvider.CheckExchange(target?.VisualId ?? 0))
                     {
-                        //TODO: add infoi2 packet infoi2 166 1 fadza 
-                        await clientSession.SendPacketAsync(new MsgPacket
+                        await clientSession.SendPacketAsync(new Infoi2Packet
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ALREADY_EXCHANGE,
-                                clientSession.Account.Language),
-                            Type = MessageType.Center
+                            Message = Game18NConstString.TradingWithSomeoneElse,
+                            FirstArgument = 1,
+                            SecondArgument = target?.Name ?? ""
                         }).ConfigureAwait(false);
                         return;
                     }
 
                     if (target?.ExchangeBlocked ?? true)
                     {
-                        //TODO: add infoi2 packet infoi2 167 1 fadza
-                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
-                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_BLOCKED,
-                                clientSession.Account.Language),
-                            SayColorType.Red)).ConfigureAwait(false);
+                        await clientSession.SendPacketAsync(new Infoi2Packet
+                        {
+                            Message = Game18NConstString.BlockingTrades,
+                            FirstArgument = 1,
+                            SecondArgument = target?.Name ?? ""
+                        }).ConfigureAwait(false);
                         return;
                     }
 
@@ -122,12 +122,11 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    await clientSession.SendPacketAsync(new ModalPacket
+                    await clientSession.SendPacketAsync(new Infoi2Packet
                     {
-                        //TODO: add infoi2 packet infoi2 170 1 feazfze 
-                        Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.YOU_ASK_FOR_EXCHANGE,
-                            clientSession.Account.Language), target.Name),
-                        Type = 0
+                        Message = Game18NConstString.YouInvitedToTrade,
+                        FirstArgument = 1,
+                        SecondArgument = target.Name
                     }).ConfigureAwait(false);
 
                     await target.SendPacketAsync(new DlgPacket

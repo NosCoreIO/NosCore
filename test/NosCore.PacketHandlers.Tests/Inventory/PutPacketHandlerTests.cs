@@ -28,7 +28,9 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 
 //TODO stop using obsolete
@@ -76,9 +78,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Slot = 0,
                 Amount = 1
             }, _session).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
-                _session.Account.Language)) && (packet.Type == 0));
+            var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId &&
+                packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.CantDropItem);
             Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
 
@@ -108,9 +110,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Slot = 0,
                 Amount = 1
             }, _session).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
-                _session.Account.Language)) && (packet.Type == 0));
+            var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId &&
+                packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.CantDropItem);
             Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
 
@@ -126,9 +128,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Slot = 0,
                 Amount = 1
             }, _session).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
-                _session.Account.Language)) && (packet?.Type == 0));
+            var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId &&
+                packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.CantDropItem);
             Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
     }

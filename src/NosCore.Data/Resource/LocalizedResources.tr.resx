@@ -171,9 +171,6 @@
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Zaten aynı meslektesin!</value>
   </data>
-  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
-    <value>Bu UK'nın ruhu yokedilmiş. Yokedilmiş UK'ları kullanamazsın!</value>
-  </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Kullanıcı bulunamadı.</value>
   </data>
@@ -252,12 +249,6 @@
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Bu grubun yöneticisisin.</value>
   </data>
-  <data name="GROUP_CLOSED" xml:space="preserve">
-    <value>Grup dağıtıldı.</value>
-  </data>
-  <data name="GROUP_LEFT" xml:space="preserve">
-    <value>Gruptan ayrıldın.</value>
-  </data>
   <data name="GROUP_SHARE_INFO" xml:space="preserve">
     <value>Geri dönüş noktanı paylaşma isteği yolladın.</value>
   </data>
@@ -311,12 +302,6 @@
   </data>
   <data name="ITEM_ACQUIRED" xml:space="preserve">
     <value>Alındı.</value>
-  </data>
-  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
-    <value>Bu eşyayı düşüremezsin!</value>
-  </data>
-  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
-    <value>Bu eşyayı burada düşüremezsin!</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Gruba katıldın!</value>
@@ -374,9 +359,6 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Harita yok. Sunucunun çalışması için en azından NosVille olmalı!</value>
-  </data>
-  <data name="NO_SP" xml:space="preserve">
-    <value>Kuşanılmış uzmanlık kartı yok!</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Giyilebilir özellik yok!</value>
@@ -501,9 +483,6 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Büyü işlendi!</value>
   </data>
-  <data name="SP_INLOADING" xml:space="preserve">
-    <value>Uzmanlık kartını tekrar giymek için {0} saniye beklemelisin.</value>
-  </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Dönüşüm için yeterli uzmanlık puanın yok.</value>
   </data>
@@ -561,23 +540,11 @@
   <data name="INVITED_YOU_GROUP" xml:space="preserve">
     <value>[{0}] Seni gruba davet etti. Onaylıyor musun?</value>
   </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>[{0}] gruptan ayrıldı!</value>
-  </data>
   <data name="UPDATE_GOLD" xml:space="preserve">
     <value>Altının güncellendi!</value>
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>{0} Paketi karakter olmadan kullanılmaya çalışılıyor!</value>
-  </data>
-  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
-    <value>Takas için istek gönderdin: {0}.</value>
-  </data>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>Geri dönüş noktaları paylaşıldı!</value>
-  </data>
-  <data name="ALREADY_EXCHANGE" xml:space="preserve">
-    <value>Kullanıcı zaten şuanda ticaret yapıyor!</value>
   </data>
   <data name="BANK_FULL" xml:space="preserve">
     <value>Banka hesabın dolu!</value>
@@ -594,9 +561,6 @@
   <data name="EFFECT_ACTIVATED" xml:space="preserve">
     <value>{0} Efekti aktive edildi.</value>
   </data>
-  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
-    <value>Takas bloklandı.</value>
-  </data>
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Takas isteği reddedildi.</value>
   </data>
@@ -605,9 +569,6 @@
   </data>
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>{0} seninle takasta bulunmak istiyor.</value>
-  </data>
-  <data name="INFO_BAZAAR" xml:space="preserve">
-    <value>NosTüccar madalyası ile, istediğin zaman tüm haritalarda NosPazar'ı kullanabilirsin.</value>
   </data>
   <data name="INVALID_EXCHANGE" xml:space="preserve">
     <value>Sadece değiştirilebilir eşyaları takas edebilirsin.</value>

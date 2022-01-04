@@ -61,15 +61,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à You accepted point share !.
-        /// </summary>
-        public static string ACCEPTED_SHARE {
-            get {
-                return ResourceManager.GetString("ACCEPTED_SHARE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Account with SessionId {0} has arrived..
         /// </summary>
         public static string ACCOUNT_ARRIVED {
@@ -93,15 +84,6 @@ namespace NosCore.Data.Resource {
         public static string ALREADY_BLACKLISTED {
             get {
                 return ResourceManager.GetString("ALREADY_BLACKLISTED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à User is in exchange!.
-        /// </summary>
-        public static string ALREADY_EXCHANGE {
-            get {
-                return ResourceManager.GetString("ALREADY_EXCHANGE", resourceCulture);
             }
         }
         
@@ -264,15 +246,6 @@ namespace NosCore.Data.Resource {
         public static string CANT_CHANGE_SAME_CLASS {
             get {
                 return ResourceManager.GetString("CANT_CHANGE_SAME_CLASS", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You can not equip a destroyed SP!.
-        /// </summary>
-        public static string CANT_EQUIP_DESTROYED_SP {
-            get {
-                return ResourceManager.GetString("CANT_EQUIP_DESTROYED_SP", resourceCulture);
             }
         }
         
@@ -475,15 +448,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Exchange blocked.
-        /// </summary>
-        public static string EXCHANGE_BLOCKED {
-            get {
-                return ResourceManager.GetString("EXCHANGE_BLOCKED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à You refused your exchange request..
         /// </summary>
         public static string EXCHANGE_REFUSED {
@@ -570,24 +534,6 @@ namespace NosCore.Data.Resource {
         public static string GROUP_ADMIN {
             get {
                 return ResourceManager.GetString("GROUP_ADMIN", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Group disbanded.
-        /// </summary>
-        public static string GROUP_CLOSED {
-            get {
-                return ResourceManager.GetString("GROUP_CLOSED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You left the party.
-        /// </summary>
-        public static string GROUP_LEFT {
-            get {
-                return ResourceManager.GetString("GROUP_LEFT", resourceCulture);
             }
         }
         
@@ -736,15 +682,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à With the NosMerchant medal, you can use the NosBazar at any time on all maps..
-        /// </summary>
-        public static string INFO_BAZAAR {
-            get {
-                return ResourceManager.GetString("INFO_BAZAAR", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Wrong Id!.
         /// </summary>
         public static string INVALID_ACCOUNT {
@@ -826,24 +763,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à You can not drop that item!.
-        /// </summary>
-        public static string ITEM_NOT_DROPPABLE {
-            get {
-                return ResourceManager.GetString("ITEM_NOT_DROPPABLE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You can not drop that item here!.
-        /// </summary>
-        public static string ITEM_NOT_DROPPABLE_HERE {
-            get {
-                return ResourceManager.GetString("ITEM_NOT_DROPPABLE_HERE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Item is no longer valid..
         /// </summary>
         public static string ITEM_TIMEOUT {
@@ -885,15 +804,6 @@ namespace NosCore.Data.Resource {
         public static string LANGUAGE_MISSING {
             get {
                 return ResourceManager.GetString("LANGUAGE_MISSING", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à [{0}] left the party!.
-        /// </summary>
-        public static string LEAVE_GROUP {
-            get {
-                return ResourceManager.GetString("LEAVE_GROUP", resourceCulture);
             }
         }
         
@@ -1029,15 +939,6 @@ namespace NosCore.Data.Resource {
         public static string NO_MAP {
             get {
                 return ResourceManager.GetString("NO_MAP", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à There is no specialist card equipped..
-        /// </summary>
-        public static string NO_SP {
-            get {
-                return ResourceManager.GetString("NO_SP", resourceCulture);
             }
         }
         
@@ -1519,15 +1420,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Your SP is still at cooldown! Please wait {0}s.
-        /// </summary>
-        public static string SP_INLOADING {
-            get {
-                return ResourceManager.GetString("SP_INLOADING", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à You do not have sufficient SP points to transform!.
         /// </summary>
         public static string SP_NOPOINTS {
@@ -1668,15 +1560,6 @@ namespace NosCore.Data.Resource {
         public static string VISUALTYPE_UNKNOWN {
             get {
                 return ResourceManager.GetString("VISUALTYPE_UNKNOWN", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You ask for an exchange with: {0}..
-        /// </summary>
-        public static string YOU_ASK_FOR_EXCHANGE {
-            get {
-                return ResourceManager.GetString("YOU_ASK_FOR_EXCHANGE", resourceCulture);
             }
         }
     }

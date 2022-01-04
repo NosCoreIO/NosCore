@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>Přijmul si místo návratu!</value>
-  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>Účet se SessionID {0} se připojil</value>
   </data>
@@ -128,9 +125,6 @@
   </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Již je na Černé Listině!</value>
-  </data>
-  <data name="ALREADY_EXCHANGE" xml:space="preserve">
-    <value>Hráč nyní směňuje.</value>
   </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Už jste přátelé</value>
@@ -185,9 +179,6 @@
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Nemůžeš změnit povolání na stejné.</value>
   </data>
-  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
-    <value>Nemůžeš nasadit zničenou SP.</value>
-  </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Nemůžu najít Postavu!</value>
   </data>
@@ -237,9 +228,6 @@
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Nastala chyba při změně mapy. Nezneužívejte příkazy. {0}</value>
   </data>
-  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
-    <value>Výměna blokována.</value>
-  </data>
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Odmítl jsi žádost o výměnu.</value>
   </data>
@@ -269,12 +257,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Jsi vedoucí skupiny!</value>
-  </data>
-  <data name="GROUP_CLOSED" xml:space="preserve">
-    <value>Skupina rozpuštěna</value>
-  </data>
-  <data name="GROUP_LEFT" xml:space="preserve">
-    <value>Opustil si skupinu</value>
   </data>
   <data name="GROUP_REFUSED" xml:space="preserve">
     <value>Pozvánka do skupiny byla odmítnuta!</value>
@@ -318,9 +300,6 @@
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>{0} chce s tebou obchodovat.</value>
   </data>
-  <data name="INFO_BAZAAR" xml:space="preserve">
-    <value>S medailí NosKupce můžeš otevřít NosBazar kdykoliv a kdekoliv!</value>
-  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Neexistující ID</value>
   </data>
@@ -351,12 +330,6 @@
   <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
     <value>Obdržel si předmět v Země Mrtvích! {0}</value>
   </data>
-  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
-    <value>Předmět nelze vyhodit!</value>
-  </data>
-  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
-    <value>Tento předmět zde nejde vyhodit!</value>
-  </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Životnost Předmětu vypršela!</value>
   </data>
@@ -365,9 +338,6 @@
   </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Chybý jazyk!</value>
-  </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>[{0}] Opustil skupinu!</value>
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Nemůžeš přidat více předmětů do Bazaru protože jsi překročil limit předmětů.</value>
@@ -416,9 +386,6 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Nebyly nalezeny žádné mapy. K chodu serveru potřebujete minimálně mapu Nosville.</value>
-  </data>
-  <data name="NO_SP" xml:space="preserve">
-    <value>Nemáš žádnou SP ke změně nasaď si nějakou.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Žádné speciální vlastnosti k nošení</value>
@@ -544,9 +511,6 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Útoky byly úspěšně nahrány!</value>
   </data>
-  <data name="SP_INLOADING" xml:space="preserve">
-    <value>Tvá SP stále načítá čekej {0}s.</value>
-  </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Nemáš dostatek SP Bodů pro změnu.</value>
   </data>
@@ -585,8 +549,5 @@
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý VisualType</value>
-  </data>
-  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
-    <value>Zeptal ses na výměnu hráče: {0}.</value>
   </data>
 </root>

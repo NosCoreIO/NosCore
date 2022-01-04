@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ACCEPTED_SHARE" xml:space="preserve">
-    <value>Hai accettato il punto condiviso!</value>
-  </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
     <value>L'account con il SessionId {0} ha loggato.</value>
   </data>
@@ -131,9 +128,6 @@
   </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Già nella lista nera!</value>
-  </data>
-  <data name="ALREADY_EXCHANGE" xml:space="preserve">
-    <value>Sta già commerciando!</value>
   </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Siete già amici!</value>
@@ -200,9 +194,6 @@
   </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Hai già questa classe, non puoi cambiare.</value>
-  </data>
-  <data name="CANT_EQUIP_DESTROYED_SP" xml:space="preserve">
-    <value>Non puoi indossare uno specialista distrutto!</value>
   </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Impossibile trovare questo personaggio!</value>
@@ -277,9 +268,6 @@
   <data name="EXCEPTION" xml:space="preserve">
     <value>È stata generato un errore: {0}</value>
   </data>
-  <data name="EXCHANGE_BLOCKED" xml:space="preserve">
-    <value>Commercio bloccato</value>
-  </data>
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Commercio rifiutato</value>
   </data>
@@ -319,12 +307,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Sei il leader del gruppo</value>
-  </data>
-  <data name="GROUP_CLOSED" xml:space="preserve">
-    <value>Il gruppo è stato sciolto</value>
-  </data>
-  <data name="GROUP_LEFT" xml:space="preserve">
-    <value>Sei uscito dal gruppo</value>
   </data>
   <data name="GROUP_REFUSED" xml:space="preserve">
     <value>Il tuo invito di gruppo è stato rifiutato!</value>
@@ -368,9 +350,6 @@
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>{0} vuole commerciare con te.</value>
   </data>
-  <data name="INFO_BAZAAR" xml:space="preserve">
-    <value>Con la medaglia del NosMercante, puoi usare il NosBazar ovunque.</value>
-  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>L'ID è errato!</value>
   </data>
@@ -411,12 +390,6 @@
   <data name="ITEM_GIFTED" xml:space="preserve">
     <value>Hai invitato {0} item.</value>
   </data>
-  <data name="ITEM_NOT_DROPPABLE" xml:space="preserve">
-    <value>Non puoi gettare questo oggetto.</value>
-  </data>
-  <data name="ITEM_NOT_DROPPABLE_HERE" xml:space="preserve">
-    <value>Non puoi gettare quest'oggetto in questa mappa!</value>
-  </data>
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Non è stato trovato alcun item.</value>
   </data>
@@ -432,9 +405,6 @@
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Lingua mancante</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="LEAVE_GROUP" xml:space="preserve">
-    <value>[{0}] è uscito dal gruppo!</value>
   </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Non puoi aggiungere altri oggetti al NosBazar perché hai raggiunto il limite.</value>
@@ -522,9 +492,6 @@
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Il server ha bisogno almeno della mappa di NosVille per poter funzionare!</value>
-  </data>
-  <data name="NO_SP" xml:space="preserve">
-    <value>Non hai indossato nessun specialista.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Nessuna proprietà speciale indossabile</value>
@@ -714,9 +681,6 @@
   <data name="SPEAKER" xml:space="preserve">
     <value>Altoparlante</value>
   </data>
-  <data name="SP_INLOADING" xml:space="preserve">
-    <value>Aspetta {0} secondi per trasformarti.</value>
-  </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Non hai abbastanza punti SP per trasformarti!</value>
   </data>
@@ -784,8 +748,5 @@
   </data>
   <data name="WANT_ENABLE_TITLE" xml:space="preserve">
     <value>Vuoi attivare il titolo?</value>
-  </data>
-  <data name="YOU_ASK_FOR_EXCHANGE" xml:space="preserve">
-    <value>Hai richiesto il commercio a {0}</value>
   </data>
 </root>

@@ -29,6 +29,9 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 using NosCore.Networking;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 
 
 //TODO stop using obsolete
@@ -61,11 +64,12 @@ namespace NosCore.PacketHandlers.Inventory
                                 clientSession);
                         if (droppedItem == null)
                         {
-                            await clientSession.SendPacketAsync(new MsgPacket
+                            await clientSession.SendPacketAsync(new SayiPacket
                             {
-                                Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE_HERE,
-                                    clientSession.Account.Language),
-                                Type = 0
+                                VisualType = VisualType.Player,
+                                VisualId = clientSession.Character.CharacterId,
+                                Type = SayColorType.Yellow,
+                                Message = Game18NConstString.CantDropItem
                             }).ConfigureAwait(false);
                             return;
                         }
@@ -97,11 +101,12 @@ namespace NosCore.PacketHandlers.Inventory
             }
             else
             {
-                await clientSession.SendPacketAsync(new MsgPacket
+                await clientSession.SendPacketAsync(new SayiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_DROPPABLE,
-                        clientSession.Account.Language),
-                    Type = 0
+                    VisualType = VisualType.Player,
+                    VisualId = clientSession.Character.CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.CantDropItem
                 }).ConfigureAwait(false);
             }
         }
