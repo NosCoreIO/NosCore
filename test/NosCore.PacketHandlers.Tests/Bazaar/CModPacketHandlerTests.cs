@@ -31,8 +31,10 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -138,9 +140,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Amount = 1,
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
-            var lastpacket = (ModalPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModalPacket);
-            Assert.IsTrue(lastpacket?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.CAN_NOT_MODIFY_SOLD_ITEMS, _session.Account.Language));
+            var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
+            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.CannotChangePriceSoldItems);
         }
 
         [TestMethod]
@@ -153,9 +154,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Amount = 2,
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
-            var lastpacket = (ModalPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModalPacket);
-            Assert.IsTrue(lastpacket?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.STATE_CHANGED_BAZAAR, _session.Account.Language));
+            var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
+            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.OfferUpdated);
         }
 
         [TestMethod]
@@ -181,12 +181,10 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Amount = 1,
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
-            var lastpacket = (SayPacket?)_session!.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue(lastpacket?.Message ==
-                string.Format(
-                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAZAAR_PRICE_CHANGED, _session.Account.Language),
-                    70
-                ));
+            var lastpacket = (SayiPacket?)_session!.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId &&
+                lastpacket?.Type == SayColorType.Yellow && lastpacket?.Message == Game18NConstString.NewSellingPrice &&
+                lastpacket?.FirstArgument == 4 && lastpacket?.SecondArgument == 60);
         }
     }
 }

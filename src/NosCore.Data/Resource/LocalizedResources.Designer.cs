@@ -349,15 +349,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Your class was changed succesfully!.
-        /// </summary>
-        public static string CLASS_CHANGED {
-            get {
-                return ResourceManager.GetString("CLASS_CHANGED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Client connected, SessionId: {0}.
         /// </summary>
         public static string CLIENT_ARRIVED {
@@ -462,15 +453,6 @@ namespace NosCore.Data.Resource {
         public static string ENTER_PATH {
             get {
                 return ResourceManager.GetString("ENTER_PATH", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à To change of class dequip all your items please..
-        /// </summary>
-        public static string EQ_NOT_EMPTY {
-            get {
-                return ResourceManager.GetString("EQ_NOT_EMPTY", resourceCulture);
             }
         }
         
@@ -862,15 +844,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à This item can not be sold!.
-        /// </summary>
-        public static string ITEM_NOT_SOLDABLE {
-            get {
-                return ResourceManager.GetString("ITEM_NOT_SOLDABLE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Item is no longer valid..
         /// </summary>
         public static string ITEM_TIMEOUT {
@@ -948,15 +921,6 @@ namespace NosCore.Data.Resource {
         public static string LOW_JOB_LVL {
             get {
                 return ResourceManager.GetString("LOW_JOB_LVL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à This SP requires more Reputation to use it..
-        /// </summary>
-        public static string LOW_REP {
-            get {
-                return ResourceManager.GetString("LOW_REP", resourceCulture);
             }
         }
         
@@ -1056,15 +1020,6 @@ namespace NosCore.Data.Resource {
         public static string NEW_LEADER {
             get {
                 return ResourceManager.GetString("NEW_LEADER", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You don&apos;t have the NosMarchand medal..
-        /// </summary>
-        public static string NO_BAZAAR_MEDAL {
-            get {
-                return ResourceManager.GetString("NO_BAZAAR_MEDAL", resourceCulture);
             }
         }
         
@@ -1492,29 +1447,11 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à You can not open an empty shop!.
-        /// </summary>
-        public static string SHOP_EMPTY {
-            get {
-                return ResourceManager.GetString("SHOP_EMPTY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à You can not open a shop in a raid..
         /// </summary>
         public static string SHOP_NOT_ALLOWED_IN_RAID {
             get {
                 return ResourceManager.GetString("SHOP_NOT_ALLOWED_IN_RAID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You can only sell tradable items! Please, check the items you want to sell..
-        /// </summary>
-        public static string SHOP_ONLY_TRADABLE_ITEMS {
-            get {
-                return ResourceManager.GetString("SHOP_ONLY_TRADABLE_ITEMS", resourceCulture);
             }
         }
         
@@ -1578,24 +1515,6 @@ namespace NosCore.Data.Resource {
         public static string SKILLS_PARSED {
             get {
                 return ResourceManager.GetString("SKILLS_PARSED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You have reached the maximum quantity of Additional SPs!.
-        /// </summary>
-        public static string SP_ADDPOINTS_FULL {
-            get {
-                return ResourceManager.GetString("SP_ADDPOINTS_FULL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You are actually using an SP! Please untransform first..
-        /// </summary>
-        public static string SP_BLOCKED {
-            get {
-                return ResourceManager.GetString("SP_BLOCKED", resourceCulture);
             }
         }
         

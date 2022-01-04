@@ -38,6 +38,7 @@ using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Shops;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Tests.Shared;
 using Serilog;
@@ -108,9 +109,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1);
             await _sellPacketHandler!.ExecuteAsync(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
                 _session).ConfigureAwait(false);
-            var packet = (SMemoPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_NOT_SOLDABLE, _session.Account.Language));
+            var packet = (SMemoiPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoiPacket);
+            Assert.IsTrue(packet?.Type == SMemoType.Error && packet?.Message == Game18NConstString.ItemCanNotBeSold);
             Assert.IsTrue(_session.Character.Gold == 0);
             Assert.IsNotNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Etc));
         }

@@ -192,9 +192,6 @@
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
     <value>Postać jest niedostępna!</value>
   </data>
-  <data name="CLASS_CHANGED" xml:space="preserve">
-    <value>Twoja klasa została pomyślnie zmieniona!</value>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Klient podłączony. SessionId: {0}</value>
   </data>
@@ -227,9 +224,6 @@
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Postać zmieniona podczas zmiany mapy. Nie nadużywaj poleceń. {0}</value>
-  </data>
-  <data name="EQ_NOT_EMPTY" xml:space="preserve">
-    <value>Aby zmienić klasę, zdejmij wszystkie swoje przedmioty.</value>
   </data>
   <data name="EXCEPTION" xml:space="preserve">
     <value>Wyrzucono wyjątek: {0}</value>
@@ -309,9 +303,6 @@
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Nieznany typ zaproszenia</value>
   </data>
-  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
-    <value>Tego przedmiotu nie można sprzedać!</value>
-  </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>Załadowano: {0} Items!</value>
   </data>
@@ -335,9 +326,6 @@
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Twoja profesja jest zbyt niska, aby założyć tą Kartę Specjalisty!</value>
-  </data>
-  <data name="LOW_REP" xml:space="preserve">
-    <value>Twoja reputacja jest zbyt niska, aby założyć tą Kartę Specjalisty!</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>Załadowano: {0} MapMonsters!</value>
@@ -489,14 +477,8 @@
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Odmówiłeś dzielenia punktu powrotu z członkami grupy</value>
   </data>
-  <data name="SHOP_EMPTY" xml:space="preserve">
-    <value>Nie możesz otworzyć pustego sklepu!</value>
-  </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Nie możesz otworzyć sklepu podczas rajdu.</value>
-  </data>
-  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
-    <value>Możesz sprzedawać tylko przedmioty zdatne do handlu! Sprawdź przedmioty, które chcesz sprzedać.</value>
   </data>
   <data name="SHOP_OPEN" xml:space="preserve">
     <value>Otworzyłeś sklep.</value>
@@ -518,9 +500,6 @@
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills wprowadzono!</value>
-  </data>
-  <data name="SP_BLOCKED" xml:space="preserve">
-    <value>Używasz Karty Specjalisty! Musisz się najpierw zmienić.</value>
   </data>
   <data name="SP_INLOADING" xml:space="preserve">
     <value>Twoja Karta Specjalisty jest wciąż w stanie odnowienia! Poczekaj {0}s</value>
@@ -564,9 +543,6 @@
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Nieznany VisualType: {0}</value>
   </data>
-  <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
-    <value>Osiągnąłeś maksymalną ilość dodatkowych SP!</value>
-  </data>
   <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
     <value>Nie możesz handlować przedmiotami, których nie można handlować!</value>
   </data>
@@ -596,9 +572,6 @@
   </data>
   <data name="INFO_BAZAAR" xml:space="preserve">
     <value>Potwory mogą cię atakować, gdy masz otwarte okno NosBazaru</value>
-  </data>
-  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
-    <value>Za pomocą Medalu NosHandlarza możesz korzystać z NosBazaru na każdej ogólnej mapie.</value>
   </data>
   <data name="EFFECT_ACTIVATED" xml:space="preserve">
     <value>Aktywowano przedmiot: {0}.</value>

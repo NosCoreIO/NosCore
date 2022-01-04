@@ -186,9 +186,6 @@
   <data name="BAZAAR_MOD_ERROR" xml:space="preserve">
     <value>Ошибка изменения лота в НосБазаре.</value>
   </data>
-  <data name="BAZAAR_PRICE_CHANGED" xml:space="preserve">
-    <value>Цена успешно изменена на {0} золота.</value>
-  </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Игрок добавлен в черный список!</value>
   </data>
@@ -221,17 +218,8 @@
     <value>Ты не можешь перемещать предмет который выставлен на продажу!</value>
     <comment>Нужно уточнение</comment>
   </data>
-  <data name="CANT_USE" xml:space="preserve">
-    <value>Использование невозможно</value>
-  </data>
-  <data name="CANT_USE_IN_VEHICLE" xml:space="preserve">
-    <value>Использование в транспорте невозможно</value>
-  </data>
   <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Ты не можешь воспользоваться предметом который выставлен на продажу!</value>
-  </data>
-  <data name="CAN_NOT_MODIFY_SOLD_ITEMS" xml:space="preserve">
-    <value>Невозможно изменять проданные предметы</value>
   </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>Импортировано {0} карт специалиста!</value>
@@ -248,9 +236,6 @@
   </data>
   <data name="CHARACTER_OFFLINE" xml:space="preserve">
     <value>Персонаж не в сети</value>
-  </data>
-  <data name="CLASS_CHANGED" xml:space="preserve">
-    <value>Класс успешно изменен!</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Клиент прибыл на сервер, SessionId: {0}</value>
@@ -292,9 +277,6 @@
   </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Пожалуйста, введите адрес директории с файлами для импорта</value>
-  </data>
-  <data name="EQ_NOT_EMPTY" xml:space="preserve">
-    <value>Для смены класса необходимо снять всю экипировку.</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Персонаж изменен во время перехода на карту. Не злоупотребляйте командами. {0}</value>
@@ -456,9 +438,6 @@
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Предмет не найден {0} {1}</value>
   </data>
-  <data name="ITEM_NOT_SOLDABLE" xml:space="preserve">
-    <value>Этот предмет нельзя продать!</value>
-  </data>
   <data name="ITEM_RECEIVED" xml:space="preserve">
     <value>Вы получили {0} {1}.</value>
   </data>
@@ -487,10 +466,6 @@
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Слишком низкий рабочий уровень для использования данной Карты специалиста.</value>
-    <comment>Возможно нужно перефразировать</comment>
-  </data>
-  <data name="LOW_REP" xml:space="preserve">
-    <value>Недостаточно репутации для использования данной Карты специалиста.</value>
     <comment>Возможно нужно перефразировать</comment>
   </data>
   <data name="MAILED" xml:space="preserve">
@@ -531,9 +506,6 @@
   <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
     <value>Мини-страна друга закрыта</value>
   </data>
-  <data name="MINILAND_NEED_LOCK" xml:space="preserve">
-    <value>Строительство возможно только в закрытой Мини-стране</value>
-  </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Всего посетителей: {0} Посетителей за сегодня: {1}</value>
   </data>
@@ -569,9 +541,6 @@
   </data>
   <data name="NOT_YOUR_ITEM" xml:space="preserve">
     <value>Этот предмет не принадлежит тебе!</value>
-  </data>
-  <data name="NO_BAZAAR_MEDAL" xml:space="preserve">
-    <value>У Вас нет медали НосТорговца.</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Для работы сервера необходимо установить хотя бы карту НосВилля.</value>
@@ -725,14 +694,8 @@
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>Импортировано {0} магазин(ов)!</value>
   </data>
-  <data name="SHOP_EMPTY" xml:space="preserve">
-    <value>Ты не можешь открыть пустой магазин!</value>
-  </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Нельзя открыть магазин в рейде.</value>
-  </data>
-  <data name="SHOP_ONLY_TRADABLE_ITEMS" xml:space="preserve">
-    <value>Обнаружены предметы запрещенные к продаже. Пожалуйста, проверь список товаров.</value>
   </data>
   <data name="SHOP_OPEN" xml:space="preserve">
     <value>Ты открыл(а) магазин. Успешной торговли!</value>
@@ -743,20 +706,11 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>Импортировано {0} навык(ов)!</value>
   </data>
-  <data name="SP_ADDPOINTS_FULL" xml:space="preserve">
-    <value>Достигнут максимум допольнительных ОС!</value>
-  </data>
-  <data name="SP_BLOCKED" xml:space="preserve">
-    <value>Сначала нужно отменить текущую трансформацию.</value>
-  </data>
   <data name="SP_INLOADING" xml:space="preserve">
     <value>Карта специалиста перезаряжается! Пожалуйста, подождите {0} сек.</value>
   </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Недостаточно ОС для трансформации!</value>
-  </data>
-  <data name="STATE_CHANGED_BAZAAR" xml:space="preserve">
-    <value>Лот обновлен.</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Загрузка завершена успешно!</value>
