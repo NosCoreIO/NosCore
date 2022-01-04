@@ -98,7 +98,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                     }
                 });
             await _dacPacketHandler.ExecuteAsync(packet, _session);
-            Logger.Verify(o => o.Error(It.Is<string>(o => o == _logLanguageLocalister[LogLanguageKey.ALREADY_CONNECTED].ToString()), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
+            Logger.Verify(o => o.Error(It.Is<string>(o => o == _logLanguageLocalister[LogLanguageKey.ALREADY_CONNECTED]), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
             Assert.IsNull(_session!.Account);
         }
 
@@ -111,7 +111,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 AccountName = "fakeName"
             };
             await _dacPacketHandler.ExecuteAsync(packet, _session);
-            Logger.Verify(o => o.Error(It.Is<string>(o => o == _logLanguageLocalister[LogLanguageKey.INVALID_ACCOUNT].ToString()),
+            Logger.Verify(o => o.Error(It.Is<string>(o => o == _logLanguageLocalister[LogLanguageKey.INVALID_ACCOUNT]),
 
         It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
 
@@ -126,7 +126,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 Slot = 0,
                 AccountName = _accountName
             }, _session);
-            Logger.Verify(o => o.Error(It.Is<string>(o => o == _logLanguageLocalister[LogLanguageKey.INVALID_PASSWORD].ToString()),
+            Logger.Verify(o => o.Error(It.Is<string>(o => o == _logLanguageLocalister[LogLanguageKey.INVALID_PASSWORD]),
 
         It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
             Assert.IsNull(_session!.Account);
