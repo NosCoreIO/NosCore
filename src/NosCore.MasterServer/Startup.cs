@@ -59,6 +59,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -207,6 +208,7 @@ namespace NosCore.MasterServer
             Logger.PrintHeader(ConsoleText);
             services.AddOptions<MasterConfiguration>().Bind(_configuration).ValidateDataAnnotations();
             services.AddOptions<WebApiConfiguration>().Bind(_configuration.GetSection(nameof(MasterConfiguration.WebApi))).ValidateDataAnnotations();
+            services.AddI18NLogs();
 
             var masterConfiguration = new MasterConfiguration();
             _configuration.Bind(masterConfiguration);
@@ -257,6 +259,8 @@ namespace NosCore.MasterServer
             app.UseAuthorization();
 
             LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<MasterConfiguration>>().Value.Language;
+            CultureInfo.DefaultThreadCurrentCulture = new(app.ApplicationServices.GetRequiredService<IOptions<MasterConfiguration>>().Value.Language.ToString());
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

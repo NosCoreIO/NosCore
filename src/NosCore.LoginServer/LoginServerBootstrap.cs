@@ -60,6 +60,7 @@ using NosCore.Shared.Enumerations;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -70,6 +71,7 @@ using NosCore.Networking;
 using NosCore.Networking.Encoding;
 using NosCore.Networking.Encoding.Filter;
 using NosCore.Networking.SessionRef;
+using NosCore.Shared.I18N;
 using ILogger = Serilog.ILogger;
 
 namespace NosCore.LoginServer
@@ -80,15 +82,18 @@ namespace NosCore.LoginServer
         private const string ConsoleText = "LOGIN SERVER - NosCoreIO";
         private static ILogger _logger = null!;
 
-        private static void InitializeConfiguration(string[] args)
+        private static void InitializeConfiguration(string[] args, IServiceCollection services)
         {
+            var loginConfiguration = new LoginConfiguration();
+            var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" });
+            conf.Bind(loginConfiguration);
+            services.AddDbContext<NosCoreContext>(
+                conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
+            services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();
+            services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
             _logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
             Shared.I18N.Logger.PrintHeader(ConsoleText);
-
-            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-            var loginConfiguration = new LoginConfiguration();
-            ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" }).Bind(loginConfiguration);
-            optionsBuilder.UseNpgsql(loginConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); });
+            CultureInfo.DefaultThreadCurrentCulture = new(loginConfiguration.Language.ToString());
         }
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
@@ -161,6 +166,7 @@ namespace NosCore.LoginServer
             catch (Exception ex)
             {
                 _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
+                Console.ReadLine();
             }
         }
 
@@ -177,20 +183,13 @@ namespace NosCore.LoginServer
                     {
                         Console.Title = Title;
                     }
-                    var loginConfiguration = new LoginConfiguration();
-                    var configuration =
-                        ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" });
-                    configuration.Bind(loginConfiguration);
-                    services.AddOptions<LoginConfiguration>().Bind(configuration).ValidateDataAnnotations();
-                    services.AddOptions<ServerConfiguration>().Bind(configuration).ValidateDataAnnotations();
-                    InitializeConfiguration(args);
-
+               
+                    InitializeConfiguration(args, services);
+                    services.AddI18NLogs();
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
                     services.AddHttpClient();
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);
-                    services.AddDbContext<NosCoreContext>(
-                        conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
                     services.AddHostedService<LoginServer>();
                     TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
                     TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileFast();
