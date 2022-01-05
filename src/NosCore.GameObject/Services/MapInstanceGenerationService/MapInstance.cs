@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using DotNetty.Common.Concurrency;
-using DotNetty.Transport.Channels.Groups;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -40,6 +38,7 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Networking;
+using NosCore.Networking.SessionGroup;
 
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
@@ -77,8 +76,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _isSleeping = true;
             _clock = clock;
             LastUnregister = _clock.GetCurrentInstant().Plus(Duration.FromMinutes(-1));
-            ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
-            Sessions = new DefaultChannelGroup(executor);
+            Sessions = new SessionGroup();
             _mapItemGenerationService = mapItemGenerationService;
             _logger = logger;
             Requests = new Dictionary<Type, Subject<RequestData<MapInstance>>>
@@ -147,7 +145,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         private IDisposable? Life { get; set; }
 
-        public IChannelGroup Sessions { get; set; }
+        public ISessionGroup Sessions { get; set; }
 
         public ConcurrentQueue<IPacket> LastPackets { get; }
         public Dictionary<Type, Subject<RequestData<MapInstance>>> Requests { get; set; }

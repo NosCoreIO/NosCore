@@ -20,8 +20,6 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
-using DotNetty.Buffers;
-using DotNetty.Codecs;
 using FastExpressionCompiler;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -106,8 +104,8 @@ namespace NosCore.LoginServer
                 .SingleInstance();
             containerBuilder.RegisterType<Dao<Database.Entities.Character, CharacterDto, long>>().As<IDao<CharacterDto, long>>()
                 .SingleInstance();
-            containerBuilder.RegisterType<LoginDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
-            containerBuilder.RegisterType<LoginEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
+            containerBuilder.RegisterType<LoginDecoder>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<LoginEncoder>().AsImplementedInterfaces();
 
             containerBuilder.RegisterType<ClientSession>().AsImplementedInterfaces();
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();

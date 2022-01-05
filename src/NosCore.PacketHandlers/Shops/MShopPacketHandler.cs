@@ -36,7 +36,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Networking;
-using NosCore.Networking.ChannelMatcher;
+using NosCore.Networking.SessionGroup.ChannelMatcher;
 
 //TODO stop using obsolete
 #pragma warning disable 618

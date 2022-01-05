@@ -20,8 +20,6 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
-using DotNetty.Buffers;
-using DotNetty.Codecs;
 using FastExpressionCompiler;
 using FastMember;
 using JetBrains.Annotations;
@@ -264,8 +262,8 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces();
 
             //NosCore.Core
-            containerBuilder.RegisterType<WorldDecoder>().As<MessageToMessageDecoder<IByteBuffer>>();
-            containerBuilder.RegisterType<WorldEncoder>().As<MessageToMessageEncoder<IEnumerable<IPacket>>>();
+            containerBuilder.RegisterType<WorldDecoder>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<WorldEncoder>().AsImplementedInterfaces();
             containerBuilder.Register(x => new List<RequestFilter>()).As<IEnumerable<RequestFilter>>();
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
             containerBuilder.RegisterType<ClientSession>().AsImplementedInterfaces();
@@ -337,7 +335,7 @@ namespace NosCore.WorldServer
                 .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
                 .AddControllersAsServices();
-
+            
             services.AddI18NLogs();
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddHostedService<WorldServer>();

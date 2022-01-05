@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\NosCore.GameObject\NosCore.GameObject.csproj" />
     <ProjectReference Include="..\..\test\NosCore.Tests.Shared\NosCore.Tests.Shared.csproj" />
   </ItemGroup>
 

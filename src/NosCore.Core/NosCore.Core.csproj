@@ -20,10 +20,6 @@
     <PackageReference Include="Autofac" Version="6.3.0" />
     <PackageReference Include="AutofacSerilogIntegration" Version="5.0.0" />
     <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
-    <PackageReference Include="DotNetty.Buffers" Version="0.7.0" />
-    <PackageReference Include="DotNetty.Codecs" Version="0.7.0" />
-    <PackageReference Include="DotNetty.Common" Version="0.7.1" />
-    <PackageReference Include="DotNetty.Transport" Version="0.7.0" />
     <PackageReference Include="FastExpressionCompiler" Version="3.2.1" />
     <PackageReference Include="JsonPatch.Net" Version="1.1.2" />
     <PackageReference Include="Mapster" Version="7.2.0" />
@@ -32,9 +28,9 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageReference Include="NosCore.Dao" Version="2.0.0" />
-    <PackageReference Include="NosCore.Networking" Version="1.4.0" />
+    <PackageReference Include="NosCore.Networking" Version="2.0.0" />
     <PackageReference Include="NosCore.PathFinder" Version="1.1.0" />
-    <PackageReference Include="NosCore.Shared" Version="3.0.0" />
+    <PackageReference Include="NosCore.Shared" Version="3.1.1" />
     <PackageReference Include="Polly" Version="7.2.2" />
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="Serilog.Extensions.Hosting" Version="4.2.0" />

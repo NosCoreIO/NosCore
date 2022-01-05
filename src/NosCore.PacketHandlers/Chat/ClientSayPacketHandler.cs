@@ -25,7 +25,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using System.Threading.Tasks;
 using NosCore.Networking;
-using NosCore.Networking.ChannelMatcher;
+using NosCore.Networking.SessionGroup.ChannelMatcher;
 
 namespace NosCore.PacketHandlers.Chat
 {
