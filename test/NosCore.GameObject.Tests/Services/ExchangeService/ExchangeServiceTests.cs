@@ -20,11 +20,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -33,6 +35,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.GameObject.Tests.Services.ExchangeService
@@ -46,10 +49,16 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
         private GameObject.Services.ItemGenerationService.ItemGenerationService? _itemProvider;
 
         private IOptions<WorldConfiguration>? _worldConfiguration;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
 
         [TestInitialize]
         public void Setup()
         {
+            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            _logLanguageLocalister = mock.Object;
+
             _worldConfiguration = Options.Create(new WorldConfiguration
             {
                 MaxItemAmount = 999,
@@ -65,7 +74,7 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             };
 
             _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
-            _exchangeProvider = new GameObject.Services.ExchangeService.ExchangeService(_itemProvider, _worldConfiguration, Logger, new ExchangeRequestHolder());
+            _exchangeProvider = new GameObject.Services.ExchangeService.ExchangeService(_itemProvider, _worldConfiguration, Logger, new ExchangeRequestHolder(), _logLanguageLocalister);
         }
 
         [TestMethod]
