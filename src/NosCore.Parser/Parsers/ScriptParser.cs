@@ -21,6 +21,7 @@ using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -38,10 +39,12 @@ namespace NosCore.Parser.Parsers
         private readonly string _fileCardDat = $"{Path.DirectorySeparatorChar}tutorial.dat";
         private readonly IDao<ScriptDto, Guid> _scriptDao;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public ScriptParser(IDao<ScriptDto, Guid> scriptDao, ILogger logger)
+        public ScriptParser(IDao<ScriptDto, Guid> scriptDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
+            _logLanguage = logLanguage;
             _scriptDao = scriptDao;
         }
 
@@ -82,7 +85,7 @@ namespace NosCore.Parser.Parsers
             }
 
             await _scriptDao.TryInsertOrUpdateAsync(scripts).ConfigureAwait(false);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SCRIPTS_PARSED), scripts.Count);
+            _logger.Information(_logLanguage[LogLanguageKey.SCRIPTS_PARSED], scripts.Count);
         }
     }
 }
