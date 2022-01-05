@@ -31,6 +31,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Linq;
@@ -45,13 +46,15 @@ namespace NosCore.PacketHandlers.Exchange
         private readonly IBlacklistHttpClient _blacklistHttpClient;
         private readonly IExchangeService _exchangeProvider;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public ExchangeRequestPackettHandler(IExchangeService exchangeService, ILogger logger,
-            IBlacklistHttpClient blacklistHttpClient)
+            IBlacklistHttpClient blacklistHttpClient, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _exchangeProvider = exchangeService;
             _logger = logger;
             _blacklistHttpClient = blacklistHttpClient;
+            _logLanguage = logLanguage;
         }
 
         public override async Task ExecuteAsync(ExchangeRequestPacket packet, ClientSession clientSession)
@@ -64,13 +67,13 @@ namespace NosCore.PacketHandlers.Exchange
             if ((target != null) && ((packet.RequestType == RequestExchangeType.Confirmed) ||
                 (packet.RequestType == RequestExchangeType.Cancelled)))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_FIND_CHARACTER));
+                _logger.Error(_logLanguage[LogLanguageKey.CANT_FIND_CHARACTER]);
                 return;
             }
 
             if (clientSession.Character.InShop || (target?.InShop ?? false))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLAYER_IN_SHOP));
+                _logger.Error(_logLanguage[LogLanguageKey.PLAYER_IN_SHOP]);
                 return;
             }
 
@@ -164,7 +167,7 @@ namespace NosCore.PacketHandlers.Exchange
 
                     if (!targetId.HasValue)
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE));
+                        _logger.Error(_logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                         return;
                     }
 
@@ -173,7 +176,7 @@ namespace NosCore.PacketHandlers.Exchange
 
                     if (exchangeTarget == null)
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_FIND_CHARACTER));
+                        _logger.Error(_logLanguage[LogLanguageKey.CANT_FIND_CHARACTER]);
                         return;
                     }
 
@@ -206,7 +209,7 @@ namespace NosCore.PacketHandlers.Exchange
                             }
                             else
                             {
-                                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE));
+                                _logger.Error(_logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                             }
                         }
                     }
@@ -251,7 +254,7 @@ namespace NosCore.PacketHandlers.Exchange
                     var cancelId = _exchangeProvider.GetTargetId(clientSession.Character.CharacterId);
                     if (!cancelId.HasValue)
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.USER_NOT_IN_EXCHANGE));
+                        _logger.Error(_logLanguage[LogLanguageKey.USER_NOT_IN_EXCHANGE]);
                         return;
                     }
 
