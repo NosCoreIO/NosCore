@@ -36,11 +36,17 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface ICharacterEntity : INamedEntity, IRequestableEntity
     {
-        bool FriendRequestBlocked { get; set; }
+        bool FriendRequestBlocked { get; }
+
+        bool UseSp { get; }
 
         AuthorityType Authority { get; }
 
         short MapId { get; set; }
+
+        bool IsVehicled { get; }
+
+        byte? VehicleSpeed { get; }
 
         GenderType Gender { get; }
 
@@ -55,6 +61,9 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         DignityType DignityIcon { get; }
 
         bool Camouflage { get; }
+        long JobLevelXp { get; set; }
+        long HeroXp { get; set; }
+        byte JobLevel { get; }
 
         bool Invisible { get; }
 
@@ -64,6 +73,8 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
 
+        List<QuicklistEntryDto> QuicklistEntries { get; }
+
         long Gold { get; }
 
         long BankGold { get; }
@@ -72,17 +83,17 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         RegionType AccountLanguage { get; }
 
-        List<StaticBonusDto> StaticBonusList { get; set; }
+        List<StaticBonusDto> StaticBonusList { get;  }
 
         List<TitleDto> Titles { get; set; }
 
         bool IsDisconnecting { get; }
         ScriptDto? Script { get; set; }
         Guid? CurrentScriptId { get; set; }
-        ConcurrentDictionary<Guid, CharacterQuest> Quests { get; set; }
+        ConcurrentDictionary<Guid, CharacterQuest> Quests { get; }
         short Compliment { get; }
-        long Reput { get; set; }
-        short Dignity { get; set; }
+        long Reput { get;  }
+        short Dignity { get;  }
 
         Task GenerateMailAsync(IEnumerable<MailData> data);
 
@@ -93,8 +104,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         Task LeaveGroupAsync();
 
         void JoinGroup(Group group);
-
-        Task SaveAsync();
 
         Task SetJobLevelAsync(byte level);
 

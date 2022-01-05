@@ -17,6 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
@@ -25,19 +29,17 @@ using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Character;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Networking.LoginService;
+using NosCore.GameObject.Services.SaveService;
+using NosCore.Networking.SessionRef;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Enumerations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Data.Enumerations.Character;
-using NosCore.Networking.SessionRef;
 
-namespace NosCore.GameObject.Networking.LoginService
+namespace NosCore.GameObject.Services.LoginService
 {
     public class LoginService : ILoginService
     {
@@ -48,11 +50,12 @@ namespace NosCore.GameObject.Networking.LoginService
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly ISessionRefHolder _sessionRefHolder;
+        private readonly ISaveService _saveService;
 
         public LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
             IAuthHttpClient authHttpClient,
             IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient,
-            IDao<CharacterDto, long> characterDao, ISessionRefHolder sessionRefHolder)
+            IDao<CharacterDto, long> characterDao, ISessionRefHolder sessionRefHolder, ISaveService saveService)
         {
             _loginConfiguration = loginConfiguration;
             _accountDao = accountDao;
@@ -61,9 +64,10 @@ namespace NosCore.GameObject.Networking.LoginService
             _channelHttpClient = channelHttpClient;
             _characterDao = characterDao;
             _sessionRefHolder = sessionRefHolder;
+            _saveService = saveService;
         }
 
-        public async Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId)
+        public async Task MoveChannelAsync(Networking.ClientSession.ClientSession clientSession, int channelId)
         {
             var server = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
             if (server == null || server.Type != ServerType.WorldServer)
@@ -83,12 +87,12 @@ namespace NosCore.GameObject.Networking.LoginService
             });
 
             await _authHttpClient.SetAwaitingConnectionAsync(-1, clientSession.Account.Name);
-            await clientSession.Character.SaveAsync();
+            await _saveService.SaveAsync(clientSession.Character);
             await clientSession.DisconnectAsync();
         }
 
         public async Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,
-            ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language)
+            Networking.ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language)
         {
             try
             {

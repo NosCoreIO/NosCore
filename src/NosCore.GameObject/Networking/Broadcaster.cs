@@ -77,14 +77,14 @@ namespace NosCore.GameObject.Networking
 
         public IEnumerable<ICharacterEntity> GetCharacters(Func<ICharacterEntity, bool>? func)
         {
-            return func == null ? ClientSessions.Values.Where(s => s.Character != null).Select(s => s.Character!)
-                : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character!).Where(func);
+            var selection = ClientSessions.Values.Where(s => s.Character != null!).Select(s => s.Character!);
+            return func == null ? selection : selection.Where(func);
         }
 
         public ICharacterEntity? GetCharacter(Func<ICharacterEntity, bool>? func)
         {
-            return func == null ? ClientSessions.Values.FirstOrDefault(s => s.Character != null)?.Character
-                : ClientSessions.Values.Where(s => s.Character != null).Select(c => c.Character!).FirstOrDefault(func);
+            var selection = ClientSessions.Values.Where(s => s.Character != null!).Select(c => c.Character!);
+            return func == null ? selection.FirstOrDefault() : selection.FirstOrDefault(func);
         }
 
         public static void Reset()
@@ -99,7 +99,7 @@ namespace NosCore.GameObject.Networking
                 {
                     Name = s.Account.Name,
                     Language = s.Account.Language,
-                    ConnectedCharacter = s.Character == null ? null : new Data.WebApi.Character
+                    ConnectedCharacter = s.Character == null! ? null : new Data.WebApi.Character
                     {
                         Name = s.Character.Name, Id = s.Character.CharacterId,
                         FriendRequestBlocked = s.Character.FriendRequestBlocked

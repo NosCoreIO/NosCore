@@ -29,6 +29,7 @@ using System;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Services.SpeedCalculationService;
 
 namespace NosCore.GameObject
 {
@@ -38,12 +39,14 @@ namespace NosCore.GameObject
 
         private readonly IHeuristic _distanceCalculator;
         private readonly IClock _clock;
+        private readonly ISpeedCalculationService _speedCalculationService;
         public NpcMonsterDto NpcMonster { get; private set; } = null!;
-        public MapMonster(ILogger logger, IHeuristic distanceCalculator, IClock clock)
+        public MapMonster(ILogger logger, IHeuristic distanceCalculator, IClock clock, ISpeedCalculationService speedCalculationService)
         {
             _logger = logger;
             _distanceCalculator = distanceCalculator;
             _clock = clock;
+            _speedCalculationService = speedCalculationService;
         }
 
         public IDisposable? Life { get; private set; }
@@ -53,14 +56,13 @@ namespace NosCore.GameObject
             NpcMonster = npcMonster;
             Mp = NpcMonster?.MaxMp ?? 0;
             Hp = NpcMonster?.MaxHp ?? 0;
-            Speed = NpcMonster?.Speed ?? 0;
             PositionX = MapX;
             PositionY = MapY;
             IsAlive = true;
         }
 
         public bool IsSitting { get; set; }
-        public byte Speed { get; set; }
+        public byte Speed => _speedCalculationService.CalculateSpeed(this);
         public byte Size { get; set; } = 10;
         public int Mp { get; set; }
         public int Hp { get; set; }

@@ -50,6 +50,10 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
+using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
 using NosCore.Networking.ChannelMatcher;
 using NosCore.Networking.SessionRef;
@@ -75,9 +79,14 @@ namespace NosCore.GameObject.Networking.ClientSession
         private int? _waitForPacketsAmount;
         private readonly ISessionRefHolder _sessionRefHolder;
         private readonly IClock _clock;
+        private readonly ISaveService _saveService;
+        private readonly IExperienceService _experienceService;
+        private readonly IJobExperienceService _jobExperienceService;
+        private readonly IHeroExperienceService _heroExperienceService;
 
         public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock)
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock, ISaveService saveService
+            , IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
             : base(logger)
         {
             _logger = logger;
@@ -86,7 +95,11 @@ namespace NosCore.GameObject.Networking.ClientSession
             _packetSerializer = packetSerializer;
             _packetHttpClient = packetHttpClient;
             _sessionRefHolder = sessionRefHolder;
+            _experienceService = experienceService;
+            _jobExperienceService = jobExperienceService;
+            _heroExperienceService = heroExperienceService;
             _clock = clock;
+            _saveService = saveService;
             foreach (var handler in _packetsHandlers)
             {
                 var type = handler.GetType().BaseType?.GenericTypeArguments[0]!;
@@ -99,7 +112,10 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, clock)
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock, ISaveService saveService,
+            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService) 
+            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient,
+                sessionRefHolder, clock, saveService, experienceService, jobExperienceService, heroExperienceService)
         {
         }
 
@@ -107,7 +123,10 @@ namespace NosCore.GameObject.Networking.ClientSession
             IExchangeService? exchangeService, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
-            IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, ISessionRefHolder sessionRefHolder, IClock clock) : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, clock)
+            IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, ISessionRefHolder sessionRefHolder, IClock clock, 
+            ISaveService saveService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService) 
+            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder,
+                clock, saveService, experienceService, jobExperienceService, heroExperienceService)
         {
             _mapInstanceAccessorService = mapInstanceAccessorService;
             _exchangeProvider = exchangeService!;
@@ -221,7 +240,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                     await Character.LeaveGroupAsync().ConfigureAwait(false);
                     await Character.MapInstance.SendPacketAsync(Character.GenerateOut()).ConfigureAwait(false);
-                    await Character.SaveAsync().ConfigureAwait(false);
+                    await _saveService.SaveAsync(Character).ConfigureAwait(false);
 
                     var minilandId = await _minilandProvider.DeleteMinilandAsync(Character.CharacterId)
                         .ConfigureAwait(false);
@@ -249,7 +268,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public async Task ChangeMapAsync(short? mapId, short? mapX, short? mapY)
         {
-            if (Character == null)
+            if (Character == null!)
             {
                 return;
             }
@@ -327,7 +346,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 await SendPacketAsync(Character.GenerateCMode()).ConfigureAwait(false);
                 await SendPacketAsync(Character.GenerateEq()).ConfigureAwait(false);
                 await SendPacketAsync(Character.GenerateEquipment()).ConfigureAwait(false);
-                await SendPacketAsync(Character.GenerateLev()).ConfigureAwait(false);
+                await SendPacketAsync(Character.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
                 await SendPacketAsync(Character.GenerateStat()).ConfigureAwait(false);
                 await SendPacketAsync(Character.GenerateAt()).ConfigureAwait(false);
                 await SendPacketAsync(Character.GenerateCond()).ConfigureAwait(false);
