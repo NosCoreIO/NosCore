@@ -33,6 +33,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -42,6 +43,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     public class GetPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private GetPacketHandler? _getPacketHandler;
         private IItemGenerationService? _item;
         private ClientSession? _session;
@@ -52,7 +54,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _getPacketHandler = new GetPacketHandler(Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock);
+            _getPacketHandler = new GetPacketHandler(Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock, _logLanguageLocalister);
         }
 
 
