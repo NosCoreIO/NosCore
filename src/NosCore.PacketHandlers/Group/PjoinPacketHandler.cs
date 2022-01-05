@@ -35,6 +35,7 @@ using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Core.Services.IdService;
 using NosCore.Networking;
+using NosCore.Shared.I18N;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -47,13 +48,15 @@ namespace NosCore.PacketHandlers.Group
         private readonly ILogger _logger;
         private readonly IClock _clock;
         private readonly IIdService<GameObject.Group> _groupIdService;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public PjoinPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpCLient, IClock clock, IIdService<GameObject.Group> groupIdService)
+        public PjoinPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpCLient, IClock clock, IIdService<GameObject.Group> groupIdService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _groupIdService = groupIdService;
             _logger = logger;
             _blacklistHttpCLient = blacklistHttpCLient;
             _clock = clock;
+            _logLanguage = logLanguage;
         }
 
         public override async Task ExecuteAsync(PjoinPacket pjoinPacket, ClientSession clientSession)
@@ -337,7 +340,7 @@ namespace NosCore.PacketHandlers.Group
                     }).ConfigureAwait(false);
                     break;
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.GROUPREQUESTTYPE_UNKNOWN));
+                    _logger.Error(_logLanguage[LogLanguageKey.GROUPREQUESTTYPE_UNKNOWN]);
                     break;
             }
         }
