@@ -33,6 +33,7 @@ using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Core;
 using NosCore.Core.Services.IdService;
+using NosCore.Shared.I18N;
 
 namespace NosCore.MasterServer
 {
@@ -42,13 +43,15 @@ namespace NosCore.MasterServer
         private readonly MasterConfiguration _masterConfiguration;
         private readonly IClock _clock;
         private readonly IIdService<ChannelInfo> _channelIdService;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public MasterServer(IOptions<MasterConfiguration> masterConfiguration, ILogger logger, IClock clock, IIdService<ChannelInfo> channelIdService)
+        public MasterServer(IOptions<MasterConfiguration> masterConfiguration, ILogger logger, IClock clock, IIdService<ChannelInfo> channelIdService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _masterConfiguration = masterConfiguration.Value;
             _logger = logger;
             _clock = clock;
             _channelIdService = channelIdService;
+            _logLanguage = logLanguage;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -60,13 +63,13 @@ namespace NosCore.MasterServer
                         (s.LastPing.Plus(Duration.FromSeconds(10)) < _clock.GetCurrentInstant()) && (s.WebApi != null)).Select(s => s.Id).ToList()
                     .ForEach(id =>
                     {
-                        _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),
+                        _logger.Warning(_logLanguage[LogLanguageKey.CONNECTION_LOST],
                             id.ToString());
                         _channelIdService.Items.TryRemove(id, out var _);
                     }));
             }
 
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
+            _logger.Information(_logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Console.Title += $@" - WebApi : {_masterConfiguration.WebApi}";
