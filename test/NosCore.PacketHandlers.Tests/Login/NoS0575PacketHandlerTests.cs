@@ -20,6 +20,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -29,7 +30,7 @@ using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
@@ -41,6 +42,7 @@ using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -50,6 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Login
     public class NoS0575PacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private string _password = null!;
         private Mock<IAuthHttpClient>? _authHttpClient;
         private Mock<IChannelHttpClient>? _channelHttpClient;
@@ -61,6 +64,10 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestInitialize]
         public async Task SetupAsync()
         {
+            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            _logLanguageLocalister = mock.Object;
             _password = new Sha512Hasher().Hash("test");
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
@@ -71,7 +78,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration,
                     TestHelpers.Instance.AccountDao,
                     _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder()),
-                _loginConfiguration, Logger);
+                _loginConfiguration, Logger, _logLanguageLocalister);
         }
 
         [TestMethod]
