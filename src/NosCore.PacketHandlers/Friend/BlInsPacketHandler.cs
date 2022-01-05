@@ -27,6 +27,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
 
@@ -36,11 +37,13 @@ namespace NosCore.PacketHandlers.Friend
     {
         private readonly ILogger _logger;
         private readonly IBlacklistHttpClient _blacklistHttpClient;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public BlInsPackettHandler(IBlacklistHttpClient blacklistHttpClient, ILogger logger)
+        public BlInsPackettHandler(IBlacklistHttpClient blacklistHttpClient, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _blacklistHttpClient = blacklistHttpClient;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public override async Task ExecuteAsync(BlInsPacket blinsPacket, ClientSession session)
@@ -69,7 +72,7 @@ namespace NosCore.PacketHandlers.Friend
                     await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(_blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
                     break;
                 default:
-                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.FRIEND_REQUEST_DISCONNECTED));
+                    _logger.Warning(_logLanguage[LogLanguageKey.FRIEND_REQUEST_DISCONNECTED]);
                     break;
             }
         }
