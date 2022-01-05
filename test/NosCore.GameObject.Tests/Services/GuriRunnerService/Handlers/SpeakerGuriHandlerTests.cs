@@ -21,9 +21,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking;
@@ -35,6 +37,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 using GuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
@@ -46,10 +49,16 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
     {
         private IItemGenerationService? _itemProvider;
         private Mock<ILogger>? _logger;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
+            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            _logLanguageLocalister = mock.Object;
+
             await TestHelpers.ResetAsync();
             var items = new List<ItemDto>
             {
@@ -61,7 +70,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
 
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
 
-            Handler = new SpeakerGuriHandler(_logger.Object);
+            Handler = new SpeakerGuriHandler(_logger.Object, _logLanguageLocalister);
             Broadcaster.Instance.LastPackets.Clear();
         }
 
