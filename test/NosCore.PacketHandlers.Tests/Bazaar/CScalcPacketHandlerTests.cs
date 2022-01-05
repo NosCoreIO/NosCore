@@ -26,6 +26,7 @@ using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking;
@@ -38,6 +39,7 @@ using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -47,6 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     public class CScalcPacketHandlerTest
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CScalcPacketHandler? _cScalcPacketHandler;
         private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
@@ -63,7 +66,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             _itemProvider = new Mock<IItemGenerationService>();
             _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _cScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration,
-                _bazaarHttpClient.Object, _itemProvider.Object, Logger, _itemInstanceDao.Object);
+                _bazaarHttpClient.Object, _itemProvider.Object, Logger, _itemInstanceDao.Object, _logLanguageLocalister);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(0)).ReturnsAsync(
                 new BazaarLink
