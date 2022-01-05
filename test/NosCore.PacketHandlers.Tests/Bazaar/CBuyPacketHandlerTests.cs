@@ -39,6 +39,7 @@ using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -48,6 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     public class CBuyPacketHandlerTest
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CBuyPacketHandler? _cbuyPacketHandler;
         private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
@@ -64,7 +66,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _itemProvider = new Mock<IItemGenerationService>();
             _cbuyPacketHandler = new CBuyPacketHandler(_bazaarHttpClient.Object, _itemProvider.Object, Logger,
-                _itemInstanceDao.Object);
+                _itemInstanceDao.Object, _logLanguageLocalister);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(0)).ReturnsAsync(
                 new BazaarLink
