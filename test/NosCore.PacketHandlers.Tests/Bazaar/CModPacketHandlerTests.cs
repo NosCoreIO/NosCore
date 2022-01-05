@@ -20,6 +20,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Json.Patch;
+using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.I18N;
@@ -35,6 +36,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -44,6 +46,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     public class CModPacketHandlerTest
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CModPacketHandler? _cmodPacketHandler;
         private ClientSession? _session;
@@ -51,11 +54,16 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestInitialize]
         public async Task SetupAsync()
         {
+            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            _logLanguageLocalister = mock.Object;
+
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
-            _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, Logger);
+            _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, Logger, _logLanguageLocalister);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(0)).ReturnsAsync(
                 new BazaarLink
