@@ -79,14 +79,13 @@ namespace NosCore.GameObject.Networking.ClientSession
         private int? _waitForPacketsAmount;
         private readonly ISessionRefHolder _sessionRefHolder;
         private readonly IClock _clock;
-        private readonly ISaveService _saveService;
-        private readonly IExperienceService _experienceService;
-        private readonly IJobExperienceService _jobExperienceService;
-        private readonly IHeroExperienceService _heroExperienceService;
+        private readonly ISaveService _saveService = null!;
+        private readonly IExperienceService _experienceService = null!;
+        private readonly IJobExperienceService _jobExperienceService = null!;
+        private readonly IHeroExperienceService _heroExperienceService = null!;
 
         public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock, ISaveService saveService
-            , IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock)
             : base(logger)
         {
             _logger = logger;
@@ -95,11 +94,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             _packetSerializer = packetSerializer;
             _packetHttpClient = packetHttpClient;
             _sessionRefHolder = sessionRefHolder;
-            _experienceService = experienceService;
-            _jobExperienceService = jobExperienceService;
-            _heroExperienceService = heroExperienceService;
             _clock = clock;
-            _saveService = saveService;
             foreach (var handler in _packetsHandlers)
             {
                 var type = handler.GetType().BaseType?.GenericTypeArguments[0]!;
@@ -112,10 +107,9 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock, ISaveService saveService,
-            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService) 
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock) 
             : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient,
-                sessionRefHolder, clock, saveService, experienceService, jobExperienceService, heroExperienceService)
+                sessionRefHolder, clock)
         {
         }
 
@@ -125,14 +119,17 @@ namespace NosCore.GameObject.Networking.ClientSession
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
             IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, ISessionRefHolder sessionRefHolder, IClock clock, 
             ISaveService saveService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService) 
-            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder,
-                clock, saveService, experienceService, jobExperienceService, heroExperienceService)
+            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, clock)
         {
             _mapInstanceAccessorService = mapInstanceAccessorService;
             _exchangeProvider = exchangeService!;
             _minilandProvider = minilandProvider!;
             _isWorldClient = true;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
+            _experienceService = experienceService;
+            _jobExperienceService = jobExperienceService;
+            _heroExperienceService = heroExperienceService;
+            _saveService = saveService;
         }
 
         public bool GameStarted { get; set; }
