@@ -23,6 +23,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using NosCore.Parser.Parsers.Generic;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -52,6 +53,7 @@ namespace NosCore.Parser.Parsers
     {
         private readonly string _fileQuestDat = $"{Path.DirectorySeparatorChar}quest.dat";
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly IDao<QuestDto, short> _questDao;
         private readonly IDao<QuestObjectiveDto, Guid> _questObjectiveDao;
         private readonly IDao<QuestQuestRewardDto, Guid> _questQuestRewardDao;
@@ -59,9 +61,10 @@ namespace NosCore.Parser.Parsers
         private Dictionary<short, QuestRewardDto>? _questRewards;
 
         public QuestParser(IDao<QuestDto, short> questDao, IDao<QuestObjectiveDto, Guid> questObjectiveDao,
-            IDao<QuestRewardDto, short> questRewardDao, IDao<QuestQuestRewardDto, Guid> questQuestRewardDao, ILogger logger)
+            IDao<QuestRewardDto, short> questRewardDao, IDao<QuestQuestRewardDto, Guid> questQuestRewardDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
+            _logLanguage = logLanguage;
             _questDao = questDao;
             _questObjectiveDao = questObjectiveDao;
             _questQuestRewardDao = questQuestRewardDao;
@@ -93,14 +96,14 @@ namespace NosCore.Parser.Parsers
                 {nameof(QuestDto.QuestQuestReward), ImportQuestQuestRewards},
                 {nameof(QuestDto.QuestObjective), ImportQuestObjectives},
             };
-            var genericParser = new GenericParser<QuestDto>(folder + _fileQuestDat, "END", 0, actionList, _logger);
+            var genericParser = new GenericParser<QuestDto>(folder + _fileQuestDat, "END", 0, actionList, _logger, _logLanguage);
             var quests = await genericParser.GetDtosAsync().ConfigureAwait(false);
 
             await _questDao.TryInsertOrUpdateAsync(quests).ConfigureAwait(false);
             await _questQuestRewardDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward)).ConfigureAwait(false);
             await _questObjectiveDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestObjective != null).SelectMany(s => s.QuestObjective)).ConfigureAwait(false);
 
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUESTS_PARSED), quests.Count);
+            _logger.Information(_logLanguage[LogLanguageKey.QUESTS_PARSED], quests.Count);
         }
 
         private List<QuestQuestRewardDto> ImportQuestQuestRewards(Dictionary<string, string[][]> chunk)
