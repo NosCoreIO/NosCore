@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Movement
 {
@@ -40,12 +41,14 @@ namespace NosCore.PacketHandlers.Movement
         // this is used to avoid network issue to be counted as speed hack.
         private readonly double _speedDiffAllowed = 1D / 3;
         private readonly IClock _clock;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public WalkPacketHandler(IHeuristic distanceCalculator, ILogger logger, IClock clock)
+        public WalkPacketHandler(IHeuristic distanceCalculator, ILogger logger, IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
             _distanceCalculator = distanceCalculator;
             _clock = clock;
+            _logLanguage = logLanguage;
         }
         public override async Task ExecuteAsync(WalkPacket walkPacket, ClientSession session)
         {
@@ -59,7 +62,7 @@ namespace NosCore.PacketHandlers.Movement
             if ((walkPacket.XCoordinate + walkPacket.YCoordinate) % 3 % 2 != walkPacket.CheckSum)
             {
                 await session.DisconnectAsync();
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.WALK_CHECKSUM_INVALID), session.Character.VisualId);
+                _logger.Error(_logLanguage[LogLanguageKey.WALK_CHECKSUM_INVALID], session.Character.VisualId);
                 return;
             }
 
@@ -67,7 +70,7 @@ namespace NosCore.PacketHandlers.Movement
             if (travelTime > 1000 * (_speedDiffAllowed + 1))
             {
                 await session.DisconnectAsync();
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SPEED_INVALID), session.Character.VisualId);
+                _logger.Error(_logLanguage[LogLanguageKey.SPEED_INVALID], session.Character.VisualId);
                 return;
             }
 
