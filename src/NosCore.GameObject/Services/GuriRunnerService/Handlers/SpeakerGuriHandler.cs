@@ -33,16 +33,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 {
     public class SpeakerGuriHandler : IGuriEventHandler
     {
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public SpeakerGuriHandler(ILogger logger)
+        public SpeakerGuriHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public bool Condition(GuriPacket packet)
@@ -67,7 +70,7 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
                 NoscorePocketType.Etc);
             if (inv?.ItemInstance?.Item?.Effect != ItemEffectType.Speaker)
             {
-                _logger.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEM_NOT_FOUND), NoscorePocketType.Etc, (short)(requestData.Data.VisualId ?? 0)));
+                _logger.Error(string.Format(_logLanguage[LogLanguageKey.ITEM_NOT_FOUND], NoscorePocketType.Etc, (short)(requestData.Data.VisualId ?? 0)));
                 return;
             }
 
@@ -84,7 +87,7 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
                 }
                 if (deeplink == null)
                 {
-                    _logger.Error(string.Format(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEM_NOT_FOUND), type, slot));
+                    _logger.Error(string.Format(_logLanguage[LogLanguageKey.ITEM_NOT_FOUND], type, slot));
                     return;
                 }
                 message = CraftMessage(message, valuesplit.Skip(2).ToArray()).Replace(' ', '|');
