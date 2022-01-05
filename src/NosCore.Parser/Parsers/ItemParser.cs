@@ -25,6 +25,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using NosCore.Parser.Parsers.Generic;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -53,12 +54,14 @@ namespace NosCore.Parser.Parsers
         private readonly IDao<ItemDto, short> _itemDao;
         private readonly IDao<BCardDto, short> _bcardDao;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public ItemParser(IDao<ItemDto, short> itemDao, IDao<BCardDto, short> bCardDao, ILogger logger)
+        public ItemParser(IDao<ItemDto, short> itemDao, IDao<BCardDto, short> bCardDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _itemDao = itemDao;
             _bcardDao = bCardDao;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public async Task ParseAsync(string folder)
@@ -131,7 +134,7 @@ namespace NosCore.Parser.Parsers
             };
 
             var genericParser = new GenericParser<ItemDto>(folder + _itemCardDto,
-                "END", 1, actionList, _logger);
+                "END", 1, actionList, _logger, _logLanguage);
             var items = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.VNum).Select(g => g.First()).ToList();
             foreach (var item in items)
             {
@@ -170,7 +173,7 @@ namespace NosCore.Parser.Parsers
             await _itemDao.TryInsertOrUpdateAsync(items).ConfigureAwait(false);
             await _bcardDao.TryInsertOrUpdateAsync(items.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
 
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ITEMS_PARSED), items.Count);
+            _logger.Information(_logLanguage[LogLanguageKey.ITEMS_PARSED], items.Count);
         }
 
 
