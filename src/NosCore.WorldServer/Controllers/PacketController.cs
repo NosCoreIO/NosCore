@@ -28,7 +28,7 @@ using NosCore.Packets.Interfaces;
 using Serilog;
 using System.Threading.Tasks;
 using NosCore.Networking;
-
+using NosCore.Shared.I18N;
 
 namespace NosCore.WorldServer.Controllers
 {
@@ -37,10 +37,12 @@ namespace NosCore.WorldServer.Controllers
     {
         private readonly IDeserializer _deserializer;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public PacketController(ILogger logger, IDeserializer deserializer)
+        public PacketController(ILogger logger, IDeserializer deserializer, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
+            _logLanguage = logLanguage;
             _deserializer = deserializer;
         }
 
@@ -82,7 +84,7 @@ namespace NosCore.WorldServer.Controllers
                     await receiverSession.SendPacketAsync(message).ConfigureAwait(false);
                     break;
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKWNOWN_RECEIVERTYPE));
+                    _logger.Error(_logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
                     break;
             }
 
