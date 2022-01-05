@@ -50,12 +50,11 @@ namespace NosCore.GameObject.Services.LoginService
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly IDao<CharacterDto, long> _characterDao;
         private readonly ISessionRefHolder _sessionRefHolder;
-        private readonly ISaveService _saveService;
 
         public LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
             IAuthHttpClient authHttpClient,
             IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient,
-            IDao<CharacterDto, long> characterDao, ISessionRefHolder sessionRefHolder, ISaveService saveService)
+            IDao<CharacterDto, long> characterDao, ISessionRefHolder sessionRefHolder)
         {
             _loginConfiguration = loginConfiguration;
             _accountDao = accountDao;
@@ -64,31 +63,6 @@ namespace NosCore.GameObject.Services.LoginService
             _channelHttpClient = channelHttpClient;
             _characterDao = characterDao;
             _sessionRefHolder = sessionRefHolder;
-            _saveService = saveService;
-        }
-
-        public async Task MoveChannelAsync(Networking.ClientSession.ClientSession clientSession, int channelId)
-        {
-            var server = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
-            if (server == null || server.Type != ServerType.WorldServer)
-            {
-                return;
-            }
-            await clientSession.SendPacketAsync(new MzPacket
-            {
-                Port = server.DisplayPort ?? server.Port,
-                Ip = server.DisplayHost ?? server.Host,
-                CharacterSlot = clientSession.Character.Slot
-            });
-
-            await clientSession.SendPacketAsync(new ItPacket
-            {
-                Mode = 1
-            });
-
-            await _authHttpClient.SetAwaitingConnectionAsync(-1, clientSession.Account.Name);
-            await _saveService.SaveAsync(clientSession.Character);
-            await clientSession.DisconnectAsync();
         }
 
         public async Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,

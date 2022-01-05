@@ -17,28 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.LoginService;
 using NosCore.Packets.ClientPackets.Login;
+using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
-using NosCore.GameObject.Services.LoginService;
 
-namespace NosCore.PacketHandlers.Login
+namespace NosCore.GameObject.Networking.LoginService
 {
-    public class NoS0577PacketHandler : PacketHandler<NoS0577Packet>, ILoginPacketHandler
+    public interface IChannelService
     {
-        private readonly ILoginService _loginService;
-
-        public NoS0577PacketHandler(ILoginService loginService)
-        {
-            _loginService = loginService;
-        }
-
-        public override Task ExecuteAsync(NoS0577Packet packet, ClientSession clientSession)
-        {
-            return _loginService.LoginAsync(null, packet.Md5String!, packet.ClientVersion!, clientSession,
-                packet.AuthToken!, true, packet.RegionType);
-        }
+        Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId);
     }
 }

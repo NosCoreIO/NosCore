@@ -27,6 +27,7 @@ using NosCore.GameObject.Networking.LoginService;
 using NosCore.Packets.ClientPackets.Login;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.LoginService;
 
 namespace NosCore.PacketHandlers.Login
 {
