@@ -33,6 +33,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.I18N;
 using Serilog;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -47,14 +48,16 @@ namespace NosCore.PacketHandlers.Command
         private readonly List<ItemDto> _items;
         private readonly ILogger _logger;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public CreateItemPackettHandler(ILogger logger, List<ItemDto> items, IOptions<WorldConfiguration> worldConfiguration,
-            IItemGenerationService itemProvider)
+            IItemGenerationService itemProvider, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
             _items = items;
             _itemProvider = itemProvider;
             _worldConfiguration = worldConfiguration;
+            _logLanguage = logLanguage;
         }
 
         public override async Task ExecuteAsync(CreateItemPacket createItemPacket, ClientSession session)
@@ -164,7 +167,7 @@ namespace NosCore.PacketHandlers.Command
                         break;
                     default:
                         _logger.Debug(
-                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE));
+                            _logLanguage[LogLanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE]);
                         break;
                 }
             }
