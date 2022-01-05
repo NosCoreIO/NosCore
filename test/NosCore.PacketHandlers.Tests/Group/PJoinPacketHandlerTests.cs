@@ -20,6 +20,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Services.IdService;
@@ -48,6 +49,11 @@ namespace NosCore.PacketHandlers.Tests.Group
         [TestInitialize]
         public async Task SetupAsync()
         {
+            var logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            logLanguageMock.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            _logLanguageLocalister = logLanguageMock.Object;
+
             Broadcaster.Reset();
             var idServer = new IdService<GameObject.Group>(1);
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)

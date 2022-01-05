@@ -19,6 +19,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.I18N;
@@ -47,6 +48,11 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestInitialize]
         public async Task SetupAsync()
         {
+            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            _logLanguageLocalister = mock.Object;
+
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
