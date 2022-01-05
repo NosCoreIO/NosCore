@@ -28,6 +28,7 @@ using NosCore.GameObject.Services.ExchangeService;
 using NosCore.Packets.ClientPackets.Exchanges;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Exchanges;
+using NosCore.Shared.I18N;
 using Serilog;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -38,18 +39,20 @@ namespace NosCore.PacketHandlers.Exchange
     {
         private readonly IExchangeService _exchangeProvider;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public ExcListPacketHandler(IExchangeService exchangeService, ILogger logger)
+        public ExcListPacketHandler(IExchangeService exchangeService, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _exchangeProvider = exchangeService;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public override async Task ExecuteAsync(ExcListPacket packet, ClientSession clientSession)
         {
             if ((packet.Gold > clientSession.Character.Gold) || (packet.BankGold > clientSession.Account.BankMoney))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NOT_ENOUGH_GOLD));
+                _logger.Error(_logLanguage[LogLanguageKey.NOT_ENOUGH_GOLD]);
                 return;
             }
 
@@ -74,7 +77,7 @@ namespace NosCore.PacketHandlers.Exchange
                                 ExchangeResultType.Failure);
                         await clientSession.SendPacketAsync(closeExchange).ConfigureAwait(false);
                         await target.SendPacketAsync(closeExchange).ConfigureAwait(false);
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE_LIST));
+                        _logger.Error(_logLanguage[LogLanguageKey.INVALID_EXCHANGE_LIST]);
                         return;
                     }
 
@@ -84,7 +87,7 @@ namespace NosCore.PacketHandlers.Exchange
                             ExchangeResultType.Failure)).ConfigureAwait(false);
                         await target.SendPacketAsync(_exchangeProvider.CloseExchange(target.VisualId, ExchangeResultType.Failure)).ConfigureAwait(false);
                         _logger.Error(
-                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM));
+                            _logLanguage[LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM]);
                         return;
                     }
 
