@@ -32,6 +32,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
 
 namespace NosCore.WorldServer
@@ -45,8 +46,10 @@ namespace NosCore.WorldServer
         private readonly IMapInstanceGeneratorService _mapInstanceGeneratorService;
         private readonly Clock _clock;
         private readonly IClock _nodatimeClock;
+        private readonly ISaveService _saveService;
 
-        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger logger, IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService, IClock nodatimeClock)
+        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger logger, 
+            IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService, IClock nodatimeClock, ISaveService saveService)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -55,6 +58,7 @@ namespace NosCore.WorldServer
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
             _clock = clock;
             _nodatimeClock = nodatimeClock;
+            _saveService = saveService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -63,7 +67,7 @@ namespace NosCore.WorldServer
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
-                var eventSaveAll = new SaveAll(_logger, _nodatimeClock);
+                var eventSaveAll = new SaveAll(_logger, _nodatimeClock, _saveService);
                 _ = eventSaveAll.ExecuteAsync();
                 _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHANNEL_WILL_EXIT));
                 Thread.Sleep(30000);

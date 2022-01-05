@@ -35,9 +35,8 @@ namespace NosCore.PacketHandlers.Command
                 return session.SendPacketAsync(session.Character.GenerateSay(speedPacket.Help(), SayColorType.Yellow));
             }
 
-            session.Character.Speed = speedPacket.Speed >= 60 ? (byte)59 : speedPacket.Speed;
+            session.Character.VehicleSpeed = speedPacket.Speed >= 60 ? (byte)59 : speedPacket.Speed;
             return session.SendPacketAsync(session.Character.GenerateCond());
-
         }
     }
 }

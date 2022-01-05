@@ -33,6 +33,8 @@ using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
+using NosCore.GameObject.Services.LoginService;
+using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets.ClientPackets.Login;
@@ -68,7 +70,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             _loginConfiguration = Options.Create(new LoginConfiguration());
             _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration,
                     TestHelpers.Instance.AccountDao,
-                    _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder()),
+                    _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder(), new Mock<SaveService>().Object),
                 _loginConfiguration, Logger);
         }
 

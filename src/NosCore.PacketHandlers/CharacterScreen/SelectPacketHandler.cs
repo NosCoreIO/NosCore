@@ -126,14 +126,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 await clientSession.SendPacketsAsync(clientSession.Character.GenerateInv()).ConfigureAwait(false);
 #pragma warning restore CS0618
                 await clientSession.SendPacketAsync(clientSession.Character.GenerateMlobjlst()).ConfigureAwait(false);
-                if (clientSession.Character.Hp > clientSession.Character.HpLoad())
+                if (clientSession.Character.Hp > clientSession.Character.MaxHp)
                 {
-                    clientSession.Character.Hp = (int)clientSession.Character.HpLoad();
+                    clientSession.Character.Hp = clientSession.Character.MaxHp;
                 }
 
-                if (clientSession.Character.Mp > clientSession.Character.MpLoad())
+                if (clientSession.Character.Mp > clientSession.Character.MaxMp)
                 {
-                    clientSession.Character.Mp = (int)clientSession.Character.MpLoad();
+                    clientSession.Character.Mp = clientSession.Character.MaxMp;
                 }
 
                 var quests = _characterQuestDao

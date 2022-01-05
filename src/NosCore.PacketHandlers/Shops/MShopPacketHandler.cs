@@ -179,7 +179,6 @@ namespace NosCore.PacketHandlers.Shops
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GeneratePFlag(),
                         new EveryoneBut(clientSession.Channel!.Id)).ConfigureAwait(false);
                     clientSession.Character.IsSitting = true;
-                    clientSession.Character.LoadSpeed();
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateCond()).ConfigureAwait(false);
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateRest()).ConfigureAwait(false);
                     break;
