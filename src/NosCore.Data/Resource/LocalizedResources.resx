@@ -630,4 +630,7 @@
   <data name="QUESTS_PARSED" xml:space="preserve">
     <value>{0} Quests Parsed!</value>
   </data>
+  <data name="SAVE_CHARACTER_FAILED" xml:space="preserve">
+    <value>Save Character failed. SessionId: {SessionId}</value>
+  </data>
 </root>

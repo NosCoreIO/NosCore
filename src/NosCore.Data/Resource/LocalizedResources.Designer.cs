@@ -1321,7 +1321,16 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Saving all data!.
+        ///   Looks up a localized string similar to Save Character failed. SessionId: {SessionId}.
+        /// </summary>
+        public static string SAVE_CHARACTER_FAILED {
+            get {
+                return ResourceManager.GetString("SAVE_CHARACTER_FAILED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saving all data!.
         /// </summary>
         public static string SAVING_ALL {
             get {
