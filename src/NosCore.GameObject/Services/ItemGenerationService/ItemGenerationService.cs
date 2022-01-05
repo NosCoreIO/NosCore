@@ -20,12 +20,14 @@
 using Mapster;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -37,10 +39,13 @@ namespace NosCore.GameObject.Services.ItemGenerationService
         private readonly IEventLoaderService<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>>? _runner;
         private readonly List<ItemDto> _items;
         private readonly ILogger _logger;
-        public ItemGenerationService(List<ItemDto> items, ILogger logger)
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage = null!;
+
+        public ItemGenerationService(List<ItemDto> items, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _items = items;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public ItemGenerationService(List<ItemDto> items,
@@ -134,7 +139,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
                                 Design = design
                             };
                         default:
-                            var wear = new WearableInstance(itemToCreate, _logger)
+                            var wear = new WearableInstance(itemToCreate, _logger, _logLanguage)
                             {
                                 Amount = amount,
                                 Rare = rare,
