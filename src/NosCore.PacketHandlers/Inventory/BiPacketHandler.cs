@@ -26,6 +26,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
 
@@ -34,10 +35,12 @@ namespace NosCore.PacketHandlers.Inventory
     public class BiPacketHandler : PacketHandler<BiPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public BiPacketHandler(ILogger logger)
+        public BiPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public override async Task ExecuteAsync(BiPacket bIPacket, ClientSession clientSession)
@@ -89,7 +92,7 @@ namespace NosCore.PacketHandlers.Inventory
                 case RequestDeletionType.Confirmed:
                     if (clientSession.Character.InExchangeOrShop)
                     {
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP));
+                        _logger.Error(_logLanguage[LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP]);
                         return;
                     }
 
