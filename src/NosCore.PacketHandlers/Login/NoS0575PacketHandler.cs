@@ -25,6 +25,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
 using NosCore.Packets.ClientPackets.Login;
+using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
 using NosCore.GameObject.Services.LoginService;
@@ -36,12 +37,14 @@ namespace NosCore.PacketHandlers.Login
         private readonly ILogger _logger;
         private readonly IOptions<LoginConfiguration> _loginConfiguration;
         private readonly ILoginService _loginService;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public NoS0575PacketHandler(ILoginService loginService, IOptions<LoginConfiguration> loginConfiguration, ILogger logger)
+        public NoS0575PacketHandler(ILoginService loginService, IOptions<LoginConfiguration> loginConfiguration, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _loginService = loginService;
             _loginConfiguration = loginConfiguration;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public override Task ExecuteAsync(NoS0575Packet packet, ClientSession clientSession)
@@ -53,7 +56,7 @@ namespace NosCore.PacketHandlers.Login
                     false, packet.RegionType);
             }
 
-            _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TRY_OLD_AUTH), packet.Username);
+            _logger.Warning(_logLanguage[LogLanguageKey.TRY_OLD_AUTH], packet.Username);
             return Task.CompletedTask;
 
         }
