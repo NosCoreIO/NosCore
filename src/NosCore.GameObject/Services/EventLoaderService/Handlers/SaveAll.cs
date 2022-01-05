@@ -28,6 +28,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.GameObject.Services.SaveService;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 {
@@ -35,13 +36,15 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
     public class SaveAll : ITimedEventHandler
     {
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public SaveAll(ILogger logger, IClock clock, ISaveService saveService)
+        public SaveAll(ILogger logger, IClock clock, ISaveService saveService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
             _clock = clock;
             _lastRun = _clock.GetCurrentInstant();
             _saveService = saveService;
+            _logLanguage = logLanguage;
         }
 
         private Instant _lastRun;
@@ -54,7 +57,7 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 
         public async Task ExecuteAsync(RequestData<Instant> runTime)
         {
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SAVING_ALL));
+            _logger.Information(_logLanguage[LogLanguageKey.SAVING_ALL]);
             await Task.WhenAll(Broadcaster.Instance.GetCharacters().Select(session => _saveService.SaveAsync(session)));
 
             _lastRun = runTime.Data;
