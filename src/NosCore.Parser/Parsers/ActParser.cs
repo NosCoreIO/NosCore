@@ -21,6 +21,7 @@ using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -64,13 +65,14 @@ namespace NosCore.Parser.Parsers
         private readonly ILogger _logger;
         private readonly IDao<ActDto, byte> _actDao;
         private readonly IDao<ActPartDto, byte> _actDescDao;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-
-        public ActParser(IDao<ActDto, byte> actDao, IDao<ActPartDto, byte> actDescDao, ILogger logger)
+        public ActParser(IDao<ActDto, byte> actDao, IDao<ActPartDto, byte> actDescDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
             _actDao = actDao;
             _actDescDao = actDescDao;
+            _logLanguage = logLanguage;
         }
 
         public async Task ImportActAsync(string folder)
@@ -108,7 +110,7 @@ namespace NosCore.Parser.Parsers
 
             await _actDao.TryInsertOrUpdateAsync(acts).ConfigureAwait(false);
             await _actDescDao.TryInsertOrUpdateAsync(actParts).ConfigureAwait(false);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACTS_PARTS_PARSED), actParts.Count);
+            _logger.Information(_logLanguage[LogLanguageKey.ACTS_PARTS_PARSED], actParts.Count);
         }
     }
 }
