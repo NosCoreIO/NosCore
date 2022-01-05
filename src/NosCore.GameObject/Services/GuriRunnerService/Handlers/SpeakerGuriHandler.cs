@@ -32,7 +32,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Networking;
-using NosCore.Networking.ChannelMatcher;
+using NosCore.Networking.SessionGroup.ChannelMatcher;
 
 namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 {

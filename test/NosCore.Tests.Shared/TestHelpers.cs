@@ -81,6 +81,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.I18N;
 using Serilog;
 using Character = NosCore.Database.Entities.Character;
 using InventoryItemInstance = NosCore.Database.Entities.InventoryItemInstance;
@@ -309,7 +310,8 @@ namespace NosCore.Tests.Shared
                 new Mock<ISerializer>().Object,
                 PacketHttpClient.Object,
                 minilandProvider.Object,
-                MapInstanceGeneratorService, new SessionRefHolder(), Clock, new Mock<ISaveService>().Object, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object)
+                MapInstanceGeneratorService, new SessionRefHolder(), Clock, new Mock<ISaveService>().Object, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, 
+                new Mock<IHeroExperienceService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object)
             {
                 SessionId = _lastId
             };

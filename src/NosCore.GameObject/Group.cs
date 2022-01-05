@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using DotNetty.Common.Concurrency;
-using DotNetty.Transport.Channels.Groups;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -32,6 +30,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Networking;
+using NosCore.Networking.SessionGroup;
 
 
 namespace NosCore.GameObject
@@ -47,8 +46,7 @@ namespace NosCore.GameObject
             LastPackets = new ConcurrentQueue<IPacket>();
             Type = type;
             GroupId = -1;
-            ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
-            Sessions = new DefaultChannelGroup(executor);
+            Sessions = new SessionGroup();
         }
 
         public ConcurrentQueue<IPacket> LastPackets { get; }
@@ -63,7 +61,7 @@ namespace NosCore.GameObject
 
         public new int Count => Keys.Count(s => s.Item1 == VisualType.Player);
 
-        public IChannelGroup Sessions { get; set; }
+        public ISessionGroup Sessions { get; set; }
 
         public PinitPacket GeneratePinit()
         {

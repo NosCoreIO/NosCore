@@ -55,8 +55,9 @@ using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
-using NosCore.Networking.ChannelMatcher;
+using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Networking.SessionRef;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
@@ -85,8 +86,9 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly IHeroExperienceService _heroExperienceService = null!;
 
         public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock)
-            : base(logger)
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock,
+            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> logLanguage)
+            : base(logger, logLanguage)
         {
             _logger = logger;
             _packetsHandlers = packetsHandlers.ToList();
@@ -107,9 +109,10 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock) 
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock,
+            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> logLanguage) 
             : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient,
-                sessionRefHolder, clock)
+                sessionRefHolder, clock, logLanguage)
         {
         }
 
@@ -118,8 +121,9 @@ namespace NosCore.GameObject.Networking.ClientSession
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
             IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, ISessionRefHolder sessionRefHolder, IClock clock, 
-            ISaveService saveService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService) 
-            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, clock)
+            ISaveService saveService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
+            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> logLanguage) 
+            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, clock, logLanguage)
         {
             _mapInstanceAccessorService = mapInstanceAccessorService;
             _exchangeProvider = exchangeService!;

@@ -17,9 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using DotNetty.Common.Concurrency;
-using DotNetty.Transport.Channels.Groups;
-
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.Interfaces;
@@ -28,6 +25,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Networking;
+using NosCore.Networking.SessionGroup;
 
 namespace NosCore.GameObject.Networking
 {
@@ -38,15 +36,14 @@ namespace NosCore.GameObject.Networking
 
         private Broadcaster()
         {
-            ExecutionEnvironment.TryGetCurrentExecutor(out var executor);
-            Sessions = new DefaultChannelGroup(executor);
+            Sessions = new SessionGroup();
         }
 
         private ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; } = new();
 
         public static Broadcaster Instance => _instance ??= new Broadcaster();
 
-        public IChannelGroup Sessions { get; set; }
+        public ISessionGroup Sessions { get; set; }
 
         public ConcurrentQueue<IPacket> LastPackets { get; } = new();
 

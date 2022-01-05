@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using DotNetty.Transport.Channels;
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ExperienceService;
@@ -67,10 +66,11 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using DotNetty.Transport.Channels;
 using NodaTime;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking;
-using NosCore.Networking.ChannelMatcher;
+using NosCore.Networking.SessionGroup.ChannelMatcher;
 
 //TODO stop using obsolete
 #pragma warning disable 618
