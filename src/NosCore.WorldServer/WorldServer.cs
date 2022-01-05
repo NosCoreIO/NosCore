@@ -42,6 +42,7 @@ namespace NosCore.WorldServer
     {
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly NetworkManager _networkManager;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly IMapInstanceGeneratorService _mapInstanceGeneratorService;
@@ -50,7 +51,7 @@ namespace NosCore.WorldServer
         private readonly ISaveService _saveService;
 
         public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger logger, 
-            IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService, IClock nodatimeClock, ISaveService saveService)
+            IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService, IClock nodatimeClock, ISaveService saveService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -60,6 +61,7 @@ namespace NosCore.WorldServer
             _clock = clock;
             _nodatimeClock = nodatimeClock;
             _saveService = saveService;
+            _logLanguage = logLanguage;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -68,7 +70,7 @@ namespace NosCore.WorldServer
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
-                var eventSaveAll = new SaveAll(_logger, _nodatimeClock, _saveService);
+                var eventSaveAll = new SaveAll(_logger, _nodatimeClock, _saveService, _logLanguage);
                 _ = eventSaveAll.ExecuteAsync();
                 _logger.Information(_logLanguage[LogLanguageKey.CHANNEL_WILL_EXIT]);
                 Thread.Sleep(30000);

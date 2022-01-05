@@ -324,8 +324,13 @@ namespace NosCore.Tests.Shared
                 SessionId = _lastId
             };
 
+            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            _logLanguageLocalister = mock.Object;
+
             var chara = new GameObject.Character(new InventoryService(ItemList, WorldConfiguration, _logger),
-                new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestHolder()), new Mock<IItemGenerationService>().Object,
+                new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestHolder(), _logLanguageLocalister), new Mock<IItemGenerationService>().Object,
                 _logger, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), 
                 new HeroExperienceService(), new ReputationService(), new DignityService(), 
                 TestHelpers.Instance.WorldConfiguration, Clock, new Mock<ISpeedCalculationService>().Object)
