@@ -21,6 +21,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -28,6 +29,7 @@ using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -37,6 +39,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     public class BiPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private BiPacketHandler? _biPacketHandler;
         private IItemGenerationService? _item;
         private ClientSession? _session;
@@ -47,7 +50,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _biPacketHandler = new BiPacketHandler(Logger);
+            _biPacketHandler = new BiPacketHandler(Logger, _logLanguageLocalister);
         }
 
         [TestMethod]
