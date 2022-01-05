@@ -168,7 +168,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     clientSession.MfaValidated = true;
                 }
 
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ACCOUNT_ARRIVED),
+                _logger.Information(_logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],
                     clientSession.Account!.Name);
                 if (!clientSession.MfaValidated && clientSession.Account.MfaSecret != null)
                 {
