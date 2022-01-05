@@ -34,7 +34,6 @@ using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.MpService;
 using NosCore.Algorithm.ReputationService;
-using NosCore.Algorithm.SpeedService;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -69,6 +68,8 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Services.SaveService;
+using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.PacketHandlers.CharacterScreen;
@@ -273,7 +274,7 @@ namespace NosCore.Tests.Shared
             TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig()
                 .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
             TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig()
-                .ConstructUsing(src => new GameObject.MapMonster(_logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
+                .ConstructUsing(src => new GameObject.MapMonster(_logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock, new Mock<ISpeedCalculationService>().Object));
 
         }
 
@@ -308,15 +309,16 @@ namespace NosCore.Tests.Shared
                 new Mock<ISerializer>().Object,
                 PacketHttpClient.Object,
                 minilandProvider.Object,
-                MapInstanceGeneratorService, new SessionRefHolder(), Clock)
+                MapInstanceGeneratorService, new SessionRefHolder(), Clock, new Mock<ISaveService>().Object, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object)
             {
                 SessionId = _lastId
             };
 
             var chara = new GameObject.Character(new InventoryService(ItemList, WorldConfiguration, _logger),
-                new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestHolder()), new Mock<IItemGenerationService>().Object, CharacterDao, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, AccountDao,
-                _logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, minilandProvider.Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
-                , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, Clock)
+                new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestHolder()), new Mock<IItemGenerationService>().Object,
+                _logger, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), 
+                new HeroExperienceService(), new ReputationService(), new DignityService(), 
+                TestHelpers.Instance.WorldConfiguration, Clock, new Mock<ISpeedCalculationService>().Object)
             {
                 CharacterId = _lastId,
                 Name = "TestExistingCharacter" + _lastId,

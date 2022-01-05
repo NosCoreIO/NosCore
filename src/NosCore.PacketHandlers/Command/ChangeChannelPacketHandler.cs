@@ -22,14 +22,15 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.LoginService;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.LoginService;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class ChangeChannelPacketHandler : PacketHandler<ChangeChannelPacket>, IWorldPacketHandler
     {
-        private readonly ILoginService _loginService;
+        private readonly IChannelService _loginService;
 
-        public ChangeChannelPacketHandler(ILoginService loginService)
+        public ChangeChannelPacketHandler(IChannelService loginService)
         {
             _loginService = loginService;
         }

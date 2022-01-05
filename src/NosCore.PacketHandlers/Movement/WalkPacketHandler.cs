@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.Movement
         private readonly IHeuristic _distanceCalculator;
         private readonly ILogger _logger;
         // this is used to avoid network issue to be counted as speed hack.
-        private readonly int _speedDiffAllowed = 1 / 3;
+        private readonly double _speedDiffAllowed = 1D / 3;
         private readonly IClock _clock;
 
         public WalkPacketHandler(IHeuristic distanceCalculator, ILogger logger, IClock clock)
@@ -51,8 +51,7 @@ namespace NosCore.PacketHandlers.Movement
         {
             var distance = (int)_distanceCalculator.GetDistance((session.Character.PositionX, session.Character.PositionY), (walkPacket.XCoordinate, walkPacket.YCoordinate)) - 1;
 
-            if (((session.Character.Speed < walkPacket.Speed)
-                && (session.Character.LastSpeedChange.Plus(Duration.FromSeconds(5)) <= _clock.GetCurrentInstant())) || (distance > session.Character.Speed / 2))
+            if ((session.Character.Speed < walkPacket.Speed) || (distance > session.Character.Speed / 2))
             {
                 return;
             }

@@ -29,7 +29,6 @@ using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.MpService;
 using NosCore.Algorithm.ReputationService;
-using NosCore.Algorithm.SpeedService;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -39,6 +38,7 @@ using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -62,8 +62,7 @@ namespace NosCore.GameObject.Tests
         [TestMethod]
         public void Test_Add_Player()
         {
-            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new Mock<IDao<CharacterDto, long>>().Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new Mock<IDao<AccountDto, long>>().Object, Logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandService>().Object, new Mock<IDao<TitleDto, Guid>>().Object,
-                new Mock<IDao<CharacterQuestDto, Guid>>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.Clock)
+            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object,Logger, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.Clock, new Mock<ISpeedCalculationService>().Object)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -80,8 +79,7 @@ namespace NosCore.GameObject.Tests
         [TestMethod]
         public void Test_Remove_Player()
         {
-            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new Mock<IDao<CharacterDto, long>>().Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new Mock<IDao<AccountDto, long>>().Object, Logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandService>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
-                , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.Clock)
+            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object,Logger, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.Clock, new Mock<ISpeedCalculationService>().Object)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -114,8 +112,8 @@ namespace NosCore.GameObject.Tests
         {
             for (var i = 0; i < (long)_group!.Type; i++)
             {
-                var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new Mock<IDao<CharacterDto, long>>().Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new Mock<IDao<AccountDto, long>>().Object, Logger, new Mock<IDao<StaticBonusDto, long>>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<MinilandDto, Guid>>().Object, new Mock<IMinilandService>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object
-                    , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new SpeedService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.Clock)
+                var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, Logger
+                    , new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.Clock, new Mock<ISpeedCalculationService>().Object)
                 {
                     CharacterId = i + 1,
                     Name = $"TestExistingCharacter{i}",

@@ -49,6 +49,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
+using NosCore.Data.Enumerations.Buff;
+using NosCore.Packets.ServerPackets.Quicklist;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -57,6 +62,64 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static GoldPacket GenerateGold(this ICharacterEntity characterEntity)
         {
             return new GoldPacket { Gold = characterEntity.Gold };
+        }
+
+        public static IEnumerable<QSlotPacket> GenerateQuicklist(this ICharacterEntity characterEntity)
+        {
+            var pktQs = new QSlotPacket[2];
+            for (var i = 0; i < pktQs.Length; i++)
+            {
+                var subpacket = new List<QsetClientSubPacket?>();
+                for (var j = 0; j < 30; j++)
+                {
+                    var qi = characterEntity.QuicklistEntries.FirstOrDefault(n =>
+                        (n.QuickListIndex == i) && (n.Slot == j) && (n.Morph == (characterEntity.UseSp ? characterEntity.Morph : 0)));
+
+                    subpacket.Add(new QsetClientSubPacket
+                    {
+                        OriginQuickList = qi?.Type ?? 7,
+                        OriginQuickListSlot = qi?.IconType ?? -1,
+                        Data = qi?.IconVNum ?? -1
+                    });
+                }
+
+                pktQs[i] = new QSlotPacket
+                {
+                    Slot = i,
+                    Data = subpacket
+                };
+            }
+
+            return pktQs;
+        }
+
+        public static LevPacket GenerateLev(this ICharacterEntity characterEntity, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+        {
+            return new LevPacket
+            {
+                Level = characterEntity.Level,
+                LevelXp = characterEntity.LevelXp,
+                JobLevel = characterEntity.JobLevel,
+                JobLevelXp = characterEntity.JobLevelXp,
+                XpLoad = experienceService.GetExperience(characterEntity.Level),
+                JobXpLoad = jobExperienceService.GetJobExperience(characterEntity.Class, characterEntity.JobLevel),
+                Reputation = characterEntity.Reput,
+                SkillCp = 0,
+                HeroXp = characterEntity.HeroXp,
+                HeroLevel = characterEntity.HeroLevel,
+                HeroXpLoad = characterEntity.HeroLevel == 0 ? 0 : heroExperienceService.GetHeroExperience(characterEntity.HeroLevel)
+            };
+        }
+
+        public static void LoadExpensions(this ICharacterEntity characterEntity)
+        {
+            var backpack = characterEntity.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BackPack);
+            var backpackticket = characterEntity.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.InventoryTicketUpgrade);
+            var expension = (byte)((backpack ? 12 : 0) + (backpackticket ? 60 : 0));
+
+            characterEntity.InventoryService.Expensions[NoscorePocketType.Main] += expension;
+            characterEntity.InventoryService.Expensions[NoscorePocketType.Equipment] += expension;
+            characterEntity.InventoryService.Expensions[NoscorePocketType.Etc] += expension;
         }
 
         public static RsfiPacket GenerateRsfi(this ICharacterEntity characterEntity)

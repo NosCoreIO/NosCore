@@ -27,6 +27,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Services.SaveService;
 
 namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 {
@@ -35,15 +36,17 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
     {
         private readonly ILogger _logger;
 
-        public SaveAll(ILogger logger, IClock clock)
+        public SaveAll(ILogger logger, IClock clock, ISaveService saveService)
         {
             _logger = logger;
             _clock = clock;
             _lastRun = _clock.GetCurrentInstant();
+            _saveService = saveService;
         }
 
         private Instant _lastRun;
         private readonly IClock _clock;
+        private readonly ISaveService _saveService;
 
         public bool Condition(Clock condition) => condition.LastTick.Minus(_lastRun).ToTimeSpan() >= TimeSpan.FromMinutes(5);
 
@@ -52,7 +55,7 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
         public async Task ExecuteAsync(RequestData<Instant> runTime)
         {
             _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SAVING_ALL));
-            await Task.WhenAll(Broadcaster.Instance.GetCharacters().Select(session => session.SaveAsync()));
+            await Task.WhenAll(Broadcaster.Instance.GetCharacters().Select(session => _saveService.SaveAsync(session)));
 
             _lastRun = runTime.Data;
         }

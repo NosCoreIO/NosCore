@@ -17,6 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
@@ -25,19 +29,17 @@ using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Character;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Networking.LoginService;
+using NosCore.GameObject.Services.SaveService;
+using NosCore.Networking.SessionRef;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Enumerations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NosCore.Data.Enumerations.Character;
-using NosCore.Networking.SessionRef;
 
-namespace NosCore.GameObject.Networking.LoginService
+namespace NosCore.GameObject.Services.LoginService
 {
     public class LoginService : ILoginService
     {
@@ -63,32 +65,8 @@ namespace NosCore.GameObject.Networking.LoginService
             _sessionRefHolder = sessionRefHolder;
         }
 
-        public async Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId)
-        {
-            var server = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
-            if (server == null || server.Type != ServerType.WorldServer)
-            {
-                return;
-            }
-            await clientSession.SendPacketAsync(new MzPacket
-            {
-                Port = server.DisplayPort ?? server.Port,
-                Ip = server.DisplayHost ?? server.Host,
-                CharacterSlot = clientSession.Character.Slot
-            });
-
-            await clientSession.SendPacketAsync(new ItPacket
-            {
-                Mode = 1
-            });
-
-            await _authHttpClient.SetAwaitingConnectionAsync(-1, clientSession.Account.Name);
-            await clientSession.Character.SaveAsync();
-            await clientSession.DisconnectAsync();
-        }
-
         public async Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,
-            ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language)
+            Networking.ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language)
         {
             try
             {

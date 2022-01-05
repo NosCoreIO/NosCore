@@ -17,26 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.CommandPackets;
-using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.Enumerations;
+using NosCore.Packets.ClientPackets.Login;
+using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 
-namespace NosCore.PacketHandlers.Command
+namespace NosCore.GameObject.Networking.LoginService
 {
-    public class SpeedPacketHandler : PacketHandler<SpeedPacket>, IWorldPacketHandler
+    public interface IChannelService
     {
-        public override Task ExecuteAsync(SpeedPacket speedPacket, ClientSession session)
-        {
-            if ((speedPacket.Speed <= 0) || (speedPacket.Speed >= 60))
-            {
-                return session.SendPacketAsync(session.Character.GenerateSay(speedPacket.Help(), SayColorType.Yellow));
-            }
-
-            session.Character.VehicleSpeed = speedPacket.Speed >= 60 ? (byte)59 : speedPacket.Speed;
-            return session.SendPacketAsync(session.Character.GenerateCond());
-        }
+        Task MoveChannelAsync(ClientSession.ClientSession clientSession, int channelId);
     }
 }

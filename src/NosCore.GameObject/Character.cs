@@ -26,7 +26,6 @@ using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.MpService;
 using NosCore.Algorithm.ReputationService;
-using NosCore.Algorithm.SpeedService;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
@@ -69,6 +68,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking;
 using NosCore.Networking.ChannelMatcher;
 
@@ -77,70 +77,42 @@ using NosCore.Networking.ChannelMatcher;
 
 namespace NosCore.GameObject
 {
-    public class Character : CharacterDto, ICharacterEntity, IRequestableEntity
+    public class Character : CharacterDto, ICharacterEntity
     {
-        private readonly IDao<AccountDto, long> _accountDao;
-        private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
-        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly ILogger _logger;
-        private readonly IDao<MinilandDto, Guid> _minilandDao;
-        private readonly IMinilandService _minilandProvider;
-        private readonly IDao<QuicklistEntryDto, Guid> _quicklistEntriesDao;
-        private readonly IDao<StaticBonusDto, long> _staticBonusDao;
-        private readonly IDao<TitleDto, Guid> _titleDao;
-        private readonly IDao<CharacterQuestDto, Guid> _characterQuestsDao;
         private readonly IHpService _hpService;
         private readonly IMpService _mpService;
-        private readonly ISpeedService _speedService;
         private readonly IExperienceService _experienceService;
         private readonly IJobExperienceService _jobExperienceService;
         private readonly IHeroExperienceService _heroExperienceService;
         private readonly IReputationService _reputationService;
         private readonly IDignityService _dignityService;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
+        private readonly IClock _clock;
+        private readonly ISpeedCalculationService _speedCalculationService;
 
-        public Character(IInventoryService inventory, IExchangeService exchangeService, IItemGenerationService itemProvider,
-            IDao<CharacterDto, long> characterDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<AccountDto, long> accountDao,
-            ILogger logger, IDao<StaticBonusDto, long> staticBonusDao,
-            IDao<QuicklistEntryDto, Guid> quicklistEntriesDao, IDao<MinilandDto, Guid> minilandDao,
-            IMinilandService minilandProvider, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
-            IHpService hpService, IMpService mpService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpeedService speedService,
-            IReputationService reputationService, IDignityService dignityService, IOptions<WorldConfiguration> worldConfiguration, IClock clock)
+        public Character(IInventoryService inventory, IExchangeService exchangeService, IItemGenerationService itemProvider, ILogger logger,
+            IHpService hpService, IMpService mpService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
+            IReputationService reputationService, IDignityService dignityService, IOptions<WorldConfiguration> worldConfiguration, IClock clock, ISpeedCalculationService speedCalculationService)
         {
             InventoryService = inventory;
             ExchangeProvider = exchangeService;
             ItemProvider = itemProvider;
             GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
-            _characterDao = characterDao;
-            _itemInstanceDao = itemInstanceDao;
-            _accountDao = accountDao;
             _logger = logger;
-            _inventoryItemInstanceDao = inventoryItemInstanceDao;
-            _staticBonusDao = staticBonusDao;
-            _titleDao = titleDao;
-            QuicklistEntries = new List<QuicklistEntryDto>();
-            _quicklistEntriesDao = quicklistEntriesDao;
-            _characterQuestsDao = characterQuestDao;
-            _minilandDao = minilandDao;
-            _minilandProvider = minilandProvider;
             _hpService = hpService;
             _mpService = mpService;
             _experienceService = experienceService;
             _jobExperienceService = jobExperienceService;
             _heroExperienceService = heroExperienceService;
-            _speedService = speedService;
             _reputationService = reputationService;
             _dignityService = dignityService;
             _worldConfiguration = worldConfiguration;
             LastSp = clock.GetCurrentInstant();
             _clock = clock;
+            _speedCalculationService = speedCalculationService;
         }
-
-        private byte _speed;
-        private readonly IClock _clock;
 
         public ScriptDto? Script { get; set; }
 
@@ -149,8 +121,6 @@ namespace NosCore.GameObject
         public Instant LastPortal { get; set; }
 
         public ClientSession Session { get; set; } = null!;
-
-        public Instant LastSpeedChange { get; set; }
 
         public Instant LastMove { get; set; }
 
@@ -174,7 +144,7 @@ namespace NosCore.GameObject
 
         public bool InShop { get; set; }
 
-        public List<QuicklistEntryDto> QuicklistEntries { get; set; }
+        public List<QuicklistEntryDto> QuicklistEntries { get; set; } = new();
 
         public long BankGold => Session.Account.BankMoney;
 
@@ -225,35 +195,7 @@ namespace NosCore.GameObject
 
         public short PositionY { get; set; }
 
-        public byte Speed
-        {
-            get
-            {
-                if (VehicleSpeed != null)
-                {
-                    return (byte)VehicleSpeed;
-                }
-                //    if (HasBuff(CardType.Move, (byte)AdditionalTypes.Move.MovementImpossible))
-                //    {
-                //        return 0;
-                //    }
-
-                const int
-                    bonusSpeed = 0; /*(byte)GetBuff(CardType.Move, (byte)AdditionalTypes.Move.SetMovementNegated)[0];*/
-                if (_speed + bonusSpeed > 59)
-                {
-                    return 59;
-                }
-
-                return (byte)(_speed + bonusSpeed);
-            }
-
-            set
-            {
-                LastSpeedChange = _clock.GetCurrentInstant();
-                _speed = value > 59 ? (byte)59 : value;
-            }
-        }
+        public byte Speed => _speedCalculationService.CalculateSpeed(this);
 
         public short Morph { get; set; }
 
@@ -275,9 +217,30 @@ namespace NosCore.GameObject
 
         public bool IsAlive { get; set; }
 
-        public int MaxHp => (int)HpLoad();
+        public int MaxHp
+        {
+            get
+            {
+                const double multiplicator = 1.0;
+                const int hp = 0;
 
-        public int MaxMp => (int)MpLoad();
+                return (int)((_hpService.GetHp(Class, Level) + hp) * multiplicator);
+            }
+        }
+
+        public int MaxMp
+        {
+            get
+            {
+                const int mp = 0;
+                const double multiplicator = 1.0;
+                return (int)((_mpService.GetMp(Class, Level) + mp) * multiplicator);
+            }
+        }
+
+        public List<StaticBonusDto> StaticBonusList { get; set; } = new();
+        public List<TitleDto> Titles { get; set; } = new();
+        public bool IsDisconnecting { get; internal set; }
 
         public Task SendPacketAsync(IPacket? packetDefinition)
         {
@@ -305,7 +268,7 @@ namespace NosCore.GameObject
         {
             JobLevel = (byte)((Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20 : jobLevel);
             JobLevelXp = 0;
-            await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
             var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == MapInstance);
             await Task.WhenAll(mapSessions.Select(s =>
             {
@@ -327,17 +290,6 @@ namespace NosCore.GameObject
         {
             Group = group;
             group.JoinGroup(this);
-        }
-
-        public void LoadExpensions()
-        {
-            var backpack = StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BackPack);
-            var backpackticket = StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.InventoryTicketUpgrade);
-            var expension = (byte)((backpack ? 12 : 0) + (backpackticket ? 60 : 0));
-
-            InventoryService.Expensions[NoscorePocketType.Main] += expension;
-            InventoryService.Expensions[NoscorePocketType.Equipment] += expension;
-            InventoryService.Expensions[NoscorePocketType.Etc] += expension;
         }
 
         public async Task LeaveGroupAsync()
@@ -371,61 +323,7 @@ namespace NosCore.GameObject
             Group.JoinGroup(this);
         }
 
-        public async Task SaveAsync()
-        {
-            try
-            {
-                var account = Session.Account;
-                await _accountDao.TryInsertOrUpdateAsync(account).ConfigureAwait(false);
-
-                CharacterDto character = (Character)MemberwiseClone();
-                await _characterDao.TryInsertOrUpdateAsync(character).ConfigureAwait(false);
-
-                var quicklistEntriesToDelete = _quicklistEntriesDao
-                        .Where(i => i.CharacterId == CharacterId)!.ToList()
-                    .Where(i => QuicklistEntries.All(o => o.Id != i.Id)).ToList();
-                await _quicklistEntriesDao.TryDeleteAsync(quicklistEntriesToDelete.Select(s => s.Id).ToArray()).ConfigureAwait(false);
-                await _quicklistEntriesDao.TryInsertOrUpdateAsync(QuicklistEntries).ConfigureAwait(false);
-
-                // load and concat inventory with equipment
-                var itemsToDelete = _inventoryItemInstanceDao
-                        .Where(i => i.CharacterId == CharacterId)!.ToList()
-                    .Where(i => InventoryService.Values.All(o => o.Id != i.Id)).ToList();
-
-                await _inventoryItemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.Id).ToArray()).ConfigureAwait(false);
-                await _itemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.ItemInstanceId).ToArray()).ConfigureAwait(false);
-
-                await _itemInstanceDao.TryInsertOrUpdateAsync(InventoryService.Values.Select(s => s.ItemInstance!).ToArray()).ConfigureAwait(false);
-                await _inventoryItemInstanceDao.TryInsertOrUpdateAsync(InventoryService.Values.ToArray()).ConfigureAwait(false);
-
-                var staticBonusToDelete = _staticBonusDao
-                        .Where(i => i.CharacterId == CharacterId)!.ToList()
-                    .Where(i => StaticBonusList.All(o => o.StaticBonusId != i.StaticBonusId)).ToList();
-                await _staticBonusDao.TryDeleteAsync(staticBonusToDelete.Select(s => s.StaticBonusId)).ConfigureAwait(false);
-                await _staticBonusDao.TryInsertOrUpdateAsync(StaticBonusList).ConfigureAwait(false);
-
-                await _titleDao.TryInsertOrUpdateAsync(Titles).ConfigureAwait(false);
-
-                var minilandDto = (MinilandDto)_minilandProvider.GetMiniland(CharacterId);
-                await _minilandDao.TryInsertOrUpdateAsync(minilandDto).ConfigureAwait(false);
-
-                var questsToDelete = _characterQuestsDao
-                        .Where(i => i.CharacterId == CharacterId)!.ToList()
-                    .Where(i => Quests.Values.All(o => o.QuestId != i.QuestId)).ToList();
-                await _characterQuestsDao.TryDeleteAsync(questsToDelete.Select(s => s.Id)).ConfigureAwait(false);
-                await _characterQuestsDao.TryInsertOrUpdateAsync(Quests.Values).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                _logger.Error("Save Character failed. SessionId: " + Session.SessionId, e);
-            }
-        }
-
-
-        public List<StaticBonusDto> StaticBonusList { get; set; } = new();
-        public List<TitleDto> Titles { get; set; } = new();
-        public bool IsDisconnecting { get; internal set; }
-
+        // todo move this
         public async Task ChangeClassAsync(CharacterClassType classType)
         {
             if (Class == classType)
@@ -456,8 +354,6 @@ namespace NosCore.GameObject
             {
                 HairStyle = HairStyle > HairStyleType.HairStyleB ? 0 : HairStyle;
             }
-
-            LoadSpeed();
 
             Class = classType;
             Hp = MaxHp;
@@ -493,7 +389,7 @@ namespace NosCore.GameObject
             await MapInstance.SendPacketAsync(this.GenerateEff(8)).ConfigureAwait(false);
             //TODO: Faction
             await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
-            await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
             await SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
             await SendPacketAsync(new MsgiPacket
             {
@@ -560,6 +456,8 @@ namespace NosCore.GameObject
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language),
                 SayColorType.Red)).ConfigureAwait(false);
         }
+
+        //todo move this
         public async Task GenerateMailAsync(IEnumerable<MailData> mails)
         {
             foreach (var mail in mails)
@@ -607,7 +505,6 @@ namespace NosCore.GameObject
             await MapInstance.SendPacketAsync(this.GeneratePFlag()).ConfigureAwait(false);
 
             IsSitting = false;
-            LoadSpeed();
             await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(this.GenerateRest()).ConfigureAwait(false);
         }
@@ -782,7 +679,7 @@ namespace NosCore.GameObject
             await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
             await SendPacketAsync(this.GenerateStatInfo()).ConfigureAwait(false);
             //Session.SendPacket(GenerateStatChar());
-            await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
             var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == MapInstance);
 
             await Task.WhenAll(mapSessions.Select(async s =>
@@ -820,52 +717,6 @@ namespace NosCore.GameObject
             }).ConfigureAwait(false);
         }
 
-        public LevPacket GenerateLev()
-        {
-            return new LevPacket
-            {
-                Level = Level,
-                LevelXp = LevelXp,
-                JobLevel = JobLevel,
-                JobLevelXp = JobLevelXp,
-                XpLoad = _experienceService.GetExperience(Level),
-                JobXpLoad = _jobExperienceService.GetJobExperience(Class, JobLevel),
-                Reputation = Reput,
-                SkillCp = 0,
-                HeroXp = HeroXp,
-                HeroLevel = HeroLevel,
-                HeroXpLoad = HeroLevel == 0 ? 0 : _heroExperienceService.GetHeroExperience(HeroLevel)
-            };
-        }
-
-        public IEnumerable<QSlotPacket> GenerateQuicklist()
-        {
-            var pktQs = new QSlotPacket[2];
-            for (var i = 0; i < pktQs.Length; i++)
-            {
-                var subpacket = new List<QsetClientSubPacket?>();
-                for (var j = 0; j < 30; j++)
-                {
-                    var qi = QuicklistEntries.FirstOrDefault(n =>
-                        (n.QuickListIndex == i) && (n.Slot == j) && (n.Morph == (UseSp ? Morph : 0)));
-
-                    subpacket.Add(new QsetClientSubPacket
-                    {
-                        OriginQuickList = qi?.Type ?? 7,
-                        OriginQuickListSlot = qi?.IconType ?? -1,
-                        Data = qi?.IconVNum ?? -1
-                    });
-                }
-
-                pktQs[i] = new QSlotPacket
-                {
-                    Slot = i,
-                    Data = subpacket
-                };
-            }
-
-            return pktQs;
-        }
 
         [Obsolete(
             "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
@@ -996,9 +847,9 @@ namespace NosCore.GameObject
             return new StatPacket
             {
                 Hp = Hp,
-                HpMaximum = HpLoad(),
+                HpMaximum = MaxHp,
                 Mp = Mp,
-                MpMaximum = MpLoad(),
+                MpMaximum = MaxMp,
                 Unknown = 0,
                 Option = 0
             };
@@ -1008,26 +859,6 @@ namespace NosCore.GameObject
             SpPoint = SpPoint + spPointToAdd > _worldConfiguration.Value.MaxSpPoints
                 ? _worldConfiguration.Value.MaxSpPoints : SpPoint + spPointToAdd;
             return SendPacketAsync(this.GenerateSpPoint());
-        }
-
-        public void LoadSpeed()
-        {
-            Speed = _speedService.GetSpeed(Class);
-        }
-
-        public double MpLoad()
-        {
-            const int mp = 0;
-            const double multiplicator = 1.0;
-            return (int)((_mpService.GetMp(Class, Level) + mp) * multiplicator);
-        }
-
-        public double HpLoad()
-        {
-            const double multiplicator = 1.0;
-            const int hp = 0;
-
-            return (int)((_hpService.GetHp(Class, Level) + hp) * multiplicator);
         }
 
         public Task AddAdditionalSpPointsAsync(int spPointToAdd)
@@ -1044,9 +875,8 @@ namespace NosCore.GameObject
             Morph = 0;
             MorphUpgrade = 0;
             MorphDesign = 0;
-            LoadSpeed();
             await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
-            await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
             SpCooldown = 30;
             await SendPacketAsync(new SayiPacket
             {
@@ -1121,7 +951,7 @@ namespace NosCore.GameObject
             MorphUpgrade = sp.Upgrade;
             MorphDesign = sp.Design;
             await MapInstance.SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
-            await SendPacketAsync(GenerateLev()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(this.GenerateEff(196)).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(new GuriPacket
             {
@@ -1130,7 +960,6 @@ namespace NosCore.GameObject
                 EntityId = CharacterId
             }).ConfigureAwait(false);
             await SendPacketAsync(GenerateSpPoint()).ConfigureAwait(false);
-            LoadSpeed();
             await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
             await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
         }

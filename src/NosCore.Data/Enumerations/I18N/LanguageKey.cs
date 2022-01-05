@@ -161,7 +161,8 @@ namespace NosCore.Data.Enumerations.I18N
         ALREADY_CONNECTED,
         PACKET_HANDLING_ERROR,
         MFA_INCORRECT,
-        DATABASE_ERROR
+        DATABASE_ERROR,
+        SAVE_CHARACTER_FAILED
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

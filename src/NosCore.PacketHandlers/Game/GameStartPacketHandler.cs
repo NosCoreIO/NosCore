@@ -95,7 +95,6 @@ namespace NosCore.PacketHandlers.Game
                     SayColorType.Yellow)).ConfigureAwait(false);
             }
 
-            session.Character.LoadSpeed();
             //            Session.Character.LoadSkills();
             await session.SendPacketAsync(session.Character.GenerateTit()).ConfigureAwait(false);
             await session.SendPacketAsync(session.Character.GenerateSpPoint()).ConfigureAwait(false);
