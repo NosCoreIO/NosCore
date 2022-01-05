@@ -1,6 +1,7 @@
 ﻿using FastMember;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Concurrent;
@@ -21,8 +22,9 @@ namespace NosCore.Parser.Parsers.Generic
         private readonly TypeAccessor _typeAccessor;
         private readonly Dictionary<string, Func<Dictionary<string, string[][]>, object?>> _actionList;
         private readonly int _firstIndex;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public GenericParser(string fileAddress, string endPattern, int firstIndex, Dictionary<string, Func<Dictionary<string, string[][]>, object?>> actionList, ILogger logger)
+        public GenericParser(string fileAddress, string endPattern, int firstIndex, Dictionary<string, Func<Dictionary<string, string[][]>, object?>> actionList, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _fileAddress = fileAddress;
             _endPattern = endPattern;
@@ -30,6 +32,7 @@ namespace NosCore.Parser.Parsers.Generic
             _typeAccessor = TypeAccessor.Create(typeof(T), true);
             _actionList = actionList;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         private IEnumerable<string> ParseTextFromFile()
@@ -77,7 +80,7 @@ namespace NosCore.Parser.Parsers.Generic
                 }
                 catch (Exception ex)
                 {
-                    _logger.Verbose(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHUNK_FORMAT_INVALID), lines, ex);
+                    _logger.Verbose(_logLanguage[LogLanguageKey.CHUNK_FORMAT_INVALID], lines, ex);
                 }
             }))).ConfigureAwait(false);
             return resultCollection.ToList();
