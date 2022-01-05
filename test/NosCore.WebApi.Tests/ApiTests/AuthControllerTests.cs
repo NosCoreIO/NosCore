@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -17,6 +18,7 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Configuration;
+using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 using TwoFactorAuthNet;
@@ -30,10 +32,15 @@ namespace NosCore.WebApi.Tests.ApiTests
         private AuthController _controller = null!;
         private ClientSession _session = null!;
         private Mock<ILogger> _logger = null!;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
 
         [TestInitialize]
         public async Task Setup()
         {
+            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            _logLanguageLocalister = mock.Object;
             SessionFactory.Instance.AuthCodes.Clear();
             SessionFactory.Instance.ReadyForAuth.Clear();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
@@ -42,7 +49,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             _controller = new AuthController(Options.Create(new WebApiConfiguration()
             {
                 Password = "123"
-            }), TestHelpers.Instance.AccountDao, _logger.Object, new Sha512Hasher());
+            }), TestHelpers.Instance.AccountDao, _logger.Object, new Sha512Hasher(), _logLanguageLocalister);
         }
 
         [TestMethod]
@@ -56,7 +63,7 @@ namespace NosCore.WebApi.Tests.ApiTests
                 Locale = "en-GB"
             });
 
-            _logger.Verify(o => o.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_API_SUCCESS),
+            _logger.Verify(o => o.Information(_logLanguageLocalister[LogLanguageKey.AUTH_API_SUCCESS],
                 _session.Account.Name, It.IsAny<Guid>(), "en-GB"), Times.Once());
         }
 
@@ -69,7 +76,7 @@ namespace NosCore.WebApi.Tests.ApiTests
                 GfLang = "EN",
                 Password = "test2"
             });
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT))), JsonSerializer.Serialize((BadRequestObjectResult)result));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(_logLanguageLocalister[LogLanguageKey.AUTH_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)result));
         }
 
         [TestMethod]
@@ -79,7 +86,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             {
                 Identity = _session.Account.Name + "abc"
             });
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR))), JsonSerializer.Serialize((BadRequestObjectResult)result));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(_logLanguageLocalister[LogLanguageKey.AUTH_ERROR])), JsonSerializer.Serialize((BadRequestObjectResult)result));
         }
 
         [TestMethod]
@@ -95,7 +102,7 @@ namespace NosCore.WebApi.Tests.ApiTests
                 Mfa = tfa.GetCode(string.Concat(_session.Account.MfaSecret.Reverse())),
             });
 
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT))), JsonSerializer.Serialize((BadRequestObjectResult)result));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(_logLanguageLocalister[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)result));
         }
 
         [TestMethod]
@@ -171,7 +178,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             {
                 PlatformGameAccountId = "123"
             });
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT))), JsonSerializer.Serialize(((BadRequestObjectResult)result)));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(_logLanguageLocalister[LogLanguageKey.AUTH_INCORRECT])), JsonSerializer.Serialize(((BadRequestObjectResult)result)));
         }
 
         [TestMethod]
