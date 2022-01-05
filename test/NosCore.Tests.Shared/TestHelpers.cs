@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using DotNetty.Transport.Channels.Sockets;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using Moq;
 using NodaTime;
@@ -44,6 +45,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
@@ -103,6 +105,7 @@ namespace NosCore.Tests.Shared
         private IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao = null!;
         private IDao<IItemInstanceDto?, Guid> _itemInstanceDao = null!;
         private readonly ILogger _logger = new Mock<ILogger>().Object;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private IDao<MapMonsterDto, int> _mapMonsterDao = null!;
         private IDao<MapNpcDto, int> _mapNpcDao = null!;
         private IDao<PortalDto, int> _portalDao = null!;
@@ -174,6 +177,11 @@ namespace NosCore.Tests.Shared
 
         private async Task GenerateMapInstanceProviderAsync()
         {
+            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            _logLanguageLocalister = mock.Object;
+
             MapItemProvider = new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
                 {new DropEventHandler(), new SpChargerEventHandler(), new GoldDropEventHandler(TestHelpers.Instance.WorldConfiguration)}), new IdService<MapItem>(1));
             var map = new Map
@@ -232,7 +240,7 @@ namespace NosCore.Tests.Shared
             var instanceGeneratorService = new MapInstanceGeneratorService(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
                 MapItemProvider,
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, _shopItemDao, _logger, new EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()), holder, MapInstanceAccessorService, TestHelpers.Instance.Clock);
+                _mapMonsterDao, _portalDao, _shopItemDao, _logger, new EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()), holder, MapInstanceAccessorService, TestHelpers.Instance.Clock, _logLanguageLocalister);
             await instanceGeneratorService.InitializeAsync().ConfigureAwait(false);
             await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
                 MapInstanceType.NormalInstance, MapItemProvider, _logger, Clock)).ConfigureAwait(false);
@@ -247,8 +255,8 @@ namespace NosCore.Tests.Shared
                     Tuple<GameObject.Services.InventoryService.InventoryItemInstance, UseItemPacket>>>
                 {
                     new SpRechargerEventHandler(WorldConfiguration),
-                    new VehicleEventHandler(_logger),
-                    new WearEventHandler(_logger, TestHelpers.Instance.Clock)
+                    new VehicleEventHandler(_logger, _logLanguageLocalister),
+                    new WearEventHandler(_logger, TestHelpers.Instance.Clock, _logLanguageLocalister)
                 }), _logger);
         }
 
