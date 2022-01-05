@@ -165,8 +165,6 @@ namespace NosCore.Database
 
         public virtual DbSet<BattlepassBearing>? BattlepassBearing { get; set; }
 
-        public virtual DbSet<BattlepassQuest>? BattlepassQuest { get; set; }
-
         public virtual DbSet<BattlepassItem>? BattlepassItem { get; set; }
 
         public virtual DbSet<CharacterBattlepass>? CharacterBattlepass { get; set; }
@@ -442,7 +440,7 @@ namespace NosCore.Database
             modelBuilder.Entity<Item>()
                 .HasMany(e => e.BattlePassItem)
                 .WithOne(e => e.Item)
-                .HasForeignKey(e => e.VNum)
+                .HasForeignKey(e => e.ItemVNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Item>()

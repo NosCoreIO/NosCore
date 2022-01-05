@@ -118,6 +118,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         string GetMessageFromKey(LanguageKey support);
 
-        ConcurrentDictionary<Guid, CharacterBattlepassDto> BattlepassLogs { get; set; }
+        Dictionary<Guid, CharacterBattlepassDto> BattlepassLogs { get; set; }
     }
 }

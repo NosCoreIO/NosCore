@@ -1,7 +1,8 @@
-﻿using NosCore.Dao.Interfaces;
-using NosCore.Data.Dto;
+﻿using NosCore.Data.Dto;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,17 +10,17 @@ namespace NosCore.GameObject.Services.BattlepassService
 {
     public class BattlepassService : IBattlepassService
     {
-        private readonly IDao<BattlepassQuestDto, long> _battlePassQuestDao;
+        private readonly List<BattlepassQuestDto> _quests;
 
-        public BattlepassService(IDao<BattlepassQuestDto, long> battlePassQuestDao)
+        public BattlepassService(List<BattlepassQuestDto> quests)
         {
-            _battlePassQuestDao = battlePassQuestDao;
+            _quests = quests;
         }
 
-        public async Task IncrementQuestObjectives(ICharacterEntity character, long questId, int toAdd)
+        public Task IncrementQuestObjectives(ICharacterEntity character, long questId, int toAdd)
         {
-            var originalQuest = await _battlePassQuestDao.FirstOrDefaultAsync(s => s.Id == questId);
-            if (originalQuest == null) return;
+            var originalQuest = _quests.FirstOrDefault(s => s.Id == questId);
+            if (originalQuest == null) return Task.CompletedTask;
 
             var quest = character.BattlepassLogs.Values.FirstOrDefault(s => s.Data == questId && !s.IsItem);
 
@@ -34,9 +35,8 @@ namespace NosCore.GameObject.Services.BattlepassService
                 };
 
                 character.BattlepassLogs.TryAdd(questDto.Id, questDto);
-                // TODO : to fix
-                //await character.SendPacketAsync(character.BattlepassLogs[questDto.Id].GenerateBpmPacket(_holder, character.VisualId)).ConfigureAwait(false);
-                return;
+                await character.SendPacketAsync(character.GenerateBpmPacket(_quests, toAdd)).ConfigureAwait(false);
+                return Task.CompletedTask;
             }
 
             var newAdvencement = quest.Data2 + toAdd;
@@ -48,6 +48,7 @@ namespace NosCore.GameObject.Services.BattlepassService
             toUpdate.Data2 = newAdvencement;
             // TODO : to fix
             //await character.SendPacketAsync(toUpdate.GenerateBpmPacket(_holder, character.VisualId)).ConfigureAwait(false);
+            return Task.CompletedTask;
         }
     }
 }

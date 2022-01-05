@@ -18,6 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Mapster;
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -39,8 +41,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using NosCore.Core.Configuration;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -60,13 +60,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly List<QuestObjectiveDto> _questObjectives;
         private readonly List<QuestDto> _quests;
         private readonly IOptions<WorldConfiguration> _configuration;
+        private readonly IDao<CharacterBattlepassDto, Guid> _characterBattlepassDao;
 
         public SelectPacketHandler(IDao<CharacterDto, long> characterDao, ILogger logger,
             IItemGenerationService itemProvider,
             IMapInstanceAccessorService mapInstanceAccessorService, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
-            IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives, IOptions<WorldConfiguration> configuration)
+            IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives, IOptions<WorldConfiguration> configuration, IDao<CharacterBattlepassDto, Guid> characterBattlepassDao)
         {
             _characterDao = characterDao;
             _logger = logger;
@@ -82,6 +83,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _quests = quests;
             _questObjectives = questObjectives;
             _configuration = configuration;
+            _characterBattlepassDao = characterBattlepassDao;
         }
 
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -136,6 +138,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     clientSession.Character.Mp = (int)clientSession.Character.MpLoad();
                 }
 
+                var logs = _characterBattlepassDao.Where(s => s.CharacterId == clientSession.Character.CharacterId) ?? new List<CharacterBattlepassDto>();
+                clientSession.Character.BattlepassLogs = logs.ToDictionary(x => x.Id, x => x);
                 var quests = _characterQuestDao
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId) ?? new List<CharacterQuestDto>();
                 clientSession.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(quests.ToDictionary(x => x.Id, x =>

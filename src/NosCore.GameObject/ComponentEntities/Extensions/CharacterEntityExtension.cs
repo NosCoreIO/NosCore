@@ -25,6 +25,7 @@ using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
@@ -54,23 +55,22 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class CharacterEntityExtension
     {
-        public static BpmPacket GenerateBpmPacket(this ICharacterEntity characterEntity, long advencement, IOptions<WorldConfiguration> conf)
+        public static BpmPacket GenerateBpmPacket(this ICharacterEntity characterEntity, List<QuestDto> quests, long advencement, IOptions<WorldConfiguration> conf)
         {
             List<BpmSubTypePacket> subPackets = new();
-            // TODO : fix it
-            foreach (var quest in holder.BattePassQuests)
+            foreach (var quest in quests)
             {
                 var characterAdvencement = characterEntity.BattlepassLogs.Values.FirstOrDefault(s => s.CharacterId == characterEntity.VisualId && s.Data == advencement);
                 long actualAdvencement = characterAdvencement == null ? 0 : Convert.ToInt64(characterAdvencement.Data2);
                 subPackets.Add(new()
                 {
-                    QuestId = quest.Id,
-                    MissionType = quest.MissionType,
-                    FrequencyType = quest.FrequencyType,
-                    Advencement = actualAdvencement,
-                    MaxObjectiveValue = quest.MaxObjectiveValue,
-                    Reward = (byte)quest.RewardAmount,
-                    MissionMinutesRemaining = 1 // TODO
+                    //QuestId = quest.QuestId,
+                    //MissionType = quest.QuestType,
+                    //FrequencyType = quest.FrequencyType,
+                    //Advencement = actualAdvencement,
+                    //MaxObjectiveValue = quest.,
+                    //Reward = (byte)quest.R,
+                    //MissionMinutesRemaining = 1 // TODO
                 });
             }
 
