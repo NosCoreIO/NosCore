@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
@@ -42,6 +43,7 @@ using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -55,15 +57,21 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
     {
         private GameObject.Services.ItemGenerationService.ItemGenerationService? _itemProvider;
         private Mock<ILogger>? _logger;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
+            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            _logLanguageLocalister = mock.Object;
+
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _logger = new Mock<ILogger>();
             TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 40;
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            Handler = new WearEventHandler(_logger.Object, TestHelpers.Instance.Clock);
+            Handler = new WearEventHandler(_logger.Object, TestHelpers.Instance.Clock, _logLanguageLocalister);
             var items = new List<ItemDto>
             {
                 new Item
@@ -131,7 +139,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             Session!.Character.InShop = true;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
-            _logger!.Verify(s => s.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP)), Times.Exactly(1));
+            _logger!.Verify(s => s.Error(_logLanguageLocalister[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]), Times.Exactly(1));
         }
 
         [TestMethod]
