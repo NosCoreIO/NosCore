@@ -34,6 +34,7 @@ using System.Threading.Tasks;
 using NodaTime;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
+using NosCore.Shared.I18N;
 
 namespace NosCore.WorldServer
 {
@@ -69,7 +70,7 @@ namespace NosCore.WorldServer
             {
                 var eventSaveAll = new SaveAll(_logger, _nodatimeClock, _saveService);
                 _ = eventSaveAll.ExecuteAsync();
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHANNEL_WILL_EXIT));
+                _logger.Information(_logLanguage[LogLanguageKey.CHANNEL_WILL_EXIT]);
                 Thread.Sleep(30000);
             };
 
