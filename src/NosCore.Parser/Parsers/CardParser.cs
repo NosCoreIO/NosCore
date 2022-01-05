@@ -23,6 +23,7 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -53,12 +54,14 @@ namespace NosCore.Parser.Parsers
         private readonly IDao<CardDto, short> _cardDao;
         private readonly IDao<BCardDto, short> _bcardDao;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public CardParser(IDao<CardDto, short> cardDao, IDao<BCardDto, short> bcardDao, ILogger logger)
+        public CardParser(IDao<CardDto, short> cardDao, IDao<BCardDto, short> bcardDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _cardDao = cardDao;
             _bcardDao = bcardDao;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public async Task InsertCardsAsync(string folder)
@@ -77,12 +80,12 @@ namespace NosCore.Parser.Parsers
                 {nameof(CardDto.TimeoutBuffChance), chunk => Convert.ToByte(chunk["LAST"][0][3])}
             };
             var genericParser = new GenericParser<CardDto>(folder + _fileCardDat,
-                "END", 1, actionList, _logger);
+                "END", 1, actionList, _logger, _logLanguage);
             var cards = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.CardId).Select(g => g.First()).ToList();
             await _cardDao.TryInsertOrUpdateAsync(cards).ConfigureAwait(false);
             await _bcardDao.TryInsertOrUpdateAsync(cards.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
 
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CARDS_PARSED), cards.Count);
+            _logger.Information(_logLanguage[LogLanguageKey.CARDS_PARSED], cards.Count);
         }
 
         public List<BCardDto> AddBCards(Dictionary<string, string[][]> chunks)
