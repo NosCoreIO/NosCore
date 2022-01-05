@@ -23,6 +23,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -74,10 +75,11 @@ namespace NosCore.Parser.Parsers
         private readonly int[] _basicJXp = new int[100];
         private Dictionary<short, SkillDto>? _skilldb;
         private Dictionary<short, List<DropDto>>? _dropdb;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public NpcMonsterParser(IDao<SkillDto, short> skillDao, IDao<BCardDto, short> bCardDao,
             IDao<DropDto, short> dropDao, IDao<NpcMonsterSkillDto, long> npcMonsterSkillDao,
-            IDao<NpcMonsterDto, short> npcMonsterDao, ILogger logger)
+            IDao<NpcMonsterDto, short> npcMonsterDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _skillDao = skillDao;
             _bCardDao = bCardDao;
@@ -85,6 +87,7 @@ namespace NosCore.Parser.Parsers
             _npcMonsterSkillDao = npcMonsterSkillDao;
             _npcMonsterDao = npcMonsterDao;
             _logger = logger;
+            _logLanguage = logLanguage;
             InitStats();
         }
 
@@ -148,13 +151,13 @@ namespace NosCore.Parser.Parsers
             };
 
             var genericParser = new GenericParser<NpcMonsterDto>(folder + _fileNpcId,
-                "#========================================================", 1, actionList, _logger);
+                "#========================================================", 1, actionList, _logger, _logLanguage);
             var monsters = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
             await _npcMonsterDao.TryInsertOrUpdateAsync(monsters).ConfigureAwait(false);
             await _bCardDao.TryInsertOrUpdateAsync(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
             await _dropDao.TryInsertOrUpdateAsync(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop)).ConfigureAwait(false);
             await _npcMonsterSkillDao.TryInsertOrUpdateAsync(monsters.Where(s => s.NpcMonsterSkill != null).SelectMany(s => s.NpcMonsterSkill)).ConfigureAwait(false);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCMONSTERS_PARSED), monsters.Count);
+            _logger.Information(_logLanguage[LogLanguageKey.NPCMONSTERS_PARSED], monsters.Count);
         }
 
         private short ImportDamageMinimum(Dictionary<string, string[][]> chunk)
