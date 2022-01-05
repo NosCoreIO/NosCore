@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
@@ -55,10 +56,13 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly MapInstanceHolder _holder;
         private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
         private readonly IClock _clock;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public MapInstanceGeneratorService(List<MapDto> maps, List<NpcMonsterDto> npcMonsters, List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos,
             IMapItemGenerationService mapItemGenerationService, IDao<MapNpcDto, int> mapNpcs,
-            IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems, ILogger logger, EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler> entranceRunnerService, MapInstanceHolder holder, IMapInstanceAccessorService mapInstanceAccessorService, IClock clock)
+            IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems, ILogger logger, EventLoaderService<MapInstance,
+                MapInstance, IMapInstanceEntranceEventHandler> entranceRunnerService, MapInstanceHolder holder, IMapInstanceAccessorService mapInstanceAccessorService,
+            IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _mapItemGenerationService = mapItemGenerationService;
             _npcTalks = npcTalks;
@@ -74,6 +78,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _holder = holder;
             _mapInstanceAccessorService = mapInstanceAccessorService;
             _clock = clock;
+            _logLanguage = logLanguage;
         }
 
         public Task AddMapInstanceAsync(MapInstance mapInstance)
@@ -91,7 +96,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public async Task InitializeAsync()
         {
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LOADING_MAPINSTANCES));
+            _logger.Information(_logLanguage[LogLanguageKey.LOADING_MAPINSTANCES]);
             try
             {
                 _mapMonsters.LoadAll();
