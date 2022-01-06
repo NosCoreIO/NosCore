@@ -136,12 +136,10 @@ namespace NosCore.Core.Tests
         public void CheckLanguageUsage()
         {
             var result = string.Join(Environment.NewLine,
-                I18NTestHelpers.GetUselessLanguageKeys<LanguageKey>()
-                    .Select(x => $"{x.GetType().Name} {x} is  not used!"));
-            result += Environment.NewLine + string.Join(Environment.NewLine,
-                I18NTestHelpers.GetUselessLanguageKeys<LogLanguageKey>()
-                    .Select(x => $"{x.GetType().Name} {x} is  not used!"));
-
+                I18NTestHelpers.GetUselessLanguageKeys<LanguageKey>().Cast<Enum>()
+                    .Union(I18NTestHelpers.GetUselessLanguageKeys<LogLanguageKey>().Cast<Enum>())
+                    .Select(x => $"{x.GetType().Name} {x} is not used!"));
+      
             if (result.Length != 0)
             {
                 Assert.Fail(result);

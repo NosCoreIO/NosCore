@@ -95,12 +95,12 @@ namespace NosCore.PacketHandlers.Bazaar
                             {
                                 Type = VisualType.Player,
                                 VNum = bz.ItemInstance.ItemVNum,
-                                Owner = bz.BazaarItem.SellerId,
+                                Owner = bz.BazaarItem.SellerId.ToString(),
                                 Amount = packet.Amount,
                                 Price = packet.Price,
-                                Unknown1 = 0,
-                                Unknown2 = 0,
-                                Unknown3 = 0
+                                Slot = 0,
+                                Rarity = 0,
+                                Upgrade = 0
                             }).ConfigureAwait(false);
                             await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
                                 $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, clientSession.Account.Language)}: {item.Item!.Name[clientSession.Account.Language]} x {packet.Amount}"

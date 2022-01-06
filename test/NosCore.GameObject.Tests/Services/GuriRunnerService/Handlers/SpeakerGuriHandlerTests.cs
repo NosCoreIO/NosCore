@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
             };
             _logger = new Mock<ILogger>();
             _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger.Object);
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger.Object, TestHelpers.Instance.LogLanguageLocalizer);
 
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
 

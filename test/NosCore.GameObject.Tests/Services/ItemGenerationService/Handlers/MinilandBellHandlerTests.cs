@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
                 new Item {VNum = 1, Effect = ItemEffectType.Teleport, EffectValue = 2},
             };
             _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger);
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]

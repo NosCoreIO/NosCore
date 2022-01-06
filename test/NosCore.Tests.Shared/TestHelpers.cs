@@ -257,7 +257,7 @@ namespace NosCore.Tests.Shared
                     new SpRechargerEventHandler(WorldConfiguration),
                     new VehicleEventHandler(_logger, TestHelpers.Instance.LogLanguageLocalizer, new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, new Mock<ILogger>().Object, TestHelpers.Instance.LogLanguageLocalizer)),
                     new WearEventHandler(_logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)
-                }), _logger);
+                }), _logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         public void InitDatabase()
