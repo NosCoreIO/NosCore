@@ -43,6 +43,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
             _logLanguage = logLanguage;
         }
 
+        [Obsolete]
         public WearableInstance()
         {
         }
@@ -50,7 +51,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
         public bool IsBound => BoundCharacterId.HasValue && (Item?.ItemType != ItemType.Armor)
             && (Item?.ItemType != ItemType.Weapon);
 
-        public Item? Item { get; set; }
+        public Item Item { get; set; } = null!;
         public object Clone()
         {
             return (WearableInstance)MemberwiseClone();

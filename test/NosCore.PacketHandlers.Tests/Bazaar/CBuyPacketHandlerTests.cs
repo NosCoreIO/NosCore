@@ -157,15 +157,13 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         {
             var guid1 = Guid.NewGuid();
             var guid2 = Guid.NewGuid();
-            _session!.Character.InventoryService!.AddItemToPocket(new InventoryItemInstance
+            _session!.Character.InventoryService!.AddItemToPocket(new InventoryItemInstance(new ItemInstance(new Item { VNum = 1012 }) { Amount = 999, Id = guid2 })
             {
-                Id = guid2, ItemInstanceId = guid2, Slot = 0, Type = NoscorePocketType.Main,
-                ItemInstance = new ItemInstance { ItemVNum = 1012, Amount = 999, Id = guid2 }
+                Id = guid2, Slot = 0, Type = NoscorePocketType.Main
             });
-            _session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance
+            _session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance(new ItemInstance(new Item { VNum = 1012 }) { Amount = 999, Id = guid1 })
             {
-                Id = guid1, ItemInstanceId = guid1, Slot = 1, Type = NoscorePocketType.Main,
-                ItemInstance = new ItemInstance { ItemVNum = 1012, Amount = 999, Id = guid1 }
+                Id = guid1, Slot = 1, Type = NoscorePocketType.Main
             });
             await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
@@ -211,9 +209,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task BuyPackageAsync()
         {
             _session!.Character.Gold = 5000;
-            var item = new Item { Type = NoscorePocketType.Main };
+            var item = new Item { Type = NoscorePocketType.Main, VNum = 1012 };
             _itemProvider!.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>()))
-                .Returns(new ItemInstance { Amount = 1, ItemVNum = 1012, Item = item });
+                .Returns(new ItemInstance(item) { Amount = 1, Item = item });
             await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
                 BazaarId = 3,
@@ -245,9 +243,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task BuyAsync()
         {
             _session!.Character.Gold = 5000;
-            var item = new Item { Type = NoscorePocketType.Main };
+            var item = new Item { Type = NoscorePocketType.Main, VNum = 1012 };
             _itemProvider!.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>()))
-                .Returns(new ItemInstance { Amount = 1, ItemVNum = 1012, Item = item });
+                .Returns(new ItemInstance(item) { Amount = 1, Item = item });
             await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
             {
                 BazaarId = 0,

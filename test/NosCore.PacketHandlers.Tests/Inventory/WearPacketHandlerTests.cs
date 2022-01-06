@@ -413,6 +413,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             _session.Character.SpCooldown = 30;
+            _session.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
             await _wearPacketHandler.ExecuteAsync(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance!.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));

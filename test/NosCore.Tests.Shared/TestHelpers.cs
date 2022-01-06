@@ -72,6 +72,7 @@ using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.GameObject.Services.SpeedCalculationService;
+using NosCore.GameObject.Services.TransformationService;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.PacketHandlers.CharacterScreen;
@@ -254,7 +255,7 @@ namespace NosCore.Tests.Shared
                     Tuple<GameObject.Services.InventoryService.InventoryItemInstance, UseItemPacket>>>
                 {
                     new SpRechargerEventHandler(WorldConfiguration),
-                    new VehicleEventHandler(_logger, TestHelpers.Instance.LogLanguageLocalizer),
+                    new VehicleEventHandler(_logger, TestHelpers.Instance.LogLanguageLocalizer, new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, new Mock<ILogger>().Object, TestHelpers.Instance.LogLanguageLocalizer)),
                     new WearEventHandler(_logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)
                 }), _logger);
         }
@@ -327,7 +328,7 @@ namespace NosCore.Tests.Shared
                 new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestHolder(), TestHelpers.Instance.LogLanguageLocalizer), new Mock<IItemGenerationService>().Object,
                 _logger, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), 
                 new HeroExperienceService(), new ReputationService(), new DignityService(), 
-                TestHelpers.Instance.WorldConfiguration, Clock, new Mock<ISpeedCalculationService>().Object)
+                TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object)
             {
                 CharacterId = _lastId,
                 Name = "TestExistingCharacter" + _lastId,

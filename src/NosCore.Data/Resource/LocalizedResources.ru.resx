@@ -271,9 +271,6 @@
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Персонаж изменен во время перехода на карту. Не злоупотребляйте командами. {0}</value>
   </data>
-  <data name="EXCEPTION" xml:space="preserve">
-    <value>Вызвано исключение: {0}</value>
-  </data>
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Ты отклонил(а) запрос на обмен</value>
     <comment>Нужно уточнение контекста. В оригинале "You refused your exchange request.", но как возможно отклонить свой же запрос на обмен?</comment>

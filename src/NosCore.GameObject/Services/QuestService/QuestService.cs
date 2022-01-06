@@ -62,8 +62,8 @@ namespace NosCore.GameObject.Services.QuestService
             _logLanguage = logLanguage;
         }
 
-        public Task RunScriptAsync(ICharacterEntity character) => RunScriptAsync(character, null);
-        public async Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet)
+        public Task RunScriptAsync(Character character) => RunScriptAsync(character, null);
+        public async Task RunScriptAsync(Character character, ScriptClientPacket? packet)
         {
             if (character.CurrentScriptId == null) //todo handle other acts
             {

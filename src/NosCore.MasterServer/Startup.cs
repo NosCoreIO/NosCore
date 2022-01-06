@@ -132,15 +132,14 @@ namespace NosCore.MasterServer
                 {
                     if ((items.Count != 0) && (staticMetaDataAttribute != null))
                     {
-                        c.Resolve<ILogger>().Information(
-                            LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.LoadedMessage),
+                        c.Resolve<ILogger>().Information(c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()[staticMetaDataAttribute.LoadedMessage],
                             items.Count);
                     }
                 }
                 else
                 {
                     c.Resolve<ILogger>()
-                        .Error(LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.EmptyMessage));
+                        .Error(c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()[staticMetaDataAttribute.EmptyMessage]);
                 }
 
                 return items;
@@ -257,8 +256,6 @@ namespace NosCore.MasterServer
             app.UseRouting();
 
             app.UseAuthorization();
-
-            LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<MasterConfiguration>>().Value.Language;
             CultureInfo.DefaultThreadCurrentCulture = new(app.ApplicationServices.GetRequiredService<IOptions<MasterConfiguration>>().Value.Language.ToString());
 
             app.UseEndpoints(endpoints =>

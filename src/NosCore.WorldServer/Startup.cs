@@ -135,15 +135,14 @@ namespace NosCore.WorldServer
                         if ((staticMetaDataAttribute != null) &&
                             (staticMetaDataAttribute.LoadedMessage != LogLanguageKey.UNKNOWN))
                         {
-                            c.Resolve<ILogger>().Information(
-                                LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.LoadedMessage),
+                            c.Resolve<ILogger>().Information(c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()[staticMetaDataAttribute.LoadedMessage],
                                 items.Count);
                         }
                     }
                     else
                     {
                         c.Resolve<ILogger>()
-                            .Error(LogLanguage.Instance.GetMessageFromKey(staticMetaDataAttribute.EmptyMessage));
+                            .Error(c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()[staticMetaDataAttribute.EmptyMessage]);
                     }
 
                     return items;
@@ -365,7 +364,6 @@ namespace NosCore.WorldServer
             app.UseRouting();
             app.UseAuthorization();
 
-            LogLanguage.Language = app.ApplicationServices.GetRequiredService<IOptions<WorldConfiguration>>().Value.Language;
             CultureInfo.DefaultThreadCurrentCulture = new(app.ApplicationServices.GetRequiredService<IOptions<WorldConfiguration>>().Value.Language.ToString());
             app.UseEndpoints(endpoints =>
             {

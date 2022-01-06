@@ -72,7 +72,6 @@ using NosCore.Networking.Encoding;
 using NosCore.Networking.Encoding.Filter;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
-using ILogger = Serilog.ILogger;
 
 namespace NosCore.LoginServer
 {
@@ -80,7 +79,6 @@ namespace NosCore.LoginServer
     {
         private const string Title = "NosCore - LoginServer";
         private const string ConsoleText = "LOGIN SERVER - NosCoreIO";
-        private static ILogger _logger = null!;
 
         private static void InitializeConfiguration(string[] args, IServiceCollection services)
         {
@@ -91,7 +89,7 @@ namespace NosCore.LoginServer
                 conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
-            _logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+            Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
             Shared.I18N.Logger.PrintHeader(ConsoleText);
             CultureInfo.DefaultThreadCurrentCulture = new(loginConfiguration.Language.ToString());
         }
@@ -144,8 +142,7 @@ namespace NosCore.LoginServer
 
             containerBuilder.RegisterTypes(typeof(NoS0575PacketHandler).Assembly.GetTypes().Where(type => typeof(IPacketHandler).IsAssignableFrom(type) && typeof(ILoginPacketHandler).IsAssignableFrom(type)).ToArray())
                 .Where(t => typeof(IPacketHandler).IsAssignableFrom(t) && typeof(ILoginPacketHandler).IsAssignableFrom(t))
-                .AsImplementedInterfaces()
-                ;
+                .AsImplementedInterfaces();
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() == null || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) != 0) && p.IsClass && !p.IsAbstract).ToList();
@@ -165,7 +162,7 @@ namespace NosCore.LoginServer
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
+                Console.WriteLine(ex.Message);
                 Console.ReadLine();
             }
         }

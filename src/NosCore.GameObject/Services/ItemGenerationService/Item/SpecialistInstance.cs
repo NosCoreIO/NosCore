@@ -31,10 +31,12 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
             ItemVNum = item.VNum;
         }
 
+        [Obsolete]
         public SpecialistInstance()
         {
         }
-        public Item? Item { get; set; }
+
+        public Item Item { get; set; } = null!;
 
         public object Clone()
         {

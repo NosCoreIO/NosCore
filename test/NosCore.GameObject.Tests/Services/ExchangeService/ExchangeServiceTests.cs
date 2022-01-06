@@ -105,14 +105,10 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
         {
             _exchangeProvider!.OpenExchange(1, 2);
 
-            var item = new InventoryItemInstance
+            var item = new InventoryItemInstance(new ItemInstance(new Item { VNum = 1012 })
             {
-                ItemInstance = new ItemInstance
-                {
-                    Amount = 1,
-                    ItemVNum = 1012
-                }
-            };
+                Amount = 1
+            });
 
             _exchangeProvider.AddItems(1, item, item.ItemInstance.Amount);
 

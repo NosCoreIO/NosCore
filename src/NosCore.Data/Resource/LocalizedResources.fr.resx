@@ -471,9 +471,6 @@
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Vous avez déjà changé de classe, vous ne pouvez donc plus le refaire.</value>
   </data>
-  <data name="EXCEPTION" xml:space="preserve">
-    <value>Une exception à été générée.</value>
-  </data>
   <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
     <value>Vous n'avez pas assez d'argent.</value>
   </data>

@@ -17,15 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.Packets.ClientPackets.Quest;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 
-namespace NosCore.GameObject.Services.QuestService
+namespace NosCore.GameObject.Services.TransformationService
 {
-    public interface IQuestService
+    public interface ITransformationService
     {
-        Task RunScriptAsync(Character character);
-        Task RunScriptAsync(Character character, ScriptClientPacket? packet);
+        Task RemoveSpAsync(Character character);
+
+        Task ChangeSpAsync(Character character);
+
+        Task ChangeVehicleAsync(Character character, Item item);
+
+        Task RemoveVehicleAsync(Character character);
     }
 }

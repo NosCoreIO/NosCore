@@ -29,6 +29,7 @@ using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.TransformationService;
 using NosCore.Networking;
 using NosCore.Shared.I18N;
 
@@ -38,11 +39,13 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
     {
         private readonly ILogger _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
+        private readonly ITransformationService _transformationService;
 
-        public VehicleEventHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        public VehicleEventHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ITransformationService transformationService)
         {
             _logger = logger;
             _logLanguage = logLanguage;
+            _transformationService = transformationService;
         }
 
         public bool Condition(Item.Item item)
@@ -75,27 +78,11 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 
             if ((packet.Mode == 2) && !requestData.ClientSession.Character.IsVehicled)
             {
-                requestData.ClientSession.Character.IsVehicled = true;
-                requestData.ClientSession.Character.VehicleSpeed = itemInstance.ItemInstance!.Item!.Speed;
-                requestData.ClientSession.Character.MorphUpgrade = 0;
-                requestData.ClientSession.Character.MorphDesign = 0;
-                requestData.ClientSession.Character.Morph =
-                    itemInstance.ItemInstance.Item.SecondMorph == 0 ?
-                        (short)((short)requestData.ClientSession.Character.Gender +
-                            itemInstance.ItemInstance.Item.Morph) :
-                        requestData.ClientSession.Character.Gender == GenderType.Male
-                            ? itemInstance.ItemInstance.Item.Morph
-                            : itemInstance.ItemInstance.Item.SecondMorph;
-
-                await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
-                    requestData.ClientSession.Character.GenerateEff(196)).ConfigureAwait(false);
-                await requestData.ClientSession.Character.MapInstance.SendPacketAsync(requestData.ClientSession.Character
-                    .GenerateCMode()).ConfigureAwait(false);
-                await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateCond()).ConfigureAwait(false);
+                await _transformationService.ChangeVehicleAsync(requestData.ClientSession.Character, itemInstance.ItemInstance.Item);
                 return;
             }
 
-            await requestData.ClientSession.Character.RemoveVehicleAsync().ConfigureAwait(false);
+            await _transformationService.RemoveVehicleAsync(requestData.ClientSession.Character);
         }
     }
 }

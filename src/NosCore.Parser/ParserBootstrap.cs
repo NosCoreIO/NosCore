@@ -44,7 +44,6 @@ using System.Threading.Tasks;
 using NosCore.Database.Entities.Base;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
-using ILogger = Serilog.ILogger;
 
 namespace NosCore.Parser
 {
@@ -53,7 +52,6 @@ namespace NosCore.Parser
         private const string Title = "NosCore - Parser";
         private const string ConsoleText = "PARSER - NosCoreIO";
 
-        private static ILogger _logger = null!;
         public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
         where TDb : class where TPk : struct
         {
@@ -75,7 +73,7 @@ namespace NosCore.Parser
             services.AddDbContext<NosCoreContext>(
                 builder => builder.UseNpgsql(parserConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<ParserConfiguration>().Bind(conf).ValidateDataAnnotations();
-            _logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
+            Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
             Shared.I18N.Logger.PrintHeader(ConsoleText);
             CultureInfo.DefaultThreadCurrentCulture = new(parserConfiguration.Language.ToString());
         }
@@ -124,7 +122,7 @@ namespace NosCore.Parser
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
+                Console.WriteLine(ex.Message);
                 Console.ReadLine();
             }
         }

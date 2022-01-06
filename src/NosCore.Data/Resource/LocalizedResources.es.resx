@@ -223,9 +223,6 @@
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>El personaje cambio mientras se estaba cambiando el mapa. No abuse de los comandos. {0}</value>
   </data>
-  <data name="EXCEPTION" xml:space="preserve">
-    <value>Se ha producido una excepciÃ³n: {0}</value>
-  </data>
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>Â¡Tu lista de amigos estÃ¡ llena!</value>
   </data>

@@ -24,6 +24,10 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
@@ -34,6 +38,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Handlers;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.TransformationService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
@@ -54,7 +59,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _logger = new Mock<ILogger>();
-            Handler = new VehicleEventHandler(_logger.Object, TestHelpers.Instance.LogLanguageLocalizer);
+            Handler = new VehicleEventHandler(_logger.Object, TestHelpers.Instance.LogLanguageLocalizer, new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, _logger.Object, TestHelpers.Instance.LogLanguageLocalizer));
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon}

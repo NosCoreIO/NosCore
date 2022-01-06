@@ -265,9 +265,6 @@
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Personaggio cambiato durante la modifica della mappa. Non abusare dei comandi.</value>
   </data>
-  <data name="EXCEPTION" xml:space="preserve">
-    <value>È stata generato un errore: {0}</value>
-  </data>
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Commercio rifiutato</value>
   </data>

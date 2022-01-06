@@ -61,8 +61,8 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         DignityType DignityIcon { get; }
 
         bool Camouflage { get; }
-        long JobLevelXp { get; set; }
-        long HeroXp { get; set; }
+        long JobLevelXp { get; }
+        long HeroXp { get; }
         byte JobLevel { get; }
 
         bool Invisible { get; }
@@ -85,11 +85,11 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         List<StaticBonusDto> StaticBonusList { get;  }
 
-        List<TitleDto> Titles { get; set; }
+        List<TitleDto> Titles { get; }
 
         bool IsDisconnecting { get; }
-        ScriptDto? Script { get; set; }
-        Guid? CurrentScriptId { get; set; }
+        ScriptDto? Script { get; }
+        Guid? CurrentScriptId { get; }
         ConcurrentDictionary<Guid, CharacterQuest> Quests { get; }
         short Compliment { get; }
         long Reput { get;  }

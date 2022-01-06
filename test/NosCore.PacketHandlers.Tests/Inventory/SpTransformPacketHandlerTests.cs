@@ -20,12 +20,17 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.TransformationService;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Specialists;
 using NosCore.Packets.Enumerations;
@@ -33,6 +38,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using Serilog;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -52,7 +58,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _spTransformPacketHandler = new SpTransformPacketHandler(TestHelpers.Instance.Clock);
+            _spTransformPacketHandler = new SpTransformPacketHandler(TestHelpers.Instance.Clock, 
+                new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, new Mock<ILogger>().Object, TestHelpers.Instance.LogLanguageLocalizer));
         }
 
 

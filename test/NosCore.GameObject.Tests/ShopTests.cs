@@ -289,7 +289,7 @@ namespace NosCore.GameObject.Tests
             session2.SessionId = 1;
 
             await session2.SetCharacterAsync(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object,
-                Logger, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.Clock, new Mock<ISpeedCalculationService>().Object)
+                Logger, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object)
             {
                 CharacterId = 1,
                 Name = "chara2",
