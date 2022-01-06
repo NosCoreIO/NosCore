@@ -20,16 +20,23 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Resource;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Core.Tests
 {
@@ -37,9 +44,14 @@ namespace NosCore.Core.Tests
     public class LogLanguageTests
     {
         private readonly Dictionary<string, int> _dict = new();
+        private readonly LogLanguageLocalizer<LogLanguageKey, LocalizedResources> _logLanguageLocalizer;
 
         public LogLanguageTests()
         {
+            var factory = new ResourceManagerStringLocalizerFactory(Options.Create(new LocalizationOptions()), new LoggerFactory());
+            _logLanguageLocalizer = new LogLanguageLocalizer<LogLanguageKey, LocalizedResources>(
+                new StringLocalizer<LocalizedResources>(factory));
+
             var uselessKeys = new StringBuilder();
 
             var list = Directory.GetFiles(Environment.CurrentDirectory + @"../../..", "*.cs",
@@ -83,101 +95,56 @@ namespace NosCore.Core.Tests
         [DataRow(RegionType.RU)]
         public void CheckEveryLanguageValueSet(RegionType type)
         {
-            var unfound = new StringBuilder();
-            foreach (var val in (LanguageKey[])Enum.GetValues(typeof(LanguageKey)))
-            {
-                var value = GameLanguage.Instance.GetMessageFromKey(val, type);
-                if (value == $"#<{val}>")
-                {
-                    unfound.Append("\nvalue ").Append(value).Append(" not defined");
-                }
-            }
+            CultureInfo.CurrentCulture = new CultureInfo(type.ToString());
 
-            foreach (var val in Enum.GetValues(typeof(LogLanguageKey)))
-            {
-                var value = LogLanguage.Instance.GetMessageFromKey((LogLanguageKey)val!, type.ToString());
-                if (value == $"#<{val}>")
-                {
-                    unfound.Append("\nvalue ").Append(value).Append(" not defined");
-                }
-            }
+            var result = string.Join(Environment.NewLine, I18NTestHelpers.GetKeysWithMissingTranslations(_logLanguageLocalizer)
+                .Select(x => $"value {x} not defined"));
 
-
-            if (unfound.Length != 0)
+            if (result.Length != 0)
             {
-                Assert.Fail(unfound.ToString());
+                Assert.Fail(result);
             }
         }
+
+        [DataTestMethod]
+        [DataRow(RegionType.EN)]
+        [DataRow(RegionType.CS)]
+        [DataRow(RegionType.DE)]
+        [DataRow(RegionType.ES)]
+        [DataRow(RegionType.FR)]
+        [DataRow(RegionType.IT)]
+        [DataRow(RegionType.PL)]
+        [DataRow(RegionType.TR)]
+        [DataRow(RegionType.RU)]
+        public void CheckEveryLanguageAreUsefull(RegionType type)
+        {
+            CultureInfo.CurrentUICulture = new CultureInfo(type.ToString());
+
+            var result = string.Join(Environment.NewLine, 
+                I18NTestHelpers.GetUselessTranslations(_logLanguageLocalizer, Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s => s.ToString())
+                .Concat(Enum.GetValues(typeof(LogLanguageKey)).OfType<LogLanguageKey>().Select(s => s.ToString())).ToList())
+                .Select(x => $"key {x} is useless"));
+
+            if (result.Length != 0)
+            {
+                Assert.Fail(result);
+            }
+        }
+
 
         [TestMethod]
         public void CheckLanguageUsage()
         {
-            var uselessKeys = new StringBuilder();
-            var dict = new Dictionary<string, int>();
-            var list = Directory.GetFiles(Environment.CurrentDirectory + @"../../..", "*.cs",
-                SearchOption.AllDirectories);
-            foreach (var file in list)
+            var result = string.Join(Environment.NewLine,
+                I18NTestHelpers.GetUselessLanguageKeys<LanguageKey>()
+                    .Select(x => $"{x.GetType().Name} {x} is  not used!"));
+            result += Environment.NewLine + string.Join(Environment.NewLine,
+                I18NTestHelpers.GetUselessLanguageKeys<LogLanguageKey>()
+                    .Select(x => $"{x.GetType().Name} {x} is  not used!"));
+
+            if (result.Length != 0)
             {
-                var content = File.ReadAllText(file);
-                var regex = new Regex(@"(Log)?LanguageKey\.[0-9A-Za-z_]*");
-                var matches = regex.Matches(content);
-                foreach (Match? match in matches)
-                {
-                    if (match?.Success != true)
-                    {
-                        continue;
-                    }
-
-                    if (dict.ContainsKey(match.Value))
-                    {
-                        dict[match.Value]++;
-                    }
-                    else
-                    {
-                        dict.Add(match.Value, 1);
-                    }
-                }
-            }
-
-            foreach (var val in (LanguageKey[])Enum.GetValues(typeof(LanguageKey)))
-            {
-                var type = val.GetType();
-                var typeInfo = type.GetTypeInfo();
-                var memberInfo = typeInfo.GetMember(val.ToString());
-                var attributes = memberInfo[0].GetCustomAttributes<UsedImplicitlyAttribute>();
-                var attribute = attributes.FirstOrDefault();
-
-                if (!dict.ContainsKey($"LanguageKey.{val}") && (attribute == null))
-                {
-                    uselessKeys.Append("\nLanguageKey ").Append(val).Append(" is not used!");
-                }
-            }
-
-            foreach (var val in (LogLanguageKey[]) Enum.GetValues(typeof(LogLanguageKey)))
-            {
-                var type = val!.GetType();
-                var typeInfo = type.GetTypeInfo();
-                try
-                {
-                    var memberInfo = typeInfo.GetMember(val.ToString());
-                    var attributes = memberInfo[0].GetCustomAttributes<UsedImplicitlyAttribute>();
-                    var attribute = attributes.FirstOrDefault();
-               
-
-                if ((dict.ContainsKey($"LogLanguageKey.{val}") == false) && (attribute == null))
-                {
-                    uselessKeys.Append("\nLogLanguageKey ").Append(val).Append(" is not used!");
-                }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-
-            if (uselessKeys.Length != 0)
-            {
-                Assert.Fail(uselessKeys.ToString());
+                Assert.Fail(result);
             }
         }
 
@@ -214,31 +181,5 @@ namespace NosCore.Core.Tests
             }
         }
 
-        [DataTestMethod]
-        [DataRow(RegionType.EN)]
-        [DataRow(RegionType.CS)]
-        [DataRow(RegionType.DE)]
-        [DataRow(RegionType.ES)]
-        [DataRow(RegionType.FR)]
-        [DataRow(RegionType.IT)]
-        [DataRow(RegionType.PL)]
-        [DataRow(RegionType.TR)]
-        [DataRow(RegionType.RU)]
-        public void CheckEveryLanguageAreUsefull(RegionType type)
-        {
-            var unfound = new StringBuilder();
-            var values = Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s => s.ToString()).ToList();
-            var logvalues = Enum.GetValues(typeof(LogLanguageKey)).OfType<LogLanguageKey>().Select(s => s.ToString())
-                .ToList();
-            foreach (var resourceKey in LogLanguage.Instance.GetRessourceSet(type.ToString())!.Cast<DictionaryEntry?>().Select(entry => entry?.Key.ToString() ?? "").Where(resourceKey => !values.Contains(resourceKey) && !logvalues.Contains(resourceKey)))
-            {
-                unfound.Append("key ").Append(resourceKey).Append(" is useless\n");
-            }
-
-            if (!string.IsNullOrEmpty(unfound.ToString()))
-            {
-                Assert.Fail(unfound.ToString());
-            }
-        }
     }
 }
