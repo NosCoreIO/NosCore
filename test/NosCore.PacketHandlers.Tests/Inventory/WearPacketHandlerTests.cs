@@ -45,9 +45,6 @@ using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 
-//TODO stop using obsolete
-#pragma warning disable 618
-
 namespace NosCore.PacketHandlers.Tests.Inventory
 {
     [TestClass]

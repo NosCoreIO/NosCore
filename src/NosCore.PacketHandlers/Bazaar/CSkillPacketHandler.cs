@@ -29,9 +29,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 
-//TODO stop using obsolete
-#pragma warning disable 618
-
 namespace NosCore.PacketHandlers.Bazaar
 {
     public class CSkillPacketHandler : PacketHandler<CSkillPacket>, IWorldPacketHandler

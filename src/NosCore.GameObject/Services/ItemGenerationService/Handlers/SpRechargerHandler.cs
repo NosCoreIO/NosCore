@@ -31,9 +31,6 @@ using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Threading.Tasks;
 
-//TODO stop using obsolete
-#pragma warning disable 618
-
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
     public class SpRechargerEventHandler : IUseItemEventHandler

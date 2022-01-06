@@ -53,12 +53,129 @@ using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ServerPackets.Quicklist;
+using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class CharacterEntityExtension
     {
+        [Obsolete(
+           "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
+        public static IEnumerable<IPacket> GenerateInv(this ICharacterEntity characterEntity, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer)
+        {
+            var inv0 = new InvPacket { Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket?>() };
+            var inv1 = new InvPacket { Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket?>() };
+            var inv2 = new InvPacket { Type = PocketType.Etc, IvnSubPackets = new List<IvnSubPacket?>() };
+            var inv3 = new InvPacket { Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket?>() };
+            var inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket?>() };
+            var inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket?>() };
+
+            if (characterEntity.InventoryService == null)
+            {
+                return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7 };
+            }
+
+            foreach (var inv in characterEntity.InventoryService.Select(s => s.Value))
+            {
+                switch (inv.Type)
+                {
+                    case NoscorePocketType.Equipment:
+                        if (inv.ItemInstance!.Item!.EquipmentSlot == EquipmentType.Sp)
+                        {
+                            if (inv.ItemInstance is SpecialistInstance specialistInstance)
+                            {
+                                inv7.IvnSubPackets.Add(new IvnSubPacket
+                                {
+                                    Slot = inv.Slot,
+                                    VNum = inv.ItemInstance.ItemVNum,
+                                    RareAmount = specialistInstance.Rare,
+                                    UpgradeDesign = specialistInstance.Upgrade,
+                                    SecondUpgrade = specialistInstance.SpStoneUpgrade
+                                });
+                            }
+                        }
+                        else
+                        {
+                            if (inv.ItemInstance is WearableInstance wearableInstance)
+                            {
+                                inv0.IvnSubPackets.Add(new IvnSubPacket
+                                {
+                                    Slot = inv.Slot,
+                                    VNum = inv.ItemInstance.ItemVNum,
+                                    RareAmount = wearableInstance.Rare,
+                                    UpgradeDesign = inv.ItemInstance.Item.IsColored ? wearableInstance.Design
+                                        : wearableInstance.Upgrade
+                                });
+                            }
+                        }
+
+                        break;
+
+                    case NoscorePocketType.Main:
+                        inv1.IvnSubPackets.Add(new IvnSubPacket
+                        {
+                            Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                        });
+                        break;
+
+                    case NoscorePocketType.Etc:
+                        inv2.IvnSubPackets.Add(new IvnSubPacket
+                        {
+                            Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                        });
+                        break;
+
+                    case NoscorePocketType.Miniland:
+                        inv3.IvnSubPackets.Add(new IvnSubPacket
+                        {
+                            Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                        });
+                        break;
+
+                    case NoscorePocketType.Specialist:
+                        if (inv.ItemInstance is SpecialistInstance specialist)
+                        {
+                            inv6.IvnSubPackets.Add(new IvnSubPacket
+                            {
+                                Slot = inv.Slot,
+                                VNum = inv.ItemInstance.ItemVNum,
+                                RareAmount = specialist.Rare,
+                                UpgradeDesign = specialist.Upgrade,
+                                SecondUpgrade = specialist.SpStoneUpgrade
+                            });
+                        }
+
+                        break;
+
+                    case NoscorePocketType.Costume:
+                        if (inv.ItemInstance is WearableInstance costumeInstance)
+                        {
+                            inv7.IvnSubPackets.Add(new IvnSubPacket
+                            {
+                                Slot = inv.Slot,
+                                VNum = inv.ItemInstance.ItemVNum,
+                                RareAmount = costumeInstance.Rare,
+                                UpgradeDesign = costumeInstance.Upgrade
+                            });
+                        }
+
+                        break;
+
+                    case NoscorePocketType.Wear:
+                        break;
+                    default:
+                        logger.Information(
+                            logLanguageLocalizer[LogLanguageKey.POCKETTYPE_UNKNOWN]);
+                        break;
+                }
+            }
+
+            return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7 };
+        }
+
         public static GoldPacket GenerateGold(this ICharacterEntity characterEntity)
         {
             return new GoldPacket { Gold = characterEntity.Gold };

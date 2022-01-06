@@ -318,7 +318,7 @@ namespace NosCore.Tests.Shared
                 PacketHttpClient.Object,
                 minilandProvider.Object,
                 MapInstanceGeneratorService, new SessionRefHolder(), Clock, new Mock<ISaveService>().Object, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, 
-                new Mock<IHeroExperienceService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object)
+                new Mock<IHeroExperienceService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, TestHelpers.Instance.LogLanguageLocalizer)
             {
                 SessionId = _lastId
             };

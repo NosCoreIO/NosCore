@@ -108,7 +108,7 @@ namespace NosCore.WebApi.Tests.ApiTests
                 Identity = _session.Account.Name
             });
 
-            Assert.AreNotEqual(JsonSerializer.Serialize(new BadRequestObjectResult(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT))), JsonSerializer.Serialize((BadRequestObjectResult)result));
+            Assert.AreNotEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)result));
         }
 
         [TestMethod]
@@ -124,7 +124,7 @@ namespace NosCore.WebApi.Tests.ApiTests
                 Mfa = tfa.GetCode(_session.Account.MfaSecret),
             });
 
-            Assert.AreNotEqual(JsonSerializer.Serialize(new BadRequestObjectResult(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT))), JsonSerializer.Serialize((BadRequestObjectResult)result));
+            Assert.AreNotEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)result));
         }
 
         [TestMethod]
