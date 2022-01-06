@@ -222,9 +222,6 @@
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Postać zmieniona podczas zmiany mapy. Nie nadużywaj poleceń. {0}</value>
   </data>
-  <data name="EXCEPTION" xml:space="preserve">
-    <value>Wyrzucono wyjątek: {0}</value>
-  </data>
   <data name="FRIENDLIST_FULL" xml:space="preserve">
     <value>Twoja lista przyjaciół jest pełna!</value>
   </data>

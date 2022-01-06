@@ -85,12 +85,11 @@ namespace NosCore.GameObject
         private readonly IReputationService _reputationService;
         private readonly IDignityService _dignityService;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
-        private readonly IClock _clock;
         private readonly ISpeedCalculationService _speedCalculationService;
 
         public Character(IInventoryService inventory, IExchangeService exchangeService, IItemGenerationService itemProvider, ILogger logger,
             IHpService hpService, IMpService mpService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
-            IReputationService reputationService, IDignityService dignityService, IOptions<WorldConfiguration> worldConfiguration, IClock clock, ISpeedCalculationService speedCalculationService)
+            IReputationService reputationService, IDignityService dignityService, IOptions<WorldConfiguration> worldConfiguration, ISpeedCalculationService speedCalculationService)
         {
             InventoryService = inventory;
             ExchangeProvider = exchangeService;
@@ -106,8 +105,6 @@ namespace NosCore.GameObject
             _reputationService = reputationService;
             _dignityService = dignityService;
             _worldConfiguration = worldConfiguration;
-            LastSp = clock.GetCurrentInstant();
-            _clock = clock;
             _speedCalculationService = speedCalculationService;
         }
 
@@ -750,129 +747,6 @@ namespace NosCore.GameObject
             SpAdditionPoint = SpAdditionPoint + spPointToAdd > _worldConfiguration.Value.MaxAdditionalSpPoints
                 ? _worldConfiguration.Value.MaxAdditionalSpPoints : SpAdditionPoint + spPointToAdd;
             return SendPacketAsync(GenerateSpPoint());
-        }
-
-
-        public async Task RemoveSpAsync()
-        {
-            UseSp = false;
-            Morph = 0;
-            MorphUpgrade = 0;
-            MorphDesign = 0;
-            await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
-            await SendPacketAsync(this.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
-            SpCooldown = 30;
-            await SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = CharacterId,
-                Type = SayColorType.Red,
-                Message = Game18NConstString.DurationOfSideEffect,
-                FirstArgument = 4,
-                SecondArgument = SpCooldown
-            }).ConfigureAwait(false);
-            await SendPacketAsync(new SdPacket { Cooldown = SpCooldown }).ConfigureAwait(false);
-            await MapInstance.SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
-            await MapInstance.SendPacketAsync(new GuriPacket
-            {
-                Type = GuriPacketType.Dance,
-                Value = 1,
-                EntityId = CharacterId
-            }).ConfigureAwait(false);
-            await SendPacketAsync(this.GenerateStat()).ConfigureAwait(false);
-
-            async Task CoolDown()
-            {
-                await SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = CharacterId,
-                    Type = SayColorType.Red,
-                    Message = Game18NConstString.TransformationSideEffectGone
-                }).ConfigureAwait(false);
-                await SendPacketAsync(new SdPacket { Cooldown = 0 }).ConfigureAwait(false);
-            }
-
-            Observable.Timer(TimeSpan.FromMilliseconds(SpCooldown * 1000)).Select(_ => CoolDown()).Subscribe();
-        }
-
-        public async Task ChangeSpAsync()
-        {
-            if (!(InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is
-                SpecialistInstance sp))
-            {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.USE_SP_WITHOUT_SP_ERROR));
-                return;
-            }
-
-            if ((byte)ReputIcon < sp.Item!.ReputationMinimum)
-            {
-                await SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.CanNotBeWornReputationLow
-                }).ConfigureAwait(false);
-                return;
-            }
-
-            if (InventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance is
-                    WearableInstance fairy
-                && (sp.Item.Element != 0) && (fairy.Item!.Element != sp.Item.Element)
-                && (fairy.Item.Element != sp.Item.SecondaryElement))
-            {
-                await SendPacketAsync(new MsgiPacket
-                {
-                    Message = Game18NConstString.SpecialistAndFairyDifferentElement
-                }).ConfigureAwait(false);
-                return;
-            }
-
-            LastSp = _clock.GetCurrentInstant();
-            UseSp = true;
-            Morph = sp.Item.Morph;
-            MorphUpgrade = sp.Upgrade;
-            MorphDesign = sp.Design;
-            await MapInstance.SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
-            await SendPacketAsync(this.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
-            await MapInstance.SendPacketAsync(this.GenerateEff(196)).ConfigureAwait(false);
-            await MapInstance.SendPacketAsync(new GuriPacket
-            {
-                Type = GuriPacketType.Dance,
-                Value = 1,
-                EntityId = CharacterId
-            }).ConfigureAwait(false);
-            await SendPacketAsync(GenerateSpPoint()).ConfigureAwait(false);
-            await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
-            await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
-        }
-
-        public async Task RemoveVehicleAsync()
-        {
-            if (UseSp)
-            {
-                var sp = InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear);
-                if (sp != null)
-                {
-                    Morph = sp.ItemInstance!.Item!.Morph;
-                    MorphDesign = sp.ItemInstance.Design;
-                    MorphUpgrade = sp.ItemInstance.Upgrade;
-                }
-                else
-                {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.USE_SP_WITHOUT_SP_ERROR));
-                }
-            }
-            else
-            {
-                Morph = 0;
-            }
-
-            IsVehicled = false;
-            VehicleSpeed = 0;
-            await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
-            await MapInstance.SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
         }
     }
 }

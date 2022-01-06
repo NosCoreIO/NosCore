@@ -20,20 +20,15 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.Configuration;
 using Serilog;
 using System;
 using System.Threading.Tasks;
-using ILogger = Serilog.ILogger;
 
 namespace NosCore.WorldServer
 {
     public static class WorldServerBootstrap
     {
-        private static readonly ILogger Logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
-
         public static async Task Main(string[] args)
         {
             try
@@ -42,7 +37,8 @@ namespace NosCore.WorldServer
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
+                Console.WriteLine(ex.Message);
+                throw;
             }
         }
 

@@ -122,7 +122,6 @@ namespace NosCore.Data.Enumerations.I18N
         CONNECTION_LOST,
         CHANNEL_WILL_EXIT,
         CANT_MOVE_ITEM_IN_SHOP,
-        EXCEPTION,
         VISUALENTITY_DOES_NOT_EXIST,
         ALREADY_EXCHANGE,
         CANT_FIND_CHARACTER,
@@ -162,7 +161,8 @@ namespace NosCore.Data.Enumerations.I18N
         PACKET_HANDLING_ERROR,
         MFA_INCORRECT,
         DATABASE_ERROR,
-        SAVE_CHARACTER_FAILED
+        SAVE_CHARACTER_FAILED,
+        UNBOUND_ITEM_DETECTED
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

@@ -84,8 +84,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 });
             _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(1)).ReturnsAsync((BazaarLink?)null);
             _bazaarHttpClient.Setup(b => b.RemoveAsync(It.IsAny<long>(), It.IsAny<int>(), It.IsAny<string>())).ReturnsAsync(true);
-            _itemProvider.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>())).Returns(new ItemInstance
-            { Amount = 0, ItemVNum = 1012, Item = new Item() });
+            _itemProvider.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>())).Returns(new ItemInstance(new Item() { VNum = 1012 }) {
+             Amount = 0, Item = new Item() });
         }
 
         [TestMethod]
@@ -138,15 +138,15 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         {
             var guid1 = Guid.NewGuid();
             var guid2 = Guid.NewGuid();
-            _session!.Character.InventoryService!.AddItemToPocket(new InventoryItemInstance
+            _session!.Character.InventoryService!.AddItemToPocket(
+                new InventoryItemInstance(new ItemInstance(new Item() { VNum = 1012 }) { Amount = 999, Id = guid2 })
             {
-                Id = guid2, ItemInstanceId = guid2, Slot = 0, Type = NoscorePocketType.Main,
-                ItemInstance = new ItemInstance { ItemVNum = 1012, Amount = 999, Id = guid2 }
+                Id = guid2, Slot = 0, Type = NoscorePocketType.Main,
             });
-            _session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance
+            _session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance(
+                new ItemInstance(new Item() { VNum = 1012 }) { Amount = 999, Id = guid1 })
             {
-                Id = guid1, ItemInstanceId = guid1, Slot = 1, Type = NoscorePocketType.Main,
-                ItemInstance = new ItemInstance { ItemVNum = 1012, Amount = 999, Id = guid1 }
+                Id = guid1, Slot = 1, Type = NoscorePocketType.Main
             });
             await _cScalcPacketHandler!.ExecuteAsync(new CScalcPacket
             {

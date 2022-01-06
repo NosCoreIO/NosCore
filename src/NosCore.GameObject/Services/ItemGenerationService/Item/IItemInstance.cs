@@ -23,7 +23,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
 {
     public interface IItemInstance : IItemInstanceDto
     {
-        Item? Item { get; set; }
+        Item Item { get; set; }
         object Clone();
     }
 }

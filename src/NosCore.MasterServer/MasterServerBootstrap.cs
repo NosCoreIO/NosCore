@@ -25,14 +25,11 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.Configuration;
 using Serilog;
 using System;
-using ILogger = Serilog.ILogger;
 
 namespace NosCore.MasterServer
 {
     public static class MasterServerBootstrap
     {
-        private static readonly ILogger Logger = Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
-
         public static void Main()
         {
             try
@@ -41,7 +38,7 @@ namespace NosCore.MasterServer
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.EXCEPTION), ex.Message);
+                Console.WriteLine(ex.Message);
             }
         }
 

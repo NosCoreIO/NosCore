@@ -29,6 +29,7 @@ using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Services.TransformationService;
 using NosCore.Networking;
 
 
@@ -40,10 +41,12 @@ namespace NosCore.PacketHandlers.Inventory
     public class SpTransformPacketHandler : PacketHandler<SpTransformPacket>, IWorldPacketHandler
     {
         private readonly IClock _clock;
+        private readonly ITransformationService _transformationService;
 
-        public SpTransformPacketHandler(IClock clock)
+        public SpTransformPacketHandler(IClock clock, ITransformationService transformationService)
         {
             _clock = clock;
+            _transformationService = transformationService;
         }
         public override async Task ExecuteAsync(SpTransformPacket spTransformPacket, ClientSession clientSession)
         {
@@ -82,7 +85,7 @@ namespace NosCore.PacketHandlers.Inventory
                 if (clientSession.Character.UseSp)
                 {
                     clientSession.Character.LastSp = _clock.GetCurrentInstant();
-                    await clientSession.Character.RemoveSpAsync().ConfigureAwait(false);
+                    await _transformationService.RemoveSpAsync(clientSession.Character);
                 }
                 else
                 {
@@ -100,7 +103,7 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         if (spTransformPacket.Type == SlPacketType.WearSpAndTransform)
                         {
-                            await clientSession.Character.ChangeSpAsync().ConfigureAwait(false);
+                            await _transformationService.ChangeSpAsync(clientSession.Character);
                         }
                         else
                         {

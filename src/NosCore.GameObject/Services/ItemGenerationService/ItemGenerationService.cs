@@ -66,12 +66,13 @@ namespace NosCore.GameObject.Services.ItemGenerationService
                 UsableInstanceDto _ => k.Adapt<UsableInstance>(),
                 _ => k.Adapt<ItemInstance>()
             };
-
-            item.Item = _items.Find(s => s.VNum == k.ItemVNum)?.Adapt<Item.Item>();
-            if (item.Item != null)
+            var itemDto = _items.Find(s => s.VNum == k.ItemVNum);
+            if (itemDto == null)
             {
-                _runner?.LoadHandlers(item.Item);
+                throw new InvalidOperationException(_logLanguage[LogLanguageKey.UNBOUND_ITEM_DETECTED]);
             }
+            item.Item = itemDto.Adapt<Item.Item>();
+            _runner?.LoadHandlers(item.Item);
 
             return item;
         }
