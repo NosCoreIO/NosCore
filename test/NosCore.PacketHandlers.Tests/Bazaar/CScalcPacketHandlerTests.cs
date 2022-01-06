@@ -50,7 +50,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     public class CScalcPacketHandlerTest
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CScalcPacketHandler? _cScalcPacketHandler;
         private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
@@ -60,11 +59,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestInitialize]
         public async Task SetupAsync()
         {
-            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
-                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
-            _logLanguageLocalister = mock.Object;
-
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
@@ -72,7 +66,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             _itemProvider = new Mock<IItemGenerationService>();
             _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _cScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration,
-                _bazaarHttpClient.Object, _itemProvider.Object, Logger, _itemInstanceDao.Object, _logLanguageLocalister);
+                _bazaarHttpClient.Object, _itemProvider.Object, Logger, _itemInstanceDao.Object, TestHelpers.Instance.LogLanguageLocalizer);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(0)).ReturnsAsync(
                 new BazaarLink

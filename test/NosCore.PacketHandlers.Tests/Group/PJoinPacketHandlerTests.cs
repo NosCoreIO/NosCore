@@ -42,18 +42,12 @@ namespace NosCore.PacketHandlers.Tests.Group
     public class PJoinPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private readonly Dictionary<int, Character> _characters = new();
         private PjoinPacketHandler? _pJoinPacketHandler;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            var logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            logLanguageMock.Setup(x => x[It.IsAny<LogLanguageKey>()])
-                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
-            _logLanguageLocalister = logLanguageMock.Object;
-
             Broadcaster.Reset();
             var idServer = new IdService<GameObject.Group>(1);
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
@@ -65,7 +59,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             }
 
             var mock = new Mock<IBlacklistHttpClient>();
-            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, _logLanguageLocalister);
+            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]

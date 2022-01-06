@@ -62,7 +62,6 @@ namespace NosCore.PacketHandlers.Tests.Login
         private readonly Mock<IAuthHttpClient> _authHttpClient = new();
         private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
         private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
-        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private readonly IOptions<LoginConfiguration> _loginConfiguration = Options.Create(new LoginConfiguration
         {
             MasterCommunication = new WebApiConfiguration()
@@ -78,17 +77,13 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestInitialize]
         public async Task SetupAsync()
         {
-            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
-                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
-            _logLanguageLocalister = mock.Object;
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration,
                 TestHelpers.Instance.AccountDao,
                 _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder()));
             var authController = new AuthController(Options.Create(_loginConfiguration.Value.MasterCommunication),
-                TestHelpers.Instance.AccountDao, Logger, _encryption, _logLanguageLocalister);
+                TestHelpers.Instance.AccountDao, Logger, _encryption, TestHelpers.Instance.LogLanguageLocalizer);
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
