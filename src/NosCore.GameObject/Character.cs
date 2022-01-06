@@ -136,13 +136,10 @@ namespace NosCore.GameObject
             _worldConfiguration = worldConfiguration;
             LastSp = clock.GetCurrentInstant();
             _clock = clock;
-            BattlepassLogs = new();
         }
 
         private byte _speed;
         private readonly IClock _clock;
-
-        public Dictionary<Guid, CharacterBattlepassDto> BattlepassLogs { get; set; }
 
         public ScriptDto? Script { get; set; }
 

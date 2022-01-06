@@ -19,6 +19,7 @@
 
 using Mapster;
 using Microsoft.Extensions.Options;
+using NodaTime;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
@@ -35,7 +36,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NodaTime;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -273,6 +273,46 @@ namespace NosCore.GameObject.Services.QuestService
                 await character.SendPacketAsync(quest.GenerateTargetPacket()).ConfigureAwait(false);
             }
             return true;
+        }
+
+        public async Task IncrementQuestObjectives(ICharacterEntity character, short questId, bool isBattlepassQuest, int toAdd = 1)
+        {
+            // TODO : Update it for normal quests too
+            var quest = _quests.FirstOrDefault(s => s.QuestId == questId)?.Adapt<Quest>();
+            if (quest is null)
+            {
+                return;
+            }
+
+            var questObjectives = quest.QuestObjectives.FirstOrDefault(s => s.QuestId == questId); // TODO : Add quest objectives logs (I know that's the original objective)
+            if (questObjectives is null)
+            {
+                return;
+            }
+
+            var newAdvencement = questObjectives.FirstData + toAdd;
+            if (newAdvencement > questObjectives.FirstData)
+            {
+                newAdvencement = questObjectives.FirstData;
+            }
+
+            var characterQuest = character.Quests.Values.FirstOrDefault(s => s.QuestId == questId);
+            if (characterQuest is null)
+            {
+                return;
+            }
+
+            var toUpdate = characterQuest.Quest.QuestObjectives.FirstOrDefault(s => s.FirstData == questObjectives.FirstData && s.QuestId == questId);
+            if (toUpdate is null)
+            {
+                return;
+            }
+
+            toUpdate.FirstData = newAdvencement;
+            if (isBattlepassQuest)
+            {
+                await character.SendPacketAsync(character.GenerateBpmPacket(_quests, _worldConfiguration));
+            }
         }
 
         public async Task<bool> ValidateQuestAsync(ICharacterEntity character, short questId)

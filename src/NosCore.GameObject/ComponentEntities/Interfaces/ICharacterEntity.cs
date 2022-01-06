@@ -117,7 +117,5 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         Task ChangeMapAsync(short mapId, short mapX, short mapY);
 
         string GetMessageFromKey(LanguageKey support);
-
-        Dictionary<Guid, CharacterBattlepassDto> BattlepassLogs { get; set; }
     }
 }

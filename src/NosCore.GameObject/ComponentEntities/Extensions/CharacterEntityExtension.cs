@@ -55,13 +55,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 {
     public static class CharacterEntityExtension
     {
-        public static BpmPacket GenerateBpmPacket(this ICharacterEntity characterEntity, List<QuestDto> quests, long advencement, IOptions<WorldConfiguration> conf)
+        public static BpmPacket GenerateBpmPacket(this ICharacterEntity characterEntity, List<QuestDto> quests, IOptions<WorldConfiguration> conf)
         {
             List<BpmSubTypePacket> subPackets = new();
             foreach (var quest in quests)
             {
-                var characterAdvencement = characterEntity.BattlepassLogs.Values.FirstOrDefault(s => s.CharacterId == characterEntity.VisualId && s.Data == advencement);
-                long actualAdvencement = characterAdvencement == null ? 0 : Convert.ToInt64(characterAdvencement.Data2);
+                var characterAdvencement = characterEntity.Quests.Values.FirstOrDefault(s => s.CharacterId == characterEntity.VisualId && s.QuestId == quest.QuestId);
+                long actualAdvencement = characterAdvencement?.Quest.QuestObjectives.FirstOrDefault(s => s.QuestId == quest.QuestId)?.FirstData ?? 0;
                 subPackets.Add(new()
                 {
                     //QuestId = quest.QuestId,
