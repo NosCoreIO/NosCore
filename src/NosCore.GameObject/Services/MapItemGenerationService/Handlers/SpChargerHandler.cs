@@ -28,10 +28,6 @@ using System;
 using System.Threading.Tasks;
 using NosCore.Networking;
 
-
-//TODO stop using obsolete
-#pragma warning disable 618
-
 namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {
     public class SpChargerEventHandler : IGetMapItemEventHandler

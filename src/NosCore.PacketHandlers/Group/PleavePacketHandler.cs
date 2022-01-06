@@ -34,9 +34,6 @@ using System.Threading.Tasks;
 using NosCore.Core.Services.IdService;
 using NosCore.Networking;
 
-//TODO stop using obsolete
-#pragma warning disable 618
-
 namespace NosCore.PacketHandlers.Group
 {
     public class PleavePacketHandler : PacketHandler<PleavePacket>, IWorldPacketHandler

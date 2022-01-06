@@ -51,7 +51,8 @@ namespace NosCore.WorldServer
         private readonly ISaveService _saveService;
 
         public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger logger, 
-            IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService, IClock nodatimeClock, ISaveService saveService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService, IClock nodatimeClock, ISaveService saveService, 
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -67,7 +68,7 @@ namespace NosCore.WorldServer
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await _mapInstanceGeneratorService.InitializeAsync().ConfigureAwait(false);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SUCCESSFULLY_LOADED));
+            _logger.Information(_logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
                 var eventSaveAll = new SaveAll(_logger, _nodatimeClock, _saveService, _logLanguage);

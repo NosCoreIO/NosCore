@@ -38,9 +38,6 @@ using System.Threading.Tasks;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 
-//TODO stop using obsolete
-#pragma warning disable 618
-
 namespace NosCore.PacketHandlers.Shops
 {
     public class MShopPacketHandler : PacketHandler<MShopPacket>, IWorldPacketHandler

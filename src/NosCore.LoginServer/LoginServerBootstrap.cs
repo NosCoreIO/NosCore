@@ -183,7 +183,7 @@ namespace NosCore.LoginServer
                     {
                         Console.Title = Title;
                     }
-               
+                    
                     InitializeConfiguration(args, services);
                     services.AddI18NLogs();
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));

@@ -37,9 +37,6 @@ using NosCore.Core.Services.IdService;
 using NosCore.Networking;
 using NosCore.Shared.I18N;
 
-//TODO stop using obsolete
-#pragma warning disable 618
-
 namespace NosCore.PacketHandlers.Group
 {
     public class PjoinPacketHandler : PacketHandler<PjoinPacket>, IWorldPacketHandler

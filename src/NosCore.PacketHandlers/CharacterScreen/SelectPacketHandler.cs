@@ -126,7 +126,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 await clientSession.SetCharacterAsync(character).ConfigureAwait(false);
 
 #pragma warning disable CS0618
-                await clientSession.SendPacketsAsync(clientSession.Character.GenerateInv()).ConfigureAwait(false);
+                await clientSession.SendPacketsAsync(clientSession.Character.GenerateInv(_logger, _logLanguage)).ConfigureAwait(false);
 #pragma warning restore CS0618
                 await clientSession.SendPacketAsync(clientSession.Character.GenerateMlobjlst()).ConfigureAwait(false);
                 if (clientSession.Character.Hp > clientSession.Character.MaxHp)

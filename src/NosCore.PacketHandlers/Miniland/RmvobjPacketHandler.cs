@@ -29,9 +29,6 @@ using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 
-//TODO stop using obsolete
-#pragma warning disable 618
-
 namespace NosCore.PacketHandlers.Miniland
 {
     public class RmvobjPacketHandler : PacketHandler<RmvobjPacket>, IWorldPacketHandler

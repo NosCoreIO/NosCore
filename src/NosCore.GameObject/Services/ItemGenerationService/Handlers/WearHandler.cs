@@ -37,10 +37,6 @@ using NodaTime;
 using NosCore.Networking;
 using NosCore.Shared.I18N;
 
-
-//TODO stop using obsolete
-#pragma warning disable 618
-
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
     public class WearEventHandler : IUseItemEventHandler

@@ -29,9 +29,6 @@ using NosCore.Shared.Enumerations;
 using System;
 using System.Threading.Tasks;
 
-//TODO stop using obsolete
-#pragma warning disable 618
-
 namespace NosCore.GameObject.Services.NRunService.Handlers
 {
     public class ChangeClassEventHandler : INrunEventHandler

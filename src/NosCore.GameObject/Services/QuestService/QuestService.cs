@@ -38,9 +38,6 @@ using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Shared.I18N;
 
-//TODO stop using obsolete
-#pragma warning disable 618
-
 namespace NosCore.GameObject.Services.QuestService
 {
     public class QuestService : IQuestService

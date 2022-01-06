@@ -36,8 +36,6 @@ using Serilog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-//TODO stop using obsolete
-#pragma warning disable 618
 
 namespace NosCore.PacketHandlers.Exchange
 {

@@ -80,6 +80,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         private int? _waitForPacketsAmount;
         private readonly ISessionRefHolder _sessionRefHolder;
         private readonly IClock _clock;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly ISaveService _saveService = null!;
         private readonly IExperienceService _experienceService = null!;
         private readonly IJobExperienceService _jobExperienceService = null!;
@@ -87,8 +88,8 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock,
-            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> logLanguage)
-            : base(logger, logLanguage)
+            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            : base(logger, networkingLogLanguage)
         {
             _logger = logger;
             _packetsHandlers = packetsHandlers.ToList();
@@ -97,6 +98,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             _packetHttpClient = packetHttpClient;
             _sessionRefHolder = sessionRefHolder;
             _clock = clock;
+            _logLanguage = logLanguage;
             foreach (var handler in _packetsHandlers)
             {
                 var type = handler.GetType().BaseType?.GenericTypeArguments[0]!;
@@ -110,9 +112,9 @@ namespace NosCore.GameObject.Networking.ClientSession
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock,
-            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> logLanguage) 
+            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage) 
             : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient,
-                sessionRefHolder, clock, logLanguage)
+                sessionRefHolder, clock, networkingLogLanguage, logLanguage)
         {
         }
 
@@ -122,8 +124,8 @@ namespace NosCore.GameObject.Networking.ClientSession
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
             IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, ISessionRefHolder sessionRefHolder, IClock clock, 
             ISaveService saveService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
-            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> logLanguage) 
-            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, clock, logLanguage)
+            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, clock, networkingLogLanguage, logLanguage)
         {
             _mapInstanceAccessorService = mapInstanceAccessorService;
             _exchangeProvider = exchangeService!;
@@ -158,7 +160,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 // cant access an
-                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHARACTER_NOT_INIT));
+                _logger.Warning(_logLanguage[LogLanguageKey.CHARACTER_NOT_INIT]);
                 throw new NullReferenceException();
 
             }
@@ -201,7 +203,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (Exception ex)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_HANDLING_ERROR), ex);
+                _logger.Error(_logLanguage[LogLanguageKey.PACKET_HANDLING_ERROR], ex);
                 await DisconnectAsync();
             }
         }
@@ -253,12 +255,12 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (Exception ex)
             {
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED), ex);
+                _logger.Information(_logLanguage[LogLanguageKey.CLIENT_DISCONNECTED], ex);
             }
             finally
             {
                 Broadcaster.Instance.UnregisterSession(this);
-                _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_DISCONNECTED));
+                _logger.Information(_logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);
             }
         }
 
@@ -416,7 +418,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (Exception)
             {
-                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ERROR_CHANGE_MAP));
+                _logger.Warning(_logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
                 Character.IsChangingMapInstance = false;
             }
         }
@@ -444,7 +446,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     {
                         if ((LastKeepAliveIdentity != 0) && (packet.KeepAliveId != LastKeepAliveIdentity + 1))
                         {
-                            _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPTED_KEEPALIVE),
+                            _logger.Error(_logLanguage[LogLanguageKey.CORRUPTED_KEEPALIVE],
                                 SessionId);
                             await DisconnectAsync().ConfigureAwait(false);
                             return;
@@ -453,7 +455,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         if (!_waitForPacketsAmount.HasValue && (LastKeepAliveIdentity == 0))
                         {
                             SessionId = _sessionRefHolder[contex.Channel.Id.AsLongText()].SessionId;
-                            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CLIENT_ARRIVED),
+                            _logger.Debug(_logLanguage[LogLanguageKey.CLIENT_ARRIVED],
                                 SessionId);
 
                             _waitForPacketsAmount = 2;
@@ -495,7 +497,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     var packetHeader = packet.Header;
                     if (string.IsNullOrWhiteSpace(packetHeader) && (contex != null))
                     {
-                        _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CORRUPT_PACKET),
+                        _logger.Warning(_logLanguage[LogLanguageKey.CORRUPT_PACKET],
                             packet);
                         await DisconnectAsync().ConfigureAwait(false);
                         return;
@@ -511,7 +513,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                             if (HasSelectedCharacter && (attr.Scopes & Scope.InTrade) == 0 && Character.InExchangeOrShop)
                             {
                                 _logger.Warning(
-                                    LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PLAYER_IN_SHOP),
+                                    _logLanguage[LogLanguageKey.PLAYER_IN_SHOP],
                                     packet.Header);
                                 return;
                             }
@@ -520,7 +522,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                             if (!HasSelectedCharacter && (attr.Scopes & Scope.OnCharacterScreen) == 0 && !isMfa)
                             {
                                 _logger.Warning(
-                                    LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER),
+                                    _logLanguage[LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER],
                                     packet.Header);
                                 return;
                             }
@@ -528,7 +530,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                             if (HasSelectedCharacter && (attr.Scopes & Scope.InGame) == 0)
                             {
                                 _logger.Warning(
-                                    LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WHILE_IN_GAME),
+                                    _logLanguage[LogLanguageKey.PACKET_USED_WHILE_IN_GAME],
                                     packet.Header);
                                 return;
                             }
@@ -560,7 +562,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
                     else
                     {
-                        _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_NOT_FOUND),
+                        _logger.Warning(_logLanguage[LogLanguageKey.HANDLER_NOT_FOUND],
                             packet.Header);
                     }
 
@@ -578,7 +580,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     if ((attr.Scopes & Scope.OnLoginScreen) == 0)
                     {
                         _logger.Warning(
-                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PACKET_USED_WHILE_NOT_ON_LOGIN),
+                            _logLanguage[LogLanguageKey.PACKET_USED_WHILE_NOT_ON_LOGIN],
                             packet.Header);
                         return;
                     }
@@ -591,7 +593,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
                     else
                     {
-                        _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.HANDLER_NOT_FOUND),
+                        _logger.Warning(_logLanguage[LogLanguageKey.HANDLER_NOT_FOUND],
                             packetHeader);
                     }
                 }
