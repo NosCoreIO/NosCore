@@ -32,6 +32,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -45,13 +46,15 @@ namespace NosCore.GameObject.Services.ExchangeService
         private readonly ILogger _logger;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly ExchangeRequestHolder _requestHolder;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public ExchangeService(IItemGenerationService itemBuilderService, IOptions<WorldConfiguration> worldConfiguration, ILogger logger, ExchangeRequestHolder requestHolder)
+        public ExchangeService(IItemGenerationService itemBuilderService, IOptions<WorldConfiguration> worldConfiguration, ILogger logger, ExchangeRequestHolder requestHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _itemBuilderService = itemBuilderService;
             _worldConfiguration = worldConfiguration;
             _logger = logger;
             _requestHolder = requestHolder;
+            _logLanguage = logLanguage;
         }
 
         public void SetGold(long visualId, long gold, long bankGold)
@@ -158,7 +161,7 @@ namespace NosCore.GameObject.Services.ExchangeService
             var data = _requestHolder.ExchangeRequests.FirstOrDefault(k => k.Key == visualId);
             if (data.Equals(default))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE));
+                _logger.Error(_logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                 return;
             }
 
@@ -192,18 +195,18 @@ namespace NosCore.GameObject.Services.ExchangeService
             var data = _requestHolder.ExchangeRequests.FirstOrDefault(k => (k.Key == visualId) || (k.Value == visualId));
             if ((data.Key == 0) && (data.Value == 0))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVALID_EXCHANGE));
+                _logger.Error(_logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                 return null;
             }
 
             if (!_requestHolder.ExchangeDatas.TryRemove(data.Key, out _) || !_requestHolder.ExchangeRequests.TryRemove(data.Key, out _))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TRY_REMOVE_FAILED), data.Key);
+                _logger.Error(_logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Key);
             }
 
             if (!_requestHolder.ExchangeDatas.TryRemove(data.Value, out _) || !_requestHolder.ExchangeRequests.TryRemove(data.Value, out _))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TRY_REMOVE_FAILED), data.Value);
+                _logger.Error(_logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Value);
             }
 
             return new ExcClosePacket
@@ -216,7 +219,7 @@ namespace NosCore.GameObject.Services.ExchangeService
         {
             if (CheckExchange(visualId) || CheckExchange(targetVisualId))
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.ALREADY_EXCHANGE));
+                _logger.Error(_logLanguage[LogLanguageKey.ALREADY_EXCHANGE]);
                 return false;
             }
 

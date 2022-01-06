@@ -35,6 +35,7 @@ using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Core.Services.IdService;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClients
 {
@@ -47,14 +48,16 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
         private string? _token;
         private readonly IClock _clock;
         private readonly IIdService<ChannelInfo> _channelIdService;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger, IClock clock, IIdService<ChannelInfo> channelIdService)
+        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger, IClock clock, IIdService<ChannelInfo> channelIdService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _httpClientFactory = httpClientFactory;
             _channel = channel;
             _logger = logger;
             _clock = clock;
             _channelIdService = channelIdService;
+            _logLanguage = logLanguage;
         }
 
         public async Task ConnectAsync()
@@ -71,7 +74,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     (_, __, timeSpan) =>
                         _logger.Error(
-                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_RETRY),
+                            _logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
                             timeSpan.TotalSeconds)
                 ).ExecuteAsync(() => client.PostAsync(new Uri($"{client.BaseAddress}api/channel"), content));
 
@@ -82,7 +85,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                 });
             _token = result?.Token;
             _lastUpdateToken = _clock.GetCurrentInstant();
-            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.REGISTRED_ON_MASTER));
+            _logger.Debug(_logLanguage[LogLanguageKey.REGISTRED_ON_MASTER]);
             _channel.ChannelId = result?.ChannelInfo?.ChannelId ?? 0;
 
             await Policy
@@ -90,14 +93,14 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(1),
                     (_, __, timeSpan) =>
                         _logger.Verbose(
-                            LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_PING))
+                            _logLanguage[LogLanguageKey.MASTER_SERVER_PING])
                 ).ExecuteAsync(() =>
                 {
                     var jsonPatch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/LastPing"), JsonDocument.Parse(JsonSerializer.Serialize(_clock.GetCurrentInstant())).RootElement));
                     return PatchAsync(_channel.ChannelId, jsonPatch);
                 }).ConfigureAwait(false);
             _logger.Error(
-                LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MASTER_SERVER_PING_FAILED));
+                _logLanguage[LogLanguageKey.MASTER_SERVER_PING_FAILED]);
             Environment.Exit(0);
         }
 
@@ -143,7 +146,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                 });
             _token = result?.Token;
             _lastUpdateToken = _clock.GetCurrentInstant();
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SECURITY_TOKEN_UPDATED));
+            _logger.Information(_logLanguage[LogLanguageKey.SECURITY_TOKEN_UPDATED]);
 
             return _token;
         }

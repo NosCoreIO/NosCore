@@ -21,12 +21,14 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Mapster;
+using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Holders;
@@ -38,6 +40,7 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Configuration;
+using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
@@ -54,6 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private FinsPacketHandler? _finsPacketHandler;
         private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
         private FriendRequestHolder? _friendRequestHolder;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
 
         private ClientSession? _session;
         private ClientSession? _targetSession;
@@ -61,6 +65,11 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestInitialize]
         public async Task SetupAsync()
         {
+            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            _logLanguageLocalister = mock.Object;
+
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
                 .ConstructUsing(src => new MapNpc(null, Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
             Broadcaster.Reset();
@@ -95,7 +104,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             };
 
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder, _connectedAccountHttpClient.Object);
+                _friendRequestHolder, _connectedAccountHttpClient.Object, _logLanguageLocalister);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
             await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
@@ -111,7 +120,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 Type = FinsPacketType.Accepted
             };
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder!, _connectedAccountHttpClient.Object);
+                _friendRequestHolder!, _connectedAccountHttpClient.Object, _logLanguageLocalister);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session!.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
             await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
@@ -128,7 +137,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 Type = FinsPacketType.Accepted
             };
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder!, _connectedAccountHttpClient.Object);
+                _friendRequestHolder!, _connectedAccountHttpClient.Object, _logLanguageLocalister);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session!.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
 

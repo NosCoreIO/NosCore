@@ -32,6 +32,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -45,14 +46,16 @@ namespace NosCore.PacketHandlers.Bazaar
         private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private readonly IItemGenerationService _itemProvider;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public CBuyPacketHandler(IBazaarHttpClient bazaarHttpClient, IItemGenerationService itemProvider, ILogger logger,
-            IDao<IItemInstanceDto?, Guid> itemInstanceDao)
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _bazaarHttpClient = bazaarHttpClient;
             _itemProvider = itemProvider;
             _logger = logger;
             _itemInstanceDao = itemInstanceDao;
+            _logLanguage = logLanguage;
         }
 
         public override async Task ExecuteAsync(CBuyPacket packet, ClientSession clientSession)
@@ -107,7 +110,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             return;
                         }
 
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.BAZAAR_BUY_ERROR));
+                        _logger.Error(_logLanguage[LogLanguageKey.BAZAAR_BUY_ERROR]);
                     }
                     else
                     {

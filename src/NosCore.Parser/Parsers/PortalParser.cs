@@ -22,6 +22,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -34,15 +35,17 @@ namespace NosCore.Parser.Parsers
     {
         private readonly List<PortalDto> _listPortals2 = new();
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly IDao<MapDto, short> _mapDao;
         private readonly IDao<PortalDto, int> _portalDao;
         private List<PortalDto> _listPortals1 = new();
 
-        public PortalParser(ILogger logger, IDao<MapDto, short> mapDao, IDao<PortalDto, int> portalDao)
+        public PortalParser(ILogger logger, IDao<MapDto, short> mapDao, IDao<PortalDto, int> portalDao, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
             _mapDao = mapDao;
             _portalDao = portalDao;
+            _logLanguage = logLanguage;
         }
 
         public async Task InsertPortalsAsync(List<string[]> packetList)
@@ -193,7 +196,7 @@ namespace NosCore.Parser.Parsers
                         && (s.SourceY == portal.SourceY))).ToList();
             await _portalDao.TryInsertOrUpdateAsync(portalsDtos).ConfigureAwait(false);
 
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.PORTALS_PARSED),
+            _logger.Information(_logLanguage[LogLanguageKey.PORTALS_PARSED],
                 portalsDtos.Count + portalCounter);
         }
     }

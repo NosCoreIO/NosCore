@@ -22,6 +22,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -36,13 +37,16 @@ namespace NosCore.Parser.Parsers
         private readonly IDao<MapNpcDto, int> _mapNpcDao;
         private readonly IDao<NpcMonsterDto, short> _npcMonsterDao;
         private readonly IDao<NpcTalkDto, short> _npcTalkDao;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public MapNpcParser(IDao<MapNpcDto, int> mapNpcDao, IDao<NpcMonsterDto, short> npcMonsterDao, IDao<NpcTalkDto, short> npcTalkDao, ILogger logger)
+        public MapNpcParser(IDao<MapNpcDto, int> mapNpcDao, IDao<NpcMonsterDto, short> npcMonsterDao, IDao<NpcTalkDto, short> npcTalkDao,
+            ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _mapNpcDao = mapNpcDao;
             _logger = logger;
             _npcMonsterDao = npcMonsterDao;
             _npcTalkDao = npcTalkDao;
+            _logLanguage = logLanguage;
         }
 
         public async Task InsertMapNpcsAsync(List<string[]> packetList)
@@ -93,7 +97,7 @@ namespace NosCore.Parser.Parsers
             }
 
             await _mapNpcDao.TryInsertOrUpdateAsync(npcs).ConfigureAwait(false);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.NPCS_PARSED), npcCounter);
+            _logger.Information(_logLanguage[LogLanguageKey.NPCS_PARSED], npcCounter);
         }
     }
 }

@@ -30,17 +30,19 @@ using Serilog;
 using System;
 using System.Threading.Tasks;
 using NosCore.Networking;
-
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
     public class VehicleEventHandler : IUseItemEventHandler
     {
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public VehicleEventHandler(ILogger logger)
+        public VehicleEventHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public bool Condition(Item.Item item)
@@ -54,7 +56,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             var packet = requestData.Data.Item2;
             if (requestData.ClientSession.Character.InExchangeOrShop)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CANT_USE_ITEM_IN_SHOP));
+                _logger.Error(_logLanguage[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]);
                 return;
             }
 

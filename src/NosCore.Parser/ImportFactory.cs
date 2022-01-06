@@ -24,6 +24,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.I18N;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -68,6 +69,7 @@ namespace NosCore.Parser
         private readonly IDao<I18NQuestDto, int> _i18NQuestDao;
         private readonly IDao<I18NSkillDto, int> _i18NSkillDao;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly string _password = new Sha512Hasher().Hash("test");
         private string _folder = "";
 
@@ -83,7 +85,7 @@ namespace NosCore.Parser
             IDao<I18NNpcMonsterDto, int> i18NNpcMonsterDao, IDao<I18NMapPointDataDto, int> i18NMapPointDataDao,
             IDao<I18NMapIdDataDto, int> i18NMapIdDataDao,
             IDao<I18NItemDto, int> i18NItemDao, IDao<I18NBCardDto, int> i18NbCardDao,
-            IDao<I18NCardDto, int> i18NCardDao, IDao<I18NActDescDto, int> i18NActDescDao, ILogger logger)
+            IDao<I18NCardDto, int> i18NCardDao, IDao<I18NActDescDto, int> i18NActDescDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _actParser = actParser;
             _questPrizeParser = questPrizeParser;
@@ -116,6 +118,7 @@ namespace NosCore.Parser
             _i18NCardDao = i18NCardDao;
             _i18NActDescDao = i18NActDescDao;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public async System.Threading.Tasks.Task ImportAccountsAsync()
@@ -241,16 +244,16 @@ namespace NosCore.Parser
 
         public async Task ImportI18NAsync()
         {
-            await new I18NParser<I18NActDescDto, int>(_i18NActDescDao, _logger).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_act_desc.txt", LogLanguageKey.I18N_ACTDESC_PARSED).ConfigureAwait(false);
-            await new I18NParser<I18NBCardDto, int>(_i18NbCardDao, _logger).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_BCard.txt", LogLanguageKey.I18N_BCARD_PARSED).ConfigureAwait(false);
-            await new I18NParser<I18NCardDto, int>(_i18NCardDao, _logger).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_Card.txt", LogLanguageKey.I18N_CARD_PARSED).ConfigureAwait(false);
-            await new I18NParser<I18NItemDto, int>(_i18NItemDao, _logger).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_Item.txt", LogLanguageKey.I18N_ITEM_PARSED).ConfigureAwait(false);
-            await new I18NParser<I18NMapIdDataDto, int>(_i18NMapIdDataDao, _logger).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_MapIDData.txt", LogLanguageKey.I18N_MAPIDDATA_PARSED).ConfigureAwait(false);
-            await new I18NParser<I18NMapPointDataDto, int>(_i18NMapPointDataDao, _logger).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_MapPointData.txt", LogLanguageKey.I18N_MAPPOINTDATA_PARSED).ConfigureAwait(false);
-            await new I18NParser<I18NNpcMonsterDto, int>(_i18NNpcMonsterDao, _logger).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_monster.txt", LogLanguageKey.I18N_MPCMONSTER_PARSED).ConfigureAwait(false);
-            await new I18NParser<I18NQuestDto, int>(_i18NQuestDao, _logger).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_quest.txt", LogLanguageKey.I18N_QUEST_PARSED).ConfigureAwait(false);
-            await new I18NParser<I18NSkillDto, int>(_i18NSkillDao, _logger).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_Skill.txt", LogLanguageKey.I18N_SKILL_PARSED).ConfigureAwait(false);
-            await new I18NParser<I18NNpcMonsterTalkDto, int>(_i18NNpcMonsterTalkDao, _logger).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_npctalk.txt", LogLanguageKey.I18N_NPCMONSTERTALK_PARSED).ConfigureAwait(false);
+            await new I18NParser<I18NActDescDto, int>(_i18NActDescDao, _logger, _logLanguage).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_act_desc.txt", LogLanguageKey.I18N_ACTDESC_PARSED).ConfigureAwait(false);
+            await new I18NParser<I18NBCardDto, int>(_i18NbCardDao, _logger, _logLanguage).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_BCard.txt", LogLanguageKey.I18N_BCARD_PARSED).ConfigureAwait(false);
+            await new I18NParser<I18NCardDto, int>(_i18NCardDao, _logger, _logLanguage).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_Card.txt", LogLanguageKey.I18N_CARD_PARSED).ConfigureAwait(false);
+            await new I18NParser<I18NItemDto, int>(_i18NItemDao, _logger, _logLanguage).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_Item.txt", LogLanguageKey.I18N_ITEM_PARSED).ConfigureAwait(false);
+            await new I18NParser<I18NMapIdDataDto, int>(_i18NMapIdDataDao, _logger, _logLanguage).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_MapIDData.txt", LogLanguageKey.I18N_MAPIDDATA_PARSED).ConfigureAwait(false);
+            await new I18NParser<I18NMapPointDataDto, int>(_i18NMapPointDataDao, _logger, _logLanguage).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_MapPointData.txt", LogLanguageKey.I18N_MAPPOINTDATA_PARSED).ConfigureAwait(false);
+            await new I18NParser<I18NNpcMonsterDto, int>(_i18NNpcMonsterDao, _logger, _logLanguage).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_monster.txt", LogLanguageKey.I18N_MPCMONSTER_PARSED).ConfigureAwait(false);
+            await new I18NParser<I18NQuestDto, int>(_i18NQuestDao, _logger, _logLanguage).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_quest.txt", LogLanguageKey.I18N_QUEST_PARSED).ConfigureAwait(false);
+            await new I18NParser<I18NSkillDto, int>(_i18NSkillDao, _logger, _logLanguage).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_Skill.txt", LogLanguageKey.I18N_SKILL_PARSED).ConfigureAwait(false);
+            await new I18NParser<I18NNpcMonsterTalkDto, int>(_i18NNpcMonsterTalkDao, _logger, _logLanguage).InsertI18NAsync(_folder + Path.DirectorySeparatorChar + "_code_{0}_npctalk.txt", LogLanguageKey.I18N_NPCMONSTERTALK_PARSED).ConfigureAwait(false);
         }
 
         public Task ImportItemsAsync()

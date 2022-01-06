@@ -22,6 +22,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
+using NosCore.Shared.I18N;
 using Serilog;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,13 +33,14 @@ namespace NosCore.Parser.Parsers
     public class RespawnMapTypeParser
     {
         private readonly ILogger _logger;
-
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly IDao<RespawnMapTypeDto, long> _respawnMapTypeDao;
 
-        public RespawnMapTypeParser(IDao<RespawnMapTypeDto, long> respawnMapTypeDao, ILogger logger)
+        public RespawnMapTypeParser(IDao<RespawnMapTypeDto, long> respawnMapTypeDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _respawnMapTypeDao = respawnMapTypeDao;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         internal async Task InsertRespawnMapTypeAsync()
@@ -103,7 +105,7 @@ namespace NosCore.Parser.Parsers
                 }
             };
             await _respawnMapTypeDao.TryInsertOrUpdateAsync(respawnmaptypemaps).ConfigureAwait(false);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.RESPAWNTYPE_PARSED),
+            _logger.Information(_logLanguage[LogLanguageKey.RESPAWNTYPE_PARSED],
                 respawnmaptypemaps.Count());
         }
     }

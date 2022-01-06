@@ -22,6 +22,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -57,14 +58,16 @@ namespace NosCore.Parser.Parsers
         private readonly IDao<ComboDto, int> _comboDao;
         private readonly IDao<SkillDto, short> _skillDao;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public SkillParser(IDao<BCardDto, short> bCardDao, IDao<ComboDto, int> comboDao,
-            IDao<SkillDto, short> skillDao, ILogger logger)
+            IDao<SkillDto, short> skillDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _bCardDao = bCardDao;
             _comboDao = comboDao;
             _skillDao = skillDao;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public async Task InsertSkillsAsync(string folder)
@@ -103,7 +106,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(SkillDto.LevelMinimum), chunk => chunk["LEVEL"][0][2] != "-1" ? byte.Parse(chunk["LEVEL"][0][2]) : (byte)0 },
             };
             var genericParser = new GenericParser<SkillDto>(folder + _fileCardDat,
-                "#=========================================================", 1, actionList, _logger);
+                "#=========================================================", 1, actionList, _logger, _logLanguage);
             var skills = await genericParser.GetDtosAsync().ConfigureAwait(false);
 
             foreach (var skill in skills.Where(s => s.Class > 31))
@@ -135,7 +138,7 @@ namespace NosCore.Parser.Parsers
             await _comboDao.TryInsertOrUpdateAsync(skills.Where(s => s.Combo != null).SelectMany(s => s.Combo)).ConfigureAwait(false);
             await _bCardDao.TryInsertOrUpdateAsync(skills.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
 
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SKILLS_PARSED), skills.Count);
+            _logger.Information(_logLanguage[LogLanguageKey.SKILLS_PARSED], skills.Count);
         }
 
         private List<BCardDto> AddBCards(Dictionary<string, string[][]> chunks)

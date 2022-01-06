@@ -36,6 +36,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Shared.I18N;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -50,10 +51,10 @@ namespace NosCore.GameObject.Services.QuestService
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly ILogger _logger;
         private readonly IClock _clock;
-
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public QuestService(List<ScriptDto> scripts,
-            IOptions<WorldConfiguration> worldConfiguration, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives, ILogger logger, IClock clock)
+            IOptions<WorldConfiguration> worldConfiguration, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives, ILogger logger, IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _scripts = scripts;
             _quests = quests;
@@ -61,6 +62,7 @@ namespace NosCore.GameObject.Services.QuestService
             _logger = logger;
             _questObjectives = questObjectives;
             _clock = clock;
+            _logLanguage = logLanguage;
         }
 
         public Task RunScriptAsync(ICharacterEntity character) => RunScriptAsync(character, null);
@@ -177,7 +179,7 @@ namespace NosCore.GameObject.Services.QuestService
                 return await ValidateQuestAsync(character, questId).ConfigureAwait(false);
             }
 
-            _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUEST_NOT_FOUND));
+            _logger.Error(_logLanguage[LogLanguageKey.QUEST_NOT_FOUND]);
             return false;
         }
 
@@ -217,7 +219,7 @@ namespace NosCore.GameObject.Services.QuestService
             var questDto = _quests.FirstOrDefault(s => s.QuestId == questId);
             if (questDto == null)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUEST_NOT_FOUND));
+                _logger.Error(_logLanguage[LogLanguageKey.QUEST_NOT_FOUND]);
                 return true;
             }
             var quest = questDto.Adapt<Quest>();

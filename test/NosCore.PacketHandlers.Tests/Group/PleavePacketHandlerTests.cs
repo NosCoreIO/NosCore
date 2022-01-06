@@ -20,10 +20,12 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
@@ -31,6 +33,7 @@ using NosCore.PacketHandlers.Group;
 using NosCore.Packets.ClientPackets.Groups;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Groups;
+using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -40,6 +43,7 @@ namespace NosCore.PacketHandlers.Tests.Group
     public class PleavePacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private readonly Dictionary<int, Character> _characters = new();
         private PjoinPacketHandler? _pJoinPacketHandler;
         private PleavePacketHandler? _pLeavePacketHandler;
@@ -47,6 +51,11 @@ namespace NosCore.PacketHandlers.Tests.Group
         [TestInitialize]
         public async Task SetupAsync()
         {
+            var logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            logLanguageMock.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            _logLanguageLocalister = logLanguageMock.Object;
+
             Broadcaster.Reset();
             var idServer = new IdService<GameObject.Group>(1);
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
@@ -60,7 +69,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             _pLeavePacketHandler = new PleavePacketHandler(idServer);
 
             var mock = new Mock<IBlacklistHttpClient>();
-            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer);
+            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, _logLanguageLocalister);
         }
 
         [TestMethod]

@@ -20,6 +20,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.I18N;
@@ -39,6 +40,7 @@ using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -48,6 +50,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     public class CBuyPacketHandlerTest
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CBuyPacketHandler? _cbuyPacketHandler;
         private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
@@ -57,6 +60,11 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestInitialize]
         public async Task SetupAsync()
         {
+            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            _logLanguageLocalister = mock.Object;
+
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
@@ -64,7 +72,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _itemProvider = new Mock<IItemGenerationService>();
             _cbuyPacketHandler = new CBuyPacketHandler(_bazaarHttpClient.Object, _itemProvider.Object, Logger,
-                _itemInstanceDao.Object);
+                _itemInstanceDao.Object, _logLanguageLocalister);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(0)).ReturnsAsync(
                 new BazaarLink

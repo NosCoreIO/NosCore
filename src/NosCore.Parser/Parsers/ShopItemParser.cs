@@ -21,6 +21,7 @@ using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Shared.I18N;
 using Serilog;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,14 +32,16 @@ namespace NosCore.Parser.Parsers
     public class ShopItemParser
     {
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly IDao<ShopDto, int> _shopDao;
         private readonly IDao<ShopItemDto, int> _shopItemDao;
 
-        public ShopItemParser(IDao<ShopItemDto, int> shopItemDao, IDao<ShopDto, int> shopDao, ILogger logger)
+        public ShopItemParser(IDao<ShopItemDto, int> shopItemDao, IDao<ShopDto, int> shopDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _shopItemDao = shopItemDao;
             _shopDao = shopDao;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public async Task InsertShopItemsAsync(List<string[]> packetList)
@@ -111,7 +114,7 @@ namespace NosCore.Parser.Parsers
             }
 
             await _shopItemDao.TryInsertOrUpdateAsync(shopListItemDtos).ConfigureAwait(false);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.SHOPITEMS_PARSED),
+            _logger.Information(_logLanguage[LogLanguageKey.SHOPITEMS_PARSED],
                 itemCounter);
         }
     }

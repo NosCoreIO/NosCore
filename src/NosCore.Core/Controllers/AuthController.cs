@@ -30,6 +30,7 @@ using NosCore.Data.WebApi;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -52,13 +53,15 @@ namespace NosCore.Core.Controllers
         private readonly IOptions<WebApiConfiguration> _apiConfiguration;
         private readonly ILogger _logger;
         private readonly IHasher _hasher;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao, ILogger logger, IHasher hasher)
+        public AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao, ILogger logger, IHasher hasher, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _apiConfiguration = apiConfiguration;
             _accountDao = accountDao;
             _logger = logger;
             _hasher = hasher;
+            _logLanguage = logLanguage;
         }
 
         [AllowAnonymous]
@@ -67,24 +70,24 @@ namespace NosCore.Core.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR));
+                return BadRequest(_logLanguage[LogLanguageKey.AUTH_ERROR]);
             }
 
             var account = await _accountDao.FirstOrDefaultAsync(s => s.Name == session.Identity).ConfigureAwait(false);
             if (account == null)
             {
-                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR));
+                return BadRequest(_logLanguage[LogLanguageKey.AUTH_ERROR]);
             }
             var tfa = new TwoFactorAuth();
             if (!string.IsNullOrEmpty(account.MfaSecret) && !tfa.VerifyCode(account.MfaSecret, session.Mfa))
             {
-                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.MFA_INCORRECT));
+                return BadRequest(_logLanguage[LogLanguageKey.MFA_INCORRECT]);
             }
 
             if (account.Password?.ToLower(CultureInfo.CurrentCulture) != (_hasher.Hash(session.Password))
                 && account.NewAuthPassword?.ToLower(CultureInfo.CurrentCulture) != (_hasher.Hash(session.Password, account.NewAuthSalt!)))
             {
-                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
+                return BadRequest(_logLanguage[LogLanguageKey.AUTH_INCORRECT]);
             }
 
             account.Language = Enum.Parse<RegionType>(session.GfLang?.ToUpper(CultureInfo.CurrentCulture) ?? "");
@@ -109,7 +112,7 @@ namespace NosCore.Core.Controllers
                 Audience = "Audience",
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
             });
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_API_SUCCESS),
+            _logger.Information(_logLanguage[LogLanguageKey.AUTH_API_SUCCESS],
                 session.Identity, platformGameAccountId, session.Locale);
             return Ok(new
             {
@@ -125,7 +128,7 @@ namespace NosCore.Core.Controllers
             if (identity?.Claims.Any(s =>
                 (s.Type == ClaimTypes.Sid) && (s.Value == platformGameAccount.PlatformGameAccountId)) != true)
             {
-                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
+                return BadRequest(_logLanguage[LogLanguageKey.AUTH_INCORRECT]);
             }
 
             var authCode = Guid.NewGuid();
@@ -141,7 +144,7 @@ namespace NosCore.Core.Controllers
         {
             if (intent == null!)
             {
-                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
+                return BadRequest(_logLanguage[LogLanguageKey.AUTH_INCORRECT]);
             }
 
             SessionFactory.Instance.ReadyForAuth.AddOrUpdate(intent.AccountName, intent.SessionId, (key, oldValue) => intent.SessionId);

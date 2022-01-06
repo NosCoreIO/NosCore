@@ -25,6 +25,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Holders;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -40,16 +41,18 @@ namespace NosCore.GameObject.Services.FriendService
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly FriendRequestHolder _friendRequestHolder;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public FriendService(ILogger logger, IDao<CharacterRelationDto, Guid> characterRelationDao,
             IDao<CharacterDto, long> characterDao, FriendRequestHolder friendRequestHolder,
-            IConnectedAccountHttpClient connectedAccountHttpClient)
+            IConnectedAccountHttpClient connectedAccountHttpClient, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
             _characterRelationDao = characterRelationDao;
             _characterDao = characterDao;
             _friendRequestHolder = friendRequestHolder;
             _connectedAccountHttpClient = connectedAccountHttpClient;
+            _logLanguage = logLanguage;
         }
 
         public async Task<LanguageKey> AddFriendAsync(long characterId, long secondCharacterId, FinsPacketType friendsPacketType)
@@ -125,7 +128,7 @@ namespace NosCore.GameObject.Services.FriendService
                         _friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
                         return LanguageKey.FRIEND_REJECTED;
                     default:
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.INVITETYPE_UNKNOWN));
+                        _logger.Error(_logLanguage[LogLanguageKey.INVITETYPE_UNKNOWN]);
                         _friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
                         throw new ArgumentException();
                 }

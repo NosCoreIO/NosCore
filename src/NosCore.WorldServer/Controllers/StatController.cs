@@ -27,6 +27,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
 
@@ -36,12 +37,14 @@ namespace NosCore.WorldServer.Controllers
     public class StatController : Controller
     {
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
 
-        public StatController(IOptions<WorldConfiguration> worldConfiguration, ILogger logger)
+        public StatController(IOptions<WorldConfiguration> worldConfiguration, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _worldConfiguration = worldConfiguration;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         // POST api/stat
@@ -86,7 +89,7 @@ namespace NosCore.WorldServer.Controllers
                     await session.ChangeClassAsync((CharacterClassType)data.Data).ConfigureAwait(false);
                     break;
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKWNOWN_RECEIVERTYPE));
+                    _logger.Error(_logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
                     break;
             }
 

@@ -23,6 +23,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Helpers;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 
@@ -31,13 +32,15 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
     public class WearableInstance : WearableInstanceDto, IItemInstance
     {
         private readonly ILogger _logger = null!;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage = null!;
 
-        public WearableInstance(Item item, ILogger logger)
+        public WearableInstance(Item item, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             Id = Guid.NewGuid();
             Item = item;
             ItemVNum = item.VNum;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public WearableInstance()
@@ -132,7 +135,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
                     break;
 
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKNOWN_EQUIPMENTTYPE),
+                    _logger.Error(_logLanguage[LogLanguageKey.UNKNOWN_EQUIPMENTTYPE],
                         Item.EquipmentSlot);
                     break;
             }

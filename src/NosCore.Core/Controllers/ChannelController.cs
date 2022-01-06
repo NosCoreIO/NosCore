@@ -40,6 +40,7 @@ using System.Text;
 using System.Text.Json;
 using NodaTime;
 using NosCore.Core.Services.IdService;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Core.Controllers
 {
@@ -53,14 +54,16 @@ namespace NosCore.Core.Controllers
         private readonly IHasher _hasher;
         private readonly IClock _clock;
         private readonly IIdService<ChannelInfo> _channelInfoIdService;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger, IHasher hasher, IClock clock, IIdService<ChannelInfo> channelInfoIdService)
+        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger, IHasher hasher, IClock clock, IIdService<ChannelInfo> channelInfoIdService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
             _apiConfiguration = apiConfiguration;
             _hasher = hasher;
             _clock = clock;
             _channelInfoIdService = channelInfoIdService;
+            _logLanguage = logLanguage;
         }
 
         private string GenerateToken()
@@ -96,18 +99,18 @@ namespace NosCore.Core.Controllers
 
             if (!ModelState.IsValid)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_ERROR));
-                return BadRequest(BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_ERROR)));
+                _logger.Error(_logLanguage[LogLanguageKey.AUTHENTICATED_ERROR]);
+                return BadRequest(BadRequest(_logLanguage[LogLanguageKey.AUTH_ERROR]));
             }
 
             if (data.MasterCommunication!.Password != _apiConfiguration.Value.Password)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_ERROR));
-                return BadRequest(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTH_INCORRECT));
+                _logger.Error(_logLanguage[LogLanguageKey.AUTHENTICATED_ERROR]);
+                return BadRequest(_logLanguage[LogLanguageKey.AUTH_INCORRECT]);
             }
 
             _id = _channelInfoIdService.GetNextId();
-            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.AUTHENTICATED_SUCCESS), _id.ToString(CultureInfo.CurrentCulture),
+            _logger.Debug(_logLanguage[LogLanguageKey.AUTHENTICATED_SUCCESS], _id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
 
             var serv = new ChannelInfo
@@ -143,7 +146,7 @@ namespace NosCore.Core.Controllers
 
             var channel = _channelInfoIdService.Items.Values.First(s =>
                 (s.Name == data.ClientName) && (s.Host == data.Host) && (s.Port == data.Port));
-            _logger.Debug(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.TOKEN_UPDATED), channel.Id.ToString(CultureInfo.CurrentCulture),
+            _logger.Debug(_logLanguage[LogLanguageKey.TOKEN_UPDATED], channel.Id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
             return Ok(new ConnectionInfo { Token = GenerateToken(), ChannelInfo = data });
         }
@@ -169,7 +172,7 @@ namespace NosCore.Core.Controllers
             if ((chann.LastPing.Plus(Duration.FromSeconds(10)) < _clock.GetCurrentInstant()) && !Debugger.IsAttached)
             {
                 _channelInfoIdService.Items.TryRemove(_id, out _);
-                _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CONNECTION_LOST),
+                _logger.Warning(_logLanguage[LogLanguageKey.CONNECTION_LOST],
                     _id.ToString(CultureInfo.CurrentCulture));
                 return HttpStatusCode.RequestTimeout;
             }

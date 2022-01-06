@@ -26,6 +26,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.NRunService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Threading.Tasks;
@@ -36,11 +37,13 @@ namespace NosCore.PacketHandlers.Shops
     {
         private readonly ILogger _logger;
         private readonly INrunService _nRunRunnerService;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public NrunPacketHandler(ILogger logger, INrunService nRunRunnerService)
+        public NrunPacketHandler(ILogger logger, INrunService nRunRunnerService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
             _nRunRunnerService = nRunRunnerService;
+            _logLanguage = logLanguage;
         }
 
         public override async Task ExecuteAsync(NrunPacket nRunPacket, ClientSession clientSession)
@@ -61,14 +64,14 @@ namespace NosCore.PacketHandlers.Shops
                     break;
 
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
+                    _logger.Error(_logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         nRunPacket.Type);
                     return;
             }
 
             if ((aliveEntity == null) && !forceNull)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST));
+                _logger.Error(_logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
                 return;
             }
 

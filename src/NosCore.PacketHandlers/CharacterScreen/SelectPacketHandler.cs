@@ -41,6 +41,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -60,13 +61,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
         private readonly List<QuestObjectiveDto> _questObjectives;
         private readonly List<QuestDto> _quests;
         private readonly IOptions<WorldConfiguration> _configuration;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public SelectPacketHandler(IDao<CharacterDto, long> characterDao, ILogger logger,
             IItemGenerationService itemProvider,
             IMapInstanceAccessorService mapInstanceAccessorService, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
-            IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives, IOptions<WorldConfiguration> configuration)
+            IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives, IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _characterDao = characterDao;
             _logger = logger;
@@ -82,6 +84,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             _quests = quests;
             _questObjectives = questObjectives;
             _configuration = configuration;
+            _logLanguage = logLanguage;
         }
 
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -94,7 +97,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         && (s.State == CharacterState.Active) && s.ServerId == _configuration.Value.ServerId).ConfigureAwait(false);
                 if (characterDto == null)
                 {
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHARACTER_SLOT_EMPTY), new
+                    _logger.Error(_logLanguage[LogLanguageKey.CHARACTER_SLOT_EMPTY], new
                     {
                         clientSession.Account.AccountId,
                         packet.Slot
@@ -156,7 +159,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             catch (Exception ex)
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.CHARACTER_SELECTION_FAILED), ex, new
+                _logger.Error(_logLanguage[LogLanguageKey.CHARACTER_SELECTION_FAILED], ex, new
                 {
                     clientSession.Account.AccountId,
                     packet.Slot

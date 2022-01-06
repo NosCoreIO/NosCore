@@ -22,6 +22,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -36,10 +37,13 @@ namespace NosCore.Parser.Parsers
     {
         private readonly ILogger _logger;
         private readonly IDao<TDto, TPk> _dao;
-        public I18NParser(IDao<TDto, TPk> dao, ILogger logger)
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
+
+        public I18NParser(IDao<TDto, TPk> dao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _dao = dao;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         private string I18NTextFileName(string textfilename, RegionType region)
@@ -81,13 +85,13 @@ namespace NosCore.Parser.Parsers
                     await _dao.TryInsertOrUpdateAsync(dtos.Values).ConfigureAwait(false);
 
                     _logger.Information(
-                        LogLanguage.Instance.GetMessageFromKey(logLanguageKey),
+                        _logLanguage[logLanguageKey],
                         dtos.Count,
                         region);
                 }
                 catch (FileNotFoundException)
                 {
-                    _logger.Warning(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.LANGUAGE_MISSING));
+                    _logger.Warning(_logLanguage[LogLanguageKey.LANGUAGE_MISSING]);
                 }
             }));
         }

@@ -26,6 +26,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,10 +36,12 @@ namespace NosCore.PacketHandlers.Movement
     public class SitPacketHandler : PacketHandler<SitPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public SitPacketHandler(ILogger logger)
+        public SitPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public override Task ExecuteAsync(SitPacket sitpacket, ClientSession clientSession)
@@ -54,14 +57,14 @@ namespace NosCore.PacketHandlers.Movement
                         if (entity.VisualId != clientSession.Character.VisualId)
                         {
                             _logger.Error(
-                                LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.DIRECT_ACCESS_OBJECT_DETECTED),
+                                _logLanguage[LogLanguageKey.DIRECT_ACCESS_OBJECT_DETECTED],
                                 clientSession.Character, sitpacket);
                             return Task.CompletedTask;
                         }
 
                         break;
                     default:
-                        _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.VISUALTYPE_UNKNOWN),
+                        _logger.Error(_logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                             u.VisualType);
                         return Task.CompletedTask;
                 }

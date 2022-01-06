@@ -31,6 +31,7 @@ using Serilog;
 using System;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -39,12 +40,14 @@ namespace NosCore.PacketHandlers.Inventory
         private readonly ILogger _logger;
         private readonly IHeuristic _distanceCalculator;
         private readonly IClock _clock;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public GetPacketHandler(ILogger logger, IHeuristic distanceCalculator, IClock clock)
+        public GetPacketHandler(ILogger logger, IHeuristic distanceCalculator, IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
             _distanceCalculator = distanceCalculator;
             _clock = clock;
+            _logLanguage = logLanguage;
         }
 
         public override async Task ExecuteAsync(GetPacket getPacket, ClientSession clientSession)
@@ -68,7 +71,7 @@ namespace NosCore.PacketHandlers.Inventory
                     return;
 
                 default:
-                    _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.UNKNOWN_PICKERTYPE));
+                    _logger.Error(_logLanguage[LogLanguageKey.UNKNOWN_PICKERTYPE]);
                     return;
             }
 

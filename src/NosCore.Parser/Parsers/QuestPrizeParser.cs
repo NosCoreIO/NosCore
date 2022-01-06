@@ -23,6 +23,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Quest;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -42,12 +43,14 @@ namespace NosCore.Parser.Parsers
     {
         private readonly string _fileQuestPrizeDat = $"{Path.DirectorySeparatorChar}qstprize.dat";
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly IDao<QuestRewardDto, short> _questRewardDtoDao;
 
 
-        public QuestPrizeParser(IDao<QuestRewardDto, short> questRewardDtoDao, ILogger logger)
+        public QuestPrizeParser(IDao<QuestRewardDto, short> questRewardDtoDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
+            _logLanguage = logLanguage;
             _questRewardDtoDao = questRewardDtoDao;
         }
 
@@ -60,10 +63,10 @@ namespace NosCore.Parser.Parsers
                 {nameof(QuestRewardDto.Data), chunk => ImportData(chunk)},
                 {nameof(QuestRewardDto.Amount), chunk => ImportAmount(chunk)},
             };
-            var genericParser = new GenericParser<QuestRewardDto>(folder + _fileQuestPrizeDat, "END", 0, actionList, _logger);
+            var genericParser = new GenericParser<QuestRewardDto>(folder + _fileQuestPrizeDat, "END", 0, actionList, _logger, _logLanguage);
             var questRewardDtos = await genericParser.GetDtosAsync().ConfigureAwait(false);
             await _questRewardDtoDao.TryInsertOrUpdateAsync(questRewardDtos).ConfigureAwait(false);
-            _logger.Information(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.QUEST_PRIZES_PARSED), questRewardDtos.Count);
+            _logger.Information(_logLanguage[LogLanguageKey.QUEST_PRIZES_PARSED], questRewardDtos.Count);
         }
 
         private int ImportData(Dictionary<string, string[][]> chunk)

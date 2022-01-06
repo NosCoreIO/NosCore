@@ -32,6 +32,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
 
@@ -41,11 +42,13 @@ namespace NosCore.PacketHandlers.Bazaar
     {
         private readonly IBazaarHttpClient _bazaarHttpClient;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public CModPacketHandler(IBazaarHttpClient bazaarHttpClient, ILogger logger)
+        public CModPacketHandler(IBazaarHttpClient bazaarHttpClient, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _bazaarHttpClient = bazaarHttpClient;
             _logger = logger;
+            _logLanguage = logLanguage;
         }
 
         public override async Task ExecuteAsync(CModPacket packet, ClientSession clientSession)
@@ -94,7 +97,7 @@ namespace NosCore.PacketHandlers.Bazaar
             }
             else
             {
-                _logger.Error(LogLanguage.Instance.GetMessageFromKey(LogLanguageKey.BAZAAR_MOD_ERROR));
+                _logger.Error(_logLanguage[LogLanguageKey.BAZAAR_MOD_ERROR]);
             }
         }
     }
