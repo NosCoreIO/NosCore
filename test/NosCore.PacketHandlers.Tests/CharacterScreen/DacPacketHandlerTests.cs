@@ -49,17 +49,11 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private Mock<IAuthHttpClient> _authHttpClient = null!;
         private Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = null!;
         private Mock<IChannelHttpClient> _channelHttpClient = null!;
-        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private string _accountName = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
-                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
-            _logLanguageLocalister = mock.Object;
-
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _accountName = _session!.Account.Name;
@@ -70,7 +64,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             _connectedAccountHttpClient = new Mock<IConnectedAccountHttpClient>();
             _channelHttpClient = new Mock<IChannelHttpClient>();
             _dacPacketHandler =
-                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, _authHttpClient.Object, _connectedAccountHttpClient.Object, _channelHttpClient.Object, new SessionRefHolder(), _logLanguageLocalister);
+                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, _authHttpClient.Object, _connectedAccountHttpClient.Object, _channelHttpClient.Object, new SessionRefHolder(), TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]
@@ -98,7 +92,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                     }
                 });
             await _dacPacketHandler.ExecuteAsync(packet, _session);
-            Logger.Verify(o => o.Error(It.Is<string>(o => o == _logLanguageLocalister[LogLanguageKey.ALREADY_CONNECTED]), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
+            Logger.Verify(o => o.Error(It.Is<string>(o => o == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.ALREADY_CONNECTED]), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
             Assert.IsNull(_session!.Account);
         }
 
@@ -111,7 +105,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 AccountName = "fakeName"
             };
             await _dacPacketHandler.ExecuteAsync(packet, _session);
-            Logger.Verify(o => o.Error(It.Is<string>(o => o == _logLanguageLocalister[LogLanguageKey.INVALID_ACCOUNT]),
+            Logger.Verify(o => o.Error(It.Is<string>(o => o == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_ACCOUNT]),
 
         It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
 
@@ -126,7 +120,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 Slot = 0,
                 AccountName = _accountName
             }, _session);
-            Logger.Verify(o => o.Error(It.Is<string>(o => o == _logLanguageLocalister[LogLanguageKey.INVALID_PASSWORD]),
+            Logger.Verify(o => o.Error(It.Is<string>(o => o == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_PASSWORD]),
 
         It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
             Assert.IsNull(_session!.Account);

@@ -46,7 +46,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     public class CModPacketHandlerTest
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private Mock<IBazaarHttpClient>? _bazaarHttpClient;
         private CModPacketHandler? _cmodPacketHandler;
         private ClientSession? _session;
@@ -54,16 +53,11 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestInitialize]
         public async Task SetupAsync()
         {
-            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
-                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
-            _logLanguageLocalister = mock.Object;
-
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _bazaarHttpClient = new Mock<IBazaarHttpClient>();
-            _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, Logger, _logLanguageLocalister);
+            _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
             _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(0)).ReturnsAsync(
                 new BazaarLink

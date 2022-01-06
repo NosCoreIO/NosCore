@@ -49,16 +49,10 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
     {
         private IItemGenerationService? _itemProvider;
         private Mock<ILogger>? _logger;
-        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
-                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
-            _logLanguageLocalister = mock.Object;
-
             await TestHelpers.ResetAsync();
             var items = new List<ItemDto>
             {
@@ -70,7 +64,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
 
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
 
-            Handler = new SpeakerGuriHandler(_logger.Object, _logLanguageLocalister);
+            Handler = new SpeakerGuriHandler(_logger.Object, TestHelpers.Instance.LogLanguageLocalizer);
             Broadcaster.Instance.LastPackets.Clear();
         }
 

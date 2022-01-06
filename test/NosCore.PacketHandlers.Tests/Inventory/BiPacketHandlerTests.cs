@@ -40,7 +40,6 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     public class BiPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private BiPacketHandler? _biPacketHandler;
         private IItemGenerationService? _item;
         private ClientSession? _session;
@@ -48,15 +47,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestInitialize]
         public async Task SetupAsync()
         {
-            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
-                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
-            _logLanguageLocalister = mock.Object;
-
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _biPacketHandler = new BiPacketHandler(Logger, _logLanguageLocalister);
+            _biPacketHandler = new BiPacketHandler(Logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]

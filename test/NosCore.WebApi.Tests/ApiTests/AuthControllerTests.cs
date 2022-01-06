@@ -32,15 +32,10 @@ namespace NosCore.WebApi.Tests.ApiTests
         private AuthController _controller = null!;
         private ClientSession _session = null!;
         private Mock<ILogger> _logger = null!;
-        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
 
         [TestInitialize]
         public async Task Setup()
         {
-            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
-                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
-            _logLanguageLocalister = mock.Object;
             SessionFactory.Instance.AuthCodes.Clear();
             SessionFactory.Instance.ReadyForAuth.Clear();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
@@ -49,7 +44,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             _controller = new AuthController(Options.Create(new WebApiConfiguration()
             {
                 Password = "123"
-            }), TestHelpers.Instance.AccountDao, _logger.Object, new Sha512Hasher(), _logLanguageLocalister);
+            }), TestHelpers.Instance.AccountDao, _logger.Object, new Sha512Hasher(), TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]
@@ -63,7 +58,7 @@ namespace NosCore.WebApi.Tests.ApiTests
                 Locale = "en-GB"
             });
 
-            _logger.Verify(o => o.Information(_logLanguageLocalister[LogLanguageKey.AUTH_API_SUCCESS],
+            _logger.Verify(o => o.Information(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_API_SUCCESS],
                 _session.Account.Name, It.IsAny<Guid>(), "en-GB"), Times.Once());
         }
 
@@ -76,7 +71,7 @@ namespace NosCore.WebApi.Tests.ApiTests
                 GfLang = "EN",
                 Password = "test2"
             });
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(_logLanguageLocalister[LogLanguageKey.AUTH_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)result));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)result));
         }
 
         [TestMethod]
@@ -86,7 +81,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             {
                 Identity = _session.Account.Name + "abc"
             });
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(_logLanguageLocalister[LogLanguageKey.AUTH_ERROR])), JsonSerializer.Serialize((BadRequestObjectResult)result));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_ERROR])), JsonSerializer.Serialize((BadRequestObjectResult)result));
         }
 
         [TestMethod]
@@ -102,7 +97,7 @@ namespace NosCore.WebApi.Tests.ApiTests
                 Mfa = tfa.GetCode(string.Concat(_session.Account.MfaSecret.Reverse())),
             });
 
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(_logLanguageLocalister[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)result));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)result));
         }
 
         [TestMethod]
@@ -178,7 +173,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             {
                 PlatformGameAccountId = "123"
             });
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(_logLanguageLocalister[LogLanguageKey.AUTH_INCORRECT])), JsonSerializer.Serialize(((BadRequestObjectResult)result)));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_INCORRECT])), JsonSerializer.Serialize(((BadRequestObjectResult)result)));
         }
 
         [TestMethod]

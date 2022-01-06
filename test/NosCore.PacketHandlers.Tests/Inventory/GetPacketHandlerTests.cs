@@ -44,7 +44,6 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     public class GetPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
         private GetPacketHandler? _getPacketHandler;
         private IItemGenerationService? _item;
         private ClientSession? _session;
@@ -52,15 +51,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestInitialize]
         public async Task SetupAsync()
         {
-            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
-                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
-            _logLanguageLocalister = mock.Object;
-
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _getPacketHandler = new GetPacketHandler(Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock, _logLanguageLocalister);
+            _getPacketHandler = new GetPacketHandler(Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
 

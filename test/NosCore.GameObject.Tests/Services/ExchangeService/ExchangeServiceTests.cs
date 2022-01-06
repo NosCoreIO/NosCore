@@ -36,6 +36,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.I18N;
+using NosCore.Tests.Shared;
 using Serilog;
 
 namespace NosCore.GameObject.Tests.Services.ExchangeService
@@ -49,15 +50,10 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
         private GameObject.Services.ItemGenerationService.ItemGenerationService? _itemProvider;
 
         private IOptions<WorldConfiguration>? _worldConfiguration;
-        private ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalister = null!;
 
         [TestInitialize]
         public void Setup()
         {
-            var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
-                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
-            _logLanguageLocalister = mock.Object;
 
             _worldConfiguration = Options.Create(new WorldConfiguration
             {
@@ -74,7 +70,7 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             };
 
             _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger);
-            _exchangeProvider = new GameObject.Services.ExchangeService.ExchangeService(_itemProvider, _worldConfiguration, Logger, new ExchangeRequestHolder(), _logLanguageLocalister);
+            _exchangeProvider = new GameObject.Services.ExchangeService.ExchangeService(_itemProvider, _worldConfiguration, Logger, new ExchangeRequestHolder(), TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]
