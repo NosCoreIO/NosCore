@@ -41,19 +41,14 @@ namespace NosCore.GameObject.Services.ItemGenerationService
         private readonly ILogger _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage = null!;
 
-        public ItemGenerationService(List<ItemDto> items, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _items = items;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public ItemGenerationService(List<ItemDto> items,
-            EventLoaderService<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler> runner, ILogger logger)
+            EventLoaderService<Item.Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler> runner, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _items = items;
             _logger = logger;
             _runner = runner;
+
+            _logLanguage = logLanguage;
         }
 
         public IItemInstance Convert(IItemInstanceDto k)

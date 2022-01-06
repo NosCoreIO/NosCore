@@ -59,7 +59,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
                 new Item {VNum = 1, ItemType = ItemType.Special, EffectValue = 1},
             };
             _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger);
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
         [TestMethod]
         public async Task Test_SpRecharger_When_MaxAsync()
