@@ -73,7 +73,7 @@ namespace NosCore.WorldServer
             {
                 var eventSaveAll = new SaveAll(_logger, _nodatimeClock, _saveService, _logLanguage);
                 _ = eventSaveAll.ExecuteAsync();
-                _logger.Information(_logLanguage[LogLanguageKey.CHANNEL_WILL_EXIT]);
+                _logger.Information(_logLanguage[LogLanguageKey.CHANNEL_WILL_EXIT], 30);
                 Thread.Sleep(30000);
             };
 
