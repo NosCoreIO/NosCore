@@ -28,6 +28,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
+using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.PacketHandlers.CharacterScreen;
@@ -45,11 +46,13 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private Character? _chara;
         private CharRenPacketHandler? _charRenPacketHandler;
         private ClientSession? _session;
+        private Mock<IMapChangeService> _mapChangeService = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
+            _mapChangeService = new Mock<IMapChangeService>();
             _charRenPacketHandler =
                 new CharRenPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.WorldConfiguration);
             _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler>{
@@ -70,7 +73,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()), idServer),
-                    Logger, TestHelpers.Instance.Clock);
+                    Logger, TestHelpers.Instance.Clock, _mapChangeService.Object);
             const string name = "TestCharacter2";
             await _session!.HandlePacketsAsync(new[] { new CharRenamePacket
             {

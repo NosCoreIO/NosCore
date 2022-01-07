@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
@@ -57,12 +58,13 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
         private readonly IClock _clock;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
+        private readonly IMapChangeService _mapChangeService;
 
         public MapInstanceGeneratorService(List<MapDto> maps, List<NpcMonsterDto> npcMonsters, List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos,
             IMapItemGenerationService mapItemGenerationService, IDao<MapNpcDto, int> mapNpcs,
             IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems, ILogger logger, EventLoaderService<MapInstance,
                 MapInstance, IMapInstanceEntranceEventHandler> entranceRunnerService, MapInstanceHolder holder, IMapInstanceAccessorService mapInstanceAccessorService,
-            IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMapChangeService mapChangeService)
         {
             _mapItemGenerationService = mapItemGenerationService;
             _npcTalks = npcTalks;
@@ -79,6 +81,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _mapInstanceAccessorService = mapInstanceAccessorService;
             _clock = clock;
             _logLanguage = logLanguage;
+            _mapChangeService = mapChangeService;
         }
 
         public Task AddMapInstanceAsync(MapInstance mapInstance)
@@ -155,7 +158,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)
         {
-            return new MapInstance(map, guid, shopAllowed, normalInstance, _mapItemGenerationService, _logger, _clock);
+            return new MapInstance(map, guid, shopAllowed, normalInstance, _mapItemGenerationService, _logger, _clock, _mapChangeService);
         }
 
         private async Task LoadPortalsAsync(MapInstance mapInstance, List<PortalDto> portals)
@@ -165,7 +168,12 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                  portal.SourceMapInstanceId = mapInstance.MapInstanceId;
                  if (portal.DestinationMapInstanceId == default)
                  {
-                     portal.DestinationMapInstanceId = _mapInstanceAccessorService.GetBaseMapInstanceIdByMapId(portal.DestinationMapId);
+                     var destination = _mapInstanceAccessorService.GetBaseMapById(portal.DestinationMapId);
+                     if (destination == null)
+                     {
+                         return Task.FromResult(portal);
+                     }
+                     portal.DestinationMapInstanceId = destination.MapInstanceId;
                  }
 
                  return Task.FromResult(portal);

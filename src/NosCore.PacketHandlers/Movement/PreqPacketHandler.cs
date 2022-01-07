@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Services.MapChangeService;
 
 namespace NosCore.PacketHandlers.Movement
 {
@@ -41,12 +42,14 @@ namespace NosCore.PacketHandlers.Movement
         private readonly IMinilandService _minilandProvider;
         private readonly IHeuristic _distanceCalculator;
         private readonly IClock _clock;
+        private readonly IMapChangeService _mapChangeService;
 
-        public PreqPacketHandler(IMapInstanceAccessorService mapInstanceAccessorService, IMinilandService minilandProvider, IHeuristic distanceCalculator, IClock clock)
+        public PreqPacketHandler(IMapInstanceAccessorService mapInstanceAccessorService, IMinilandService minilandProvider, IHeuristic distanceCalculator, IClock clock, IMapChangeService mapChangeService)
         {
             _mapInstanceAccessorService = mapInstanceAccessorService;
             _minilandProvider = minilandProvider;
             _distanceCalculator = distanceCalculator;
+            _mapChangeService = mapChangeService;
             _clock = clock;
         }
 
@@ -86,11 +89,11 @@ namespace NosCore.PacketHandlers.Movement
                 && (_mapInstanceAccessorService.GetMapInstance(portal.DestinationMapInstanceId)!.MapInstanceType
                     == MapInstanceType.BaseMapInstance))
             {
-                await session.ChangeMapAsync(session.Character.MapId, session.Character.MapX, session.Character.MapY).ConfigureAwait(false);
+                await _mapChangeService.ChangeMapAsync(session, session.Character.MapId, session.Character.MapX, session.Character.MapY).ConfigureAwait(false);
             }
             else
             {
-                await session.ChangeMapInstanceAsync(portal.DestinationMapInstanceId, portal.DestinationX,
+                await _mapChangeService.ChangeMapInstanceAsync(session, portal.DestinationMapInstanceId, portal.DestinationX,
                     portal.DestinationY).ConfigureAwait(false);
             }
         }

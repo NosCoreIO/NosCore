@@ -280,8 +280,7 @@ namespace NosCore.GameObject.Tests
         private async Task<ClientSession> PrepareSessionShopAsync()
         {
             var conf = Options.Create(new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 });
-            var session2 = new ClientSession(conf, new Mock<IMapInstanceAccessorService>().Object, new Mock<IExchangeService>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object, new Mock<IMinilandService>().Object, TestHelpers.Instance.MapInstanceGeneratorService, new SessionRefHolder(), 
-                TestHelpers.Instance.Clock, new Mock<ISaveService>().Object, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, TestHelpers.Instance.LogLanguageLocalizer);
+            var session2 = new ClientSession(conf, new Mock<IExchangeService>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object, new Mock<IMinilandService>().Object, TestHelpers.Instance.MapInstanceGeneratorService, new SessionRefHolder(), new Mock<ISaveService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, TestHelpers.Instance.LogLanguageLocalizer);
             var channelMock = new Mock<ISocketChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto { Name = "AccountTest", Password = new Sha512Hasher().Hash("test") };
@@ -298,9 +297,9 @@ namespace NosCore.GameObject.Tests
                 MapId = 1,
                 State = CharacterState.Active
             }).ConfigureAwait(false);
-            var mapinstance = _instanceProvider!.GetBaseMapById(0);
+            var mapinstance = _instanceProvider!.GetBaseMapById(0)!;
             session2.Account = account;
-            session2.Character.MapInstance = _instanceProvider.GetBaseMapById(0);
+            session2.Character.MapInstance = _instanceProvider.GetBaseMapById(0)!;
             session2.Character.MapInstance = mapinstance;
 
             _session!.Character.Gold = 500000;

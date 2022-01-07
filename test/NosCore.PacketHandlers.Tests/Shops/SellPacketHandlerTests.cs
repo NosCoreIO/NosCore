@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 2);
 
-            _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1);
+            _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1)!;
             await _sellPacketHandler!.ExecuteAsync(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
                 _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.Gold == 0);
@@ -106,7 +106,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 2);
 
-            _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1);
+            _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1)!;
             await _sellPacketHandler!.ExecuteAsync(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
                 _session).ConfigureAwait(false);
             var packet = (SMemoiPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoiPacket);
@@ -132,7 +132,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 2);
 
-            _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1);
+            _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1)!;
             await _sellPacketHandler!.ExecuteAsync(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
                 _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.Gold > 0);

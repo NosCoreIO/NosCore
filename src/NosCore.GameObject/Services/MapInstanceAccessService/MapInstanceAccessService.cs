@@ -33,21 +33,17 @@ namespace NosCore.GameObject.Services.MapInstanceAccessService
         {
             _holder = holder;
         }
-        public Guid GetBaseMapInstanceIdByMapId(short mapId)
-        {
-            return _holder.MapInstances.FirstOrDefault(s =>
-                (s.Value?.Map.MapId == mapId) && (s.Value.MapInstanceType == MapInstanceType.BaseMapInstance)).Key;
-        }
 
         public MapInstance? GetMapInstance(Guid id)
         {
             return _holder.MapInstances.ContainsKey(id) ? _holder.MapInstances[id] : null;
         }
 
-        public MapInstance GetBaseMapById(short mapId)
+        public MapInstance? GetBaseMapById(short mapId)
         {
-            return _holder.MapInstances.FirstOrDefault(s =>
-                (s.Value?.Map.MapId == mapId) && (s.Value.MapInstanceType == MapInstanceType.BaseMapInstance)).Value;
+            var mapInstance = _holder.MapInstances.FirstOrDefault(s =>
+                (s.Value?.Map.MapId == mapId) && (s.Value.MapInstanceType == MapInstanceType.BaseMapInstance));
+            return mapInstance.Key == default ? null : mapInstance.Value;
         }
     }
 }

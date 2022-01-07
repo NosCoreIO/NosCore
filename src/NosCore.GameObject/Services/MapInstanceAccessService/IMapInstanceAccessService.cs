@@ -24,10 +24,8 @@ namespace NosCore.GameObject.Services.MapInstanceAccessService
 {
     public interface IMapInstanceAccessorService
     {
-        Guid GetBaseMapInstanceIdByMapId(short mapId);
-
         MapInstance? GetMapInstance(Guid id);
 
-        MapInstance GetBaseMapById(short mapId);
+        MapInstance? GetBaseMapById(short mapId);
     }
 }

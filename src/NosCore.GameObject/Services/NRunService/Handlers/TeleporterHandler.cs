@@ -27,11 +27,18 @@ using NosCore.Packets.Enumerations;
 using NosCore.Shared.Helpers;
 using System;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.MapChangeService;
 
 namespace NosCore.GameObject.Services.NRunService.Handlers
 {
     public class TeleporterHandler : INrunEventHandler
     {
+        private readonly IMapChangeService _mapChangeService;
+
+        public TeleporterHandler(IMapChangeService mapChangeService)
+        {
+            _mapChangeService = mapChangeService;
+        }
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
         {
             return (item.Item2.Runner == NrunRunnerType.Teleport)
@@ -56,7 +63,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
             if (clientSession.Character.Gold >= goldToPay)
             {
                 await clientSession.Character.RemoveGoldAsync(goldToPay).ConfigureAwait(false);
-                await clientSession.ChangeMapAsync(
+                await _mapChangeService.ChangeMapAsync(clientSession,
                     mapId, (short)RandomHelper.Instance.RandomNumber(x1, x2),
                     (short)RandomHelper.Instance.RandomNumber(y1, y2)).ConfigureAwait(false);
                 return;

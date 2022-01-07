@@ -106,9 +106,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
 
                 var character = characterDto.Adapt<Character>();
-
-                character.MapInstanceId = _mapInstanceAccessorService.GetBaseMapInstanceIdByMapId(character.MapId);
-                character.MapInstance = _mapInstanceAccessorService.GetMapInstance(character.MapInstanceId)!;
+                
+                character.MapInstance = _mapInstanceAccessorService.GetBaseMapById(character.MapId)!;
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Direction = 2;

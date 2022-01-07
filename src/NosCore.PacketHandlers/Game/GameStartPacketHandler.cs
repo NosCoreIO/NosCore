@@ -38,6 +38,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.MapChangeService;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -52,12 +53,13 @@ namespace NosCore.PacketHandlers.Game
         private readonly ISerializer _packetSerializer;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly IQuestService _questProvider;
+        private readonly IMapChangeService _mapChangeService;
 
         public GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IFriendHttpClient friendHttpClient,
             IChannelHttpClient channelHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient,
             IPacketHttpClient packetHttpClient,
-            ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider)
+            ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider, IMapChangeService mapChangeService)
         {
             _worldConfiguration = worldConfiguration;
             _packetSerializer = packetSerializer;
@@ -68,6 +70,7 @@ namespace NosCore.PacketHandlers.Game
             _packetHttpClient = packetHttpClient;
             _mailHttpClient = mailHttpClient;
             _questProvider = questProvider;
+            _mapChangeService = mapChangeService;
         }
 
         public override async Task ExecuteAsync(GameStartPacket packet, ClientSession session)
@@ -107,7 +110,7 @@ namespace NosCore.PacketHandlers.Game
             }
             else
             {
-                await session.ChangeMapAsync().ConfigureAwait(false);
+                await _mapChangeService.ChangeMapAsync(session).ConfigureAwait(false);
             }
 
             //            Session.SendPacket(Session.Character.GenerateSki());

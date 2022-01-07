@@ -65,6 +65,7 @@ using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Handlers;
+using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
@@ -237,13 +238,16 @@ namespace NosCore.Tests.Shared
             await _mapNpcDao.TryInsertOrUpdateAsync(npc).ConfigureAwait(false);
             var holder = new MapInstanceHolder();
             MapInstanceAccessorService = new MapInstanceAccessorService(holder);
+            var mapChangeService = new MapChangeService(new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
+                MapInstanceAccessorService, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer, new Mock<IMinilandService>().Object, _logger);
             var instanceGeneratorService = new MapInstanceGeneratorService(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
                 MapItemProvider,
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, _shopItemDao, _logger, new EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()), holder, MapInstanceAccessorService, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer);
+                _mapMonsterDao, _portalDao, _shopItemDao, _logger, new EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()), 
+                holder, MapInstanceAccessorService, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer, mapChangeService);
             await instanceGeneratorService.InitializeAsync().ConfigureAwait(false);
             await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
-                MapInstanceType.NormalInstance, MapItemProvider, _logger, Clock)).ConfigureAwait(false);
+                MapInstanceType.NormalInstance, MapItemProvider, _logger, Clock, mapChangeService)).ConfigureAwait(false);
             MapInstanceGeneratorService = instanceGeneratorService;
         }
 
@@ -295,7 +299,6 @@ namespace NosCore.Tests.Shared
             acc = await AccountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
             var minilandProvider = new Mock<IMinilandService>();
             var session = new ClientSession(WorldConfiguration,
-                MapInstanceAccessorService,
                 new Mock<IExchangeService>().Object,
                 _logger,
                 packetHandlers ?? new List<IPacketHandler>
@@ -318,8 +321,7 @@ namespace NosCore.Tests.Shared
                 new Mock<ISerializer>().Object,
                 PacketHttpClient.Object,
                 minilandProvider.Object,
-                MapInstanceGeneratorService, new SessionRefHolder(), Clock, new Mock<ISaveService>().Object, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, 
-                new Mock<IHeroExperienceService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, TestHelpers.Instance.LogLanguageLocalizer)
+                MapInstanceGeneratorService, new SessionRefHolder(), new Mock<ISaveService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, TestHelpers.Instance.LogLanguageLocalizer)
             {
                 SessionId = _lastId
             };
@@ -344,7 +346,7 @@ namespace NosCore.Tests.Shared
             await CharacterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
             session.InitializeAccount(acc);
             await session.SetCharacterAsync(chara).ConfigureAwait(false);
-            session.Character.MapInstance = MapInstanceAccessorService.GetBaseMapById(0);
+            session.Character.MapInstance = MapInstanceAccessorService.GetBaseMapById(0)!;
             session.Account = acc;
             session.RegisterChannel(new Mock<ISocketChannel>().Object);
             Broadcaster.Instance.RegisterSession(session);

@@ -68,6 +68,7 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
 using NodaTime;
+using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
@@ -205,7 +206,7 @@ namespace NosCore.GameObject
 
         public bool IsSitting { get; set; }
 
-        public Guid MapInstanceId { get; set; }
+        public Guid MapInstanceId => MapInstance.MapInstanceId;
 
         public AuthorityType Authority => Session.Account.Authority;
 
@@ -481,9 +482,9 @@ namespace NosCore.GameObject
             }
         }
 
-        public Task ChangeMapAsync(short mapId, short mapX, short mapY)
+        public Task ChangeMapAsync(IMapChangeService mapChangeService, short mapId, short mapX, short mapY)
         {
-            return Session.ChangeMapAsync(mapId, mapX, mapY);
+            return mapChangeService.ChangeMapAsync(Session, mapId, mapX, mapY);
         }
 
         public string GetMessageFromKey(LanguageKey languageKey)

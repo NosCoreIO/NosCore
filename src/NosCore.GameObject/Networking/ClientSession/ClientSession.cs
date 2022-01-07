@@ -32,7 +32,6 @@ using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
-using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.Attributes;
@@ -49,10 +48,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using NodaTime;
-using NosCore.Algorithm.ExperienceService;
-using NosCore.Algorithm.HeroExperienceService;
-using NosCore.Algorithm.JobExperienceService;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
@@ -70,7 +65,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly SemaphoreSlim _handlingPacketLock = new(1, 1);
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
-        private readonly IMapInstanceAccessorService _mapInstanceAccessorService = null!;
+
         private readonly IMapInstanceGeneratorService _mapInstanceGeneratorService = null!;
         private readonly IMinilandService _minilandProvider = null!;
         private readonly IPacketHttpClient _packetHttpClient;
@@ -79,15 +74,12 @@ namespace NosCore.GameObject.Networking.ClientSession
         private Character? _character;
         private int? _waitForPacketsAmount;
         private readonly ISessionRefHolder _sessionRefHolder;
-        private readonly IClock _clock;
+    
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly ISaveService _saveService = null!;
-        private readonly IExperienceService _experienceService = null!;
-        private readonly IJobExperienceService _jobExperienceService = null!;
-        private readonly IHeroExperienceService _heroExperienceService = null!;
 
         public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock,
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder,
             ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
             : base(logger, networkingLogLanguage)
         {
@@ -97,7 +89,6 @@ namespace NosCore.GameObject.Networking.ClientSession
             _packetSerializer = packetSerializer;
             _packetHttpClient = packetHttpClient;
             _sessionRefHolder = sessionRefHolder;
-            _clock = clock;
             _logLanguage = logLanguage;
             foreach (var handler in _packetsHandlers)
             {
@@ -111,30 +102,26 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder, IClock clock,
+            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder,
             ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage) 
             : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient,
-                sessionRefHolder, clock, networkingLogLanguage, logLanguage)
+                sessionRefHolder, networkingLogLanguage, logLanguage)
         {
         }
 
-        public ClientSession(IOptions<WorldConfiguration> configuration, IMapInstanceAccessorService mapInstanceAccessorService,
+        public ClientSession(IOptions<WorldConfiguration> configuration,
             IExchangeService? exchangeService, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
-            IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, ISessionRefHolder sessionRefHolder, IClock clock, 
-            ISaveService saveService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
+            IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, ISessionRefHolder sessionRefHolder, 
+            ISaveService saveService,
             ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, clock, networkingLogLanguage, logLanguage)
+            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, networkingLogLanguage, logLanguage)
         {
-            _mapInstanceAccessorService = mapInstanceAccessorService;
             _exchangeProvider = exchangeService!;
             _minilandProvider = minilandProvider!;
             _isWorldClient = true;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
-            _experienceService = experienceService;
-            _jobExperienceService = jobExperienceService;
-            _heroExperienceService = heroExperienceService;
             _saveService = saveService;
         }
 
@@ -262,172 +249,6 @@ namespace NosCore.GameObject.Networking.ClientSession
                 Broadcaster.Instance.UnregisterSession(this);
                 _logger.Information(_logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);
             }
-        }
-
-        public Task ChangeMapAsync()
-        {
-            return ChangeMapAsync(null, null, null);
-        }
-
-        public async Task ChangeMapAsync(short? mapId, short? mapX, short? mapY)
-        {
-            if (Character == null!)
-            {
-                return;
-            }
-
-            if (mapId != null)
-            {
-                Character.MapInstanceId = _mapInstanceAccessorService.GetBaseMapInstanceIdByMapId((short)mapId);
-            }
-
-            try
-            {
-                _mapInstanceAccessorService.GetMapInstance(Character.MapInstanceId);
-            }
-            catch
-            {
-                return;
-            }
-
-            await ChangeMapInstanceAsync(Character.MapInstanceId, mapX, mapY).ConfigureAwait(false);
-        }
-
-        public Task ChangeMapInstanceAsync(Guid mapInstanceId)
-        {
-            return ChangeMapInstanceAsync(mapInstanceId, null, null);
-        }
-
-        public async Task ChangeMapInstanceAsync(Guid mapInstanceId, int? mapX, int? mapY)
-        {
-            if ((Character?.MapInstance == null) || Character.IsChangingMapInstance)
-            {
-                return;
-            }
-
-            try
-            {
-                Character.IsChangingMapInstance = true;
-
-                if (Channel?.Id != null)
-                {
-                    Character.MapInstance.Sessions.Remove(Channel);
-                }
-
-                Character.MapInstance.LastUnregister = _clock.GetCurrentInstant();
-                await LeaveMapAsync().ConfigureAwait(false);
-                if (Character.MapInstance.Sessions.Count == 0)
-                {
-                    Character.MapInstance.IsSleeping = true;
-                }
-
-                if (Character.IsSitting)
-                {
-                    Character.IsSitting = false;
-                }
-
-                Character.MapInstanceId = mapInstanceId;
-                Character.MapInstance = _mapInstanceAccessorService.GetMapInstance(mapInstanceId)!;
-
-                if (Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
-                {
-                    Character.MapId = Character.MapInstance.Map.MapId;
-                    if ((mapX != null) && (mapY != null))
-                    {
-                        Character.MapX = (short)mapX;
-                        Character.MapY = (short)mapY;
-                    }
-                }
-
-                if ((mapX != null) && (mapY != null))
-                {
-                    Character.PositionX = (short)mapX;
-                    Character.PositionY = (short)mapY;
-                }
-
-                await SendPacketAsync(Character.GenerateCInfo()).ConfigureAwait(false);
-                await SendPacketAsync(Character.GenerateCMode()).ConfigureAwait(false);
-                await SendPacketAsync(Character.GenerateEq()).ConfigureAwait(false);
-                await SendPacketAsync(Character.GenerateEquipment()).ConfigureAwait(false);
-                await SendPacketAsync(Character.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
-                await SendPacketAsync(Character.GenerateStat()).ConfigureAwait(false);
-                await SendPacketAsync(Character.GenerateAt()).ConfigureAwait(false);
-                await SendPacketAsync(Character.GenerateCond()).ConfigureAwait(false);
-                await SendPacketAsync(Character.MapInstance.GenerateCMap()).ConfigureAwait(false);
-                await SendPacketAsync(Character.GeneratePairy(
-                    Character.InventoryService!.LoadBySlotAndType((byte)EquipmentType.Fairy,
-                        NoscorePocketType.Wear)?.ItemInstance as WearableInstance)).ConfigureAwait(false);
-                await SendPacketsAsync(Character.MapInstance.GetMapItems(Character.AccountLanguage)).ConfigureAwait(false);
-                await SendPacketsAsync(Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect())).ConfigureAwait(false);
-
-                var minilandPortals = _minilandProvider
-                    .GetMinilandPortals(Character.CharacterId)
-                    .Where(s => s.SourceMapInstanceId == mapInstanceId)
-                    .ToList();
-
-                if (minilandPortals.Count > 0)
-                {
-                    await SendPacketsAsync(minilandPortals.Select(s => s.GenerateGp())).ConfigureAwait(false);
-                }
-
-                await SendPacketAsync(Character.Group!.GeneratePinit()).ConfigureAwait(false);
-                if (!Character.Group.IsEmpty)
-                {
-                    await SendPacketsAsync(Character.Group.GeneratePst()).ConfigureAwait(false);
-                }
-
-                if ((Character.Group.Type == GroupType.Group) && (Character.Group.Count > 1))
-                {
-                    await Character.MapInstance.SendPacketAsync(Character.Group.GeneratePidx(Character)).ConfigureAwait(false);
-                }
-
-                var mapSessions = Broadcaster.Instance.GetCharacters(s =>
-                    (s != Character) && (s.MapInstance.MapInstanceId == Character.MapInstanceId));
-
-                await Task.WhenAll(mapSessions.Select(async s =>
-                {
-                    await SendPacketAsync(s.GenerateIn(s.Authority == AuthorityType.Moderator
-                        ? $"[{GameLanguage.Instance.GetMessageFromKey(LanguageKey.SUPPORT, s.AccountLanguage)}]"
-                        : string.Empty)).ConfigureAwait(false);
-                    if (s.Shop == null)
-                    {
-                        return;
-                    }
-
-                    await SendPacketAsync(s.GeneratePFlag()).ConfigureAwait(false);
-                    await SendPacketAsync(s.GenerateShop(Account.Language)).ConfigureAwait(false);
-                })).ConfigureAwait(false);
-                await Character.MapInstance.SendPacketAsync(Character.GenerateTitInfo()).ConfigureAwait(false);
-                Character.MapInstance.IsSleeping = false;
-                if (Channel?.Id != null)
-                {
-                    if (!Character.Invisible)
-                    {
-                        await Character.MapInstance.SendPacketAsync(Character.GenerateIn(Character.Authority == AuthorityType.Moderator
-                                ? $"[{Character.Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" : string.Empty),
-                            new EveryoneBut(Character.Channel!.Id)).ConfigureAwait(false);
-                    }
-
-                    Character.MapInstance.Sessions.Add(Channel);
-                }
-
-                Character.MapInstance.Requests[typeof(IMapInstanceEntranceEventHandler)]?
-                    .OnNext(new RequestData<MapInstance>(Character.Session, Character.MapInstance));
-
-                Character.IsChangingMapInstance = false;
-            }
-            catch (Exception)
-            {
-                _logger.Warning(_logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
-                Character.IsChangingMapInstance = false;
-            }
-        }
-
-        private async Task LeaveMapAsync()
-        {
-            await SendPacketAsync(new MapOutPacket()).ConfigureAwait(false);
-            await Character.MapInstance.SendPacketAsync(Character.GenerateOut(),
-                new EveryoneBut(Channel!.Id)).ConfigureAwait(false);
         }
 
         public string GetMessageFromKey(LanguageKey languageKey)
