@@ -47,7 +47,6 @@ namespace NosCore.GameObject.Services.ItemGenerationService
             _items = items;
             _logger = logger;
             _runner = runner;
-
             _logLanguage = logLanguage;
         }
 

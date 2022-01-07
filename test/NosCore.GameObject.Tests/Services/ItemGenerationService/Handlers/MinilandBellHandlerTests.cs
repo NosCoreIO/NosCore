@@ -33,6 +33,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Handlers;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
@@ -49,6 +50,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
     {
         private GameObject.Services.ItemGenerationService.ItemGenerationService? _itemProvider;
         private Mock<IMinilandService>? _minilandProvider;
+        private Mock<IMapChangeService> mapChangeService = null!;
         private readonly ILogger _logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
@@ -59,7 +61,8 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _minilandProvider.Setup(s => s.GetMiniland(Session.Character.CharacterId))
                 .Returns(new Miniland { MapInstanceId = TestHelpers.Instance.MinilandId });
-            Handler = new MinilandBellHandler(_minilandProvider.Object);
+            mapChangeService = new Mock<IMapChangeService>();
+            Handler = new MinilandBellHandler(_minilandProvider.Object, mapChangeService.Object);
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, Effect = ItemEffectType.Teleport, EffectValue = 2},
@@ -112,7 +115,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
-            Assert.AreEqual(MapInstanceType.NormalInstance, Session!.Character.MapInstance.MapInstanceType);
+            mapChangeService.Verify(x=>x.ChangeMapInstanceAsync(Session, TestHelpers.Instance.MinilandId, 5, 8), Times.Once);
             Assert.AreEqual(0, Session.Character.InventoryService.Count);
         }
     }

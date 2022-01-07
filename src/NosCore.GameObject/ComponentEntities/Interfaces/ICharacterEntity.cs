@@ -31,6 +31,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
+using NosCore.GameObject.Services.MapChangeService;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
@@ -123,7 +124,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         Task ChangeClassAsync(CharacterClassType classType);
 
-        Task ChangeMapAsync(short mapId, short mapX, short mapY);
+        Task ChangeMapAsync(IMapChangeService mapChangeService, short mapId, short mapX, short mapY);
         string GetMessageFromKey(LanguageKey support);
     }
 }

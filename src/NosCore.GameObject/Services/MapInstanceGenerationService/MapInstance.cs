@@ -37,6 +37,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
 
@@ -58,9 +59,10 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public ConcurrentDictionary<Guid, MapDesignObject> MapDesignObjects = new();
 
         private readonly IClock _clock;
+        private readonly IMapChangeService _mapChangeService;
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
-            IMapItemGenerationService mapItemGenerationService, ILogger logger, IClock clock)
+            IMapItemGenerationService mapItemGenerationService, ILogger logger, IClock clock, IMapChangeService mapChangeService)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -79,6 +81,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             Sessions = new SessionGroup();
             _mapItemGenerationService = mapItemGenerationService;
             _logger = logger;
+            _mapChangeService = mapChangeService;
             Requests = new Dictionary<Type, Subject<RequestData<MapInstance>>>
             {
                 [typeof(IMapInstanceEntranceEventHandler)] = new()
@@ -166,7 +169,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         {
             Broadcaster.Instance.GetCharacters(filter)
                 .Where(s => !s.IsDisconnecting && s.MapInstanceId == MapInstanceId).ToList()
-                .ForEach(s => s.ChangeMapAsync(s.MapId, s.MapX, s.MapY));
+                .ForEach(s => s.ChangeMapAsync(_mapChangeService, s.MapId, s.MapX, s.MapY));
         }
 
         public MapItem? PutItem(short amount, IItemInstance inv, ClientSession session)

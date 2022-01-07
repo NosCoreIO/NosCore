@@ -92,9 +92,10 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 TestHelpers.Instance.MinilandObjectDao, new MinilandHolder());
             await _minilandProvider.InitializeAsync(_session.Character, TestHelpers.Instance.MapInstanceGeneratorService);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
-            await _session.ChangeMapInstanceAsync(miniland.MapInstanceId);
-            await _session2.ChangeMapInstanceAsync(miniland.MapInstanceId);
-            await session3.ChangeMapInstanceAsync(miniland.MapInstanceId);
+            var mapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetMapInstance(miniland.MapInstanceId)!;
+            _session.Character.MapInstance = mapInstance;
+            _session2.Character.MapInstance = mapInstance;
+            session3.Character.MapInstance =  mapInstance;
             _mlEditPacketHandler = new MlEditPacketHandler(_minilandProvider);
         }
 

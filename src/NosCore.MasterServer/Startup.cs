@@ -66,6 +66,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Core.Services.IdService;
+using NosCore.GameObject.Services.EventLoaderService;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using FriendController = NosCore.MasterServer.Controllers.FriendController;
 using ILogger = Serilog.ILogger;
@@ -188,8 +189,10 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<IncommingMailHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
-                .AsImplementedInterfaces()
-                ;
+                .AsImplementedInterfaces();
+
+            containerBuilder
+                .RegisterGeneric(typeof(EventLoaderService<,,>));
 
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);

@@ -63,6 +63,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using DotNetty.Buffers;
+using DotNetty.Codecs;
+using DotNetty.Transport.Channels.Sockets;
 using NodaTime;
 using NosCore.Core.Services.IdService;
 using NosCore.GameObject.Services.LoginService;
@@ -89,7 +92,6 @@ namespace NosCore.LoginServer
                 conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
-            Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
             Shared.I18N.Logger.PrintHeader(ConsoleText);
             CultureInfo.DefaultThreadCurrentCulture = new(loginConfiguration.Language.ToString());
         }

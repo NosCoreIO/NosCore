@@ -33,6 +33,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.PacketHandlers.Miniland;
 using NosCore.Packets.ClientPackets.Miniland;
@@ -57,6 +58,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
 
         private ClientSession? _session;
         private ClientSession? _targetSession;
+        private Mock<IMapChangeService>? _mapChangeService;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -68,7 +70,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _minilandProvider = new Mock<IMinilandService>();
-            _mjoinPacketHandler = new MJoinPacketHandler(_friendHttpClient.Object, _minilandProvider.Object);
+            _mapChangeService = new Mock<IMapChangeService>();
+            _mjoinPacketHandler = new MJoinPacketHandler(_friendHttpClient.Object, _minilandProvider.Object, _mapChangeService.Object);
         }
 
         [TestMethod]
@@ -80,8 +83,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 Type = VisualType.Player
             };
             await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session!).ConfigureAwait(false);
-
-            Assert.IsFalse(_session!.Character.MapInstance.Map.MapId == 20001);
+            
+            _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session!, TestHelpers.Instance.MinilandId, 5, 8), Times.Never);
         }
 
         [TestMethod]
@@ -94,7 +97,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             };
             await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session!).ConfigureAwait(false);
 
-            Assert.IsFalse(_session!.Character.MapInstance.Map.MapId == 20001);
+
+            _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_targetSession, TestHelpers.Instance.MinilandId, 5, 8), Times.Never);
         }
 
 
@@ -134,7 +138,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(lastpacket?.Message,
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND, _session.Account.Language));
-            Assert.IsFalse(_session.Character.MapInstance.Map.MapId == 20001);
+
+            _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MinilandId, 5, 8), Times.Never);
         }
 
         [TestMethod]
@@ -169,7 +174,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                     new ConnectedAccount
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }));
 
-            Assert.IsTrue(_session.Character.MapInstance.Map.MapId == 20001);
+
+            _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MinilandId, 5, 8), Times.Once);
         }
 
         [TestMethod]
@@ -204,7 +210,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
             await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session).ConfigureAwait(false);
 
-            Assert.IsTrue(_session.Character.MapInstance.Map.MapId == 20001);
+            _mapChangeService!.Verify(x=>x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MinilandId, 5, 8), Times.Once);
         }
 
         [TestMethod]
@@ -242,7 +248,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(lastpacket!.Message,
                 GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND, _session.Account.Language));
-            Assert.IsFalse(_session.Character.MapInstance.Map.MapId == 20001);
+            _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MinilandId, 5, 8), Times.Never);
         }
     }
 }

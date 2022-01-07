@@ -153,7 +153,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0));
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1);
+            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
             Assert.IsNull(_session.Character.Shop);
         }
@@ -176,7 +176,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 2);
 
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1);
+            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
             Assert.IsNull(_session.Character.Shop);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
@@ -200,7 +200,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 2);
 
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1);
+            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
             Assert.IsNotNull(_session.Character.Shop);
         }
@@ -223,7 +223,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 2);
 
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1);
+            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             await _session!.HandlePacketsAsync(new[] { _shopPacket }).ConfigureAwait(false);
             Assert.IsNull(_session.Character.Shop);
         }
@@ -231,7 +231,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         [TestMethod]
         public async Task UserCanNotCreateEmptyShopAsync()
         {
-            _session!.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1);
+            _session!.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
 
             await _mShopPacketHandler!.ExecuteAsync(new MShopPacket
             {

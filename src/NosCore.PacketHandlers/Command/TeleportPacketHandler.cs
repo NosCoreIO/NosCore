@@ -26,6 +26,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.MapChangeService;
 
 namespace NosCore.PacketHandlers.Command
 {
@@ -33,11 +34,13 @@ namespace NosCore.PacketHandlers.Command
     {
         private readonly ILogger _logger;
         private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
+        private readonly IMapChangeService _mapChangeService;
 
-        public TeleportPacketHandler(ILogger logger, IMapInstanceAccessorService mapInstanceAccessorService)
+        public TeleportPacketHandler(ILogger logger, IMapInstanceAccessorService mapInstanceAccessorService, IMapChangeService mapChangeService)
         {
             _logger = logger;
             _mapInstanceAccessorService = mapInstanceAccessorService;
+            _mapChangeService = mapChangeService;
         }
 
         public override Task ExecuteAsync(TeleportPacket teleportPacket, ClientSession session)
@@ -50,7 +53,7 @@ namespace NosCore.PacketHandlers.Command
             {
                 if (targetSession != null)
                 {
-                    return session.ChangeMapInstanceAsync(targetSession.MapInstanceId, targetSession.MapX,
+                    return _mapChangeService.ChangeMapInstanceAsync(session, targetSession.MapInstanceId, targetSession.MapX,
                         targetSession.MapY);
                 }
 
@@ -60,17 +63,7 @@ namespace NosCore.PacketHandlers.Command
 
             }
 
-            var mapInstance = _mapInstanceAccessorService.GetBaseMapById(mapId);
-
-            if (mapInstance != null)
-            {
-                return session.ChangeMapAsync(mapId, teleportPacket.MapX, teleportPacket.MapY);
-            }
-
-            _logger.Error(
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, session.Account.Language));
-            return Task.CompletedTask;
-
+            return _mapChangeService.ChangeMapAsync(session, mapId, teleportPacket.MapX, teleportPacket.MapY);
         }
     }
 }
