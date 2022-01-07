@@ -78,7 +78,7 @@ namespace NosCore.Parser.Parsers
 
                 if ((npcMonsterdb.FirstOrDefault(s => s.NpcMonsterVNum.Equals(monster.VNum)) == null)
                     || (mapMonsterdb.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null)
-                    || (monsters.Count(i => i.MapMonsterId == monster.MapMonsterId) != 0))
+                    || monsters.Any(i => i.MapMonsterId == monster.MapMonsterId))
                 {
                     continue;
                 }

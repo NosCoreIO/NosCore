@@ -91,7 +91,6 @@ namespace NosCore.Parser.Parsers
             InitStats();
         }
 
-
         public async Task InsertNpcMonstersAsync(string folder)
         {
             _skilldb = _skillDao.LoadAll().ToDictionary(x => x.SkillVNum, x => x);
@@ -112,7 +111,9 @@ namespace NosCore.Parser.Parsers
                 {nameof(NpcMonsterDto.DarkResistance), chunk => Convert.ToInt16(chunk["ATTRIB"][0][7])},
                 {nameof(NpcMonsterDto.MaxHp), chunk => Convert.ToInt32(chunk["HP/MP"][0][2]) + _basicHp[Level(chunk)]},
                 {nameof(NpcMonsterDto.MaxMp), chunk => Convert.ToInt32(chunk["HP/MP"][0][3]) + Convert.ToByte(chunk["RACE"][0][2]) == 0 ? _basicPrimaryMp[Level(chunk)] : _basicSecondaryMp[Level(chunk)]},
-                {nameof(NpcMonsterDto.Xp), chunk =>  Math.Abs(Convert.ToInt32(chunk["EXP"][0][2]) + _basicXp[Level(chunk)])},
+                {nameof(NpcMonsterDto.Xp), chunk =>  Level(chunk) >= 19 ? 
+                        Math.Abs((Level(chunk) * 60) + Level(chunk) * 10 + Convert.ToInt32(chunk["EXP"][0][2])) : 
+                        Math.Abs((Level(chunk) * 60) + Convert.ToInt32(chunk["EXP"][0][2]))},
                 {nameof(NpcMonsterDto.JobXp), chunk => Convert.ToInt32(chunk["EXP"][0][3]) + _basicJXp[Level(chunk)]},
                 {nameof(NpcMonsterDto.IsHostile), chunk => chunk["PREATT"][0][2] != "0" },
                 {nameof(NpcMonsterDto.NoticeRange), chunk => Convert.ToByte(chunk["PREATT"][0][4])},
@@ -436,12 +437,6 @@ namespace NosCore.Parser.Parsers
                 boostup = !boostup;
                 secondaryBasup += boostup ? 3 : 1;
                 _basicSecondaryMp[i] = _basicSecondaryMp[i - (i % 10 == 2 ? 2 : 1)] + secondaryBasup;
-            }
-
-            // basicXPLoad
-            for (var i = 0; i < 100; i++)
-            {
-                _basicXp[i] = i * 180;
             }
 
             // basicJXpLoad
