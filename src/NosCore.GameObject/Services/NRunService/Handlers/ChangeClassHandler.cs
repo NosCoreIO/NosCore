@@ -50,9 +50,9 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
             {
                 await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Type = MessageType.Default,
                     Message = Game18NConstString.CanNotChangeJobAtThisLevel
                 }).ConfigureAwait(false);
+
                 await requestData.ClientSession.SendPacketAsync(new SayiPacket
                 {
                     VisualType = VisualType.Player,

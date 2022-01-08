@@ -81,8 +81,8 @@ namespace NosCore.PacketHandlers.Bazaar
                             VisualId = clientSession.Character.CharacterId,
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.NewSellingPrice,
-                            FirstArgument = 4,
-                            SecondArgument = (int)(bzMod.BazaarItem?.Price ?? 0)
+                            ArgumentType = 4,
+                            Game18NArguments = new object[] { bzMod.BazaarItem?.Price ?? 0 }
                         }).ConfigureAwait(false);
                         return;
                     }

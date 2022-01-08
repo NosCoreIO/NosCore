@@ -466,7 +466,6 @@ namespace NosCore.Parser.Parsers
                 secondaryBasup += boostup ? 3 : 1;
                 _basicSecondaryMp[i] = _basicSecondaryMp[i - (i % 10 == 2 ? 2 : 1)] + secondaryBasup;
             }
-
         }
 
         private byte Level(Dictionary<string, string[][]> chunk)
@@ -478,6 +477,7 @@ namespace NosCore.Parser.Parsers
         {
             return Convert.ToInt64(chunk["ETC"][0][2]);
         }
+
         private bool ShouldLoadPetinfo(Dictionary<string, string[][]> chunk)
         {
             var unknownData = LoadUnknownData(chunk);

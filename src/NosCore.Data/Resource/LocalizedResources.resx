@@ -132,9 +132,6 @@
   <data name="ASK_BIND" xml:space="preserve">
     <value>Do you wish to bind with this item?</value>
   </data>
-  <data name="ASK_TO_DELETE" xml:space="preserve">
-    <value>Do you want to delete?</value>
-  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>At least one of the required files are missing, try again when you have all the required files.</value>
   </data>
@@ -188,9 +185,6 @@
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Character Not loaded</value>
     <comment>check</comment>
-  </data>
-  <data name="CHARACTER_OFFLINE" xml:space="preserve">
-    <value>The Character is offline</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client connected, SessionId: {0}</value>
@@ -301,9 +295,6 @@
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} items parsed!</value>
-  </data>
-  <data name="ITEM_ACQUIRED" xml:space="preserve">
-    <value>Acquired</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>You joined the group</value>
@@ -493,9 +484,6 @@
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Successfully Loaded!</value>
   </data>
-  <data name="SURE_TO_DELETE" xml:space="preserve">
-    <value>Are you sure you want to delete this item?</value>
-  </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>The seller does not have sufficient space to handle your money.</value>
   </data>
@@ -591,12 +579,6 @@
   <data name="IN_WAITING_FOR" xml:space="preserve">
     <value>In Waiting for {0}.</value>
   </data>
-  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>The Land of the Dead object {0} has been acquired.</value>
-  </data>
-  <data name="ITEM_TIMEOUT" xml:space="preserve">
-    <value>Item is no longer valid.</value>
-  </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>You can't add more item on the bazaar because the limit is exceeded.</value>
   </data>
@@ -612,17 +594,8 @@
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Please wait before you teleport !</value>
   </data>
-  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
-    <value>The sale is completed, you receive gold: {0}.</value>
-  </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Message sent to user.</value>
-  </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>The player isn't in exchange.</value>
-  </data>
-  <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
-    <value>You can not send the invitation yet. Please try again in {0} seconds.</value>
   </data>
   <data name="QUESTS_PARSED" xml:space="preserve">
     <value>{0} Quests Parsed!</value>

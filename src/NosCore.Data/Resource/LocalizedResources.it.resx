@@ -135,9 +135,6 @@
   <data name="ASK_BIND" xml:space="preserve">
     <value>Vuoi usare questo oggetto? Non potrai più commerciarlo</value>
   </data>
-  <data name="ASK_TO_DELETE" xml:space="preserve">
-    <value>L'oggetto verrà distrutto.</value>
-  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Manca almeno un file richiesto</value>
   </data>
@@ -217,9 +214,6 @@
     <value>Personaggio non inizializzato.</value>
     <comment>revisionare</comment>
   </data>
-  <data name="CHARACTER_OFFLINE" xml:space="preserve">
-    <value>Il Personaggio è offline</value>
-  </data>
   <data name="CHUNK_FORMAT_INVALID" xml:space="preserve">
     <value>Formato blocco non valido.</value>
   </data>
@@ -243,9 +237,6 @@
   </data>
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
     <value>Il database non sembra aggiornato. Per favore considera di aggiornare il tuo database.</value>
-  </data>
-  <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
-    <value>Non puoi inviare altre richieste. Aspetta {0} secondi.</value>
   </data>
   <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
     <value>È stato rilevato l'accesso diretto all'oggetto: {0} - {1}.</value>
@@ -291,9 +282,6 @@
   </data>
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Richiesta di amicizia inviata</value>
-  </data>
-  <data name="GIFTED" xml:space="preserve">
-    <value>Hai ricevuto {0} pacchi.</value>
   </data>
   <data name="GIFT_SENT" xml:space="preserve">
     <value>Item inviato.</value>
@@ -378,23 +366,11 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} Items sincronizzati!</value>
   </data>
-  <data name="ITEM_ACQUIRED" xml:space="preserve">
-    <value>Hai ricevuto</value>
-  </data>
-  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>Hai ricevuto {0} dalla Terra della Morte.</value>
-  </data>
   <data name="ITEM_GIFTED" xml:space="preserve">
     <value>Hai invitato {0} item.</value>
   </data>
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Non è stato trovato alcun item.</value>
-  </data>
-  <data name="ITEM_RECEIVED" xml:space="preserve">
-    <value>Hai ricevuto {0} x {1}</value>
-  </data>
-  <data name="ITEM_TIMEOUT" xml:space="preserve">
-    <value>Questo oggetto non è più valido.</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Ti sei unito al gruppo</value>
@@ -409,17 +385,8 @@
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Caricamento MapInstances...</value>
   </data>
-  <data name="LOGIN_MEDAL" xml:space="preserve">
-    <value>Medaglia di NosBazaar attivata.</value>
-  </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Questo specialista richiede un livello lavoro più alto.</value>
-  </data>
-  <data name="MAILED" xml:space="preserve">
-    <value>Email inviata.</value>
-  </data>
-  <data name="MAIL_DELETED" xml:space="preserve">
-    <value>Email cancellata.</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MappeMostri caricate!</value>
@@ -448,9 +415,6 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Impossibile connettersi al MasterServer! Provando ancora tra {0} secondi...</value>
   </data>
-  <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
-    <value>La Mini-land del tuo amico è chiusa</value>
-  </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Numero totale di visitatori: {0} visitatori di oggi: {1}</value>
   </data>
@@ -459,9 +423,6 @@
   </data>
   <data name="NEW_LEADER" xml:space="preserve">
     <value>Sei il nuovo leader del gruppo!</value>
-  </data>
-  <data name="NEW_MAIL" xml:space="preserve">
-    <value>Nuove email: {0}</value>
   </data>
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
     <value>I punti durabilità sono insufficienti.</value>
@@ -618,9 +579,6 @@
     <value>Registrato sul MasterServer</value>
     <comment>revisionare</comment>
   </data>
-  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
-    <value>La vendita è stata completata, hai ricevuto: {0} oro.</value>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>La reputazione è cambiata!</value>
   </data>
@@ -641,9 +599,6 @@
   </data>
   <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
     <value>Token di sicurezza aggiornato.</value>
-  </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Messaggio inviato all'utente</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Hai rifiutato di condividere il punto di ritorno con i membri del gruppo</value>
@@ -687,9 +642,6 @@
   <data name="SUPPORT" xml:space="preserve">
     <value>Supporter</value>
   </data>
-  <data name="SURE_TO_DELETE" xml:space="preserve">
-    <value>L'oggetto verrà distrutto.</value>
-  </data>
   <data name="TOKEN_UPDATED" xml:space="preserve">
     <value>Token aggiornato.</value>
   </data>
@@ -727,9 +679,6 @@
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>L'utente non è connesso</value>
-  </data>
-  <data name="USER_NOT_FOUND" xml:space="preserve">
-    <value>Utente non trovato.</value>
   </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>L'utente non sta commerciando.</value>

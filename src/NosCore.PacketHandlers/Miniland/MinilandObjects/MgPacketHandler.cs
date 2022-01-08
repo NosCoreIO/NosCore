@@ -36,6 +36,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Networking;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Shared.Enumerations;
 
 
 //TODO stop using obsolete
@@ -210,9 +212,15 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                         InventoryItemInstance.Create(item, _clientSession.Character.CharacterId));
                     if (inv != null && inv.Count != 0)
                     {
-                        await _clientSession.SendPacketAsync(_clientSession.Character.GenerateSay(
-                            $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, _clientSession.Account.Language)}: {item.Item!.Name[_clientSession.Account.Language]} x {amount}",
-                            SayColorType.Green)).ConfigureAwait(false);
+                        await _clientSession.SendPacketAsync(new SayiPacket
+                        {
+                            VisualType = VisualType.Player,
+                            VisualId = _clientSession.Character.CharacterId,
+                            Type = SayColorType.Yellow,
+                            Message = Game18NConstString.ReceivedThisItem,
+                            ArgumentType = 2,
+                            Game18NArguments = new object[] { item.Item!.VNum, amount }
+                        }).ConfigureAwait(false);
                     }
 
                     list.Add(new MloPmgSubPacket

@@ -23,6 +23,7 @@ using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 
@@ -37,10 +38,9 @@ namespace NosCore.PacketHandlers.Friend
 
             if (target == null)
             {
-                return session.SendPacketAsync(new InfoPacket
+                return session.SendPacketAsync(new InfoiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
-                        session.Account.Language)
+                    Message = Game18NConstString.UnknownCharacter
                 });
             }
 

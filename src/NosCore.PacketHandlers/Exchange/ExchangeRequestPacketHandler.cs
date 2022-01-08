@@ -84,8 +84,8 @@ namespace NosCore.PacketHandlers.Exchange
                         await clientSession.SendPacketAsync(new Infoi2Packet
                         {
                             Message = Game18NConstString.TradingWithSomeoneElse,
-                            FirstArgument = 1,
-                            SecondArgument = target?.Name ?? ""
+                            ArgumentType = 1,
+                            Game18NArguments = new object[] { target?.Name ?? "" }
                         }).ConfigureAwait(false);
                         return;
                     }
@@ -95,8 +95,8 @@ namespace NosCore.PacketHandlers.Exchange
                         await clientSession.SendPacketAsync(new Infoi2Packet
                         {
                             Message = Game18NConstString.BlockingTrades,
-                            FirstArgument = 1,
-                            SecondArgument = target?.Name ?? ""
+                            ArgumentType = 1,
+                            Game18NArguments = new object[] { target?.Name ?? "" }
                         }).ConfigureAwait(false);
                         return;
                     }
@@ -126,8 +126,8 @@ namespace NosCore.PacketHandlers.Exchange
                     await clientSession.SendPacketAsync(new Infoi2Packet
                     {
                         Message = Game18NConstString.YouInvitedToTrade,
-                        FirstArgument = 1,
-                        SecondArgument = target.Name
+                        ArgumentType = 1,
+                        Game18NArguments = new object[] { target.Name }
                     }).ConfigureAwait(false);
 
                     await target.SendPacketAsync(new DlgPacket

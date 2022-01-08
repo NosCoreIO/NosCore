@@ -103,9 +103,10 @@ namespace NosCore.PacketHandlers.Chat
 
                 if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
                 {
-                    await session.SendPacketAsync(session.Character.GenerateSay(
-                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.CHARACTER_OFFLINE, session.Account.Language),
-                        SayColorType.Yellow)).ConfigureAwait(false);
+                    await session.SendPacketAsync(new InfoPacket
+                    {
+                        Message = $"{receiverName} is not playing.",
+                    });
                     return;
                 }
 
@@ -130,10 +131,6 @@ namespace NosCore.PacketHandlers.Chat
                     OriginWorldId = _channel.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.Item2.ChannelId).ConfigureAwait(false);
-
-                await session.SendPacketAsync(session.Character.GenerateSay(
-                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.SEND_MESSAGE_TO_CHARACTER,
-                        session.Account.Language), SayColorType.Red)).ConfigureAwait(false);
             }
             catch (Exception e)
             {
