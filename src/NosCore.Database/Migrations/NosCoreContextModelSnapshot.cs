@@ -1867,6 +1867,9 @@ namespace NosCore.Database.Migrations
                     b.Property<byte>("HeroLevel")
                         .HasColumnType("smallint");
 
+                    b.Property<int>("HeroXp")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsHostile")
                         .HasColumnType("boolean");
 
