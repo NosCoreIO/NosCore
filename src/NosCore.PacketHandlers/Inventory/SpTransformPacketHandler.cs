@@ -65,7 +65,6 @@ namespace NosCore.PacketHandlers.Inventory
                 {
                     await clientSession.SendPacketAsync(new MsgiPacket
                     {
-                        Type = MessageType.Default,
                         Message = Game18NConstString.NoSpecialistCardEquipped
                     }).ConfigureAwait(false);
                     return;
@@ -125,10 +124,9 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         await clientSession.SendPacketAsync(new MsgiPacket
                         {
-                            Type = MessageType.Default,
                             Message = Game18NConstString.CantTrasformWithSideEffect,
-                            FirstArgument = 4,
-                            SecondArgument = (short)(clientSession.Character.SpCooldown - (int)Math.Round(currentRunningSeconds))
+                            ArgumentType = 4,
+                            Game18NArguments = new object[] { (short)(clientSession.Character.SpCooldown - (int)Math.Round(currentRunningSeconds)) }
                         }).ConfigureAwait(false);
                     }
                 }

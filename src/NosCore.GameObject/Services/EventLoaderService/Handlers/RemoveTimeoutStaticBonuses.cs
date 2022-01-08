@@ -28,6 +28,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 {
@@ -51,9 +52,10 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
             {
                 if (session.StaticBonusList.RemoveAll(s => s.DateEnd != null && s.DateEnd < _clock.GetCurrentInstant()) > 0)
                 {
-                    return session.SendPacketAsync(session.GenerateSay(
-                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_TIMEOUT, session.AccountLanguage),
-                        SayColorType.Yellow));
+                    return session.SendPacketAsync(new MsgiPacket
+                    {
+                        Message = Game18NConstString.MagicItemExpired
+                    });
                 }
                 _lastRun = runTime.Data;
                 return Task.CompletedTask;

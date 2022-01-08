@@ -191,7 +191,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(lastpacket?.Type == MessageType.Default, lastpacket?.Message == Game18NConstString.CantTrasformWithSideEffect);
-            Assert.AreEqual(lastpacket?.FirstArgument == 4, lastpacket?.SecondArgument == Session.Character.SpCooldown);
+            Assert.AreEqual(lastpacket?.ArgumentType == 4, (int?)lastpacket?.Game18NArguments[0] == Session.Character.SpCooldown);
         }
 
         [TestMethod]

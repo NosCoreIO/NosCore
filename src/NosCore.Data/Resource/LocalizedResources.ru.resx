@@ -136,9 +136,6 @@
     <value>Ты хочешь привязать этот предмет?</value>
     <comment>О чем идет речь? Пока не ясно. Уточним.</comment>
   </data>
-  <data name="ASK_TO_DELETE" xml:space="preserve">
-    <value>Удалить?</value>
-  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Как минимум один обязательный файл отсутствует. Попробуйте ещё раз, когда у вас будут все необходимые файлы.</value>
   </data>
@@ -224,9 +221,6 @@
     <value>Персонаж не инициализирован</value>
     <comment>check</comment>
   </data>
-  <data name="CHARACTER_OFFLINE" xml:space="preserve">
-    <value>Персонаж не в сети</value>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Клиент прибыл на сервер, SessionId: {0}</value>
     <comment>Проверить контекст, возможно, нужно использователь "Пользователь"</comment>
@@ -249,9 +243,6 @@
   </data>
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
     <value>База данных могла устареть. Пожалуйста, проверьте обновления для БД.</value>
-  </data>
-  <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
-    <value>Превышен лимит на отправку приглашений. Пожалуйста, повторите через {0} сек.</value>
   </data>
   <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
     <value>Обнаружен прямой доступ к объекту: {0} - {1}</value>
@@ -300,9 +291,6 @@
   </data>
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Запрос в друзья отправлен!</value>
-  </data>
-  <data name="GIFTED" xml:space="preserve">
-    <value>Получено посылок: {0} шт.</value>
   </data>
   <data name="GIFT_SENT" xml:space="preserve">
     <value>Подарок отправлен.</value>
@@ -393,24 +381,11 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>Импортировано {0} предметов!</value>
   </data>
-  <data name="ITEM_ACQUIRED" xml:space="preserve">
-    <value>Получен предмет</value>
-  </data>
-  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>Был получен предмет земель смерти: {0}.</value>
-    <comment>Нужно подумать. LoD - это "земли мертвых" или "земля смерти"? Или лучше не локализировать?</comment>
-  </data>
   <data name="ITEM_GIFTED" xml:space="preserve">
     <value>Подарков отправлено: {0} шт.</value>
   </data>
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Предмет не найден {0} {1}</value>
-  </data>
-  <data name="ITEM_RECEIVED" xml:space="preserve">
-    <value>Вы получили {0} {1}.</value>
-  </data>
-  <data name="ITEM_TIMEOUT" xml:space="preserve">
-    <value>Предмет больше не действителен.</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Вы присоединились к группе</value>
@@ -425,19 +400,9 @@
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Загрузка MapInstances...</value>
   </data>
-  <data name="LOGIN_MEDAL" xml:space="preserve">
-    <value>Медаль НосТорговца активирована.</value>
-  </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Слишком низкий рабочий уровень для использования данной Карты специалиста.</value>
     <comment>Возможно нужно перефразировать</comment>
-  </data>
-  <data name="MAILED" xml:space="preserve">
-    <value>Письмо отправлено.</value>
-  </data>
-  <data name="MAIL_DELETED" xml:space="preserve">
-    <value>Письмо удалено.</value>
-    <comment>Уточнить контекст</comment>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>Загружено {0} MapMonsters!</value>
@@ -467,9 +432,6 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Не удалось подключиться к Master серверу! Повторная попытка через {0} секунд...</value>
   </data>
-  <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
-    <value>Мини-страна друга закрыта</value>
-  </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Всего посетителей: {0} Посетителей за сегодня: {1}</value>
   </data>
@@ -478,9 +440,6 @@
   </data>
   <data name="NEW_LEADER" xml:space="preserve">
     <value>Вы стали лидером группы!</value>
-  </data>
-  <data name="NEW_MAIL" xml:space="preserve">
-    <value>Новых писем: {0}</value>
   </data>
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
     <value>Недостаточно очков прочности.</value>
@@ -616,9 +575,6 @@
     <value>Зарегистрирован на Master сервере</value>
     <comment>check</comment>
   </data>
-  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
-    <value>Продажа завершена. Получено золота: {0}</value>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Твоя репутация изменилась!</value>
   </data>
@@ -633,9 +589,6 @@
   </data>
   <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
     <value>Токен безопасности обновлен.</value>
-  </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Сообщение отправлено.</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Запрос на изменение точки возвращения отклонен</value>
@@ -676,9 +629,6 @@
   <data name="SUPPORT" xml:space="preserve">
     <value>Поддержка</value>
   </data>
-  <data name="SURE_TO_DELETE" xml:space="preserve">
-    <value>Ты уверен(-а), что хочешь удалить этот предмет?</value>
-  </data>
   <data name="TOKEN_UPDATED" xml:space="preserve">
     <value>Токен обновлен.</value>
   </data>
@@ -716,9 +666,6 @@
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>Игрок не в сети!</value>
-  </data>
-  <data name="USER_NOT_FOUND" xml:space="preserve">
-    <value>Игрок не найден</value>
   </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>Игрок не в режиме обмена.</value>

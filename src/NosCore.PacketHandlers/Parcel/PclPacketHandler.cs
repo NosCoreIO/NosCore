@@ -29,8 +29,10 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.ClientPackets.Parcel;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -70,11 +72,16 @@ namespace NosCore.PacketHandlers.Parcel
                     .FirstOrDefault();
                 if (newInv != null)
                 {
-                    await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
-                        string.Format(
-                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_RECEIVED,
-                                clientSession.Account.Language),
-                            newInv.ItemInstance!.Item!.Name, newInv.ItemInstance.Amount), SayColorType.Green)).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(new SayiPacket
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = clientSession.Character.CharacterId,
+                        Type = SayColorType.Red,
+                        Message = Game18NConstString.ParcelReceived,
+                        ArgumentType = 2,
+                        Game18NArguments = new object[] { newInv.ItemInstance.Item.VNum, newInv.ItemInstance.Amount }
+                    }).ConfigureAwait(false);
+                    
                     await clientSession.SendPacketAsync(
                         new ParcelPacket { Type = 2, Unknown = 1, Id = (short)getGiftPacket.GiftId }).ConfigureAwait(false);
                     await _mailHttpClient.DeleteGiftAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);

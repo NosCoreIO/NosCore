@@ -68,10 +68,9 @@ namespace NosCore.PacketHandlers.Miniland
                         await _mapChangeService.ChangeMapInstanceAsync(session, miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
                         return;
                     }
-                    await session.SendPacketAsync(new InfoPacket
+                    await session.SendPacketAsync(new InfoiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND,
-                            session.Account.Language)
+                        Message = Game18NConstString.MinilandLocked
                     }).ConfigureAwait(false);
                 }
             }

@@ -64,7 +64,6 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             {
                 await requestData.ClientSession.Character.SendPacketAsync(new MsgiPacket
                 {
-                    Type = MessageType.Default,
                     Message = Game18NConstString.CannotBeUsedExceedsCapacity
                 }).ConfigureAwait(false);
             }

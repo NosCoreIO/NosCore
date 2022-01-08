@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Inventory
             {
                 case null:
                     await clientSession.SendPacketAsync(
-                        new DlgPacket
+                        new DlgiPacket
                         {
                             YesPacket = new BiPacket
                             {
@@ -63,14 +63,13 @@ namespace NosCore.PacketHandlers.Inventory
                                 Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined
                             },
-                            Question = GameLanguage.Instance.GetMessageFromKey(LanguageKey.ASK_TO_DELETE,
-                                clientSession.Account.Language)
+                            Question = Game18NConstString.ItemWillDestroy
                         }).ConfigureAwait(false);
                     break;
 
                 case RequestDeletionType.Requested:
                     await clientSession.SendPacketAsync(
-                        new DlgPacket
+                        new DlgiPacket
                         {
                             YesPacket = new BiPacket
                             {
@@ -84,8 +83,7 @@ namespace NosCore.PacketHandlers.Inventory
                                 Slot = bIPacket.Slot,
                                 Option = RequestDeletionType.Declined
                             },
-                            Question = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SURE_TO_DELETE,
-                                clientSession.Account.Language)
+                            Question = Game18NConstString.AskDestroyItem
                         }).ConfigureAwait(false);
                     break;
 

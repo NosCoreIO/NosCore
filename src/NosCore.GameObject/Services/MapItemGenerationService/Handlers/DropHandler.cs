@@ -32,7 +32,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Networking;
-
+using NosCore.Packets.ServerPackets.Chats;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {
@@ -64,18 +64,27 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                         requestData.ClientSession.Character.GenerateIcon(1, inv.ItemInstance!.ItemVNum)).ConfigureAwait(false);
                 }
 
-                await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSay(
-                    $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}: {inv.ItemInstance!.Item!.Name[requestData.ClientSession.Account.Language]} x {amount}",
-                    SayColorType.Green)).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = requestData.ClientSession.Character.CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.ReceivedThisItem,
+                    ArgumentType = 2,
+                    Game18NArguments = new object[] { inv.ItemInstance!.ItemVNum, amount }
+                }).ConfigureAwait(false);
+
                 if (requestData.ClientSession.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
                 {
-                    var name = string.Format(
-                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED_LOD,
-                            requestData.ClientSession.Account.Language), requestData.ClientSession.Character.Name);
-                    await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
-                        requestData.ClientSession.Character.GenerateSay(
-                            $"{name}: {inv.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]} x {requestData.Data.Item1.Amount}",
-                            SayColorType.Yellow)).ConfigureAwait(false);
+                    await requestData.ClientSession.Character.MapInstance.SendPacketAsync(new Sayi2Packet
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = requestData.ClientSession.Character.CharacterId,
+                        Type = SayColorType.Yellow,
+                        Message = Game18NConstString.CharacterHasReceivedItem,
+                        ArgumentType = 13,
+                        Game18NArguments = new object[] { requestData.ClientSession.Character.Name, inv.ItemInstance.Item.VNum }
+                    }).ConfigureAwait(false);
                 }
             }
             else

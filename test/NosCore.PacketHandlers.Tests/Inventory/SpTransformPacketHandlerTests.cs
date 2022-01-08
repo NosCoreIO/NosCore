@@ -170,7 +170,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             item.Value.Slot = (byte)EquipmentType.Sp;
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
             var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.CantTrasformWithSideEffect && packet?.FirstArgument == 4 && packet?.SecondArgument == 30);
+            Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.CantTrasformWithSideEffect && packet?.ArgumentType == 4 && (short?)packet?.Game18NArguments[0] == 30);
         }
 
         [TestMethod]

@@ -121,11 +121,11 @@ namespace NosCore.PacketHandlers.Group
                         var diffTimeSpan = ((Instant)clientSession.Character.LastGroupRequest).Plus(Duration.FromSeconds(5)) - _clock.GetCurrentInstant();
                         if (diffTimeSpan.Seconds > 0 && diffTimeSpan.Seconds <= 5)
                         {
-                            await clientSession.SendPacketAsync(new InfoPacket
+                            await clientSession.SendPacketAsync(new InfoiPacket
                             {
-                                Message = string.Format(
-                                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.DELAY_GROUP_REQUEST,
-                                        clientSession.Account.Language), diffTimeSpan.Seconds)
+                                Message = Game18NConstString.CannotSendInvite,
+                                ArgumentType = 4,
+                                Game18NArguments = new object[] { diffTimeSpan.Seconds }
                             }).ConfigureAwait(false);
                             return;
                         }
@@ -317,7 +317,6 @@ namespace NosCore.PacketHandlers.Group
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
                     await clientSession.SendPacketAsync(new MsgiPacket
                     {
-                        Type = MessageType.Default,
                         Message = Game18NConstString.ChangedSamePointOfReturn
                     }).ConfigureAwait(false);
 

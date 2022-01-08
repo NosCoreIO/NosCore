@@ -23,6 +23,7 @@ using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 
@@ -43,10 +44,9 @@ namespace NosCore.PacketHandlers.Command
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
-                await session.SendPacketAsync(new InfoPacket
+                await session.SendPacketAsync(new InfoiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
-                        session.Account.Language)
+                    Message = Game18NConstString.UnknownCharacter
                 }).ConfigureAwait(false);
                 return;
             }

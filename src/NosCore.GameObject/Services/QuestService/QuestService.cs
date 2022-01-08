@@ -206,7 +206,6 @@ namespace NosCore.GameObject.Services.QuestService
 
                 await character.SendPacketAsync(new MsgiPacket
                 {
-                    Type = MessageType.Default,
                     Message = Game18NConstString.QuestComplete
                 }).ConfigureAwait(false);
                 await character.SendPacketAsync(characterQuest.Value.GenerateQstiPacket(false)).ConfigureAwait(false);
@@ -233,7 +232,6 @@ namespace NosCore.GameObject.Services.QuestService
             {
                 await character.SendPacketAsync(new MsgiPacket
                 {
-                    Type = MessageType.Default,
                     Message = Game18NConstString.LevelTooLow
                 }).ConfigureAwait(false);
                 return false;
@@ -243,7 +241,6 @@ namespace NosCore.GameObject.Services.QuestService
             {
                 await character.SendPacketAsync(new MsgiPacket
                 {
-                    Type = MessageType.Default,
                     Message = Game18NConstString.LevelTooHigh
                 }).ConfigureAwait(false);
                 return false;
@@ -253,7 +250,6 @@ namespace NosCore.GameObject.Services.QuestService
             {
                 await character.SendPacketAsync(new MsgiPacket
                 {
-                    Type = MessageType.Default,
                     Message = Game18NConstString.DailyQuestOncePerDay
                 }).ConfigureAwait(false);
                 return false;

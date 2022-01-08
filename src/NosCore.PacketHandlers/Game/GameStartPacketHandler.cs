@@ -35,7 +35,9 @@ using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.GameObject.Services.MapChangeService;
@@ -123,7 +125,13 @@ namespace NosCore.PacketHandlers.Game
             var medal = session.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
             if (medal != null)
             {
-                await session.SendPacketAsync(session.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOGIN_MEDAL, session.Account.Language), SayColorType.Green)).ConfigureAwait(false);
+                await session.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = session.Character.CharacterId,
+                    Type = SayColorType.Green,
+                    Message = Game18NConstString.NosMerchantActive,
+                }).ConfigureAwait(false);
             }
 
             //            if (Session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.PetBasket))
@@ -221,13 +229,31 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketAsync(session.Character.GenerateTitle()).ConfigureAwait(false);
             int giftcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId != null && !mail.IsOpened);
             int mailcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId == null && !mail.IsOpened);
+
             if (giftcount > 0)
             {
-                await session.SendPacketAsync(session.Character.GenerateSay(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.GIFTED, session.Account.Language), giftcount), SayColorType.Red)).ConfigureAwait(false);
+                await session.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = session.Character.CharacterId,
+                    Type = SayColorType.Green,
+                    Message = Game18NConstString.NewParcelArrived,
+                    ArgumentType = 4,
+                    Game18NArguments = new object[] { giftcount }
+                }).ConfigureAwait(false);
             }
+
             if (mailcount > 0)
             {
-                await session.SendPacketAsync(session.Character.GenerateSay(string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.NEW_MAIL, session.Account.Language), mailcount), SayColorType.Yellow)).ConfigureAwait(false);
+                await session.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = session.Character.CharacterId,
+                    Type = SayColorType.Green,
+                    Message = Game18NConstString.NewNoteArrived,
+                    ArgumentType = 4,
+                    Game18NArguments = new object[] { mailcount }
+                }).ConfigureAwait(false);
             }
 
             //            Session.Character.DeleteTimeout();

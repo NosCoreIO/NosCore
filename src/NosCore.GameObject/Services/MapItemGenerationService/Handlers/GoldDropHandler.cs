@@ -30,7 +30,7 @@ using NosCore.Shared.Enumerations;
 using System;
 using System.Threading.Tasks;
 using NosCore.Networking;
-
+using NosCore.Packets.ServerPackets.Chats;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {
@@ -61,18 +61,23 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                 }
 
                 requestData.ClientSession.Character.Gold += requestData.Data.Item1.Amount;
-                await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSay(
-                    $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, requestData.ClientSession.Account.Language)}" +
-                    $": {requestData.Data.Item1.ItemInstance!.Item!.Name[requestData.ClientSession.Account.Language]} x {requestData.Data.Item1.Amount}",
-                    SayColorType.Green)).ConfigureAwait(false);
+
+                await requestData.ClientSession.SendPacketAsync(new Sayi2Packet
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = requestData.ClientSession.Character.CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.ItemReceived,
+                    ArgumentType = 9,
+                    Game18NArguments = new object[] { requestData.Data.Item1.Amount, "Gold" }
+                }).ConfigureAwait(false);
             }
             else
             {
                 requestData.ClientSession.Character.Gold = maxGold;
                 await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = Game18NConstString.MaxGoldReached,
-                    Type = 0
+                    Message = Game18NConstString.MaxGoldReached
                 }).ConfigureAwait(false);
             }
 

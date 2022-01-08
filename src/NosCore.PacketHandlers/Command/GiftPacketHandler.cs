@@ -49,10 +49,9 @@ namespace NosCore.PacketHandlers.Command
 
             if (receiver.Item2 == null)
             {
-                await session.SendPacketAsync(new InfoPacket
+                await session.SendPacketAsync(new InfoiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_FIND_CHARACTER,
-                        session.Account.Language)
+                    Message = Game18NConstString.UnknownCharacter
                 }).ConfigureAwait(false);
                 return;
             }

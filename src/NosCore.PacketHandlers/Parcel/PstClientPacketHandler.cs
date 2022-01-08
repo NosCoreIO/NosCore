@@ -30,6 +30,8 @@ using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Parcel;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Parcel
@@ -68,11 +70,13 @@ namespace NosCore.PacketHandlers.Parcel
                     }
 
                     await _mailHttpClient.DeleteGiftAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
-                    await clientSession.SendPacketAsync(
-                        clientSession.Character.GenerateSay(
-                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAIL_DELETED,
-                                clientSession.Account.Language),
-                            SayColorType.Red)).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(new SayiPacket
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = clientSession.Character.CharacterId,
+                        Type = SayColorType.Red,
+                        Message = Game18NConstString.NoteDeleted
+                    }).ConfigureAwait(false);
                     break;
                 case 1:
                     if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
@@ -83,20 +87,24 @@ namespace NosCore.PacketHandlers.Parcel
                     var dest = await _characterDao.FirstOrDefaultAsync(s => s.Name == pstClientPacket.ReceiverName && s.ServerId == clientSession.Character.ServerId).ConfigureAwait(false);
                     if (dest != null)
                     {
-                        await _mailHttpClient.SendMessageAsync(clientSession.Character, dest.CharacterId, pstClientPacket.Title,
-                            pstClientPacket.Text).ConfigureAwait(false);
-                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
-                            GameLanguage.Instance.GetMessageFromKey(
-                                LanguageKey.MAILED,
-                                clientSession.Account.Language), SayColorType.Yellow)).ConfigureAwait(false);
+                        await _mailHttpClient.SendMessageAsync(clientSession.Character, dest.CharacterId, pstClientPacket.Title, pstClientPacket.Text).ConfigureAwait(false);
+                        await clientSession.SendPacketAsync(new SayiPacket
+                        {
+                            VisualType = VisualType.Player,
+                            VisualId = clientSession.Character.CharacterId,
+                            Type = SayColorType.Red,
+                            Message = Game18NConstString.NoteSent
+                        }).ConfigureAwait(false);
                     }
                     else
                     {
-                        await clientSession.SendPacketAsync(
-                            clientSession.Character.GenerateSay(
-                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_FOUND,
-                                    clientSession.Account.Language),
-                                SayColorType.Yellow)).ConfigureAwait(false);
+                        await clientSession.SendPacketAsync(new SayiPacket
+                        {
+                            VisualType = VisualType.Player,
+                            VisualId = clientSession.Character.CharacterId,
+                            Type = SayColorType.Yellow,
+                            Message = Game18NConstString.CanNotFindPlayer
+                        }).ConfigureAwait(false);
                     }
 
                     break;

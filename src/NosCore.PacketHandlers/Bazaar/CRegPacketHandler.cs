@@ -97,8 +97,8 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     Type = 1,
                     Message = Game18NConstString.NotExceedMaxPrice,
-                    FirstArgument = 4,
-                    SecondArgument = (int)maxPrice
+                    ArgumentType = 4,
+                    Game18NArguments = new object[] { maxPrice }
                 }).ConfigureAwait(false);
                 return;
             }
@@ -188,7 +188,6 @@ namespace NosCore.PacketHandlers.Bazaar
                     }).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(new MsgiPacket
                     {
-                        Type =  MessageType.Default,
                         Message = Game18NConstString.ItemAddedToBazar
                     }).ConfigureAwait(false);
 
