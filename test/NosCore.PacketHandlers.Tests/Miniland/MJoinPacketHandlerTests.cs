@@ -135,10 +135,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Lock });
             await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session).ConfigureAwait(false);
 
-            var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(lastpacket?.Message,
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND, _session.Account.Language));
-
+            var lastpacket = (InfoiPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
+            Assert.AreEqual(lastpacket?.Message, Game18NConstString.MinilandLocked);
             _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MinilandId, 5, 8), Times.Never);
         }
 
@@ -245,9 +243,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
             await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session).ConfigureAwait(false);
 
-            var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(lastpacket!.Message,
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_CLOSED_BY_FRIEND, _session.Account.Language));
+            var lastpacket = (InfoiPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
+            Assert.AreEqual(lastpacket?.Message, Game18NConstString.MinilandLocked);
             _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MinilandId, 5, 8), Times.Never);
         }
     }

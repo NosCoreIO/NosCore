@@ -372,12 +372,6 @@
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Non è stato trovato alcun item.</value>
   </data>
-  <data name="ITEM_RECEIVED" xml:space="preserve">
-    <value>Hai ricevuto {0} x {1}</value>
-  </data>
-  <data name="ITEM_TIMEOUT" xml:space="preserve">
-    <value>Questo oggetto non è più valido.</value>
-  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Ti sei unito al gruppo</value>
   </data>
@@ -393,12 +387,6 @@
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Questo specialista richiede un livello lavoro più alto.</value>
-  </data>
-  <data name="MAILED" xml:space="preserve">
-    <value>Email inviata.</value>
-  </data>
-  <data name="MAIL_DELETED" xml:space="preserve">
-    <value>Email cancellata.</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MappeMostri caricate!</value>
@@ -426,9 +414,6 @@
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Impossibile connettersi al MasterServer! Provando ancora tra {0} secondi...</value>
-  </data>
-  <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
-    <value>La Mini-land del tuo amico è chiusa</value>
   </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Numero totale di visitatori: {0} visitatori di oggi: {1}</value>
@@ -694,9 +679,6 @@
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>L'utente non è connesso</value>
-  </data>
-  <data name="USER_NOT_FOUND" xml:space="preserve">
-    <value>Utente non trovato.</value>
   </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>L'utente non sta commerciando.</value>

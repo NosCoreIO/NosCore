@@ -376,12 +376,6 @@
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Item wurde nicht gefunden!</value>
   </data>
-  <data name="ITEM_RECEIVED" xml:space="preserve">
-    <value>Du hast {0} {1} erhalten.</value>
-  </data>
-  <data name="ITEM_TIMEOUT" xml:space="preserve">
-    <value>Item ist nicht mehr benutzbar.</value>
-  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Du bist der Gruppe beigetreten!</value>
   </data>
@@ -397,12 +391,6 @@
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Dieser Spezialist erfordert ein höheres Job Level um ihn zu benutzen!</value>
-  </data>
-  <data name="MAILED" xml:space="preserve">
-    <value>Nachricht verschickt!</value>
-  </data>
-  <data name="MAIL_DELETED" xml:space="preserve">
-    <value>Mail wurde gelöscht!</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MapMonsters geladen!</value>
@@ -430,9 +418,6 @@
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Keine Verbindung zum MasterServer! Versuche erneut in {0} sekunden...</value>
-  </data>
-  <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
-    <value>Miniland für Freunde geschlossen.</value>
   </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Miniland Besucher: {0}, Tägliche Besucher: {1}</value>
@@ -673,9 +658,6 @@
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>Benutzer ist nicht verbunden!</value>
-  </data>
-  <data name="USER_NOT_FOUND" xml:space="preserve">
-    <value>Benutzer wurde nicht gefunden</value>
   </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>Benutzer ist nicht am tauschen!</value>

@@ -564,9 +564,6 @@
   <data name="IN_WAITING_FOR" xml:space="preserve">
     <value>En attente {0}.</value>
   </data>
-  <data name="ITEM_TIMEOUT" xml:space="preserve">
-    <value>La limite de temps d'utilisation de cet objet est expirée.</value>
-  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Groupe rejoint.</value>
   </data>
@@ -615,18 +612,6 @@
   <data name="ITEM_GIFTED" xml:space="preserve">
     <value>Cadeaux envoyés: {0} pcs.</value>
   </data>
-  <data name="ITEM_RECEIVED" xml:space="preserve">
-    <value>Vous avez {0} x {1}.</value>
-  </data>
-  <data name="MAILED" xml:space="preserve">
-    <value>Email envoyé.</value>
-  </data>
-  <data name="MAIL_DELETED" xml:space="preserve">
-    <value>Email supprimé.</value>
-  </data>
-  <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
-    <value>Le mini-pays de votre ami est fermé.</value>
-  </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Nombre total de visiteurs: {0} visiteurs actuels: {1}</value>
   </data>
@@ -656,9 +641,6 @@
   </data>
   <data name="UNKNOWN" xml:space="preserve">
     <value>Inconnu</value>
-  </data>
-  <data name="USER_NOT_FOUND" xml:space="preserve">
-    <value>Utilisateur non trouvé.</value>
   </data>
   <data name="WANT_ENABLE_TITLE" xml:space="preserve">
     <value>Voulez-vous activer le titre ?</value>

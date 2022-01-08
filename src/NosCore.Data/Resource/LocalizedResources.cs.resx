@@ -318,9 +318,6 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>Bylo Nahráno {0} Itemů</value>
   </data>
-  <data name="ITEM_TIMEOUT" xml:space="preserve">
-    <value>Životnost Předmětu vypršela!</value>
-  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Vstoupil si do skupiny!</value>
   </data>

@@ -387,12 +387,6 @@
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Предмет не найден {0} {1}</value>
   </data>
-  <data name="ITEM_RECEIVED" xml:space="preserve">
-    <value>Вы получили {0} {1}.</value>
-  </data>
-  <data name="ITEM_TIMEOUT" xml:space="preserve">
-    <value>Предмет больше не действителен.</value>
-  </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Вы присоединились к группе</value>
   </data>
@@ -409,13 +403,6 @@
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Слишком низкий рабочий уровень для использования данной Карты специалиста.</value>
     <comment>Возможно нужно перефразировать</comment>
-  </data>
-  <data name="MAILED" xml:space="preserve">
-    <value>Письмо отправлено.</value>
-  </data>
-  <data name="MAIL_DELETED" xml:space="preserve">
-    <value>Письмо удалено.</value>
-    <comment>Уточнить контекст</comment>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>Загружено {0} MapMonsters!</value>
@@ -444,9 +431,6 @@
   </data>
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Не удалось подключиться к Master серверу! Повторная попытка через {0} секунд...</value>
-  </data>
-  <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
-    <value>Мини-страна друга закрыта</value>
   </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Всего посетителей: {0} Посетителей за сегодня: {1}</value>
@@ -682,9 +666,6 @@
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>Игрок не в сети!</value>
-  </data>
-  <data name="USER_NOT_FOUND" xml:space="preserve">
-    <value>Игрок не найден</value>
   </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>Игрок не в режиме обмена.</value>

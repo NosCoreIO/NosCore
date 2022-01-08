@@ -709,15 +709,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Item is no longer valid..
-        /// </summary>
-        public static string ITEM_TIMEOUT {
-            get {
-                return ResourceManager.GetString("ITEM_TIMEOUT", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à {0} Items Loaded!.
         /// </summary>
         public static string ITEMS_LOADED {

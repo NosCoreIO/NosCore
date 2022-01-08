@@ -579,9 +579,6 @@
   <data name="IN_WAITING_FOR" xml:space="preserve">
     <value>In Waiting for {0}.</value>
   </data>
-  <data name="ITEM_TIMEOUT" xml:space="preserve">
-    <value>Item is no longer valid.</value>
-  </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>You can't add more item on the bazaar because the limit is exceeded.</value>
   </data>

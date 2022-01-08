@@ -567,9 +567,6 @@
   <data name="IN_WAITING_FOR" xml:space="preserve">
     <value>Beklemede: {0}.</value>
   </data>
-  <data name="ITEM_TIMEOUT" xml:space="preserve">
-    <value>Eşyanın süresi doldu.</value>
-  </data>
   <data name="LIMIT_EXCEEDED" xml:space="preserve">
     <value>Limit doldu! NosPazar'a daha fazla eşya ekleyemezsin.</value>
   </data>
@@ -618,9 +615,6 @@
   <data name="QUEST_PRIZES_PARSED" xml:space="preserve">
     <value>{0} Görev ödülleri işlendi!</value>
   </data>
-  <data name="MINILAND_CLOSED_BY_FRIEND" xml:space="preserve">
-    <value>Arkadaşının Mini Ülkesi kapalı durumda.</value>
-  </data>
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
     <value>Kullanılabilir yeterli nokta yok.</value>
   </data>
@@ -632,15 +626,6 @@
   </data>
   <data name="GIFT_SENT" xml:space="preserve">
     <value>Hediyen gönderildi.</value>
-  </data>
-  <data name="USER_NOT_FOUND" xml:space="preserve">
-    <value>Kullanıcı bulunamadı.</value>
-  </data>
-  <data name="MAIL_DELETED" xml:space="preserve">
-    <value>Posta silindi.</value>
-  </data>
-  <data name="MAILED" xml:space="preserve">
-    <value>Posta gönderildi.</value>
   </data>
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
     <value>Arkadaşın değil.</value>
