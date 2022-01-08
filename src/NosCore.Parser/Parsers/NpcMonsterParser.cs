@@ -98,6 +98,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(NpcMonsterDto.NpcMonsterVNum), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
                 {nameof(NpcMonsterDto.NameI18NKey), chunk => chunk["NAME"][0][2]},
                 {nameof(NpcMonsterDto.Level), chunk => Level(chunk)},
+                {nameof(NpcMonsterDto.HeroXp), chunk => ImportXp(chunk) / 25},
                 {nameof(NpcMonsterDto.Race), chunk => Convert.ToByte(chunk["RACE"][0][2])},
                 {nameof(NpcMonsterDto.RaceType), chunk => Convert.ToByte(chunk["RACE"][0][3])},
                 {nameof(NpcMonsterDto.Element), chunk => Convert.ToByte(chunk["ATTRIB"][0][2])},

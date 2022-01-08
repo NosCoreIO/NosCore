@@ -110,7 +110,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Account");
+                    b.ToTable("Account", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Act", b =>
@@ -128,7 +128,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("ActId");
 
-                    b.ToTable("Act");
+                    b.ToTable("Act", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.ActPart", b =>
@@ -149,7 +149,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("ActId");
 
-                    b.ToTable("ActPart");
+                    b.ToTable("ActPart", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.AuditLog", b =>
@@ -181,7 +181,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("AuditId");
 
-                    b.ToTable("AuditLog");
+                    b.ToTable("AuditLog", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.BazaarItem", b =>
@@ -222,7 +222,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("BazaarItem");
+                    b.ToTable("BazaarItem", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.BCard", b =>
@@ -279,7 +279,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("SkillVNum");
 
-                    b.ToTable("BCard");
+                    b.ToTable("BCard", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Card", b =>
@@ -318,7 +318,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("CardId");
 
-                    b.ToTable("Card");
+                    b.ToTable("Card", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Character", b =>
@@ -507,7 +507,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("MapId");
 
-                    b.ToTable("Character");
+                    b.ToTable("Character", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.CharacterActPart", b =>
@@ -527,7 +527,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("CharacterId");
 
-                    b.ToTable("CharacterActPart");
+                    b.ToTable("CharacterActPart", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.CharacterQuest", b =>
@@ -550,7 +550,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("QuestId");
 
-                    b.ToTable("CharacterQuest");
+                    b.ToTable("CharacterQuest", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.CharacterRelation", b =>
@@ -574,7 +574,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("RelatedCharacterId");
 
-                    b.ToTable("CharacterRelation");
+                    b.ToTable("CharacterRelation", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.CharacterSkill", b =>
@@ -594,7 +594,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("SkillVNum");
 
-                    b.ToTable("CharacterSkill");
+                    b.ToTable("CharacterSkill", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Combo", b =>
@@ -621,7 +621,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("SkillVNum");
 
-                    b.ToTable("Combo");
+                    b.ToTable("Combo", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Drop", b =>
@@ -655,7 +655,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("VNum");
 
-                    b.ToTable("Drop");
+                    b.ToTable("Drop", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.EquipmentOption", b =>
@@ -679,7 +679,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("WearableInstanceId");
 
-                    b.ToTable("EquipmentOption");
+                    b.ToTable("EquipmentOption", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Family", b =>
@@ -740,7 +740,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("FamilyId");
 
-                    b.ToTable("Family");
+                    b.ToTable("Family", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.FamilyCharacter", b =>
@@ -776,7 +776,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("FamilyId");
 
-                    b.ToTable("FamilyCharacter");
+                    b.ToTable("FamilyCharacter", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.FamilyLog", b =>
@@ -804,7 +804,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("FamilyId");
 
-                    b.ToTable("FamilyLog");
+                    b.ToTable("FamilyLog", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.I18NActDesc", b =>
@@ -831,7 +831,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("Key", "RegionType")
                         .IsUnique();
 
-                    b.ToTable("I18NActDesc");
+                    b.ToTable("I18NActDesc", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.I18NBCard", b =>
@@ -858,7 +858,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("Key", "RegionType")
                         .IsUnique();
 
-                    b.ToTable("I18NBCard");
+                    b.ToTable("I18NBCard", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.I18NCard", b =>
@@ -885,7 +885,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("Key", "RegionType")
                         .IsUnique();
 
-                    b.ToTable("I18NCard");
+                    b.ToTable("I18NCard", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.I18NItem", b =>
@@ -912,7 +912,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("Key", "RegionType")
                         .IsUnique();
 
-                    b.ToTable("I18NItem");
+                    b.ToTable("I18NItem", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.I18NMapIdData", b =>
@@ -939,7 +939,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("Key", "RegionType")
                         .IsUnique();
 
-                    b.ToTable("I18NMapIdData");
+                    b.ToTable("I18NMapIdData", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.I18NMapPointData", b =>
@@ -966,7 +966,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("Key", "RegionType")
                         .IsUnique();
 
-                    b.ToTable("I18NMapPointData");
+                    b.ToTable("I18NMapPointData", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.I18NNpcMonster", b =>
@@ -993,7 +993,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("Key", "RegionType")
                         .IsUnique();
 
-                    b.ToTable("I18NNpcMonster");
+                    b.ToTable("I18NNpcMonster", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.I18NNpcMonsterTalk", b =>
@@ -1020,7 +1020,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("Key", "RegionType")
                         .IsUnique();
 
-                    b.ToTable("I18NNpcMonsterTalk");
+                    b.ToTable("I18NNpcMonsterTalk", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.I18NQuest", b =>
@@ -1047,7 +1047,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("Key", "RegionType")
                         .IsUnique();
 
-                    b.ToTable("I18NQuest");
+                    b.ToTable("I18NQuest", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.I18NSkill", b =>
@@ -1074,7 +1074,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("Key", "RegionType")
                         .IsUnique();
 
-                    b.ToTable("I18NSkill");
+                    b.ToTable("I18NSkill", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.InventoryItemInstance", b =>
@@ -1101,7 +1101,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("CharacterId", "Slot", "Type")
                         .IsUnique();
 
-                    b.ToTable("InventoryItemInstance");
+                    b.ToTable("InventoryItemInstance", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Item", b =>
@@ -1347,7 +1347,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("VNum");
 
-                    b.ToTable("Item");
+                    b.ToTable("Item", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.ItemInstance", b =>
@@ -1392,7 +1392,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("ItemVNum");
 
-                    b.ToTable("ItemInstance");
+                    b.ToTable("ItemInstance", (string)null);
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("ItemInstance");
                 });
@@ -1486,7 +1486,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Mail");
+                    b.ToTable("Mail", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Map", b =>
@@ -1511,7 +1511,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("MapId");
 
-                    b.ToTable("Map");
+                    b.ToTable("Map", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.MapMonster", b =>
@@ -1546,7 +1546,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("VNum");
 
-                    b.ToTable("MapMonster");
+                    b.ToTable("MapMonster", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.MapNpc", b =>
@@ -1595,7 +1595,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("VNum");
 
-                    b.ToTable("MapNpc");
+                    b.ToTable("MapNpc", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.MapType", b =>
@@ -1622,7 +1622,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("ReturnMapTypeId");
 
-                    b.ToTable("MapType");
+                    b.ToTable("MapType", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.MapTypeMap", b =>
@@ -1646,7 +1646,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("MapId", "MapTypeId")
                         .IsUnique();
 
-                    b.ToTable("MapTypeMap");
+                    b.ToTable("MapTypeMap", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Mate", b =>
@@ -1718,7 +1718,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("VNum");
 
-                    b.ToTable("Mate");
+                    b.ToTable("Mate", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Miniland", b =>
@@ -1753,7 +1753,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Miniland");
+                    b.ToTable("Miniland", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.MinilandObject", b =>
@@ -1790,7 +1790,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("InventoryItemInstanceId");
 
-                    b.ToTable("MinilandObject");
+                    b.ToTable("MinilandObject", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.NpcMonster", b =>
@@ -1867,6 +1867,9 @@ namespace NosCore.Database.Migrations
                     b.Property<byte>("HeroLevel")
                         .HasColumnType("smallint");
 
+                    b.Property<int>("HeroXp")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsHostile")
                         .HasColumnType("boolean");
 
@@ -1931,7 +1934,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("NpcMonsterVNum");
 
-                    b.ToTable("NpcMonster");
+                    b.ToTable("NpcMonster", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.NpcMonsterSkill", b =>
@@ -1957,7 +1960,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("SkillVNum");
 
-                    b.ToTable("NpcMonsterSkill");
+                    b.ToTable("NpcMonsterSkill", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.NpcTalk", b =>
@@ -1975,7 +1978,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("DialogId");
 
-                    b.ToTable("NpcTalk");
+                    b.ToTable("NpcTalk", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.PenaltyLog", b =>
@@ -2011,7 +2014,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("PenaltyLog");
+                    b.ToTable("PenaltyLog", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Portal", b =>
@@ -2052,7 +2055,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("SourceMapId");
 
-                    b.ToTable("Portal");
+                    b.ToTable("Portal", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Quest", b =>
@@ -2114,7 +2117,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("QuestId");
 
-                    b.ToTable("Quest");
+                    b.ToTable("Quest", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.QuestObjective", b =>
@@ -2142,7 +2145,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("QuestId");
 
-                    b.ToTable("QuestObjective");
+                    b.ToTable("QuestObjective", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.QuestQuestReward", b =>
@@ -2162,7 +2165,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("QuestRewardId");
 
-                    b.ToTable("QuestQuestReward");
+                    b.ToTable("QuestQuestReward", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.QuestReward", b =>
@@ -2193,7 +2196,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("QuestRewardId");
 
-                    b.ToTable("QuestReward");
+                    b.ToTable("QuestReward", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.QuicklistEntry", b =>
@@ -2226,7 +2229,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("CharacterId");
 
-                    b.ToTable("QuicklistEntry");
+                    b.ToTable("QuicklistEntry", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Recipe", b =>
@@ -2252,7 +2255,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("MapNpcId");
 
-                    b.ToTable("Recipe");
+                    b.ToTable("Recipe", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.RecipeItem", b =>
@@ -2278,7 +2281,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("RecipeItem");
+                    b.ToTable("RecipeItem", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Respawn", b =>
@@ -2312,7 +2315,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("RespawnMapTypeId");
 
-                    b.ToTable("Respawn");
+                    b.ToTable("Respawn", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.RespawnMapType", b =>
@@ -2337,7 +2340,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("MapId");
 
-                    b.ToTable("RespawnMapType");
+                    b.ToTable("RespawnMapType", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.RollGeneratedItem", b =>
@@ -2384,7 +2387,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("OriginalItemVNum");
 
-                    b.ToTable("RollGeneratedItem");
+                    b.ToTable("RollGeneratedItem", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Script", b =>
@@ -2419,7 +2422,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("ScriptId", "ScriptStepId")
                         .IsUnique();
 
-                    b.ToTable("Script");
+                    b.ToTable("Script", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.ScriptedInstance", b =>
@@ -2453,7 +2456,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("MapId");
 
-                    b.ToTable("ScriptedInstance");
+                    b.ToTable("ScriptedInstance", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Shop", b =>
@@ -2477,7 +2480,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("MapNpcId");
 
-                    b.ToTable("Shop");
+                    b.ToTable("Shop", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.ShopItem", b =>
@@ -2515,7 +2518,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("ShopId");
 
-                    b.ToTable("ShopItem");
+                    b.ToTable("ShopItem", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.ShopSkill", b =>
@@ -2544,7 +2547,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("SkillVNum");
 
-                    b.ToTable("ShopSkill");
+                    b.ToTable("ShopSkill", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Skill", b =>
@@ -2643,7 +2646,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasKey("SkillVNum");
 
-                    b.ToTable("Skill");
+                    b.ToTable("Skill", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.StaticBonus", b =>
@@ -2667,7 +2670,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("CharacterId");
 
-                    b.ToTable("StaticBonus");
+                    b.ToTable("StaticBonus", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.StaticBuff", b =>
@@ -2693,7 +2696,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("CharacterId");
 
-                    b.ToTable("StaticBuff");
+                    b.ToTable("StaticBuff", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Teleporter", b =>
@@ -2728,7 +2731,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("MapNpcId");
 
-                    b.ToTable("Teleporter");
+                    b.ToTable("Teleporter", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Title", b =>
@@ -2753,7 +2756,7 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("CharacterId", "TitleType")
                         .IsUnique();
 
-                    b.ToTable("Title");
+                    b.ToTable("Title", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Warehouse", b =>
@@ -2776,7 +2779,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("FamilyId");
 
-                    b.ToTable("Warehouse");
+                    b.ToTable("Warehouse", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.WarehouseItem", b =>
@@ -2799,7 +2802,7 @@ namespace NosCore.Database.Migrations
 
                     b.HasIndex("WarehouseId");
 
-                    b.ToTable("WarehouseItem");
+                    b.ToTable("WarehouseItem", (string)null);
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.UsableInstance", b =>
