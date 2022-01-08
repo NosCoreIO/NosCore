@@ -87,8 +87,6 @@ namespace NosCore.Database.Entities
 
         public byte HeroLevel { get; set; }
 
-        public int HeroXp { get; set; }
-
         public bool IsHostile { get; set; }
 
         public int JobXp { get; set; }
