@@ -324,17 +324,11 @@
   <data name="CHANNEL" xml:space="preserve">
     <value>Canal</value>
   </data>
-  <data name="CHARACTER_OFFLINE" xml:space="preserve">
-    <value>Personnage hors ligne.</value>
-  </data>
   <data name="MAPNPCS_LOADED" xml:space="preserve">
     <value>Les PNJ ont été chargés avec succès !</value>
   </data>
   <data name="ALREADY_FRIEND" xml:space="preserve">
     <value>Vous êtes déjà amis.</value>
-  </data>
-  <data name="ASK_TO_DELETE" xml:space="preserve">
-    <value>Voulez-vous supprimer ?</value>
   </data>
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Valeur d'objet incorrect.</value>
@@ -372,20 +366,11 @@
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>Les objets ont été chargés avec succès !</value>
   </data>
-  <data name="ITEM_ACQUIRED" xml:space="preserve">
-    <value>L'objet a été acquis.</value>
-  </data>
-  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>L'objet {0} de la Terre des Mort a été acquis.</value>
-  </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Pas présent dans votre liste noire.</value>
   </data>
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Tout sauvegarder.</value>
-  </data>
-  <data name="SURE_TO_DELETE" xml:space="preserve">
-    <value>Êtes-vous sûr de vouloir supprimer ?</value>
   </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Le joueur est déjà dans ta liste noire.</value>
@@ -600,20 +585,11 @@
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Patiente avant de prendre le portail !</value>
   </data>
-  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
-    <value>La vente est terminée. Or : {0}.</value>
-  </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Message envoyé à l'utilisateur.</value>
-  </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Tu as refusé de partager le point de retour avec les membres du groupe.</value>
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>Ce joueur n'est pas connecté.</value>
-  </data>
-  <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
-    <value>Tu ne peux pas encore envoyer l'invitation. Merci de réessayer dans {0} secondes.</value>
   </data>
   <data name="AUTH_API_SUCCESS" xml:space="preserve">
     <value>Autorisation d'API réussie.</value>
@@ -633,9 +609,6 @@
   <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
     <value>Un accès direct à l'objet a été détecté: {0} - {1}.</value>
   </data>
-  <data name="GIFTED" xml:space="preserve">
-    <value>Colis reçus: {0} pcs.</value>
-  </data>
   <data name="GIFT_SENT" xml:space="preserve">
     <value>Cadeau envoyé.</value>
   </data>
@@ -644,9 +617,6 @@
   </data>
   <data name="ITEM_RECEIVED" xml:space="preserve">
     <value>Vous avez {0} x {1}.</value>
-  </data>
-  <data name="LOGIN_MEDAL" xml:space="preserve">
-    <value>Médaille NosBazaar activée.</value>
   </data>
   <data name="MAILED" xml:space="preserve">
     <value>Email envoyé.</value>
@@ -659,9 +629,6 @@
   </data>
   <data name="MINILAND_VISITOR" xml:space="preserve">
     <value>Nombre total de visiteurs: {0} visiteurs actuels: {1}</value>
-  </data>
-  <data name="NEW_MAIL" xml:space="preserve">
-    <value>Nouveaux emails: {0}</value>
   </data>
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
     <value>Points de durabilité insuffisants.</value>

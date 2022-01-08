@@ -40,6 +40,7 @@ using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
@@ -219,9 +220,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Amount = 99,
                 VNum = 1012
             }, _session).ConfigureAwait(false);
-            var lastpacket = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue(lastpacket?.Message ==
-                $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, _session.Account.Language)}: {item.Name[_session.Account.Language]} x {99}");
+            var lastpacket = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId && lastpacket?.Type == SayColorType.Yellow && 
+                lastpacket?.Message == Game18NConstString.BoughtItem && lastpacket?.ArgumentType == 2 && (short?)lastpacket?.Game18NArguments[0] == item.VNum && (short?)lastpacket?.Game18NArguments[1] == 99);
         }
 
         [TestMethod]
@@ -253,9 +254,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Amount = 1,
                 VNum = 1012
             }, _session).ConfigureAwait(false);
-            var lastpacket = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue(lastpacket?.Message ==
-                $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, _session.Account.Language)}: {item.Name[_session.Account.Language]} x {1}");
+            var lastpacket = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId && lastpacket?.Type == SayColorType.Yellow &&
+                lastpacket?.Message == Game18NConstString.BoughtItem && lastpacket?.ArgumentType == 2 && (short?)lastpacket?.Game18NArguments[0] == item.VNum && (short?)lastpacket?.Game18NArguments[1] == 1);
         }
     }
 }

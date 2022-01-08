@@ -438,12 +438,6 @@ namespace NosCore.Parser.Parsers
                 _basicSecondaryMp[i] = _basicSecondaryMp[i - (i % 10 == 2 ? 2 : 1)] + secondaryBasup;
             }
 
-            // basicXPLoad
-            for (var i = 0; i < 100; i++)
-            {
-                _basicXp[i] = i * 180;
-            }
-
             // basicJXpLoad
             for (var i = 0; i < 100; i++)
             {
@@ -510,6 +504,7 @@ namespace NosCore.Parser.Parsers
         {
             return Convert.ToInt64(chunk["ETC"][0][2]);
         }
+
         private bool ShouldLoadPetinfo(Dictionary<string, string[][]> chunk)
         {
             var unknownData = LoadUnknownData(chunk);

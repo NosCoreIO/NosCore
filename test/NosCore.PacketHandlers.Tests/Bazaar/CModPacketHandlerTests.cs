@@ -186,7 +186,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             var lastpacket = (SayiPacket?)_session!.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId &&
                 lastpacket?.Type == SayColorType.Yellow && lastpacket?.Message == Game18NConstString.NewSellingPrice &&
-                lastpacket?.FirstArgument == 4 && lastpacket?.SecondArgument == 70);
+                lastpacket?.ArgumentType == 4 && (long?)lastpacket?.Game18NArguments[0] == 70);
         }
     }
 }

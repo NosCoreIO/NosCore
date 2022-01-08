@@ -132,9 +132,6 @@
   <data name="ASK_BIND" xml:space="preserve">
     <value>Â¿Deseas vincular este objeto?</value>
   </data>
-  <data name="ASK_TO_DELETE" xml:space="preserve">
-    <value>Â¿Deseas eliminarlo?</value>
-  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Al menos uno de los archivos necesarios no esta presente.</value>
   </data>
@@ -186,9 +183,6 @@
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Personaje no cargado.</value>
     <comment>check</comment>
-  </data>
-  <data name="CHARACTER_OFFLINE" xml:space="preserve">
-    <value>El personaje estÃ¡ desconectado.</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Cliente ha llegado con SessionId = {0}</value>
@@ -299,9 +293,6 @@
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>Â¡{0} Items Analizados!</value>
-  </data>
-  <data name="ITEM_ACQUIRED" xml:space="preserve">
-    <value>Adquirido</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Has entrado al grupo.</value>
@@ -489,9 +480,6 @@
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Â¡Cargado exitosamente!</value>
-  </data>
-  <data name="SURE_TO_DELETE" xml:space="preserve">
-    <value>Â¿Estas seguro que deseas eliminar este objeto?</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>El vendedor no tiene suficiente espacio para recibir tus oros.</value>

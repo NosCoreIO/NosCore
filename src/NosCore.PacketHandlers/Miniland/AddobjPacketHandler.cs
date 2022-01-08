@@ -66,7 +66,6 @@ namespace NosCore.PacketHandlers.Miniland
             {
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Type = MessageType.Default,
                     Message = Game18NConstString.InstallationOnlyLockMode
                 }).ConfigureAwait(false);
                 return;

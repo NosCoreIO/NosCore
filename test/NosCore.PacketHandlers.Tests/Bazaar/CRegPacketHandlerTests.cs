@@ -183,7 +183,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Price = 100000001
             }, _session).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.NotExceedMaxPrice && lastpacket?.FirstArgument == 4 && lastpacket?.SecondArgument == 1000000);
+            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.NotExceedMaxPrice && lastpacket?.ArgumentType == 4 && (long?)lastpacket?.Game18NArguments[0] == 1000000);
         }
 
         [TestMethod]
@@ -232,7 +232,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Price = TestHelpers.Instance.WorldConfiguration.Value.MaxGoldAmount + 1
             }, _session).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.NotExceedMaxPrice && lastpacket?.FirstArgument == 4 && lastpacket?.SecondArgument == 1000000);
+            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.NotExceedMaxPrice && lastpacket?.ArgumentType == 4 && (long?)lastpacket?.Game18NArguments[0] == 1000000);
         }
 
         [TestMethod]

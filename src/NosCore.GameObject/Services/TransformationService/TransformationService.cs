@@ -76,8 +76,8 @@ namespace NosCore.GameObject.Services.TransformationService
                 VisualId = character.CharacterId,
                 Type = SayColorType.Red,
                 Message = Game18NConstString.DurationOfSideEffect,
-                FirstArgument = 4,
-                SecondArgument = character.SpCooldown
+                ArgumentType = 4,
+                Game18NArguments = new object[] { character.SpCooldown }
             }).ConfigureAwait(false);
             await character.SendPacketAsync(new SdPacket { Cooldown = character.SpCooldown }).ConfigureAwait(false);
             await character.MapInstance.SendPacketAsync(character.GenerateCMode()).ConfigureAwait(false);

@@ -132,9 +132,6 @@
   <data name="ASK_BIND" xml:space="preserve">
     <value>Czy chcesz powiązać z tym przedmiotem?</value>
   </data>
-  <data name="ASK_TO_DELETE" xml:space="preserve">
-    <value>Czy chcesz usunąć?</value>
-  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Brakuje co najmniej jednego z wymaganych plików, spróbuj ponownie, gdy masz wszystkie wymagane pliki.</value>
   </data>
@@ -185,9 +182,6 @@
   </data>
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Nie załadowano postać!</value>
-  </data>
-  <data name="CHARACTER_OFFLINE" xml:space="preserve">
-    <value>Postać jest niedostępna!</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Klient podłączony. SessionId: {0}</value>
@@ -296,9 +290,6 @@
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} items wprowadzono!</value>
-  </data>
-  <data name="ITEM_ACQUIRED" xml:space="preserve">
-    <value>Nabyto</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Dołączyłeś do grupy</value>
@@ -485,9 +476,6 @@
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Pomyślnie załadowano!</value>
-  </data>
-  <data name="SURE_TO_DELETE" xml:space="preserve">
-    <value>Czy na pewno chcesz usunąć ten przedmiot?</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Sprzedający nie ma wystarczającej ilości miejsca do trzymania Twoich pieniędzy.</value>

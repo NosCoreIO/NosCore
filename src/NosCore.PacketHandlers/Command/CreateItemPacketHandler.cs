@@ -32,7 +32,9 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Collections.Generic;
@@ -75,7 +77,6 @@ namespace NosCore.PacketHandlers.Command
             {
                 await session.SendPacketAsync(new MsgiPacket
                 {
-                    Type = MessageType.Default,
                     Message = Game18NConstString.ItemDoesNotExist
                 }).ConfigureAwait(false);
                 return;
@@ -170,9 +171,15 @@ namespace NosCore.PacketHandlers.Command
                 }
             }
 
-            await session.SendPacketAsync(session.Character.GenerateSay(
-                $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, session.Account.Language)}: {iteminfo.Name[session.Account.Language]} x {amount}",
-                SayColorType.Green)).ConfigureAwait(false);
+            await session.SendPacketAsync(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = session.Character.CharacterId,
+                Type = SayColorType.Yellow,
+                Message = Game18NConstString.ReceivedThisItem,
+                ArgumentType = 2,
+                Game18NArguments = new object[] { iteminfo.VNum, amount }
+            }).ConfigureAwait(false);
         }
     }
 }

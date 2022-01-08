@@ -32,6 +32,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -74,10 +75,26 @@ namespace NosCore.PacketHandlers.Bazaar
                     if (clientSession.Character.Gold + price <= _worldConfiguration.Value.MaxGoldAmount)
                     {
                         clientSession.Character.Gold += price;
+                        await clientSession.SendPacketAsync(new SayiPacket
+                        {
+                            VisualType = VisualType.Player,
+                            VisualId = clientSession.Character.CharacterId,
+                            Type = SayColorType.Yellow,
+                            Message = Game18NConstString.PurchaseCompleted,
+                            ArgumentType = 2,
+                            Game18NArguments = new object[] { bz.ItemInstance.ItemVNum, bz.ItemInstance.Amount }
+                        }).ConfigureAwait(false);
+                        await clientSession.SendPacketAsync(new SayiPacket
+                        {
+                            VisualType = VisualType.Player,
+                            VisualId = clientSession.Character.CharacterId,
+                            Type = SayColorType.Yellow,
+                            Message = Game18NConstString.PurchaseCompletedWithGoldUsed,
+                            ArgumentType = 4,
+                            Game18NArguments = new object[] { price }
+                        }).ConfigureAwait(false);
                         await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
-                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(string.Format(
-                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.REMOVE_FROM_BAZAAR,
-                                clientSession.Account.Language), price), SayColorType.Yellow)).ConfigureAwait(false);
+                        
                         var itemInstance = await _itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == bz.ItemInstance.Id).ConfigureAwait(false);
                         if (itemInstance == null)
                         {

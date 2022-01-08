@@ -132,9 +132,6 @@
   <data name="ASK_BIND" xml:space="preserve">
     <value>Chceš spojit tyto položky</value>
   </data>
-  <data name="ASK_TO_DELETE" xml:space="preserve">
-    <value>Chcete tento předmět smazat?</value>
-  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Nejméně jeden z požadovaných souborů chybí</value>
   </data>
@@ -191,9 +188,6 @@
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Charakter se nenačetl</value>
     <comment>check</comment>
-  </data>
-  <data name="CHARACTER_OFFLINE" xml:space="preserve">
-    <value>Postava je Offline</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Uživatel se připojil, SessionId: {0} </value>
@@ -323,12 +317,6 @@
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>Bylo Nahráno {0} Itemů</value>
-  </data>
-  <data name="ITEM_ACQUIRED" xml:space="preserve">
-    <value>Získal si předmět!</value>
-  </data>
-  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>Obdržel si předmět v Země Mrtvích! {0}</value>
   </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Životnost Předmětu vypršela!</value>
@@ -478,9 +466,6 @@
     <value>Registrováno na Master Serveru</value>
     <comment>check</comment>
   </data>
-  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
-    <value>Prodej skončil obdržel si: {0} zlata.</value>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Tvá pověst byla změněna!</value>
   </data>
@@ -492,9 +477,6 @@
   </data>
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Ukládání všeho!</value>
-  </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Zpráva poslána hráči.</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Odmítl jsi sdílet místo návratu se skupinou!</value>
@@ -519,9 +501,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Podpora</value>
-  </data>
-  <data name="SURE_TO_DELETE" xml:space="preserve">
-    <value>Opravdu chcete tento item smazat?</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Obchodník má příliš mnoho zlata pro to aby mohl vzít další od tebe-</value>

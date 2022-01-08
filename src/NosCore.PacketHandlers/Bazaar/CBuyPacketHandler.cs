@@ -30,6 +30,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -89,23 +90,28 @@ namespace NosCore.PacketHandlers.Bazaar
                             clientSession.Character.Name).ConfigureAwait(false);
                         if (remove)
                         {
-                            await clientSession.HandlePacketsAsync(new[]
-                                {new CBListPacket {Index = 0, ItemVNumFilter = new List<short>()}}).ConfigureAwait(false);
+                            await clientSession.HandlePacketsAsync(new[] { new CBListPacket { Index = 0, ItemVNumFilter = new List<short>() } }).ConfigureAwait(false);
                             await clientSession.SendPacketAsync(new RCBuyPacket
                             {
                                 Type = VisualType.Player,
                                 VNum = bz.ItemInstance.ItemVNum,
-                                Owner = bz.BazaarItem.SellerId.ToString(),
+                                Owner = bz.SellerName!,
                                 Amount = packet.Amount,
                                 Price = packet.Price,
-                                Slot = 0,
-                                Rarity = 0,
-                                Upgrade = 0
+                                Slot = 0, //TODO: Add slot
+                                Upgrade = bz.ItemInstance.Upgrade,
+                                Rarity = (byte)bz.ItemInstance.Rare
                             }).ConfigureAwait(false);
-                            await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
-                                $"{GameLanguage.Instance.GetMessageFromKey(LanguageKey.ITEM_ACQUIRED, clientSession.Account.Language)}: {item.Item!.Name[clientSession.Account.Language]} x {packet.Amount}"
-                                , SayColorType.Yellow
-                            )).ConfigureAwait(false);
+
+                            await clientSession.SendPacketAsync(new SayiPacket
+                            {
+                                VisualType = VisualType.Player,
+                                VisualId = clientSession.Character.CharacterId,
+                                Type = SayColorType.Yellow,
+                                Message = Game18NConstString.BoughtItem,
+                                ArgumentType = 2,
+                                Game18NArguments = new object[] { bz.ItemInstance.ItemVNum, packet.Amount }
+                            }).ConfigureAwait(false);
 
                             return;
                         }

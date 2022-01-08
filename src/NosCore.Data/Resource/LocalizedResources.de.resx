@@ -135,9 +135,6 @@
   <data name="ASK_BIND" xml:space="preserve">
     <value>Möchtest du dieses Item an dich binden?</value>
   </data>
-  <data name="ASK_TO_DELETE" xml:space="preserve">
-    <value>Möchtest du dies löschen?</value>
-  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Mindestens eine der erforderlichen Dateien fehlen</value>
   </data>
@@ -219,9 +216,6 @@
     <value>Charakter nicht geladen!</value>
     <comment>check</comment>
   </data>
-  <data name="CHARACTER_OFFLINE" xml:space="preserve">
-    <value>Der Charakter ist offline!</value>
-  </data>
   <data name="CHUNK_FORMAT_INVALID" xml:space="preserve">
     <value>Das Chunkformat ist falsch.</value>
   </data>
@@ -246,9 +240,6 @@
   </data>
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
     <value>Datenbank befindet sich nicht auf dem neusten Stand.</value>
-  </data>
-  <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
-    <value>Du kannst momentan keine Freundschaftsanfragen Senden. Bitte Versuche es in {0} Sekunden nochmal.</value>
   </data>
   <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
     <value>Direkter Objekt Zugriff erkannt.</value>
@@ -294,9 +285,6 @@
   </data>
   <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
     <value>Freundschaftsanfrage gesendet!</value>
-  </data>
-  <data name="GIFTED" xml:space="preserve">
-    <value>Du hast {0} verschenkt!</value>
   </data>
   <data name="GIFT_SENT" xml:space="preserve">
     <value>Das Geschenk wurde versendet.</value>
@@ -382,12 +370,6 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} items geladen!</value>
   </data>
-  <data name="ITEM_ACQUIRED" xml:space="preserve">
-    <value>Item erlangt</value>
-  </data>
-  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value>Item erlangt {0}</value>
-  </data>
   <data name="ITEM_GIFTED" xml:space="preserve">
     <value>{0} Item's wurde Verschenkt.</value>
   </data>
@@ -412,9 +394,6 @@
   </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Lade MapInstanzen</value>
-  </data>
-  <data name="LOGIN_MEDAL" xml:space="preserve">
-    <value />
   </data>
   <data name="LOW_JOB_LVL" xml:space="preserve">
     <value>Dieser Spezialist erfordert ein höheres Job Level um ihn zu benutzen!</value>
@@ -463,10 +442,6 @@
   </data>
   <data name="NEW_LEADER" xml:space="preserve">
     <value>Du bist nun der Party-Leiter!</value>
-  </data>
-  <data name="NEW_MAIL" xml:space="preserve">
-    <value>Du hast {0} neue Nachrichten!</value>
-    <comment>check</comment>
   </data>
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
     <value>Du hast nicht genügend Haltbarkeitspunkte.</value>
@@ -603,9 +578,6 @@
     <value>Angemeldet auf MasterServer</value>
     <comment>check</comment>
   </data>
-  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
-    <value>Möchtest du {0} vom Bazar entfernen?</value>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Dein Ruf hat sich geändert!</value>
   </data>
@@ -620,9 +592,6 @@
   </data>
   <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
     <value>Sicherheitstoken geändert!</value>
-  </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Nachricht an Empfänger gesendet.</value>
   </data>
   <data name="SHARED_REFUSED" xml:space="preserve">
     <value>Du hast deinen Gruppenmitgliedern verweigert deinen Rückkehrposten zu teilen</value>
@@ -666,9 +635,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Supporter</value>
-  </data>
-  <data name="SURE_TO_DELETE" xml:space="preserve">
-    <value>Bist du dir sicher, dass du das Item löschen möchtest?</value>
   </data>
   <data name="TOKEN_UPDATED" xml:space="preserve">
     <value>Token aktualisiert.</value>

@@ -132,9 +132,6 @@
   <data name="ASK_BIND" xml:space="preserve">
     <value>Bu eşyayı bağlamak istiyor musun?</value>
   </data>
-  <data name="ASK_TO_DELETE" xml:space="preserve">
-    <value>Silmek istiyor musun?</value>
-  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Bir veya daha fazla gerekli dosya eksik, tüm dosyaları tamamladıktan sonra tekrar deneyiniz.</value>
   </data>
@@ -185,9 +182,6 @@
   </data>
   <data name="CHARACTER_NOT_INIT" xml:space="preserve">
     <value>Karakter yüklenmedi.</value>
-  </data>
-  <data name="CHARACTER_OFFLINE" xml:space="preserve">
-    <value>Karakter çevrimdışı</value>
   </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>İstemci bağlandı, ID {0}</value>
@@ -296,9 +290,6 @@
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} Eşya işlendi.</value>
-  </data>
-  <data name="ITEM_ACQUIRED" xml:space="preserve">
-    <value>Alındı.</value>
   </data>
   <data name="JOINED_GROUP" xml:space="preserve">
     <value>Gruba katıldın!</value>
@@ -486,9 +477,6 @@
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Başarıyla yüklendi!</value>
   </data>
-  <data name="SURE_TO_DELETE" xml:space="preserve">
-    <value>Bu eşyayı silmek istediğine emin misin?</value>
-  </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Satıcı iade işlemi için yeterli alana sahip değil.</value>
   </data>
@@ -579,9 +567,6 @@
   <data name="IN_WAITING_FOR" xml:space="preserve">
     <value>Beklemede: {0}.</value>
   </data>
-  <data name="ITEM_ACQUIRED_LOD" xml:space="preserve">
-    <value> {0} LoD eşyası alındı.</value>
-  </data>
   <data name="ITEM_TIMEOUT" xml:space="preserve">
     <value>Eşyanın süresi doldu.</value>
   </data>
@@ -600,17 +585,8 @@
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Lütfen ışınlanmadan önce birkaç saniye bekle.</value>
   </data>
-  <data name="REMOVE_FROM_BAZAAR" xml:space="preserve">
-    <value>Satış başarılı. Kazanılan altın: {0}.</value>
-  </data>
-  <data name="SEND_MESSAGE_TO_CHARACTER" xml:space="preserve">
-    <value>Mesaj gönderildi!</value>
-  </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>Kullanıcı takasta değil!</value>
-  </data>
-  <data name="DELAY_GROUP_REQUEST" xml:space="preserve">
-    <value>Şu anda davet gönderemezsin. Lütfen {0} saniye içerisinde tekrar dene.</value>
   </data>
   <data name="QUESTS_PARSED" xml:space="preserve">
     <value>{0} Görev işlendi!</value>
@@ -671,9 +647,6 @@
   </data>
   <data name="WANT_ENABLE_TITLE" xml:space="preserve">
     <value>Unvan'ı etkinleştirmek istiyor musun?</value>
-  </data>
-  <data name="LOGIN_MEDAL" xml:space="preserve">
-    <value>Giriş madalyası</value>
   </data>
   <data name="SPEAKER" xml:space="preserve">
     <value>Hoparlör</value>
