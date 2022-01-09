@@ -59,6 +59,7 @@ namespace NosCore.GameObject
             PositionX = MapX;
             PositionY = MapY;
             IsAlive = true;
+            Level = NpcMonster?.Level ?? 0;
         }
 
         public bool IsSitting { get; set; }
