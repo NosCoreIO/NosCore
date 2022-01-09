@@ -152,9 +152,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session).ConfigureAwait(false);
-            var packet = (SayPacket?)_session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.IsTrue((packet?.Message == GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM,
-                _session.Account.Language)) && (packet?.Type == SayColorType.Yellow));
+            var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId &&
+                packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.UnableToPickUp);
             Assert.IsTrue(_session.Character.InventoryService!.Count == 0);
         }
 

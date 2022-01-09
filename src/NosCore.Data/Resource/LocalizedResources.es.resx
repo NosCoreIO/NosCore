@@ -150,12 +150,6 @@
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Tu personaje no cumple con los requisitos necesarios para llevar este objeto.</value>
   </data>
-  <data name="BLACKLIST_ADDED" xml:space="preserve">
-    <value>Â¡Personaje aÃ±adido a la lista negra!</value>
-  </data>
-  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
-    <value>Â¡Este jugador te ha bloqueado!</value>
-  </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Â¡El intercambio ha tenido Ã©xito!</value>
   </data>
@@ -211,18 +205,12 @@
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>El personaje cambio mientras se estaba cambiando el mapa. No abuse de los comandos. {0}</value>
   </data>
-  <data name="FRIEND_DELETED" xml:space="preserve">
-    <value>Â¡Amigo eliminado!</value>
-  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>GroupRequestType desconocida</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Â¡Ahora eres el administrador del grupo!</value>
-  </data>
-  <data name="GROUP_SHARE_INFO" xml:space="preserve">
-    <value>Has enviado una peticiÃ³n para compartir el punto de regreso con tus miembros del grupo.</value>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>No se pudo encontrar la implementaciÃ³n del "controlador" (Handler) para el paquete con cabezera: {0}</value>
@@ -325,9 +313,6 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Â¡Este jugador no estÃ¡ en tu lista negra!</value>
   </data>
-  <data name="NOT_YOUR_ITEM" xml:space="preserve">
-    <value>Â¡Este Item no es tuyo!</value>
-  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Â¡El servidor necesita al menos el Mapa (MAP) de Nosville para funcionar!</value>
   </data>
@@ -426,9 +411,6 @@
   </data>
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Â¡Guardando todos los datos!</value>
-  </data>
-  <data name="SHARED_REFUSED" xml:space="preserve">
-    <value>Has rechazado compartir el punto de regreso con los miembros del grupo.</value>
   </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>No puedes abrir una tienda en un raid.</value>

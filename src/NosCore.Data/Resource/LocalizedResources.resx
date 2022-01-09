@@ -152,12 +152,6 @@
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Your character does not fulfil the requirements needed to wear this item.</value>
   </data>
-  <data name="BLACKLIST_ADDED" xml:space="preserve">
-    <value>Character added to blacklist!</value>
-  </data>
-  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
-    <value>This Player has blocked you!</value>
-  </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>You have purchased an item!</value>
   </data>
@@ -213,18 +207,12 @@
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Character changed while changing map. Do not abuse Commands. {0}</value>
   </data>
-  <data name="FRIEND_DELETED" xml:space="preserve">
-    <value>Friend deleted!</value>
-  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown Group request type</value>
     <comment>insert missing type data</comment>
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>You are the group admin!</value>
-  </data>
-  <data name="GROUP_SHARE_INFO" xml:space="preserve">
-    <value>You sent a request to share the point of return with the members of your group</value>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Could not found Handler implementation for Packet with Header {0}</value>
@@ -327,9 +315,6 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>This player is not on your blacklist!</value>
   </data>
-  <data name="NOT_YOUR_ITEM" xml:space="preserve">
-    <value>The item is not yours!</value>
-  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Server need at least nosville MAP to work!</value>
   </data>
@@ -430,9 +415,6 @@
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Saving all data!</value>
   </data>
-  <data name="SHARED_REFUSED" xml:space="preserve">
-    <value>You refused to share the point of return with the group members</value>
-  </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>You can not open a shop in a raid.</value>
   </data>
@@ -504,14 +486,6 @@
   <data name="SUPPORT" xml:space="preserve">
     <value>Support</value>
   </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>Your invitation has been declined!</value>
-    <comment>Check</comment>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>[{0}] has invited you to a group! Do you accept?</value>
-    <comment>Check</comment>
-  </data>
   <data name="UPDATE_GOLD" xml:space="preserve">
     <value>Your gold has been updated successfully!</value>
   </data>
@@ -548,9 +522,6 @@
   <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
     <value>Invalid exchange list.</value>
   </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Do you want to set as a return point ?</value>
-  </data>
   <data name="IN_WAITING_FOR" xml:space="preserve">
     <value>In Waiting for {0}.</value>
   </data>
@@ -559,9 +530,6 @@
   </data>
   <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
     <value>You don't have enough gold.</value>
-  </data>
-  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
-    <value>Your item has been added on the bazaar !</value>
   </data>
   <data name="PLAYER_IN_SHOP" xml:space="preserve">
     <value>The {0} player is in store mode.</value>

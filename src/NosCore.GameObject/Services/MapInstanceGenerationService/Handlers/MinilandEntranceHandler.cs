@@ -23,7 +23,9 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 
 //TODO stop using obsolete
@@ -63,13 +65,26 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService.Handlers
             }
 
             //TODO add pets
-            await requestData.ClientSession.SendPacketAsync(
-                requestData.ClientSession.Character.GenerateSay(
-                    string.Format(
-                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.MINILAND_VISITOR,
-                            requestData.ClientSession.Account.Language), miniland.VisitCount, miniland.DailyVisitCount),
-                    SayColorType.Yellow)
-            ).ConfigureAwait(false);
+
+            await requestData.ClientSession.SendPacketAsync(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = requestData.ClientSession.Character.CharacterId,
+                Type = SayColorType.Yellow,
+                Message = Game18NConstString.TotalVisitors,
+                ArgumentType = 4,
+                Game18NArguments = new object[] { miniland.VisitCount }
+            }).ConfigureAwait(false);
+
+            await requestData.ClientSession.SendPacketAsync(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = requestData.ClientSession.Character.CharacterId,
+                Type = SayColorType.Yellow,
+                Message = Game18NConstString.TodayVisitors,
+                ArgumentType = 4,
+                Game18NArguments = new object[] { miniland.DailyVisitCount }
+            }).ConfigureAwait(false);
         }
     }
 }

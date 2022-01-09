@@ -36,6 +36,8 @@ using NodaTime;
 using NosCore.Core.Services.IdService;
 using NosCore.Networking;
 using NosCore.Shared.I18N;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.PacketHandlers.Group
 {
@@ -99,10 +101,9 @@ namespace NosCore.PacketHandlers.Group
                     var blacklisteds = await _blacklistHttpCLient.GetBlackListsAsync(clientSession.Character.VisualId).ConfigureAwait(false);
                     if (blacklisteds != null && blacklisteds.Any(s => s.CharacterId == pjoinPacket.CharacterId))
                     {
-                        await clientSession.SendPacketAsync(new InfoPacket
+                        await clientSession.SendPacketAsync(new InfoiPacket
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                                clientSession.Account.Language)
+                            Message = Game18NConstString.AlreadyBlacklisted
                         }).ConfigureAwait(false);
                         return;
                     }
@@ -143,11 +144,11 @@ namespace NosCore.PacketHandlers.Group
                         {
                             Message = Game18NConstString.GroupInvite
                         }).ConfigureAwait(false);
-                        await targetSession.SendPacketAsync(new DlgPacket
+                        await targetSession.SendPacketAsync(new Dlgi2Packet
                         {
-                            Question = string.Format(
-                                GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVITED_YOU_GROUP,
-                                    targetSession.AccountLanguage), clientSession.Character.Name),
+                            Question = Game18NConstString.GroupInvite,
+                            ArgumentType = 1,
+                            Game18NArguments = new object[] { clientSession.Character.Name },
                             YesPacket = new PjoinPacket
                             {
                                 CharacterId = clientSession.Character.CharacterId,
@@ -169,10 +170,9 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    await clientSession.SendPacketAsync(new InfoPacket
+                    await clientSession.SendPacketAsync(new InfoiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_SHARE_INFO,
-                            clientSession.Account.Language)
+                        Message = Game18NConstString.CanNotChangeGroupMode
                     }).ConfigureAwait(false);
 
                     await Task.WhenAll(clientSession.Character.Group.Values
@@ -189,10 +189,11 @@ namespace NosCore.PacketHandlers.Group
                             }
 
                             session.GroupRequestCharacterIds.TryAdd(s.Item2.VisualId, s.Item2.VisualId);
-                            return session.SendPacketAsync(new DlgPacket
+                            return session.SendPacketAsync(new Dlgi2Packet
                             {
-                                Question = GameLanguage.Instance.GetMessageFromKey(LanguageKey.INVITED_GROUP_SHARE,
-                                    clientSession.Account.Language),
+                                Question = Game18NConstString.ConfirmSetPointOfReturn,
+                                ArgumentType = 1,
+                                Game18NArguments = new object[] { s.Item2.Name ?? "" },
                                 YesPacket = new PjoinPacket
                                 {
                                     CharacterId = clientSession.Character.CharacterId,
@@ -298,10 +299,14 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
-                    await targetSession.SendPacketAsync(new InfoPacket
+                    await clientSession.SendPacketAsync(new Sayi2Packet
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_REFUSED,
-                            targetSession.AccountLanguage)
+                        VisualType = VisualType.Player,
+                        VisualId = clientSession.Character.CharacterId,
+                        Type = SayColorType.Yellow,
+                        Message = Game18NConstString.GroupInviteRejected,
+                        ArgumentType = 1,
+                        Game18NArguments = new object[] { targetSession.Name ?? "" }
                     }).ConfigureAwait(false);
                     break;
                 case GroupRequestType.AcceptedShare:
@@ -321,7 +326,13 @@ namespace NosCore.PacketHandlers.Group
                         Type = MessageType.Default,
                         Message = Game18NConstString.ChangedSamePointOfReturn
                     }).ConfigureAwait(false);
-
+                    await clientSession.SendPacketAsync(new Msgi2Packet
+                    {
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.SomeoneChangedPointOfReturn,
+                        ArgumentType = 1,
+                        Game18NArguments = new object[] { targetSession.Name ?? "" }
+                    }).ConfigureAwait(false);
                     //TODO: add a way to change respawn points when system will be done
                     break;
                 case GroupRequestType.DeclinedShare:
@@ -331,10 +342,17 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
-                    await targetSession.SendPacketAsync(new InfoPacket
+                    await targetSession.SendPacketAsync(new MsgiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHARED_REFUSED,
-                            targetSession.AccountLanguage)
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.RefusedSharePointOfReturn
+                    }).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(new Msgi2Packet
+                    {
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.SomeoneRefusedToSharePointOfReturn,
+                        ArgumentType = 1,
+                        Game18NArguments = new object[] { targetSession.Name ?? "" }
                     }).ConfigureAwait(false);
                     break;
                 default:

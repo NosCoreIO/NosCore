@@ -330,17 +330,11 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Valeur d'objet incorrect.</value>
   </data>
-  <data name="BLACKLIST_ADDED" xml:space="preserve">
-    <value>Ajouté à votre liste noire.</value>
-  </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Impossible de trouver ce personnage.</value>
   </data>
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Impossible de jeter, il y a trop d'objet au sol.</value>
-  </data>
-  <data name="FRIEND_DELETED" xml:space="preserve">
-    <value>Ami supprimé.</value>
   </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>Les objets ont été chargés avec succès !</value>
@@ -356,9 +350,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Vous êtes le chef du groupe. Vous pouvez définir les condition d'obtention des objets.</value>
-  </data>
-  <data name="GROUP_SHARE_INFO" xml:space="preserve">
-    <value>Tu ne peux pas modifier les options de partages des objets. Demandes au chef du groupe !</value>
   </data>
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>La carte selectionnée n'existe pas.</value>
@@ -380,12 +371,6 @@
   </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>L'utilisateur n'est pas dans ta liste d'ami.</value>
-  </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Désirez vous partager le point de retour avec les membres du groupe ?</value>
-  </data>
-  <data name="NOT_YOUR_ITEM" xml:space="preserve">
-    <value>Vous ne pouvez pas récuperer cet objet. veuillez patienter un peu.</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Type de groupe</value>
@@ -516,9 +501,6 @@
   <data name="INCOMING_EXCHANGE" xml:space="preserve">
     <value>{0} t'a envoyé une demande d'échange.</value>
   </data>
-  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
-    <value>Vous êtes dans sa liste noire.</value>
-  </data>
   <data name="BUY_ITEM_FROM" xml:space="preserve">
     <value>Vous avez acheté un article de {0} {1} {2}!</value>
   </data>
@@ -530,12 +512,6 @@
   </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Ta demande d'ami n'a pu être aboutie car l'utilisateur est déconnecté.</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>Ton invitation a été refusé.</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>{0} t'a invité dans un groupe.</value>
   </data>
   <data name="IN_WAITING_FOR" xml:space="preserve">
     <value>En attente {0}.</value>
@@ -549,17 +525,11 @@
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Chargement des instances de cartes.</value>
   </data>
-  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
-    <value>Ton objet a été ajouté sur le bazar !</value>
-  </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Paquet reçu sans que le caractère ne soit spécifié {0}.</value>
   </data>
   <data name="PORTAL_DELAY" xml:space="preserve">
     <value>Patiente avant de prendre le portail !</value>
-  </data>
-  <data name="SHARED_REFUSED" xml:space="preserve">
-    <value>Tu as refusé de partager le point de retour avec les membres du groupe.</value>
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>Ce joueur n'est pas connecté.</value>
@@ -582,14 +552,8 @@
   <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
     <value>Un accès direct à l'objet a été détecté: {0} - {1}.</value>
   </data>
-  <data name="GIFT_SENT" xml:space="preserve">
-    <value>Cadeau envoyé.</value>
-  </data>
   <data name="ITEM_GIFTED" xml:space="preserve">
     <value>Cadeaux envoyés: {0} pcs.</value>
-  </data>
-  <data name="MINILAND_VISITOR" xml:space="preserve">
-    <value>Nombre total de visiteurs: {0} visiteurs actuels: {1}</value>
   </data>
   <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
     <value>Points de durabilité insuffisants.</value>
@@ -617,8 +581,5 @@
   </data>
   <data name="UNKNOWN" xml:space="preserve">
     <value>Inconnu</value>
-  </data>
-  <data name="WANT_ENABLE_TITLE" xml:space="preserve">
-    <value>Voulez-vous activer le titre ?</value>
   </data>
 </root>

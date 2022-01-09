@@ -67,7 +67,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                 {
                     VisualType = VisualType.Player,
                     VisualId = requestData.ClientSession.Character.CharacterId,
-                    Type = SayColorType.Yellow,
+                    Type = SayColorType.Green,
                     Message = Game18NConstString.ItemReceived,
                     ArgumentType = 9,
                     Game18NArguments = new object[] { requestData.Data.Item1.Amount, requestData.Data.Item1.ItemInstance!.Item.Name[requestData.ClientSession.Account.Language] }

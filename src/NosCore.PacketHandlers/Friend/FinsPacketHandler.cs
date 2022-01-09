@@ -67,10 +67,9 @@ namespace NosCore.PacketHandlers.Friend
                         break;
 
                     case LanguageKey.BLACKLIST_BLOCKED:
-                        await session.Character.SendPacketAsync(new InfoPacket
+                        await session.Character.SendPacketAsync(new InfoiPacket
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BLACKLIST_BLOCKED,
-                                session.Character.AccountLanguage)
+                            Message = Game18NConstString.AlreadyBlacklisted
                         }).ConfigureAwait(false);
                         break;
 

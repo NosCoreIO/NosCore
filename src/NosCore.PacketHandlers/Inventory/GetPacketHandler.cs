@@ -32,6 +32,7 @@ using System;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Shared.I18N;
+using NosCore.Packets.ServerPackets.Chats;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -84,9 +85,13 @@ namespace NosCore.PacketHandlers.Inventory
             if ((mapItem.OwnerId != null) && (mapItem.DroppedAt.Plus(Duration.FromSeconds(30)) > _clock.GetCurrentInstant()) &&
                 (mapItem.OwnerId != clientSession.Character.CharacterId))
             {
-                await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
-                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_YOUR_ITEM, clientSession.Account.Language),
-                    SayColorType.Yellow)).ConfigureAwait(false);
+                await clientSession.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = clientSession.Character.CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.UnableToPickUp
+                }).ConfigureAwait(false);
                 return;
             }
 
