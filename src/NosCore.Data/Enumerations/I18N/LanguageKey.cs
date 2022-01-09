@@ -173,13 +173,13 @@ namespace NosCore.Data.Enumerations.I18N
         ADMINISTRATOR,
         DROP_MAP_FULL,
         BAD_DROP_AMOUNT,
-        FRIENDLIST_FULL, // done
-        ALREADY_FRIEND, // done
-        FRIEND_REQUEST_BLOCKED, // done
-        FRIEND_REQUEST_SENT, // done
-        FRIEND_ADDED, // done
-        FRIEND_REJECTED, // done
-        CANT_BLOCK_FRIEND, // done
+        FRIENDLIST_FULL,
+        ALREADY_FRIEND,
+        FRIEND_REQUEST_BLOCKED,
+        FRIEND_REQUEST_SENT,
+        FRIEND_ADDED,
+        FRIEND_REJECTED,
+        CANT_BLOCK_FRIEND,
         NOT_IN_BLACKLIST,
         BLACKLIST_ADDED,
         BLACKLIST_BLOCKED,
