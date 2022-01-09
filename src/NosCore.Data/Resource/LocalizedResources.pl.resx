@@ -126,9 +126,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Już na czarnej liście!</value>
   </data>
-  <data name="ALREADY_FRIEND" xml:space="preserve">
-    <value>Już jesteście przyjaciółmi!</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Czy chcesz powiązać z tym przedmiotem?</value>
   </data>
@@ -161,9 +158,6 @@
   </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Kupiłeś przedmiot!</value>
-  </data>
-  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
-    <value>Nie możesz zablokować swojego przyjaciela!</value>
   </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Nie możesz zmienić na tę samą klasę.</value>
@@ -216,23 +210,8 @@
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Postać zmieniona podczas zmiany mapy. Nie nadużywaj poleceń. {0}</value>
   </data>
-  <data name="FRIENDLIST_FULL" xml:space="preserve">
-    <value>Twoja lista przyjaciół jest pełna!</value>
-  </data>
-  <data name="FRIEND_ADDED" xml:space="preserve">
-    <value>Zaakcptowano prośbę!</value>
-  </data>
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Usunięto przyjaciela!</value>
-  </data>
-  <data name="FRIEND_REJECTED" xml:space="preserve">
-    <value>Prośba o przyjaciela została odrzucona!</value>
-  </data>
-  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
-    <value>Zablokowano prośbę przyjaciela!</value>
-  </data>
-  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
-    <value>Wysłano prośbę do zostania przyjacielem!</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Typ nieznanego żądania grupy</value>
@@ -515,9 +494,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Wsparcie</value>
-  </data>
-  <data name="FRIEND_ADD" xml:space="preserve">
-    <value>[{0}] chce zostać twoim przyjacielem!</value>
   </data>
   <data name="GROUP_REFUSED" xml:space="preserve">
     <value>Twoje zaproszenie zostało odrzucone!</value>

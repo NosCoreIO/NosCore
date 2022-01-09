@@ -131,8 +131,8 @@ namespace NosCore.PacketHandlers.Bazaar
                     {
                         await clientSession.SendPacketAsync(new MsgiPacket
                         {
-                            Message = Game18NConstString.MaxGoldReached,
-                            Type = MessageType.Default
+                            Type = MessageType.Default,
+                            Message = Game18NConstString.MaxGoldReached
                         }).ConfigureAwait(false);
                     }
                 }

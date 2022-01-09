@@ -126,9 +126,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Již je na Černé Listině!</value>
   </data>
-  <data name="ALREADY_FRIEND" xml:space="preserve">
-    <value>Už jste přátelé</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Chceš spojit tyto položky</value>
   </data>
@@ -169,9 +166,6 @@
   </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Koupil jsi předmět!</value>
-  </data>
-  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
-    <value>Nemůžeš si zablokovat kamarády!</value>
   </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Nemůžeš změnit povolání na stejné.</value>
@@ -225,26 +219,8 @@
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Odmítl jsi žádost o výměnu.</value>
   </data>
-  <data name="FRIENDLIST_FULL" xml:space="preserve">
-    <value>Seznam Přátel je plný</value>
-  </data>
-  <data name="FRIEND_ADD" xml:space="preserve">
-    <value>Chceš si jej přidat jako kamaráda?  {0}</value>
-  </data>
-  <data name="FRIEND_ADDED" xml:space="preserve">
-    <value>Kamarád byl přidán</value>
-  </data>
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Kamarád smazán!</value>
-  </data>
-  <data name="FRIEND_REJECTED" xml:space="preserve">
-    <value>Žádost o přátelství byla zamítnuta!</value>
-  </data>
-  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
-    <value>Žádosti o přátelství jsou blokovány!</value>
-  </data>
-  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
-    <value>Žádost o přátelství zaslána</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý požadavek na skupinu!</value>

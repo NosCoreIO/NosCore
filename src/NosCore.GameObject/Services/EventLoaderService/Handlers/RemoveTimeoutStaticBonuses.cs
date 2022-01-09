@@ -54,6 +54,7 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
                 {
                     return session.SendPacketAsync(new MsgiPacket
                     {
+                        Type = MessageType.Default,
                         Message = Game18NConstString.MagicItemExpired
                     });
                 }

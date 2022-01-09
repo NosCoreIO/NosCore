@@ -50,6 +50,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 var time = (int)(medalBonus.DateEnd == null ? 720 : (((Instant)medalBonus.DateEnd) - _clock.GetCurrentInstant()).TotalHours);
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {
+                    Type = MessageType.Default,
                     Message = Game18NConstString.AttackWhileBazar
                 }).ConfigureAwait(false);
 

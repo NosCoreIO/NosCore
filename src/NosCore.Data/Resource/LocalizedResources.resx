@@ -126,9 +126,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Already in blacklist!</value>
   </data>
-  <data name="ALREADY_FRIEND" xml:space="preserve">
-    <value>You are already friends!</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Do you wish to bind with this item?</value>
   </data>
@@ -163,9 +160,6 @@
   </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>You have purchased an item!</value>
-  </data>
-  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
-    <value>Can not block your friend!</value>
   </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>You can not change to the same class.</value>
@@ -219,23 +213,8 @@
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Character changed while changing map. Do not abuse Commands. {0}</value>
   </data>
-  <data name="FRIENDLIST_FULL" xml:space="preserve">
-    <value>Your Friendlist is full!</value>
-  </data>
-  <data name="FRIEND_ADDED" xml:space="preserve">
-    <value>Friend request accepted!</value>
-  </data>
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Friend deleted!</value>
-  </data>
-  <data name="FRIEND_REJECTED" xml:space="preserve">
-    <value>Friend request rejected!</value>
-  </data>
-  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
-    <value>Friend request blocked!</value>
-  </data>
-  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
-    <value>Friend request sent!</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown Group request type</value>
@@ -524,10 +503,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Support</value>
-  </data>
-  <data name="FRIEND_ADD" xml:space="preserve">
-    <value>[{0}] wants to be your friend! Do you accept the request?</value>
-    <comment>Check</comment>
   </data>
   <data name="GROUP_REFUSED" xml:space="preserve">
     <value>Your invitation has been declined!</value>

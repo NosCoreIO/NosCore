@@ -129,9 +129,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Bereits in der Blacklist.</value>
   </data>
-  <data name="ALREADY_FRIEND" xml:space="preserve">
-    <value>Ihr seid bereits Freunde.</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Möchtest du dieses Item an dich binden?</value>
   </data>
@@ -187,9 +184,6 @@
   </data>
   <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
     <value>Du kannst ein nicht Tauschbares Item tauschen!</value>
-  </data>
-  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
-    <value>Du kannst deinen Freund nicht blockieren!</value>
   </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Du kannst nicht zur gleichen Klasse wechseln</value>
@@ -262,29 +256,11 @@
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Deine Tauschanfrage wurde abgelehnt!</value>
   </data>
-  <data name="FRIENDLIST_FULL" xml:space="preserve">
-    <value>Deine Freundschaftsliste ist voll!</value>
-  </data>
-  <data name="FRIEND_ADD" xml:space="preserve">
-    <value>Möchtest du eine Freundschaftsanfrage senden? {0}</value>
-  </data>
-  <data name="FRIEND_ADDED" xml:space="preserve">
-    <value>Freundschaftsanfrage akzeptiert!</value>
-  </data>
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Freund gelöscht!</value>
   </data>
-  <data name="FRIEND_REJECTED" xml:space="preserve">
-    <value>Freundschaftsanfrage abgelehnt!</value>
-  </data>
-  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
-    <value>Freundschaftsanfrage blockiert!</value>
-  </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Deine Freundschaftsanfrage wurde nicht gesendet, da der Spieler nicht Online ist.</value>
-  </data>
-  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
-    <value>Freundschaftsanfrage gesendet!</value>
   </data>
   <data name="GIFT_SENT" xml:space="preserve">
     <value>Das Geschenk wurde versendet.</value>

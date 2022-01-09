@@ -129,9 +129,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Уже в черном списке!</value>
   </data>
-  <data name="ALREADY_FRIEND" xml:space="preserve">
-    <value>Вы уже друзья!</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Ты хочешь привязать этот предмет?</value>
     <comment>О чем идет речь? Пока не ясно. Уточним.</comment>
@@ -191,9 +188,6 @@
   <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
     <value>Ты не можешь обменяться предметом, который запрещен к обмену!</value>
     <comment>Необходимо протестировать контекст в игре</comment>
-  </data>
-  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
-    <value>Ты не можешь заблокировать своего друга!</value>
   </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Нельзя изменить класс на текущий!</value>
@@ -266,31 +260,11 @@
     <value>Ты отклонил(а) запрос на обмен</value>
     <comment>Нужно уточнение контекста. В оригинале "You refused your exchange request.", но как возможно отклонить свой же запрос на обмен?</comment>
   </data>
-  <data name="FRIENDLIST_FULL" xml:space="preserve">
-    <value>Список друзей переполнен!</value>
-  </data>
-  <data name="FRIEND_ADD" xml:space="preserve">
-    <value>[{0}] хочет быть твоим другом! Принять запрос?</value>
-    <comment>Check</comment>
-  </data>
-  <data name="FRIEND_ADDED" xml:space="preserve">
-    <value>Запрос дружбы принят!</value>
-  </data>
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Друг удален.</value>
   </data>
-  <data name="FRIEND_REJECTED" xml:space="preserve">
-    <value>Запрос дружбы отклонен!</value>
-  </data>
-  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
-    <value>Запрос дружбы заблокирован!</value>
-    <comment>Возможно, что подразумевается: "Персонаж блокирует запросы в друзья"</comment>
-  </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Запрос в друзья не может быть отправлен, так как игрок вышел из игры.</value>
-  </data>
-  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
-    <value>Запрос в друзья отправлен!</value>
   </data>
   <data name="GIFT_SENT" xml:space="preserve">
     <value>Подарок отправлен.</value>

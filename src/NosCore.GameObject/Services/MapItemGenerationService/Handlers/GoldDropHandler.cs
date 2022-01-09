@@ -69,7 +69,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.ItemReceived,
                     ArgumentType = 9,
-                    Game18NArguments = new object[] { requestData.Data.Item1.Amount, "Gold" }
+                    Game18NArguments = new object[] { requestData.Data.Item1.Amount, requestData.Data.Item1.ItemInstance!.Item.Name[requestData.ClientSession.Account.Language] }
                 }).ConfigureAwait(false);
             }
             else
@@ -77,6 +77,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                 requestData.ClientSession.Character.Gold = maxGold;
                 await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                 {
+                    Type = MessageType.Default,
                     Message = Game18NConstString.MaxGoldReached
                 }).ConfigureAwait(false);
             }

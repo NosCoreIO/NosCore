@@ -129,9 +129,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Già nella lista nera!</value>
   </data>
-  <data name="ALREADY_FRIEND" xml:space="preserve">
-    <value>Siete già amici!</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Vuoi usare questo oggetto? Non potrai più commerciarlo</value>
   </data>
@@ -185,9 +182,6 @@
   </data>
   <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
     <value>Non puoi commerciare questo oggetto!</value>
-  </data>
-  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
-    <value>Non puoi bloccare un tuo amico!</value>
   </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Hai già questa classe, non puoi cambiare.</value>
@@ -259,29 +253,11 @@
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Commercio rifiutato</value>
   </data>
-  <data name="FRIENDLIST_FULL" xml:space="preserve">
-    <value>La tua lista amici è piena!</value>
-  </data>
-  <data name="FRIEND_ADD" xml:space="preserve">
-    <value>[{0}] vuole diventare tuo amico! Vuoi accettare la richiesta?</value>
-  </data>
-  <data name="FRIEND_ADDED" xml:space="preserve">
-    <value>Richiesta d'amicizia accettata!</value>
-  </data>
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Amico cancellato.</value>
   </data>
-  <data name="FRIEND_REJECTED" xml:space="preserve">
-    <value>Richiesta d'amicizia rifiutata!</value>
-  </data>
-  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
-    <value>Richiesta di amicizia bloccata!</value>
-  </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Non è stato possibile trovare il giocatore online. Richiesta annullata</value>
-  </data>
-  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
-    <value>Richiesta di amicizia inviata</value>
   </data>
   <data name="GIFT_SENT" xml:space="preserve">
     <value>Item inviato.</value>
