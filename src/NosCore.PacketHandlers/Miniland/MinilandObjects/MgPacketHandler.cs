@@ -219,7 +219,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.ReceivedThisItem,
                             ArgumentType = 2,
-                            Game18NArguments = new object[] { item.Item!.VNum, amount }
+                            Game18NArguments = new object[] { item.Item.VNum.ToString(), amount }
                         }).ConfigureAwait(false);
                     }
 

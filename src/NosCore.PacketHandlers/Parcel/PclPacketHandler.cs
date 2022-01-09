@@ -79,7 +79,7 @@ namespace NosCore.PacketHandlers.Parcel
                         Type = SayColorType.Red,
                         Message = Game18NConstString.ParcelReceived,
                         ArgumentType = 2,
-                        Game18NArguments = new object[] { newInv.ItemInstance.Item.VNum, newInv.ItemInstance.Amount }
+                        Game18NArguments = new object[] { newInv.ItemInstance.Item.VNum.ToString(), newInv.ItemInstance.Amount }
                     }).ConfigureAwait(false);
                     
                     await clientSession.SendPacketAsync(

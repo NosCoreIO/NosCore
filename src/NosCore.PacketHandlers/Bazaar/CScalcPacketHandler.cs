@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.PurchaseCompleted,
                             ArgumentType = 2,
-                            Game18NArguments = new object[] { bz.ItemInstance.ItemVNum, bz.ItemInstance.Amount }
+                            Game18NArguments = new object[] { bz.ItemInstance.ItemVNum.ToString(), bz.ItemInstance.Amount }
                         }).ConfigureAwait(false);
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
