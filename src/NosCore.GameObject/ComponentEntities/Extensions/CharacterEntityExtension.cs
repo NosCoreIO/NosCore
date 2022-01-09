@@ -57,6 +57,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Shared.I18N;
 using Serilog;
+using NodaTime;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -696,6 +697,15 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 FamilyLevel = 0,
                 MorphUpgrade = 0,
                 ArenaWinner = false
+            };
+        }
+
+        public static BptPacket GenerateBpt(this ICharacterEntity _, IClock clock, IOptions<WorldConfiguration> worldConfig)
+        {
+            Duration duration = Instant.Subtract(worldConfig.Value.Battlepass.EndSeason, clock.GetCurrentInstant());
+            return new BptPacket
+            {
+                MinutesUntilSeasonEnd = (long)duration.TotalMinutes
             };
         }
     }
