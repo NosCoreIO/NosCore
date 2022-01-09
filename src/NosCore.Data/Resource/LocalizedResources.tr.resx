@@ -150,12 +150,6 @@
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Karakterin bu eşyayı giymek için gereksinimleri karşılamıyor.</value>
   </data>
-  <data name="BLACKLIST_ADDED" xml:space="preserve">
-    <value>Karakter karalisteye eklendi!</value>
-  </data>
-  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
-    <value>Bu kullanıcı seni blokladı!</value>
-  </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Bir eşya satın aldın.</value>
   </data>
@@ -210,17 +204,11 @@
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Harita değiştirilirken karakter de değişti. Komutları kötüye kullanmayınız. {0}</value>
   </data>
-  <data name="FRIEND_DELETED" xml:space="preserve">
-    <value>Arkadaşlıktan çıkarıldı.</value>
-  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Bilinmeyen grup daveti türü.</value>
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Bu grubun yöneticisisin.</value>
-  </data>
-  <data name="GROUP_SHARE_INFO" xml:space="preserve">
-    <value>Geri dönüş noktanı paylaşma isteği yolladın.</value>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>{0} paketi için işleyici bulunamadı.</value>
@@ -321,9 +309,6 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Bu kullanıcı karalistende değil!</value>
   </data>
-  <data name="NOT_YOUR_ITEM" xml:space="preserve">
-    <value>Bu eşya bir başkasına bağlı! </value>
-  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Harita yok. Sunucunun çalışması için en azından NosVille olmalı!</value>
   </data>
@@ -423,9 +408,6 @@
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Tüm bilgiler kaydediliyor!</value>
   </data>
-  <data name="SHARED_REFUSED" xml:space="preserve">
-    <value>Grup üyeleriyle geri dönüş noktası paylaşma isteğini reddettin.</value>
-  </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Akın esnasında market oluşturamazsın.</value>
   </data>
@@ -495,12 +477,6 @@
   <data name="SUPPORT" xml:space="preserve">
     <value>Destek</value>
   </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>Grup davetin reddedildi.</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>[{0}] Seni gruba davet etti. Onaylıyor musun?</value>
-  </data>
   <data name="UPDATE_GOLD" xml:space="preserve">
     <value>Altının güncellendi!</value>
   </data>
@@ -537,9 +513,6 @@
   <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
     <value>Geçersiz takas listesi.</value>
   </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Geri dönüş noktası olarak ayarlamak istiyor musun?</value>
-  </data>
   <data name="IN_WAITING_FOR" xml:space="preserve">
     <value>Beklemede: {0}.</value>
   </data>
@@ -548,9 +521,6 @@
   </data>
   <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
     <value>Yeterli altının yok!</value>
-  </data>
-  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
-    <value>Eşyan başarıyla Nosmağaza'a eklendi!</value>
   </data>
   <data name="PLAYER_IN_SHOP" xml:space="preserve">
     <value>{0} isimli kullanıcı alışverişte.</value>
@@ -600,14 +570,8 @@
   <data name="ITEM_GIFTED" xml:space="preserve">
     <value>{0} Hediye edildi.</value>
   </data>
-  <data name="GIFT_SENT" xml:space="preserve">
-    <value>Hediyen gönderildi.</value>
-  </data>
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
     <value>Arkadaşın değil.</value>
-  </data>
-  <data name="WANT_ENABLE_TITLE" xml:space="preserve">
-    <value>Unvan'ı etkinleştirmek istiyor musun?</value>
   </data>
   <data name="SPEAKER" xml:space="preserve">
     <value>Hoparlör</value>

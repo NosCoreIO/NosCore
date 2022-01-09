@@ -169,24 +169,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Character added to blacklist!.
-        /// </summary>
-        public static string BLACKLIST_ADDED {
-            get {
-                return ResourceManager.GetString("BLACKLIST_ADDED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à This Player has blocked you!.
-        /// </summary>
-        public static string BLACKLIST_BLOCKED {
-            get {
-                return ResourceManager.GetString("BLACKLIST_BLOCKED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à You bought an item from {0} {1} {2}!.
         /// </summary>
         public static string BUY_ITEM_FROM {
@@ -403,15 +385,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Friend deleted!.
-        /// </summary>
-        public static string FRIEND_DELETED {
-            get {
-                return ResourceManager.GetString("FRIEND_DELETED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Your friend request could not be completed because the user is disconnected..
         /// </summary>
         public static string FRIEND_REQUEST_DISCONNECTED {
@@ -426,24 +399,6 @@ namespace NosCore.Data.Resource {
         public static string GROUP_ADMIN {
             get {
                 return ResourceManager.GetString("GROUP_ADMIN", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Your invitation has been declined!.
-        /// </summary>
-        public static string GROUP_REFUSED {
-            get {
-                return ResourceManager.GetString("GROUP_REFUSED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You sent a request to share the point of return with the members of your group.
-        /// </summary>
-        public static string GROUP_SHARE_INFO {
-            get {
-                return ResourceManager.GetString("GROUP_SHARE_INFO", resourceCulture);
             }
         }
         
@@ -606,24 +561,6 @@ namespace NosCore.Data.Resource {
         public static string INVALID_PASSWORD {
             get {
                 return ResourceManager.GetString("INVALID_PASSWORD", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Do you want to set as a return point ?.
-        /// </summary>
-        public static string INVITED_GROUP_SHARE {
-            get {
-                return ResourceManager.GetString("INVITED_GROUP_SHARE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à [{0}] has invited you to a group! Do you accept?.
-        /// </summary>
-        public static string INVITED_YOU_GROUP {
-            get {
-                return ResourceManager.GetString("INVITED_YOU_GROUP", resourceCulture);
             }
         }
         
@@ -853,15 +790,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à The item is not yours!.
-        /// </summary>
-        public static string NOT_YOUR_ITEM {
-            get {
-                return ResourceManager.GetString("NOT_YOUR_ITEM", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à {0} NpcMonsters Loaded!.
         /// </summary>
         public static string NPCMONSTERS_LOADED {
@@ -885,15 +813,6 @@ namespace NosCore.Data.Resource {
         public static string NPCS_PARSED {
             get {
                 return ResourceManager.GetString("NPCS_PARSED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Your item has been added on the bazaar !.
-        /// </summary>
-        public static string OBJECT_IN_BAZAAR {
-            get {
-                return ResourceManager.GetString("OBJECT_IN_BAZAAR", resourceCulture);
             }
         }
         
@@ -1191,15 +1110,6 @@ namespace NosCore.Data.Resource {
         public static string SAVING_ALL {
             get {
                 return ResourceManager.GetString("SAVING_ALL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You refused to share the point of return with the group members.
-        /// </summary>
-        public static string SHARED_REFUSED {
-            get {
-                return ResourceManager.GetString("SHARED_REFUSED", resourceCulture);
             }
         }
         

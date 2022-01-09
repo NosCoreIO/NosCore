@@ -155,12 +155,6 @@
   <data name="BANK_FULL" xml:space="preserve">
     <value>Tvůj bankovní účet je plný!</value>
   </data>
-  <data name="BLACKLIST_ADDED" xml:space="preserve">
-    <value>Byl přidát na černou listinu</value>
-  </data>
-  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
-    <value>Černá listina Blokována!</value>
-  </data>
   <data name="BUY_ITEM_FROM" xml:space="preserve">
     <value>Koupil si item od {0} {1} {2}!</value>
   </data>
@@ -219,20 +213,11 @@
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Odmítl jsi žádost o výměnu.</value>
   </data>
-  <data name="FRIEND_DELETED" xml:space="preserve">
-    <value>Kamarád smazán!</value>
-  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý požadavek na skupinu!</value>
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Jsi vedoucí skupiny!</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>Pozvánka do skupiny byla odmítnuta!</value>
-  </data>
-  <data name="GROUP_SHARE_INFO" xml:space="preserve">
-    <value>Sdílel si místo návratu s členy skupiny</value>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Nelze najít Obsluhu implementace pro balíček s hlavičkou {0}</value>
@@ -275,12 +260,6 @@
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Špatné Heslo</value>
-  </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Chceš sdílet se skupinou místo návratu?</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>[{0}] tě pozval do skupiny. Chceš pozvánku přijmout?</value>
   </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý typ pozvánky</value>
@@ -342,9 +321,6 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Není ve vaší černé listině</value>
   </data>
-  <data name="NOT_YOUR_ITEM" xml:space="preserve">
-    <value>Tento Item není tvůj!</value>
-  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Nebyly nalezeny žádné mapy. K chodu serveru potřebujete minimálně mapu Nosville.</value>
   </data>
@@ -359,9 +335,6 @@
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>{0} NPC byly úspěšně nahrány!</value>
-  </data>
-  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
-    <value>Tvůj předmět byl přidán do Bazaru.</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Chceš nahrát účty?</value>
@@ -450,9 +423,6 @@
   </data>
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Ukládání všeho!</value>
-  </data>
-  <data name="SHARED_REFUSED" xml:space="preserve">
-    <value>Odmítl jsi sdílet místo návratu se skupinou!</value>
   </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Nemůžeš otevřít obchod v nájezdu!</value>

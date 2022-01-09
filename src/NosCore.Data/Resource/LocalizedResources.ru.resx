@@ -173,12 +173,6 @@
   <data name="BAZAAR_MOD_ERROR" xml:space="preserve">
     <value>Ошибка изменения лота в НосБазаре.</value>
   </data>
-  <data name="BLACKLIST_ADDED" xml:space="preserve">
-    <value>Игрок добавлен в черный список!</value>
-  </data>
-  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
-    <value>Этот игрок добавил тебя в черный список!</value>
-  </data>
   <data name="BUY_ITEM_FROM" xml:space="preserve">
     <value>Ты приобрел(а)  {1} х{2} у {0}!</value>
   </data>
@@ -260,14 +254,8 @@
     <value>Ты отклонил(а) запрос на обмен</value>
     <comment>Нужно уточнение контекста. В оригинале "You refused your exchange request.", но как возможно отклонить свой же запрос на обмен?</comment>
   </data>
-  <data name="FRIEND_DELETED" xml:space="preserve">
-    <value>Друг удален.</value>
-  </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Запрос в друзья не может быть отправлен, так как игрок вышел из игры.</value>
-  </data>
-  <data name="GIFT_SENT" xml:space="preserve">
-    <value>Подарок отправлен.</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Неизвестный тип запроса группы</value>
@@ -275,14 +263,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Ты лидер группы!</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>Приглашение в группу отклонено!</value>
-    <comment>Check</comment>
-  </data>
-  <data name="GROUP_SHARE_INFO" xml:space="preserve">
-    <value>Ты поделился точкой возвращения с членами группы!</value>
-    <comment>В оригинале звучит как: "Вы отправили запрос на смену места возвращения членам вашей группы"</comment>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Не удается найти реализацию обработчика для пакета с заголовком {0}</value>
@@ -332,14 +312,6 @@
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Неверный пароль!</value>
-  </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Хотите ли Вы установить точку возврата?</value>
-    <comment>Check</comment>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>[{0}] приглашает тебя в группу! Принять?</value>
-    <comment>Check</comment>
   </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Неизвестный тип приглашения</value>
@@ -406,9 +378,6 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Не удалось подключиться к Master серверу! Повторная попытка через {0} секунд...</value>
   </data>
-  <data name="MINILAND_VISITOR" xml:space="preserve">
-    <value>Всего посетителей: {0} Посетителей за сегодня: {1}</value>
-  </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>Импортировано {0} MapMonsters!</value>
   </data>
@@ -436,9 +405,6 @@
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
     <value>Игрок не является твоим другом.</value>
   </data>
-  <data name="NOT_YOUR_ITEM" xml:space="preserve">
-    <value>Этот предмет не принадлежит тебе!</value>
-  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Для работы сервера необходимо установить хотя бы карту НосВилля.</value>
   </data>
@@ -454,9 +420,6 @@
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>Импортировано {0} MapNpcs!</value>
-  </data>
-  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
-    <value>Лот размещен.</value>
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Пакет получен без выбранного персонажа {0}</value>
@@ -564,9 +527,6 @@
   <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
     <value>Токен безопасности обновлен.</value>
   </data>
-  <data name="SHARED_REFUSED" xml:space="preserve">
-    <value>Запрос на изменение точки возвращения отклонен</value>
-  </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>Загружено {0} товаров!</value>
   </data>
@@ -652,8 +612,5 @@
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Неизвестный VisualType: {0}</value>
-  </data>
-  <data name="WANT_ENABLE_TITLE" xml:space="preserve">
-    <value>Активировать титул?</value>
   </data>
 </root>

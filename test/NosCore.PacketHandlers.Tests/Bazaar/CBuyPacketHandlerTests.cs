@@ -222,7 +222,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             }, _session).ConfigureAwait(false);
             var lastpacket = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId && lastpacket?.Type == SayColorType.Yellow && 
-                lastpacket?.Message == Game18NConstString.BoughtItem && lastpacket?.ArgumentType == 2 && (short?)lastpacket?.Game18NArguments[0] == item.VNum && (short?)lastpacket?.Game18NArguments[1] == 99);
+                lastpacket?.Message == Game18NConstString.BoughtItem && lastpacket?.ArgumentType == 2 && (string?)lastpacket?.Game18NArguments[0] == item.VNum.ToString() && (short?)lastpacket?.Game18NArguments[1] == 99);
         }
 
         [TestMethod]
@@ -256,7 +256,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             }, _session).ConfigureAwait(false);
             var lastpacket = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId && lastpacket?.Type == SayColorType.Yellow &&
-                lastpacket?.Message == Game18NConstString.BoughtItem && lastpacket?.ArgumentType == 2 && (short?)lastpacket?.Game18NArguments[0] == item.VNum && (short?)lastpacket?.Game18NArguments[1] == 1);
+                lastpacket?.Message == Game18NConstString.BoughtItem && lastpacket?.ArgumentType == 2 && (string?)lastpacket?.Game18NArguments[0] == item.VNum.ToString() && (short?)lastpacket?.Game18NArguments[1] == 1);
         }
     }
 }

@@ -168,12 +168,6 @@
   <data name="BAZAAR_MOD_ERROR" xml:space="preserve">
     <value>Errore durante la modifica nel NosBazaar.</value>
   </data>
-  <data name="BLACKLIST_ADDED" xml:space="preserve">
-    <value>Personaggio aggiunto alla lista nera</value>
-  </data>
-  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
-    <value>Questo giocatore ti ha bloccato!</value>
-  </data>
   <data name="BUY_ITEM_FROM" xml:space="preserve">
     <value>Hai comprato questo oggetto da {0} {1} {2}!</value>
   </data>
@@ -253,14 +247,8 @@
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Commercio rifiutato</value>
   </data>
-  <data name="FRIEND_DELETED" xml:space="preserve">
-    <value>Amico cancellato.</value>
-  </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Non è stato possibile trovare il giocatore online. Richiesta annullata</value>
-  </data>
-  <data name="GIFT_SENT" xml:space="preserve">
-    <value>Item inviato.</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Tipo di richiesta gruppo sconosciuto</value>
@@ -268,12 +256,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Sei il leader del gruppo</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>Il tuo invito di gruppo è stato rifiutato!</value>
-  </data>
-  <data name="GROUP_SHARE_INFO" xml:space="preserve">
-    <value>Hai inviato una richiesta per condividere il punto di ritorno con i membri del tuo gruppo</value>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Non si può gestire il pacchetto con Intestazione: {0}</value>
@@ -322,12 +304,6 @@
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>la password è errata!</value>
-  </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Vuoi impostare il punto di ritorno?</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>[{0}] ti ha invitato nel gruppo! Vuoi accettare?</value>
   </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Tipo di invito sconosciuto</value>
@@ -391,9 +367,6 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Impossibile connettersi al MasterServer! Provando ancora tra {0} secondi...</value>
   </data>
-  <data name="MINILAND_VISITOR" xml:space="preserve">
-    <value>Numero totale di visitatori: {0} visitatori di oggi: {1}</value>
-  </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters Sincronizzati!</value>
   </data>
@@ -421,9 +394,6 @@
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
     <value>L'utente non è nella lista degli amici.</value>
   </data>
-  <data name="NOT_YOUR_ITEM" xml:space="preserve">
-    <value>L'oggetto non ti appartiene!</value>
-  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Il server ha bisogno almeno della mappa di NosVille per poter funzionare!</value>
   </data>
@@ -444,9 +414,6 @@
   </data>
   <data name="NPCTALKS_PARSED" xml:space="preserve">
     <value>{0} Dialoghi degli NpcMonster caricati !</value>
-  </data>
-  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
-    <value>L'oggetto è stato aggiunto al NosBazar!</value>
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Packet received without character being set {0}</value>
@@ -576,9 +543,6 @@
   <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
     <value>Token di sicurezza aggiornato.</value>
   </data>
-  <data name="SHARED_REFUSED" xml:space="preserve">
-    <value>Hai rifiutato di condividere il punto di ritorno con i membri del gruppo</value>
-  </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>{0} ShopItems caricati!</value>
   </data>
@@ -667,8 +631,5 @@
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>VisualType sconosciuto: {0}</value>
-  </data>
-  <data name="WANT_ENABLE_TITLE" xml:space="preserve">
-    <value>Vuoi attivare il titolo?</value>
   </data>
 </root>

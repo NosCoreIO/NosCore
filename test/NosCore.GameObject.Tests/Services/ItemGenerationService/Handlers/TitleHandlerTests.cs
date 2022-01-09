@@ -63,7 +63,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
-            var lastpacket = (QnaPacket?)Session.LastPackets.FirstOrDefault(s => s is QnaPacket);
+            var lastpacket = (QnaiPacket?)Session.LastPackets.FirstOrDefault(s => s is QnaiPacket);
             Assert.IsNotNull(lastpacket);
             Assert.IsTrue(lastpacket!.YesPacket!.GetType() == typeof(GuriPacket));
         }

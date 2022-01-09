@@ -54,10 +54,6 @@ namespace NosCore.PacketHandlers.Friend
             if (idtorem != null)
             {
                 await _friendHttpClient.DeleteFriendAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
-                await session.SendPacketAsync(new InfoPacket
-                {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.FRIEND_DELETED, session.Account.Language)
-                }).ConfigureAwait(false);
                 var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
                 await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
                     _connectedAccountHttpClient).ConfigureAwait(false))).ConfigureAwait(false);

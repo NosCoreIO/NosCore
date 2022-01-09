@@ -26,7 +26,9 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
@@ -44,8 +46,7 @@ namespace NosCore.PacketHandlers.Command
 
         public override async Task ExecuteAsync(GiftPacket giftPacket, ClientSession session)
         {
-            var receiver =
-                await _connectedAccountHttpClient.GetCharacterAsync(null, giftPacket.CharacterName ?? session.Character.Name).ConfigureAwait(false);
+            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, giftPacket.CharacterName ?? session.Character.Name).ConfigureAwait(false);
 
             if (receiver.Item2 == null)
             {
@@ -58,9 +59,13 @@ namespace NosCore.PacketHandlers.Command
 
             await _mailHttpClient.SendGiftAsync(session.Character!, receiver.Item2.ConnectedCharacter!.Id, giftPacket.VNum,
                 giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false).ConfigureAwait(false);
-            await session.SendPacketAsync(session.Character.GenerateSay(GameLanguage.Instance.GetMessageFromKey(
-                LanguageKey.GIFT_SENT,
-                session.Account.Language), SayColorType.Yellow)).ConfigureAwait(false);
+            await session.SendPacketAsync(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = session.Character.CharacterId,
+                Type = SayColorType.Red,
+                Message = Game18NConstString.GiftDelivered
+            }).ConfigureAwait(false);
         }
     }
 }

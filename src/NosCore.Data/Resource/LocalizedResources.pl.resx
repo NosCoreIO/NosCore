@@ -150,12 +150,6 @@
   <data name="BAD_EQUIPMENT" xml:space="preserve">
     <value>Twoja postać nie spełnia wymagań niezbędnych do noszenia tego przedmiotu.</value>
   </data>
-  <data name="BLACKLIST_ADDED" xml:space="preserve">
-    <value>Dodano do czarnej listy.</value>
-  </data>
-  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
-    <value>Ten gracz cię blokuje!</value>
-  </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Kupiłeś przedmiot!</value>
   </data>
@@ -210,17 +204,11 @@
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Postać zmieniona podczas zmiany mapy. Nie nadużywaj poleceń. {0}</value>
   </data>
-  <data name="FRIEND_DELETED" xml:space="preserve">
-    <value>Usunięto przyjaciela!</value>
-  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Typ nieznanego żądania grupy</value>
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Zostałeś liderem grupy!</value>
-  </data>
-  <data name="GROUP_SHARE_INFO" xml:space="preserve">
-    <value>Wysłałeś prośbę o udostępnienie punktu powrotu członkom swojej grupy</value>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Nie można znaleźć Handler wdrożenie dla Packet z Header {0}</value>
@@ -321,9 +309,6 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Ten gracz nie jest na Twojej czarnej liście!</value>
   </data>
-  <data name="NOT_YOUR_ITEM" xml:space="preserve">
-    <value>Ten przedmiot nie jest Twój!</value>
-  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Serwer potrzebuje przynajmniej mapy NosVille do poprawnego działania!</value>
   </data>
@@ -423,9 +408,6 @@
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Zapisywanie wszystkich danych!</value>
   </data>
-  <data name="SHARED_REFUSED" xml:space="preserve">
-    <value>Odmówiłeś dzielenia punktu powrotu z członkami grupy</value>
-  </data>
   <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
     <value>Nie możesz otworzyć sklepu podczas rajdu.</value>
   </data>
@@ -494,12 +476,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Wsparcie</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>Twoje zaproszenie zostało odrzucone!</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>[{0}] zaprosił Cię do grupy!</value>
   </data>
   <data name="UPDATE_GOLD" xml:space="preserve">
     <value>Twoje złoto zostało pomyślnie zaktualizowane!</value>

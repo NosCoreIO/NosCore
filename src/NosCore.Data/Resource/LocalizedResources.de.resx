@@ -170,12 +170,6 @@
   <data name="BAZAAR_MOD_ERROR" xml:space="preserve">
     <value />
   </data>
-  <data name="BLACKLIST_ADDED" xml:space="preserve">
-    <value>Charakter wurde der Blacklist hinzugefügt!</value>
-  </data>
-  <data name="BLACKLIST_BLOCKED" xml:space="preserve">
-    <value>Dieser Spieler hat dich blockiert.</value>
-  </data>
   <data name="BUY_ITEM_FROM" xml:space="preserve">
     <value>Du hast ein Item von {0} {1} {2} gekauft!</value>
   </data>
@@ -256,14 +250,8 @@
   <data name="EXCHANGE_REFUSED" xml:space="preserve">
     <value>Deine Tauschanfrage wurde abgelehnt!</value>
   </data>
-  <data name="FRIEND_DELETED" xml:space="preserve">
-    <value>Freund gelöscht!</value>
-  </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Deine Freundschaftsanfrage wurde nicht gesendet, da der Spieler nicht Online ist.</value>
-  </data>
-  <data name="GIFT_SENT" xml:space="preserve">
-    <value>Das Geschenk wurde versendet.</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Unbekannter Gruppeneinladungs Typ {0}</value>
@@ -271,13 +259,6 @@
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Du bist nun der Gruppen-Admin</value>
-  </data>
-  <data name="GROUP_REFUSED" xml:space="preserve">
-    <value>Deine Gruppeneinladung wurde abgelehnt!</value>
-  </data>
-  <data name="GROUP_SHARE_INFO" xml:space="preserve">
-    <value>Du hast eine Anfrage an deine Gruppe gesendet, um euren Rückkehrpunkt zu teilen</value>
-    <comment>You sent a request to share the point of return with the members of your group</comment>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Konnte keine Handler implementierung für das Paket mit dem Header {0} finden</value>
@@ -326,12 +307,6 @@
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Falsches Password!</value>
-  </data>
-  <data name="INVITED_GROUP_SHARE" xml:space="preserve">
-    <value>Möchtest du diesen Ort als deinen Rückkehrort setzen?</value>
-  </data>
-  <data name="INVITED_YOU_GROUP" xml:space="preserve">
-    <value>Dir wurde eine Gruppeneinladung gesendet! {0}</value>
   </data>
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Unbekannter Einladungs typ {0}.</value>
@@ -395,9 +370,6 @@
   <data name="MASTER_SERVER_RETRY" xml:space="preserve">
     <value>Keine Verbindung zum MasterServer! Versuche erneut in {0} sekunden...</value>
   </data>
-  <data name="MINILAND_VISITOR" xml:space="preserve">
-    <value>Miniland Besucher: {0}, Tägliche Besucher: {1}</value>
-  </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters Parsed!</value>
   </data>
@@ -425,9 +397,6 @@
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
     <value>Nutzer ist nicht in der Freundschaftsliste!</value>
   </data>
-  <data name="NOT_YOUR_ITEM" xml:space="preserve">
-    <value>Das Item gehört dir nicht!</value>
-  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Server benötigt mindestens die nosville Karte um zu funktionieren!</value>
   </data>
@@ -442,9 +411,6 @@
   </data>
   <data name="NPCS_PARSED" xml:space="preserve">
     <value>{0} MapNpcs geladen!</value>
-  </data>
-  <data name="OBJECT_IN_BAZAAR" xml:space="preserve">
-    <value>Das Objekt wurde im Bazaar gelegt.</value>
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Packet erhalten ohne dass ein Charakter gesetzt ist {0}</value>
@@ -554,9 +520,6 @@
   <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
     <value>Sicherheitstoken geändert!</value>
   </data>
-  <data name="SHARED_REFUSED" xml:space="preserve">
-    <value>Du hast deinen Gruppenmitgliedern verweigert deinen Rückkehrposten zu teilen</value>
-  </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>{0} ShopItems geladen!</value>
   </data>
@@ -646,8 +609,5 @@
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Unbekannter VisualType: {0}</value>
-  </data>
-  <data name="WANT_ENABLE_TITLE" xml:space="preserve">
-    <value>Möchtest du den Titel Aktivieren?</value>
   </data>
 </root>
