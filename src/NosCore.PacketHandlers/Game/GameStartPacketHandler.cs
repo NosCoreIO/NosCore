@@ -161,6 +161,14 @@ namespace NosCore.PacketHandlers.Game
             //            Session.SendPackets(Session.Character.GeneratePst());
 
             //            Session.SendPacket("zzim");
+            await session.SendPacketAsync(new TwkPacket
+            {
+                VisualId = session.Character.VisualId,
+                VisualType = VisualType.Player,
+                AccountName = session.Account.Name,
+                ClientLanguage = session.Account.Language,
+                ServerLanguage = _worldConfiguration.Value.Language
+            });
             //            Session.SendPacket($"twk 2 {Session.Character.CharacterId} {Session.Account.Name} {Session.Character.Name} shtmxpdlfeoqkr");
 
             await session.SendPacketsAsync(session.Character.Quests.Values.Where(o => o.CompletedOn == null).Select(qst => qst.Quest.GenerateTargetPacket())).ConfigureAwait(false);
