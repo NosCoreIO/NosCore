@@ -193,7 +193,7 @@ namespace NosCore.PacketHandlers.Group
                             {
                                 Question = Game18NConstString.ConfirmSetPointOfReturn,
                                 ArgumentType = 1,
-                                Game18NArguments = new object[] { s.Item2.Name! },
+                                Game18NArguments = new object[] { s.Item2.Name ?? "" },
                                 YesPacket = new PjoinPacket
                                 {
                                     CharacterId = clientSession.Character.CharacterId,
@@ -306,7 +306,7 @@ namespace NosCore.PacketHandlers.Group
                         Type = SayColorType.Yellow,
                         Message = Game18NConstString.GroupInviteRejected,
                         ArgumentType = 1,
-                        Game18NArguments = new object[] { targetSession.Name! }
+                        Game18NArguments = new object[] { targetSession.Name ?? "" }
                     }).ConfigureAwait(false);
                     break;
                 case GroupRequestType.AcceptedShare:
@@ -331,7 +331,7 @@ namespace NosCore.PacketHandlers.Group
                         Type = MessageType.Default,
                         Message = Game18NConstString.SomeoneChangedPointOfReturn,
                         ArgumentType = 1,
-                        Game18NArguments = new object[] { targetSession.Name! }
+                        Game18NArguments = new object[] { targetSession.Name ?? "" }
                     }).ConfigureAwait(false);
                     //TODO: add a way to change respawn points when system will be done
                     break;
@@ -352,7 +352,7 @@ namespace NosCore.PacketHandlers.Group
                         Type = MessageType.Default,
                         Message = Game18NConstString.SomeoneRefusedToSharePointOfReturn,
                         ArgumentType = 1,
-                        Game18NArguments = new object[] { targetSession.Name! }
+                        Game18NArguments = new object[] { targetSession.Name ?? "" }
                     }).ConfigureAwait(false);
                     break;
                 default:
