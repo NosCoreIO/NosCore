@@ -101,7 +101,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(NpcMonsterDto.NpcMonsterVNum), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
                 {nameof(NpcMonsterDto.NameI18NKey), chunk => chunk["NAME"][0][2]},
                 {nameof(NpcMonsterDto.Level), chunk => Level(chunk)},
-                {nameof(NpcMonsterDto.HeroXp), chunk => ImportHeroXp(chunk)},
+                {nameof(NpcMonsterDto.HeroXp), chunk => ImportXp(chunk) / 25},
                 {nameof(NpcMonsterDto.Race), chunk => Convert.ToByte(chunk["RACE"][0][2])},
                 {nameof(NpcMonsterDto.RaceType), chunk => Convert.ToByte(chunk["RACE"][0][3])},
                 {nameof(NpcMonsterDto.Element), chunk => Convert.ToByte(chunk["ATTRIB"][0][2])},
@@ -112,8 +112,8 @@ namespace NosCore.Parser.Parsers
                 {nameof(NpcMonsterDto.DarkResistance), chunk => Convert.ToInt16(chunk["ATTRIB"][0][7])},
                 {nameof(NpcMonsterDto.MaxHp), chunk => Convert.ToInt32(chunk["HP/MP"][0][2]) + _basicHp[Level(chunk)]},
                 {nameof(NpcMonsterDto.MaxMp), chunk => Convert.ToInt32(chunk["HP/MP"][0][3]) + Convert.ToByte(chunk["RACE"][0][2]) == 0 ? _basicPrimaryMp[Level(chunk)] : _basicSecondaryMp[Level(chunk)]},
-                {nameof(NpcMonsterDto.Xp), chunk =>  Math.Abs(Convert.ToInt32(chunk["EXP"][0][2]) + _basicXp[Level(chunk)])},
-                {nameof(NpcMonsterDto.JobXp), chunk => Convert.ToInt32(chunk["EXP"][0][3]) + _basicJXp[Level(chunk)]},
+                {nameof(NpcMonsterDto.Xp), chunk =>  ImportXp(chunk)},
+                {nameof(NpcMonsterDto.JobXp), chunk => ImportJxp(chunk)},
                 {nameof(NpcMonsterDto.IsHostile), chunk => chunk["PREATT"][0][2] != "0" },
                 {nameof(NpcMonsterDto.NoticeRange), chunk => Convert.ToByte(chunk["PREATT"][0][4])},
                 {nameof(NpcMonsterDto.Speed), chunk => Convert.ToByte(chunk["PREATT"][0][5])},
@@ -158,6 +158,38 @@ namespace NosCore.Parser.Parsers
             await _dropDao.TryInsertOrUpdateAsync(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop)).ConfigureAwait(false);
             await _npcMonsterSkillDao.TryInsertOrUpdateAsync(monsters.Where(s => s.NpcMonsterSkill != null).SelectMany(s => s.NpcMonsterSkill)).ConfigureAwait(false);
             _logger.Information(_logLanguage[LogLanguageKey.NPCMONSTERS_PARSED], monsters.Count);
+        }
+
+        private int ImportJxp(Dictionary<string, string[][]> chunk)
+        {
+            var value = Convert.ToInt32(chunk["EXP"][0][3]);
+            if (value < 1)
+            {
+                value *= -1;
+            }
+
+            if (Level(chunk) < 61)
+            {
+                return value + 120;
+            }
+
+            return value + 105;
+        }
+
+        private int ImportXp(Dictionary<string, string[][]> chunk)
+        {
+            var value = Convert.ToInt32(chunk["EXP"][0][2]);
+            if (value < 1)
+            {
+                value *= -1;
+            }
+
+            if (Level(chunk) >= 19)
+            {
+                return Math.Abs((Level(chunk) * 60) + Level(chunk) * 10 + value);
+            }
+
+            return Math.Abs((Level(chunk) * 60) + value);
         }
 
         private short ImportDamageMinimum(Dictionary<string, string[][]> chunk)
@@ -437,62 +469,6 @@ namespace NosCore.Parser.Parsers
                 secondaryBasup += boostup ? 3 : 1;
                 _basicSecondaryMp[i] = _basicSecondaryMp[i - (i % 10 == 2 ? 2 : 1)] + secondaryBasup;
             }
-
-            // basicJXpLoad
-            for (var i = 0; i < 100; i++)
-            {
-                _basicJXp[i] = 360;
-            }
-
-        }
-
-        private int ImportHeroXp(Dictionary<string, string[][]> chunk)
-        {
-            return (Convert.ToInt32(chunk["VNUM"][0][2]) switch
-            {
-                2510 => 881,
-                2501 => 881,
-                2512 => 884,
-                2502 => 884,
-                2503 => 1013,
-                2505 => 871,
-                2506 => 765,
-                2507 => 803,
-                2508 => 825,
-                2500 => 879,
-                2509 => 879,
-                2511 => 879,
-                2513 => 1075,
-                2515 => 3803,
-                2516 => 836,
-                2517 => 450,
-                2518 => 911,
-                2519 => 845,
-                2520 => 3682,
-                2521 => 401,
-                2522 => 471,
-                2523 => 328,
-                2524 => 12718,
-                2525 => 412,
-                2526 => 11157,
-                2527 => 18057,
-                2530 => 28756,
-                2559 => 1308,
-                2560 => 1234,
-                2561 => 1168,
-                2562 => 959,
-                2563 => 947,
-                2564 => 952,
-                2566 => 1097,
-                2567 => 1096,
-                2568 => 4340,
-                2569 => 3534,
-                2570 => 4343,
-                2571 => 2205,
-                2572 => 5632,
-                2573 => 3756,
-                _ => 0
-            });
         }
 
         private byte Level(Dictionary<string, string[][]> chunk)
