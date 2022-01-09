@@ -21,6 +21,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="NosCore.Analyzers" Version="0.0.1" >
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NosCore.GameObject\NosCore.GameObject.csproj" />
   </ItemGroup>
 
