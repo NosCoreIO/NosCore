@@ -62,6 +62,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 
                 requestData.ClientSession.Character.Gold += requestData.Data.Item1.Amount;
 
+#pragma warning disable NosCoreAnalyzers // For some reason this packet doesn't have the right amount of arguments
                 await requestData.ClientSession.SendPacketAsync(new Sayi2Packet
                 {
                     VisualType = VisualType.Player,
@@ -71,6 +72,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                     ArgumentType = 9,
                     Game18NArguments = new object[] { requestData.Data.Item1.Amount, requestData.Data.Item1.ItemInstance!.Item.Name[requestData.ClientSession.Account.Language] }
                 }).ConfigureAwait(false);
+#pragma warning restore NosCoreAnalyzers
             }
             else
             {
