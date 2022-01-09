@@ -126,9 +126,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Ya estÃ¡ en lista negra.</value>
   </data>
-  <data name="ALREADY_FRIEND" xml:space="preserve">
-    <value>Â¡Actualmente ya sois amigos!</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Â¿Deseas vincular este objeto?</value>
   </data>
@@ -161,9 +158,6 @@
   </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Â¡El intercambio ha tenido Ã©xito!</value>
-  </data>
-  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
-    <value>Â¡No puedes bloquear a tu amigo!</value>
   </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>No puedes cambiarte a la misma clase.</value>
@@ -217,23 +211,8 @@
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>El personaje cambio mientras se estaba cambiando el mapa. No abuse de los comandos. {0}</value>
   </data>
-  <data name="FRIENDLIST_FULL" xml:space="preserve">
-    <value>Â¡Tu lista de amigos estÃ¡ llena!</value>
-  </data>
-  <data name="FRIEND_ADDED" xml:space="preserve">
-    <value>Â¡PeticiÃ³n de amistad aceptada!</value>
-  </data>
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Â¡Amigo eliminado!</value>
-  </data>
-  <data name="FRIEND_REJECTED" xml:space="preserve">
-    <value>Â¡PeticiÃ³n de amistad rechazada!</value>
-  </data>
-  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
-    <value>Este jugador ha bloqueado las peticiones de amistad.</value>
-  </data>
-  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
-    <value>Â¡Solicitud de amistad enviada!</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>GroupRequestType desconocida</value>

@@ -76,6 +76,7 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {
+                    Type = MessageType.Default,
                     Message = Game18NConstString.NotEnoughGold
                 }).ConfigureAwait(false);
                 return;
@@ -188,6 +189,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     }).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(new MsgiPacket
                     {
+                        Type = MessageType.Default,
                         Message = Game18NConstString.ItemAddedToBazar
                     }).ConfigureAwait(false);
 

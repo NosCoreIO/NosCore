@@ -103,9 +103,11 @@ namespace NosCore.PacketHandlers.Chat
 
                 if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
                 {
-                    await session.SendPacketAsync(new InfoPacket
+                    await session.SendPacketAsync(new Infoi2Packet
                     {
-                        Message = $"{receiverName} is not playing.",
+                        Message = Game18NConstString.IsNotPlaying,
+                        ArgumentType = 1,
+                        Game18NArguments = new object[] { receiverName }
                     });
                     return;
                 }

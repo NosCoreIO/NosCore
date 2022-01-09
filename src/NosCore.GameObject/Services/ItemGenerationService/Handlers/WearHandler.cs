@@ -114,6 +114,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 {
                     await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                     {
+                        Type = MessageType.Default,
                         Message = Game18NConstString.SpecialistAndFairyDifferentElement
                     }).ConfigureAwait(false);
                     return;
@@ -130,6 +131,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 {
                     await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                     {
+                        Type = MessageType.Default,
                         Message = Game18NConstString.CantTrasformWithSideEffect,
                         ArgumentType = 4,
                         Game18NArguments = new object[] { requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage) }
@@ -153,6 +155,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 {
                     await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                     {
+                        Type = MessageType.Default,
                         Message = Game18NConstString.CantUseBecauseSoulDestroyed
                     }).ConfigureAwait(false);
                     return;

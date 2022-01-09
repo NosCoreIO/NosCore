@@ -83,9 +83,8 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         await clientSession.SendPacketAsync(new MsgPacket
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.DROP_MAP_FULL,
-                                clientSession.Account.Language),
-                            Type = 0
+                            Type = MessageType.Default,
+                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.DROP_MAP_FULL, clientSession.Account.Language),
                         }).ConfigureAwait(false);
                     }
                 }
@@ -93,9 +92,8 @@ namespace NosCore.PacketHandlers.Inventory
                 {
                     await clientSession.SendPacketAsync(new MsgPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_DROP_AMOUNT,
-                            clientSession.Account.Language),
-                        Type = 0
+                        Type = MessageType.Default,
+                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_DROP_AMOUNT, clientSession.Account.Language),
                     }).ConfigureAwait(false);
                 }
             }

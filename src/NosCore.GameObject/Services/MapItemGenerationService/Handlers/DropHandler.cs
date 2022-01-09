@@ -91,8 +91,8 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
             {
                 await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = Game18NConstString.NotEnoughSpace,
-                    Type = 0
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.NotEnoughSpace
                 }).ConfigureAwait(false);
             }
         }

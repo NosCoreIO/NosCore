@@ -88,15 +88,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à You are already friends!.
-        /// </summary>
-        public static string ALREADY_FRIEND {
-            get {
-                return ResourceManager.GetString("ALREADY_FRIEND", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Do you wish to bind with this item?.
         /// </summary>
         public static string ASK_BIND {
@@ -219,15 +210,6 @@ namespace NosCore.Data.Resource {
         public static string CANNOT_TRADE_NOT_TRADABLE_ITEM {
             get {
                 return ResourceManager.GetString("CANNOT_TRADE_NOT_TRADABLE_ITEM", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Can not block your friend!.
-        /// </summary>
-        public static string CANT_BLOCK_FRIEND {
-            get {
-                return ResourceManager.GetString("CANT_BLOCK_FRIEND", resourceCulture);
             }
         }
         
@@ -421,24 +403,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à [{0}] wants to be your friend! Do you accept the request?.
-        /// </summary>
-        public static string FRIEND_ADD {
-            get {
-                return ResourceManager.GetString("FRIEND_ADD", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Friend request accepted!.
-        /// </summary>
-        public static string FRIEND_ADDED {
-            get {
-                return ResourceManager.GetString("FRIEND_ADDED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Friend deleted!.
         /// </summary>
         public static string FRIEND_DELETED {
@@ -448,47 +412,11 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Friend request rejected!.
-        /// </summary>
-        public static string FRIEND_REJECTED {
-            get {
-                return ResourceManager.GetString("FRIEND_REJECTED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Friend request blocked!.
-        /// </summary>
-        public static string FRIEND_REQUEST_BLOCKED {
-            get {
-                return ResourceManager.GetString("FRIEND_REQUEST_BLOCKED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Your friend request could not be completed because the user is disconnected..
         /// </summary>
         public static string FRIEND_REQUEST_DISCONNECTED {
             get {
                 return ResourceManager.GetString("FRIEND_REQUEST_DISCONNECTED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Friend request sent!.
-        /// </summary>
-        public static string FRIEND_REQUEST_SENT {
-            get {
-                return ResourceManager.GetString("FRIEND_REQUEST_SENT", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Your Friendlist is full!.
-        /// </summary>
-        public static string FRIENDLIST_FULL {
-            get {
-                return ResourceManager.GetString("FRIENDLIST_FULL", resourceCulture);
             }
         }
         

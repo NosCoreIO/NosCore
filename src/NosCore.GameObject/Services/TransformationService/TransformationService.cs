@@ -132,6 +132,7 @@ namespace NosCore.GameObject.Services.TransformationService
             {
                 await character.SendPacketAsync(new MsgiPacket
                 {
+                    Type = MessageType.Default,
                     Message = Game18NConstString.SpecialistAndFairyDifferentElement
                 }).ConfigureAwait(false);
                 return;

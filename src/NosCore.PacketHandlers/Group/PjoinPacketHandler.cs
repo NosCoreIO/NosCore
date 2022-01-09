@@ -111,6 +111,7 @@ namespace NosCore.PacketHandlers.Group
                     {
                         await clientSession.SendPacketAsync(new MsgiPacket
                         {
+                            Type = MessageType.Default,
                             Message = Game18NConstString.GroupBlocked
                         }).ConfigureAwait(false);
                         return;
@@ -317,6 +318,7 @@ namespace NosCore.PacketHandlers.Group
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
                     await clientSession.SendPacketAsync(new MsgiPacket
                     {
+                        Type = MessageType.Default,
                         Message = Game18NConstString.ChangedSamePointOfReturn
                     }).ConfigureAwait(false);
 

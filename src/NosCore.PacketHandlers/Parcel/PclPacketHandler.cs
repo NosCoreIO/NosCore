@@ -91,8 +91,8 @@ namespace NosCore.PacketHandlers.Parcel
                     await clientSession.SendPacketAsync(new ParcelPacket { Type = 5, Unknown = 1, Id = 0 }).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(new MsgiPacket
                     {
-                        Message = Game18NConstString.NotEnoughSpace,
-                        Type = 0
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.NotEnoughSpace
                     }).ConfigureAwait(false);
                 }
             }

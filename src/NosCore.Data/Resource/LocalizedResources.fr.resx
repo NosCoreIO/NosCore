@@ -238,13 +238,13 @@
     <value>Tentative de reconnexion au serveur master dans {0} secondes.</value>
   </data>
   <data name="NO_MAP" xml:space="preserve">
-    <value>Aucune Map n'a été trouvé.</value>
+    <value>Aucune Map n'a été trouvée.</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>Les monstres ont été chargés avec succès !</value>
   </data>
   <data name="ACCOUNT_ARRIVED" xml:space="preserve">
-    <value>Le compte {0} c'est connecté.</value>
+    <value>Le compte {0} s'est connecté.</value>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Gestionnaire introuvable.</value>
@@ -327,17 +327,11 @@
   <data name="MAPNPCS_LOADED" xml:space="preserve">
     <value>Les PNJ ont été chargés avec succès !</value>
   </data>
-  <data name="ALREADY_FRIEND" xml:space="preserve">
-    <value>Vous êtes déjà amis.</value>
-  </data>
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Valeur d'objet incorrect.</value>
   </data>
   <data name="BLACKLIST_ADDED" xml:space="preserve">
     <value>Ajouté à votre liste noire.</value>
-  </data>
-  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
-    <value>Impossible de bloquer vos amis.</value>
   </data>
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Impossible de trouver ce personnage.</value>
@@ -345,23 +339,8 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Impossible de jeter, il y a trop d'objet au sol.</value>
   </data>
-  <data name="FRIENDLIST_FULL" xml:space="preserve">
-    <value>Votre liste d'amis est complète.</value>
-  </data>
-  <data name="FRIEND_ADD" xml:space="preserve">
-    <value>Voulez-vous ajouter {0} en ami ?</value>
-  </data>
-  <data name="FRIEND_ADDED" xml:space="preserve">
-    <value>Demande d'ami acceptée.</value>
-  </data>
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Ami supprimé.</value>
-  </data>
-  <data name="FRIEND_REJECTED" xml:space="preserve">
-    <value>Demande d'ami rejetée.</value>
-  </data>
-  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
-    <value>Demande d'amis bloqué.</value>
   </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>Les objets ont été chargés avec succès !</value>
@@ -374,9 +353,6 @@
   </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Le joueur est déjà dans ta liste noire.</value>
-  </data>
-  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
-    <value>Invitation d'amitié envoyée.</value>
   </data>
   <data name="GROUP_ADMIN" xml:space="preserve">
     <value>Vous êtes le chef du groupe. Vous pouvez définir les condition d'obtention des objets.</value>

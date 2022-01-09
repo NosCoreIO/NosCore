@@ -71,8 +71,8 @@ namespace NosCore.PacketHandlers.Shops
             {
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {
-                    Message = Game18NConstString.MaxGoldReached,
-                    Type = 0
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.MaxGoldReached
                 }).ConfigureAwait(false);
                 return;
             }

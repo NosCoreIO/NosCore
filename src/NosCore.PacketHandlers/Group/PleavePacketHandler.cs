@@ -109,6 +109,7 @@ namespace NosCore.PacketHandlers.Group
 
                     await targetsession.SendPacketAsync(new MsgiPacket
                     {
+                        Type = MessageType.Default,
                         Message = Game18NConstString.PartyDisbanded
                     }).ConfigureAwait(false);
 

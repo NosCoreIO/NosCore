@@ -254,6 +254,7 @@ namespace NosCore.GameObject
             await GenerateLevelupPacketsAsync().ConfigureAwait(false);
             await SendPacketAsync(new MsgiPacket
             {
+                Type = MessageType.Default,
                 Message = Game18NConstString.HeroLevelIncreased
             }).ConfigureAwait(false);
         }
@@ -275,6 +276,7 @@ namespace NosCore.GameObject
             })).ConfigureAwait(false);
             await SendPacketAsync(new MsgiPacket
             {
+                Type = MessageType.Default,
                 Message = Game18NConstString.JobLevelIncreased
             }).ConfigureAwait(false);
         }
@@ -304,6 +306,7 @@ namespace NosCore.GameObject
                     await groupMember.SendPacketAsync(Group.GeneratePidx(groupMember)).ConfigureAwait(false);
                     await groupMember.SendPacketAsync(new MsgiPacket
                     {
+                        Type = MessageType.Default,
                         Message = Game18NConstString.PartyDisbanded
                     }).ConfigureAwait(false);
                 }
@@ -385,6 +388,7 @@ namespace NosCore.GameObject
             await SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
             await SendPacketAsync(new MsgiPacket
             {
+                Type = MessageType.Default,
                 Message = Game18NConstString.ClassChanged
             }).ConfigureAwait(false);
 
@@ -609,8 +613,8 @@ namespace NosCore.GameObject
             {
                 await SendPacketAsync(new MsgiPacket
                 {
-                    Message = Game18NConstString.NotEnoughSpace,
-                    Type = 0
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.NotEnoughSpace
                 }).ConfigureAwait(false);
             }
         }
@@ -703,6 +707,7 @@ namespace NosCore.GameObject
             await GenerateLevelupPacketsAsync().ConfigureAwait(false);
             await SendPacketAsync(new MsgiPacket
             {
+                Type = MessageType.Default,
                 Message = Game18NConstString.LevelIncreased
             }).ConfigureAwait(false);
         }

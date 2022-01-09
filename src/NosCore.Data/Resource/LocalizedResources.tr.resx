@@ -126,9 +126,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Zaten karalistede!</value>
   </data>
-  <data name="ALREADY_FRIEND" xml:space="preserve">
-    <value>Zaten arkadaşsınız.</value>
-  </data>
   <data name="ASK_BIND" xml:space="preserve">
     <value>Bu eşyayı bağlamak istiyor musun?</value>
   </data>
@@ -161,9 +158,6 @@
   </data>
   <data name="BUY_ITEM_VALID" xml:space="preserve">
     <value>Bir eşya satın aldın.</value>
-  </data>
-  <data name="CANT_BLOCK_FRIEND" xml:space="preserve">
-    <value>Arkadaşını bloklayamazsın!</value>
   </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Zaten aynı meslektesin!</value>
@@ -216,23 +210,8 @@
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Harita değiştirilirken karakter de değişti. Komutları kötüye kullanmayınız. {0}</value>
   </data>
-  <data name="FRIENDLIST_FULL" xml:space="preserve">
-    <value>Arkadaş listen dolu!</value>
-  </data>
-  <data name="FRIEND_ADDED" xml:space="preserve">
-    <value>Arkadaşlık isteği kabul edildi.</value>
-  </data>
   <data name="FRIEND_DELETED" xml:space="preserve">
     <value>Arkadaşlıktan çıkarıldı.</value>
-  </data>
-  <data name="FRIEND_REJECTED" xml:space="preserve">
-    <value>Arkadaşlık isteği reddedildi.</value>
-  </data>
-  <data name="FRIEND_REQUEST_BLOCKED" xml:space="preserve">
-    <value>Arkadaşlık isteği bloklandı.</value>
-  </data>
-  <data name="FRIEND_REQUEST_SENT" xml:space="preserve">
-    <value>Arkadaşlık isteği gönderildi.</value>
   </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Bilinmeyen grup daveti türü.</value>
@@ -515,9 +494,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Destek</value>
-  </data>
-  <data name="FRIEND_ADD" xml:space="preserve">
-    <value>[{0}] Sana bir arkadaşlık isteği gönderdi. Arkadaşlığa kabul ediyor musun?</value>
   </data>
   <data name="GROUP_REFUSED" xml:space="preserve">
     <value>Grup davetin reddedildi.</value>

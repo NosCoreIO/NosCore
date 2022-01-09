@@ -57,6 +57,7 @@ namespace NosCore.PacketHandlers.Miniland
                         case MinilandState.Private:
                             await clientSession.SendPacketAsync(new MsgiPacket
                             {
+                                Type = MessageType.Default,
                                 Message = Game18NConstString.MinilandPrivate
                             }).ConfigureAwait(false);
                             await _minilandProvider.SetStateAsync(clientSession.Character.CharacterId, MinilandState.Private).ConfigureAwait(false);
@@ -65,6 +66,7 @@ namespace NosCore.PacketHandlers.Miniland
                         case MinilandState.Lock:
                             await clientSession.SendPacketAsync(new MsgiPacket
                             {
+                                Type = MessageType.Default,
                                 Message = Game18NConstString.MinilandLocked
                             }).ConfigureAwait(false);
                             await _minilandProvider.SetStateAsync(clientSession.Character.CharacterId, MinilandState.Lock).ConfigureAwait(false);
@@ -73,6 +75,7 @@ namespace NosCore.PacketHandlers.Miniland
                         case MinilandState.Open:
                             await clientSession.SendPacketAsync(new MsgiPacket
                             {
+                                Type = MessageType.Default,
                                 Message = Game18NConstString.MinilandPublic
                             }).ConfigureAwait(false);
                             await _minilandProvider.SetStateAsync(clientSession.Character.CharacterId, MinilandState.Open).ConfigureAwait(false);

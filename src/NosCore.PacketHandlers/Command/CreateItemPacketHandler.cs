@@ -77,6 +77,7 @@ namespace NosCore.PacketHandlers.Command
             {
                 await session.SendPacketAsync(new MsgiPacket
                 {
+                    Type = MessageType.Default,
                     Message = Game18NConstString.ItemDoesNotExist
                 }).ConfigureAwait(false);
                 return;
@@ -138,8 +139,8 @@ namespace NosCore.PacketHandlers.Command
             {
                 await session.SendPacketAsync(new MsgiPacket
                 {
-                    Message = Game18NConstString.NotEnoughSpace,
-                    Type = 0
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.NotEnoughSpace
                 }).ConfigureAwait(false);
                 return;
             }
