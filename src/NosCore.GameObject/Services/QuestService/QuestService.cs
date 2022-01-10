@@ -184,7 +184,7 @@ namespace NosCore.GameObject.Services.QuestService
         {
             var charQues = character.Quests.OrderByDescending(s => s.Value.CompletedOn).FirstOrDefault(s => s.Value.QuestId == questId);
             if (!charQues.Equals(new KeyValuePair<Guid, CharacterQuest>()) &&
-                !charQues.Value.Quest.IsDaily)
+                charQues.Value.Quest.FrequencyType != FrequencyType.Daily)
             {
                 return false;
             }
@@ -249,7 +249,7 @@ namespace NosCore.GameObject.Services.QuestService
                 return false;
             }
 
-            if (quest.IsDaily && (characterQuest.Value?.CompletedOn?.Plus(Duration.FromDays(1)) > _clock.GetCurrentInstant()))
+            if (quest.FrequencyType == FrequencyType.Daily && (characterQuest.Value?.CompletedOn?.Plus(Duration.FromDays(1)) > _clock.GetCurrentInstant()))
             {
                 await character.SendPacketAsync(new MsgiPacket
                 {
