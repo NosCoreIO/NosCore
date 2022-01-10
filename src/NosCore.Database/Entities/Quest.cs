@@ -43,6 +43,8 @@ namespace NosCore.Database.Entities
 
         public QuestType QuestType { get; set; }
 
+        public MissionType? QuestSubType { get; set; }
+
         public virtual ICollection<CharacterQuest> CharacterQuest { get; set; }
 
         public virtual ICollection<QuestQuestReward> QuestQuestReward { get; set; }
@@ -66,7 +68,7 @@ namespace NosCore.Database.Entities
         //this would create circular reference if it was FK
         public short? NextQuestId { get; set; }
 
-        public bool IsDaily { get; set; }
+        public FrequencyType FrequencyType { get; set; }
 
         public bool AutoFinish { get; set; }
 
