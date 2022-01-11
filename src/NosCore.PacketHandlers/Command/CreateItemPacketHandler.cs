@@ -176,7 +176,7 @@ namespace NosCore.PacketHandlers.Command
             {
                 VisualType = VisualType.Player,
                 VisualId = session.Character.CharacterId,
-                Type = SayColorType.Yellow,
+                Type = SayColorType.Green,
                 Message = Game18NConstString.ReceivedThisItem,
                 ArgumentType = 2,
                 Game18NArguments = new object[] { iteminfo.VNum.ToString(), amount }
