@@ -147,12 +147,6 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>La cantidad de items soltados es erronea.</value>
   </data>
-  <data name="BAD_EQUIPMENT" xml:space="preserve">
-    <value>Tu personaje no cumple con los requisitos necesarios para llevar este objeto.</value>
-  </data>
-  <data name="BUY_ITEM_VALID" xml:space="preserve">
-    <value>Â¡El intercambio ha tenido Ã©xito!</value>
-  </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>No puedes cambiarte a la misma clase.</value>
   </data>
@@ -209,9 +203,6 @@
     <value>GroupRequestType desconocida</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="GROUP_ADMIN" xml:space="preserve">
-    <value>Â¡Ahora eres el administrador del grupo!</value>
-  </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>No se pudo encontrar la implementaciÃ³n del "controlador" (Handler) para el paquete con cabezera: {0}</value>
   </data>
@@ -261,15 +252,9 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>Â¡{0} Items Analizados!</value>
   </data>
-  <data name="JOINED_GROUP" xml:space="preserve">
-    <value>Has entrado al grupo.</value>
-  </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Lenguaje faltante</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="LOW_JOB_LVL" xml:space="preserve">
-    <value>Esta SP require de mÃ¡s Nivel de ProfesiÃ³n para usarla.</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>Â¡{0} MapMonsters (Monstruos de los Mapas) Cargados!</value>
@@ -300,15 +285,6 @@
   </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>Â¡{0} MapMonsters (Monstruos de los Mapas) Analizados!</value>
-  </data>
-  <data name="NEW_LEADER" xml:space="preserve">
-    <value>Â¡Ahora eres el nuevo lÃ­der del grupo!</value>
-  </data>
-  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
-    <value>Â¡No tienes suficiente oro para comprar ese objeto!</value>
-  </data>
-  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
-    <value>Â¡No tienes suficiente reputaciÃ³n para comprar ese objeto!</value>
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Â¡Este jugador no estÃ¡ en tu lista negra!</value>
@@ -400,9 +376,6 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrado en el Servidor Maestro.</value>
   </data>
-  <data name="REPUT_DECREASED" xml:space="preserve">
-    <value>Â¡Tu reputaciÃ³n ha disminuido!</value>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Â¡Tu reptuaciÃ³n ha cambiado!</value>
   </data>
@@ -411,15 +384,6 @@
   </data>
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Â¡Guardando todos los datos!</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
-    <value>No puedes abrir una tienda en un raid.</value>
-  </data>
-  <data name="SHOP_OPEN" xml:space="preserve">
-    <value>Has abierto una tienda.</value>
-  </data>
-  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
-    <value>Â¿Quiere proceder a abrir la tienda tal y como esta?</value>
   </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>Â¡{0} ShopItems Cargados!</value>

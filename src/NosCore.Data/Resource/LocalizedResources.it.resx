@@ -153,9 +153,6 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Quantità di drop errata.</value>
   </data>
-  <data name="BAD_EQUIPMENT" xml:space="preserve">
-    <value>Il tuo personaggio non ha i requisiti necessari per indossare questo oggetto.</value>
-  </data>
   <data name="BANK_FULL" xml:space="preserve">
     <value>Il tuo conto corrente è pieno.</value>
   </data>
@@ -167,12 +164,6 @@
   </data>
   <data name="BAZAAR_MOD_ERROR" xml:space="preserve">
     <value>Errore durante la modifica nel NosBazaar.</value>
-  </data>
-  <data name="BUY_ITEM_FROM" xml:space="preserve">
-    <value>Hai comprato questo oggetto da {0} {1} {2}!</value>
-  </data>
-  <data name="BUY_ITEM_VALID" xml:space="preserve">
-    <value>Hai comrato un oggetto!</value>
   </data>
   <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
     <value>Non puoi commerciare questo oggetto!</value>
@@ -235,17 +226,11 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Ci sono troppi oggetti in mappa! Prova più tardi</value>
   </data>
-  <data name="EFFECT_ACTIVATED" xml:space="preserve">
-    <value>Sei sotto l'effetto {0}!</value>
-  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Immetti la directory dei file da sincronizzare</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Personaggio cambiato durante la modifica della mappa. Non abusare dei comandi.</value>
-  </data>
-  <data name="EXCHANGE_REFUSED" xml:space="preserve">
-    <value>Commercio rifiutato</value>
   </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Non è stato possibile trovare il giocatore online. Richiesta annullata</value>
@@ -253,9 +238,6 @@
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Tipo di richiesta gruppo sconosciuto</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="GROUP_ADMIN" xml:space="preserve">
-    <value>Sei il leader del gruppo</value>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Non si può gestire il pacchetto con Intestazione: {0}</value>
@@ -290,9 +272,6 @@
   <data name="I18N_SKILL_PARSED" xml:space="preserve">
     <value>{0} I18N Skills Sincronizzate! Regione: {1}</value>
   </data>
-  <data name="INCOMING_EXCHANGE" xml:space="preserve">
-    <value>{0} vuole commerciare con te.</value>
-  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>L'ID è errato!</value>
   </data>
@@ -309,9 +288,6 @@
     <value>Tipo di invito sconosciuto</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="IN_WAITING_FOR" xml:space="preserve">
-    <value>In Waiting for {0}.</value>
-  </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>{0} Item caricati.</value>
   </data>
@@ -324,21 +300,12 @@
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Non è stato trovato alcun item.</value>
   </data>
-  <data name="JOINED_GROUP" xml:space="preserve">
-    <value>Ti sei unito al gruppo</value>
-  </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Lingua mancante</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="LIMIT_EXCEEDED" xml:space="preserve">
-    <value>Non puoi aggiungere altri oggetti al NosBazar perché hai raggiunto il limite.</value>
-  </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Caricamento MapInstances...</value>
-  </data>
-  <data name="LOW_JOB_LVL" xml:space="preserve">
-    <value>Questo specialista richiede un livello lavoro più alto.</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MappeMostri caricate!</value>
@@ -370,23 +337,8 @@
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters Sincronizzati!</value>
   </data>
-  <data name="NEW_LEADER" xml:space="preserve">
-    <value>Sei il nuovo leader del gruppo!</value>
-  </data>
-  <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
-    <value>I punti durabilità sono insufficienti.</value>
-  </data>
   <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
     <value>Non hai abbastanza oro.</value>
-  </data>
-  <data name="NOT_ENOUGH_MINILAND_POINT" xml:space="preserve">
-    <value>Non abbastanza punti di produzione.</value>
-  </data>
-  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
-    <value>Non hai abbastanza oro per comprare questo oggetto.</value>
-  </data>
-  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
-    <value>Non hai abbastanza reputazione per comprare questo oggetto.</value>
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Questo giocatore non è nella tua lista nera!</value>
@@ -494,9 +446,6 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0} Portali Sincronizzati!</value>
   </data>
-  <data name="PORTAL_DELAY" xml:space="preserve">
-    <value>Aspetta prima di usare un altro portale!</value>
-  </data>
   <data name="QUESTOBJECTIVES_LOADED" xml:space="preserve">
     <value>{0} Obbiettivi delle Quest caricati !</value>
   </data>
@@ -515,18 +464,12 @@
   <data name="QUEST_PRIZES_PARSED" xml:space="preserve">
     <value>{0} Premi delle Quest aggiunti !</value>
   </data>
-  <data name="REFILL_MINIGAME" xml:space="preserve">
-    <value>Ricarica il Minigame {0}</value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrato sul MasterServer</value>
     <comment>revisionare</comment>
   </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>La reputazione è cambiata!</value>
-  </data>
-  <data name="REPUT_DECREASED" xml:space="preserve">
-    <value>La reputazione è diminuita!</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Caricati!</value>
@@ -557,15 +500,6 @@
   </data>
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>{0} Shops caricati!</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
-    <value>Non puoi aprire una bottega durante un raid.</value>
-  </data>
-  <data name="SHOP_OPEN" xml:space="preserve">
-    <value>Hai aperto una bottega privata.</value>
-  </data>
-  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
-    <value>Procedi ad aprire il negozio mentre lo installi?</value>
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Sincronizzate!</value>

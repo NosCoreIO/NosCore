@@ -235,9 +235,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Amount = 1,
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
-            var lastpacket = (ModalPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModalPacket);
-            Assert.IsTrue(lastpacket?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
+            var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
+            Assert.IsTrue(lastpacket?.Message == Game18NConstString.InsufficientGoldAvailable);
         }
 
         [TestMethod]

@@ -130,14 +130,15 @@ namespace NosCore.PacketHandlers.Exchange
                         Game18NArguments = new object[] { target.Name }
                     }).ConfigureAwait(false);
 
-                    await target.SendPacketAsync(new DlgPacket
+                    await target.SendPacketAsync(new Dlgi2Packet
                     {
                         YesPacket = new ExchangeRequestPacket
                         { RequestType = RequestExchangeType.List, VisualId = clientSession.Character.VisualId },
                         NoPacket = new ExchangeRequestPacket
                         { RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId },
-                        Question = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.INCOMING_EXCHANGE,
-                            clientSession.Account.Language), clientSession.Character.Name)
+                        Question = Game18NConstString.WantAcceptTrade,
+                        ArgumentType = 2,
+                        Game18NArguments = new object[] { $"{clientSession.Character.Level}", clientSession.Character.Name ?? "" }
                     }).ConfigureAwait(false);
                     return;
 
@@ -152,12 +153,22 @@ namespace NosCore.PacketHandlers.Exchange
                     return;
 
                 case RequestExchangeType.Declined:
-                    await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
-                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED,
-                            clientSession.Account.Language),
-                        SayColorType.Yellow)).ConfigureAwait(false);
-                    await (target == null ? Task.CompletedTask : target.SendPacketAsync(target.GenerateSay(target.GetMessageFromKey(LanguageKey.EXCHANGE_REFUSED),
-                        SayColorType.Yellow))).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(new Sayi2Packet
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = clientSession.Character.CharacterId,
+                        Type = SayColorType.Yellow,
+                        Message = Game18NConstString.CancelledTrade,
+                        ArgumentType = 1,
+                        Game18NArguments = new object[] { target?.Name ?? "" }
+                    }).ConfigureAwait(false);
+                    await (target == null ? Task.CompletedTask : target.SendPacketAsync(new SayiPacket
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = target.CharacterId,
+                        Type = SayColorType.Yellow,
+                        Message = Game18NConstString.TradeCancelled2
+                    })).ConfigureAwait(false);
                     return;
 
                 case RequestExchangeType.Confirmed:
@@ -183,10 +194,9 @@ namespace NosCore.PacketHandlers.Exchange
                     if (!_exchangeProvider.IsExchangeConfirmed(clientSession.Character.VisualId) ||
                         !_exchangeProvider.IsExchangeConfirmed(exchangeTarget.VisualId))
                     {
-                        await clientSession.SendPacketAsync(new InfoPacket
+                        await clientSession.SendPacketAsync(new InfoiPacket
                         {
-                            Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.IN_WAITING_FOR,
-                                clientSession.Account.Language), exchangeTarget.Name)
+                            Message = Game18NConstString.TradeWaitingConfirm
                         }).ConfigureAwait(false);
                         return;
                     }

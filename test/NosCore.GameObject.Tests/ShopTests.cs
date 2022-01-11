@@ -149,9 +149,8 @@ namespace NosCore.GameObject.Tests
             };
             await _session.Character.BuyAsync(shop, 0, 99).ConfigureAwait(false);
 
-            var packet = (SMemoPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, _session.Account.Language));
+            var packet = (SMemoiPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoiPacket);
+            Assert.IsTrue(packet?.Message == Game18NConstString.NotEnoughGold5);
         }
 
         [TestMethod]
@@ -173,9 +172,8 @@ namespace NosCore.GameObject.Tests
             };
             await _session.Character.BuyAsync(shop, 0, 99).ConfigureAwait(false);
 
-            var packet = (SMemoPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, _session.Account.Language));
+            var packet = (SMemoiPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoiPacket);
+            Assert.IsTrue(packet?.Message == Game18NConstString.ReputationNotHighEnough);
         }
 
         [TestMethod]

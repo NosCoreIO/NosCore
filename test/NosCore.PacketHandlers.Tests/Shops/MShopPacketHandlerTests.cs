@@ -124,9 +124,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session.Character.PositionY = 7;
             _session.Character.Group = new GameObject.Group(GroupType.Group);
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message !=
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_NOT_ALLOWED_IN_RAID, _session.Account.Language));
+            var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsNull(packet);
         }
 
         [TestMethod]

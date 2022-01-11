@@ -160,8 +160,9 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(5), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
-            var lastpacket = (SayPacket?)Session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.AreEqual(Session.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT), lastpacket?.Message);
+            var lastpacket = (SayiPacket?)Session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.AreEqual(lastpacket?.VisualType == VisualType.Player, lastpacket?.VisualId == Session.Character.CharacterId);
+            Assert.AreEqual(lastpacket?.Type == SayColorType.Yellow, lastpacket?.Message == Game18NConstString.CanNotWearThat);
         }
 
         [TestMethod]
@@ -228,9 +229,8 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(6), Session!.Character.CharacterId);
             Session.Character.InventoryService!.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
-            var lastpacket = (SayPacket?)Session.LastPackets.FirstOrDefault(s => s is SayPacket);
-            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.LOW_JOB_LVL,
-                    Session.Account.Language), lastpacket?.Message);
+            var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.AreEqual(lastpacket?.Message, Game18NConstString.CanNotBeWornDifferentClass);
         }
 
         [TestMethod]

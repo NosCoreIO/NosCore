@@ -149,12 +149,6 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Bad drop amount.</value>
   </data>
-  <data name="BAD_EQUIPMENT" xml:space="preserve">
-    <value>Your character does not fulfil the requirements needed to wear this item.</value>
-  </data>
-  <data name="BUY_ITEM_VALID" xml:space="preserve">
-    <value>You have purchased an item!</value>
-  </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>You can not change to the same class.</value>
   </data>
@@ -211,9 +205,6 @@
     <value>Unknown Group request type</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="GROUP_ADMIN" xml:space="preserve">
-    <value>You are the group admin!</value>
-  </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Could not found Handler implementation for Packet with Header {0}</value>
   </data>
@@ -263,15 +254,9 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} items parsed!</value>
   </data>
-  <data name="JOINED_GROUP" xml:space="preserve">
-    <value>You joined the group</value>
-  </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Missing language</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="LOW_JOB_LVL" xml:space="preserve">
-    <value>This SP requires more Job Level to use it.</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MapMonsters Loaded!</value>
@@ -302,15 +287,6 @@
   </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters Parsed!</value>
-  </data>
-  <data name="NEW_LEADER" xml:space="preserve">
-    <value>You are the new party leader!</value>
-  </data>
-  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
-    <value>You do not have enough money to purchase that item!</value>
-  </data>
-  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
-    <value>You don't have enough reputation to purchase that item!</value>
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>This player is not on your blacklist!</value>
@@ -403,9 +379,6 @@
     <value>Registered on MasterServer</value>
     <comment>check</comment>
   </data>
-  <data name="REPUT_DECREASED" xml:space="preserve">
-    <value>Your reputation has decreased!</value>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Your reputation has changed!</value>
   </data>
@@ -414,15 +387,6 @@
   </data>
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Saving all data!</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
-    <value>You can not open a shop in a raid.</value>
-  </data>
-  <data name="SHOP_OPEN" xml:space="preserve">
-    <value>You have opened a shop.</value>
-  </data>
-  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
-    <value>Proceed to open the shop as you set it up?</value>
   </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>{0} ShopItems Loaded!</value>
@@ -495,26 +459,14 @@
   <data name="BANK_FULL" xml:space="preserve">
     <value>Your bank account is full.</value>
   </data>
-  <data name="BUY_ITEM_FROM" xml:space="preserve">
-    <value>You bought an item from {0} {1} {2}!</value>
-  </data>
   <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
     <value>You can't move an item in the shop !</value>
   </data>
   <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
     <value>You can't use any items in the shop.</value>
   </data>
-  <data name="EFFECT_ACTIVATED" xml:space="preserve">
-    <value>The {0} effect has been activated !</value>
-  </data>
-  <data name="EXCHANGE_REFUSED" xml:space="preserve">
-    <value>You refused your exchange request.</value>
-  </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Your friend request could not be completed because the user is disconnected.</value>
-  </data>
-  <data name="INCOMING_EXCHANGE" xml:space="preserve">
-    <value>{0} wants to exchange with you.</value>
   </data>
   <data name="INVALID_EXCHANGE" xml:space="preserve">
     <value>You can only exchange tradable items.</value>
@@ -522,20 +474,11 @@
   <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
     <value>Invalid exchange list.</value>
   </data>
-  <data name="IN_WAITING_FOR" xml:space="preserve">
-    <value>In Waiting for {0}.</value>
-  </data>
-  <data name="LIMIT_EXCEEDED" xml:space="preserve">
-    <value>You can't add more item on the bazaar because the limit is exceeded.</value>
-  </data>
   <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
     <value>You don't have enough gold.</value>
   </data>
   <data name="PLAYER_IN_SHOP" xml:space="preserve">
     <value>The {0} player is in store mode.</value>
-  </data>
-  <data name="PORTAL_DELAY" xml:space="preserve">
-    <value>Please wait before you teleport !</value>
   </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>The player isn't in exchange.</value>

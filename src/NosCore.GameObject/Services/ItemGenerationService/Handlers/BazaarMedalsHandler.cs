@@ -31,6 +31,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
@@ -65,16 +67,18 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.SilverNosMerchantUpgrade
                     ? StaticBonusType.BazaarMedalSilver : StaticBonusType.BazaarMedalGold
             });
-            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSay(string.Format(
-                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.EFFECT_ACTIVATED,
-                        requestData.ClientSession.Account.Language),
-                    itemInstance.ItemInstance.Item.Name[requestData.ClientSession.Account.Language]),
-                SayColorType.Green)).ConfigureAwait(false);
-            await requestData.ClientSession.SendPacketAsync(
-                itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacketAsync(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = requestData.ClientSession.Character.CharacterId,
+                Type = SayColorType.Green,
+                Message = Game18NConstString.EffectActivated,
+                ArgumentType = 2,
+                Game18NArguments = new object[] { itemInstance.ItemInstance.Item.VNum.ToString() }
+            }).ConfigureAwait(false);
 
-            requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
-                itemInstance.ItemInstanceId);
+            await requestData.ClientSession.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
+            requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
         }
     }
 }

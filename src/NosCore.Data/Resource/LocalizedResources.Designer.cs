@@ -151,38 +151,11 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Your character does not fulfil the requirements needed to wear this item..
-        /// </summary>
-        public static string BAD_EQUIPMENT {
-            get {
-                return ResourceManager.GetString("BAD_EQUIPMENT", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Your bank account is full..
         /// </summary>
         public static string BANK_FULL {
             get {
                 return ResourceManager.GetString("BANK_FULL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You bought an item from {0} {1} {2}!.
-        /// </summary>
-        public static string BUY_ITEM_FROM {
-            get {
-                return ResourceManager.GetString("BUY_ITEM_FROM", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You have purchased an item!.
-        /// </summary>
-        public static string BUY_ITEM_VALID {
-            get {
-                return ResourceManager.GetString("BUY_ITEM_VALID", resourceCulture);
             }
         }
         
@@ -349,15 +322,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à The {0} effect has been activated !.
-        /// </summary>
-        public static string EFFECT_ACTIVATED {
-            get {
-                return ResourceManager.GetString("EFFECT_ACTIVATED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Please enter the directory of files to parse.
         /// </summary>
         public static string ENTER_PATH {
@@ -376,29 +340,11 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à You refused your exchange request..
-        /// </summary>
-        public static string EXCHANGE_REFUSED {
-            get {
-                return ResourceManager.GetString("EXCHANGE_REFUSED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Your friend request could not be completed because the user is disconnected..
         /// </summary>
         public static string FRIEND_REQUEST_DISCONNECTED {
             get {
                 return ResourceManager.GetString("FRIEND_REQUEST_DISCONNECTED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You are the group admin!.
-        /// </summary>
-        public static string GROUP_ADMIN {
-            get {
-                return ResourceManager.GetString("GROUP_ADMIN", resourceCulture);
             }
         }
         
@@ -511,24 +457,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à In Waiting for {0}..
-        /// </summary>
-        public static string IN_WAITING_FOR {
-            get {
-                return ResourceManager.GetString("IN_WAITING_FOR", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à {0} wants to exchange with you..
-        /// </summary>
-        public static string INCOMING_EXCHANGE {
-            get {
-                return ResourceManager.GetString("INCOMING_EXCHANGE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Wrong Id!.
         /// </summary>
         public static string INVALID_ACCOUNT {
@@ -592,15 +520,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à You joined the group.
-        /// </summary>
-        public static string JOINED_GROUP {
-            get {
-                return ResourceManager.GetString("JOINED_GROUP", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Missing language.
         /// </summary>
         public static string LANGUAGE_MISSING {
@@ -610,29 +529,11 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à You can&apos;t add more item on the bazaar because the limit is exceeded..
-        /// </summary>
-        public static string LIMIT_EXCEEDED {
-            get {
-                return ResourceManager.GetString("LIMIT_EXCEEDED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Loading MapInstances....
         /// </summary>
         public static string LOADING_MAPINSTANCES {
             get {
                 return ResourceManager.GetString("LOADING_MAPINSTANCES", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à This SP requires more Job Level to use it..
-        /// </summary>
-        public static string LOW_JOB_LVL {
-            get {
-                return ResourceManager.GetString("LOW_JOB_LVL", resourceCulture);
             }
         }
         
@@ -727,15 +628,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à You are the new party leader!.
-        /// </summary>
-        public static string NEW_LEADER {
-            get {
-                return ResourceManager.GetString("NEW_LEADER", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Server need at least nosville MAP to work!.
         /// </summary>
         public static string NO_MAP {
@@ -759,24 +651,6 @@ namespace NosCore.Data.Resource {
         public static string NOT_ENOUGH_GOLD {
             get {
                 return ResourceManager.GetString("NOT_ENOUGH_GOLD", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You do not have enough money to purchase that item!.
-        /// </summary>
-        public static string NOT_ENOUGH_MONEY {
-            get {
-                return ResourceManager.GetString("NOT_ENOUGH_MONEY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You don&apos;t have enough reputation to purchase that item!.
-        /// </summary>
-        public static string NOT_ENOUGH_REPUT {
-            get {
-                return ResourceManager.GetString("NOT_ENOUGH_REPUT", resourceCulture);
             }
         }
         
@@ -1033,15 +907,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Please wait before you teleport !.
-        /// </summary>
-        public static string PORTAL_DELAY {
-            get {
-                return ResourceManager.GetString("PORTAL_DELAY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à {0} Portal Parsed!.
         /// </summary>
         public static string PORTALS_PARSED {
@@ -1065,15 +930,6 @@ namespace NosCore.Data.Resource {
         public static string REGISTRED_ON_MASTER {
             get {
                 return ResourceManager.GetString("REGISTRED_ON_MASTER", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Your reputation has decreased!.
-        /// </summary>
-        public static string REPUT_DECREASED {
-            get {
-                return ResourceManager.GetString("REPUT_DECREASED", resourceCulture);
             }
         }
         
@@ -1110,33 +966,6 @@ namespace NosCore.Data.Resource {
         public static string SAVING_ALL {
             get {
                 return ResourceManager.GetString("SAVING_ALL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You can not open a shop in a raid..
-        /// </summary>
-        public static string SHOP_NOT_ALLOWED_IN_RAID {
-            get {
-                return ResourceManager.GetString("SHOP_NOT_ALLOWED_IN_RAID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à You have opened a shop..
-        /// </summary>
-        public static string SHOP_OPEN {
-            get {
-                return ResourceManager.GetString("SHOP_OPEN", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Proceed to open the shop as you set it up?.
-        /// </summary>
-        public static string SHOP_PRIVATE_SHOP {
-            get {
-                return ResourceManager.GetString("SHOP_PRIVATE_SHOP", resourceCulture);
             }
         }
         

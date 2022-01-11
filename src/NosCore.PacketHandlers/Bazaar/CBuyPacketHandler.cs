@@ -120,15 +120,17 @@ namespace NosCore.PacketHandlers.Bazaar
                     }
                     else
                     {
-                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
-                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
-                                clientSession.Account.Language), SayColorType.Yellow
-                        )).ConfigureAwait(false);
-                        await clientSession.SendPacketAsync(new ModalPacket
+                        await clientSession.SendPacketAsync(new SayiPacket
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY,
-                                clientSession.Account.Language),
-                            Type = 1
+                            VisualType = VisualType.Player,
+                            VisualId = clientSession.Character.CharacterId,
+                            Type = SayColorType.Yellow,
+                            Message = Game18NConstString.InsufficientGoldAvailable
+                        }).ConfigureAwait(false);
+                        await clientSession.SendPacketAsync(new ModaliPacket
+                        {
+                            Type = 1,
+                            Message = Game18NConstString.InsufficientGoldAvailable
                         }).ConfigureAwait(false);
                         return;
                     }

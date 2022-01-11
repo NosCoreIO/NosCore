@@ -238,11 +238,6 @@ namespace NosCore.PacketHandlers.Group
                     if (clientSession.Character.Group.Count > 1)
                     {
                         targetSession.JoinGroup(clientSession.Character.Group);
-                        await targetSession.SendPacketAsync(new InfoPacket
-                        {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP,
-                                targetSession.AccountLanguage)
-                        }).ConfigureAwait(false);
                     }
                     else if (targetSession.Group.Count > 1)
                     {
@@ -255,16 +250,10 @@ namespace NosCore.PacketHandlers.Group
                     {
                         clientSession.Character.Group.GroupId = _groupIdService.GetNextId();
                         targetSession.JoinGroup(clientSession.Character.Group);
-                        await clientSession.SendPacketAsync(new InfoPacket
-                        {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.JOINED_GROUP,
-                                clientSession.Account.Language)
-                        }).ConfigureAwait(false);
 
-                        await targetSession.SendPacketAsync(new InfoPacket
+                        await targetSession.SendPacketAsync(new InfoiPacket
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.GROUP_ADMIN,
-                                targetSession.AccountLanguage)
+                            Message = Game18NConstString.YouAreNowGroupLeader
                         }).ConfigureAwait(false);
 
                         targetSession.Group = clientSession.Character.Group;

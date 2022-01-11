@@ -28,6 +28,8 @@ using NosCore.Shared.Helpers;
 using System;
 using System.Threading.Tasks;
 using NosCore.GameObject.Services.MapChangeService;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.NRunService.Handlers
 {
@@ -69,10 +71,13 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                 return;
             }
 
-            await clientSession.SendPacketAsync(clientSession.Character.GenerateSay(
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, clientSession.Account.Language),
-                SayColorType.Yellow
-            )).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = clientSession.Character.CharacterId,
+                Type = SayColorType.Yellow,
+                Message = Game18NConstString.NotEnoughGold
+            }).ConfigureAwait(false);
         }
     }
 }

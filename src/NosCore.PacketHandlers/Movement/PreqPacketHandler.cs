@@ -33,6 +33,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.GameObject.Services.MapChangeService;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.PacketHandlers.Movement
 {
@@ -58,9 +60,13 @@ namespace NosCore.PacketHandlers.Movement
             if (((_clock.GetCurrentInstant() - session.Character.LastPortal).TotalSeconds < 4) ||
                 (session.Character.LastPortal > session.Character.LastMove))
             {
-                await session.SendPacketAsync(session.Character.GenerateSay(
-                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.PORTAL_DELAY, session.Account.Language),
-                    SayColorType.Yellow)).ConfigureAwait(false);
+                await session.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = session.Character.CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.WillMoveShortly
+                }).ConfigureAwait(false);
                 return;
             }
 
