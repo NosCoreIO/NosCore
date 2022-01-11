@@ -193,10 +193,10 @@
     <value>Voulez-vous analyser les espaces temps ?</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
-    <value>L'émulateur à bien été chargé.</value>
+    <value>L'émulateur a bien été chargé.</value>
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
-    <value>Enregistrer sur master.</value>
+    <value>Enregistré sur MasterServer.</value>
   </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Authentification avec succès.</value>
@@ -343,7 +343,7 @@
     <value>Pas présent dans votre liste noire.</value>
   </data>
   <data name="SAVING_ALL" xml:space="preserve">
-    <value>Tout sauvegarder.</value>
+    <value>Sauvegarde de toutes les données !</value>
   </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Le joueur est déjà dans ta liste noire.</value>
@@ -391,7 +391,7 @@
     <value>Fermeture du serveur dans {0} secondes.</value>
   </data>
   <data name="CONNECTION_LOST" xml:space="preserve">
-    <value>La connection au serveur à été perdue.</value>
+    <value>La connexion au serveur a été perdue.</value>
   </data>
   <data name="MASTER_SERVER_PING" xml:space="preserve">
     <value>Ping vers le master server.</value>
