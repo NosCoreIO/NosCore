@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                     Type = SayColorType.Green,
                     Message = Game18NConstString.ReceivedThisItem,
                     ArgumentType = 2,
-                    Game18NArguments = new object[] { inv.ItemInstance!.ItemVNum.ToString(), amount }
+                    Game18NArguments = { inv.ItemInstance!.ItemVNum.ToString(), amount }
                 }).ConfigureAwait(false);
 
                 if (requestData.ClientSession.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
@@ -83,7 +83,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                         Type = SayColorType.Yellow,
                         Message = Game18NConstString.CharacterHasReceivedItem,
                         ArgumentType = 13,
-                        Game18NArguments = new object[] { $"{requestData.ClientSession.Character.Name} {inv.ItemInstance.Item.VNum}" }
+                        Game18NArguments = { $"{requestData.ClientSession.Character.Name} {inv.ItemInstance.Item.VNum}" }
                     }).ConfigureAwait(false);
                 }
             }

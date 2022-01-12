@@ -107,7 +107,7 @@ namespace NosCore.PacketHandlers.Chat
                     {
                         Message = Game18NConstString.IsNotPlaying,
                         ArgumentType = 1,
-                        Game18NArguments = new object[] { receiverName }
+                        Game18NArguments = { receiverName }
                     });
                     return;
                 }

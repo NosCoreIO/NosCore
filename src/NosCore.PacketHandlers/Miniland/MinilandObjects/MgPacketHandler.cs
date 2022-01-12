@@ -138,7 +138,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 {
                     Message = Game18NConstString.ToppedUpPoints,
                     ArgumentType = 4,
-                    Game18NArguments = new object[] { point }
+                    Game18NArguments = { point }
                 }).ConfigureAwait(false);
                 await ShowMinilandManagmentAsync().ConfigureAwait(false);
             }
@@ -220,7 +220,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.ReceivedThisItem,
                             ArgumentType = 2,
-                            Game18NArguments = new object[] { item.Item.VNum.ToString(), amount }
+                            Game18NArguments = { item.Item.VNum.ToString(), amount }
                         }).ConfigureAwait(false);
                     }
 
@@ -288,7 +288,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 {
                     Message = Game18NConstString.ToppedUpPoints,
                     ArgumentType = 4,
-                    Game18NArguments = new object[] { (int)_minigamePacket.Point / 100 }
+                    Game18NArguments = { (int)_minigamePacket.Point / 100 }
                 }).ConfigureAwait(false);
                 await ShowMinilandManagmentAsync().ConfigureAwait(false);
             }

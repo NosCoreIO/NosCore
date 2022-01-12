@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.NewSellingPrice,
                             ArgumentType = 4,
-                            Game18NArguments = new object[] { bzMod.BazaarItem?.Price ?? 0 }
+                            Game18NArguments = { bzMod.BazaarItem?.Price ?? 0 }
                         }).ConfigureAwait(false);
                         return;
                     }

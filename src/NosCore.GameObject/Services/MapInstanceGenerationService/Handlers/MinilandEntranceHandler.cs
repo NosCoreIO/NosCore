@@ -73,7 +73,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService.Handlers
                 Type = SayColorType.Yellow,
                 Message = Game18NConstString.TotalVisitors,
                 ArgumentType = 4,
-                Game18NArguments = new object[] { miniland.VisitCount }
+                Game18NArguments = { miniland.VisitCount }
             }).ConfigureAwait(false);
 
             await requestData.ClientSession.SendPacketAsync(new SayiPacket
@@ -83,7 +83,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService.Handlers
                 Type = SayColorType.Yellow,
                 Message = Game18NConstString.TodayVisitors,
                 ArgumentType = 4,
-                Game18NArguments = new object[] { miniland.DailyVisitCount }
+                Game18NArguments = { miniland.DailyVisitCount }
             }).ConfigureAwait(false);
         }
     }

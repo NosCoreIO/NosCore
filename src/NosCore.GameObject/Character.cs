@@ -610,7 +610,7 @@ namespace NosCore.GameObject
                         Type = SayColorType.Red,
                         Message = Game18NConstString.ReputationReduced,
                         ArgumentType = 4,
-                        Game18NArguments = new object[] { reputprice }
+                        Game18NArguments = { reputprice }
                     }).ConfigureAwait(false);
                 }
             }

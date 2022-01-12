@@ -98,7 +98,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 Type = SayColorType.Green,
                 Message = Game18NConstString.EffectActivated,
                 ArgumentType = 2,
-                Game18NArguments = new object[] { itemInstance.ItemInstance.Item.VNum.ToString() }
+                Game18NArguments = { itemInstance.ItemInstance.Item.VNum.ToString() }
             }).ConfigureAwait(false);
             await requestData.ClientSession.SendPacketAsync(
                 itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);

@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.PurchaseCompleted,
                             ArgumentType = 2,
-                            Game18NArguments = new object[] { bz.ItemInstance.ItemVNum.ToString(), bz.ItemInstance.Amount }
+                            Game18NArguments = { bz.ItemInstance.ItemVNum.ToString(), bz.ItemInstance.Amount }
                         }).ConfigureAwait(false);
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.PurchaseCompletedWithGoldUsed,
                             ArgumentType = 4,
-                            Game18NArguments = new object[] { price }
+                            Game18NArguments = { price }
                         }).ConfigureAwait(false);
                         await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
                         
