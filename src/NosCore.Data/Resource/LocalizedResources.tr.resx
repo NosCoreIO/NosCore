@@ -147,12 +147,6 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Bu eşya düşürülemez.</value>
   </data>
-  <data name="BAD_EQUIPMENT" xml:space="preserve">
-    <value>Karakterin bu eşyayı giymek için gereksinimleri karşılamıyor.</value>
-  </data>
-  <data name="BUY_ITEM_VALID" xml:space="preserve">
-    <value>Bir eşya satın aldın.</value>
-  </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Zaten aynı meslektesin!</value>
   </data>
@@ -207,9 +201,6 @@
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Bilinmeyen grup daveti türü.</value>
   </data>
-  <data name="GROUP_ADMIN" xml:space="preserve">
-    <value>Bu grubun yöneticisisin.</value>
-  </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>{0} paketi için işleyici bulunamadı.</value>
   </data>
@@ -258,14 +249,8 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} Eşya işlendi.</value>
   </data>
-  <data name="JOINED_GROUP" xml:space="preserve">
-    <value>Gruba katıldın!</value>
-  </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Eksik dil dosyaları var: {0}</value>
-  </data>
-  <data name="LOW_JOB_LVL" xml:space="preserve">
-    <value>Meslek seviyen uzmanlık kartını giymek için yeterli değil.</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} Harita canavarları yüklendi!</value>
@@ -296,15 +281,6 @@
   </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} Harita canavarları işlendi!</value>
-  </data>
-  <data name="NEW_LEADER" xml:space="preserve">
-    <value>Yeni grup başkanı sensin!</value>
-  </data>
-  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
-    <value>Bu eşyayı satın almak için yeterince altının yok!</value>
-  </data>
-  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
-    <value>Bu eşyayı satın almak için yeterince itibarın yok!</value>
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Bu kullanıcı karalistende değil!</value>
@@ -396,9 +372,6 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Ana Sunucu'ya bağlanıldı.</value>
   </data>
-  <data name="REPUT_DECREASED" xml:space="preserve">
-    <value>İtibarın azaldı.</value>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>İtibarın değişti!</value>
   </data>
@@ -407,15 +380,6 @@
   </data>
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Tüm bilgiler kaydediliyor!</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
-    <value>Akın esnasında market oluşturamazsın.</value>
-  </data>
-  <data name="SHOP_OPEN" xml:space="preserve">
-    <value>Bir market açtın!</value>
-  </data>
-  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
-    <value>Marketi düzenlerken açmak istiyor musun?</value>
   </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>{0} Market eşyaları yüklendi!</value>
@@ -486,26 +450,14 @@
   <data name="BANK_FULL" xml:space="preserve">
     <value>Banka hesabın dolu!</value>
   </data>
-  <data name="BUY_ITEM_FROM" xml:space="preserve">
-    <value>Eşya satın alındı. {0} {1} {2}!</value>
-  </data>
   <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Marketteki eşyaları hareket ettiremezsin.</value>
   </data>
   <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Marketteki eşyaları kullanamazsın.</value>
   </data>
-  <data name="EFFECT_ACTIVATED" xml:space="preserve">
-    <value>{0} Efekti aktive edildi.</value>
-  </data>
-  <data name="EXCHANGE_REFUSED" xml:space="preserve">
-    <value>Takas isteği reddedildi.</value>
-  </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Arkadaşlık isteğin gönderilemedi. Kullanıcı çevrimdışı.</value>
-  </data>
-  <data name="INCOMING_EXCHANGE" xml:space="preserve">
-    <value>{0} seninle takasta bulunmak istiyor.</value>
   </data>
   <data name="INVALID_EXCHANGE" xml:space="preserve">
     <value>Sadece değiştirilebilir eşyaları takas edebilirsin.</value>
@@ -513,20 +465,11 @@
   <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
     <value>Geçersiz takas listesi.</value>
   </data>
-  <data name="IN_WAITING_FOR" xml:space="preserve">
-    <value>Beklemede: {0}.</value>
-  </data>
-  <data name="LIMIT_EXCEEDED" xml:space="preserve">
-    <value>Limit doldu! NosPazar'a daha fazla eşya ekleyemezsin.</value>
-  </data>
   <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
     <value>Yeterli altının yok!</value>
   </data>
   <data name="PLAYER_IN_SHOP" xml:space="preserve">
     <value>{0} isimli kullanıcı alışverişte.</value>
-  </data>
-  <data name="PORTAL_DELAY" xml:space="preserve">
-    <value>Lütfen ışınlanmadan önce birkaç saniye bekle.</value>
   </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>Kullanıcı takasta değil!</value>
@@ -560,12 +503,6 @@
   </data>
   <data name="QUEST_PRIZES_PARSED" xml:space="preserve">
     <value>{0} Görev ödülleri işlendi!</value>
-  </data>
-  <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
-    <value>Kullanılabilir yeterli nokta yok.</value>
-  </data>
-  <data name="NOT_ENOUGH_MINILAND_POINT" xml:space="preserve">
-    <value>Yeterli Mini Ülke noktası yok.</value>
   </data>
   <data name="ITEM_GIFTED" xml:space="preserve">
     <value>{0} Hediye edildi.</value>

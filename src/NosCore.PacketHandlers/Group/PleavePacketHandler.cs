@@ -69,10 +69,9 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    await targetsession.SendPacketAsync(new InfoPacket
+                    await targetsession.SendPacketAsync(new InfoiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NEW_LEADER,
-                            clientSession.Account.Language)
+                        Message = Game18NConstString.YouAreNowGroupLeader
                     }).ConfigureAwait(false);
                 }
 

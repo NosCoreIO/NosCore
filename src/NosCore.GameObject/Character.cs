@@ -323,8 +323,7 @@ namespace NosCore.GameObject
         {
             if (Class == classType)
             {
-                _logger.Error(
-                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_CHANGE_SAME_CLASS, Session.Account.Language));
+                _logger.Error(GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_CHANGE_SAME_CLASS, Session.Account.Language));
                 return;
             }
 
@@ -530,20 +529,20 @@ namespace NosCore.GameObject
 
             if ((reputprice == 0) && (price * percent > Gold))
             {
-                await SendPacketAsync(new SMemoPacket
+                await SendPacketAsync(new SMemoiPacket
                 {
-                    Type = SMemoType.FatalError,
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MONEY, Session.Account.Language)
+                    Type = SMemoType.FailNpc,
+                    Message = Game18NConstString.NotEnoughGold5
                 }).ConfigureAwait(false);
                 return;
             }
 
             if (reputprice > Reput)
             {
-                await SendPacketAsync(new SMemoPacket
+                await SendPacketAsync(new SMemoiPacket
                 {
-                    Type = SMemoType.FatalError,
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_REPUT, Session.Account.Language)
+                    Type = SMemoType.FailNpc,
+                    Message = Game18NConstString.ReputationNotHighEnough
                 }).ConfigureAwait(false);
                 return;
             }
@@ -561,7 +560,7 @@ namespace NosCore.GameObject
                 {
                     await SendPacketAsync(new SMemoPacket
                     {
-                        Type = SMemoType.FatalError,
+                        Type = SMemoType.FailPlayer,
                         Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, Session.Account.Language)
                     }).ConfigureAwait(false);
                     return;
@@ -588,13 +587,13 @@ namespace NosCore.GameObject
                     await SendPacketAsync(packet).ConfigureAwait(false);
                 }
 
-                await SendPacketsAsync(
-                    inv.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot))).ConfigureAwait(false);
-                await SendPacketAsync(new SMemoPacket
+                await SendPacketsAsync(inv.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot))).ConfigureAwait(false);
+                await SendPacketAsync(new SMemoiPacket
                 {
-                    Type = SMemoType.Success,
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_VALID, Session.Account.Language)
+                    Type = SMemoType.SuccessNpc,
+                    Message = Game18NConstString.TradeSuccessfull
                 }).ConfigureAwait(false);
+
                 if (reputprice == 0)
                 {
                     Gold -= (long)(price * percent);
@@ -604,9 +603,15 @@ namespace NosCore.GameObject
                 {
                     Reput -= reputprice;
                     await SendPacketAsync(this.GenerateFd()).ConfigureAwait(false);
-                    await SendPacketAsync(this.GenerateSay(
-                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.REPUT_DECREASED, Session.Account.Language),
-                        SayColorType.Red)).ConfigureAwait(false);
+                    await SendPacketAsync(new SayiPacket
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = Session.Character.CharacterId,
+                        Type = SayColorType.Red,
+                        Message = Game18NConstString.ReputationReduced,
+                        ArgumentType = 4,
+                        Game18NArguments = new object[] { reputprice }
+                    }).ConfigureAwait(false);
                 }
             }
             else
@@ -633,13 +638,6 @@ namespace NosCore.GameObject
             }
 
             await SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)type, slotChar)).ConfigureAwait(false);
-            await SendPacketAsync(new SMemoPacket
-            {
-                Type = SMemoType.Success,
-                Message = string.Format(
-                    GameLanguage.Instance.GetMessageFromKey(LanguageKey.BUY_ITEM_FROM, Session.Account.Language), Name,
-                    item!.ItemInstance.Item!.Name[Session.Account.Language], amount)
-            }).ConfigureAwait(false);
             var sellAmount = (item?.Price ?? 0) * amount;
             Gold += sellAmount;
             await SendPacketAsync(this.GenerateGold()).ConfigureAwait(false);

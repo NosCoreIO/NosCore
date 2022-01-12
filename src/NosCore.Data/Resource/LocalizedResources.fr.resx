@@ -193,10 +193,10 @@
     <value>Voulez-vous analyser les espaces temps ?</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
-    <value>L'émulateur à bien été chargé.</value>
+    <value>L'émulateur a bien été chargé.</value>
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
-    <value>Enregistrer sur master.</value>
+    <value>Enregistré sur MasterServer.</value>
   </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Authentification avec succès.</value>
@@ -343,19 +343,13 @@
     <value>Pas présent dans votre liste noire.</value>
   </data>
   <data name="SAVING_ALL" xml:space="preserve">
-    <value>Tout sauvegarder.</value>
+    <value>Sauvegarde de toutes les données !</value>
   </data>
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Le joueur est déjà dans ta liste noire.</value>
   </data>
-  <data name="GROUP_ADMIN" xml:space="preserve">
-    <value>Vous êtes le chef du groupe. Vous pouvez définir les condition d'obtention des objets.</value>
-  </data>
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>La carte selectionnée n'existe pas.</value>
-  </data>
-  <data name="NEW_LEADER" xml:space="preserve">
-    <value>Vous êtes le nouveau chef de groupe.</value>
   </data>
   <data name="NPCMONSTERS_LOADED" xml:space="preserve">
     <value>{0} PNJ chargés.</value>
@@ -397,7 +391,7 @@
     <value>Fermeture du serveur dans {0} secondes.</value>
   </data>
   <data name="CONNECTION_LOST" xml:space="preserve">
-    <value>La connection au serveur à été perdue.</value>
+    <value>La connexion au serveur a été perdue.</value>
   </data>
   <data name="MASTER_SERVER_PING" xml:space="preserve">
     <value>Ping vers le master server.</value>
@@ -408,26 +402,11 @@
   <data name="ASK_BIND" xml:space="preserve">
     <value>Désirez vous lier cet item à votre personnage ? </value>
   </data>
-  <data name="BAD_EQUIPMENT" xml:space="preserve">
-    <value>Vous ne pouvez pas équiper cet équipement.</value>
-  </data>
-  <data name="BUY_ITEM_VALID" xml:space="preserve">
-    <value>Vous avez acheté un objet.</value>
-  </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Vous avez déjà changé de classe, vous ne pouvez donc plus le refaire.</value>
   </data>
-  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
-    <value>Vous n'avez pas assez d'argent.</value>
-  </data>
-  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
-    <value>Vous n'avez pas assez de réputation !</value>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Votre réputation a changée.</value>
-  </data>
-  <data name="REPUT_DECREASED" xml:space="preserve">
-    <value>Votre réputation a diminuée.</value>
   </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>{0} ShopItem chargés.</value>
@@ -440,15 +419,6 @@
   </data>
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>{0} Shops parsés.</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
-    <value>Impossible d'ouvrir un magasin en tant que membre du raid.</value>
-  </data>
-  <data name="SHOP_OPEN" xml:space="preserve">
-    <value>Un magasin a été ouvert.</value>
-  </data>
-  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
-    <value>Ouvrir le magasin maintenant ?</value>
   </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Impossible de porter la SP, car vous n'avez plus de points.</value>
@@ -480,9 +450,6 @@
   <data name="INVALID_EXCHANGE_LIST" xml:space="preserve">
     <value>Liste d'échange invalide.</value>
   </data>
-  <data name="LOW_JOB_LVL" xml:space="preserve">
-    <value>Votre niveau de métier est trop bas.</value>
-  </data>
   <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
     <value>Pas assez d'or pour acheter cet objet.</value>
   </data>
@@ -498,38 +465,14 @@
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>{0} a annulé l'échange.</value>
   </data>
-  <data name="INCOMING_EXCHANGE" xml:space="preserve">
-    <value>{0} t'a envoyé une demande d'échange.</value>
-  </data>
-  <data name="BUY_ITEM_FROM" xml:space="preserve">
-    <value>Vous avez acheté un article de {0} {1} {2}!</value>
-  </data>
-  <data name="EFFECT_ACTIVATED" xml:space="preserve">
-    <value>L'effet {0} a été activé.</value>
-  </data>
-  <data name="EXCHANGE_REFUSED" xml:space="preserve">
-    <value>Tu as refusé la demande d'échange.</value>
-  </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Ta demande d'ami n'a pu être aboutie car l'utilisateur est déconnecté.</value>
-  </data>
-  <data name="IN_WAITING_FOR" xml:space="preserve">
-    <value>En attente {0}.</value>
-  </data>
-  <data name="JOINED_GROUP" xml:space="preserve">
-    <value>Groupe rejoint.</value>
-  </data>
-  <data name="LIMIT_EXCEEDED" xml:space="preserve">
-    <value>Tu ne peux plus ajouter d'objet au NosBazard car tu as dépassé la limite autorisée.</value>
   </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Chargement des instances de cartes.</value>
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Paquet reçu sans que le caractère ne soit spécifié {0}.</value>
-  </data>
-  <data name="PORTAL_DELAY" xml:space="preserve">
-    <value>Patiente avant de prendre le portail !</value>
   </data>
   <data name="USER_NOT_CONNECTED" xml:space="preserve">
     <value>Ce joueur n'est pas connecté.</value>
@@ -555,17 +498,8 @@
   <data name="ITEM_GIFTED" xml:space="preserve">
     <value>Cadeaux envoyés: {0} pcs.</value>
   </data>
-  <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
-    <value>Points de durabilité insuffisants.</value>
-  </data>
-  <data name="NOT_ENOUGH_MINILAND_POINT" xml:space="preserve">
-    <value>Pas assez de points de production.</value>
-  </data>
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
     <value>L'utilisateur n'est pas dans la liste d'amis.</value>
-  </data>
-  <data name="REFILL_MINIGAME" xml:space="preserve">
-    <value>{0} points de durabilité ajoutés.</value>
   </data>
   <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
     <value>Token de sécurité mis à jour.</value>

@@ -155,9 +155,6 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Ungültige Abwurfmenge</value>
   </data>
-  <data name="BAD_EQUIPMENT" xml:space="preserve">
-    <value>Dein Charakter erfüllt nicht die Anforderungen um dieses Item zu tragen!</value>
-  </data>
   <data name="BANK_FULL" xml:space="preserve">
     <value>Deine Bank ist voll</value>
   </data>
@@ -169,12 +166,6 @@
   </data>
   <data name="BAZAAR_MOD_ERROR" xml:space="preserve">
     <value />
-  </data>
-  <data name="BUY_ITEM_FROM" xml:space="preserve">
-    <value>Du hast ein Item von {0} {1} {2} gekauft!</value>
-  </data>
-  <data name="BUY_ITEM_VALID" xml:space="preserve">
-    <value>Du hast ein Item gekauft!</value>
   </data>
   <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
     <value>Du kannst ein nicht Tauschbares Item tauschen!</value>
@@ -238,17 +229,11 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Es befinden sich zu viele Items auf der Karte! Versuch es später nocheinmal!</value>
   </data>
-  <data name="EFFECT_ACTIVATED" xml:space="preserve">
-    <value>Effekt {0} aktiviert!</value>
-  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Bitte gib das Verzeichnis mit den Dateien zum laden an.</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Charakter während des Kartenwechseln geändert. Missbrauche keine Befehle.{0}</value>
-  </data>
-  <data name="EXCHANGE_REFUSED" xml:space="preserve">
-    <value>Deine Tauschanfrage wurde abgelehnt!</value>
   </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Deine Freundschaftsanfrage wurde nicht gesendet, da der Spieler nicht Online ist.</value>
@@ -256,9 +241,6 @@
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Unbekannter Gruppeneinladungs Typ {0}</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="GROUP_ADMIN" xml:space="preserve">
-    <value>Du bist nun der Gruppen-Admin</value>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Konnte keine Handler implementierung für das Paket mit dem Header {0} finden</value>
@@ -293,9 +275,6 @@
   <data name="I18N_SKILL_PARSED" xml:space="preserve">
     <value>{0} I18N Skills geladen! Region: {1}</value>
   </data>
-  <data name="INCOMING_EXCHANGE" xml:space="preserve">
-    <value>Tausch von {0} akzeptieren?</value>
-  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Falsche ID!</value>
   </data>
@@ -312,9 +291,6 @@
     <value>Unbekannter Einladungs typ {0}.</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="IN_WAITING_FOR" xml:space="preserve">
-    <value>Warten auf {0}.</value>
-  </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>{0} Items geladen!</value>
   </data>
@@ -327,21 +303,12 @@
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Item wurde nicht gefunden!</value>
   </data>
-  <data name="JOINED_GROUP" xml:space="preserve">
-    <value>Du bist der Gruppe beigetreten!</value>
-  </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Fehlende Sprache/Übersetzung {0} !</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="LIMIT_EXCEEDED" xml:space="preserve">
-    <value>Du hast die Itemmenge überschritten.</value>
-  </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Lade MapInstanzen</value>
-  </data>
-  <data name="LOW_JOB_LVL" xml:space="preserve">
-    <value>Dieser Spezialist erfordert ein höheres Job Level um ihn zu benutzen!</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MapMonsters geladen!</value>
@@ -373,23 +340,8 @@
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters Parsed!</value>
   </data>
-  <data name="NEW_LEADER" xml:space="preserve">
-    <value>Du bist nun der Party-Leiter!</value>
-  </data>
-  <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
-    <value>Du hast nicht genügend Haltbarkeitspunkte.</value>
-  </data>
   <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
     <value>Nicht genügend Gold</value>
-  </data>
-  <data name="NOT_ENOUGH_MINILAND_POINT" xml:space="preserve">
-    <value>Du hast nicht genügend Minilandpunkte.</value>
-  </data>
-  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
-    <value>Nicht genügend Geld!</value>
-  </data>
-  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
-    <value>Nicht genügend Ruf!</value>
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Dieser Spieler ist nicht auf deiner Blacklist.</value>
@@ -489,17 +441,11 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0} Portale geladen!</value>
   </data>
-  <data name="PORTAL_DELAY" xml:space="preserve">
-    <value>Bitte warte bevor du dich teleportieren willst!</value>
-  </data>
   <data name="QUESTS_PARSED" xml:space="preserve">
     <value>{0} Quests wurden geparsed.</value>
   </data>
   <data name="QUEST_PRIZES_PARSED" xml:space="preserve">
     <value>Es wurden {0} Quest Preise geparsed.</value>
-  </data>
-  <data name="REFILL_MINIGAME" xml:space="preserve">
-    <value>Bitte fülle deine Minigame Punkte auf damit du Weiter Spielen kannst {0}.</value>
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Angemeldet auf MasterServer</value>
@@ -507,9 +453,6 @@
   </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Dein Ruf hat sich geändert!</value>
-  </data>
-  <data name="REPUT_DECREASED" xml:space="preserve">
-    <value>Dein Ruf ist gesunken!</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes geladen!</value>
@@ -534,16 +477,6 @@
   </data>
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>{0} Shops geparsed!</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
-    <value>Du kannst in einem Raid keinen Shop öffnen!</value>
-  </data>
-  <data name="SHOP_OPEN" xml:space="preserve">
-    <value>Du hast deinen Shop eröffnet!</value>
-  </data>
-  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
-    <value>Willst du den Shop öffnen solange du ihn einrichtest?</value>
-    <comment>Proceed to open the shop as you set it up?</comment>
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills geladen!</value>

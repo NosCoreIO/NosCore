@@ -157,9 +157,6 @@
     <value>Неверное количество дропа.</value>
     <comment>Перефразировать обязательно</comment>
   </data>
-  <data name="BAD_EQUIPMENT" xml:space="preserve">
-    <value>Твой персонаж не соответствует требованиям для использования данного предмета.</value>
-  </data>
   <data name="BANK_FULL" xml:space="preserve">
     <value>Ваш банковский счет переполнен</value>
     <comment>Не заполнен, а ...</comment>
@@ -172,12 +169,6 @@
   </data>
   <data name="BAZAAR_MOD_ERROR" xml:space="preserve">
     <value>Ошибка изменения лота в НосБазаре.</value>
-  </data>
-  <data name="BUY_ITEM_FROM" xml:space="preserve">
-    <value>Ты приобрел(а)  {1} х{2} у {0}!</value>
-  </data>
-  <data name="BUY_ITEM_VALID" xml:space="preserve">
-    <value>Ты приобрел(а) предмет!</value>
   </data>
   <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
     <value>Ты не можешь обменяться предметом, который запрещен к обмену!</value>
@@ -241,18 +232,11 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Слишком много предметов на локации! Пожалуйста, попробуйте позже!</value>
   </data>
-  <data name="EFFECT_ACTIVATED" xml:space="preserve">
-    <value>Эффект {0} был активирован!</value>
-  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Пожалуйста, введите адрес директории с файлами для импорта</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Персонаж изменен во время перехода на карту. Не злоупотребляйте командами. {0}</value>
-  </data>
-  <data name="EXCHANGE_REFUSED" xml:space="preserve">
-    <value>Ты отклонил(а) запрос на обмен</value>
-    <comment>Нужно уточнение контекста. В оригинале "You refused your exchange request.", но как возможно отклонить свой же запрос на обмен?</comment>
   </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Запрос в друзья не может быть отправлен, так как игрок вышел из игры.</value>
@@ -260,9 +244,6 @@
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Неизвестный тип запроса группы</value>
     <comment>insert missing type data / какой-то корявый перевод</comment>
-  </data>
-  <data name="GROUP_ADMIN" xml:space="preserve">
-    <value>Ты лидер группы!</value>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Не удается найти реализацию обработчика для пакета с заголовком {0}</value>
@@ -298,9 +279,6 @@
   <data name="I18N_SKILL_PARSED" xml:space="preserve">
     <value>Импортировано {0} I18N Skills! Регион: {1}</value>
   </data>
-  <data name="INCOMING_EXCHANGE" xml:space="preserve">
-    <value>{0} хочет обменяться.</value>
-  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Неверный ID!</value>
   </data>
@@ -317,10 +295,6 @@
     <value>Неизвестный тип приглашения</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="IN_WAITING_FOR" xml:space="preserve">
-    <value>В ожидании  {0}.</value>
-    <comment>Нужна проверка контекста</comment>
-  </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>Загружено {0} предметов!</value>
   </data>
@@ -333,22 +307,12 @@
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Предмет не найден {0} {1}</value>
   </data>
-  <data name="JOINED_GROUP" xml:space="preserve">
-    <value>Вы присоединились к группе</value>
-  </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Перевод отсутствует</value>
     <comment>insert missing type data</comment>
   </data>
-  <data name="LIMIT_EXCEEDED" xml:space="preserve">
-    <value>Лимит превышен</value>
-  </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Загрузка MapInstances...</value>
-  </data>
-  <data name="LOW_JOB_LVL" xml:space="preserve">
-    <value>Слишком низкий рабочий уровень для использования данной Карты специалиста.</value>
-    <comment>Возможно нужно перефразировать</comment>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>Загружено {0} MapMonsters!</value>
@@ -381,23 +345,8 @@
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>Импортировано {0} MapMonsters!</value>
   </data>
-  <data name="NEW_LEADER" xml:space="preserve">
-    <value>Вы стали лидером группы!</value>
-  </data>
-  <data name="NOT_ENOUGH_DURABILITY_POINT" xml:space="preserve">
-    <value>Недостаточно очков прочности.</value>
-  </data>
   <data name="NOT_ENOUGH_GOLD" xml:space="preserve">
     <value>Недостаточно золота.</value>
-  </data>
-  <data name="NOT_ENOUGH_MINILAND_POINT" xml:space="preserve">
-    <value>Недостаточно очков производства.</value>
-  </data>
-  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
-    <value>Недостаточно денег.</value>
-  </data>
-  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
-    <value>Недостаточно репутации для покупки предмета.</value>
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Игрок уже удален из Черного Списка.</value>
@@ -496,17 +445,11 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>Импортировано {0} Portal!</value>
   </data>
-  <data name="PORTAL_DELAY" xml:space="preserve">
-    <value>Портал перезаряжается, нужно немножко потерпеть.</value>
-  </data>
   <data name="QUESTS_PARSED" xml:space="preserve">
     <value>Импортировано {0} квест(ов).</value>
   </data>
   <data name="QUEST_PRIZES_PARSED" xml:space="preserve">
     <value>Импортировано {0} квестовых наград.</value>
-  </data>
-  <data name="REFILL_MINIGAME" xml:space="preserve">
-    <value>Добавлено {0} очков прочности.</value>
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Зарегистрирован на Master сервере</value>
@@ -514,9 +457,6 @@
   </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Твоя репутация изменилась!</value>
-  </data>
-  <data name="REPUT_DECREASED" xml:space="preserve">
-    <value>Твоя репутация понизилась!</value>
   </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>Импортировано {0} RespawnTypes!</value>
@@ -541,15 +481,6 @@
   </data>
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>Импортировано {0} магазин(ов)!</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
-    <value>Нельзя открыть магазин в рейде.</value>
-  </data>
-  <data name="SHOP_OPEN" xml:space="preserve">
-    <value>Ты открыл(а) магазин. Успешной торговли!</value>
-  </data>
-  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
-    <value>Открыть магазин с текущими настройками?</value>
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>Импортировано {0} навык(ов)!</value>

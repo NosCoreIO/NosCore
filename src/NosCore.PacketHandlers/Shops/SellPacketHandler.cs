@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Shops
             {
                 await clientSession.SendPacketAsync(new SMemoiPacket
                 {
-                    Type = SMemoType.Error,
+                    Type = SMemoType.FailNpc,
                     Message = Game18NConstString.ItemCanNotBeSold
                 }).ConfigureAwait(false);
                 return;
@@ -81,7 +81,7 @@ namespace NosCore.PacketHandlers.Shops
 
             await clientSession.SendPacketAsync(new SMemoiPacket
             {
-                Type = SMemoType.Success,
+                Type = SMemoType.SuccessPlayer,
                 Message = Game18NConstString.TradeSuccessfull
             }).ConfigureAwait(false);
 

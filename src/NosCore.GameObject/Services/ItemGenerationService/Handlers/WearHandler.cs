@@ -95,10 +95,13 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                     (((itemInstance.ItemInstance.Item.Class >> (byte)requestData.ClientSession.Character.Class) & 1) !=
                         1)))
             {
-                await requestData.ClientSession.SendPacketAsync(
-                    requestData.ClientSession.Character.GenerateSay(
-                        requestData.ClientSession.GetMessageFromKey(LanguageKey.BAD_EQUIPMENT),
-                        SayColorType.Yellow)).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = requestData.ClientSession.Character.CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.CanNotWearThat
+                }).ConfigureAwait(false);
                 return;
             }
 
@@ -164,10 +167,11 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 
             if (requestData.ClientSession.Character.JobLevel < itemInstance.ItemInstance.Item.LevelJobMinimum)
             {
-                await requestData.ClientSession.SendPacketAsync(
-                    requestData.ClientSession.Character.GenerateSay(
-                        requestData.ClientSession.GetMessageFromKey(LanguageKey.LOW_JOB_LVL),
-                        SayColorType.Yellow)).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacketAsync(new MsgiPacket
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.CanNotBeWornDifferentClass
+                }).ConfigureAwait(false);
                 return;
             }
 

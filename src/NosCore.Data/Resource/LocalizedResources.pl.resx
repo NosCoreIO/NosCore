@@ -147,12 +147,6 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Zła ilość do wyrzucenia.</value>
   </data>
-  <data name="BAD_EQUIPMENT" xml:space="preserve">
-    <value>Twoja postać nie spełnia wymagań niezbędnych do noszenia tego przedmiotu.</value>
-  </data>
-  <data name="BUY_ITEM_VALID" xml:space="preserve">
-    <value>Kupiłeś przedmiot!</value>
-  </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Nie możesz zmienić na tę samą klasę.</value>
   </data>
@@ -207,9 +201,6 @@
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Typ nieznanego żądania grupy</value>
   </data>
-  <data name="GROUP_ADMIN" xml:space="preserve">
-    <value>Zostałeś liderem grupy!</value>
-  </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Nie można znaleźć Handler wdrożenie dla Packet z Header {0}</value>
   </data>
@@ -258,14 +249,8 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} items wprowadzono!</value>
   </data>
-  <data name="JOINED_GROUP" xml:space="preserve">
-    <value>Dołączyłeś do grupy</value>
-  </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Brakujący język</value>
-  </data>
-  <data name="LOW_JOB_LVL" xml:space="preserve">
-    <value>Twoja profesja jest zbyt niska, aby założyć tą Kartę Specjalisty!</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>Załadowano: {0} MapMonsters!</value>
@@ -296,15 +281,6 @@
   </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} MapMonsters wprowadzono!</value>
-  </data>
-  <data name="NEW_LEADER" xml:space="preserve">
-    <value>Zostałeś nowym liderem grupy!</value>
-  </data>
-  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
-    <value>Nie masz wystarczająco złota, aby kupić ten przedmiot.</value>
-  </data>
-  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
-    <value>Nie masz wystarczającej reputacji, aby kupić ten przedmiot!</value>
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Ten gracz nie jest na Twojej czarnej liście!</value>
@@ -396,9 +372,6 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Zarejestrowano na MasterServer</value>
   </data>
-  <data name="REPUT_DECREASED" xml:space="preserve">
-    <value>Twoja reputacja została zmniejszona!</value>
-  </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Your reputation została zmieniona!</value>
   </data>
@@ -407,15 +380,6 @@
   </data>
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Zapisywanie wszystkich danych!</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
-    <value>Nie możesz otworzyć sklepu podczas rajdu.</value>
-  </data>
-  <data name="SHOP_OPEN" xml:space="preserve">
-    <value>Otworzyłeś sklep.</value>
-  </data>
-  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
-    <value>Czy otworzyć sklep?</value>
   </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>Załadowano: {0} ShopItems!</value>
@@ -482,14 +446,5 @@
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Odebrano pakiet bez postaci: {0}</value>
-  </data>
-  <data name="EFFECT_ACTIVATED" xml:space="preserve">
-    <value>Aktywowano przedmiot: {0}.</value>
-  </data>
-  <data name="EXCHANGE_REFUSED" xml:space="preserve">
-    <value>Odrzucono wymianę.</value>
-  </data>
-  <data name="INCOMING_EXCHANGE" xml:space="preserve">
-    <value>Czy zaakceptować wymianę?: {0}</value>
   </data>
 </root>

@@ -134,10 +134,11 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 var point = item.ItemInstance!.ItemVNum == 1269 ? 300 : 500;
                 _clientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, item.ItemInstance.Id);
                 _minilandObject!.InventoryItemInstance!.ItemInstance!.DurabilityPoint += point;
-                await _clientSession.SendPacketAsync(new InfoPacket
+                await _clientSession.SendPacketAsync(new InfoiPacket
                 {
-                    Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.REFILL_MINIGAME,
-                        _clientSession.Account.Language), point)
+                    Message = Game18NConstString.ToppedUpPoints,
+                    ArgumentType = 4,
+                    Game18NArguments = new object[] { point }
                 }).ConfigureAwait(false);
                 await ShowMinilandManagmentAsync().ConfigureAwait(false);
             }
@@ -283,10 +284,11 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 await _clientSession.SendPacketAsync(_clientSession.Character.GenerateGold()).ConfigureAwait(false);
                 _minilandObject!.InventoryItemInstance!.ItemInstance!.DurabilityPoint +=
                     (int)(_minigamePacket.Point / 100);
-                await _clientSession.SendPacketAsync(new InfoPacket
+                await _clientSession.SendPacketAsync(new InfoiPacket
                 {
-                    Message = string.Format(GameLanguage.Instance.GetMessageFromKey(LanguageKey.REFILL_MINIGAME,
-                        _clientSession.Account.Language), (int)(_minigamePacket.Point / 100))
+                    Message = Game18NConstString.ToppedUpPoints,
+                    ArgumentType = 4,
+                    Game18NArguments = new object[] { (int)_minigamePacket.Point / 100 }
                 }).ConfigureAwait(false);
                 await ShowMinilandManagmentAsync().ConfigureAwait(false);
             }
@@ -386,17 +388,19 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
         {
             if (_minilandObject!.InventoryItemInstance!.ItemInstance!.DurabilityPoint <= 0)
             {
-                await _clientSession!.SendPacketAsync(new MsgPacket
+                await _clientSession!.SendPacketAsync(new SayiPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_DURABILITY_POINT,
-                        _clientSession.Account.Language)
+                    VisualType = VisualType.Player,
+                    VisualId = _clientSession.Character.CharacterId,
+                    Type = SayColorType.Red,
+                    Message = Game18NConstString.NeedToRestoreDurability
                 }).ConfigureAwait(false);
                 return;
             }
 
             if (_miniland == null || _miniland.MinilandPoint <= 0)
             {
-                await _clientSession!.SendPacketAsync(new QnaPacket
+                await _clientSession!.SendPacketAsync(new QnaiPacket
                 {
                     YesPacket = new MinigamePacket
                     {
@@ -406,8 +410,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                         Point = 1,
                         Unknown = 1
                     },
-                    Question = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_ENOUGH_MINILAND_POINT,
-                        _clientSession.Account.Language)
+                    Question = Game18NConstString.NotEnoughProductionPointsAskStart
                 }).ConfigureAwait(false);
                 return;
             }

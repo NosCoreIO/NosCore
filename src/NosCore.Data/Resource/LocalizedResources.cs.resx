@@ -149,17 +149,8 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Špatné množství k vyhození!</value>
   </data>
-  <data name="BAD_EQUIPMENT" xml:space="preserve">
-    <value>Tvá postava nesplňuje požadavky pro nošení tohoto vybavení.</value>
-  </data>
   <data name="BANK_FULL" xml:space="preserve">
     <value>Tvůj bankovní účet je plný!</value>
-  </data>
-  <data name="BUY_ITEM_FROM" xml:space="preserve">
-    <value>Koupil si item od {0} {1} {2}!</value>
-  </data>
-  <data name="BUY_ITEM_VALID" xml:space="preserve">
-    <value>Koupil jsi předmět!</value>
   </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Nemůžeš změnit povolání na stejné.</value>
@@ -201,23 +192,14 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Mapa je plná předmětů více jich zde nemůže být!</value>
   </data>
-  <data name="EFFECT_ACTIVATED" xml:space="preserve">
-    <value>{0} efekt byl aktivován!</value>
-  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Zadejte složku se soubory, které chcete nahrát</value>
   </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Nastala chyba při změně mapy. Nezneužívejte příkazy. {0}</value>
   </data>
-  <data name="EXCHANGE_REFUSED" xml:space="preserve">
-    <value>Odmítl jsi žádost o výměnu.</value>
-  </data>
   <data name="GROUPREQUESTTYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý požadavek na skupinu!</value>
-  </data>
-  <data name="GROUP_ADMIN" xml:space="preserve">
-    <value>Jsi vedoucí skupiny!</value>
   </data>
   <data name="HANDLER_NOT_FOUND" xml:space="preserve">
     <value>Nelze najít Obsluhu implementace pro balíček s hlavičkou {0}</value>
@@ -252,9 +234,6 @@
   <data name="I18N_SKILL_PARSED" xml:space="preserve">
     <value>{0} I18N Skilly Nahrány! Region: {1}</value>
   </data>
-  <data name="INCOMING_EXCHANGE" xml:space="preserve">
-    <value>{0} chce s tebou obchodovat.</value>
-  </data>
   <data name="INVALID_ACCOUNT" xml:space="preserve">
     <value>Neexistující ID</value>
   </data>
@@ -264,26 +243,14 @@
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Neznámý typ pozvánky</value>
   </data>
-  <data name="IN_WAITING_FOR" xml:space="preserve">
-    <value>Čekání na {0}.</value>
-  </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>Předměty načteny!</value>
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>Bylo Nahráno {0} Itemů</value>
   </data>
-  <data name="JOINED_GROUP" xml:space="preserve">
-    <value>Vstoupil si do skupiny!</value>
-  </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
     <value>Chybý jazyk!</value>
-  </data>
-  <data name="LIMIT_EXCEEDED" xml:space="preserve">
-    <value>Nemůžeš přidat více předmětů do Bazaru protože jsi překročil limit předmětů.</value>
-  </data>
-  <data name="LOW_JOB_LVL" xml:space="preserve">
-    <value>Na tuto SP potřebuješ větší Úroveň práce.</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MAPMONSTERS načteny</value>
@@ -308,15 +275,6 @@
   </data>
   <data name="MONSTERS_PARSED" xml:space="preserve">
     <value>{0} Monstra byla úspěšně nahrána!</value>
-  </data>
-  <data name="NEW_LEADER" xml:space="preserve">
-    <value>Jsi nový vedoucí skupiny!</value>
-  </data>
-  <data name="NOT_ENOUGH_MONEY" xml:space="preserve">
-    <value>Nemáš dostatek financí ke koupení tohoto předmětu!</value>
-  </data>
-  <data name="NOT_ENOUGH_REPUT" xml:space="preserve">
-    <value>Nemáš dostatek pověsti ke koupení tohoto předmětu!</value>
   </data>
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Není ve vaší černé listině</value>
@@ -405,9 +363,6 @@
   <data name="PORTALS_PARSED" xml:space="preserve">
     <value>{0}  Portály Nahrány</value>
   </data>
-  <data name="PORTAL_DELAY" xml:space="preserve">
-    <value>Prosím čekej před teleportováním.</value>
-  </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrováno na Master Serveru</value>
     <comment>check</comment>
@@ -415,23 +370,11 @@
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Tvá pověst byla změněna!</value>
   </data>
-  <data name="REPUT_DECREASED" xml:space="preserve">
-    <value>Tvá pověst byla snížena!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnType bylo úspěšně nahráno!</value>
   </data>
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Ukládání všeho!</value>
-  </data>
-  <data name="SHOP_NOT_ALLOWED_IN_RAID" xml:space="preserve">
-    <value>Nemůžeš otevřít obchod v nájezdu!</value>
-  </data>
-  <data name="SHOP_OPEN" xml:space="preserve">
-    <value>Obchod otevřen.</value>
-  </data>
-  <data name="SHOP_PRIVATE_SHOP" xml:space="preserve">
-    <value>Chceš otevřít obchod tak jak je nastavený?</value>
   </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Útoky byly úspěšně nahrány!</value>

@@ -159,15 +159,14 @@ namespace NosCore.PacketHandlers.Shops
                     {
                         var key = clientSession.Character.Shop.Name.Keys.ElementAt(i);
                         clientSession.Character.Shop.Name[key] = string.IsNullOrWhiteSpace(mShopPacket.Name) ?
-                            GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_PRIVATE_SHOP, key) :
+                            ((byte)Game18NConstString.PrivateShop).ToString() :
                             mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
                     }
 
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateShop(clientSession.Character.AccountLanguage)).ConfigureAwait(false);
-                    await clientSession.SendPacketAsync(new InfoPacket
+                    await clientSession.SendPacketAsync(new InfoiPacket
                     {
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SHOP_OPEN,
-                            clientSession.Account.Language)
+                        Message = Game18NConstString.ShopOpened
                     }).ConfigureAwait(false);
 
                     clientSession.Character.Requests[typeof(INrunEventHandler)].Subscribe(data =>
