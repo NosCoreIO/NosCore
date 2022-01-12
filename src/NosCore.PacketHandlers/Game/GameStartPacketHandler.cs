@@ -247,7 +247,7 @@ namespace NosCore.PacketHandlers.Game
                     Type = SayColorType.Green,
                     Message = Game18NConstString.NewParcelArrived,
                     ArgumentType = 4,
-                    Game18NArguments = new object[] { giftcount }
+                    Game18NArguments = { giftcount }
                 }).ConfigureAwait(false);
             }
 
@@ -260,7 +260,7 @@ namespace NosCore.PacketHandlers.Game
                     Type = SayColorType.Green,
                     Message = Game18NConstString.NewNoteArrived,
                     ArgumentType = 4,
-                    Game18NArguments = new object[] { mailcount }
+                    Game18NArguments = { mailcount }
                 }).ConfigureAwait(false);
             }
 

@@ -137,7 +137,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                         Type = MessageType.Default,
                         Message = Game18NConstString.CantTrasformWithSideEffect,
                         ArgumentType = 4,
-                        Game18NArguments = new object[] { requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage) }
+                        Game18NArguments = { requestData.ClientSession.Character.SpCooldown - (int)Math.Round(timeSpanSinceLastSpUsage) }
                     }).ConfigureAwait(false);
                     return;
                 }

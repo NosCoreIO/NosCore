@@ -85,7 +85,7 @@ namespace NosCore.PacketHandlers.Exchange
                         {
                             Message = Game18NConstString.TradingWithSomeoneElse,
                             ArgumentType = 1,
-                            Game18NArguments = new object[] { target?.Name ?? "" }
+                            Game18NArguments = { target?.Name ?? "" }
                         }).ConfigureAwait(false);
                         return;
                     }
@@ -96,7 +96,7 @@ namespace NosCore.PacketHandlers.Exchange
                         {
                             Message = Game18NConstString.BlockingTrades,
                             ArgumentType = 1,
-                            Game18NArguments = new object[] { target?.Name ?? "" }
+                            Game18NArguments = { target?.Name ?? "" }
                         }).ConfigureAwait(false);
                         return;
                     }
@@ -127,7 +127,7 @@ namespace NosCore.PacketHandlers.Exchange
                     {
                         Message = Game18NConstString.YouInvitedToTrade,
                         ArgumentType = 1,
-                        Game18NArguments = new object[] { target.Name }
+                        Game18NArguments = { target.Name }
                     }).ConfigureAwait(false);
 
                     await target.SendPacketAsync(new Dlgi2Packet
@@ -138,7 +138,7 @@ namespace NosCore.PacketHandlers.Exchange
                         { RequestType = RequestExchangeType.Declined, VisualId = clientSession.Character.VisualId },
                         Question = Game18NConstString.WantAcceptTrade,
                         ArgumentType = 2,
-                        Game18NArguments = new object[] { $"{clientSession.Character.Level}", clientSession.Character.Name ?? "" }
+                        Game18NArguments = { $"{clientSession.Character.Level}", clientSession.Character.Name ?? "" }
                     }).ConfigureAwait(false);
                     return;
 
@@ -160,7 +160,7 @@ namespace NosCore.PacketHandlers.Exchange
                         Type = SayColorType.Yellow,
                         Message = Game18NConstString.CancelledTrade,
                         ArgumentType = 1,
-                        Game18NArguments = new object[] { target?.Name ?? "" }
+                        Game18NArguments = { target?.Name ?? "" }
                     }).ConfigureAwait(false);
                     await (target == null ? Task.CompletedTask : target.SendPacketAsync(new SayiPacket
                     {

@@ -129,7 +129,7 @@ namespace NosCore.PacketHandlers.Inventory
                             Type = MessageType.Default,
                             Message = Game18NConstString.CantTrasformWithSideEffect,
                             ArgumentType = 4,
-                            Game18NArguments = new object[] { (short)(clientSession.Character.SpCooldown - (int)Math.Round(currentRunningSeconds)) }
+                            Game18NArguments = { (short)(clientSession.Character.SpCooldown - (int)Math.Round(currentRunningSeconds)) }
                         }).ConfigureAwait(false);
                     }
                 }

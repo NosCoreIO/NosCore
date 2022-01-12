@@ -110,7 +110,7 @@ namespace NosCore.PacketHandlers.Bazaar
                                 Type = SayColorType.Yellow,
                                 Message = Game18NConstString.BoughtItem,
                                 ArgumentType = 2,
-                                Game18NArguments = new object[] { bz.ItemInstance.ItemVNum.ToString(), packet.Amount }
+                                Game18NArguments = { bz.ItemInstance.ItemVNum.ToString(), packet.Amount }
                             }).ConfigureAwait(false);
 
                             return;

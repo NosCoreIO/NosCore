@@ -85,7 +85,7 @@ namespace NosCore.PacketHandlers.Friend
                         {
                             Message = Game18NConstString.HAsFriendRequestBlocked,
                             ArgumentType = 1,
-                            Game18NArguments = new object[] { targetCharacter.Name! }
+                            Game18NArguments = { targetCharacter.Name! }
                         }).ConfigureAwait(false);
                         break;
 
@@ -94,7 +94,7 @@ namespace NosCore.PacketHandlers.Friend
                         {
                             Question = Game18NConstString.AskBecomeFriend,
                             ArgumentType = 1,
-                            Game18NArguments = new object[] { session.Character.Name! },
+                            Game18NArguments = { session.Character.Name! },
                             YesPacket = new FinsPacket
                             { Type = FinsPacketType.Accepted, CharacterId = session.Character.VisualId },
                             NoPacket = new FinsPacket

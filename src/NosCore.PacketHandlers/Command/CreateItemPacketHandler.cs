@@ -179,7 +179,7 @@ namespace NosCore.PacketHandlers.Command
                 Type = SayColorType.Green,
                 Message = Game18NConstString.ReceivedThisItem,
                 ArgumentType = 2,
-                Game18NArguments = new object[] { iteminfo.VNum.ToString(), amount }
+                Game18NArguments = { iteminfo.VNum.ToString(), amount }
             }).ConfigureAwait(false);
         }
     }

@@ -99,7 +99,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     Type = 1,
                     Message = Game18NConstString.NotExceedMaxPrice,
                     ArgumentType = 4,
-                    Game18NArguments = new object[] { maxPrice }
+                    Game18NArguments = { maxPrice }
                 }).ConfigureAwait(false);
                 return;
             }
