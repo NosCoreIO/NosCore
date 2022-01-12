@@ -75,10 +75,10 @@ namespace NosCore.Core.Configuration
 #pragma warning restore CA2227 // Collection properties should be read only
 
         [Required]
-        public Battlepass Battlepass { get; set; } = null!;
+        public BattlepassConfiguration BattlepassConfiguration { get; set; } = null!;
     }
 
-    public class Battlepass
+    public class BattlepassConfiguration
     {
         public bool IsBattlePassIconEnabled { get; set; }
 

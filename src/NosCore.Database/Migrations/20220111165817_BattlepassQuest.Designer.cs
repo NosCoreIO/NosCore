@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    [Migration("20220110164802_Battlepass")]
-    partial class Battlepass
+    [Migration("20220111165817_BattlepassQuest")]
+    partial class BattlepassQuest
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -2077,9 +2077,6 @@ namespace NosCore.Database.Migrations
                     b.Property<int?>("EndDialogId")
                         .HasColumnType("integer");
 
-                    b.Property<byte>("FrequencyType")
-                        .HasColumnType("smallint");
-
                     b.Property<bool>("IsSecondary")
                         .HasColumnType("boolean");
 
@@ -2092,7 +2089,7 @@ namespace NosCore.Database.Migrations
                     b.Property<short?>("NextQuestId")
                         .HasColumnType("smallint");
 
-                    b.Property<byte?>("QuestSubType")
+                    b.Property<byte>("FrequencyType")
                         .HasColumnType("smallint");
 
                     b.Property<short>("QuestType")

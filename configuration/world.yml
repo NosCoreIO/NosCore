@@ -44,7 +44,7 @@ MaxGoldAmount: 1000000000
 MaxBankGoldAmount: 100000000000
 MaxSpPoints: 10000
 MaxAdditionalSpPoints: 1000000
-Battlepass:
+BattlepassConfiguration:
   IsBattlePassIconEnabled: true
   MaxBattlePassPoints: 150000
   EndSeason: 2022-02-20T18:00:00Z

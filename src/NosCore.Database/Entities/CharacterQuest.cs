@@ -32,6 +32,8 @@ namespace NosCore.Database.Entities
 
         public short QuestId { get; set; }
 
+        public Instant StartedOn { get; set; }
+
         public Instant? CompletedOn { get; set; }
     }
 }

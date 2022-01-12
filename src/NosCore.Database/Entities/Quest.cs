@@ -43,8 +43,6 @@ namespace NosCore.Database.Entities
 
         public QuestType QuestType { get; set; }
 
-        public MissionType? QuestSubType { get; set; }
-
         public virtual ICollection<CharacterQuest> CharacterQuest { get; set; }
 
         public virtual ICollection<QuestQuestReward> QuestQuestReward { get; set; }

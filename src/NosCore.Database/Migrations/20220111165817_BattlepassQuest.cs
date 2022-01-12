@@ -4,7 +4,7 @@
 
 namespace NosCore.Database.Migrations
 {
-    public partial class Battlepass : Migration
+    public partial class BattlepassQuest : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -77,22 +77,12 @@ namespace NosCore.Database.Migrations
                 type: "smallint",
                 nullable: false,
                 defaultValue: (byte)0);
-
-            migrationBuilder.AddColumn<byte>(
-                name: "QuestSubType",
-                table: "Quest",
-                type: "smallint",
-                nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
                 name: "FrequencyType",
-                table: "Quest");
-
-            migrationBuilder.DropColumn(
-                name: "QuestSubType",
                 table: "Quest");
 
             migrationBuilder.AlterDatabase()
