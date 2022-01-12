@@ -345,14 +345,19 @@ namespace NosCore.GameObject.Services.QuestService
             return isValid;
         }
 
-        public Task<double> GetTotalMinutesLeftBeforeQuestEnd(ICharacterEntity character, CharacterQuest characterQuest, IOptions<WorldConfiguration> worldConfiguration)
+        public Task<double> GetTotalMinutesLeftBeforeQuestEnd(ICharacterEntity _, CharacterQuest characterQuest, IOptions<WorldConfiguration> worldConfiguration)
         {
             if (characterQuest == null)
             {
                 return Task.FromResult((double)0);
             }
 
-            Duration daysToAdd;
+            if (characterQuest.Quest.FrequencyType == FrequencyType.Seasonal)
+            {
+                return Task.FromResult(Instant.Subtract(worldConfiguration.Value.BattlepassConfiguration.EndSeason, _clock.GetCurrentInstant()).TotalMinutes);
+            }
+
+            Duration daysToAdd = Duration.Zero;
 
             if (characterQuest.Quest.FrequencyType == FrequencyType.Daily)
             {
@@ -361,10 +366,6 @@ namespace NosCore.GameObject.Services.QuestService
             else if (characterQuest.Quest.FrequencyType == FrequencyType.Weekly)
             {
                 daysToAdd = Duration.FromDays(7);
-            }
-            else
-            {
-                return Task.FromResult(Instant.Subtract(worldConfiguration.Value.BattlepassConfiguration.EndSeason, _clock.GetCurrentInstant()).TotalMinutes);
             }
 
             return Task.FromResult(Instant.Subtract(characterQuest.StartedOn.Plus(daysToAdd), _clock.GetCurrentInstant()).TotalMinutes);
