@@ -18,11 +18,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Microsoft.Extensions.Options;
+using NodaTime;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.WebApi;
@@ -30,6 +35,7 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.PacketHttpClient;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -41,23 +47,17 @@ using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Quest;
+using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Packets.ServerPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Algorithm.ExperienceService;
-using NosCore.Algorithm.HeroExperienceService;
-using NosCore.Algorithm.JobExperienceService;
-using NosCore.Data.Enumerations.Buff;
-using NosCore.GameObject.Services.ItemGenerationService.Item;
-using NosCore.Packets.ServerPackets.Quicklist;
-using NosCore.Shared.I18N;
-using Serilog;
-using NodaTime;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -706,6 +706,31 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new BptPacket
             {
                 MinutesUntilSeasonEnd = (long)duration.TotalMinutes
+            };
+        }
+
+        public static BpmPacket GenerateBpm(this ICharacterEntity visualEntity, IOptions<WorldConfiguration> worldConfig)
+        {
+            List<BpmSubTypePacket> subPackets = new();
+            foreach (var quest in visualEntity.Quests.Values.Where(s => s.Quest.FrequencyType == FrequencyType.Daily || s.Quest.FrequencyType == FrequencyType.Daily)) // TODO : Improve that because the where condition isn't really true
+            {
+                subPackets.Add(new BpmSubTypePacket
+                {
+                    QuestId = quest.Quest.QuestId,
+                    MissionType = (MissionType)quest.Quest.QuestType, // TODO cuz that's totally wrong
+                    FrequencyType = quest.Quest.FrequencyType,
+                    Advencement = 0, // TODO
+                    MaxObjectiveValue = 0, // TODO
+                    Reward = 5, // TODO
+                    MissionMinutesRemaining = 0 // TODO
+                });
+            }
+
+            return new BpmPacket
+            {
+                IsBattlePassIconEnabled = worldConfig.Value.BattlepassConfiguration.IsBattlePassIconEnabled,
+                MaxBattlePassPoints = worldConfig.Value.BattlepassConfiguration.MaxBattlePassPoints,
+                QuestList = subPackets
             };
         }
     }
