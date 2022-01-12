@@ -357,11 +357,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 {
                     shopItemList.Add(new NInvItemSubPacket
                     {
-                        Type = 0,
+                        Type = (PocketType)item.ItemInstance!.Item.Type,
                         Slot = item.Slot,
-                        Price = (int)(item.Price ?? (item.ItemInstance!.Item!.ReputPrice > 0
+                        Price = (int)(item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
                             ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
-                        RareAmount = item.ItemInstance!.Item!.Type == (byte)NoscorePocketType.Equipment
+                        RareAmount = item.ItemInstance.Item.Type == (byte)NoscorePocketType.Equipment
                             ? item.ItemInstance.Rare
                             : item.Amount,
                         UpgradeDesign = item.ItemInstance.Item.Type == (byte)NoscorePocketType.Equipment
