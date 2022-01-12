@@ -19,8 +19,8 @@
 
 using Mapster;
 using Microsoft.Extensions.Options;
+using NodaTime;
 using NosCore.Core.Configuration;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -30,13 +30,12 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NodaTime;
-using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.QuestService
 {
@@ -345,7 +344,7 @@ namespace NosCore.GameObject.Services.QuestService
             return isValid;
         }
 
-        public Task<double> GetTotalMinutesLeftBeforeQuestEnd(ICharacterEntity _, CharacterQuest characterQuest, IOptions<WorldConfiguration> worldConfiguration)
+        public Task<double> GetTotalMinutesLeftBeforeQuestEnd(ICharacterEntity _, CharacterQuest characterQuest)
         {
             if (characterQuest == null)
             {
@@ -354,7 +353,7 @@ namespace NosCore.GameObject.Services.QuestService
 
             if (characterQuest.Quest.FrequencyType == FrequencyType.Seasonal)
             {
-                return Task.FromResult(Instant.Subtract(worldConfiguration.Value.BattlepassConfiguration.EndSeason, _clock.GetCurrentInstant()).TotalMinutes);
+                return Task.FromResult(Instant.Subtract(_worldConfiguration.Value.BattlepassConfiguration.EndSeason, _clock.GetCurrentInstant()).TotalMinutes);
             }
 
             Duration daysToAdd = Duration.Zero;
