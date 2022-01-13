@@ -140,9 +140,11 @@ namespace NosCore.PacketHandlers.Group
                             (clientSession.Character.Group.Type == GroupType.Group))
                         && ((targetSession.Group.Count == 1) || (targetSession.Group.Type == GroupType.Group)))
                     {
-                        await clientSession.SendPacketAsync(new InfoiPacket
+                        await clientSession.SendPacketAsync(new Infoi2Packet
                         {
-                            Message = Game18NConstString.GroupInvite
+                            Message = Game18NConstString.YouInvitedToGroup,
+                            ArgumentType = 1,
+                            Game18NArguments = { targetSession.Name ?? "" }
                         }).ConfigureAwait(false);
                         await targetSession.SendPacketAsync(new Dlgi2Packet
                         {
