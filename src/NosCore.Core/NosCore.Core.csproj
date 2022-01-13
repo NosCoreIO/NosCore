@@ -28,7 +28,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageReference Include="NosCore.Dao" Version="2.0.0" />
-    <PackageReference Include="NosCore.Networking" Version="2.1.0" />
+    <PackageReference Include="NosCore.Networking" Version="2.2.0" />
     <PackageReference Include="NosCore.PathFinder" Version="1.1.0" />
     <PackageReference Include="NosCore.Shared" Version="3.4.0" />
     <PackageReference Include="Polly" Version="7.2.2" />
