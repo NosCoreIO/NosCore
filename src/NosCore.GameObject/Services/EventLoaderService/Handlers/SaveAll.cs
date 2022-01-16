@@ -22,23 +22,24 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using Serilog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NodaTime;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Shared.I18N;
+using ILogger = Serilog.ILogger;
 
 namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 {
     [UsedImplicitly]
     public class SaveAll : ITimedEventHandler
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<SaveAll> _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public SaveAll(ILogger logger, IClock clock, ISaveService saveService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        public SaveAll(ILogger<SaveAll> logger, IClock clock, ISaveService saveService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
             _clock = clock;
@@ -57,7 +58,7 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 
         public async Task ExecuteAsync(RequestData<Instant> runTime)
         {
-            _logger.Information(_logLanguage[LogLanguageKey.SAVING_ALL]);
+            _logger.LogInformation(_logLanguage[LogLanguageKey.SAVING_ALL]);
             await Task.WhenAll(Broadcaster.Instance.GetCharacters().Select(session => _saveService.SaveAsync(session)));
 
             _lastRun = runTime.Data;
