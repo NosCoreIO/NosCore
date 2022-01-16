@@ -38,13 +38,15 @@ namespace NosCore.PacketHandlers.Friend
         private readonly IChannelHttpClient _channelHttpClient;
         private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
         private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
 
         public FdelPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient)
+            IConnectedAccountHttpClient connectedAccountHttpClient,  IGameLanguageLocalizer gameLanguageLocalizer)
         {
             _friendHttpClient = friendHttpClient;
             _channelHttpClient = channelHttpClient;
             _connectedAccountHttpClient = connectedAccountHttpClient;
+            _gameLanguageLocalizer = gameLanguageLocalizer;
         }
 
         public override async Task ExecuteAsync(FdelPacket fdelPacket, ClientSession session)
@@ -65,8 +67,8 @@ namespace NosCore.PacketHandlers.Friend
             {
                 await session.SendPacketAsync(new InfoPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_FRIENDLIST,
-                        session.Account.Language)
+                    Message = _gameLanguageLocalizer[LanguageKey.NOT_IN_FRIENDLIST,
+                        session.Account.Language]
                 }).ConfigureAwait(false);
             }
         }

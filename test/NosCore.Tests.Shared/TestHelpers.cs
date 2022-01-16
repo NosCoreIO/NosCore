@@ -39,6 +39,7 @@ using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.I18N;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -85,6 +86,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using Character = NosCore.Database.Entities.Character;
@@ -130,6 +132,11 @@ namespace NosCore.Tests.Shared
             mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
                 .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
             LogLanguageLocalizer = mock.Object;
+
+            var mock2 = new Mock<IGameLanguageLocalizer>();
+            mock2.Setup(x => x[It.IsAny<LanguageKey>(), It.IsAny<RegionType>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            GameLanguageLocalizer = mock2.Object;
         }
 
         public static TestHelpers Instance => _lazy.Value;
@@ -139,6 +146,7 @@ namespace NosCore.Tests.Shared
         public IDao<CharacterRelationDto, Guid> CharacterRelationDao { get; set; } = null!;
         public IDao<CharacterDto, long> CharacterDao { get; private set; } = null!;
         public IDao<MinilandDto, Guid> MinilandDao { get; private set; } = null!;
+        public IGameLanguageLocalizer GameLanguageLocalizer { get; private set; } = null!;
         public ILogLanguageLocalizer<LogLanguageKey> LogLanguageLocalizer { get; private set; } = null!;
         public IDao<MinilandObjectDto, Guid> MinilandObjectDao { get; private set; } = null!;
         public IMapItemGenerationService? MapItemProvider { get; set; }

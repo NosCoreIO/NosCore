@@ -164,8 +164,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
             await _blDelPacketHandler!.ExecuteAsync(blDelPacket, _session).ConfigureAwait(false);
             var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
-                _session.Account.Language), lastpacket!.Message);
+            Assert.AreEqual(TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.NOT_IN_BLACKLIST,
+                _session.Account.Language], lastpacket!.Message);
         }
     }
 }

@@ -336,6 +336,7 @@ namespace NosCore.WorldServer
                 .AddControllersAsServices();
             
             services.AddI18NLogs();
+            services.AddTransient(typeof(IGameLanguageLocalizer), typeof(GameLanguageLocalizer));
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddHostedService<WorldServer>();
 

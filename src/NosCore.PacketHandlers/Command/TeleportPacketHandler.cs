@@ -23,7 +23,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.MapInstanceAccessService;
 using Serilog;
 using System.Threading.Tasks;
 using NosCore.GameObject.Services.MapChangeService;
@@ -33,13 +32,11 @@ namespace NosCore.PacketHandlers.Command
     public class TeleportPacketHandler : PacketHandler<TeleportPacket>, IWorldPacketHandler
     {
         private readonly ILogger _logger;
-        private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
         private readonly IMapChangeService _mapChangeService;
 
-        public TeleportPacketHandler(ILogger logger, IMapInstanceAccessorService mapInstanceAccessorService, IMapChangeService mapChangeService)
+        public TeleportPacketHandler(ILogger logger, IMapChangeService mapChangeService)
         {
             _logger = logger;
-            _mapInstanceAccessorService = mapInstanceAccessorService;
             _mapChangeService = mapChangeService;
         }
 
