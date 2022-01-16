@@ -26,11 +26,11 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.EventLoaderService.Handlers;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
-using Serilog;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NodaTime;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
@@ -41,7 +41,7 @@ namespace NosCore.WorldServer
     public class WorldServer : BackgroundService
     {
         private readonly IChannelHttpClient _channelHttpClient;
-        private readonly ILogger _logger;
+        private readonly ILogger<WorldServer> _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly NetworkManager _networkManager;
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
@@ -49,10 +49,11 @@ namespace NosCore.WorldServer
         private readonly Clock _clock;
         private readonly IClock _nodatimeClock;
         private readonly ISaveService _saveService;
+        private readonly ILogger<SaveAll> _saveAllLogger;
 
-        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger logger, 
+        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger<WorldServer> logger, 
             IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService, IClock nodatimeClock, ISaveService saveService, 
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger)
         {
             _worldConfiguration = worldConfiguration;
             _networkManager = networkManager;
@@ -63,17 +64,18 @@ namespace NosCore.WorldServer
             _nodatimeClock = nodatimeClock;
             _saveService = saveService;
             _logLanguage = logLanguage;
+            _saveAllLogger = saveAllLogger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await _mapInstanceGeneratorService.InitializeAsync().ConfigureAwait(false);
-            _logger.Information(_logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
+            _logger.LogInformation(_logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
-                var eventSaveAll = new SaveAll(_logger, _nodatimeClock, _saveService, _logLanguage);
+                var eventSaveAll = new SaveAll(_saveAllLogger, _nodatimeClock, _saveService, _logLanguage);
                 _ = eventSaveAll.ExecuteAsync();
-                _logger.Information(_logLanguage[LogLanguageKey.CHANNEL_WILL_EXIT], 30);
+                _logger.LogInformation(_logLanguage[LogLanguageKey.CHANNEL_WILL_EXIT], 30);
                 Thread.Sleep(30000);
             };
 
