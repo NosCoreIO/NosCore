@@ -92,7 +92,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 {
                     session.Character.MapInstance.Sessions.Remove(session.Channel);
                 }
-
+                await session.SendPacketAsync(session.Character.MapInstance.GenerateCMap(false)).ConfigureAwait(false);
                 session.Character.MapInstance.LastUnregister = _clock.GetCurrentInstant();
                 await LeaveMapAsync(session).ConfigureAwait(false);
                 if (session.Character.MapInstance.Sessions.Count == 0)
@@ -131,7 +131,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(session.Character.GenerateStat()).ConfigureAwait(false);
                 await session.SendPacketAsync(session.Character.GenerateAt()).ConfigureAwait(false);
                 await session.SendPacketAsync(session.Character.GenerateCond()).ConfigureAwait(false);
-                await session.SendPacketAsync(session.Character.MapInstance.GenerateCMap()).ConfigureAwait(false);
+                await session.SendPacketAsync(session.Character.MapInstance.GenerateCMap(true)).ConfigureAwait(false);
                 await session.SendPacketAsync(session.Character.GeneratePairy(
                     session.Character.InventoryService!.LoadBySlotAndType((byte)EquipmentType.Fairy,
                         NoscorePocketType.Wear)?.ItemInstance as WearableInstance)).ConfigureAwait(false);

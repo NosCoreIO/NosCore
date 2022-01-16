@@ -284,13 +284,13 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             return packets;
         }
 
-        public CMapPacket GenerateCMap()
+        public CMapPacket GenerateCMap(bool enter)
         {
             return new CMapPacket
             {
                 Type = 0,
                 Id = Map.MapId,
-                MapType = MapInstanceType != MapInstanceType.BaseMapInstance
+                MapType = enter
             };
         }
 
