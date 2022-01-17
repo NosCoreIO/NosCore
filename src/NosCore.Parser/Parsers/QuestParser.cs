@@ -80,7 +80,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(QuestDto.QuestId), chunk => Convert.ToInt16(chunk["VNUM"][0][1])},
                 {nameof(QuestDto.QuestType), chunk => (QuestType)Enum.Parse(typeof(QuestType), chunk["VNUM"][0][2])},
                 {nameof(QuestDto.AutoFinish), chunk => chunk["VNUM"][0][3] == "1"},
-                {nameof(QuestDto.FrequencyType), chunk => chunk["VNUM"][0][4] == "-1" ? FrequencyType.Daily : FrequencyType.Seasonal},
+                {nameof(QuestDto.FrequencyType), chunk => chunk["VNUM"][0][4] == "-1" ? FrequencyType.Daily : FrequencyType.OneOff},
                 {nameof(QuestDto.RequiredQuestId), chunk => chunk["VNUM"][0][5] != "-1" ? short.Parse(chunk["VNUM"][0][5]) : (short?)null },
                 {nameof(QuestDto.IsSecondary), chunk => chunk["VNUM"][0][6] != "-1"},
                 {nameof(QuestDto.LevelMin), chunk => Convert.ToByte(chunk["LEVEL"][0][1])},

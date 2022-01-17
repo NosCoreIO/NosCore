@@ -712,14 +712,14 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static BpmPacket GenerateBpm(this ICharacterEntity visualEntity, IOptions<WorldConfiguration> worldConfig)
         {
             List<BpmSubTypePacket> subPackets = new();
-            foreach (var quest in visualEntity.Quests.Values.Where(s => s.Quest.FrequencyType == FrequencyType.Daily || s.Quest.FrequencyType == FrequencyType.Daily)) // TODO : Improve that because the where condition isn't really true
+            foreach (var quest in visualEntity.Quests.Values.Where(s => s.Quest.FrequencyType == FrequencyType.Weekly || s.Quest.FrequencyType == FrequencyType.Daily)) // TODO : Improve that because the where condition isn't really true
             {
                 subPackets.Add(new BpmSubTypePacket
                 {
                     QuestId = quest.Quest.QuestId,
                     MissionType = (MissionType)quest.Quest.QuestType, // TODO cuz that's totally wrong
                     FrequencyType = quest.Quest.FrequencyType,
-                    Advencement = 0, // TODO
+                    Advancement = 0, // TODO
                     MaxObjectiveValue = 0, // TODO
                     Reward = 5, // TODO
                     MissionMinutesRemaining = 0 // TODO
@@ -728,7 +728,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 
             return new BpmPacket
             {
-                IsBattlePassIconEnabled = worldConfig.Value.BattlepassConfiguration.IsBattlePassIconEnabled,
+                IsBattlePassEnabled = worldConfig.Value.BattlepassConfiguration.IsBattlePassIconEnabled,
                 MaxBattlePassPoints = worldConfig.Value.BattlepassConfiguration.MaxBattlePassPoints,
                 QuestList = subPackets
             };

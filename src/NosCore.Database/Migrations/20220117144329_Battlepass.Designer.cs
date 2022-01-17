@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    [Migration("20220111165817_BattlepassQuest")]
-    partial class BattlepassQuest
+    [Migration("20220117144329_Battlepass")]
+    partial class Battlepass
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -34,7 +34,7 @@ namespace NosCore.Database.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_authority_type", new[] { "none", "put", "all" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_log_type", new[] { "daily_message", "raid_won", "rainbow_battle", "family_xp", "family_level_up", "level_up", "item_upgraded", "right_changed", "authority_changed", "family_managed", "user_managed", "ware_house_added", "ware_house_removed" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_member_rank", new[] { "nothing", "old_uncle", "old_aunt", "father", "mother", "uncle", "aunt", "brother", "sister", "spouse", "brother2", "sister2", "old_son", "old_daugter", "middle_son", "middle_daughter", "young_son", "young_daugter", "old_little_son", "old_little_daughter", "little_son", "little_daughter", "middle_little_son", "middle_little_daugter" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "frequency_type", new[] { "daily", "weekly", "seasonal" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "frequency_type", new[] { "daily", "weekly", "one_off" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "gender_type", new[] { "male", "female" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "hair_color_type", new[] { "dark_purple", "yellow", "blue", "purple", "orange", "brown", "green", "dark_grey", "light_blue", "pink_red", "light_yellow", "light_pink", "light_green", "light_grey", "sky_blue", "black", "dark_orange", "dark_orange_variant2", "dark_orange_variant3", "dark_orange_variant4", "dark_orange_variant5", "dark_orange_variant6", "light_orange", "light_light_orange", "light_light_light_orange", "light_light_light_light_orange", "super_light_orange", "dark_yellow", "light_light_yellow", "kaki_yellow", "super_light_yellow", "super_light_yellow2", "super_light_yellow3", "little_dark_yellow", "yellow_variant", "yellow_variant1", "yellow_variant2", "yellow_variant3", "yellow_variant4", "yellow_variant5", "yellow_variant6", "yellow_variant7", "yellow_variant8", "yellow_variant9", "green_variant", "green_variant1", "dark_green_variant", "green_more_dark_variant", "green_variant2", "green_variant3", "green_variant4", "green_variant5", "green_variant6", "green_variant7", "green_variant8", "green_variant9", "green_variant10", "green_variant11", "green_variant12", "green_variant13", "green_variant14", "green_variant15", "green_variant16", "green_variant17", "green_variant18", "green_variant19", "green_variant20", "light_blue_variant1", "light_blue_variant2", "light_blue_variant3", "light_blue_variant4", "light_blue_variant5", "light_blue_variant6", "light_blue_variant7", "light_blue_variant8", "light_blue_variant9", "light_blue_variant10", "light_blue_variant11", "light_blue_variant12", "light_blue_variant13", "dark_black", "light_blue_variant14", "light_blue_variant15", "light_blue_variant16", "light_blue_variant17", "blue_variant", "blue_variant_dark", "blue_variant_dark_dark", "blue_variant_dark_dark2", "flash_blue", "flash_blue_dark", "flash_blue_dark2", "flash_blue_dark3", "flash_blue_dark4", "flash_blue_dark5", "flash_blue_dark6", "flash_blue_dark7", "flash_blue_dark8", "flash_blue_dark9", "white", "flash_blue_dark10", "flash_blue1", "flash_blue2", "flash_blue3", "flash_blue4", "flash_blue5", "flash_purple", "flash_light_purple", "flash_light_purple2", "flash_light_purple3", "flash_light_purple4", "flash_light_purple5", "light_purple", "purple_variant1", "purple_variant2", "purple_variant3", "purple_variant4", "purple_variant5", "purple_variant6", "purple_variant7", "purple_variant8", "purple_variant9", "purple_variant10", "purple_variant11", "purple_variant12", "purple_variant13", "purple_variant14", "purple_variant15" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "hair_style_type", new[] { "hair_style_a", "hair_style_b", "hair_style_c", "hair_style_d", "no_hair" });
@@ -546,6 +546,9 @@ namespace NosCore.Database.Migrations
 
                     b.Property<short>("QuestId")
                         .HasColumnType("smallint");
+
+                    b.Property<Instant>("StartedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -2077,6 +2080,9 @@ namespace NosCore.Database.Migrations
                     b.Property<int?>("EndDialogId")
                         .HasColumnType("integer");
 
+                    b.Property<byte>("FrequencyType")
+                        .HasColumnType("smallint");
+
                     b.Property<bool>("IsSecondary")
                         .HasColumnType("boolean");
 
@@ -2087,9 +2093,6 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<short?>("NextQuestId")
-                        .HasColumnType("smallint");
-
-                    b.Property<byte>("FrequencyType")
                         .HasColumnType("smallint");
 
                     b.Property<short>("QuestType")
