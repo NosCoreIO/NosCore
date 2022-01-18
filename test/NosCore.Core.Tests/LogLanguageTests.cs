@@ -37,13 +37,13 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Resource;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using NosCore.Tests.Shared;
 
 namespace NosCore.Core.Tests
 {
     [TestClass]
     public class LogLanguageTests
     {
-        private readonly Dictionary<string, int> _dict = new();
         private readonly LogLanguageLocalizer<LogLanguageKey, LocalizedResources> _logLanguageLocalizer;
 
         public LogLanguageTests()
@@ -51,35 +51,6 @@ namespace NosCore.Core.Tests
             var factory = new ResourceManagerStringLocalizerFactory(Options.Create(new LocalizationOptions()), new LoggerFactory());
             _logLanguageLocalizer = new LogLanguageLocalizer<LogLanguageKey, LocalizedResources>(
                 new StringLocalizer<LocalizedResources>(factory));
-
-            var uselessKeys = new StringBuilder();
-
-            var list = Directory.GetFiles(Environment.CurrentDirectory + @"../../..", "*.cs",
-                SearchOption.AllDirectories);
-            foreach (var file in list)
-            {
-                var content = File.ReadAllText(file);
-                var regex = new Regex(
-                    @"string\.Format\([\s\n]*[(Log)|(Game)]*Language.Instance.GetMessageFromKey\((?<key>[\s\n]*LanguageKey\.[\s\n]*[0-9A-Za-z_]*)[\s\n]*,[\s\n]*[\.0-9A-Za-z_]*\)(?<parameter>[\s\n]*,[\s\n]*[\.!?0-9A-Za-z_\[\]]*)*[\s\n]*\)",
-                    RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace);
-                var matches = regex.Matches(content);
-                foreach (Match? match in matches)
-                {
-                    var param = match?.Groups?.Values?.Where(s => s.Name == "parameter").FirstOrDefault()?.Captures.Count ?? 0;
-                    var key = match?.Groups?.Values?.FirstOrDefault(s => s.Name == "key")?.Value ?? "";
-                    if (_dict.ContainsKey(key))
-                    {
-                        if (_dict[key] != param)
-                        {
-                            Assert.Fail(uselessKeys.ToString());
-                        }
-                    }
-                    else
-                    {
-                        _dict.Add(key, param);
-                    }
-                }
-            }
         }
 
         [TestCategory("OPTIONAL-TEST")]
@@ -145,39 +116,5 @@ namespace NosCore.Core.Tests
                 Assert.Fail(result);
             }
         }
-
-        [DataTestMethod]
-        [DataRow(RegionType.EN)]
-        [DataRow(RegionType.CS)]
-        [DataRow(RegionType.DE)]
-        [DataRow(RegionType.ES)]
-        [DataRow(RegionType.FR)]
-        [DataRow(RegionType.IT)]
-        [DataRow(RegionType.PL)]
-        [DataRow(RegionType.TR)]
-        [DataRow(RegionType.RU)]
-        public void CheckParametersLanguages(RegionType type)
-        {
-            var unfound = new StringBuilder();
-            foreach (var val in Enum.GetValues(typeof(LanguageKey)))
-            {
-                var value = GameLanguage.Instance.GetMessageFromKey((LanguageKey)val!, type);
-                var paramCount = Regex.Matches(value, @"{[0-9A-Za-z]}").Count;
-                var expectedCount = !_dict.ContainsKey($"LanguageKey.{val}") ? 0
-                    : _dict[$"LanguageKey.{val}"];
-                if ((value != $"#<{val}>") && (expectedCount != paramCount))
-                {
-                    unfound.Append(val)
-                        .Append(
-                            $" does not contain the correct amount of parameters. Expected:{expectedCount} Given: {paramCount}");
-                }
-            }
-
-            if (unfound.Length != 0)
-            {
-                Assert.Fail(unfound.ToString());
-            }
-        }
-
     }
 }

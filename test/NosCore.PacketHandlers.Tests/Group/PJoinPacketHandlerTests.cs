@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             }
 
             var mock = new Mock<IBlacklistHttpClient>();
-            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer);
+            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
         }
 
         [TestMethod]

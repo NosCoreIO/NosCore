@@ -77,6 +77,7 @@ namespace NosCore.GameObject.Networking.ClientSession
     
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly ISaveService _saveService = null!;
+        private readonly IGameLanguageLocalizer _gameLanguageLocalizer = null!;
 
         public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder,
@@ -115,7 +116,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
             IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, ISessionRefHolder sessionRefHolder, 
             ISaveService saveService,
-            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer)
             : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, networkingLogLanguage, logLanguage)
         {
             _exchangeProvider = exchangeService!;
@@ -123,6 +124,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             _isWorldClient = true;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
             _saveService = saveService;
+            _gameLanguageLocalizer = gameLanguageLocalizer;
         }
 
         public bool GameStarted { get; set; }
@@ -253,7 +255,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public string GetMessageFromKey(LanguageKey languageKey)
         {
-            return GameLanguage.Instance.GetMessageFromKey(languageKey, Account.Language);
+            return _gameLanguageLocalizer[languageKey, Account.Language];
         }
 
         public Task HandlePacketsAsync(IEnumerable<IPacket> packetConcatenated, IChannelHandlerContext? contex = null)

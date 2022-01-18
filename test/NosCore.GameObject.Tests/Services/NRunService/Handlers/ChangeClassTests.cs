@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
             _item = TestHelpers.Instance.GenerateItemProvider();
             _nrRunService = new NrunService(
                 new List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
-                    {new ChangeClassEventHandler()});
+                    {new ChangeClassEventHandler(Logger, TestHelpers.Instance.LogLanguageLocalizer)});
         }
 
         [DataTestMethod]

@@ -42,17 +42,19 @@ namespace NosCore.PacketHandlers.Command
     {
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
+        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
 
-        public ShoutPacketHandler(ISerializer packetSerializer, IPacketHttpClient packetHttpClient)
+        public ShoutPacketHandler(ISerializer packetSerializer, IPacketHttpClient packetHttpClient, IGameLanguageLocalizer gameLanguageLocalizer)
         {
             _packetSerializer = packetSerializer;
             _packetHttpClient = packetHttpClient;
+            _gameLanguageLocalizer = gameLanguageLocalizer;
         }
 
         public override async Task ExecuteAsync(ShoutPacket shoutPacket, ClientSession session)
         {
             var message =
-                $"({GameLanguage.Instance.GetMessageFromKey(LanguageKey.ADMINISTRATOR, session.Account.Language)}) {shoutPacket.Message}";
+                $"({_gameLanguageLocalizer[LanguageKey.ADMINISTRATOR, session.Account.Language]}) {shoutPacket.Message}";
             var sayPacket = new SayPacket
             {
                 VisualType = VisualType.Player,

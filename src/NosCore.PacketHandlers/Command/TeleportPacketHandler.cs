@@ -33,11 +33,13 @@ namespace NosCore.PacketHandlers.Command
     {
         private readonly ILogger _logger;
         private readonly IMapChangeService _mapChangeService;
+        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
 
-        public TeleportPacketHandler(ILogger logger, IMapChangeService mapChangeService)
+        public TeleportPacketHandler(ILogger logger, IMapChangeService mapChangeService, IGameLanguageLocalizer gameLanguageLocalizer)
         {
             _logger = logger;
             _mapChangeService = mapChangeService;
+            _gameLanguageLocalizer = gameLanguageLocalizer;
         }
 
         public override Task ExecuteAsync(TeleportPacket teleportPacket, ClientSession session)
@@ -54,8 +56,8 @@ namespace NosCore.PacketHandlers.Command
                         targetSession.MapY);
                 }
 
-                _logger.Error(GameLanguage.Instance.GetMessageFromKey(LanguageKey.USER_NOT_CONNECTED,
-                    session.Account.Language));
+                _logger.Error(_gameLanguageLocalizer[LanguageKey.USER_NOT_CONNECTED,
+                    session.Account.Language]);
                 return Task.CompletedTask;
 
             }

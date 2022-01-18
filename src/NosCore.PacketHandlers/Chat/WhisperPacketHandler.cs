@@ -52,10 +52,11 @@ namespace NosCore.PacketHandlers.Chat
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly Channel _channel;
+        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
 
         public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer,
             IBlacklistHttpClient blacklistHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IPacketHttpClient packetHttpClient, Channel channel)
+            IConnectedAccountHttpClient connectedAccountHttpClient, IPacketHttpClient packetHttpClient, Channel channel, IGameLanguageLocalizer gameLanguageLocalizer)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
@@ -63,6 +64,7 @@ namespace NosCore.PacketHandlers.Chat
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _packetHttpClient = packetHttpClient;
             _channel = channel;
+            _gameLanguageLocalizer = gameLanguageLocalizer;
         }
 
         public override async Task ExecuteAsync(WhisperPacket whisperPacket, ClientSession session)
@@ -123,7 +125,7 @@ namespace NosCore.PacketHandlers.Chat
                 }
 
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
-                    $"{speakPacket.Message} <{GameLanguage.Instance.GetMessageFromKey(LanguageKey.CHANNEL, receiver.Item2.Language)}: {_channel.ChannelId}>";
+                    $"{speakPacket.Message} <{_gameLanguageLocalizer[LanguageKey.CHANNEL, receiver.Item2.Language]}: {_channel.ChannelId}>";
 
                 await _packetHttpClient.BroadcastPacketAsync(new PostedPacket
                 {

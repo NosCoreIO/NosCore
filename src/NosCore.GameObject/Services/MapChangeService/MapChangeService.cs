@@ -38,10 +38,12 @@ namespace NosCore.GameObject.Services.MapChangeService
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly IMinilandService _minilandProvider;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalizer;
+        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
 
         public MapChangeService(IExperienceService experienceService, IJobExperienceService jobExperienceService,
             IHeroExperienceService heroExperienceService, IMapInstanceAccessorService mapInstanceAccessorService, IClock clock,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMinilandService minilandProvider, ILogger logger)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMinilandService minilandProvider, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer, IGameLanguageLocalizer gameLanguageLocalizer)
         {
             _mapInstanceAccessorService = mapInstanceAccessorService;
             _clock = clock;
@@ -50,6 +52,8 @@ namespace NosCore.GameObject.Services.MapChangeService
             _heroExperienceService = heroExperienceService;
             _logLanguage = logLanguage;
             _minilandProvider = minilandProvider;
+            _logLanguageLocalizer = logLanguageLocalizer;
+            _gameLanguageLocalizer = gameLanguageLocalizer;
             _logger = logger;
         }
         public async Task ChangeMapAsync(ClientSession session, short? mapId = null, short? mapX = null, short? mapY = null)
@@ -66,7 +70,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 if (mapInstance == null)
                 {
                     _logger.Error(
-                        GameLanguage.Instance.GetMessageFromKey(LanguageKey.MAP_DONT_EXIST, session.Account.Language));
+                        _logLanguageLocalizer[LogLanguageKey.MAP_DONT_EXIST, session.Account.Language]);
                     return;
                 }
 
@@ -165,7 +169,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await Task.WhenAll(mapSessions.Select(async s =>
                 {
                     await session.SendPacketAsync(s.GenerateIn(s.Authority == AuthorityType.Moderator
-                        ? $"[{GameLanguage.Instance.GetMessageFromKey(LanguageKey.SUPPORT, s.AccountLanguage)}]"
+                        ? $"[{_gameLanguageLocalizer[LanguageKey.SUPPORT, s.AccountLanguage]}"
                         : string.Empty)).ConfigureAwait(false);
                     if (s.Shop == null)
                     {

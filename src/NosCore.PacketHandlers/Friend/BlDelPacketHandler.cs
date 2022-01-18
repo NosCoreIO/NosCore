@@ -33,10 +33,11 @@ namespace NosCore.PacketHandlers.Friend
     public class BlDelPacketHandler : PacketHandler<BlDelPacket>, IWorldPacketHandler
     {
         private readonly IBlacklistHttpClient _blacklistHttpClient;
-
-        public BlDelPacketHandler(IBlacklistHttpClient blacklistHttpClient)
+        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
+        public BlDelPacketHandler(IBlacklistHttpClient blacklistHttpClient, IGameLanguageLocalizer gameLanguageLocalizer)
         {
             _blacklistHttpClient = blacklistHttpClient;
+            _gameLanguageLocalizer = gameLanguageLocalizer;
         }
 
         public override async Task ExecuteAsync(BlDelPacket bldelPacket, ClientSession session)
@@ -52,8 +53,8 @@ namespace NosCore.PacketHandlers.Friend
             {
                 await session.SendPacketAsync(new InfoPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_BLACKLIST,
-                        session.Account.Language)
+                    Message = _gameLanguageLocalizer[LanguageKey.NOT_IN_BLACKLIST,
+                        session.Account.Language]
                 }).ConfigureAwait(false);
             }
         }

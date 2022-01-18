@@ -64,7 +64,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
 
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
 
-            Handler = new SpeakerGuriHandler(_logger.Object, TestHelpers.Instance.LogLanguageLocalizer);
+            Handler = new SpeakerGuriHandler(_logger.Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
             Broadcaster.Instance.LastPackets.Clear();
         }
 

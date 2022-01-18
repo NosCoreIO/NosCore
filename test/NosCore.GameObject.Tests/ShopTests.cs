@@ -278,15 +278,15 @@ namespace NosCore.GameObject.Tests
         private async Task<ClientSession> PrepareSessionShopAsync()
         {
             var conf = Options.Create(new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 });
-            var session2 = new ClientSession(conf, new Mock<IExchangeService>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object, new Mock<IMinilandService>().Object, TestHelpers.Instance.MapInstanceGeneratorService, new SessionRefHolder(), new Mock<ISaveService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, TestHelpers.Instance.LogLanguageLocalizer);
+            var session2 = new ClientSession(conf, new Mock<IExchangeService>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object, new Mock<IMinilandService>().Object, TestHelpers.Instance.MapInstanceGeneratorService, new SessionRefHolder(),
+                new Mock<ISaveService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
             var channelMock = new Mock<ISocketChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto { Name = "AccountTest", Password = new Sha512Hasher().Hash("test") };
             session2.InitializeAccount(account);
             session2.SessionId = 1;
 
-            await session2.SetCharacterAsync(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object,
-                Logger, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object)
+            await session2.SetCharacterAsync(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object)
             {
                 CharacterId = 1,
                 Name = "chara2",
@@ -373,8 +373,7 @@ namespace NosCore.GameObject.Tests
             Assert.IsTrue(session2.Character.Gold == 999_999_999);
             Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 999);
             var packet = (SMemoPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
-            Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, _session.Account.Language));
+            Assert.IsTrue(packet?.Message == TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.TOO_RICH_SELLER, _session.Account.Language]);
         }
     }
 }

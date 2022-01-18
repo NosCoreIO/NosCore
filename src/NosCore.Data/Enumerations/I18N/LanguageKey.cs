@@ -162,7 +162,9 @@ namespace NosCore.Data.Enumerations.I18N
         MFA_INCORRECT,
         DATABASE_ERROR,
         SAVE_CHARACTER_FAILED,
-        UNBOUND_ITEM_DETECTED
+        UNBOUND_ITEM_DETECTED,
+        MAP_DONT_EXIST,
+        CANT_CHANGE_SAME_CLASS,
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -184,11 +186,9 @@ namespace NosCore.Data.Enumerations.I18N
         BLACKLIST_ADDED,
         BLACKLIST_BLOCKED,
         UNABLE_TO_REQUEST_GROUP,
-        MAP_DONT_EXIST,
         USER_NOT_CONNECTED,
         ALREADY_BLACKLISTED,
         USER_IS_NOT_A_FRIEND,
-        CANT_CHANGE_SAME_CLASS,
         BANK_FULL,
         ASK_BIND,
         SP_NOPOINTS,

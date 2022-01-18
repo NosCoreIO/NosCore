@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
             _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
-                _connectedAccountHttpClient.Object);
+                _connectedAccountHttpClient.Object, TestHelpers.Instance.GameLanguageLocalizer);
             _characterDao = new Mock<IDao<CharacterDto, long>>();
             _friendController = new FriendService(Logger, _characterRelationDao, _characterDao.Object,
                 new FriendRequestHolder(), _connectedAccountHttpClient.Object, TestHelpers.Instance.LogLanguageLocalizer);
@@ -187,8 +187,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
             await _fDelPacketHandler!.ExecuteAsync(fdelPacket, _session).ConfigureAwait(false);
             var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(GameLanguage.Instance.GetMessageFromKey(LanguageKey.NOT_IN_FRIENDLIST,
-                _session.Account.Language), lastpacket?.Message);
+            Assert.AreEqual(TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.NOT_IN_FRIENDLIST,
+                _session.Account.Language], lastpacket?.Message);
         }
     }
 }
