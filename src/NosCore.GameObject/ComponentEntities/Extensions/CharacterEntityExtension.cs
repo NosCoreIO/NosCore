@@ -700,15 +700,6 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static BptPacket GenerateBpt(this ICharacterEntity _, IClock clock, IOptions<WorldConfiguration> worldConfig)
-        {
-            Duration duration = Instant.Subtract(worldConfig.Value.BattlepassConfiguration.EndSeason, clock.GetCurrentInstant());
-            return new BptPacket
-            {
-                MinutesUntilSeasonEnd = (long)duration.TotalMinutes
-            };
-        }
-
         public static BpmPacket GenerateBpm(this ICharacterEntity visualEntity, IOptions<WorldConfiguration> worldConfig)
         {
             List<BpmSubTypePacket> subPackets = new();

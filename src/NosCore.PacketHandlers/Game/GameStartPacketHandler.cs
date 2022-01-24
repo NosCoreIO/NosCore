@@ -41,6 +41,8 @@ using NosCore.Shared.Enumerations;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.GameObject.Services.MapChangeService;
+using NosCore.Packets.ClientPackets.Player;
+using NodaTime;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -56,12 +58,13 @@ namespace NosCore.PacketHandlers.Game
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly IQuestService _questProvider;
         private readonly IMapChangeService _mapChangeService;
+        private readonly IClock _clock;
 
         public GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IFriendHttpClient friendHttpClient,
             IChannelHttpClient channelHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient,
             IPacketHttpClient packetHttpClient,
-            ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider, IMapChangeService mapChangeService)
+            ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider, IMapChangeService mapChangeService, IClock clock)
         {
             _worldConfiguration = worldConfiguration;
             _packetSerializer = packetSerializer;
@@ -73,6 +76,7 @@ namespace NosCore.PacketHandlers.Game
             _mailHttpClient = mailHttpClient;
             _questProvider = questProvider;
             _mapChangeService = mapChangeService;
+            _clock = clock;
         }
 
         public override async Task ExecuteAsync(GameStartPacket packet, ClientSession session)
@@ -121,6 +125,10 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketAsync(session.Character.GenerateStat()).ConfigureAwait(false);
             //            Session.SendPacket("rage 0 250000");
             //            Session.SendPacket("rank_cool 0 0 18000");
+            await session.SendPacketAsync(new BptPacket
+            {
+                MinutesUntilSeasonEnd = (long)Instant.Subtract(_worldConfiguration.Value.BattlepassConfiguration.EndSeason, _clock.GetCurrentInstant()).TotalMinutes
+            });
             //            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>(8, InventoryType.Wear);
             var medal = session.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
             if (medal != null)
