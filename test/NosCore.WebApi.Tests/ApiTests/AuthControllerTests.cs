@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -50,7 +51,7 @@ namespace NosCore.WebApi.Tests.ApiTests
         private readonly string _tokenGuid = Guid.NewGuid().ToString();
         private AuthController _controller = null!;
         private ClientSession _session = null!;
-        private Mock<ILogger> _logger = null!;
+        private Mock<Serilog.ILogger> _logger = null!;
 
         [TestInitialize]
         public async Task Setup()
@@ -59,11 +60,11 @@ namespace NosCore.WebApi.Tests.ApiTests
             SessionFactory.Instance.ReadyForAuth.Clear();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _logger = new Mock<ILogger>();
+            _logger = new Mock<Serilog.ILogger>();
             _controller = new AuthController(Options.Create(new WebApiConfiguration()
             {
                 Password = "123"
-            }), TestHelpers.Instance.AccountDao, _logger.Object, new Sha512Hasher(), TestHelpers.Instance.LogLanguageLocalizer);
+            }), TestHelpers.Instance.AccountDao, new Mock<ILogger<AuthController>>().Object, new Sha512Hasher(), TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]

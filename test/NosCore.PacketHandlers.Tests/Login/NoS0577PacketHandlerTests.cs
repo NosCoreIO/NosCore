@@ -23,6 +23,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -58,7 +59,6 @@ namespace NosCore.PacketHandlers.Tests.Login
     {
         private readonly string _tokenGuid = Guid.NewGuid().ToString();
         private IHasher _encryption = null!;
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private readonly Mock<IAuthHttpClient> _authHttpClient = new();
         private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
         private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
@@ -83,7 +83,7 @@ namespace NosCore.PacketHandlers.Tests.Login
                 TestHelpers.Instance.AccountDao,
                 _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder()));
             var authController = new AuthController(Options.Create(_loginConfiguration.Value.MasterCommunication),
-                TestHelpers.Instance.AccountDao, Logger, _encryption, TestHelpers.Instance.LogLanguageLocalizer);
+                TestHelpers.Instance.AccountDao, new Mock<ILogger<AuthController>>().Object, _encryption, TestHelpers.Instance.LogLanguageLocalizer);
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
