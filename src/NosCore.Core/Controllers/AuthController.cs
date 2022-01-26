@@ -55,16 +55,14 @@ namespace NosCore.Core.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly IHasher _hasher;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly ILogger<AuthController> _saveAllLogger;
 
-        public AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao, ILogger<AuthController> logger, IHasher hasher, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<AuthController> saveAllLogger)
+        public AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao, ILogger<AuthController> logger, IHasher hasher, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _apiConfiguration = apiConfiguration;
             _accountDao = accountDao;
             _logger = logger;
             _hasher = hasher;
             _logLanguage = logLanguage;
-            _saveAllLogger = saveAllLogger;
         }
 
         [AllowAnonymous]
