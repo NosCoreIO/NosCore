@@ -78,9 +78,11 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Localization;
 using NodaTime;
 using NosCore.Core.Services.IdService;
 using NosCore.Data;
+using NosCore.Data.Resource;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
@@ -337,6 +339,9 @@ namespace NosCore.WorldServer
             
             services.AddI18NLogs();
             services.AddTransient(typeof(IGameLanguageLocalizer), typeof(GameLanguageLocalizer));
+            services.AddTransient(typeof(ILogLanguageLocalizer<LanguageKey>),
+                x => new LogLanguageLocalizer<LanguageKey, LocalizedResources>(
+                    x.GetRequiredService<IStringLocalizer<LocalizedResources>>()));
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddHostedService<WorldServer>();
 
