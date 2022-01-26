@@ -53,14 +53,15 @@ namespace NosCore.PacketHandlers.Command
 
         public override async Task ExecuteAsync(ShoutPacket shoutPacket, ClientSession session)
         {
-            var message =
-                $"({_gameLanguageLocalizer[LanguageKey.ADMINISTRATOR, session.Account.Language]}) {shoutPacket.Message}";
-            var sayPacket = new SayPacket
+            var message = $"({_gameLanguageLocalizer[LanguageKey.ADMINISTRATOR, session.Account.Language]}) {shoutPacket.Message}";
+
+            var sayPacket = new Sayi2Packet
             {
                 VisualType = VisualType.Player,
-                VisualId = 0,
+                VisualId = -1,
                 Type = SayColorType.Yellow,
-                Message = message
+                Message = Game18NConstString.Administrator,
+                Game18NArguments = { 999, message }
             };
 
             var msgiPacket = new MsgPacket
