@@ -48,9 +48,10 @@ namespace NosCore.PacketHandlers.Chat
         private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly Channel _channel;
+        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
 
         public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
-            IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, Channel channel)
+            IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, Channel channel, IGameLanguageLocalizer gameLanguageLocalizer)
         {
             _logger = logger;
             _packetSerializer = packetSerializer;
@@ -58,6 +59,7 @@ namespace NosCore.PacketHandlers.Chat
             _connectedAccountHttpClient = connectedAccountHttpClient;
             _packetHttpClient = packetHttpClient;
             _channel = channel;
+            _gameLanguageLocalizer = gameLanguageLocalizer;
         }
 
         public override async Task ExecuteAsync(BtkPacket btkPacket, ClientSession session)
@@ -66,8 +68,8 @@ namespace NosCore.PacketHandlers.Chat
 
             if (friendlist.All(s => s.CharacterId != btkPacket.CharacterId))
             {
-                _logger.Error(GameLanguage.Instance.GetMessageFromKey(LanguageKey.USER_IS_NOT_A_FRIEND,
-                    session.Account.Language));
+                _logger.Error(_gameLanguageLocalizer[LanguageKey.USER_IS_NOT_A_FRIEND,
+                    session.Account.Language]);
                 return;
             }
 

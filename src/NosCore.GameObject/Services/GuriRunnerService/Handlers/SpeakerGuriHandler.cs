@@ -41,11 +41,13 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
     {
         private readonly ILogger _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
+        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
 
-        public SpeakerGuriHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        public SpeakerGuriHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer)
         {
             _logger = logger;
             _logLanguage = logLanguage;
+            _gameLanguageLocalizer = gameLanguageLocalizer;
         }
 
         public bool Condition(GuriPacket packet)
@@ -76,7 +78,7 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 
             var data = requestData.Data.Value;
             string[] valuesplit = (data ?? string.Empty).Split(' ');
-            string message = $"<{GameLanguage.Instance.GetMessageFromKey(LanguageKey.SPEAKER, requestData.ClientSession.Account.Language)}> [{requestData.ClientSession.Character.Name}]:";
+            string message = $"<{_gameLanguageLocalizer[LanguageKey.SPEAKER, requestData.ClientSession.Account.Language]}> [{requestData.ClientSession.Character.Name}]:";
             if (requestData.Data.Data == 999)
             {
                 InventoryItemInstance? deeplink = null;

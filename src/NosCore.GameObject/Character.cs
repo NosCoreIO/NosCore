@@ -58,7 +58,6 @@ using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using Serilog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -77,7 +76,6 @@ namespace NosCore.GameObject
 {
     public class Character : CharacterDto, ICharacterEntity
     {
-        private readonly ILogger _logger;
         private readonly IHpService _hpService;
         private readonly IMpService _mpService;
         private readonly IExperienceService _experienceService;
@@ -88,7 +86,7 @@ namespace NosCore.GameObject
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly ISpeedCalculationService _speedCalculationService;
 
-        public Character(IInventoryService inventory, IExchangeService exchangeService, IItemGenerationService itemProvider, ILogger logger,
+        public Character(IInventoryService inventory, IExchangeService exchangeService, IItemGenerationService itemProvider,
             IHpService hpService, IMpService mpService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
             IReputationService reputationService, IDignityService dignityService, IOptions<WorldConfiguration> worldConfiguration, ISpeedCalculationService speedCalculationService)
         {
@@ -97,7 +95,6 @@ namespace NosCore.GameObject
             ItemProvider = itemProvider;
             GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
             Group = new Group(GroupType.Group);
-            _logger = logger;
             _hpService = hpService;
             _mpService = mpService;
             _experienceService = experienceService;
@@ -321,12 +318,6 @@ namespace NosCore.GameObject
         // todo move this
         public async Task ChangeClassAsync(CharacterClassType classType)
         {
-            if (Class == classType)
-            {
-                _logger.Error(GameLanguage.Instance.GetMessageFromKey(LanguageKey.CANT_CHANGE_SAME_CLASS, Session.Account.Language));
-                return;
-            }
-
             if (InventoryService.Any(s => s.Value.Type == NoscorePocketType.Wear))
             {
                 await SendPacketAsync(new SayiPacket
@@ -438,7 +429,7 @@ namespace NosCore.GameObject
             Gold = gold;
             await SendPacketAsync(this.GenerateGold()).ConfigureAwait(false);
             await SendPacketAsync(this.GenerateSay(
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.UPDATE_GOLD, Session.Account.Language),
+                GetMessageFromKey(LanguageKey.UPDATE_GOLD),
                 SayColorType.Red)).ConfigureAwait(false);
         }
 
@@ -447,7 +438,7 @@ namespace NosCore.GameObject
             Reput = reput;
             await SendPacketAsync(this.GenerateFd()).ConfigureAwait(false);
             await SendPacketAsync(this.GenerateSay(
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED, Session.Account.Language),
+                GetMessageFromKey(LanguageKey.REPUTATION_CHANGED),
                 SayColorType.Red)).ConfigureAwait(false);
         }
 
@@ -561,7 +552,7 @@ namespace NosCore.GameObject
                     await SendPacketAsync(new SMemoPacket
                     {
                         Type = SMemoType.FailPlayer,
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER, Session.Account.Language)
+                        Message = GetMessageFromKey(LanguageKey.TOO_RICH_SELLER)
                     }).ConfigureAwait(false);
                     return;
                 }
@@ -680,7 +671,7 @@ namespace NosCore.GameObject
                 if (s.VisualId != VisualId)
                 {
                     await s.SendPacketAsync(this.GenerateIn(Authority == AuthorityType.Moderator
-                        ? GameLanguage.Instance.GetMessageFromKey(LanguageKey.SUPPORT, Session.Account.Language) : string.Empty)).ConfigureAwait(false);
+                        ? GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)).ConfigureAwait(false);
                     //TODO: Generate GIDX
                 }
 

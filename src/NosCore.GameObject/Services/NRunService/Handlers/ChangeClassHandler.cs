@@ -28,11 +28,22 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System;
 using System.Threading.Tasks;
+using NosCore.Shared.I18N;
+using Serilog;
 
 namespace NosCore.GameObject.Services.NRunService.Handlers
 {
     public class ChangeClassEventHandler : INrunEventHandler
     {
+        private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _languageLocalizer;
+
+        public ChangeClassEventHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> languageLocalizer)
+        {
+            _logger = logger;
+            _languageLocalizer = languageLocalizer;
+        }
+
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
         {
             return (item.Item2.Runner == NrunRunnerType.ChangeClass) &&
@@ -64,7 +75,14 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                 return;
             }
 
-            await requestData.ClientSession.Character.ChangeClassAsync((CharacterClassType)(requestData.Data.Item2.Type ?? 0)).ConfigureAwait(false);
+            var classType = (CharacterClassType)(requestData.Data.Item2.Type ?? 0);
+            if (requestData.ClientSession.Character.Class == classType)
+            {
+                _logger.Error(_languageLocalizer[LogLanguageKey.CANT_CHANGE_SAME_CLASS]);
+                return;
+            }
+
+            await requestData.ClientSession.Character.ChangeClassAsync(classType).ConfigureAwait(false);
         }
     }
 }

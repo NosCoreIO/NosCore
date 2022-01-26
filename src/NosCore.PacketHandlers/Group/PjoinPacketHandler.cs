@@ -48,14 +48,17 @@ namespace NosCore.PacketHandlers.Group
         private readonly IClock _clock;
         private readonly IIdService<GameObject.Group> _groupIdService;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
+        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
 
-        public PjoinPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpCLient, IClock clock, IIdService<GameObject.Group> groupIdService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        public PjoinPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpCLient, IClock clock, IIdService<GameObject.Group> groupIdService, 
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer)
         {
             _groupIdService = groupIdService;
             _logger = logger;
             _blacklistHttpCLient = blacklistHttpCLient;
             _clock = clock;
             _logLanguage = logLanguage;
+            _gameLanguageLocalizer = gameLanguageLocalizer;
         }
 
         public override async Task ExecuteAsync(PjoinPacket pjoinPacket, ClientSession clientSession)
@@ -66,8 +69,8 @@ namespace NosCore.PacketHandlers.Group
 
             if ((targetSession == null) && (pjoinPacket.RequestType != GroupRequestType.Sharing))
             {
-                _logger.Error(GameLanguage.Instance.GetMessageFromKey(LanguageKey.UNABLE_TO_REQUEST_GROUP,
-                    clientSession.Account.Language));
+                _logger.Error(_gameLanguageLocalizer[LanguageKey.UNABLE_TO_REQUEST_GROUP,
+                    clientSession.Account.Language]);
                 return;
             }
 

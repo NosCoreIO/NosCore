@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _putPacketHandler = new PutPacketHandler(TestHelpers.Instance.WorldConfiguration);
+            _putPacketHandler = new PutPacketHandler(TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.GameLanguageLocalizer);
         }
 
         [TestMethod]

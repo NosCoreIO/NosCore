@@ -42,11 +42,13 @@ namespace NosCore.PacketHandlers.Inventory
     {
         private readonly IClock _clock;
         private readonly ITransformationService _transformationService;
+        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
 
-        public SpTransformPacketHandler(IClock clock, ITransformationService transformationService)
+        public SpTransformPacketHandler(IClock clock, ITransformationService transformationService, IGameLanguageLocalizer gameLanguageLocalizer)
         {
             _clock = clock;
             _transformationService = transformationService;
+            _gameLanguageLocalizer = gameLanguageLocalizer;
         }
         public override async Task ExecuteAsync(SpTransformPacket spTransformPacket, ClientSession clientSession)
         {
@@ -94,8 +96,8 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         await clientSession.SendPacketAsync(new MsgPacket
                         {
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS,
-                                clientSession.Account.Language)
+                            Message = _gameLanguageLocalizer[LanguageKey.SP_NOPOINTS,
+                                clientSession.Account.Language]
                         }).ConfigureAwait(false);
                         return;
                     }

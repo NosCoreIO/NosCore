@@ -42,10 +42,12 @@ namespace NosCore.PacketHandlers.Inventory
     public class PutPacketHandler : PacketHandler<PutPacket>, IWorldPacketHandler
     {
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
+        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
 
-        public PutPacketHandler(IOptions<WorldConfiguration> worldConfiguration)
+        public PutPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IGameLanguageLocalizer gameLanguageLocalizer)
         {
             _worldConfiguration = worldConfiguration;
+            _gameLanguageLocalizer = gameLanguageLocalizer;
         }
 
         public override async Task ExecuteAsync(PutPacket putPacket, ClientSession clientSession)
@@ -84,7 +86,7 @@ namespace NosCore.PacketHandlers.Inventory
                         await clientSession.SendPacketAsync(new MsgPacket
                         {
                             Type = MessageType.Default,
-                            Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.DROP_MAP_FULL, clientSession.Account.Language),
+                            Message = _gameLanguageLocalizer[LanguageKey.DROP_MAP_FULL, clientSession.Account.Language],
                         }).ConfigureAwait(false);
                     }
                 }
@@ -93,7 +95,7 @@ namespace NosCore.PacketHandlers.Inventory
                     await clientSession.SendPacketAsync(new MsgPacket
                     {
                         Type = MessageType.Default,
-                        Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BAD_DROP_AMOUNT, clientSession.Account.Language),
+                        Message = _gameLanguageLocalizer[LanguageKey.BAD_DROP_AMOUNT, clientSession.Account.Language],
                     }).ConfigureAwait(false);
                 }
             }

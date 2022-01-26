@@ -47,14 +47,16 @@ namespace NosCore.GameObject.Services.ExchangeService
         private readonly IOptions<WorldConfiguration> _worldConfiguration;
         private readonly ExchangeRequestHolder _requestHolder;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public ExchangeService(IItemGenerationService itemBuilderService, IOptions<WorldConfiguration> worldConfiguration, ILogger logger, ExchangeRequestHolder requestHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
+        public ExchangeService(IItemGenerationService itemBuilderService, IOptions<WorldConfiguration> worldConfiguration, ILogger logger, ExchangeRequestHolder requestHolder, 
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer)
         {
             _itemBuilderService = itemBuilderService;
             _worldConfiguration = worldConfiguration;
             _logger = logger;
             _requestHolder = requestHolder;
             _logLanguage = logLanguage;
+            _gameLanguageLocalizer = gameLanguageLocalizer;
         }
 
         public void SetGold(long visualId, long gold, long bankGold)
@@ -93,7 +95,7 @@ namespace NosCore.GameObject.Services.ExchangeService
             {
                 dictionary.Add(targetSession.VisualId, new InfoPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
+                    Message = _gameLanguageLocalizer[LanguageKey.BANK_FULL, session.Account.Language]
                 });
                 return new Tuple<ExchangeResultType, Dictionary<long, IPacket>?>(ExchangeResultType.Failure,
                     dictionary);
@@ -103,7 +105,7 @@ namespace NosCore.GameObject.Services.ExchangeService
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
-                    Message = GameLanguage.Instance.GetMessageFromKey(LanguageKey.BANK_FULL, session.Account.Language)
+                    Message = _gameLanguageLocalizer[LanguageKey.BANK_FULL, session.Account.Language]
                 });
                 return new Tuple<ExchangeResultType, Dictionary<long, IPacket>?>(ExchangeResultType.Failure,
                     dictionary);

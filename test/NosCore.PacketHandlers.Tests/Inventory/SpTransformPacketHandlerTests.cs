@@ -59,7 +59,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _item = TestHelpers.Instance.GenerateItemProvider();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _spTransformPacketHandler = new SpTransformPacketHandler(TestHelpers.Instance.Clock, 
-                new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, new Mock<ILogger>().Object, TestHelpers.Instance.LogLanguageLocalizer));
+                new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, 
+                    new Mock<ILogger>().Object, TestHelpers.Instance.LogLanguageLocalizer), TestHelpers.Instance.GameLanguageLocalizer);
         }
 
 
@@ -185,7 +186,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
             Assert.IsTrue(packet?.Message ==
-                GameLanguage.Instance.GetMessageFromKey(LanguageKey.SP_NOPOINTS, _session.Account.Language));
+                TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.SP_NOPOINTS, _session.Account.Language]);
         }
 
         [TestMethod]

@@ -39,6 +39,7 @@ using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.I18N;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -85,6 +86,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using Character = NosCore.Database.Entities.Character;
@@ -130,6 +132,11 @@ namespace NosCore.Tests.Shared
             mock.Setup(x => x[It.IsAny<LogLanguageKey>()])
                 .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
             LogLanguageLocalizer = mock.Object;
+
+            var mock2 = new Mock<IGameLanguageLocalizer>();
+            mock2.Setup(x => x[It.IsAny<LanguageKey>(), It.IsAny<RegionType>()])
+                .Returns((LogLanguageKey x, RegionType reg) => new LocalizedString($"{x}{reg}", $"{x}{reg}", false));
+            GameLanguageLocalizer = mock2.Object;
         }
 
         public static TestHelpers Instance => _lazy.Value;
@@ -139,6 +146,7 @@ namespace NosCore.Tests.Shared
         public IDao<CharacterRelationDto, Guid> CharacterRelationDao { get; set; } = null!;
         public IDao<CharacterDto, long> CharacterDao { get; private set; } = null!;
         public IDao<MinilandDto, Guid> MinilandDao { get; private set; } = null!;
+        public IGameLanguageLocalizer GameLanguageLocalizer { get; private set; } = null!;
         public ILogLanguageLocalizer<LogLanguageKey> LogLanguageLocalizer { get; private set; } = null!;
         public IDao<MinilandObjectDto, Guid> MinilandObjectDao { get; private set; } = null!;
         public IMapItemGenerationService? MapItemProvider { get; set; }
@@ -239,7 +247,7 @@ namespace NosCore.Tests.Shared
             var holder = new MapInstanceHolder();
             MapInstanceAccessorService = new MapInstanceAccessorService(holder);
             var mapChangeService = new MapChangeService(new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
-                MapInstanceAccessorService, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer, new Mock<IMinilandService>().Object, _logger);
+                MapInstanceAccessorService, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer, new Mock<IMinilandService>().Object, _logger, Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer);
             var instanceGeneratorService = new MapInstanceGeneratorService(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
                 MapItemProvider,
                 _mapNpcDao,
@@ -321,14 +329,14 @@ namespace NosCore.Tests.Shared
                 new Mock<ISerializer>().Object,
                 PacketHttpClient.Object,
                 minilandProvider.Object,
-                MapInstanceGeneratorService, new SessionRefHolder(), new Mock<ISaveService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, TestHelpers.Instance.LogLanguageLocalizer)
+                MapInstanceGeneratorService, new SessionRefHolder(), new Mock<ISaveService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, 
+                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer)
             {
                 SessionId = _lastId
             };
 
             var chara = new GameObject.Character(new InventoryService(ItemList, WorldConfiguration, _logger),
-                new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestHolder(), TestHelpers.Instance.LogLanguageLocalizer), new Mock<IItemGenerationService>().Object,
-                _logger, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), 
+                new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestHolder(), TestHelpers.Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer), new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), 
                 new HeroExperienceService(), new ReputationService(), new DignityService(), 
                 TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object)
             {
