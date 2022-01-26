@@ -19,6 +19,7 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Core.I18N;
@@ -51,17 +52,19 @@ namespace NosCore.Core.Controllers
     {
         private readonly IDao<AccountDto, long> _accountDao;
         private readonly IOptions<WebApiConfiguration> _apiConfiguration;
-        private readonly ILogger _logger;
+        private readonly ILogger<AuthController> _logger;
         private readonly IHasher _hasher;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
+        private readonly ILogger<AuthController> _saveAllLogger;
 
-        public AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao, ILogger logger, IHasher hasher, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        public AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao, ILogger<AuthController> logger, IHasher hasher, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<AuthController> saveAllLogger)
         {
             _apiConfiguration = apiConfiguration;
             _accountDao = accountDao;
             _logger = logger;
             _hasher = hasher;
             _logLanguage = logLanguage;
+            _saveAllLogger = saveAllLogger;
         }
 
         [AllowAnonymous]
@@ -112,7 +115,7 @@ namespace NosCore.Core.Controllers
                 Audience = "Audience",
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
             });
-            _logger.Information(_logLanguage[LogLanguageKey.AUTH_API_SUCCESS],
+            _logger.LogInformation(_logLanguage[LogLanguageKey.AUTH_API_SUCCESS],
                 session.Identity, platformGameAccountId, session.Locale);
             return Ok(new
             {
