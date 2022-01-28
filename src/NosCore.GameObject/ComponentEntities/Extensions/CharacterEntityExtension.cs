@@ -703,7 +703,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static BpmPacket GenerateBpm(this ICharacterEntity visualEntity, IClock clock, IOptions<WorldConfiguration> worldConfig)
         {
             List<BpmSubTypePacket> subPackets = new();
-            foreach (var quest in visualEntity.Quests.Values.Where(s => s.Quest.FrequencyType == FrequencyType.Weekly || s.Quest.FrequencyType == FrequencyType.Daily)) // TODO : Improve that because the where condition isn't really true
+            foreach (var quest in visualEntity.Quests.Values) // TODO : Improve that because it's gonna take each quest
             {
                 subPackets.Add(new BpmSubTypePacket
                 {
@@ -711,7 +711,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     MissionType = (MissionType)quest.Quest.QuestType,
                     FrequencyType = quest.Quest.FrequencyType,
                     Advancement = 0, // TODO because objective isn't coded rn
-                    MaxObjectiveValue = 0, // TODO same as above
+                    MaxObjectiveValue = 3000, // TODO same as above
                     Reward = 5, // TODO because quest rewards aren't coded rn
                     MissionMinutesRemaining = (long)quest.GetTotalMinutesLeftBeforeQuestEnd(worldConfig, clock)
                 });

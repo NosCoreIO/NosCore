@@ -125,6 +125,7 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketAsync(session.Character.GenerateStat()).ConfigureAwait(false);
             //            Session.SendPacket("rage 0 250000");
             //            Session.SendPacket("rank_cool 0 0 18000");
+            await session.SendPacketAsync(session.Character.GenerateBpm(_clock, _worldConfiguration));
             await session.SendPacketAsync(new BptPacket
             {
                 MinutesUntilSeasonEnd = (long)Instant.Subtract(_worldConfiguration.Value.BattlepassConfiguration.EndSeason, _clock.GetCurrentInstant()).TotalMinutes
