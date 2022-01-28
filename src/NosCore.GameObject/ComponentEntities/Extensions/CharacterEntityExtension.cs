@@ -725,7 +725,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static BppPacket GenerateBpt(this ICharacterEntity visualEntity)
+        public static BppPacket GenerateBpp(this ICharacterEntity visualEntity)
         {
             List<BppSubTypePacket> subPackets = new();
             foreach (var quest in visualEntity.Quests.Values.Where(s => s.Quest.FrequencyType == FrequencyType.OneOff)) // TODO : Real condition, I'm just testing
