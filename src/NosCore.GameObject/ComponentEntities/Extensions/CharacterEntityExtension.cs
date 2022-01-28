@@ -700,7 +700,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static BpmPacket GenerateBpm(this ICharacterEntity visualEntity, IOptions<WorldConfiguration> worldConfig)
+        public static BpmPacket GenerateBpm(this ICharacterEntity visualEntity, IClock clock, IOptions<WorldConfiguration> worldConfig)
         {
             List<BpmSubTypePacket> subPackets = new();
             foreach (var quest in visualEntity.Quests.Values.Where(s => s.Quest.FrequencyType == FrequencyType.Weekly || s.Quest.FrequencyType == FrequencyType.Daily)) // TODO : Improve that because the where condition isn't really true
@@ -708,12 +708,12 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 subPackets.Add(new BpmSubTypePacket
                 {
                     QuestId = quest.Quest.QuestId,
-                    MissionType = (MissionType)quest.Quest.QuestType, // TODO cuz that's totally wrong
+                    MissionType = (MissionType)quest.Quest.QuestType,
                     FrequencyType = quest.Quest.FrequencyType,
-                    Advancement = 0, // TODO
-                    MaxObjectiveValue = 0, // TODO
-                    Reward = 5, // TODO
-                    MissionMinutesRemaining = 0 // TODO
+                    Advancement = 0, // TODO because objective isn't coded rn
+                    MaxObjectiveValue = 0, // TODO same as above
+                    Reward = 5, // TODO because quest rewards aren't coded rn
+                    MissionMinutesRemaining = (long)quest.GetTotalMinutesLeftBeforeQuestEnd(worldConfig, clock) // TODO
                 });
             }
 

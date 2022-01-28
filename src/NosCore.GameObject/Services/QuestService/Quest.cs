@@ -17,16 +17,42 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Microsoft.Extensions.Options;
+using NodaTime;
+using NosCore.Core.Configuration;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Quest;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.QuestService
 {
     public class CharacterQuest : CharacterQuestDto
     {
         public Quest Quest { get; set; } = null!;
+
+        public double GetTotalMinutesLeftBeforeQuestEnd(IOptions<WorldConfiguration> _worldConfiguration, IClock clock)
+        {
+            if (Quest == null)
+            {
+                return (double)0;
+            }
+
+            Instant instant = _worldConfiguration.Value.BattlepassConfiguration.EndSeason;
+
+            if (Quest.FrequencyType == FrequencyType.Daily)
+            {
+                instant = StartedOn.Plus(Duration.FromDays(1));
+            }
+            else if (Quest.FrequencyType == FrequencyType.Weekly)
+            {
+                instant = StartedOn.Plus(Duration.FromDays(7));
+            }
+
+            return Instant.Subtract(instant, clock.GetCurrentInstant()).TotalMinutes;
+        }
 
         public QstiPacket GenerateQstiPacket(bool showDialog)
         {
