@@ -713,7 +713,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     Advancement = 0, // TODO because objective isn't coded rn
                     MaxObjectiveValue = 0, // TODO same as above
                     Reward = 5, // TODO because quest rewards aren't coded rn
-                    MissionMinutesRemaining = (long)quest.GetTotalMinutesLeftBeforeQuestEnd(worldConfig, clock) // TODO
+                    MissionMinutesRemaining = (long)quest.GetTotalMinutesLeftBeforeQuestEnd(worldConfig, clock)
                 });
             }
 
@@ -722,6 +722,33 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 IsBattlePassEnabled = worldConfig.Value.BattlepassConfiguration.IsBattlePassIconEnabled,
                 MaxBattlePassPoints = worldConfig.Value.BattlepassConfiguration.MaxBattlePassPoints,
                 QuestList = subPackets
+            };
+        }
+
+        public static BppPacket GenerateBpt(this ICharacterEntity visualEntity)
+        {
+            List<BppSubTypePacket> subPackets = new();
+            foreach (var quest in visualEntity.Quests.Values.Where(s => s.Quest.FrequencyType == FrequencyType.OneOff)) // TODO : Real condition, I'm just testing
+            {
+                subPackets.Add(new BppSubTypePacket
+                {
+                    BearingId = quest.QuestId,
+                    FreeItemVNum = 1,
+                    FreeItemAmount = 1,
+                    PremiumItemVNum = 1,
+                    PremiumItemAmount = 1,
+                    CanGetFreeItem = false,
+                    CanGetPremiumItem = false,
+                    IsSuperReward = true
+                });
+            }
+
+            return new BppPacket
+            {
+                BearingCount = 3,
+                Points = 0,
+                IsPremium = false,
+                ItemList = subPackets
             };
         }
     }
