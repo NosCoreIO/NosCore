@@ -30,6 +30,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
@@ -700,20 +701,20 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             };
         }
 
-        public static BpmPacket GenerateBpm(this ICharacterEntity visualEntity, IClock clock, IOptions<WorldConfiguration> worldConfig)
+        public static BpmPacket GenerateBpm(this ICharacterEntity visualEntity, IClock clock, IOptions<WorldConfiguration> worldConfig, List<QuestDto> quests)
         {
             List<BpmSubTypePacket> subPackets = new();
-            foreach (var quest in visualEntity.Quests.Values) // TODO : Improve that because it's gonna take each quest
+            foreach (var quest in quests) // TODO : Improve that because it's gonna take each quest
             {
                 subPackets.Add(new BpmSubTypePacket
                 {
-                    QuestId = quest.Quest.QuestId,
-                    MissionType = (MissionType)quest.Quest.QuestType,
-                    FrequencyType = quest.Quest.FrequencyType,
+                    QuestId = quest.QuestId,
+                    MissionType = (MissionType)quest.QuestType,
+                    FrequencyType = quest.FrequencyType,
                     Advancement = 0, // TODO because objective isn't coded rn
                     MaxObjectiveValue = 3000, // TODO same as above
                     Reward = 5, // TODO because quest rewards aren't coded rn
-                    MissionMinutesRemaining = (long)quest.GetTotalMinutesLeftBeforeQuestEnd(worldConfig, clock)
+                    MissionMinutesRemaining = 0 // TODO : (long)characterQuest.GetTotalMinutesLeftBeforeQuestEnd(worldConfig, clock) 
                 });
             }
 

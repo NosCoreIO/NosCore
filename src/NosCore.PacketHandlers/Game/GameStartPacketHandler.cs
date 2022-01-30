@@ -43,6 +43,8 @@ using System.Threading.Tasks;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Packets.ClientPackets.Player;
 using NodaTime;
+using System.Collections.Generic;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -59,12 +61,13 @@ namespace NosCore.PacketHandlers.Game
         private readonly IQuestService _questProvider;
         private readonly IMapChangeService _mapChangeService;
         private readonly IClock _clock;
+        private readonly List<QuestDto> _quests;
 
         public GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IFriendHttpClient friendHttpClient,
             IChannelHttpClient channelHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient,
             IPacketHttpClient packetHttpClient,
-            ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider, IMapChangeService mapChangeService, IClock clock)
+            ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider, IMapChangeService mapChangeService, IClock clock, List<QuestDto> quests)
         {
             _worldConfiguration = worldConfiguration;
             _packetSerializer = packetSerializer;
@@ -77,6 +80,7 @@ namespace NosCore.PacketHandlers.Game
             _questProvider = questProvider;
             _mapChangeService = mapChangeService;
             _clock = clock;
+            _quests = quests;
         }
 
         public override async Task ExecuteAsync(GameStartPacket packet, ClientSession session)
@@ -125,7 +129,7 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketAsync(session.Character.GenerateStat()).ConfigureAwait(false);
             //            Session.SendPacket("rage 0 250000");
             //            Session.SendPacket("rank_cool 0 0 18000");
-            await session.SendPacketAsync(session.Character.GenerateBpm(_clock, _worldConfiguration));
+            await session.SendPacketAsync(session.Character.GenerateBpm(_clock, _worldConfiguration, _quests));
             await session.SendPacketAsync(new BptPacket
             {
                 MinutesUntilSeasonEnd = (long)Instant.Subtract(_worldConfiguration.Value.BattlepassConfiguration.EndSeason, _clock.GetCurrentInstant()).TotalMinutes
