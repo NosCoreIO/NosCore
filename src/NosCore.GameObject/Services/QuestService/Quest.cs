@@ -32,23 +32,19 @@ namespace NosCore.GameObject.Services.QuestService
     {
         public Quest Quest { get; set; } = null!;
 
-        public double GetTotalMinutesLeftBeforeQuestEnd(IOptions<WorldConfiguration> _worldConfiguration, IClock clock)
+        public double GetTotalMinutesLeftBeforeQuestEnd(IOptions<WorldConfiguration> worldConfiguration, IClock clock)
         {
             if (Quest == null)
             {
                 return (double)0;
             }
 
-            Instant instant = _worldConfiguration.Value.BattlepassConfiguration.EndSeason;
-
-            if (Quest.FrequencyType == FrequencyType.Daily)
+            Instant instant = Quest.FrequencyType switch
             {
-                instant = StartedOn.Plus(Duration.FromDays(1));
-            }
-            else if (Quest.FrequencyType == FrequencyType.Weekly)
-            {
-                instant = StartedOn.Plus(Duration.FromDays(7));
-            }
+                FrequencyType.Daily => StartedOn.Plus(Duration.FromDays(1)),
+                FrequencyType.Weekly => StartedOn.Plus(Duration.FromDays(7)),
+                _ => worldConfiguration.Value.BattlepassConfiguration.EndSeason
+            };
 
             return Instant.Subtract(instant, clock.GetCurrentInstant()).TotalMinutes;
         }
