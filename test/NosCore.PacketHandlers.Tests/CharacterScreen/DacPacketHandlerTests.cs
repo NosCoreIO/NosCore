@@ -70,10 +70,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestMethod]
         public async Task ConnectionWithAlreadyConnectedAccountAsync()
         {
-            var packet = new DacPacket
+            var packet = new DacPacket(_accountName)
             {
                 Slot = 2,
-                AccountName = _accountName
             };
             _channelHttpClient.Setup(o => o.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>()
             {
@@ -99,10 +98,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestMethod]
         public async Task ConnectionWithInvalidAccountAsync()
         {
-            var packet = new DacPacket
+            var packet = new DacPacket("fakeName")
             {
                 Slot = 2,
-                AccountName = "fakeName"
             };
             await _dacPacketHandler.ExecuteAsync(packet, _session);
             Logger.Verify(o => o.Error(It.Is<string>(o => o == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_ACCOUNT]),
@@ -115,10 +113,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestMethod]
         public async Task ConnectionWithNotInwaitingAccountAsync()
         {
-            await _dacPacketHandler.ExecuteAsync(new DacPacket
+            await _dacPacketHandler.ExecuteAsync(new DacPacket(_accountName)
             {
                 Slot = 0,
-                AccountName = _accountName
             }, _session);
             Logger.Verify(o => o.Error(It.Is<string>(o => o == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_PASSWORD]),
 
@@ -129,10 +126,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestMethod]
         public async Task ConnectionWithInwaitingAccountAsync()
         {
-            var packet = new DacPacket
+            var packet = new DacPacket(_accountName)
             {
                 Slot = 0,
-                AccountName = _accountName
             };
             _authHttpClient.Setup(authHttpClient => authHttpClient
                     .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
