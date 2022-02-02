@@ -91,11 +91,10 @@ namespace NosCore.PacketHandlers.Bazaar
                         if (remove)
                         {
                             await clientSession.HandlePacketsAsync(new[] { new CBListPacket { Index = 0, ItemVNumFilter = new List<short>() } }).ConfigureAwait(false);
-                            await clientSession.SendPacketAsync(new RCBuyPacket
+                            await clientSession.SendPacketAsync(new RCBuyPacket(bz.SellerName!)
                             {
                                 Type = VisualType.Player,
                                 VNum = bz.ItemInstance.ItemVNum,
-                                Owner = bz.SellerName!,
                                 Amount = packet.Amount,
                                 Price = packet.Price,
                                 Slot = 0, //TODO: Add slot
