@@ -30,10 +30,7 @@ namespace NosCore.GameObject.Services.QuestService
 
         public QstiPacket GenerateQstiPacket(bool showDialog)
         {
-            return new QstiPacket
-            {
-                QuestSubPacket = GenerateQuestSubPacket(showDialog)
-            };
+            return new QstiPacket(GenerateQuestSubPacket(showDialog));
         }
 
         public QuestSubPacket GenerateQuestSubPacket(bool showDialog)

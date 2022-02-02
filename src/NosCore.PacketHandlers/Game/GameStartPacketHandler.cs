@@ -161,7 +161,7 @@ namespace NosCore.PacketHandlers.Game
             //            Session.SendPackets(Session.Character.GeneratePst());
 
             //            Session.SendPacket("zzim");
-            await session.SendPacketAsync(new TwkPacket
+            await session.SendPacketAsync(new TwkPacket(session.Account.Name, session.Character.Name)
             {
                 VisualId = session.Character.VisualId,
                 VisualType = VisualType.Player,

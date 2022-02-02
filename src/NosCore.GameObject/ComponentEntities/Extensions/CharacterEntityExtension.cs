@@ -442,10 +442,8 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
 
         public static QstlistPacket GenerateQuestPacket(this ICharacterEntity visualEntity)
         {
-            return new QstlistPacket()
-            {
-                QuestSubPackets = visualEntity.Quests.Values.Where(s => s.CompletedOn == null).Select(quest => quest.GenerateQuestSubPacket(true)).ToList()
-            };
+            return new QstlistPacket(visualEntity.Quests.Values
+                .Where(s => s.CompletedOn == null).Select(quest => quest.GenerateQuestSubPacket(true)).ToList());
         }
 
         public static IconPacket GenerateIcon(this ICharacterEntity visualEntity, byte iconType, short iconParameter)

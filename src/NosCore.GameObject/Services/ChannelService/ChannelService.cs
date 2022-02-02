@@ -48,10 +48,9 @@ namespace NosCore.GameObject.Services.ChannelService
             {
                 return;
             }
-            await clientSession.SendPacketAsync(new MzPacket
+            await clientSession.SendPacketAsync(new MzPacket(server.DisplayHost ?? server.Host)
             {
                 Port = server.DisplayPort ?? server.Port,
-                Ip = server.DisplayHost ?? server.Host,
                 CharacterSlot = clientSession.Character.Slot
             });
 
