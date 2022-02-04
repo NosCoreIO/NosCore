@@ -219,7 +219,7 @@ namespace NosCore.GameObject.Services.QuestService
                 return true;
             }
             var quest = questDto.Adapt<Quest>();
-            quest.QuestObjectives = _questObjectives.Where(s => s.QuestId == questId).ToList();
+            quest.QuestObjectives = _questObjectives.Where(s => s.QuestId == questId).Adapt<List<QuestObjectives>>();
 
             if (character.Quests.Where(s => s.Value.CompletedOn == null).Any(q => !q.Value.Quest.IsSecondary) ||
                 (character.Quests.Where(s => s.Value.CompletedOn == null).Where(q => q.Value.Quest.QuestType != QuestType.WinRaid).ToList().Count >= 5 &&

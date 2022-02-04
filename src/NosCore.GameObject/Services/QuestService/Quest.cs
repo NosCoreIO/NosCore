@@ -64,7 +64,7 @@ namespace NosCore.GameObject.Services.QuestService
                 objectives.Add(new QuestObjectiveSubPacket()
                 {
                     CurrentCount = 0,
-                    MaxCount = 5,
+                    MaxCount = System.Convert.ToInt16(objective.GetMaxCount(Quest.QuestType)), // TODO : need to be converted to int value
                     IsFinished = questCount == 0 ? CompletedOn != null : (bool?)null
                 });
                 questCount++;
@@ -80,7 +80,6 @@ namespace NosCore.GameObject.Services.QuestService
                 QuestObjectiveSubPackets = objectives
             };
         }
-
     }
 
     public class Quest : QuestDto
@@ -103,6 +102,6 @@ namespace NosCore.GameObject.Services.QuestService
             };
         }
 
-        public List<QuestObjectiveDto> QuestObjectives { get; set; } = null!;
+        public List<QuestObjectives> QuestObjectives { get; set; } = null!;
     }
 }

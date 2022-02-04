@@ -145,7 +145,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         var charquest = x.Adapt<CharacterQuest>();
                         charquest.Quest = _quests.First(s => s.QuestId == charquest.QuestId).Adapt<GameObject.Services.QuestService.Quest>();
                         charquest.Quest.QuestObjectives =
-                            _questObjectives.Where(s => s.QuestId == charquest.QuestId).ToList();
+                            _questObjectives.Where(s => s.QuestId == charquest.QuestId).Adapt<List<GameObject.Services.QuestService.QuestObjectives>>();
                         return charquest;
                     }));
                 clientSession.Character.QuicklistEntries = _quickListEntriesDao
