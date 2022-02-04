@@ -718,11 +718,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 });
             }
 
-            return new BpmPacket
+            return new BpmPacket(subPackets)
             {
                 IsBattlePassEnabled = worldConfig.Value.BattlepassConfiguration.IsBattlePassIconEnabled,
-                MaxBattlePassPoints = worldConfig.Value.BattlepassConfiguration.MaxBattlePassPoints,
-                QuestList = subPackets
+                MaxBattlePassPoints = worldConfig.Value.BattlepassConfiguration.MaxBattlePassPoints
             };
         }
 
@@ -744,12 +743,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 });
             }
 
-            return new BppPacket
+            return new BppPacket(subPackets)
             {
                 BearingCount = 3,
                 Points = 0,
-                IsPremium = false,
-                ItemList = subPackets
+                IsPremium = false
             };
         }
     }
