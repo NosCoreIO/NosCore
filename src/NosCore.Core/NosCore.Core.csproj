@@ -24,7 +24,7 @@
     <PackageReference Include="JsonPatch.Net" Version="1.1.2" />
     <PackageReference Include="Mapster" Version="7.2.0" />
     <PackageReference Include="Mapster.JsonNet" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageReference Include="NosCore.Dao" Version="2.0.0" />
