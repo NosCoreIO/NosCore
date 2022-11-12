@@ -26,13 +26,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
-using NosCore.Core.I18N;
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
@@ -50,7 +50,7 @@ namespace NosCore.WebApi.Tests.ApiTests
         private readonly string _tokenGuid = Guid.NewGuid().ToString();
         private AuthController _controller = null!;
         private ClientSession _session = null!;
-        private Mock<ILogger> _logger = null!;
+        private Mock<ILogger<AuthController>> _logger = null!;
 
         [TestInitialize]
         public async Task Setup()
@@ -59,7 +59,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             SessionFactory.Instance.ReadyForAuth.Clear();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _logger = new Mock<ILogger>();
+            _logger = new Mock<ILogger<AuthController>>();
             _controller = new AuthController(Options.Create(new WebApiConfiguration()
             {
                 Password = "123"
@@ -76,9 +76,14 @@ namespace NosCore.WebApi.Tests.ApiTests
                 Password = "test",
                 Locale = "en-GB"
             });
-
-            _logger.Verify(o => o.Information(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_API_SUCCESS],
-                _session.Account.Name, It.IsAny<Guid>(), "en-GB"), Times.Once());
+            _logger.Verify(
+                x => x.Log(
+                    LogLevel.Information,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((o, t) => string.Equals(string.Format(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_API_SUCCESS], _session.Account.Name, It.IsAny<Guid>(), "en-GB"), o.ToString(), StringComparison.InvariantCultureIgnoreCase)),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                Times.Once);
         }
 
         [TestMethod]
