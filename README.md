@@ -46,8 +46,8 @@ We recommend usage of :
 
 # Building the code #
 
-## 1. Install .Net 6 ##
-- https://dotnet.microsoft.com/download/dotnet/6.0
+## 1. Install .Net 7 ##
+- https://dotnet.microsoft.com/download/dotnet/7.0
 - Visual Studio > Tools > Options > Preview Features > Use previews of the .NET CORE SDK
 - Restart
 
