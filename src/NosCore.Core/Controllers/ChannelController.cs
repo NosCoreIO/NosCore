@@ -178,7 +178,7 @@ namespace NosCore.Core.Controllers
             }
 
             var result = data?.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(chann)).RootElement);
-            _channelInfoIdService.Items[_channelInfoIdService.Items.First(s => s.Value.Id == id).Key] = JsonSerializer.Deserialize<ChannelInfo>(result!.Result.GetRawText())!;
+            _channelInfoIdService.Items[_channelInfoIdService.Items.First(s => s.Value.Id == id).Key] = JsonSerializer.Deserialize<ChannelInfo>(result!.Value.GetRawText())!;
             return HttpStatusCode.OK;
         }
     }

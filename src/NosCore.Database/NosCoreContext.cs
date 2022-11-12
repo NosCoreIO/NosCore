@@ -35,9 +35,13 @@ namespace NosCore.Database
                 .Where(t => t.IsEnum && t.IsPublic)
                 .ToList().ForEach(t =>
                 {
+#pragma warning disable CS0618
                     var method = NpgsqlConnection.GlobalTypeMapper.GetType().GetMethods().First(o => o.Name == nameof(NpgsqlConnection.GlobalTypeMapper.MapEnum));
+#pragma warning restore CS0618
                     var generic = method.MakeGenericMethod(t);
+#pragma warning disable CS0618
                     generic.Invoke(NpgsqlConnection.GlobalTypeMapper, new object?[] { null, null });
+#pragma warning restore CS0618
                 });
         }
 
@@ -165,7 +169,9 @@ namespace NosCore.Database
 
         static void HasPostgresEnum(ModelBuilder modelBuilder, Type type)
         {
+#pragma warning disable CS0618
             var translator = NpgsqlConnection.GlobalTypeMapper.DefaultNameTranslator;
+#pragma warning restore CS0618
             modelBuilder.HasPostgresEnum(translator.TranslateTypeName(type.Name), Enum.GetNames(type)
                 .Select(x => translator.TranslateMemberName(x)).ToArray());
         }

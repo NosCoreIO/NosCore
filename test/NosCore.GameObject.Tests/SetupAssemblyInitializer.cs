@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Tests
     public class SetupAssemblyInitializer
     {
         [AssemblyInitialize]
-        public static void AssemblyInit(TestContext _)
+        public static void AssemblyInit(TestContext  _)
         {
             TestHelpers.Instance.InitDatabase();
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()

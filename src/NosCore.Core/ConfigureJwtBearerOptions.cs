@@ -38,7 +38,7 @@ namespace NosCore.Core
             _hasher = hasher;
         }
 
-        public void Configure(string name, JwtBearerOptions options)
+        public void Configure(string? name, JwtBearerOptions options)
         {
             if (options == null)
             {

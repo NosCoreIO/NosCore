@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Json.More;
 using NodaTime;
 
 namespace NosCore.GameObject.Services.BazaarService
@@ -263,8 +264,8 @@ namespace NosCore.GameObject.Services.BazaarService
                 return null;
             }
 
-            var result = bzMod.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(item)).RootElement);
-            item = JsonSerializer.Deserialize<BazaarLink>(result!.Result.GetRawText());
+            var result = bzMod.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(item)).RootElement.AsNode());
+            item = JsonSerializer.Deserialize<BazaarLink>(result!.Result);
             var bz = item!.BazaarItem!;
             await _bazaarItemDao.TryInsertOrUpdateAsync(bz).ConfigureAwait(true);
             _holder.BazaarItems[item.BazaarItem!.BazaarItemId] = item;

@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Command
             var servers = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer).ToList();
 
-            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<ChannelInfo>(o => o.IsMaintenance), setMaintenancePacket.MaintenanceMode.AsJsonElement()));
+            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<ChannelInfo>(o => o.IsMaintenance), setMaintenancePacket.MaintenanceMode.AsJsonElement().AsNode()));
             if (setMaintenancePacket.IsGlobal == false)
             {
                 await _channelHttpClient.PatchAsync(_channel.ChannelId, patch);

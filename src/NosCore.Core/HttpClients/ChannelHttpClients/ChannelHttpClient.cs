@@ -32,6 +32,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Json.More;
 using NodaTime;
 using NosCore.Core.Services.IdService;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -96,7 +97,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                             _logLanguage[LogLanguageKey.MASTER_SERVER_PING])
                 ).ExecuteAsync(() =>
                 {
-                    var jsonPatch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/LastPing"), JsonDocument.Parse(JsonSerializer.Serialize(_clock.GetCurrentInstant())).RootElement));
+                    var jsonPatch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/LastPing"), JsonDocument.Parse(JsonSerializer.Serialize(_clock.GetCurrentInstant())).RootElement.AsNode()));
                     return PatchAsync(_channel.ChannelId, jsonPatch);
                 }).ConfigureAwait(false);
             _logger.Error(
