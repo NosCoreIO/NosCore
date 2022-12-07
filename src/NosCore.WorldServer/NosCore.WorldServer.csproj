@@ -30,7 +30,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
-    <PackageReference Include="ServiceStack.Kestrel" Version="6.4.0" />
+    <PackageReference Include="ServiceStack.Kestrel" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
