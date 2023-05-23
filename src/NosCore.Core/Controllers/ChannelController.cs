@@ -22,11 +22,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NosCore.Core.I18N;
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
+using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -38,9 +41,6 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using NodaTime;
-using NosCore.Core.Services.IdService;
-using NosCore.Shared.I18N;
 
 namespace NosCore.Core.Controllers
 {
@@ -177,8 +177,8 @@ namespace NosCore.Core.Controllers
                 return HttpStatusCode.RequestTimeout;
             }
 
-            var result = data?.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(chann)).RootElement);
-            _channelInfoIdService.Items[_channelInfoIdService.Items.First(s => s.Value.Id == id).Key] = JsonSerializer.Deserialize<ChannelInfo>(result!.Value.GetRawText())!;
+            var result = data?.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(chann, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement);
+            _channelInfoIdService.Items[_channelInfoIdService.Items.First(s => s.Value.Id == id).Key] = JsonSerializer.Deserialize<ChannelInfo>(result!.Value.GetRawText(), new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))!;
             return HttpStatusCode.OK;
         }
     }

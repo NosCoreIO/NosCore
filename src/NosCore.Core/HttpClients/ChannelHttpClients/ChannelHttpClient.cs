@@ -17,10 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Json.More;
 using Json.Patch;
-using NosCore.Core.I18N;
-
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
+using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 using Polly;
 using Serilog;
 using System;
@@ -32,11 +35,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Json.More;
-using NodaTime;
-using NosCore.Core.Services.IdService;
 using JsonSerializer = System.Text.Json.JsonSerializer;
-using NosCore.Shared.I18N;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClients
 {
@@ -66,7 +65,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
 
-            using var content = new StringContent(JsonSerializer.Serialize(_channel),
+            using var content = new StringContent(JsonSerializer.Serialize(_channel, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)),
                 Encoding.Default, "application/json");
 
             var message = Policy
@@ -83,7 +82,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                 JsonSerializer.Deserialize<ConnectionInfo>(await (await message.ConfigureAwait(false)).Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
+                }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
             _token = result?.Token;
             _lastUpdateToken = _clock.GetCurrentInstant();
             _logger.Debug(_logLanguage[LogLanguageKey.REGISTRED_ON_MASTER]);
@@ -97,7 +96,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                             _logLanguage[LogLanguageKey.MASTER_SERVER_PING])
                 ).ExecuteAsync(() =>
                 {
-                    var jsonPatch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/LastPing"), JsonDocument.Parse(JsonSerializer.Serialize(_clock.GetCurrentInstant())).RootElement.AsNode()));
+                    var jsonPatch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/LastPing"), JsonDocument.Parse(JsonSerializer.Serialize(_clock.GetCurrentInstant(), new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement.AsNode()));
                     return PatchAsync(_channel.ChannelId, jsonPatch);
                 }).ConfigureAwait(false);
             _logger.Error(
@@ -111,7 +110,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));
             //todo replace when System.Text.Json support jsonpatch
-            using var content = new StringContent(JsonSerializer.Serialize(patch), Encoding.Default,
+            using var content = new StringContent(JsonSerializer.Serialize(patch, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)), Encoding.Default,
                 "application/json-patch+json");
 
             var postResponse = await client
@@ -121,7 +120,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                 return JsonSerializer.Deserialize<HttpStatusCode>(await postResponse.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                })!;
+                }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))!;
             }
 
             throw new HttpRequestException(postResponse.Headers.ToString());
@@ -137,14 +136,14 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
             using var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-            using var content = new StringContent(JsonSerializer.Serialize(_channel),
+            using var content = new StringContent(JsonSerializer.Serialize(_channel, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)),
                 Encoding.Default, "application/json");
             var message = client.PutAsync(new Uri($"{client.BaseAddress}api/channel"), content);
             var result =
                 JsonSerializer.Deserialize<ConnectionInfo>(await (await message.ConfigureAwait(false)).Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
+                }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
             _token = result?.Token;
             _lastUpdateToken = _clock.GetCurrentInstant();
             _logger.Information(_logLanguage[LogLanguageKey.SECURITY_TOKEN_UPDATED]);
@@ -171,7 +170,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                     , new JsonSerializerOptions
                     {
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
+                    }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
                 if (chan != null)
                 {
                     channels = chan;
@@ -202,7 +201,7 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                     , new JsonSerializerOptions
                     {
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
+                    }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
             }
 
             return channels?.FirstOrDefault(s => s.Id == channelId);

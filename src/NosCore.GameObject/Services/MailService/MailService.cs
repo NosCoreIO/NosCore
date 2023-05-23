@@ -18,6 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Json.Patch;
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Dao.Interfaces;
@@ -111,7 +113,7 @@ namespace NosCore.GameObject.Services.MailService
                 return null;
             }
 
-            var result = mailData.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(mail)).RootElement);
+            var result = mailData.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(mail, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement);
             mail = JsonSerializer.Deserialize<MailDto>(result!.GetRawText())!;
             await _mailDao.TryInsertOrUpdateAsync(mail).ConfigureAwait(false);
             var savedData =

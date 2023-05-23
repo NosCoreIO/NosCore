@@ -17,6 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Json.More;
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Bazaar;
@@ -30,8 +33,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Json.More;
-using NodaTime;
 
 namespace NosCore.GameObject.Services.BazaarService
 {
@@ -264,8 +265,8 @@ namespace NosCore.GameObject.Services.BazaarService
                 return null;
             }
 
-            var result = bzMod.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(item)).RootElement.AsNode());
-            item = JsonSerializer.Deserialize<BazaarLink>(result!.Result);
+            var result = bzMod.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(item, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement.AsNode());
+            item = JsonSerializer.Deserialize<BazaarLink>(result!.Result, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
             var bz = item!.BazaarItem!;
             await _bazaarItemDao.TryInsertOrUpdateAsync(bz).ConfigureAwait(true);
             _holder.BazaarItems[item.BazaarItem!.BazaarItemId] = item;
