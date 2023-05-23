@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -93,7 +95,7 @@ namespace NosCore.Core.HttpClients
                     new JsonSerializerOptions
                     {
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    }) ?? throw new InvalidOperationException();
+                    }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)) ?? throw new InvalidOperationException();
             }
 
             throw new WebException();
@@ -113,7 +115,7 @@ namespace NosCore.Core.HttpClients
                 return JsonSerializer.Deserialize<T>(await response.Content!.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                }) ?? throw new InvalidOperationException();
+                }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)) ?? throw new InvalidOperationException();
             }
 
             throw new WebException();
@@ -122,7 +124,7 @@ namespace NosCore.Core.HttpClients
         protected async Task<HttpResponseMessage> PostAsync(object objectToPost)
         {
             var client = await ConnectAsync().ConfigureAwait(false);
-            using var content = new StringContent(JsonSerializer.Serialize(objectToPost),
+            using var content = new StringContent(JsonSerializer.Serialize(objectToPost, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)),
                 Encoding.Default, "application/json");
             return await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
         }

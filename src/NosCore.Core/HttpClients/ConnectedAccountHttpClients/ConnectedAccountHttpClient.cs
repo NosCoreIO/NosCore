@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.WebApi;
 using NosCore.Shared.Configuration;
@@ -82,7 +84,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
                     await response.Content!.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                     {
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    })!;
+                    }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))!;
             }
 
             throw new HttpRequestException();

@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.WebApi;
 using System;
@@ -55,7 +57,7 @@ namespace NosCore.Core.HttpClients.IncommingMailHttpClients
             {
                 return;
             }
-            using var content = new StringContent(JsonSerializer.Serialize(mailRequest), Encoding.Default,
+            using var content = new StringContent(JsonSerializer.Serialize(mailRequest, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)), Encoding.Default,
                 "application/json");
             await client.PostAsync(new Uri($"{client.BaseAddress}{ApiUrl}"), content).ConfigureAwait(false);
         }

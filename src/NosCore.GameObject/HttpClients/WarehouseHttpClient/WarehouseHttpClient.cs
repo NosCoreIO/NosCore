@@ -18,6 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Mapster;
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -67,7 +69,7 @@ namespace NosCore.GameObject.HttpClients.WarehouseHttpClient
                 JsonSerializer.Deserialize<List<WarehouseLink>>(await response.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                }) ?? new List<WarehouseLink>();
+                }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)) ?? new List<WarehouseLink>();
             foreach (var warehouselink in warehouselinks)
             {
                 var warehouseItem = warehouselink.Warehouse!.Adapt<WarehouseItem>();

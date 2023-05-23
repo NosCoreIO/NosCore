@@ -18,6 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Json.Patch;
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using NosCore.Core;
 using NosCore.Core.HttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
@@ -62,7 +64,7 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
                 return JsonSerializer.Deserialize<List<BazaarLink>>(list, new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                }) ?? new List<BazaarLink>();
+                }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)) ?? new List<BazaarLink>();
             }
 
             throw new ArgumentException();
@@ -88,7 +90,7 @@ namespace NosCore.GameObject.HttpClients.BazaarHttpClient
                 return JsonSerializer.Deserialize<bool>(await response.Content.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
+                }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
             }
 
             throw new ArgumentException();

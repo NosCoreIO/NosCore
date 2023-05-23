@@ -33,9 +33,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Core;
 using NosCore.Core.Configuration;
@@ -45,12 +48,15 @@ using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
+using NosCore.Data;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Resource;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
@@ -60,6 +66,11 @@ using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.MapItemGenerationService;
+using NosCore.Networking;
+using NosCore.Networking.Encoding;
+using NosCore.Networking.Encoding.Filter;
+using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets.Attributes;
 using NosCore.Packets.Enumerations;
@@ -78,16 +89,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Localization;
-using NodaTime;
-using NosCore.Core.Services.IdService;
-using NosCore.Data;
-using NosCore.Data.Resource;
-using NosCore.GameObject.Services.MapItemGenerationService;
-using NosCore.Networking;
-using NosCore.Networking.Encoding;
-using NosCore.Networking.Encoding.Filter;
-using NosCore.Networking.SessionRef;
 using Character = NosCore.GameObject.Character;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using Deserializer = NosCore.Packets.Deserializer;
@@ -107,7 +108,7 @@ namespace NosCore.WorldServer
         {
             _configuration = configuration;
         }
-        
+
         public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
         where TDb : class
         where TPk : struct
@@ -153,7 +154,7 @@ namespace NosCore.WorldServer
                 .SingleInstance()
                 .AutoActivate();
         }
-        
+
 
         private static void RegisterDto(ContainerBuilder containerBuilder)
         {
@@ -335,8 +336,9 @@ namespace NosCore.WorldServer
                 .AddControllers()
                 .AddApplicationPart(typeof(StatController).GetTypeInfo().Assembly)
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
-                .AddControllersAsServices();
-            
+                .AddControllersAsServices()
+                .AddJsonOptions(settings => settings.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
+
             services.AddI18NLogs();
             services.AddTransient(typeof(IGameLanguageLocalizer), typeof(GameLanguageLocalizer));
             services.AddTransient(typeof(ILogLanguageLocalizer<LanguageKey>),

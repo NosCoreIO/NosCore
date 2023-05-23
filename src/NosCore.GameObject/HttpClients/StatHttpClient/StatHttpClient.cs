@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.WebApi;
 using NosCore.Shared.Configuration;
@@ -48,7 +50,7 @@ namespace NosCore.GameObject.HttpClients.StatHttpClient
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
 
-            var content = new StringContent(JsonSerializer.Serialize(data),
+            var content = new StringContent(JsonSerializer.Serialize(data, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)),
                 Encoding.Default, "application/json");
             await client.PostAsync(ApiUrl, content).ConfigureAwait(false);
         }

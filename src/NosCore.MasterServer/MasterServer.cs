@@ -19,9 +19,11 @@
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using NosCore.Core.I18N;
-
+using NodaTime;
+using NosCore.Core;
+using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Diagnostics;
@@ -30,10 +32,6 @@ using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using NodaTime;
-using NosCore.Core;
-using NosCore.Core.Services.IdService;
-using NosCore.Shared.I18N;
 
 namespace NosCore.MasterServer
 {

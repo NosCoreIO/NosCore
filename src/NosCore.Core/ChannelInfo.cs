@@ -17,9 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NodaTime;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
-using NodaTime;
 
 namespace NosCore.Core
 {
