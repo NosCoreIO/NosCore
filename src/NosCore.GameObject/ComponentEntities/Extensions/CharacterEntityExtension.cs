@@ -52,6 +52,7 @@ using System.Threading.Tasks;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
+using NosCore.Core.MessageQueue;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ServerPackets.Quicklist;
@@ -367,17 +368,12 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         }
 
         public static async Task<FinitPacket> GenerateFinitAsync(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
-            IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient)
+            IChannelHttpClient channelHttpClient, IPubSubHub pubSubHub)
         {
             //same canal
             var servers = (await channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer).ToList();
-            var accounts = new List<Subscriber>();
-            foreach (var server in servers ?? new List<ChannelInfo>())
-            {
-                accounts.AddRange(
-                    await connectedAccountHttpClient.GetConnectedAccountAsync(server).ConfigureAwait(false));
-            }
+            var accounts = await pubSubHub.GetSubscribersAsync();
 
             var subpackets = new List<FinitSubPacket?>();
             var friendlist = await friendHttpClient.GetListFriendsAsync(visualEntity.VisualId).ConfigureAwait(false);
