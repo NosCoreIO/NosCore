@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Command
             var channels = (await channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer);
 
-            ConnectedAccount? receiver = null;
+            Subscriber? receiver = null;
             ServerConfiguration? config = null;
 
             foreach (var channel in channels ?? new List<ChannelInfo>())

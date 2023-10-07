@@ -33,7 +33,7 @@ namespace NosCore.WorldServer.Controllers
     {
         // GET api/connectedAccount
         [HttpGet]
-        public List<ConnectedAccount> GetconnectedAccount()
+        public List<Subscriber> GetconnectedAccount()
         {
             return Broadcaster.Instance.ConnectedAccounts().Select(o =>
             {

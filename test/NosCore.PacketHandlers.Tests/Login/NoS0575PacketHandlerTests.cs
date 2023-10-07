@@ -30,6 +30,7 @@ using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.MessageQueue;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
@@ -54,8 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private string _password = null!;
         private Mock<IAuthHttpClient>? _authHttpClient;
-        private Mock<IChannelHttpClient>? _channelHttpClient;
-        private Mock<IConnectedAccountHttpClient>? _connectedAccountHttpClient;
+        private Mock<IPubSubHub>? _pubSubHub;
         private IOptions<LoginConfiguration>? _loginConfiguration;
         private NoS0575PacketHandler? _noS0575PacketHandler;
         private ClientSession? _session;
@@ -67,12 +67,11 @@ namespace NosCore.PacketHandlers.Tests.Login
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _authHttpClient = new Mock<IAuthHttpClient>();
-            _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
-            _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
+            _pubSubHub = TestHelpers.Instance.PubSubHub;
             _loginConfiguration = Options.Create(new LoginConfiguration());
             _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration,
                     TestHelpers.Instance.AccountDao,
-                    _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder()),
+                    _authHttpClient.Object, _pubSubHub.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder()),
                 _loginConfiguration, Logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
@@ -146,9 +145,9 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginAsync()
         {
-            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() });
-            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
-                .ReturnsAsync(new List<ConnectedAccount>());
+            _pubSubHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            _pubSubHub!.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>());
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,
@@ -161,9 +160,9 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginAlreadyConnectedAsync()
         {
-            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() });
-            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>())).ReturnsAsync(
-                new List<ConnectedAccount>
+            _pubSubHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            _pubSubHub!.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(
+                new List<Subscriber>
                     {new() {Name = _session!.Account.Name}});
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
@@ -177,9 +176,9 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginNoServerAsync()
         {
-            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>());
-            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
-                .ReturnsAsync(new List<ConnectedAccount>());
+            _pubSubHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
+            _pubSubHub!.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>());
 
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
@@ -206,9 +205,10 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginMaintenanceAsync()
         {
-            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
-            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
-                .ReturnsAsync(new List<ConnectedAccount>());
+            _pubSubHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>() { new() { IsMaintenance = true } });
+            _pubSubHub!.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>());
+
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
             {
                 Password = _password,
@@ -222,9 +222,10 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginMaintenanceGameMasterAsync()
         {
-            _channelHttpClient!.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
-            _connectedAccountHttpClient!.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
-                .ReturnsAsync(new List<ConnectedAccount>());
+            _pubSubHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>() { new() { IsMaintenance = true } });
+            _pubSubHub!.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>());
+
             _session!.Account.Authority = AuthorityType.GameMaster;
             await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session!.Account);
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet

@@ -20,7 +20,6 @@
 using Mapster;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;

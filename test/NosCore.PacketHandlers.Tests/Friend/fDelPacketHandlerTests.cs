@@ -72,8 +72,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(It.IsAny<long?>(), It.IsAny<string?>()))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
-                    new ConnectedAccount
+                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    new Subscriber
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
             _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,

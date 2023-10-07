@@ -73,14 +73,14 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
             _friendRequestHolder = new FriendRequestHolder();
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_targetSession.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
-                    new ConnectedAccount
+                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    new Subscriber
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
                     }));
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
-                    new ConnectedAccount
+                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    new Subscriber
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             _finsPacketHandler = new FinsPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
                 _connectedAccountHttpClient.Object);

@@ -37,6 +37,8 @@ namespace NosCore.Core.MessageQueue
     {
         private readonly ConcurrentDictionary<Guid, IMessage> _messages = new();
 
+        private readonly ConcurrentDictionary<Guid, ChannelInfo> _channels = new();
+
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             var data = masterClientList.Channels.ContainsKey(Context.ConnectionId) ? masterClientList.Channels[Context.ConnectionId] : null;
@@ -60,7 +62,7 @@ namespace NosCore.Core.MessageQueue
                 id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
             masterClientList.ConnectedAccounts.TryAdd(Context.ConnectionId,
-                new ConcurrentDictionary<long, ConnectedAccount>());
+                new ConcurrentDictionary<long, Subscriber>());
             var serv = new ChannelInfo
             {
                 Name = data.ClientName,
@@ -74,8 +76,13 @@ namespace NosCore.Core.MessageQueue
                 WebApi = data.WebApi,
                 Type = data.ClientType,
             };
-
+            _channels.TryAdd(Guid.NewGuid(), serv);
             return Task.CompletedTask;
+        }
+
+        public Task<List<ChannelInfo>> GetCommunicationChannels()
+        {
+            throw new NotImplementedException();
         }
 
         public Task<List<IMessage>> ReceiveMessagesAsync(int maxNumberOfMessages = 100, TimeSpan? visibilityTimeout = null)
@@ -108,14 +115,14 @@ namespace NosCore.Core.MessageQueue
             return false;
         }
 
-        public Task<List<ConnectedAccount>> GetSubscribersAsync()
+        public Task<List<Subscriber>> GetSubscribersAsync()
         {
             return Task.FromResult(masterClientList.ConnectedAccounts.SelectMany(x => x.Value.Values).ToList());
         }
 
-        public Task SubscribeAsync(ConnectedAccount connectedAccount)
+        public Task SubscribeAsync(Subscriber subscriber)
         {
-            masterClientList.ConnectedAccounts[Context.ConnectionId].AddOrUpdate(connectedAccount.Id, connectedAccount, (_, _) => connectedAccount);
+            masterClientList.ConnectedAccounts[Context.ConnectionId].AddOrUpdate(subscriber.Id, subscriber, (_, _) => subscriber);
             return Task.FromResult(masterClientList.ConnectedAccounts.SelectMany(x => x.Value.Values).ToList());
         }
 

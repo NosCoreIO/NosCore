@@ -50,7 +50,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
             return DeleteAsync(connectedCharacterId);
         }
 
-        public async Task<Tuple<ServerConfiguration?, ConnectedAccount?>> GetCharacterAsync(long? characterId, string? characterName)
+        public async Task<Tuple<ServerConfiguration?, Subscriber?>> GetCharacterAsync(long? characterId, string? characterName)
         {
             var servers = await _channelHttpClient.GetChannelsAsync();
             foreach (var channel in servers.Where(c => c.Type == ServerType.WorldServer))
@@ -61,13 +61,13 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 
                 if (target != null)
                 {
-                    return new Tuple<ServerConfiguration?, ConnectedAccount?>(channel.WebApi, target);
+                    return new Tuple<ServerConfiguration?, Subscriber?>(channel.WebApi, target);
                 }
             }
-            return new Tuple<ServerConfiguration?, ConnectedAccount?>(null, null);
+            return new Tuple<ServerConfiguration?, Subscriber?>(null, null);
         }
 
-        public async Task<List<ConnectedAccount>> GetConnectedAccountAsync(ChannelInfo channel)
+        public async Task<List<Subscriber>> GetConnectedAccountAsync(ChannelInfo channel)
         {
             if (channel == null)
             {
@@ -80,7 +80,7 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
             var response = await client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}")).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                return JsonSerializer.Deserialize<List<ConnectedAccount>>(
+                return JsonSerializer.Deserialize<List<Subscriber>>(
                     await response.Content!.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
                     {
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase

@@ -372,7 +372,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             //same canal
             var servers = (await channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer).ToList();
-            var accounts = new List<ConnectedAccount>();
+            var accounts = new List<Subscriber>();
             foreach (var server in servers ?? new List<ChannelInfo>())
             {
                 accounts.AddRange(

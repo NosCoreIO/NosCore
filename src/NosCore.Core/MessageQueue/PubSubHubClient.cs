@@ -56,6 +56,11 @@ namespace NosCore.Core.MessageQueue
             await _hubConnection.InvokeAsync(nameof(BindAsync), data, stoppingToken);
         }
 
+        public Task<List<ChannelInfo>> GetCommunicationChannels()
+        {
+            return _hubConnection.InvokeAsync<List<ChannelInfo>>(nameof(GetCommunicationChannels));
+        }
+
         public Task<List<IMessage>> ReceiveMessagesAsync(int maxNumberOfMessages = 10, TimeSpan? visibilityTimeout = null)
         {
             return _hubConnection.InvokeAsync<List<IMessage>>(nameof(ReceiveMessagesAsync), maxNumberOfMessages);
@@ -71,14 +76,14 @@ namespace NosCore.Core.MessageQueue
             return _hubConnection.InvokeAsync<bool>(nameof(ReceiveMessagesAsync), message);
         }
 
-        public Task<List<ConnectedAccount>> GetSubscribersAsync()
+        public Task<List<Subscriber>> GetSubscribersAsync()
         {
-            return _hubConnection.InvokeAsync<List<ConnectedAccount>>(nameof(GetSubscribersAsync));
+            return _hubConnection.InvokeAsync<List<Subscriber>>(nameof(GetSubscribersAsync));
         }
 
-        public Task SubscribeAsync(ConnectedAccount connectedAccount)
+        public Task SubscribeAsync(Subscriber subscriber)
         {
-            return _hubConnection.InvokeAsync(nameof(SubscribeAsync), connectedAccount);
+            return _hubConnection.InvokeAsync(nameof(SubscribeAsync), subscriber);
         }
 
         public Task UnsubscribeAsync(long id)

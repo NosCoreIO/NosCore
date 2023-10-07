@@ -217,7 +217,7 @@ namespace NosCore.GameObject.Services.MailService
             };
         }
 
-        private async Task NotifyAsync(byte notifyType, Tuple<ServerConfiguration?, ConnectedAccount?> receiver, MailData mailData)
+        private async Task NotifyAsync(byte notifyType, Tuple<ServerConfiguration?, Subscriber?> receiver, MailData mailData)
         {
             var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver.Item2?.Name)
                 ? mailData.ItemInstance != null ? (byte)0 : (byte)1 : (byte)2;

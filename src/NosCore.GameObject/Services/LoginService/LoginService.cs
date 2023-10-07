@@ -27,6 +27,7 @@ using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.MessageQueue;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
@@ -43,7 +44,7 @@ namespace NosCore.GameObject.Services.LoginService
 {
     public class LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
             IAuthHttpClient authHttpClient,
-            IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient,
+            IPubSubHub pubSubHub,
             IDao<CharacterDto, long> characterDao, ISessionRefHolder sessionRefHolder)
         : ILoginService
     {
@@ -112,24 +113,9 @@ namespace NosCore.GameObject.Services.LoginService
                         }).ConfigureAwait(false);
                         break;
                     default:
-                        var servers = (await channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
-                            ?.Where(c => c.Type == ServerType.WorldServer).ToList();
-                        var alreadyConnnected = false;
-                        var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
-                        var i = 1;
-                        foreach (var server in servers ?? new List<ChannelInfo>())
-                        {
-                            var channelList = await connectedAccountHttpClient.GetConnectedAccountAsync(
-                                server).ConfigureAwait(false);
-                            connectedAccount.Add(i, channelList);
-                            i++;
-                            if (channelList.Any(a => a.Name == acc.Name))
-                            {
-                                alreadyConnnected = true;
-                            }
-                        }
-
-                        if (alreadyConnnected)
+                        var connectedAccount = await pubSubHub.GetSubscribersAsync();
+                        var servers = await pubSubHub.GetCommunicationChannels();
+                        if (connectedAccount.Any(x=>x.Name == acc.Name))
                         {
                             await clientSession.SendPacketAsync(new FailcPacket
                             {
@@ -142,7 +128,7 @@ namespace NosCore.GameObject.Services.LoginService
                         acc.Language = language;
 
                         acc = await accountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
-                        if (servers == null || servers.Count <= 0)
+                        if (servers.Count <= 0)
                         {
                             await clientSession.SendPacketAsync(new FailcPacket
                             {
@@ -163,7 +149,7 @@ namespace NosCore.GameObject.Services.LoginService
                         }
 
                         var subpacket = new List<NsTeStSubPacket?>();
-                        i = 1;
+                        var i = 1;
                         var nstest = new NsTestPacket
                         {
                             AccountName = username,
@@ -182,7 +168,7 @@ namespace NosCore.GameObject.Services.LoginService
                             }
 
                             var channelcolor =
-                                (int)Math.Round((double)connectedAccount[i].Count / server.ConnectedAccountLimit * 20)
+                                (int)Math.Round(connectedAccount.Count(x=>x.ChannelId == server.ServerId) / (server.ConnectedAccountLimit + 1) * 20D)
                                 + 1;
                             subpacket.Add(new NsTeStSubPacket
                             {

@@ -21,11 +21,12 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.Data.WebApi
 {
-    public class ConnectedAccount
+    public class Subscriber
     {
         public string? Name { get; set; }
         public RegionType Language { get; set; }
         public long ChannelId { get; set; }
         public Character? ConnectedCharacter { get; set; }
+        public long Id { get; set; }
     }
 }

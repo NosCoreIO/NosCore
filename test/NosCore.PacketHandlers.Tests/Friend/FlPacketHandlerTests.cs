@@ -72,15 +72,15 @@ namespace NosCore.PacketHandlers.Tests.Friend
             };
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacterAsync(targetSession.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
-                    new ConnectedAccount
+                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    new Subscriber
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId }
                     }));
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
-                    new ConnectedAccount
+                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    new Subscriber
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
                 friendRequestHolder, TestHelpers.Instance.ConnectedAccountHttpClient.Object, TestHelpers.Instance.LogLanguageLocalizer);

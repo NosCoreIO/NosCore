@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 }
             });
             _connectedAccountHttpClient.Setup(o => o.GetConnectedAccountAsync(It.IsAny<ChannelInfo>())).ReturnsAsync(
-                new List<ConnectedAccount>
+                new List<Subscriber>
                 {
                     new()
                     {

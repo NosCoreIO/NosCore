@@ -28,6 +28,7 @@ namespace NosCore.Core.MessageQueue;
 public interface IPubSubHub
 {
     Task BindAsync(Channel data, CancellationToken stoppingToken);
+    Task<List<ChannelInfo>> GetCommunicationChannels();
 
     Task<List<IMessage>> ReceiveMessagesAsync(int maxNumberOfMessages, TimeSpan? visibilityTimeout = null);
 
@@ -35,5 +36,5 @@ public interface IPubSubHub
 
     Task<bool> SendMessageAsync(IMessage message);
 
-    Task<List<ConnectedAccount>> GetSubscribersAsync();
+    Task<List<Subscriber>> GetSubscribersAsync();
 }

@@ -40,6 +40,7 @@ using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Core.MessageQueue;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -117,6 +118,7 @@ namespace NosCore.Tests.Shared
         private int _lastId = 100;
         public Mock<IBlacklistHttpClient> BlacklistHttpClient = new();
         public Mock<IChannelHttpClient> ChannelHttpClient = new();
+        public Mock<IPubSubHub> PubSubHub = new();
         public Mock<IConnectedAccountHttpClient> ConnectedAccountHttpClient = new();
         public Mock<IFriendHttpClient> FriendHttpClient = new();
         public Mock<IPacketHttpClient> PacketHttpClient = new();
