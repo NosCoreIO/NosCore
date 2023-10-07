@@ -34,25 +34,17 @@ using NosCore.Core.Configuration;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
-    public class CharRenPacketHandler : PacketHandler<CharRenamePacket>, IWorldPacketHandler
+    public class CharRenPacketHandler(IDao<CharacterDto, long> characterDao, IOptions<WorldConfiguration> configuration)
+        : PacketHandler<CharRenamePacket>, IWorldPacketHandler
     {
-        private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IOptions<WorldConfiguration> _configuration;
-
-        public CharRenPacketHandler(IDao<CharacterDto, long> characterDao, IOptions<WorldConfiguration> configuration)
-        {
-            _characterDao = characterDao;
-            _configuration = configuration;
-        }
-
         public override async Task ExecuteAsync(CharRenamePacket packet, ClientSession clientSession)
         {
             // TODO: Hold Account Information in Authorized object
             var accountId = clientSession.Account.AccountId;
             var slot = packet.Slot;
             var characterName = packet.Name;
-            var chara = await _characterDao.FirstOrDefaultAsync(s =>
-                    (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active) && (s.ServerId == _configuration.Value.ServerId))
+            var chara = await characterDao.FirstOrDefaultAsync(s =>
+                    (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active) && (s.ServerId == configuration.Value.ServerId))
                 .ConfigureAwait(false);
             if ((chara == null) || (chara.ShouldRename == false))
             {
@@ -63,13 +55,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
             if (rg.Matches(characterName!).Count == 1)
             {
                 var character = await
-                    _characterDao.FirstOrDefaultAsync(s =>
+                    characterDao.FirstOrDefaultAsync(s =>
                         (s.Name == characterName) && (s.State == CharacterState.Active)).ConfigureAwait(false);
                 if (character == null)
                 {
                     chara.Name = characterName;
                     chara.ShouldRename = false;
-                    await _characterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
+                    await characterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(new SuccessPacket()).ConfigureAwait(false);
                     await clientSession.HandlePacketsAsync(new[] { new EntryPointPacket() }).ConfigureAwait(false);
                 }

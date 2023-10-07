@@ -49,37 +49,14 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
-    public class EntryPointPacketHandler : PacketHandler<EntryPointPacket>, IWorldPacketHandler
-    {
-        private readonly IDao<AccountDto, long> _accountDao;
-        private readonly IAuthHttpClient _authHttpClient;
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly ILogger _logger;
-        private readonly IDao<MateDto, long> _mateDao;
-        private readonly IOptions<WorldConfiguration> _configuration;
-        private readonly ISessionRefHolder _sessionRefHolder;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
+    public class EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
             IDao<MateDto, long> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient, IOptions<WorldConfiguration> configuration, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _characterDao = characterDao;
-            _accountDao = accountDao;
-            _mateDao = mateDao;
-            _logger = logger;
-            _authHttpClient = authHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _channelHttpClient = channelHttpClient;
-            _configuration = configuration;
-            _sessionRefHolder = sessionRefHolder;
-            _logLanguage = logLanguage;
-        }
-
+            IChannelHttpClient channelHttpClient, IOptions<WorldConfiguration> configuration,
+            ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<EntryPointPacket>, IWorldPacketHandler
+    {
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient, IDao<AccountDto, long> accountDao, IChannelHttpClient channelHttpClient, bool passwordLessConnection, string accountName, string password, int sessionId, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
@@ -154,9 +131,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
             if (clientSession.Account == null!) // we bypass this when create new char
             {
                 var passwordLessConnection = packet.Password == "thisisgfmode";
-                await VerifyConnectionAsync(clientSession, _logger, _authHttpClient, _connectedAccountHttpClient,
-                    _accountDao, _channelHttpClient, passwordLessConnection, packet.Name, packet.Password,
-                    clientSession.SessionId, _sessionRefHolder, _logLanguage);
+                await VerifyConnectionAsync(clientSession, logger, authHttpClient, connectedAccountHttpClient,
+                    accountDao, channelHttpClient, passwordLessConnection, packet.Name, packet.Password,
+                    clientSession.SessionId, sessionRefHolder, logLanguage);
                 if (clientSession.Account == null!)
                 {
                     return;
@@ -168,7 +145,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     clientSession.MfaValidated = true;
                 }
 
-                _logger.Information(_logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],
+                logger.Information(logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],
                     clientSession.Account!.Name);
                 if (!clientSession.MfaValidated && clientSession.Account.MfaSecret != null)
                 {
@@ -182,8 +159,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
             }
 
-            var characters = _characterDao.Where(s =>
-                (s.AccountId == clientSession.Account!.AccountId) && (s.State == CharacterState.Active) && s.ServerId == _configuration.Value.ServerId);
+            var characters = characterDao.Where(s =>
+                (s.AccountId == clientSession.Account!.AccountId) && (s.State == CharacterState.Active) && s.ServerId == configuration.Value.ServerId);
 
             // load characterlist packet for each character in Character
             await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 }).ConfigureAwait(false);
@@ -202,7 +179,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                  }
                     */
                 var petlist = new List<short?>();
-                var mates = _mateDao.Where(s => s.CharacterId == character.CharacterId)!
+                var mates = mateDao.Where(s => s.CharacterId == character.CharacterId)!
                     .ToList();
                 for (var i = 0; i < 26; i++)
                 {

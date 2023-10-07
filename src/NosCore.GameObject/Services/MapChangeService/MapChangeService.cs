@@ -28,34 +28,13 @@ using Serilog;
 
 namespace NosCore.GameObject.Services.MapChangeService
 {
-    public class MapChangeService : IMapChangeService
+    public class MapChangeService(IExperienceService experienceService, IJobExperienceService jobExperienceService,
+            IHeroExperienceService heroExperienceService, IMapInstanceAccessorService mapInstanceAccessorService,
+            IClock clock,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMinilandService minilandProvider, ILogger logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer, IGameLanguageLocalizer gameLanguageLocalizer)
+        : IMapChangeService
     {
-        private readonly IExperienceService _experienceService;
-        private readonly IJobExperienceService _jobExperienceService;
-        private readonly IHeroExperienceService _heroExperienceService;
-        private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
-        private readonly IClock _clock;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly IMinilandService _minilandProvider;
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguageLocalizer;
-        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
-
-        public MapChangeService(IExperienceService experienceService, IJobExperienceService jobExperienceService,
-            IHeroExperienceService heroExperienceService, IMapInstanceAccessorService mapInstanceAccessorService, IClock clock,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMinilandService minilandProvider, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer, IGameLanguageLocalizer gameLanguageLocalizer)
-        {
-            _mapInstanceAccessorService = mapInstanceAccessorService;
-            _clock = clock;
-            _experienceService = experienceService;
-            _jobExperienceService = jobExperienceService;
-            _heroExperienceService = heroExperienceService;
-            _logLanguage = logLanguage;
-            _minilandProvider = minilandProvider;
-            _logLanguageLocalizer = logLanguageLocalizer;
-            _gameLanguageLocalizer = gameLanguageLocalizer;
-            _logger = logger;
-        }
         public async Task ChangeMapAsync(ClientSession session, short? mapId = null, short? mapX = null, short? mapY = null)
         {
             if (session.Character == null!)
@@ -65,19 +44,19 @@ namespace NosCore.GameObject.Services.MapChangeService
 
             if (mapId != null)
             {
-                var mapInstance = _mapInstanceAccessorService.GetBaseMapById((short)mapId);
+                var mapInstance = mapInstanceAccessorService.GetBaseMapById((short)mapId);
 
                 if (mapInstance == null)
                 {
-                    _logger.Error(
-                        _logLanguageLocalizer[LogLanguageKey.MAP_DONT_EXIST, session.Account.Language]);
+                    logger.Error(
+                        logLanguageLocalizer[LogLanguageKey.MAP_DONT_EXIST, session.Account.Language]);
                     return;
                 }
 
                 session.Character.MapInstance = mapInstance;
             }
             
-            _mapInstanceAccessorService.GetMapInstance(session.Character.MapInstanceId);
+            mapInstanceAccessorService.GetMapInstance(session.Character.MapInstanceId);
             await ChangeMapInstanceAsync(session, session.Character.MapInstanceId, mapX, mapY).ConfigureAwait(false);
         }
 
@@ -97,7 +76,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                     session.Character.MapInstance.Sessions.Remove(session.Channel);
                 }
                 await session.SendPacketAsync(session.Character.MapInstance.GenerateCMap(false)).ConfigureAwait(false);
-                session.Character.MapInstance.LastUnregister = _clock.GetCurrentInstant();
+                session.Character.MapInstance.LastUnregister = clock.GetCurrentInstant();
                 await LeaveMapAsync(session).ConfigureAwait(false);
                 if (session.Character.MapInstance.Sessions.Count == 0)
                 {
@@ -109,7 +88,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                     session.Character.IsSitting = false;
                 }
                 
-                session.Character.MapInstance = _mapInstanceAccessorService.GetMapInstance(mapInstanceId)!;
+                session.Character.MapInstance = mapInstanceAccessorService.GetMapInstance(mapInstanceId)!;
 
                 if (session.Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
@@ -131,7 +110,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(session.Character.GenerateCMode()).ConfigureAwait(false);
                 await session.SendPacketAsync(session.Character.GenerateEq()).ConfigureAwait(false);
                 await session.SendPacketAsync(session.Character.GenerateEquipment()).ConfigureAwait(false);
-                await session.SendPacketAsync(session.Character.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
+                await session.SendPacketAsync(session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
                 await session.SendPacketAsync(session.Character.GenerateStat()).ConfigureAwait(false);
                 await session.SendPacketAsync(session.Character.GenerateAt()).ConfigureAwait(false);
                 await session.SendPacketAsync(session.Character.GenerateCond()).ConfigureAwait(false);
@@ -142,7 +121,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketsAsync(session.Character.MapInstance.GetMapItems(session.Character.AccountLanguage)).ConfigureAwait(false);
                 await session.SendPacketsAsync(session.Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect())).ConfigureAwait(false);
 
-                var minilandPortals = _minilandProvider
+                var minilandPortals = minilandProvider
                     .GetMinilandPortals(session.Character.CharacterId)
                     .Where(s => s.SourceMapInstanceId == mapInstanceId)
                     .ToList();
@@ -169,7 +148,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await Task.WhenAll(mapSessions.Select(async s =>
                 {
                     await session.SendPacketAsync(s.GenerateIn(s.Authority == AuthorityType.Moderator
-                        ? $"[{_gameLanguageLocalizer[LanguageKey.SUPPORT, s.AccountLanguage]}"
+                        ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, s.AccountLanguage]}"
                         : string.Empty)).ConfigureAwait(false);
                     if (s.Shop == null)
                     {
@@ -200,7 +179,7 @@ namespace NosCore.GameObject.Services.MapChangeService
             }
             catch (Exception)
             {
-                _logger.Warning(_logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
+                logger.Warning(logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
                 session.Character.IsChangingMapInstance = false;
             }
         }

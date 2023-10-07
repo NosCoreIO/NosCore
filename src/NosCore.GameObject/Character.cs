@@ -74,38 +74,14 @@ using NosCore.Networking.SessionGroup.ChannelMatcher;
 
 namespace NosCore.GameObject
 {
-    public class Character : CharacterDto, ICharacterEntity
+    public class Character(IInventoryService inventory, IExchangeService exchangeService,
+            IItemGenerationService itemProvider,
+            IHpService hpService, IMpService mpService, IExperienceService experienceService,
+            IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
+            IReputationService reputationService, IDignityService dignityService,
+            IOptions<WorldConfiguration> worldConfiguration, ISpeedCalculationService speedCalculationService)
+        : CharacterDto, ICharacterEntity
     {
-        private readonly IHpService _hpService;
-        private readonly IMpService _mpService;
-        private readonly IExperienceService _experienceService;
-        private readonly IJobExperienceService _jobExperienceService;
-        private readonly IHeroExperienceService _heroExperienceService;
-        private readonly IReputationService _reputationService;
-        private readonly IDignityService _dignityService;
-        private readonly IOptions<WorldConfiguration> _worldConfiguration;
-        private readonly ISpeedCalculationService _speedCalculationService;
-
-        public Character(IInventoryService inventory, IExchangeService exchangeService, IItemGenerationService itemProvider,
-            IHpService hpService, IMpService mpService, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
-            IReputationService reputationService, IDignityService dignityService, IOptions<WorldConfiguration> worldConfiguration, ISpeedCalculationService speedCalculationService)
-        {
-            InventoryService = inventory;
-            ExchangeProvider = exchangeService;
-            ItemProvider = itemProvider;
-            GroupRequestCharacterIds = new ConcurrentDictionary<long, long>();
-            Group = new Group(GroupType.Group);
-            _hpService = hpService;
-            _mpService = mpService;
-            _experienceService = experienceService;
-            _jobExperienceService = jobExperienceService;
-            _heroExperienceService = heroExperienceService;
-            _reputationService = reputationService;
-            _dignityService = dignityService;
-            _worldConfiguration = worldConfiguration;
-            _speedCalculationService = speedCalculationService;
-        }
-
         public ScriptDto? Script { get; set; }
 
         public bool IsChangingMapInstance { get; set; }
@@ -116,7 +92,7 @@ namespace NosCore.GameObject
 
         public Instant LastMove { get; set; }
 
-        public IItemGenerationService ItemProvider { get; set; }
+        public IItemGenerationService ItemProvider { get; set; } = itemProvider;
 
         public bool UseSp { get; set; }
 
@@ -128,7 +104,7 @@ namespace NosCore.GameObject
 
         public byte? VehicleSpeed { get; set; }
 
-        public IExchangeService ExchangeProvider { get; }
+        public IExchangeService ExchangeProvider { get; } = exchangeService;
 
         public bool InExchangeOrShop => InExchange || InShop;
 
@@ -142,7 +118,7 @@ namespace NosCore.GameObject
 
         public RegionType AccountLanguage => Session.Account.Language;
 
-        public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; }
+        public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; } = new();
 
         public ConcurrentDictionary<Guid, CharacterQuest> Quests { get; set; } = null!;
 
@@ -159,15 +135,15 @@ namespace NosCore.GameObject
 
         public bool Invisible { get; set; }
 
-        public IInventoryService InventoryService { get; }
+        public IInventoryService InventoryService { get; } = inventory;
 
-        public Group? Group { get; set; }
+        public Group? Group { get; set; } = new(GroupType.Group);
 
         public Instant? LastGroupRequest { get; set; } = null;
 
-        public ReputationType ReputIcon => _reputationService.GetLevelFromReputation(Reput);
+        public ReputationType ReputIcon => reputationService.GetLevelFromReputation(Reput);
 
-        public DignityType DignityIcon => _dignityService.GetLevelFromDignity(Dignity);
+        public DignityType DignityIcon => dignityService.GetLevelFromDignity(Dignity);
 
         public IChannel? Channel => Session?.Channel;
 
@@ -187,7 +163,7 @@ namespace NosCore.GameObject
 
         public short PositionY { get; set; }
 
-        public byte Speed => _speedCalculationService.CalculateSpeed(this);
+        public byte Speed => speedCalculationService.CalculateSpeed(this);
 
         public short Morph { get; set; }
 
@@ -216,7 +192,7 @@ namespace NosCore.GameObject
                 const double multiplicator = 1.0;
                 const int hp = 0;
 
-                return (int)((_hpService.GetHp(Class, Level) + hp) * multiplicator);
+                return (int)((hpService.GetHp(Class, Level) + hp) * multiplicator);
             }
         }
 
@@ -226,7 +202,7 @@ namespace NosCore.GameObject
             {
                 const int mp = 0;
                 const double multiplicator = 1.0;
-                return (int)((_mpService.GetMp(Class, Level) + mp) * multiplicator);
+                return (int)((mpService.GetMp(Class, Level) + mp) * multiplicator);
             }
         }
 
@@ -260,7 +236,7 @@ namespace NosCore.GameObject
         {
             JobLevel = (byte)((Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20 : jobLevel);
             JobLevelXp = 0;
-            await SendPacketAsync(this.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
             var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == MapInstance);
             await Task.WhenAll(mapSessions.Select(s =>
             {
@@ -344,7 +320,7 @@ namespace NosCore.GameObject
             Hp = MaxHp;
             Mp = MaxMp;
             var itemsToAdd = new List<BasicEquipment>();
-            foreach (var (key, _) in _worldConfiguration.Value.BasicEquipments)
+            foreach (var (key, _) in worldConfiguration.Value.BasicEquipments)
             {
                 switch (key)
                 {
@@ -353,7 +329,7 @@ namespace NosCore.GameObject
                     case nameof(CharacterClassType.Mage) when Class == CharacterClassType.Mage:
                     case nameof(CharacterClassType.MartialArtist) when Class == CharacterClassType.MartialArtist:
                     case nameof(CharacterClassType.Swordsman) when Class == CharacterClassType.Swordsman:
-                        itemsToAdd.AddRange(_worldConfiguration.Value.BasicEquipments[key]);
+                        itemsToAdd.AddRange(worldConfiguration.Value.BasicEquipments[key]);
                         break;
                     default:
                         break;
@@ -374,7 +350,7 @@ namespace NosCore.GameObject
             await MapInstance.SendPacketAsync(this.GenerateEff(8)).ConfigureAwait(false);
             //TODO: Faction
             await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
-            await SendPacketAsync(this.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
             await SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
             await SendPacketAsync(new MsgiPacket
             {
@@ -547,7 +523,7 @@ namespace NosCore.GameObject
             }
             else
             {
-                if (price + shop.Session.Character.Gold > _worldConfiguration.Value.MaxGoldAmount)
+                if (price + shop.Session.Character.Gold > worldConfiguration.Value.MaxGoldAmount)
                 {
                     await SendPacketAsync(new SMemoPacket
                     {
@@ -663,7 +639,7 @@ namespace NosCore.GameObject
             await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
             await SendPacketAsync(this.GenerateStatInfo()).ConfigureAwait(false);
             //Session.SendPacket(GenerateStatChar());
-            await SendPacketAsync(this.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
             var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == MapInstance);
 
             await Task.WhenAll(mapSessions.Select(async s =>
@@ -707,9 +683,9 @@ namespace NosCore.GameObject
             return new SpPacket
             {
                 AdditionalPoint = SpAdditionPoint,
-                MaxAdditionalPoint = _worldConfiguration.Value.MaxAdditionalSpPoints,
+                MaxAdditionalPoint = worldConfiguration.Value.MaxAdditionalSpPoints,
                 SpPoint = SpPoint,
-                MaxSpPoint = _worldConfiguration.Value.MaxSpPoints
+                MaxSpPoint = worldConfiguration.Value.MaxSpPoints
             };
         }
 
@@ -727,15 +703,15 @@ namespace NosCore.GameObject
         }
         public Task AddSpPointsAsync(int spPointToAdd)
         {
-            SpPoint = SpPoint + spPointToAdd > _worldConfiguration.Value.MaxSpPoints
-                ? _worldConfiguration.Value.MaxSpPoints : SpPoint + spPointToAdd;
-            return SendPacketAsync(this.GenerateSpPoint());
+            SpPoint = SpPoint + spPointToAdd > worldConfiguration.Value.MaxSpPoints
+                ? worldConfiguration.Value.MaxSpPoints : SpPoint + spPointToAdd;
+            return SendPacketAsync(GenerateSpPoint());
         }
 
         public Task AddAdditionalSpPointsAsync(int spPointToAdd)
         {
-            SpAdditionPoint = SpAdditionPoint + spPointToAdd > _worldConfiguration.Value.MaxAdditionalSpPoints
-                ? _worldConfiguration.Value.MaxAdditionalSpPoints : SpAdditionPoint + spPointToAdd;
+            SpAdditionPoint = SpAdditionPoint + spPointToAdd > worldConfiguration.Value.MaxAdditionalSpPoints
+                ? worldConfiguration.Value.MaxAdditionalSpPoints : SpAdditionPoint + spPointToAdd;
             return SendPacketAsync(GenerateSpPoint());
         }
     }

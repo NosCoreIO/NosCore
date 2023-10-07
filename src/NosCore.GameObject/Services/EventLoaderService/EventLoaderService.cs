@@ -27,16 +27,12 @@ using System.Reactive.Subjects;
 
 namespace NosCore.GameObject.Services.EventLoaderService
 {
-    public class EventLoaderService<T1, T2, TEventType> : IEventLoaderService<T1, T2>
+    public class EventLoaderService<T1, T2, TEventType>
+        (IEnumerable<IEventHandler<T1, T2>> handlers) : IEventLoaderService<T1, T2>
     where T1 : IRequestableEntity<T2>
     where TEventType : IEventHandler
     {
-        private readonly List<IEventHandler<T1, T2>> _handlers;
-
-        public EventLoaderService(IEnumerable<IEventHandler<T1, T2>> handlers)
-        {
-            _handlers = handlers.ToList();
-        }
+        private readonly List<IEventHandler<T1, T2>> _handlers = Enumerable.ToList<IEventHandler<T1, T2>>(handlers);
 
         public void LoadHandlers(T1 item)
         {

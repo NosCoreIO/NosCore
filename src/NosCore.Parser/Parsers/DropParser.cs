@@ -24,13 +24,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 namespace NosCore.Parser.Parsers
 {
-    public class DropParser
+    public class DropParser(IDao<DropDto, short> dropDao)
     {
-        private readonly IDao<DropDto, short> _dropDao;
-        public DropParser(IDao<DropDto, short> dropDao)
-        {
-            _dropDao = dropDao;
-        }
         public DropDto GenerateDropDto(short vnum, int amount, short? monsterVNum, int dropChance, short mapTypeId)
         {
             return new DropDto
@@ -552,7 +547,7 @@ namespace NosCore.Parser.Parsers
                 GenerateDropDto(5119, 1, null, 100, (short)MapTypeType.LandOfTheDead )
             };
             IEnumerable<DropDto> dropDtos = drops;
-            return _dropDao.TryInsertOrUpdateAsync(dropDtos);
+            return dropDao.TryInsertOrUpdateAsync(dropDtos);
         }
     }
 }

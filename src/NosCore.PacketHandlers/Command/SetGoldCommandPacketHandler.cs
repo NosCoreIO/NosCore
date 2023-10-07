@@ -33,18 +33,10 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetGoldCommandPacketHandler : PacketHandler<SetGoldCommandPacket>, IWorldPacketHandler
-    {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IStatHttpClient _statHttpClient;
-
-        public SetGoldCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
+    public class SetGoldCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
             IStatHttpClient statHttpClient)
-        {
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _statHttpClient = statHttpClient;
-        }
-
+        : PacketHandler<SetGoldCommandPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(SetGoldCommandPacket goldPacket, ClientSession session)
         {
             var data = new StatData
@@ -54,7 +46,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = goldPacket.Gold
             };
 
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, goldPacket.Name ?? session.Character.Name).ConfigureAwait(false);
+            var receiver = await connectedAccountHttpClient.GetCharacterAsync(null, goldPacket.Name ?? session.Character.Name).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -65,7 +57,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStatAsync(data, receiver.Item1!).ConfigureAwait(false);
+            await statHttpClient.ChangeStatAsync(data, receiver.Item1!).ConfigureAwait(false);
         }
     }
 }

@@ -39,24 +39,11 @@ using NodaTime;
 
 namespace NosCore.GameObject
 {
-    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity
+    public class MapNpc(IItemGenerationService? itemProvider, ILogger logger, IHeuristic distanceCalculator,
+            IClock clock)
+        : MapNpcDto, INonPlayableEntity, IRequestableEntity
     {
-        private readonly IItemGenerationService? _itemProvider;
-        private readonly ILogger _logger;
-        private readonly IHeuristic _distanceCalculator;
-        private readonly IClock _clock;
         public NpcMonsterDto NpcMonster { get; private set; } = null!;
-        public MapNpc(IItemGenerationService? itemProvider, ILogger logger, IHeuristic distanceCalculator, IClock clock)
-        {
-            _itemProvider = itemProvider;
-            _logger = logger;
-            Requests = new Dictionary<Type, Subject<RequestData>>()
-            {
-                [typeof(INrunEventHandler)] = new()
-            };
-            _distanceCalculator = distanceCalculator;
-            _clock = clock;
-        }
 
         public IDisposable? Life { get; private set; }
 
@@ -85,7 +72,7 @@ namespace NosCore.GameObject
             Parallel.ForEach(shopItemsDto, shopItemGrouping =>
             {
                 var shopItem = shopItemGrouping.Adapt<ShopItem>();
-                shopItem.ItemInstance = _itemProvider!.Create(shopItemGrouping.ItemVNum, -1);
+                shopItem.ItemInstance = itemProvider!.Create(shopItemGrouping.ItemVNum, -1);
                 shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
             });
             Shop = shopObj.Adapt<Shop>();
@@ -125,7 +112,10 @@ namespace NosCore.GameObject
         public byte HeroLevel { get; set; }
         public Shop? Shop { get; private set; }
 
-        public Dictionary<Type, Subject<RequestData>> Requests { get; set; }
+        public Dictionary<Type, Subject<RequestData>> Requests { get; set; } = new()
+        {
+            [typeof(INrunEventHandler)] = new()
+        };
 
         private Task ShowDialogAsync(RequestData requestData)
         {
@@ -151,7 +141,7 @@ namespace NosCore.GameObject
                 }
                 catch (Exception e)
                 {
-                    _logger.Error(e.Message, e);
+                    logger.Error(e.Message, e);
                 }
             }
             Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();
@@ -160,7 +150,7 @@ namespace NosCore.GameObject
 
         private Task MonsterLifeAsync()
         {
-            return this.MoveAsync(_distanceCalculator, _clock);
+            return this.MoveAsync(distanceCalculator, clock);
         }
     }
 }

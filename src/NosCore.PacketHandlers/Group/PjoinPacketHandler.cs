@@ -41,26 +41,11 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.PacketHandlers.Group
 {
-    public class PjoinPacketHandler : PacketHandler<PjoinPacket>, IWorldPacketHandler
-    {
-        private readonly IBlacklistHttpClient _blacklistHttpCLient;
-        private readonly ILogger _logger;
-        private readonly IClock _clock;
-        private readonly IIdService<GameObject.Group> _groupIdService;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
-
-        public PjoinPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpCLient, IClock clock, IIdService<GameObject.Group> groupIdService, 
+    public class PjoinPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpCLient, IClock clock,
+            IIdService<GameObject.Group> groupIdService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer)
-        {
-            _groupIdService = groupIdService;
-            _logger = logger;
-            _blacklistHttpCLient = blacklistHttpCLient;
-            _clock = clock;
-            _logLanguage = logLanguage;
-            _gameLanguageLocalizer = gameLanguageLocalizer;
-        }
-
+        : PacketHandler<PjoinPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(PjoinPacket pjoinPacket, ClientSession clientSession)
         {
             var targetSession =
@@ -69,7 +54,7 @@ namespace NosCore.PacketHandlers.Group
 
             if ((targetSession == null) && (pjoinPacket.RequestType != GroupRequestType.Sharing))
             {
-                _logger.Error(_gameLanguageLocalizer[LanguageKey.UNABLE_TO_REQUEST_GROUP,
+                logger.Error(gameLanguageLocalizer[LanguageKey.UNABLE_TO_REQUEST_GROUP,
                     clientSession.Account.Language]);
                 return;
             }
@@ -101,7 +86,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    var blacklisteds = await _blacklistHttpCLient.GetBlackListsAsync(clientSession.Character.VisualId).ConfigureAwait(false);
+                    var blacklisteds = await blacklistHttpCLient.GetBlackListsAsync(clientSession.Character.VisualId).ConfigureAwait(false);
                     if (blacklisteds != null && blacklisteds.Any(s => s.CharacterId == pjoinPacket.CharacterId))
                     {
                         await clientSession.SendPacketAsync(new InfoiPacket
@@ -123,7 +108,7 @@ namespace NosCore.PacketHandlers.Group
 
                     if (clientSession.Character.LastGroupRequest != null)
                     {
-                        var diffTimeSpan = ((Instant)clientSession.Character.LastGroupRequest).Plus(Duration.FromSeconds(5)) - _clock.GetCurrentInstant();
+                        var diffTimeSpan = ((Instant)clientSession.Character.LastGroupRequest).Plus(Duration.FromSeconds(5)) - clock.GetCurrentInstant();
                         if (diffTimeSpan.Seconds > 0 && diffTimeSpan.Seconds <= 5)
                         {
                             await clientSession.SendPacketAsync(new InfoiPacket
@@ -137,7 +122,7 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     clientSession.Character.GroupRequestCharacterIds.TryAdd(pjoinPacket.CharacterId, pjoinPacket.CharacterId);
-                    clientSession.Character.LastGroupRequest = _clock.GetCurrentInstant();
+                    clientSession.Character.LastGroupRequest = clock.GetCurrentInstant();
 
                     if (((clientSession.Character.Group!.Count == 1) ||
                             (clientSession.Character.Group.Type == GroupType.Group))
@@ -253,7 +238,7 @@ namespace NosCore.PacketHandlers.Group
                     }
                     else
                     {
-                        clientSession.Character.Group.GroupId = _groupIdService.GetNextId();
+                        clientSession.Character.Group.GroupId = groupIdService.GetNextId();
                         targetSession.JoinGroup(clientSession.Character.Group);
 
                         await targetSession.SendPacketAsync(new InfoiPacket
@@ -281,7 +266,7 @@ namespace NosCore.PacketHandlers.Group
                         session?.SendPacketsAsync(currentGroup.GeneratePst().Where(p => p.VisualId != session.VisualId));
                     }
 
-                    _groupIdService.Items[currentGroup.GroupId] = currentGroup;
+                    groupIdService.Items[currentGroup.GroupId] = currentGroup;
                     await clientSession.Character.MapInstance.SendPacketAsync(
                         clientSession.Character.Group.GeneratePidx(clientSession.Character)).ConfigureAwait(false);
 
@@ -350,7 +335,7 @@ namespace NosCore.PacketHandlers.Group
                     }).ConfigureAwait(false);
                     break;
                 default:
-                    _logger.Error(_logLanguage[LogLanguageKey.GROUPREQUESTTYPE_UNKNOWN]);
+                    logger.Error(logLanguage[LogLanguageKey.GROUPREQUESTTYPE_UNKNOWN]);
                     break;
             }
         }

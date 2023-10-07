@@ -40,29 +40,15 @@ using System.Linq;
 
 namespace NosCore.GameObject.Services.ExchangeService
 {
-    public class ExchangeService : IExchangeService
-    {
-        private readonly IItemGenerationService _itemBuilderService;
-        private readonly ILogger _logger;
-        private readonly IOptions<WorldConfiguration> _worldConfiguration;
-        private readonly ExchangeRequestHolder _requestHolder;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
-        public ExchangeService(IItemGenerationService itemBuilderService, IOptions<WorldConfiguration> worldConfiguration, ILogger logger, ExchangeRequestHolder requestHolder, 
+    public class ExchangeService(IItemGenerationService itemBuilderService,
+            IOptions<WorldConfiguration> worldConfiguration, ILogger logger, ExchangeRequestHolder requestHolder,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer)
-        {
-            _itemBuilderService = itemBuilderService;
-            _worldConfiguration = worldConfiguration;
-            _logger = logger;
-            _requestHolder = requestHolder;
-            _logLanguage = logLanguage;
-            _gameLanguageLocalizer = gameLanguageLocalizer;
-        }
-
+        : IExchangeService
+    {
         public void SetGold(long visualId, long gold, long bankGold)
         {
-            _requestHolder.ExchangeDatas[visualId].Gold = gold;
-            _requestHolder.ExchangeDatas[visualId].BankGold = bankGold;
+            requestHolder.ExchangeDatas[visualId].Gold = gold;
+            requestHolder.ExchangeDatas[visualId].BankGold = bankGold;
         }
 
         //TODO: Remove these clientsessions as parameter
@@ -73,7 +59,7 @@ namespace NosCore.GameObject.Services.ExchangeService
             var targetInfo = GetData(targetSession.VisualId);
             var dictionary = new Dictionary<long, IPacket>();
 
-            if (exchangeInfo.Gold + targetSession.Gold > _worldConfiguration.Value.MaxGoldAmount)
+            if (exchangeInfo.Gold + targetSession.Gold > worldConfiguration.Value.MaxGoldAmount)
             {
                 dictionary.Add(targetSession.VisualId, new InfoiPacket
                 {
@@ -81,7 +67,7 @@ namespace NosCore.GameObject.Services.ExchangeService
                 });
             }
 
-            if (targetInfo.Gold + session.Character.Gold > _worldConfiguration.Value.MaxGoldAmount)
+            if (targetInfo.Gold + session.Character.Gold > worldConfiguration.Value.MaxGoldAmount)
             {
                 dictionary.Add(targetSession.VisualId, new InfoiPacket
                 {
@@ -91,21 +77,21 @@ namespace NosCore.GameObject.Services.ExchangeService
                     dictionary);
             }
 
-            if (exchangeInfo.BankGold + targetSession.BankGold > _worldConfiguration.Value.MaxBankGoldAmount)
+            if (exchangeInfo.BankGold + targetSession.BankGold > worldConfiguration.Value.MaxBankGoldAmount)
             {
                 dictionary.Add(targetSession.VisualId, new InfoPacket
                 {
-                    Message = _gameLanguageLocalizer[LanguageKey.BANK_FULL, session.Account.Language]
+                    Message = gameLanguageLocalizer[LanguageKey.BANK_FULL, session.Account.Language]
                 });
                 return new Tuple<ExchangeResultType, Dictionary<long, IPacket>?>(ExchangeResultType.Failure,
                     dictionary);
             }
 
-            if (targetInfo.BankGold + session.Account.BankMoney > _worldConfiguration.Value.MaxBankGoldAmount)
+            if (targetInfo.BankGold + session.Account.BankMoney > worldConfiguration.Value.MaxBankGoldAmount)
             {
                 dictionary.Add(session.Character.CharacterId, new InfoPacket
                 {
-                    Message = _gameLanguageLocalizer[LanguageKey.BANK_FULL, session.Account.Language]
+                    Message = gameLanguageLocalizer[LanguageKey.BANK_FULL, session.Account.Language]
                 });
                 return new Tuple<ExchangeResultType, Dictionary<long, IPacket>?>(ExchangeResultType.Failure,
                     dictionary);
@@ -145,39 +131,39 @@ namespace NosCore.GameObject.Services.ExchangeService
 
         public void ConfirmExchange(long visualId)
         {
-            _requestHolder.ExchangeDatas[visualId].ExchangeConfirmed = true;
+            requestHolder.ExchangeDatas[visualId].ExchangeConfirmed = true;
         }
 
         public bool IsExchangeConfirmed(long visualId)
         {
-            return _requestHolder.ExchangeDatas[visualId].ExchangeConfirmed;
+            return requestHolder.ExchangeDatas[visualId].ExchangeConfirmed;
         }
 
         public ExchangeData GetData(long visualId)
         {
-            return _requestHolder.ExchangeDatas[visualId];
+            return requestHolder.ExchangeDatas[visualId];
         }
 
         public void AddItems(long visualId, InventoryItemInstance item, short amount)
         {
-            var data = _requestHolder.ExchangeRequests.FirstOrDefault(k => k.Key == visualId);
+            var data = requestHolder.ExchangeRequests.FirstOrDefault(k => k.Key == visualId);
             if (data.Equals(default))
             {
-                _logger.Error(_logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+                logger.Error(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                 return;
             }
 
-            _requestHolder.ExchangeDatas[data.Key].ExchangeItems.TryAdd(item, amount);
+            requestHolder.ExchangeDatas[data.Key].ExchangeItems.TryAdd(item, amount);
         }
 
         public bool CheckExchange(long visualId)
         {
-            return _requestHolder.ExchangeRequests.Any(k => (k.Key == visualId) || (k.Value == visualId));
+            return requestHolder.ExchangeRequests.Any(k => (k.Key == visualId) || (k.Value == visualId));
         }
 
         public long? GetTargetId(long visualId)
         {
-            var id = _requestHolder.ExchangeRequests.FirstOrDefault(k => (k.Key == visualId) || (k.Value == visualId));
+            var id = requestHolder.ExchangeRequests.FirstOrDefault(k => (k.Key == visualId) || (k.Value == visualId));
             if (id.Equals(default(KeyValuePair<long, long>)))
             {
                 return null;
@@ -188,27 +174,27 @@ namespace NosCore.GameObject.Services.ExchangeService
 
         public bool CheckExchange(long visualId, long targetId)
         {
-            return _requestHolder.ExchangeRequests.Any(k => (k.Key == visualId) && (k.Value == visualId)) ||
-                _requestHolder.ExchangeRequests.Any(k => (k.Key == targetId) && (k.Value == targetId));
+            return requestHolder.ExchangeRequests.Any(k => (k.Key == visualId) && (k.Value == visualId)) ||
+                requestHolder.ExchangeRequests.Any(k => (k.Key == targetId) && (k.Value == targetId));
         }
 
         public ExcClosePacket? CloseExchange(long visualId, ExchangeResultType resultType)
         {
-            var data = _requestHolder.ExchangeRequests.FirstOrDefault(k => (k.Key == visualId) || (k.Value == visualId));
+            var data = requestHolder.ExchangeRequests.FirstOrDefault(k => (k.Key == visualId) || (k.Value == visualId));
             if ((data.Key == 0) && (data.Value == 0))
             {
-                _logger.Error(_logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+                logger.Error(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                 return null;
             }
 
-            if (!_requestHolder.ExchangeDatas.TryRemove(data.Key, out _) || !_requestHolder.ExchangeRequests.TryRemove(data.Key, out _))
+            if (!requestHolder.ExchangeDatas.TryRemove(data.Key, out _) || !requestHolder.ExchangeRequests.TryRemove(data.Key, out _))
             {
-                _logger.Error(_logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Key);
+                logger.Error(logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Key);
             }
 
-            if (!_requestHolder.ExchangeDatas.TryRemove(data.Value, out _) || !_requestHolder.ExchangeRequests.TryRemove(data.Value, out _))
+            if (!requestHolder.ExchangeDatas.TryRemove(data.Value, out _) || !requestHolder.ExchangeRequests.TryRemove(data.Value, out _))
             {
-                _logger.Error(_logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Value);
+                logger.Error(logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Value);
             }
 
             return new ExcClosePacket
@@ -221,14 +207,14 @@ namespace NosCore.GameObject.Services.ExchangeService
         {
             if (CheckExchange(visualId) || CheckExchange(targetVisualId))
             {
-                _logger.Error(_logLanguage[LogLanguageKey.ALREADY_EXCHANGE]);
+                logger.Error(logLanguage[LogLanguageKey.ALREADY_EXCHANGE]);
                 return false;
             }
 
-            _requestHolder.ExchangeRequests[visualId] = targetVisualId;
-            _requestHolder.ExchangeRequests[targetVisualId] = visualId;
-            _requestHolder.ExchangeDatas[visualId] = new ExchangeData();
-            _requestHolder.ExchangeDatas[targetVisualId] = new ExchangeData();
+            requestHolder.ExchangeRequests[visualId] = targetVisualId;
+            requestHolder.ExchangeRequests[targetVisualId] = visualId;
+            requestHolder.ExchangeDatas[visualId] = new ExchangeData();
+            requestHolder.ExchangeDatas[targetVisualId] = new ExchangeData();
             return true;
         }
 
@@ -240,7 +226,7 @@ namespace NosCore.GameObject.Services.ExchangeService
 
             foreach (var user in usersArray)
             {
-                foreach (var item in _requestHolder.ExchangeDatas[user].ExchangeItems)
+                foreach (var item in requestHolder.ExchangeDatas[user].ExchangeItems)
                 {
                     var destInventory = user == firstUser ? targetInventory : sessionInventory;
                     var originInventory = user == firstUser ? sessionInventory : targetInventory;
@@ -257,7 +243,7 @@ namespace NosCore.GameObject.Services.ExchangeService
                         newItem = originInventory.RemoveItemAmountFromInventory(item.Value, item.Key.ItemInstanceId);
                     }
 
-                    var inv = destInventory.AddItemToPocket(InventoryItemInstance.Create(_itemBuilderService.Create(
+                    var inv = destInventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilderService.Create(
                         item.Key.ItemInstance.ItemVNum,
                         item.Key.ItemInstance.Amount, (sbyte)item.Key.ItemInstance.Rare, item.Key.ItemInstance.Upgrade,
                         (byte)item.Key.ItemInstance.Design), targetId))?.FirstOrDefault();

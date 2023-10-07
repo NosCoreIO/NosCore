@@ -30,30 +30,24 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
-    public class BlDelPacketHandler : PacketHandler<BlDelPacket>, IWorldPacketHandler
+    public class BlDelPacketHandler(IBlacklistHttpClient blacklistHttpClient,
+            IGameLanguageLocalizer gameLanguageLocalizer)
+        : PacketHandler<BlDelPacket>, IWorldPacketHandler
     {
-        private readonly IBlacklistHttpClient _blacklistHttpClient;
-        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
-        public BlDelPacketHandler(IBlacklistHttpClient blacklistHttpClient, IGameLanguageLocalizer gameLanguageLocalizer)
-        {
-            _blacklistHttpClient = blacklistHttpClient;
-            _gameLanguageLocalizer = gameLanguageLocalizer;
-        }
-
         public override async Task ExecuteAsync(BlDelPacket bldelPacket, ClientSession session)
         {
-            var list = await _blacklistHttpClient.GetBlackListsAsync(session.Character.VisualId).ConfigureAwait(false);
+            var list = await blacklistHttpClient.GetBlackListsAsync(session.Character.VisualId).ConfigureAwait(false);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == bldelPacket.CharacterId);
             if (idtorem != null)
             {
-                await _blacklistHttpClient.DeleteFromBlacklistAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
-                await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(_blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                await blacklistHttpClient.DeleteFromBlacklistAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
+                await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             }
             else
             {
                 await session.SendPacketAsync(new InfoPacket
                 {
-                    Message = _gameLanguageLocalizer[LanguageKey.NOT_IN_BLACKLIST,
+                    Message = gameLanguageLocalizer[LanguageKey.NOT_IN_BLACKLIST,
                         session.Account.Language]
                 }).ConfigureAwait(false);
             }

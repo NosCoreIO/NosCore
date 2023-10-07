@@ -33,15 +33,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
-    public class SpRechargerEventHandler : IUseItemEventHandler
+    public class SpRechargerEventHandler(IOptions<WorldConfiguration> worldConfiguration) : IUseItemEventHandler
     {
-        private readonly IOptions<WorldConfiguration> _worldConfiguration;
-
-        public SpRechargerEventHandler(IOptions<WorldConfiguration> worldConfiguration)
-        {
-            _worldConfiguration = worldConfiguration;
-        }
-
         public bool Condition(Item.Item item)
         {
             return (item.ItemType == ItemType.Special) &&
@@ -51,7 +44,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 
         public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
-            if (requestData.ClientSession.Character.SpAdditionPoint < _worldConfiguration.Value.MaxAdditionalSpPoints)
+            if (requestData.ClientSession.Character.SpAdditionPoint < worldConfiguration.Value.MaxAdditionalSpPoints)
             {
                 var itemInstance = requestData.Data.Item1;
                 requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,

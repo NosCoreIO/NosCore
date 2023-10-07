@@ -45,26 +45,19 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
-    public class MgPacketHandler : PacketHandler<MinigamePacket>, IWorldPacketHandler
+    public class MgPacketHandler(IMinilandService minilandProvider, IItemGenerationService itemProvider)
+        : PacketHandler<MinigamePacket>, IWorldPacketHandler
     {
-        private readonly IItemGenerationService _itemProvider;
-        private readonly IMinilandService _minilandProvider;
         private ClientSession? _clientSession;
         private MinigamePacket? _minigamePacket;
         private GameObject.Services.MinilandService.Miniland? _miniland;
         private MapDesignObject? _minilandObject;
 
-        public MgPacketHandler(IMinilandService minilandProvider, IItemGenerationService itemProvider)
-        {
-            _minilandProvider = minilandProvider;
-            _itemProvider = itemProvider;
-        }
-
         public override async Task ExecuteAsync(MinigamePacket minigamePacket, ClientSession clientSession)
         {
             _clientSession = clientSession;
             _minigamePacket = minigamePacket;
-            _miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
+            _miniland = minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             _minilandObject =
                 clientSession.Character.MapInstance.MapDesignObjects.Values.FirstOrDefault(s =>
                     s.Slot == minigamePacket.Id);
@@ -208,7 +201,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             {
                 if (gifts.Count > i)
                 {
-                    var item = _itemProvider.Create(gifts.ElementAt(i).VNum, gifts.ElementAt(i).Amount);
+                    var item = itemProvider.Create(gifts.ElementAt(i).VNum, gifts.ElementAt(i).Amount);
                     var inv = _clientSession!.Character.InventoryService.AddItemToPocket(
                         InventoryItemInstance.Create(item, _clientSession.Character.CharacterId));
                     if (inv != null && inv.Count != 0)
@@ -309,7 +302,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             await _clientSession!.SendPacketAsync(new MloRwPacket { Amount = obj.Amount, VNum = obj.VNum }).ConfigureAwait(false);
             // _clientSession.SendPacket(new MlptPacket {_miniland.MinilandPoint, 100});
             var inv = _clientSession.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                _itemProvider.Create(obj.VNum,
+                itemProvider.Create(obj.VNum,
                     obj.Amount), _clientSession.Character.CharacterId));
             _miniland.MinilandPoint -= 100;
             if (inv == null || inv.Count == 0)

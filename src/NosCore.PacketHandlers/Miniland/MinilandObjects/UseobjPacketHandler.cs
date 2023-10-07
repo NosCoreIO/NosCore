@@ -32,20 +32,12 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
-    public class UseobjPacketHandler : PacketHandler<UseObjPacket>, IWorldPacketHandler
+    public class UseobjPacketHandler(IMinilandService minilandProvider, IWarehouseHttpClient warehouseHttpClient)
+        : PacketHandler<UseObjPacket>, IWorldPacketHandler
     {
-        private readonly IMinilandService _minilandProvider;
-        private readonly IWarehouseHttpClient _warehouseHttpClient;
-
-        public UseobjPacketHandler(IMinilandService minilandProvider, IWarehouseHttpClient warehouseHttpClient)
-        {
-            _minilandProvider = minilandProvider;
-            _warehouseHttpClient = warehouseHttpClient;
-        }
-
         public override async Task ExecuteAsync(UseObjPacket useobjPacket, ClientSession clientSession)
         {
-            var miniland = _minilandProvider.GetMiniland(clientSession.Character.CharacterId);
+            var miniland = minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             var minilandObject =
                 clientSession.Character.MapInstance.MapDesignObjects.Values.FirstOrDefault(s =>
                     s.Slot == useobjPacket.ObjectId);
@@ -102,7 +94,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             }
             else
             {
-                var warehouseItems = await _warehouseHttpClient.GetWarehouseItemsAsync(clientSession.Character.CharacterId,
+                var warehouseItems = await warehouseHttpClient.GetWarehouseItemsAsync(clientSession.Character.CharacterId,
                     WarehouseType.Warehouse).ConfigureAwait(false);
                 await clientSession.SendPacketAsync(new StashAllPacket
                 {

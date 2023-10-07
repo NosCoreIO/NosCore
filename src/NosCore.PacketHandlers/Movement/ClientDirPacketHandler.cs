@@ -31,17 +31,9 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Movement
 {
-    public class ClientDirPacketHandler : PacketHandler<ClientDirPacket>, IWorldPacketHandler
+    public class ClientDirPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<ClientDirPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public ClientDirPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public override Task ExecuteAsync(ClientDirPacket dirpacket, ClientSession session)
         {
             IAliveEntity entity;
@@ -51,7 +43,7 @@ namespace NosCore.PacketHandlers.Movement
                     entity = session.Character!;
                     break;
                 default:
-                    _logger.Error(_logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
+                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         dirpacket.VisualType);
                     return Task.CompletedTask;
             }

@@ -33,17 +33,9 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Movement
 {
-    public class SitPacketHandler : PacketHandler<SitPacket>, IWorldPacketHandler
+    public class SitPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<SitPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public SitPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public override Task ExecuteAsync(SitPacket sitpacket, ClientSession clientSession)
         {
             return Task.WhenAll(sitpacket.Users!.Select(u =>
@@ -56,15 +48,15 @@ namespace NosCore.PacketHandlers.Movement
                         entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == u.VisualId)!;
                         if (entity.VisualId != clientSession.Character.VisualId)
                         {
-                            _logger.Error(
-                                _logLanguage[LogLanguageKey.DIRECT_ACCESS_OBJECT_DETECTED],
+                            logger.Error(
+                                logLanguage[LogLanguageKey.DIRECT_ACCESS_OBJECT_DETECTED],
                                 clientSession.Character, sitpacket);
                             return Task.CompletedTask;
                         }
 
                         break;
                     default:
-                        _logger.Error(_logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
+                        logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                             u.VisualType);
                         return Task.CompletedTask;
                 }

@@ -35,34 +35,17 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
-    public class DacPacketHandler : PacketHandler<DacPacket>, IWorldPacketHandler
-    {
-        private readonly IDao<AccountDto, long> _accountDao;
-        private readonly IAuthHttpClient _authHttpClient;
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly ILogger _logger;
-        private readonly ISessionRefHolder _sessionRefHolder;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public DacPacketHandler(IDao<AccountDto, long> accountDao,
+    public class DacPacketHandler(IDao<AccountDto, long> accountDao,
             ILogger logger, IAuthHttpClient authHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _accountDao = accountDao;
-            _logger = logger;
-            _authHttpClient = authHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _channelHttpClient = channelHttpClient;
-            _sessionRefHolder = sessionRefHolder;
-            _logLanguage = logLanguage;
-        }
-
+            IChannelHttpClient channelHttpClient, ISessionRefHolder sessionRefHolder,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<DacPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(DacPacket packet, ClientSession clientSession)
         {
-            await EntryPointPacketHandler.VerifyConnectionAsync(clientSession, _logger, _authHttpClient,
-                _connectedAccountHttpClient, _accountDao, _channelHttpClient, true, packet.AccountName, "thisisgfmode", -1, _sessionRefHolder, _logLanguage);
+            await EntryPointPacketHandler.VerifyConnectionAsync(clientSession, logger, authHttpClient,
+                connectedAccountHttpClient, accountDao, channelHttpClient, true, packet.AccountName, "thisisgfmode", -1, sessionRefHolder, logLanguage);
             if (clientSession.Account == null!)
             {
                 return;
@@ -70,7 +53,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             await clientSession.HandlePacketsAsync(new[] { new SelectPacket { Slot = packet.Slot } })
                 .ConfigureAwait(false);
 
-            _logger.Information(_logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],
+            logger.Information(logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],
                 clientSession.Account!.Name);
         }
     }

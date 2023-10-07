@@ -35,25 +35,18 @@ using NosCore.Networking.SessionGroup;
 
 namespace NosCore.GameObject
 {
-    public class Group : ConcurrentDictionary<Tuple<VisualType, long>, Tuple<int, INamedEntity>>, IBroadcastable
+    public class Group(GroupType type) : ConcurrentDictionary<Tuple<VisualType, long>, Tuple<int, INamedEntity>>,
+        IBroadcastable
     {
         public short MaxPacketsBuffer { get; } = 250;
 
         private int _lastId;
 
-        public Group(GroupType type)
-        {
-            LastPackets = new ConcurrentQueue<IPacket>();
-            Type = type;
-            GroupId = -1;
-            Sessions = new SessionGroup();
-        }
+        public ConcurrentQueue<IPacket> LastPackets { get; } = new();
 
-        public ConcurrentQueue<IPacket> LastPackets { get; }
+        public long GroupId { get; set; } = -1;
 
-        public long GroupId { get; set; }
-
-        public GroupType Type { get; set; }
+        public GroupType Type { get; set; } = type;
 
         public bool IsGroupFull => Count == (long)Type;
 
@@ -61,7 +54,7 @@ namespace NosCore.GameObject
 
         public new int Count => Keys.Count(s => s.Item1 == VisualType.Player);
 
-        public ISessionGroup Sessions { get; set; }
+        public ISessionGroup Sessions { get; set; } = new SessionGroup();
 
         public PinitPacket GeneratePinit()
         {

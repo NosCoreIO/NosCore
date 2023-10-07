@@ -33,18 +33,10 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetReputationPacketHandler : PacketHandler<SetReputationPacket>, IWorldPacketHandler
-    {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IStatHttpClient _statHttpClient;
-
-        public SetReputationPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
+    public class SetReputationPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
             IStatHttpClient statHttpClient)
-        {
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _statHttpClient = statHttpClient;
-        }
-
+        : PacketHandler<SetReputationPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(SetReputationPacket setReputationPacket, ClientSession session)
         {
             if ((setReputationPacket.Name == session.Character.Name) || string.IsNullOrEmpty(setReputationPacket.Name))
@@ -60,7 +52,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = setReputationPacket.Reputation
             };
 
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, setReputationPacket.Name).ConfigureAwait(false);
+            var receiver = await connectedAccountHttpClient.GetCharacterAsync(null, setReputationPacket.Name).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -71,7 +63,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStatAsync(data, receiver.Item1!).ConfigureAwait(false);
+            await statHttpClient.ChangeStatAsync(data, receiver.Item1!).ConfigureAwait(false);
         }
     }
 }

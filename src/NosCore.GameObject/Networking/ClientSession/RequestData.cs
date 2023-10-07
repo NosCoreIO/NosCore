@@ -34,19 +34,13 @@ namespace NosCore.GameObject.Networking.ClientSession
         public T Data { get; }
     }
 
-    public class RequestData : IRequestData
+    public class RequestData(ClientSession clientSession) : IRequestData
     {
-        public RequestData(ClientSession clientSession)
+        public RequestData() : this(null!)
         {
-            ClientSession = clientSession;
         }
 
-        public RequestData()
-        {
-            ClientSession = null!;
-        }
-
-        public ClientSession ClientSession { get; }
+        public ClientSession ClientSession { get; } = clientSession;
     }
 
     public interface IRequestData

@@ -35,7 +35,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class ItemParser
+    public class ItemParser(IDao<ItemDto, short> itemDao, IDao<BCardDto, short> bCardDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         //  VNUM	{VNum}	{Price}
         //	NAME {Name}
@@ -50,19 +50,6 @@ namespace NosCore.Parser.Parsers
         //    END
         //#========================================================
         private readonly string _itemCardDto = $"{Path.DirectorySeparatorChar}Item.dat";
-
-        private readonly IDao<ItemDto, short> _itemDao;
-        private readonly IDao<BCardDto, short> _bcardDao;
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public ItemParser(IDao<ItemDto, short> itemDao, IDao<BCardDto, short> bCardDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _itemDao = itemDao;
-            _bcardDao = bCardDao;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
 
         public async Task ParseAsync(string folder)
         {
@@ -134,7 +121,7 @@ namespace NosCore.Parser.Parsers
             };
 
             var genericParser = new GenericParser<ItemDto>(folder + _itemCardDto,
-                "END", 1, actionList, _logger, _logLanguage);
+                "END", 1, actionList, logger, logLanguage);
             var items = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.VNum).Select(g => g.First()).ToList();
             foreach (var item in items)
             {
@@ -170,10 +157,10 @@ namespace NosCore.Parser.Parsers
                 { 16, new List<(short, short)> { (5173, 2511) } },
             });
 
-            await _itemDao.TryInsertOrUpdateAsync(items).ConfigureAwait(false);
-            await _bcardDao.TryInsertOrUpdateAsync(items.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
+            await itemDao.TryInsertOrUpdateAsync(items).ConfigureAwait(false);
+            await bCardDao.TryInsertOrUpdateAsync(items.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
 
-            _logger.Information(_logLanguage[LogLanguageKey.ITEMS_PARSED], items.Count);
+            logger.Information(logLanguage[LogLanguageKey.ITEMS_PARSED], items.Count);
         }
 
 

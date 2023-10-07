@@ -39,24 +39,14 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Parcel
 {
-    public class PclPacketHandler : PacketHandler<PclPacket>, IWorldPacketHandler
-    {
-        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
-        private readonly IItemGenerationService _itemProvider;
-        private readonly IMailHttpClient _mailHttpClient;
-
-        public PclPacketHandler(IMailHttpClient mailHttpClient, IItemGenerationService itemProvider,
+    public class PclPacketHandler(IMailHttpClient mailHttpClient, IItemGenerationService itemProvider,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao)
-        {
-            _mailHttpClient = mailHttpClient;
-            _itemProvider = itemProvider;
-            _itemInstanceDao = itemInstanceDao;
-        }
-
+        : PacketHandler<PclPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(PclPacket getGiftPacket, ClientSession clientSession)
         {
             var isCopy = getGiftPacket.Type == 2;
-            var mail = await _mailHttpClient.GetGiftAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+            var mail = await mailHttpClient.GetGiftAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
             if (mail == null)
             {
                 return;
@@ -64,8 +54,8 @@ namespace NosCore.PacketHandlers.Parcel
 
             if ((getGiftPacket.Type == 4) && (mail.ItemInstance != null))
             {
-                var itemInstance = await _itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == mail.ItemInstance.Id).ConfigureAwait(false);
-                var item = _itemProvider.Convert(itemInstance!);
+                var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == mail.ItemInstance.Id).ConfigureAwait(false);
+                var item = itemProvider.Convert(itemInstance!);
                 item.Id = Guid.NewGuid();
                 var newInv = clientSession.Character.InventoryService
                     .AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId))?
@@ -84,7 +74,7 @@ namespace NosCore.PacketHandlers.Parcel
                     
                     await clientSession.SendPacketAsync(
                         new ParcelPacket { Type = 2, Unknown = 1, Id = (short)getGiftPacket.GiftId }).ConfigureAwait(false);
-                    await _mailHttpClient.DeleteGiftAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+                    await mailHttpClient.DeleteGiftAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
                 }
                 else
                 {
@@ -99,7 +89,7 @@ namespace NosCore.PacketHandlers.Parcel
             else if (getGiftPacket.Type == 5)
             {
                 await clientSession.SendPacketAsync(new ParcelPacket { Type = 7, Unknown = 1, Id = (short)getGiftPacket.GiftId }).ConfigureAwait(false);
-                await _mailHttpClient.DeleteGiftAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+                await mailHttpClient.DeleteGiftAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
             }
         }
     }

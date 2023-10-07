@@ -32,23 +32,13 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class MapParser
+    public class MapParser(IDao<MapDto, short> mapDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         //{ID} {ID} {MapPoint} {MapPoint} {Name}
         //DATA 0
 
         private readonly string _fileMapIdDat = $"{Path.DirectorySeparatorChar}MapIDData.dat";
         private readonly string _folderMap = $"{Path.DirectorySeparatorChar}map";
-        private readonly ILogger _logger;
-        private readonly IDao<MapDto, short> _mapDao;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public MapParser(IDao<MapDto, short> mapDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _mapDao = mapDao;
-            _logLanguage = logLanguage;
-        }
 
         public Task<List<MapDto>> ParseDatAsync(string folder)
         {
@@ -57,7 +47,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(MapDto.MapId), chunk => Convert.ToInt16(chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0][0])},
                 {nameof(MapDto.NameI18NKey), chunk => chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0][4]}
             };
-            var genericParser = new GenericParser<MapDto>(folder + _fileMapIdDat, "DATA 0", 0, actionList, _logger, _logLanguage);
+            var genericParser = new GenericParser<MapDto>(folder + _fileMapIdDat, "DATA 0", 0, actionList, logger, logLanguage);
             return genericParser.GetDtosAsync(" ");
         }
 
@@ -77,8 +67,8 @@ namespace NosCore.Parser.Parsers
                 ShopAllowed = short.Parse(file.Name) == 147
             }).ToList();
 
-            await _mapDao.TryInsertOrUpdateAsync(maps).ConfigureAwait(false);
-            _logger.Information(_logLanguage[LogLanguageKey.MAPS_PARSED], maps.Count);
+            await mapDao.TryInsertOrUpdateAsync(maps).ConfigureAwait(false);
+            logger.Information(logLanguage[LogLanguageKey.MAPS_PARSED], maps.Count);
         }
     }
 }

@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _chara = _session.Character;
             await _session.SetCharacterAsync(null).ConfigureAwait(false);
-            TypeAdapterConfig<CharacterDto, GameObject.Character>.NewConfig().ConstructUsing(src => _chara);
+            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => _chara);
             _charNewJobPacketHandler = new CharNewJobPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.WorldConfiguration);
         }
 

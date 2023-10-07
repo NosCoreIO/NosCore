@@ -40,85 +40,51 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
-    public class MapInstanceGeneratorService : IMapInstanceGeneratorService
-    {
-        private readonly ILogger _logger;
-        private readonly List<ShopDto> _shopDtos;
-        private readonly IDao<ShopItemDto, int>? _shopItems;
-        private readonly IMapItemGenerationService _mapItemGenerationService;
-        private readonly IDao<MapMonsterDto, int> _mapMonsters;
-        private readonly List<NpcTalkDto> _npcTalks;
-        private readonly IDao<MapNpcDto, int> _mapNpcs;
-        private readonly List<MapDto> _maps;
-        private readonly IDao<PortalDto, int> _portalDao;
-        private readonly List<NpcMonsterDto> _npcMonsters;
-
-        private readonly EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler> _entranceRunnerService;
-        private readonly MapInstanceHolder _holder;
-        private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
-        private readonly IClock _clock;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly IMapChangeService _mapChangeService;
-
-        public MapInstanceGeneratorService(List<MapDto> maps, List<NpcMonsterDto> npcMonsters, List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos,
+    public class MapInstanceGeneratorService(List<MapDto> maps, List<NpcMonsterDto> npcMonsters,
+            List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos,
             IMapItemGenerationService mapItemGenerationService, IDao<MapNpcDto, int> mapNpcs,
-            IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems, ILogger logger, EventLoaderService<MapInstance,
-                MapInstance, IMapInstanceEntranceEventHandler> entranceRunnerService, MapInstanceHolder holder, IMapInstanceAccessorService mapInstanceAccessorService,
+            IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems,
+            ILogger logger, EventLoaderService<MapInstance,
+                MapInstance, IMapInstanceEntranceEventHandler> entranceRunnerService, MapInstanceHolder holder,
+            IMapInstanceAccessorService mapInstanceAccessorService,
             IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMapChangeService mapChangeService)
-        {
-            _mapItemGenerationService = mapItemGenerationService;
-            _npcTalks = npcTalks;
-            _npcMonsters = npcMonsters;
-            _mapMonsters = mapMonsters;
-            _portalDao = portalDao;
-            _maps = maps;
-            _mapNpcs = mapNpcs;
-            _logger = logger;
-            _shopItems = shopItems;
-            _shopDtos = shopDtos;
-            _entranceRunnerService = entranceRunnerService;
-            _holder = holder;
-            _mapInstanceAccessorService = mapInstanceAccessorService;
-            _clock = clock;
-            _logLanguage = logLanguage;
-            _mapChangeService = mapChangeService;
-        }
-
+        : IMapInstanceGeneratorService
+    {
         public Task AddMapInstanceAsync(MapInstance mapInstance)
         {
-            _holder.MapInstances.TryAdd(mapInstance.MapInstanceId, mapInstance);
-            _entranceRunnerService.LoadHandlers(mapInstance);
-            return LoadPortalsAsync(mapInstance, _portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId)?.ToList() ?? new List<PortalDto>());
+            holder.MapInstances.TryAdd(mapInstance.MapInstanceId, mapInstance);
+            entranceRunnerService.LoadHandlers(mapInstance);
+            return LoadPortalsAsync(mapInstance, portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId)?.ToList() ?? new List<PortalDto>());
         }
 
         public void RemoveMap(Guid mapInstanceId)
         {
-            _holder.MapInstances.TryRemove(mapInstanceId, out var mapInstance);
+            holder.MapInstances.TryRemove(mapInstanceId, out var mapInstance);
             mapInstance?.Kick();
         }
 
         public async Task InitializeAsync()
         {
-            _logger.Information(_logLanguage[LogLanguageKey.LOADING_MAPINSTANCES]);
+            logger.Information(logLanguage[LogLanguageKey.LOADING_MAPINSTANCES]);
             try
             {
-                _mapMonsters.LoadAll();
+                mapMonsters.LoadAll();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
 
-            var monsters = _mapMonsters.LoadAll().Adapt<IEnumerable<MapMonster>>().GroupBy(u => u.MapId)
+            var monsters = mapMonsters.LoadAll().Adapt<IEnumerable<MapMonster>>().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
 
-            var npcs = _mapNpcs.LoadAll().Adapt<IEnumerable<MapNpc>>().GroupBy(u => u.MapId)
+            var npcs = mapNpcs.LoadAll().Adapt<IEnumerable<MapNpc>>().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
 
-            var portals = _portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
+            var portals = portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
 
-            var mapsdic = _maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
-            _holder.MapInstances = new ConcurrentDictionary<Guid, MapInstance>(_maps.Adapt<List<Map.Map>>().ToDictionary(
+            var mapsdic = maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
+            holder.MapInstances = new ConcurrentDictionary<Guid, MapInstance>(maps.Adapt<List<Map.Map>>().ToDictionary(
                 map => mapsdic[map.MapId],
                 map =>
                 {
@@ -127,7 +93,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     if (monsters.ContainsKey(map.MapId))
                     {
                         var mapMonsters = monsters[map.MapId];
-                        mapMonsters.ForEach(s => s.Initialize(_npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!));
+                        mapMonsters.ForEach(s => s.Initialize(npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!));
                         mapinstance.LoadMonsters(mapMonsters);
                     }
 
@@ -136,29 +102,29 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                         var mapNpcs = npcs[map.MapId];
                         mapNpcs.ForEach(s =>
                         {
-                            List<ShopItemDto> shopItems = new List<ShopItemDto>();
+                            List<ShopItemDto> dtoShopItems = new List<ShopItemDto>();
                             NpcTalkDto? dialog = null;
-                            var shop = _shopDtos.Find(o => o.MapNpcId == s.MapNpcId);
+                            var shop = shopDtos.Find(o => o.MapNpcId == s.MapNpcId);
                             if (shop != null)
                             {
-                                shopItems = _shopItems!.Where(o => o.ShopId == shop.ShopId)!.ToList();
-                                dialog = _npcTalks!.Find(o => o.DialogId == s.Dialog);
+                                dtoShopItems = shopItems!.Where(o => o.ShopId == shop.ShopId)!.ToList();
+                                dialog = npcTalks!.Find(o => o.DialogId == s.Dialog);
                             }
-                            s.Initialize(_npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!, shop, dialog, shopItems);
+                            s.Initialize(npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!, shop, dialog, dtoShopItems);
                         });
                         mapinstance.LoadNpcs(mapNpcs);
                     }
-                    _entranceRunnerService.LoadHandlers(mapinstance);
+                    entranceRunnerService.LoadHandlers(mapinstance);
                     return mapinstance;
                 }));
 
-            await Task.WhenAll(_holder.MapInstances.Values.Select(s => s.StartLifeAsync())).ConfigureAwait(false);
-            await Task.WhenAll(_holder.MapInstances.Values.Select(mapInstance => portals.ContainsKey(mapInstance.Map.MapId) ? LoadPortalsAsync(mapInstance, portals[mapInstance.Map.MapId]) : Task.CompletedTask)).ConfigureAwait(false);
+            await Task.WhenAll(holder.MapInstances.Values.Select(s => s.StartLifeAsync())).ConfigureAwait(false);
+            await Task.WhenAll(holder.MapInstances.Values.Select(mapInstance => portals.ContainsKey(mapInstance.Map.MapId) ? LoadPortalsAsync(mapInstance, portals[mapInstance.Map.MapId]) : Task.CompletedTask)).ConfigureAwait(false);
         }
 
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)
         {
-            return new MapInstance(map, guid, shopAllowed, normalInstance, _mapItemGenerationService, _logger, _clock, _mapChangeService);
+            return new MapInstance(map, guid, shopAllowed, normalInstance, mapItemGenerationService, logger, clock, mapChangeService);
         }
 
         private async Task LoadPortalsAsync(MapInstance mapInstance, List<PortalDto> portals)
@@ -168,7 +134,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                  portal.SourceMapInstanceId = mapInstance.MapInstanceId;
                  if (portal.DestinationMapInstanceId == default)
                  {
-                     var destination = _mapInstanceAccessorService.GetBaseMapById(portal.DestinationMapId);
+                     var destination = mapInstanceAccessorService.GetBaseMapById(portal.DestinationMapId);
                      if (destination == null)
                      {
                          return Task.FromResult(portal);

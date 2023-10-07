@@ -31,22 +31,15 @@ namespace NosCore.MasterServer.Controllers
 {
     [Route("api/[controller]")]
     [AuthorizeRole(AuthorityType.GameMaster)]
-    public class FriendController : Controller
+    public class FriendController(IFriendService friendService) : Controller
     {
-        private readonly IFriendService _friendService;
-
-        public FriendController(IFriendService friendService)
-        {
-            _friendService = friendService;
-        }
-
         [HttpPost]
-        public Task<LanguageKey> AddFriendAsync([FromBody] FriendShipRequest friendPacket) => _friendService.AddFriendAsync(friendPacket.CharacterId, friendPacket.FinsPacket!.CharacterId, friendPacket.FinsPacket.Type);
+        public Task<LanguageKey> AddFriendAsync([FromBody] FriendShipRequest friendPacket) => friendService.AddFriendAsync(friendPacket.CharacterId, friendPacket.FinsPacket!.CharacterId, friendPacket.FinsPacket.Type);
 
         [HttpGet]
-        public Task<List<CharacterRelationStatus>> GetFriendsAsync(long id) => _friendService.GetFriendsAsync(id);
+        public Task<List<CharacterRelationStatus>> GetFriendsAsync(long id) => friendService.GetFriendsAsync(id);
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteAsync(Guid id) => await _friendService.DeleteAsync(id) ? (IActionResult)Ok() : NotFound();
+        public async Task<IActionResult> DeleteAsync(Guid id) => await friendService.DeleteAsync(id) ? (IActionResult)Ok() : NotFound();
     }
 }

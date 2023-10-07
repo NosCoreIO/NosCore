@@ -29,15 +29,8 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.Core.I18N
 {
-    public class GameLanguageLocalizer : IGameLanguageLocalizer
+    public class GameLanguageLocalizer(ILogLanguageLocalizer<LanguageKey> stringLocalizer) : IGameLanguageLocalizer
     {
-        private readonly ILogLanguageLocalizer<LanguageKey> _stringLocalizer;
-
-        public GameLanguageLocalizer(ILogLanguageLocalizer<LanguageKey> stringLocalizer)
-        {
-            _stringLocalizer = stringLocalizer;
-        }
-
         public LocalizedString this[LanguageKey key, RegionType region]
         {
             get
@@ -47,7 +40,7 @@ namespace NosCore.Core.I18N
                 CultureInfo.CurrentUICulture = new CultureInfo(region.ToString());
                 CultureInfo.CurrentCulture = new CultureInfo(region.ToString());
 
-                var result = _stringLocalizer[key];
+                var result = stringLocalizer[key];
 
                 CultureInfo.CurrentUICulture = currentUi;
                 CultureInfo.CurrentCulture = current;
@@ -64,7 +57,7 @@ namespace NosCore.Core.I18N
                 CultureInfo.CurrentUICulture = new CultureInfo(region.ToString());
                 CultureInfo.CurrentCulture = new CultureInfo(region.ToString());
 
-                var result = _stringLocalizer[key, arguments];
+                var result = stringLocalizer[key, arguments];
 
                 CultureInfo.CurrentUICulture = currentUi;
                 CultureInfo.CurrentCulture = current;
@@ -72,6 +65,6 @@ namespace NosCore.Core.I18N
             }
         }
 
-        public IEnumerable<LocalizedString> GetAllStrings() => _stringLocalizer.GetAllStrings();
+        public IEnumerable<LocalizedString> GetAllStrings() => stringLocalizer.GetAllStrings();
     }
 }

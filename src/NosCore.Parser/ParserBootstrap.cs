@@ -73,8 +73,8 @@ namespace NosCore.Parser
             services.AddDbContext<NosCoreContext>(
                 builder => builder.UseNpgsql(parserConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<ParserConfiguration>().Bind(conf).ValidateDataAnnotations();
-            Shared.I18N.Logger.GetLoggerConfiguration().CreateLogger();
-            Shared.I18N.Logger.PrintHeader(ConsoleText);
+            Logger.GetLoggerConfiguration().CreateLogger();
+            Logger.PrintHeader(ConsoleText);
             CultureInfo.DefaultThreadCurrentCulture = new(parserConfiguration.Language.ToString());
         }
 

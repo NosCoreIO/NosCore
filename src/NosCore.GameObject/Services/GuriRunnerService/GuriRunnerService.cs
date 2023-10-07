@@ -27,14 +27,10 @@ using System.Reactive.Subjects;
 
 namespace NosCore.GameObject.Services.GuriRunnerService
 {
-    public class GuriRunnerService : IGuriRunnerService
+    public class GuriRunnerService(IEnumerable<IEventHandler<GuriPacket, GuriPacket>> handlers)
+        : IGuriRunnerService
     {
-        private readonly List<IEventHandler<GuriPacket, GuriPacket>> _handlers;
-
-        public GuriRunnerService(IEnumerable<IEventHandler<GuriPacket, GuriPacket>> handlers)
-        {
-            _handlers = handlers.ToList();
-        }
+        private readonly List<IEventHandler<GuriPacket, GuriPacket>> _handlers = Enumerable.ToList<IEventHandler<GuriPacket, GuriPacket>>(handlers);
 
         public void GuriLaunch(ClientSession clientSession, GuriPacket data)
         {

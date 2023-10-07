@@ -32,17 +32,9 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class BiPacketHandler : PacketHandler<BiPacket>, IWorldPacketHandler
+    public class BiPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<BiPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public BiPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public override async Task ExecuteAsync(BiPacket bIPacket, ClientSession clientSession)
         {
             switch (bIPacket.Option)
@@ -90,7 +82,7 @@ namespace NosCore.PacketHandlers.Inventory
                 case RequestDeletionType.Confirmed:
                     if (clientSession.Character.InExchangeOrShop)
                     {
-                        _logger.Error(_logLanguage[LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP]);
+                        logger.Error(logLanguage[LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP]);
                         return;
                     }
 

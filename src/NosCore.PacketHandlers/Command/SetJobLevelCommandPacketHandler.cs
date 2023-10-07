@@ -33,18 +33,10 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetJobLevelCommandPacketHandler : PacketHandler<SetJobLevelCommandPacket>, IWorldPacketHandler
-    {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IStatHttpClient _statHttpClient;
-
-        public SetJobLevelCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
+    public class SetJobLevelCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
             IStatHttpClient statHttpClient)
-        {
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _statHttpClient = statHttpClient;
-        }
-
+        : PacketHandler<SetJobLevelCommandPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(SetJobLevelCommandPacket levelPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
@@ -60,7 +52,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, levelPacket.Name).ConfigureAwait(false);
+            var receiver = await connectedAccountHttpClient.GetCharacterAsync(null, levelPacket.Name).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -71,7 +63,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStatAsync(data, receiver.Item1!).ConfigureAwait(false);
+            await statHttpClient.ChangeStatAsync(data, receiver.Item1!).ConfigureAwait(false);
         }
     }
 }

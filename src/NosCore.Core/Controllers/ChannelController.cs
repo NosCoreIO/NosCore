@@ -46,25 +46,12 @@ namespace NosCore.Core.Controllers
 {
     [Route("api/[controller]")]
     [AuthorizeRole(AuthorityType.Root)]
-    public class ChannelController : Controller
+    public class ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger, IHasher hasher,
+            IClock clock, IIdService<ChannelInfo> channelInfoIdService,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : Controller
     {
-        private readonly IOptions<WebApiConfiguration> _apiConfiguration;
-        private readonly ILogger _logger;
         private long _id;
-        private readonly IHasher _hasher;
-        private readonly IClock _clock;
-        private readonly IIdService<ChannelInfo> _channelInfoIdService;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public ChannelController(IOptions<WebApiConfiguration> apiConfiguration, ILogger logger, IHasher hasher, IClock clock, IIdService<ChannelInfo> channelInfoIdService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _apiConfiguration = apiConfiguration;
-            _hasher = hasher;
-            _clock = clock;
-            _channelInfoIdService = channelInfoIdService;
-            _logLanguage = logLanguage;
-        }
 
         private string GenerateToken()
         {
@@ -73,7 +60,7 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.NameIdentifier, "Server"),
                 new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
             });
-            var password = _hasher.Hash(_apiConfiguration.Value.Password!, _apiConfiguration.Value.Salt);
+            var password = hasher.Hash(apiConfiguration.Value.Password!, apiConfiguration.Value.Salt);
 
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
@@ -99,18 +86,18 @@ namespace NosCore.Core.Controllers
 
             if (!ModelState.IsValid)
             {
-                _logger.Error(_logLanguage[LogLanguageKey.AUTHENTICATED_ERROR]);
-                return BadRequest(BadRequest(_logLanguage[LogLanguageKey.AUTH_ERROR]));
+                logger.Error(logLanguage[LogLanguageKey.AUTHENTICATED_ERROR]);
+                return BadRequest(BadRequest(logLanguage[LogLanguageKey.AUTH_ERROR]));
             }
 
-            if (data.MasterCommunication!.Password != _apiConfiguration.Value.Password)
+            if (data.MasterCommunication!.Password != apiConfiguration.Value.Password)
             {
-                _logger.Error(_logLanguage[LogLanguageKey.AUTHENTICATED_ERROR]);
-                return BadRequest(_logLanguage[LogLanguageKey.AUTH_INCORRECT]);
+                logger.Error(logLanguage[LogLanguageKey.AUTHENTICATED_ERROR]);
+                return BadRequest(logLanguage[LogLanguageKey.AUTH_INCORRECT]);
             }
 
-            _id = _channelInfoIdService.GetNextId();
-            _logger.Debug(_logLanguage[LogLanguageKey.AUTHENTICATED_SUCCESS], _id.ToString(CultureInfo.CurrentCulture),
+            _id = channelInfoIdService.GetNextId();
+            logger.Debug(logLanguage[LogLanguageKey.AUTHENTICATED_SUCCESS], _id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
 
             var serv = new ChannelInfo
@@ -125,11 +112,11 @@ namespace NosCore.Core.Controllers
                 Id = _id,
                 ConnectedAccountLimit = data.ConnectedAccountLimit,
                 WebApi = data.WebApi,
-                LastPing = _clock.GetCurrentInstant(),
+                LastPing = clock.GetCurrentInstant(),
                 Type = data.ClientType,
             };
 
-            _channelInfoIdService.Items[_id] = serv;
+            channelInfoIdService.Items[_id] = serv;
             data.ChannelId = _id;
 
 
@@ -144,9 +131,9 @@ namespace NosCore.Core.Controllers
                 throw new ArgumentNullException(nameof(data));
             }
 
-            var channel = _channelInfoIdService.Items.Values.First(s =>
+            var channel = channelInfoIdService.Items.Values.First(s =>
                 (s.Name == data.ClientName) && (s.Host == data.Host) && (s.Port == data.Port));
-            _logger.Debug(_logLanguage[LogLanguageKey.TOKEN_UPDATED], channel.Id.ToString(CultureInfo.CurrentCulture),
+            logger.Debug(logLanguage[LogLanguageKey.TOKEN_UPDATED], channel.Id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
             return Ok(new ConnectionInfo { Token = GenerateToken(), ChannelInfo = data });
         }
@@ -157,28 +144,28 @@ namespace NosCore.Core.Controllers
         public List<ChannelInfo> GetChannels(long? id)
 #pragma warning restore CA1822 // Mark members as static
         {
-            return id != null ? _channelInfoIdService.Items.Values.Where(s => s.Id == id).ToList() : _channelInfoIdService.Items.Values.ToList();
+            return id != null ? channelInfoIdService.Items.Values.Where(s => s.Id == id).ToList() : channelInfoIdService.Items.Values.ToList();
         }
 
         [HttpPatch]
         public HttpStatusCode PingUpdate(int id, [FromBody] JsonPatch data)
         {
-            var chann = _channelInfoIdService.Items.Values.FirstOrDefault(s => s.Id == id);
+            var chann = channelInfoIdService.Items.Values.FirstOrDefault(s => s.Id == id);
             if (chann == null)
             {
                 return HttpStatusCode.NotFound;
             }
 
-            if ((chann.LastPing.Plus(Duration.FromSeconds(10)) < _clock.GetCurrentInstant()) && !Debugger.IsAttached)
+            if ((chann.LastPing.Plus(Duration.FromSeconds(10)) < clock.GetCurrentInstant()) && !Debugger.IsAttached)
             {
-                _channelInfoIdService.Items.TryRemove(_id, out _);
-                _logger.Warning(_logLanguage[LogLanguageKey.CONNECTION_LOST],
+                channelInfoIdService.Items.TryRemove(_id, out _);
+                logger.Warning(logLanguage[LogLanguageKey.CONNECTION_LOST],
                     _id.ToString(CultureInfo.CurrentCulture));
                 return HttpStatusCode.RequestTimeout;
             }
 
             var result = data?.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(chann, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement);
-            _channelInfoIdService.Items[_channelInfoIdService.Items.First(s => s.Value.Id == id).Key] = JsonSerializer.Deserialize<ChannelInfo>(result!.Value.GetRawText(), new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))!;
+            channelInfoIdService.Items[channelInfoIdService.Items.First(s => s.Value.Id == id).Key] = JsonSerializer.Deserialize<ChannelInfo>(result!.Value.GetRawText(), new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))!;
             return HttpStatusCode.OK;
         }
     }

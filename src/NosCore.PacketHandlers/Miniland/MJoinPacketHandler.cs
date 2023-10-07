@@ -33,29 +33,20 @@ using NosCore.Packets.ServerPackets.UI;
 
 namespace NosCore.PacketHandlers.Miniland
 {
-    public class MJoinPacketHandler : PacketHandler<MJoinPacket>, IWorldPacketHandler
+    public class MJoinPacketHandler(IFriendHttpClient friendHttpClient, IMinilandService minilandProvider,
+            IMapChangeService mapChangeService)
+        : PacketHandler<MJoinPacket>, IWorldPacketHandler
     {
-        private readonly IFriendHttpClient _friendHttpClient;
-        private readonly IMinilandService _minilandProvider;
-        private readonly IMapChangeService _mapChangeService;
-
-        public MJoinPacketHandler(IFriendHttpClient friendHttpClient, IMinilandService minilandProvider, IMapChangeService mapChangeService)
-        {
-            _friendHttpClient = friendHttpClient;
-            _minilandProvider = minilandProvider;
-            _mapChangeService = mapChangeService;
-        }
-
         public override async Task ExecuteAsync(MJoinPacket mJoinPacket, ClientSession session)
         {
             var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == mJoinPacket.VisualId);
-            var friendList = await _friendHttpClient.GetListFriendsAsync(session.Character.CharacterId).ConfigureAwait(false);
+            var friendList = await friendHttpClient.GetListFriendsAsync(session.Character.CharacterId).ConfigureAwait(false);
             if (target != null && friendList.Any(s => s.CharacterId == mJoinPacket.VisualId))
             {
-                var miniland = _minilandProvider.GetMiniland(mJoinPacket.VisualId);
+                var miniland = minilandProvider.GetMiniland(mJoinPacket.VisualId);
                 if (miniland.State == MinilandState.Open)
                 {
-                    await _mapChangeService.ChangeMapInstanceAsync(session, miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
+                    await mapChangeService.ChangeMapInstanceAsync(session, miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
                 }
                 else
                 {
@@ -65,7 +56,7 @@ namespace NosCore.PacketHandlers.Miniland
                             .ToList()
                             .Contains(target.VisualId))
                     {
-                        await _mapChangeService.ChangeMapInstanceAsync(session, miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
+                        await mapChangeService.ChangeMapInstanceAsync(session, miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
                         return;
                     }
                     await session.SendPacketAsync(new InfoiPacket

@@ -34,32 +34,16 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.FriendService
 {
-    public class FriendService : IFriendService
-    {
-        private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IDao<CharacterRelationDto, Guid> _characterRelationDao;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly FriendRequestHolder _friendRequestHolder;
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public FriendService(ILogger logger, IDao<CharacterRelationDto, Guid> characterRelationDao,
+    public class FriendService(ILogger logger, IDao<CharacterRelationDto, Guid> characterRelationDao,
             IDao<CharacterDto, long> characterDao, FriendRequestHolder friendRequestHolder,
             IConnectedAccountHttpClient connectedAccountHttpClient, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _characterRelationDao = characterRelationDao;
-            _characterDao = characterDao;
-            _friendRequestHolder = friendRequestHolder;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _logLanguage = logLanguage;
-        }
-
+        : IFriendService
+    {
         public async Task<LanguageKey> AddFriendAsync(long characterId, long secondCharacterId, FinsPacketType friendsPacketType)
         {
-            var character = await _connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
-            var targetCharacter = await _connectedAccountHttpClient.GetCharacterAsync(secondCharacterId, null).ConfigureAwait(false);
-            var friendRequest = _friendRequestHolder.FriendRequestCharacters.Where(s =>
+            var character = await connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
+            var targetCharacter = await connectedAccountHttpClient.GetCharacterAsync(secondCharacterId, null).ConfigureAwait(false);
+            var friendRequest = friendRequestHolder.FriendRequestCharacters.Where(s =>
                 (s.Value.Item2 == character.Item2?.ConnectedCharacter?.Id) &&
                 (s.Value.Item1 == targetCharacter.Item2?.ConnectedCharacter?.Id)).ToList();
             if ((character.Item2 != null) && (targetCharacter.Item2 != null))
@@ -69,7 +53,7 @@ namespace NosCore.GameObject.Services.FriendService
                     throw new ArgumentException();
                 }
 
-                var relations = _characterRelationDao.Where(s => s.CharacterId == characterId)?.ToList() ?? new List<CharacterRelationDto>();
+                var relations = characterRelationDao.Where(s => s.CharacterId == characterId)?.ToList() ?? new List<CharacterRelationDto>();
                 if (relations.Count(s => s.RelationType == CharacterRelationType.Friend) >= 80)
                 {
                     return LanguageKey.FRIENDLIST_FULL;
@@ -97,7 +81,7 @@ namespace NosCore.GameObject.Services.FriendService
 
                 if (!friendRequest.Any())
                 {
-                    _friendRequestHolder.FriendRequestCharacters[Guid.NewGuid()] =
+                    friendRequestHolder.FriendRequestCharacters[Guid.NewGuid()] =
                         new Tuple<long, long>(character.Item2.ConnectedCharacter.Id,
                             targetCharacter.Item2.ConnectedCharacter.Id);
                     return LanguageKey.FRIEND_REQUEST_SENT;
@@ -113,7 +97,7 @@ namespace NosCore.GameObject.Services.FriendService
                             RelationType = CharacterRelationType.Friend
                         };
 
-                        await _characterRelationDao.TryInsertOrUpdateAsync(data).ConfigureAwait(false);
+                        await characterRelationDao.TryInsertOrUpdateAsync(data).ConfigureAwait(false);
                         var data2 = new CharacterRelationDto
                         {
                             CharacterId = targetCharacter.Item2.ConnectedCharacter.Id,
@@ -121,27 +105,27 @@ namespace NosCore.GameObject.Services.FriendService
                             RelationType = CharacterRelationType.Friend
                         };
 
-                        await _characterRelationDao.TryInsertOrUpdateAsync(data2).ConfigureAwait(false);
-                        _friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
+                        await characterRelationDao.TryInsertOrUpdateAsync(data2).ConfigureAwait(false);
+                        friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
                         return LanguageKey.FRIEND_ADDED;
                     case FinsPacketType.Rejected:
-                        _friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
+                        friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
                         return LanguageKey.FRIEND_REJECTED;
                     default:
-                        _logger.Error(_logLanguage[LogLanguageKey.INVITETYPE_UNKNOWN]);
-                        _friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
+                        logger.Error(logLanguage[LogLanguageKey.INVITETYPE_UNKNOWN]);
+                        friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
                         throw new ArgumentException();
                 }
             }
 
-            _friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
+            friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
             throw new ArgumentException();
         }
 
         public async Task<List<CharacterRelationStatus>> GetFriendsAsync(long id)
         {
             var charList = new List<CharacterRelationStatus>();
-            var list = _characterRelationDao
+            var list = characterRelationDao
                 .Where(s => (s.CharacterId == id) && (s.RelationType != CharacterRelationType.Blocked));
             if (list == null)
             {
@@ -151,9 +135,9 @@ namespace NosCore.GameObject.Services.FriendService
             {
                 charList.Add(new CharacterRelationStatus
                 {
-                    CharacterName = (await _characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId).ConfigureAwait(false))?.Name,
+                    CharacterName = (await characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId).ConfigureAwait(false))?.Name,
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = (await _connectedAccountHttpClient.GetCharacterAsync(rel.RelatedCharacterId, null).ConfigureAwait(false)).Item1 != null,
+                    IsConnected = (await connectedAccountHttpClient.GetCharacterAsync(rel.RelatedCharacterId, null).ConfigureAwait(false)).Item1 != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId
                 });
@@ -164,21 +148,21 @@ namespace NosCore.GameObject.Services.FriendService
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var rel = await _characterRelationDao.FirstOrDefaultAsync(s =>
+            var rel = await characterRelationDao.FirstOrDefaultAsync(s =>
                 (s.CharacterRelationId == id) && (s.RelationType == CharacterRelationType.Friend)).ConfigureAwait(false);
             if (rel == null)
             {
                 return false;
             }
-            var rel2 = await _characterRelationDao.FirstOrDefaultAsync(s =>
+            var rel2 = await characterRelationDao.FirstOrDefaultAsync(s =>
                 (s.CharacterId == rel.RelatedCharacterId) && (s.RelatedCharacterId == rel.CharacterId) &&
                 (s.RelationType == CharacterRelationType.Friend)).ConfigureAwait(false);
             if (rel2 == null)
             {
                 return false;
             }
-            await _characterRelationDao.TryDeleteAsync(rel.CharacterRelationId).ConfigureAwait(false);
-            await _characterRelationDao.TryDeleteAsync(rel2.CharacterRelationId).ConfigureAwait(false);
+            await characterRelationDao.TryDeleteAsync(rel.CharacterRelationId).ConfigureAwait(false);
+            await characterRelationDao.TryDeleteAsync(rel2.CharacterRelationId).ConfigureAwait(false);
             return true;
         }
     }

@@ -36,21 +36,10 @@ using NosCore.Packets.ServerPackets.Chats;
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class GetPacketHandler : PacketHandler<GetPacket>, IWorldPacketHandler
+    public class GetPacketHandler(ILogger logger, IHeuristic distanceCalculator, IClock clock,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<GetPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly IHeuristic _distanceCalculator;
-        private readonly IClock _clock;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public GetPacketHandler(ILogger logger, IHeuristic distanceCalculator, IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _distanceCalculator = distanceCalculator;
-            _clock = clock;
-            _logLanguage = logLanguage;
-        }
-
         public override async Task ExecuteAsync(GetPacket getPacket, ClientSession clientSession)
         {
             if (!clientSession.Character.MapInstance.MapItems.ContainsKey(getPacket.VisualId))
@@ -64,7 +53,7 @@ namespace NosCore.PacketHandlers.Inventory
             switch (getPacket.PickerType)
             {
                 case VisualType.Player:
-                    canpick = _distanceCalculator.GetDistance((clientSession.Character.PositionX, clientSession.Character.PositionY),
+                    canpick = distanceCalculator.GetDistance((clientSession.Character.PositionX, clientSession.Character.PositionY),
                         (mapItem.PositionX, mapItem.PositionY)) < 8;
                     break;
 
@@ -72,7 +61,7 @@ namespace NosCore.PacketHandlers.Inventory
                     return;
 
                 default:
-                    _logger.Error(_logLanguage[LogLanguageKey.UNKNOWN_PICKERTYPE]);
+                    logger.Error(logLanguage[LogLanguageKey.UNKNOWN_PICKERTYPE]);
                     return;
             }
 
@@ -82,7 +71,7 @@ namespace NosCore.PacketHandlers.Inventory
             }
 
             //TODO add group drops
-            if ((mapItem.OwnerId != null) && (mapItem.DroppedAt.Plus(Duration.FromSeconds(30)) > _clock.GetCurrentInstant()) &&
+            if ((mapItem.OwnerId != null) && (mapItem.DroppedAt.Plus(Duration.FromSeconds(30)) > clock.GetCurrentInstant()) &&
                 (mapItem.OwnerId != clientSession.Character.CharacterId))
             {
                 await clientSession.SendPacketAsync(new SayiPacket

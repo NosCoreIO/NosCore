@@ -26,17 +26,12 @@ using NosCore.GameObject.Services.LoginService;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class ChangeChannelPacketHandler : PacketHandler<ChangeChannelPacket>, IWorldPacketHandler
+    public class ChangeChannelPacketHandler(IChannelService loginService) : PacketHandler<ChangeChannelPacket>,
+        IWorldPacketHandler
     {
-        private readonly IChannelService _loginService;
-
-        public ChangeChannelPacketHandler(IChannelService loginService)
-        {
-            _loginService = loginService;
-        }
         public override Task ExecuteAsync(ChangeChannelPacket changeClassPacket, ClientSession session)
         {
-            return _loginService.MoveChannelAsync(session, changeClassPacket.ChannelId);
+            return loginService.MoveChannelAsync(session, changeClassPacket.ChannelId);
         }
     }
 }

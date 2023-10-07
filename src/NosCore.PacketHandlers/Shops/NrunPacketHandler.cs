@@ -33,19 +33,10 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
 {
-    public class NrunPacketHandler : PacketHandler<NrunPacket>, IWorldPacketHandler
+    public class NrunPacketHandler(ILogger logger, INrunService nRunRunnerService,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<NrunPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly INrunService _nRunRunnerService;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public NrunPacketHandler(ILogger logger, INrunService nRunRunnerService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _nRunRunnerService = nRunRunnerService;
-            _logLanguage = logLanguage;
-        }
-
         public override async Task ExecuteAsync(NrunPacket nRunPacket, ClientSession clientSession)
         {
             var forceNull = false;
@@ -64,18 +55,18 @@ namespace NosCore.PacketHandlers.Shops
                     break;
 
                 default:
-                    _logger.Error(_logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
+                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         nRunPacket.Type);
                     return;
             }
 
             if ((aliveEntity == null) && !forceNull)
             {
-                _logger.Error(_logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
+                logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
                 return;
             }
 
-            await _nRunRunnerService.NRunLaunchAsync(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity!, nRunPacket)).ConfigureAwait(false);
+            await nRunRunnerService.NRunLaunchAsync(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity!, nRunPacket)).ConfigureAwait(false);
         }
     }
 }

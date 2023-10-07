@@ -31,27 +31,14 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class ShopParser
+    public class ShopParser(IDao<ShopDto, int> shopDao, IDao<MapNpcDto, int> mapNpcDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly IDao<MapNpcDto, int> _mapNpcDao;
-        private readonly IDao<ShopDto, int> _shopDao;
-
-        public ShopParser(IDao<ShopDto, int> shopDao, IDao<MapNpcDto, int> mapNpcDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _shopDao = shopDao;
-            _mapNpcDao = mapNpcDao;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public async Task InsertShopsAsync(List<string[]> packetList)
         {
             var shopCounter = 0;
             var shops = new List<ShopDto>();
-            var mapnpcdb = _mapNpcDao.LoadAll().ToList();
-            var shopdb = _shopDao.LoadAll().ToList();
+            var mapnpcdb = mapNpcDao.LoadAll().ToList();
+            var shopdb = shopDao.LoadAll().ToList();
             foreach (var currentPacket in packetList.Where(o =>
                 (o.Length > 6) && o[0].Equals("shop") && o[1].Equals("2"))
             )
@@ -90,8 +77,8 @@ namespace NosCore.Parser.Parsers
                 shopCounter++;
             }
 
-            await _shopDao.TryInsertOrUpdateAsync(shops).ConfigureAwait(false);
-            _logger.Information(_logLanguage[LogLanguageKey.SHOPS_PARSED],
+            await shopDao.TryInsertOrUpdateAsync(shops).ConfigureAwait(false);
+            logger.Information(logLanguage[LogLanguageKey.SHOPS_PARSED],
                 shopCounter);
         }
     }

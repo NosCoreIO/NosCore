@@ -38,22 +38,13 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class ShoutPacketHandler : PacketHandler<ShoutPacket>, IWorldPacketHandler
+    public class ShoutPacketHandler(ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
+            IGameLanguageLocalizer gameLanguageLocalizer)
+        : PacketHandler<ShoutPacket>, IWorldPacketHandler
     {
-        private readonly IPacketHttpClient _packetHttpClient;
-        private readonly ISerializer _packetSerializer;
-        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
-
-        public ShoutPacketHandler(ISerializer packetSerializer, IPacketHttpClient packetHttpClient, IGameLanguageLocalizer gameLanguageLocalizer)
-        {
-            _packetSerializer = packetSerializer;
-            _packetHttpClient = packetHttpClient;
-            _gameLanguageLocalizer = gameLanguageLocalizer;
-        }
-
         public override async Task ExecuteAsync(ShoutPacket shoutPacket, ClientSession session)
         {
-            var message = $"({_gameLanguageLocalizer[LanguageKey.ADMINISTRATOR, session.Account.Language]}) {shoutPacket.Message}";
+            var message = $"({gameLanguageLocalizer[LanguageKey.ADMINISTRATOR, session.Account.Language]}) {shoutPacket.Message}";
 
             var sayPacket = new Sayi2Packet
             {
@@ -72,7 +63,7 @@ namespace NosCore.PacketHandlers.Command
 
             var sayPostedPacket = new PostedPacket
             {
-                Packet = _packetSerializer.Serialize(new[] { sayPacket }),
+                Packet = packetSerializer.Serialize(new[] { sayPacket }),
                 SenderCharacter = new Character
                 {
                     Name = session.Character.Name,
@@ -83,11 +74,11 @@ namespace NosCore.PacketHandlers.Command
 
             var msgPostedPacket = new PostedPacket
             {
-                Packet = _packetSerializer.Serialize(new[] { msgiPacket }),
+                Packet = packetSerializer.Serialize(new[] { msgiPacket }),
                 ReceiverType = ReceiverType.All
             };
 
-            await _packetHttpClient.BroadcastPacketsAsync(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket })).ConfigureAwait(false);
+            await packetHttpClient.BroadcastPacketsAsync(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket })).ConfigureAwait(false);
         }
     }
 }

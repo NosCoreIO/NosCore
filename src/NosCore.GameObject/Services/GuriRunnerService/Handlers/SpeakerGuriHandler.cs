@@ -37,19 +37,10 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 {
-    public class SpeakerGuriHandler : IGuriEventHandler
+    public class SpeakerGuriHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            IGameLanguageLocalizer gameLanguageLocalizer)
+        : IGuriEventHandler
     {
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
-
-        public SpeakerGuriHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer)
-        {
-            _logger = logger;
-            _logLanguage = logLanguage;
-            _gameLanguageLocalizer = gameLanguageLocalizer;
-        }
-
         public bool Condition(GuriPacket packet)
         {
             return packet.Type == GuriPacketType.TextInput && packet.Argument == 3 && packet.VisualId != 0;
@@ -72,13 +63,13 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
                 NoscorePocketType.Etc);
             if (inv?.ItemInstance?.Item?.Effect != ItemEffectType.Speaker)
             {
-                _logger.Error(string.Format(_logLanguage[LogLanguageKey.ITEM_NOT_FOUND], NoscorePocketType.Etc, (short)(requestData.Data.VisualId ?? 0)));
+                logger.Error(string.Format(logLanguage[LogLanguageKey.ITEM_NOT_FOUND], NoscorePocketType.Etc, (short)(requestData.Data.VisualId ?? 0)));
                 return;
             }
 
             var data = requestData.Data.Value;
             string[] valuesplit = (data ?? string.Empty).Split(' ');
-            string message = $"<{_gameLanguageLocalizer[LanguageKey.SPEAKER, requestData.ClientSession.Account.Language]}> [{requestData.ClientSession.Character.Name}]:";
+            string message = $"<{gameLanguageLocalizer[LanguageKey.SPEAKER, requestData.ClientSession.Account.Language]}> [{requestData.ClientSession.Character.Name}]:";
             if (requestData.Data.Data == 999)
             {
                 InventoryItemInstance? deeplink = null;
@@ -89,7 +80,7 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
                 }
                 if (deeplink == null)
                 {
-                    _logger.Error(string.Format(_logLanguage[LogLanguageKey.ITEM_NOT_FOUND], type, slot));
+                    logger.Error(string.Format(logLanguage[LogLanguageKey.ITEM_NOT_FOUND], type, slot));
                     return;
                 }
                 message = CraftMessage(message, valuesplit.Skip(2).ToArray()).Replace(' ', '|');

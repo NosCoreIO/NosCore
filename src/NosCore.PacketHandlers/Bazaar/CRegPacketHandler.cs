@@ -43,23 +43,11 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
-    public class CRegPacketHandler : PacketHandler<CRegPacket>, IWorldPacketHandler
-    {
-        private readonly IBazaarHttpClient _bazaarHttpClient;
-        private readonly IOptions<WorldConfiguration> _configuration;
-        private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
-        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
-
-        public CRegPacketHandler(IOptions<WorldConfiguration> configuration, IBazaarHttpClient bazaarHttpClient,
+    public class CRegPacketHandler(IOptions<WorldConfiguration> configuration, IBazaarHttpClient bazaarHttpClient,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao)
-        {
-            _configuration = configuration;
-            _bazaarHttpClient = bazaarHttpClient;
-            _itemInstanceDao = itemInstanceDao;
-            _inventoryItemInstanceDao = inventoryItemInstanceDao;
-        }
-
+        : PacketHandler<CRegPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(CRegPacket cRegPacket, ClientSession clientSession)
         {
             var medal = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
@@ -71,7 +59,7 @@ namespace NosCore.PacketHandlers.Bazaar
             var taxmin = price >= 4000 ? 60 + (price - 4000) / 2000 * 30 > 10000 ? 10000
                 : 60 + (price - 4000) / 2000 * 30 : 50;
             var tax = medal == null ? taxmax : taxmin;
-            var maxGold = _configuration.Value.MaxGoldAmount;
+            var maxGold = configuration.Value.MaxGoldAmount;
             if (clientSession.Character.Gold < tax)
             {
                 await clientSession.SendPacketAsync(new MsgiPacket
@@ -139,9 +127,9 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
             IItemInstanceDto bazaaritem = bazar.ItemInstance;
-            bazaaritem = (await _itemInstanceDao.TryInsertOrUpdateAsync(bazaaritem).ConfigureAwait(false))!;
+            bazaaritem = (await itemInstanceDao.TryInsertOrUpdateAsync(bazaaritem).ConfigureAwait(false))!;
 
-            var result = await _bazaarHttpClient.AddBazaarAsync(new BazaarRequest
+            var result = await bazaarHttpClient.AddBazaarAsync(new BazaarRequest
             {
                 ItemInstanceId = bazaaritem.Id,
                 CharacterId = clientSession.Character.CharacterId,
@@ -166,7 +154,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 case LanguageKey.OBJECT_IN_BAZAAR:
                     if (bazar.ItemInstance.Amount == cRegPacket.Amount)
                     {
-                        await _inventoryItemInstanceDao.TryDeleteAsync(bazar.Id).ConfigureAwait(false);
+                        await inventoryItemInstanceDao.TryDeleteAsync(bazar.Id).ConfigureAwait(false);
                         clientSession.Character.InventoryService.DeleteById(bazar.ItemInstanceId);
                     }
                     else

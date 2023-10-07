@@ -31,27 +31,15 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class PortalParser
+    public class PortalParser(ILogger logger, IDao<MapDto, short> mapDao, IDao<PortalDto, int> portalDao, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         private readonly List<PortalDto> _listPortals2 = new();
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly IDao<MapDto, short> _mapDao;
-        private readonly IDao<PortalDto, int> _portalDao;
         private List<PortalDto> _listPortals1 = new();
-
-        public PortalParser(ILogger logger, IDao<MapDto, short> mapDao, IDao<PortalDto, int> portalDao, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _mapDao = mapDao;
-            _portalDao = portalDao;
-            _logLanguage = logLanguage;
-        }
 
         public async Task InsertPortalsAsync(List<string[]> packetList)
         {
-            var portalsdb = _portalDao.LoadAll().ToList();
-            var maps = _mapDao.LoadAll().ToList();
+            var portalsdb = portalDao.LoadAll().ToList();
+            var maps = mapDao.LoadAll().ToList();
             short map = 0;
             var portalCounter = 0;
             var lodPortal = new PortalDto
@@ -70,7 +58,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-                await _portalDao.TryInsertOrUpdateAsync(lodPortal).ConfigureAwait(false);
+                await portalDao.TryInsertOrUpdateAsync(lodPortal).ConfigureAwait(false);
             }
 
             var minilandPortal = new PortalDto
@@ -90,7 +78,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-                await _portalDao.TryInsertOrUpdateAsync(minilandPortal).ConfigureAwait(false);
+                await portalDao.TryInsertOrUpdateAsync(minilandPortal).ConfigureAwait(false);
             }
 
             var weddingPortal = new PortalDto
@@ -109,7 +97,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-                await _portalDao.TryInsertOrUpdateAsync(weddingPortal).ConfigureAwait(false);
+                await portalDao.TryInsertOrUpdateAsync(weddingPortal).ConfigureAwait(false);
             }
 
             var glacerusCavernPortal = new PortalDto
@@ -128,7 +116,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-                await _portalDao.TryInsertOrUpdateAsync(glacerusCavernPortal).ConfigureAwait(false);
+                await portalDao.TryInsertOrUpdateAsync(glacerusCavernPortal).ConfigureAwait(false);
             }
 
             foreach (var currentPacket in packetList.Where(o => o[0].Equals("at") || o[0].Equals("gp")))
@@ -194,9 +182,9 @@ namespace NosCore.Parser.Parsers
                 .Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
                     s => (s.DestinationMapId == portal.DestinationMapId) && (s.SourceX == portal.SourceX)
                         && (s.SourceY == portal.SourceY))).ToList();
-            await _portalDao.TryInsertOrUpdateAsync(portalsDtos).ConfigureAwait(false);
+            await portalDao.TryInsertOrUpdateAsync(portalsDtos).ConfigureAwait(false);
 
-            _logger.Information(_logLanguage[LogLanguageKey.PORTALS_PARSED],
+            logger.Information(logLanguage[LogLanguageKey.PORTALS_PARSED],
                 portalsDtos.Count + portalCounter);
         }
     }

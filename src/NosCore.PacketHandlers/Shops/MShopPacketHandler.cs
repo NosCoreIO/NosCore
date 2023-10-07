@@ -40,18 +40,12 @@ using NosCore.Networking.SessionGroup.ChannelMatcher;
 
 namespace NosCore.PacketHandlers.Shops
 {
-    public class MShopPacketHandler : PacketHandler<MShopPacket>, IWorldPacketHandler
+    public class MShopPacketHandler(IHeuristic distanceCalculator) : PacketHandler<MShopPacket>, IWorldPacketHandler
     {
-        private readonly IHeuristic _distanceCalculator;
-
-        public MShopPacketHandler(IHeuristic distanceCalculator)
-        {
-            _distanceCalculator = distanceCalculator;
-        }
         public override async Task ExecuteAsync(MShopPacket mShopPacket, ClientSession clientSession)
         {
             var portal = clientSession.Character.MapInstance.Portals.Find(port => 
-            _distanceCalculator.GetDistance((clientSession.Character.PositionX, clientSession.Character.PositionY), (port.SourceX, port.SourceY)) <= 6);
+            distanceCalculator.GetDistance((clientSession.Character.PositionX, clientSession.Character.PositionY), (port.SourceX, port.SourceY)) <= 6);
 
             if (portal != null)
             {

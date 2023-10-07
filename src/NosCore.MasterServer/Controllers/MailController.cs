@@ -30,25 +30,18 @@ namespace NosCore.MasterServer.Controllers
 {
     [Route("api/[controller]")]
     [AuthorizeRole(AuthorityType.GameMaster)]
-    public class MailController : Controller
+    public class MailController(IMailService mailService) : Controller
     {
-        private readonly IMailService _mailService;
-
-        public MailController(IMailService mailService)
-        {
-            _mailService = mailService;
-        }
-
         [HttpGet]
-        public List<MailData> GetMails(long id, long characterId, bool senderCopy) => _mailService.GetMails(id, characterId, senderCopy);
+        public List<MailData> GetMails(long id, long characterId, bool senderCopy) => mailService.GetMails(id, characterId, senderCopy);
 
         [HttpDelete]
-        public Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy) => _mailService.DeleteMailAsync(id, characterId, senderCopy);
+        public Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy) => mailService.DeleteMailAsync(id, characterId, senderCopy);
 
         [HttpPatch]
-        public Task<MailData?> ViewMailAsync(long id, [FromBody] JsonPatch mailData) => _mailService.EditMailAsync(id, mailData);
+        public Task<MailData?> ViewMailAsync(long id, [FromBody] JsonPatch mailData) => mailService.EditMailAsync(id, mailData);
 
         [HttpPost]
-        public Task<bool> SendMailAsync([FromBody] MailRequest mail) => _mailService.SendMailAsync(mail.Mail!, mail.VNum, mail.Amount, mail.Rare, mail.Upgrade);
+        public Task<bool> SendMailAsync([FromBody] MailRequest mail) => mailService.SendMailAsync(mail.Mail!, mail.VNum, mail.Amount, mail.Rare, mail.Upgrade);
     }
 }

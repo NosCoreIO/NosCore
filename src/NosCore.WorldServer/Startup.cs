@@ -98,16 +98,10 @@ using Serializer = NosCore.Packets.Serializer;
 
 namespace NosCore.WorldServer
 {
-    public class Startup
+    public class Startup(IConfiguration configuration)
     {
         private const string Title = "NosCore - WorldServer";
         private const string ConsoleText = "WORLD SERVER - NosCoreIO";
-        private readonly IConfiguration _configuration;
-
-        public Startup(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
 
         public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
         where TDb : class
@@ -312,12 +306,12 @@ namespace NosCore.WorldServer
                 Console.Title = Title;
             }
             Logger.PrintHeader(ConsoleText);
-            services.AddOptions<WorldConfiguration>().Bind(_configuration).ValidateDataAnnotations();
-            services.AddOptions<ServerConfiguration>().Bind(_configuration).ValidateDataAnnotations();
-            services.AddOptions<WebApiConfiguration>().Bind(_configuration.GetSection(nameof(WorldConfiguration.MasterCommunication))).ValidateDataAnnotations();
+            services.AddOptions<WorldConfiguration>().Bind(configuration).ValidateDataAnnotations();
+            services.AddOptions<ServerConfiguration>().Bind(configuration).ValidateDataAnnotations();
+            services.AddOptions<WebApiConfiguration>().Bind(configuration.GetSection(nameof(WorldConfiguration.MasterCommunication))).ValidateDataAnnotations();
 
             var worldConfiguration = new WorldConfiguration();
-            _configuration.Bind(worldConfiguration);
+            configuration.Bind(worldConfiguration);
             services.AddDbContext<NosCoreContext>(conf => conf.UseNpgsql(worldConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(worldConfiguration.WebApi.Port));
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));

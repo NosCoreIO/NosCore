@@ -32,17 +32,9 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Game
 {
-    public class NcifPacketHandler : PacketHandler<NcifPacket>, IWorldPacketHandler
+    public class NcifPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<NcifPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public NcifPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public override async Task ExecuteAsync(NcifPacket ncifPacket, ClientSession session)
         {
             IAliveEntity? entity;
@@ -59,7 +51,7 @@ namespace NosCore.PacketHandlers.Game
                     entity = session.Character.MapInstance.Npcs.Find(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 default:
-                    _logger.Error(_logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
+                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         ncifPacket.Type);
                     return;
             }

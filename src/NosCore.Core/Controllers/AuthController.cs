@@ -48,52 +48,39 @@ namespace NosCore.Core.Controllers
     [ApiController]
     [Route("api/v1/auth/thin")]
     [Route("api/[controller]")]
-    public class AuthController : Controller
+    public class AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao,
+            ILogger<AuthController> logger, IHasher hasher, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : Controller
     {
-        private readonly IDao<AccountDto, long> _accountDao;
-        private readonly IOptions<WebApiConfiguration> _apiConfiguration;
-        private readonly ILogger<AuthController> _logger;
-        private readonly IHasher _hasher;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao, ILogger<AuthController> logger, IHasher hasher, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _apiConfiguration = apiConfiguration;
-            _accountDao = accountDao;
-            _logger = logger;
-            _hasher = hasher;
-            _logLanguage = logLanguage;
-        }
-
         [AllowAnonymous]
         [HttpPost("sessions")]
         public async Task<IActionResult> ConnectUserAsync(ApiSession session)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(_logLanguage[LogLanguageKey.AUTH_ERROR]);
+                return BadRequest(logLanguage[LogLanguageKey.AUTH_ERROR]);
             }
 
-            var account = await _accountDao.FirstOrDefaultAsync(s => s.Name == session.Identity).ConfigureAwait(false);
+            var account = await accountDao.FirstOrDefaultAsync(s => s.Name == session.Identity).ConfigureAwait(false);
             if (account == null)
             {
-                return BadRequest(_logLanguage[LogLanguageKey.AUTH_ERROR]);
+                return BadRequest(logLanguage[LogLanguageKey.AUTH_ERROR]);
             }
             var tfa = new TwoFactorAuth();
             if (!string.IsNullOrEmpty(account.MfaSecret) && !tfa.VerifyCode(account.MfaSecret, session.Mfa))
             {
-                return BadRequest(_logLanguage[LogLanguageKey.MFA_INCORRECT]);
+                return BadRequest(logLanguage[LogLanguageKey.MFA_INCORRECT]);
             }
 
-            if (account.Password?.ToLower(CultureInfo.CurrentCulture) != (_hasher.Hash(session.Password))
-                && account.NewAuthPassword?.ToLower(CultureInfo.CurrentCulture) != (_hasher.Hash(session.Password, account.NewAuthSalt!)))
+            if (account.Password?.ToLower(CultureInfo.CurrentCulture) != (hasher.Hash(session.Password))
+                && account.NewAuthPassword?.ToLower(CultureInfo.CurrentCulture) != (hasher.Hash(session.Password, account.NewAuthSalt!)))
             {
-                return BadRequest(_logLanguage[LogLanguageKey.AUTH_INCORRECT]);
+                return BadRequest(logLanguage[LogLanguageKey.AUTH_INCORRECT]);
             }
 
             account.Language = Enum.Parse<RegionType>(session.GfLang?.ToUpper(CultureInfo.CurrentCulture) ?? "");
 
-            account = await _accountDao.TryInsertOrUpdateAsync(account).ConfigureAwait(false);
+            account = await accountDao.TryInsertOrUpdateAsync(account).ConfigureAwait(false);
             var platformGameAccountId = Guid.NewGuid();
             var claims = new ClaimsIdentity(new[]
             {
@@ -101,7 +88,7 @@ namespace NosCore.Core.Controllers
                 new Claim(ClaimTypes.Sid, platformGameAccountId.ToString()),
                 new Claim(ClaimTypes.Role, account.Authority.ToString())
             });
-            var password = _hasher.Hash(_apiConfiguration.Value.Password!, _apiConfiguration.Value.Salt);
+            var password = hasher.Hash(apiConfiguration.Value.Password!, apiConfiguration.Value.Salt);
 
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
@@ -113,7 +100,7 @@ namespace NosCore.Core.Controllers
                 Audience = "Audience",
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
             });
-            _logger.LogInformation(_logLanguage[LogLanguageKey.AUTH_API_SUCCESS],
+            logger.LogInformation(logLanguage[LogLanguageKey.AUTH_API_SUCCESS],
                 session.Identity, platformGameAccountId, session.Locale);
             return Ok(new
             {
@@ -129,7 +116,7 @@ namespace NosCore.Core.Controllers
             if (identity?.Claims.Any(s =>
                 (s.Type == ClaimTypes.Sid) && (s.Value == platformGameAccount.PlatformGameAccountId)) != true)
             {
-                return BadRequest(_logLanguage[LogLanguageKey.AUTH_INCORRECT]);
+                return BadRequest(logLanguage[LogLanguageKey.AUTH_INCORRECT]);
             }
 
             var authCode = Guid.NewGuid();
@@ -145,7 +132,7 @@ namespace NosCore.Core.Controllers
         {
             if (intent == null!)
             {
-                return BadRequest(_logLanguage[LogLanguageKey.AUTH_INCORRECT]);
+                return BadRequest(logLanguage[LogLanguageKey.AUTH_INCORRECT]);
             }
 
             SessionFactory.Instance.ReadyForAuth.AddOrUpdate(intent.AccountName, intent.SessionId, (key, oldValue) => intent.SessionId);
@@ -184,7 +171,7 @@ namespace NosCore.Core.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> HasMfaEnabled(string? username)
         {
-            var account = await _accountDao.FirstOrDefaultAsync(s => s.Name == username).ConfigureAwait(false);
+            var account = await accountDao.FirstOrDefaultAsync(s => s.Name == username).ConfigureAwait(false);
             if (account == null || account.MfaSecret == null)
             {
                 return Ok(false);

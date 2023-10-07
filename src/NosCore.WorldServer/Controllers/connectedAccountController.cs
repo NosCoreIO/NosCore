@@ -29,21 +29,15 @@ using Character = NosCore.GameObject.Character;
 namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
-    public class ConnectedAccountController : Controller
+    public class ConnectedAccountController(Channel channel) : Controller
     {
-        private readonly Channel _channel;
-
-        public ConnectedAccountController(Channel channel)
-        {
-            _channel = channel;
-        }
         // GET api/connectedAccount
         [HttpGet]
         public List<ConnectedAccount> GetconnectedAccount()
         {
             return Broadcaster.Instance.ConnectedAccounts().Select(o =>
             {
-                o.ChannelId = _channel.ChannelId;
+                o.ChannelId = channel.ChannelId;
                 return o;
             }).ToList();
         }

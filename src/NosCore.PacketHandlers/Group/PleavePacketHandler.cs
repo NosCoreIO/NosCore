@@ -36,15 +36,9 @@ using NosCore.Networking;
 
 namespace NosCore.PacketHandlers.Group
 {
-    public class PleavePacketHandler : PacketHandler<PleavePacket>, IWorldPacketHandler
+    public class PleavePacketHandler(IIdService<GameObject.Group> groupIdService) : PacketHandler<PleavePacket>,
+        IWorldPacketHandler
     {
-        private readonly IIdService<GameObject.Group> _groupIdService;
-
-        public PleavePacketHandler(IIdService<GameObject.Group> groupIdService)
-        {
-            _groupIdService = groupIdService;
-        }
-
         public override async Task ExecuteAsync(PleavePacket bIPacket, ClientSession clientSession)
         {
             var group = clientSession.Character.Group;
@@ -117,7 +111,7 @@ namespace NosCore.PacketHandlers.Group
                     await Broadcaster.Instance.SendPacketAsync(targetsession.Group.GeneratePidx(targetsession)).ConfigureAwait(false);
                 }
 
-                _groupIdService.Items.TryRemove(group.GroupId, out _);
+                groupIdService.Items.TryRemove(group.GroupId, out _);
             }
         }
     }

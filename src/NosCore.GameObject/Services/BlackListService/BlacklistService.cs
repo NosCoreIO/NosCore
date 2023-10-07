@@ -30,31 +30,21 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.BlackListService
 {
-    public class BlacklistService : IBlacklistService
-    {
-        private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IDao<CharacterRelationDto, Guid> _characterRelationDao;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-
-        public BlacklistService(IConnectedAccountHttpClient connectedAccountHttpClient,
+    public class BlacklistService(IConnectedAccountHttpClient connectedAccountHttpClient,
             IDao<CharacterRelationDto, Guid> characterRelationDao, IDao<CharacterDto, long> characterDao)
-        {
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _characterRelationDao = characterRelationDao;
-            _characterDao = characterDao;
-        }
-
+        : IBlacklistService
+    {
         public async Task<LanguageKey> BlacklistPlayerAsync(long characterId, long secondCharacterId)
         {
-            var character = await _connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
+            var character = await connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
             var targetCharacter = await
-                _connectedAccountHttpClient.GetCharacterAsync(secondCharacterId, null).ConfigureAwait(false);
+                connectedAccountHttpClient.GetCharacterAsync(secondCharacterId, null).ConfigureAwait(false);
             if ((character.Item2 == null) || (targetCharacter.Item2 == null))
             {
                 throw new ArgumentException();
             }
 
-            var relations = _characterRelationDao.Where(s => s.CharacterId == characterId)?
+            var relations = characterRelationDao.Where(s => s.CharacterId == characterId)?
                 .ToList() ?? new List<CharacterRelationDto>();
             if (relations.Any(s =>
                 (s.RelatedCharacterId == secondCharacterId) &&
@@ -77,7 +67,7 @@ namespace NosCore.GameObject.Services.BlackListService
                 RelationType = CharacterRelationType.Blocked
             };
 
-            await _characterRelationDao.TryInsertOrUpdateAsync(data).ConfigureAwait(false);
+            await characterRelationDao.TryInsertOrUpdateAsync(data).ConfigureAwait(false);
             return LanguageKey.BLACKLIST_ADDED;
 
         }
@@ -85,7 +75,7 @@ namespace NosCore.GameObject.Services.BlackListService
         public async Task<List<CharacterRelationStatus>> GetBlacklistedListAsync(long id)
         {
             var charList = new List<CharacterRelationStatus>();
-            var list = _characterRelationDao
+            var list = characterRelationDao
                 .Where(s => (s.CharacterId == id) && (s.RelationType == CharacterRelationType.Blocked));
             if (list == null)
             {
@@ -95,9 +85,9 @@ namespace NosCore.GameObject.Services.BlackListService
             {
                 charList.Add(new CharacterRelationStatus
                 {
-                    CharacterName = (await _characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId).ConfigureAwait(false))?.Name ?? "",
+                    CharacterName = (await characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId).ConfigureAwait(false))?.Name ?? "",
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = (await _connectedAccountHttpClient.GetCharacterAsync(rel.RelatedCharacterId, null).ConfigureAwait(false)).Item1 != null,
+                    IsConnected = (await connectedAccountHttpClient.GetCharacterAsync(rel.RelatedCharacterId, null).ConfigureAwait(false)).Item1 != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId
                 });
@@ -108,13 +98,13 @@ namespace NosCore.GameObject.Services.BlackListService
 
         public async Task<bool> UnblacklistAsync(Guid id)
         {
-            var rel = await _characterRelationDao.FirstOrDefaultAsync(s =>
+            var rel = await characterRelationDao.FirstOrDefaultAsync(s =>
                 (s.CharacterRelationId == id) && (s.RelationType == CharacterRelationType.Blocked)).ConfigureAwait(false);
             if (rel == null)
             {
                 return false;
             }
-            await _characterRelationDao.TryDeleteAsync(rel.CharacterRelationId).ConfigureAwait(false);
+            await characterRelationDao.TryDeleteAsync(rel.CharacterRelationId).ConfigureAwait(false);
             return true;
         }
     }

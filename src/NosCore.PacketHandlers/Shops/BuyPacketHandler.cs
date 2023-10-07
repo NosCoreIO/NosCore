@@ -31,17 +31,9 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
 {
-    public class BuyPacketHandler : PacketHandler<BuyPacket>, IWorldPacketHandler
+    public class BuyPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<BuyPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public BuyPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public override Task ExecuteAsync(BuyPacket buyPacket, ClientSession clientSession)
         {
             IAliveEntity? aliveEntity;
@@ -55,7 +47,7 @@ namespace NosCore.PacketHandlers.Shops
                     break;
 
                 default:
-                    _logger.Error(_logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
+                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         buyPacket.VisualType);
                     return Task.CompletedTask;
             }
@@ -65,7 +57,7 @@ namespace NosCore.PacketHandlers.Shops
                 return clientSession.Character.BuyAsync(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount);
             }
 
-            _logger.Error(_logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
+            logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
             return Task.CompletedTask;
 
         }

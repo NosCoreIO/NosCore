@@ -35,39 +35,28 @@ using System.Threading.Tasks;
 
 namespace NosCore.MasterServer
 {
-    public class MasterServer : BackgroundService
+    public class MasterServer(IOptions<MasterConfiguration> masterConfiguration, ILogger logger, IClock clock,
+            IIdService<ChannelInfo> channelIdService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : BackgroundService
     {
-        private readonly ILogger _logger;
-        private readonly MasterConfiguration _masterConfiguration;
-        private readonly IClock _clock;
-        private readonly IIdService<ChannelInfo> _channelIdService;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public MasterServer(IOptions<MasterConfiguration> masterConfiguration, ILogger logger, IClock clock, IIdService<ChannelInfo> channelIdService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _masterConfiguration = masterConfiguration.Value;
-            _logger = logger;
-            _clock = clock;
-            _channelIdService = channelIdService;
-            _logLanguage = logLanguage;
-        }
+        private readonly MasterConfiguration _masterConfiguration = masterConfiguration.Value;
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (!Debugger.IsAttached)
             {
-                Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => _channelIdService.Items.Values
+                Observable.Interval(TimeSpan.FromSeconds(2)).Subscribe(_ => channelIdService.Items.Values
                     .Where(s =>
-                        (s.LastPing.Plus(Duration.FromSeconds(10)) < _clock.GetCurrentInstant()) && (s.WebApi != null)).Select(s => s.Id).ToList()
+                        (s.LastPing.Plus(Duration.FromSeconds(10)) < clock.GetCurrentInstant()) && (s.WebApi != null)).Select(s => s.Id).ToList()
                     .ForEach(id =>
                     {
-                        _logger.Warning(_logLanguage[LogLanguageKey.CONNECTION_LOST],
+                        logger.Warning(logLanguage[LogLanguageKey.CONNECTION_LOST],
                             id.ToString());
-                        _channelIdService.Items.TryRemove(id, out var _);
+                        channelIdService.Items.TryRemove(id, out var _);
                     }));
             }
 
-            _logger.Information(_logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
+            logger.Information(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Console.Title += $@" - WebApi : {_masterConfiguration.WebApi}";

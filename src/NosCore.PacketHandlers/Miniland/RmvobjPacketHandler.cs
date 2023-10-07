@@ -31,15 +31,9 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Miniland
 {
-    public class RmvobjPacketHandler : PacketHandler<RmvobjPacket>, IWorldPacketHandler
+    public class RmvobjPacketHandler(IMinilandService minilandProvider) : PacketHandler<RmvobjPacket>,
+        IWorldPacketHandler
     {
-        private readonly IMinilandService _minilandProvider;
-
-        public RmvobjPacketHandler(IMinilandService minilandProvider)
-        {
-            _minilandProvider = minilandProvider;
-        }
-
         public override async Task ExecuteAsync(RmvobjPacket rmvobjPacket, ClientSession clientSession)
         {
             var minilandobject =
@@ -49,7 +43,7 @@ namespace NosCore.PacketHandlers.Miniland
                 return;
             }
 
-            if (_minilandProvider.GetMiniland(clientSession.Character.CharacterId).State != MinilandState.Lock)
+            if (minilandProvider.GetMiniland(clientSession.Character.CharacterId).State != MinilandState.Lock)
             {
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {

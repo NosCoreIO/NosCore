@@ -39,33 +39,19 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NosCore.Core.HttpClients.ChannelHttpClients
 {
-    public class ChannelHttpClient : IChannelHttpClient
+    public class ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger, IClock clock,
+            IIdService<ChannelInfo> channelIdService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : IChannelHttpClient
     {
-        private readonly Channel _channel;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger _logger;
         private Instant _lastUpdateToken;
         private string? _token;
-        private readonly IClock _clock;
-        private readonly IIdService<ChannelInfo> _channelIdService;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public ChannelHttpClient(IHttpClientFactory httpClientFactory, Channel channel, ILogger logger, IClock clock, IIdService<ChannelInfo> channelIdService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _httpClientFactory = httpClientFactory;
-            _channel = channel;
-            _logger = logger;
-            _clock = clock;
-            _channelIdService = channelIdService;
-            _logLanguage = logLanguage;
-        }
 
         public async Task ConnectAsync()
         {
-            using var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
+            using var client = httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(channel.MasterCommunication!.ToString());
 
-            using var content = new StringContent(JsonSerializer.Serialize(_channel, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)),
+            using var content = new StringContent(JsonSerializer.Serialize(channel, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)),
                 Encoding.Default, "application/json");
 
             var message = Policy
@@ -73,8 +59,8 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                 .OrResult<HttpResponseMessage>(mess => !mess.IsSuccessStatusCode)
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     (_, __, timeSpan) =>
-                        _logger.Error(
-                            _logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
+                        logger.Error(
+                            logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
                             timeSpan.TotalSeconds)
                 ).ExecuteAsync(() => client.PostAsync(new Uri($"{client.BaseAddress}api/channel"), content));
 
@@ -84,30 +70,30 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
             _token = result?.Token;
-            _lastUpdateToken = _clock.GetCurrentInstant();
-            _logger.Debug(_logLanguage[LogLanguageKey.REGISTRED_ON_MASTER]);
-            _channel.ChannelId = result?.ChannelInfo?.ChannelId ?? 0;
+            _lastUpdateToken = clock.GetCurrentInstant();
+            logger.Debug(logLanguage[LogLanguageKey.REGISTRED_ON_MASTER]);
+            channel.ChannelId = result?.ChannelInfo?.ChannelId ?? 0;
 
             await Policy
                 .HandleResult<HttpStatusCode>(ping => ping == HttpStatusCode.OK)
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(1),
                     (_, __, timeSpan) =>
-                        _logger.Verbose(
-                            _logLanguage[LogLanguageKey.MASTER_SERVER_PING])
+                        logger.Verbose(
+                            logLanguage[LogLanguageKey.MASTER_SERVER_PING])
                 ).ExecuteAsync(() =>
                 {
-                    var jsonPatch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/LastPing"), JsonDocument.Parse(JsonSerializer.Serialize(_clock.GetCurrentInstant(), new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement.AsNode()));
-                    return PatchAsync(_channel.ChannelId, jsonPatch);
+                    var jsonPatch = new JsonPatch(PatchOperation.Replace(Json.Pointer.JsonPointer.Parse("/LastPing"), JsonDocument.Parse(JsonSerializer.Serialize(clock.GetCurrentInstant(), new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement.AsNode()));
+                    return PatchAsync(channel.ChannelId, jsonPatch);
                 }).ConfigureAwait(false);
-            _logger.Error(
-                _logLanguage[LogLanguageKey.MASTER_SERVER_PING_FAILED]);
+            logger.Error(
+                logLanguage[LogLanguageKey.MASTER_SERVER_PING_FAILED]);
             Environment.Exit(0);
         }
 
-        public async Task<HttpStatusCode> PatchAsync(long channelId, Json.Patch.JsonPatch patch)
+        public async Task<HttpStatusCode> PatchAsync(long channelId, JsonPatch patch)
         {
-            using var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
+            using var client = httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));
             //todo replace when System.Text.Json support jsonpatch
             using var content = new StringContent(JsonSerializer.Serialize(patch, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)), Encoding.Default,
@@ -128,15 +114,15 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
 
         public async Task<string?> GetOrRefreshTokenAsync()
         {
-            if (_lastUpdateToken.Plus(Duration.FromMinutes(25)) >= _clock.GetCurrentInstant())
+            if (_lastUpdateToken.Plus(Duration.FromMinutes(25)) >= clock.GetCurrentInstant())
             {
                 return _token;
             }
 
-            using var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
+            using var client = httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-            using var content = new StringContent(JsonSerializer.Serialize(_channel, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)),
+            using var content = new StringContent(JsonSerializer.Serialize(channel, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)),
                 Encoding.Default, "application/json");
             var message = client.PutAsync(new Uri($"{client.BaseAddress}api/channel"), content);
             var result =
@@ -145,25 +131,25 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
             _token = result?.Token;
-            _lastUpdateToken = _clock.GetCurrentInstant();
-            _logger.Information(_logLanguage[LogLanguageKey.SECURITY_TOKEN_UPDATED]);
+            _lastUpdateToken = clock.GetCurrentInstant();
+            logger.Information(logLanguage[LogLanguageKey.SECURITY_TOKEN_UPDATED]);
 
             return _token;
         }
 
         public async Task<List<ChannelInfo>> GetChannelsAsync()
         {
-            var channels = _channelIdService.Items.Values.ToList();
+            var channels = channelIdService.Items.Values.ToList();
             if (channels.Any())
             {
                 return channels;
             }
 
-            using var client = _httpClientFactory.CreateClient();
+            using var client = httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));
 
-            var response = await client.GetAsync(new Uri($"{_channel.MasterCommunication}/api/channel")).ConfigureAwait(false);
+            var response = await client.GetAsync(new Uri($"{channel.MasterCommunication}/api/channel")).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
                 var chan = JsonSerializer.Deserialize<List<ChannelInfo>>(await response.Content.ReadAsStringAsync()
@@ -183,18 +169,18 @@ namespace NosCore.Core.HttpClients.ChannelHttpClients
 
         public async Task<ChannelInfo?> GetChannelAsync(long channelId)
         {
-            var channels = _channelIdService.Items.Values.ToList();
+            var channels = channelIdService.Items.Values.ToList();
             if (channels.Any())
             {
                 return channels?.FirstOrDefault(s => s.Id == channelId);
             }
 
-            using var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_channel.MasterCommunication!.ToString());
+            using var client = httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(channel.MasterCommunication!.ToString());
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", await GetOrRefreshTokenAsync().ConfigureAwait(false));
 
-            var response = await client.GetAsync(new Uri($"{_channel.MasterCommunication}/api/channel?id={channelId}")).ConfigureAwait(false);
+            var response = await client.GetAsync(new Uri($"{channel.MasterCommunication}/api/channel?id={channelId}")).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
                 channels = JsonSerializer.Deserialize<List<ChannelInfo>>(await response.Content.ReadAsStringAsync().ConfigureAwait(false)

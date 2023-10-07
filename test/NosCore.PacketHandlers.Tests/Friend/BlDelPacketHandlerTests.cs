@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(It.IsAny<long?>(), It.IsAny<string?>()))
                 .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
                     new ConnectedAccount
-                    { ChannelId = 1, ConnectedCharacter = new Data.WebApi.Character { Id = _session.Character.CharacterId } }));
+                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             _blackListHttpClient = TestHelpers.Instance.BlacklistHttpClient;
             _blDelPacketHandler = new BlDelPacketHandler(_blackListHttpClient.Object, TestHelpers.Instance.GameLanguageLocalizer);
             _characterDao = new Mock<IDao<CharacterDto, long>>();

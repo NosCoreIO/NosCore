@@ -44,37 +44,15 @@ using NosCore.GameObject.Services.MapChangeService;
 
 namespace NosCore.PacketHandlers.Game
 {
-    public class GameStartPacketHandler : PacketHandler<GameStartPacket>, IWorldPacketHandler
-    {
-        private readonly IBlacklistHttpClient _blacklistHttpClient;
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IFriendHttpClient _friendHttpClient;
-        private readonly IMailHttpClient _mailHttpClient;
-        private readonly IPacketHttpClient _packetHttpClient;
-        private readonly ISerializer _packetSerializer;
-        private readonly IOptions<WorldConfiguration> _worldConfiguration;
-        private readonly IQuestService _questProvider;
-        private readonly IMapChangeService _mapChangeService;
-
-        public GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IFriendHttpClient friendHttpClient,
+    public class GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration,
+            IFriendHttpClient friendHttpClient,
             IChannelHttpClient channelHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient,
             IPacketHttpClient packetHttpClient,
-            ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider, IMapChangeService mapChangeService)
-        {
-            _worldConfiguration = worldConfiguration;
-            _packetSerializer = packetSerializer;
-            _blacklistHttpClient = blacklistHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _channelHttpClient = channelHttpClient;
-            _friendHttpClient = friendHttpClient;
-            _packetHttpClient = packetHttpClient;
-            _mailHttpClient = mailHttpClient;
-            _questProvider = questProvider;
-            _mapChangeService = mapChangeService;
-        }
-
+            ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider,
+            IMapChangeService mapChangeService)
+        : PacketHandler<GameStartPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(GameStartPacket packet, ClientSession session)
         {
             if (session.GameStarted || !session.HasSelectedCharacter)
@@ -87,10 +65,10 @@ namespace NosCore.PacketHandlers.Game
 
             if (session.Character.CurrentScriptId == null)
             {
-                _ = _questProvider.RunScriptAsync(session.Character);
+                _ = questProvider.RunScriptAsync(session.Character);
             }
 
-            if (_worldConfiguration.Value.WorldInformation)
+            if (worldConfiguration.Value.WorldInformation)
             {
                 await session.SendPacketAsync(session.Character.GenerateSay("-------------------[NosCore]---------------",
                     SayColorType.Yellow)).ConfigureAwait(false);
@@ -112,7 +90,7 @@ namespace NosCore.PacketHandlers.Game
             }
             else
             {
-                await _mapChangeService.ChangeMapAsync(session).ConfigureAwait(false);
+                await mapChangeService.ChangeMapAsync(session).ConfigureAwait(false);
             }
 
             //            Session.SendPacket(Session.Character.GenerateSki());
@@ -153,7 +131,7 @@ namespace NosCore.PacketHandlers.Game
             //                Session.SendPacket($"bn {i} {Language.Instance.GetMessageFromKey($"BN{i}")}");
             //            }
             session.Character.LoadExpensions();
-            await session.SendPacketAsync(session.Character.GenerateExts(_worldConfiguration)).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateExts(worldConfiguration)).ConfigureAwait(false);
             //            Session.SendPacket(Session.Character.GenerateMlinfo());
             await session.SendPacketAsync(new PclearPacket()).ConfigureAwait(false);
 
@@ -167,7 +145,7 @@ namespace NosCore.PacketHandlers.Game
                 VisualType = VisualType.Player,
                 AccountName = session.Account.Name,
                 ClientLanguage = session.Account.Language,
-                ServerLanguage = _worldConfiguration.Value.Language
+                ServerLanguage = worldConfiguration.Value.Language
             });
             //            Session.SendPacket($"twk 2 {Session.Character.CharacterId} {Session.Account.Name} {Session.Character.Name} shtmxpdlfeoqkr");
 
@@ -193,11 +171,11 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            await session.Character.SendFinfoAsync(_friendHttpClient, _packetHttpClient, _packetSerializer, true).ConfigureAwait(false);
+            await session.Character.SendFinfoAsync(friendHttpClient, packetHttpClient, packetSerializer, true).ConfigureAwait(false);
 
-            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
-                _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
-            await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(_blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient, channelHttpClient,
+                connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+            await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);
@@ -231,7 +209,7 @@ namespace NosCore.PacketHandlers.Game
             //            }
 
             //            // finfo - friends info
-            var mails = await _mailHttpClient.GetGiftsAsync(session.Character.CharacterId).ConfigureAwait(false);
+            var mails = await mailHttpClient.GetGiftsAsync(session.Character.CharacterId).ConfigureAwait(false);
             await session.Character.GenerateMailAsync(mails).ConfigureAwait(false);
 
             await session.SendPacketAsync(session.Character.GenerateTitle()).ConfigureAwait(false);

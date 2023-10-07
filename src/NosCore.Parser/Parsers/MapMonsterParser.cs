@@ -31,30 +31,17 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class MapMonsterParser
+    public class MapMonsterParser(IDao<MapMonsterDto, int> mapMonsterDao, IDao<NpcMonsterDto, short> npcMonsterDao,
+        ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        private readonly ILogger _logger;
-        private readonly IDao<MapMonsterDto, int> _mapMonsterDao;
-        private readonly IDao<NpcMonsterDto, short> _npcMonsterDao;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public MapMonsterParser(IDao<MapMonsterDto, int> mapMonsterDao, IDao<NpcMonsterDto, short> npcMonsterDao,
-            ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _mapMonsterDao = mapMonsterDao;
-            _logger = logger;
-            _npcMonsterDao = npcMonsterDao;
-            _logLanguage = logLanguage;
-        }
-
         public async Task InsertMapMonsterAsync(List<string[]> packetList)
         {
             short map = 0;
             var mobMvPacketsList = packetList.Where(o => o[0].Equals("mv") && o[1].Equals("3"))
                 .Select(currentPacket => Convert.ToInt32(currentPacket[2])).Distinct().ToList();
             var monsters = new List<MapMonsterDto>();
-            var mapMonsterdb = _mapMonsterDao.LoadAll().ToList();
-            var npcMonsterdb = _npcMonsterDao.LoadAll().ToList();
+            var mapMonsterdb = mapMonsterDao.LoadAll().ToList();
+            var npcMonsterdb = npcMonsterDao.LoadAll().ToList();
 
             foreach (var currentPacket in packetList.Where(o => (o.Length > 7 && o[0].Equals("in") && (o[1] == "3") && long.Parse(o[3]) <= 20000) || o[0].Equals("at")))
             {
@@ -86,8 +73,8 @@ namespace NosCore.Parser.Parsers
                 monsters.Add(monster);
             }
 
-            await _mapMonsterDao.TryInsertOrUpdateAsync(monsters).ConfigureAwait(false);
-            _logger.Information(_logLanguage[LogLanguageKey.MONSTERS_PARSED],
+            await mapMonsterDao.TryInsertOrUpdateAsync(monsters).ConfigureAwait(false);
+            logger.Information(logLanguage[LogLanguageKey.MONSTERS_PARSED],
                 monsters.Count);
         }
     }

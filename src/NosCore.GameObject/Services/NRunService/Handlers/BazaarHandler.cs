@@ -30,14 +30,8 @@ using NodaTime;
 
 namespace NosCore.GameObject.Services.NRunService.Handlers
 {
-    public class BazaarHandler : INrunEventHandler
+    public class BazaarHandler(IClock clock) : INrunEventHandler
     {
-        private readonly IClock _clock;
-
-        public BazaarHandler(IClock clock)
-        {
-            _clock = clock;
-        }
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
         {
             return (item.Item2.Runner == NrunRunnerType.OpenNosBazaar)
@@ -52,7 +46,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                     (s.StaticBonusType == StaticBonusType.BazaarMedalSilver));
             var medal = medalBonus != null ? medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold
                 ? (byte)MedalType.Gold : (byte)MedalType.Silver : (byte)0;
-            var time = medalBonus != null ? (int)(medalBonus.DateEnd == null ? 720 : (medalBonus.DateEnd?.Minus(_clock.GetCurrentInstant()))?.ToTimeSpan().TotalHours ?? 0) : 0;
+            var time = medalBonus != null ? (int)(medalBonus.DateEnd == null ? 720 : (medalBonus.DateEnd?.Minus(clock.GetCurrentInstant()))?.ToTimeSpan().TotalHours ?? 0) : 0;
             return requestData.ClientSession.SendPacketAsync(new WopenPacket
             {
                 Type = WindowType.NosBazaar,

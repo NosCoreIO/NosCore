@@ -33,22 +33,13 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
-    public class BlInsPackettHandler : PacketHandler<BlInsPacket>, IWorldPacketHandler
+    public class BlInsPackettHandler(IBlacklistHttpClient blacklistHttpClient, ILogger logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<BlInsPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly IBlacklistHttpClient _blacklistHttpClient;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public BlInsPackettHandler(IBlacklistHttpClient blacklistHttpClient, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _blacklistHttpClient = blacklistHttpClient;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public override async Task ExecuteAsync(BlInsPacket blinsPacket, ClientSession session)
         {
-            var result = await _blacklistHttpClient.AddToBlacklistAsync(new BlacklistRequest
+            var result = await blacklistHttpClient.AddToBlacklistAsync(new BlacklistRequest
             { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket }).ConfigureAwait(false);
             switch (result)
             {
@@ -69,10 +60,10 @@ namespace NosCore.PacketHandlers.Friend
                     {
                         Message = Game18NConstString.CharacterBlacklisted
                     }).ConfigureAwait(false);
-                    await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(_blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                    await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
                     break;
                 default:
-                    _logger.Warning(_logLanguage[LogLanguageKey.FRIEND_REQUEST_DISCONNECTED]);
+                    logger.Warning(logLanguage[LogLanguageKey.FRIEND_REQUEST_DISCONNECTED]);
                     break;
             }
         }

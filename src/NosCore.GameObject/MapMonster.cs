@@ -33,21 +33,11 @@ using NosCore.GameObject.Services.SpeedCalculationService;
 
 namespace NosCore.GameObject
 {
-    public class MapMonster : MapMonsterDto, INonPlayableEntity
+    public class MapMonster(ILogger logger, IHeuristic distanceCalculator, IClock clock,
+            ISpeedCalculationService speedCalculationService)
+        : MapMonsterDto, INonPlayableEntity
     {
-        private readonly ILogger _logger;
-
-        private readonly IHeuristic _distanceCalculator;
-        private readonly IClock _clock;
-        private readonly ISpeedCalculationService _speedCalculationService;
         public NpcMonsterDto NpcMonster { get; private set; } = null!;
-        public MapMonster(ILogger logger, IHeuristic distanceCalculator, IClock clock, ISpeedCalculationService speedCalculationService)
-        {
-            _logger = logger;
-            _distanceCalculator = distanceCalculator;
-            _clock = clock;
-            _speedCalculationService = speedCalculationService;
-        }
 
         public IDisposable? Life { get; private set; }
 
@@ -63,7 +53,7 @@ namespace NosCore.GameObject
         }
 
         public bool IsSitting { get; set; }
-        public byte Speed => _speedCalculationService.CalculateSpeed(this);
+        public byte Speed => speedCalculationService.CalculateSpeed(this);
         public byte Size { get; set; } = 10;
         public int Mp { get; set; }
         public int Hp { get; set; }
@@ -116,7 +106,7 @@ namespace NosCore.GameObject
                 }
                 catch (Exception e)
                 {
-                    _logger.Error(e.Message, e);
+                    logger.Error(e.Message, e);
                 }
 
             }
@@ -126,7 +116,7 @@ namespace NosCore.GameObject
 
         private Task MonsterLifeAsync()
         {
-            return this.MoveAsync(_distanceCalculator, _clock);
+            return this.MoveAsync(distanceCalculator, clock);
         }
     }
 }

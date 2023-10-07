@@ -29,19 +29,10 @@ using NosCore.GameObject.Services.MapChangeService;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class TeleportPacketHandler : PacketHandler<TeleportPacket>, IWorldPacketHandler
+    public class TeleportPacketHandler(ILogger logger, IMapChangeService mapChangeService,
+            IGameLanguageLocalizer gameLanguageLocalizer)
+        : PacketHandler<TeleportPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly IMapChangeService _mapChangeService;
-        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
-
-        public TeleportPacketHandler(ILogger logger, IMapChangeService mapChangeService, IGameLanguageLocalizer gameLanguageLocalizer)
-        {
-            _logger = logger;
-            _mapChangeService = mapChangeService;
-            _gameLanguageLocalizer = gameLanguageLocalizer;
-        }
-
         public override Task ExecuteAsync(TeleportPacket teleportPacket, ClientSession session)
         {
             var targetSession =
@@ -52,17 +43,17 @@ namespace NosCore.PacketHandlers.Command
             {
                 if (targetSession != null)
                 {
-                    return _mapChangeService.ChangeMapInstanceAsync(session, targetSession.MapInstanceId, targetSession.MapX,
+                    return mapChangeService.ChangeMapInstanceAsync(session, targetSession.MapInstanceId, targetSession.MapX,
                         targetSession.MapY);
                 }
 
-                _logger.Error(_gameLanguageLocalizer[LanguageKey.USER_NOT_CONNECTED,
+                logger.Error(gameLanguageLocalizer[LanguageKey.USER_NOT_CONNECTED,
                     session.Account.Language]);
                 return Task.CompletedTask;
 
             }
 
-            return _mapChangeService.ChangeMapAsync(session, mapId, teleportPacket.MapX, teleportPacket.MapY);
+            return mapChangeService.ChangeMapAsync(session, mapId, teleportPacket.MapX, teleportPacket.MapY);
         }
     }
 }

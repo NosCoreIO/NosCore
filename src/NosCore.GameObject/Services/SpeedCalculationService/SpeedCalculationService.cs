@@ -27,15 +27,8 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject.Services.SpeedCalculationService
 {
-    public class SpeedCalculationService : ISpeedCalculationService
+    public class SpeedCalculationService(ISpeedService speedService) : ISpeedCalculationService
     {
-        private readonly ISpeedService _speedService;
-
-        public SpeedCalculationService(ISpeedService speedService)
-        {
-            _speedService = speedService;
-        }
-
         private byte CalculateSpeed(IAliveEntity aliveEntity, byte defaultSpeed)
         {
             //    if (HasBuff(CardType.Move, (byte)AdditionalTypes.Move.MovementImpossible))
@@ -60,7 +53,7 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
 
         public byte CalculateSpeed(ICharacterEntity characterEntity)
         {
-            var defaultSpeed = _speedService.GetSpeed(characterEntity.Class);
+            var defaultSpeed = speedService.GetSpeed(characterEntity.Class);
             if (characterEntity.VehicleSpeed != null)
             {
                 return (byte)characterEntity.VehicleSpeed;

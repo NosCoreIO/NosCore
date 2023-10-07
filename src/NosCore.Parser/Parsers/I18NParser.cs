@@ -33,19 +33,11 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class I18NParser<TDto, TPk> where TDto : II18NDto, new() where TPk : struct
+    public class I18NParser<TDto, TPk>(IDao<TDto, TPk> dao, ILogger logger,
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    where TDto : II18NDto, new()
+    where TPk : struct
     {
-        private readonly ILogger _logger;
-        private readonly IDao<TDto, TPk> _dao;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public I18NParser(IDao<TDto, TPk> dao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _dao = dao;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         private string I18NTextFileName(string textfilename, RegionType region)
         {
             var regioncode = region.ToString().ToLower();
@@ -55,7 +47,7 @@ namespace NosCore.Parser.Parsers
 
         public Task InsertI18NAsync(string file, LogLanguageKey logLanguageKey)
         {
-            var listoftext = _dao.LoadAll().ToDictionary(x => (x.Key, x.RegionType), x => x.Text);
+            var listoftext = dao.LoadAll().ToDictionary(x => (x.Key, x.RegionType), x => x.Text);
 
             return Task.WhenAll(((RegionType[])Enum.GetValues(typeof(RegionType))).Select(async region =>
             {
@@ -82,16 +74,16 @@ namespace NosCore.Parser.Parsers
                             });
                         }
                     }
-                    await _dao.TryInsertOrUpdateAsync(dtos.Values).ConfigureAwait(false);
+                    await dao.TryInsertOrUpdateAsync(dtos.Values).ConfigureAwait(false);
 
-                    _logger.Information(
-                        _logLanguage[logLanguageKey],
+                    logger.Information(
+                        logLanguage[logLanguageKey],
                         dtos.Count,
                         region);
                 }
                 catch (FileNotFoundException)
                 {
-                    _logger.Warning(_logLanguage[LogLanguageKey.LANGUAGE_MISSING]);
+                    logger.Warning(logLanguage[LogLanguageKey.LANGUAGE_MISSING]);
                 }
             }));
         }

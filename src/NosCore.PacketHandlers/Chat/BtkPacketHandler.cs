@@ -40,35 +40,18 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
 {
-    public class BtkPacketHandler : PacketHandler<BtkPacket>, IWorldPacketHandler
+    public class BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
+            IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, Channel channel,
+            IGameLanguageLocalizer gameLanguageLocalizer)
+        : PacketHandler<BtkPacket>, IWorldPacketHandler
     {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IFriendHttpClient _friendHttpClient;
-        private readonly ILogger _logger;
-        private readonly IPacketHttpClient _packetHttpClient;
-        private readonly ISerializer _packetSerializer;
-        private readonly Channel _channel;
-        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
-
-        public BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
-            IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, Channel channel, IGameLanguageLocalizer gameLanguageLocalizer)
-        {
-            _logger = logger;
-            _packetSerializer = packetSerializer;
-            _friendHttpClient = friendHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _packetHttpClient = packetHttpClient;
-            _channel = channel;
-            _gameLanguageLocalizer = gameLanguageLocalizer;
-        }
-
         public override async Task ExecuteAsync(BtkPacket btkPacket, ClientSession session)
         {
-            var friendlist = await _friendHttpClient.GetListFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
+            var friendlist = await friendHttpClient.GetListFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
 
             if (friendlist.All(s => s.CharacterId != btkPacket.CharacterId))
             {
-                _logger.Error(_gameLanguageLocalizer[LanguageKey.USER_IS_NOT_A_FRIEND,
+                logger.Error(gameLanguageLocalizer[LanguageKey.USER_IS_NOT_A_FRIEND,
                     session.Account.Language]);
                 return;
             }
@@ -90,7 +73,7 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(btkPacket.CharacterId, null).ConfigureAwait(false);
+            var receiver = await connectedAccountHttpClient.GetCharacterAsync(btkPacket.CharacterId, null).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -101,14 +84,14 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            await _packetHttpClient.BroadcastPacketAsync(new PostedPacket
+            await packetHttpClient.BroadcastPacketAsync(new PostedPacket
             {
-                Packet = _packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
+                Packet = packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character
                 { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name ?? "" },
                 SenderCharacter = new Character
                 { Name = session.Character.Name, Id = session.Character.CharacterId },
-                OriginWorldId = _channel.ChannelId,
+                OriginWorldId = channel.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
             }, receiver.Item2.ChannelId).ConfigureAwait(false);
         }

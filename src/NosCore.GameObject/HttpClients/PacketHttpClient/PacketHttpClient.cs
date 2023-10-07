@@ -34,20 +34,12 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.HttpClients.PacketHttpClient
 {
-    public class PacketHttpClient : IPacketHttpClient
+    public class PacketHttpClient(IHttpClientFactory httpClientFactory, IChannelHttpClient channelHttpClient)
+        : IPacketHttpClient
     {
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IHttpClientFactory _httpClientFactory;
-
-        public PacketHttpClient(IHttpClientFactory httpClientFactory, IChannelHttpClient channelHttpClient)
-        {
-            _channelHttpClient = channelHttpClient;
-            _httpClientFactory = httpClientFactory;
-        }
-
         public async Task BroadcastPacketAsync(PostedPacket packet, long channelId)
         {
-            var channel = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
+            var channel = await channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
             if (channel != null)
             {
                 await SendPacketToChannelAsync(packet, channel.WebApi!.ToString()).ConfigureAwait(false);
@@ -56,7 +48,7 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
 
         public async Task BroadcastPacketAsync(PostedPacket packet)
         {
-            var list = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
+            var list = (await channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer) ?? new List<ChannelInfo>();
             await Task.WhenAll(list.Select(channel => SendPacketToChannelAsync(packet, channel.WebApi!.ToString()))).ConfigureAwait(false);
 
@@ -74,10 +66,10 @@ namespace NosCore.GameObject.HttpClients.PacketHttpClient
 
         private async Task SendPacketToChannelAsync(PostedPacket postedPacket, string channel)
         {
-            var client = _httpClientFactory.CreateClient();
+            var client = httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(channel);
             client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
+                new AuthenticationHeaderValue("Bearer", await channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
             var content = new StringContent(JsonSerializer.Serialize(postedPacket, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)),
                 Encoding.Default, "application/json");
 

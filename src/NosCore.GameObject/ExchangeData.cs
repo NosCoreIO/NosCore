@@ -24,12 +24,7 @@ namespace NosCore.GameObject
 {
     public class ExchangeData
     {
-        public ExchangeData()
-        {
-            ExchangeItems = new ConcurrentDictionary<InventoryItemInstance, short>();
-        }
-
-        public ConcurrentDictionary<InventoryItemInstance, short> ExchangeItems { get; set; }
+        public ConcurrentDictionary<InventoryItemInstance, short> ExchangeItems { get; set; } = new();
 
         public long Gold { get; set; }
 

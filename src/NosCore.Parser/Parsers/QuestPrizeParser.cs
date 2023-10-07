@@ -39,20 +39,10 @@ namespace NosCore.Parser.Parsers
     //DATA	10	-1	-1	-1	-1
     //END
 
-    public class QuestPrizeParser
+    public class QuestPrizeParser(IDao<QuestRewardDto, short> questRewardDtoDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         private readonly string _fileQuestPrizeDat = $"{Path.DirectorySeparatorChar}qstprize.dat";
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly IDao<QuestRewardDto, short> _questRewardDtoDao;
 
-
-        public QuestPrizeParser(IDao<QuestRewardDto, short> questRewardDtoDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _logLanguage = logLanguage;
-            _questRewardDtoDao = questRewardDtoDao;
-        }
 
         public async Task ImportQuestPrizesAsync(string folder)
         {
@@ -63,10 +53,10 @@ namespace NosCore.Parser.Parsers
                 {nameof(QuestRewardDto.Data), chunk => ImportData(chunk)},
                 {nameof(QuestRewardDto.Amount), chunk => ImportAmount(chunk)},
             };
-            var genericParser = new GenericParser<QuestRewardDto>(folder + _fileQuestPrizeDat, "END", 0, actionList, _logger, _logLanguage);
+            var genericParser = new GenericParser<QuestRewardDto>(folder + _fileQuestPrizeDat, "END", 0, actionList, logger, logLanguage);
             var questRewardDtos = await genericParser.GetDtosAsync().ConfigureAwait(false);
-            await _questRewardDtoDao.TryInsertOrUpdateAsync(questRewardDtos).ConfigureAwait(false);
-            _logger.Information(_logLanguage[LogLanguageKey.QUEST_PRIZES_PARSED], questRewardDtos.Count);
+            await questRewardDtoDao.TryInsertOrUpdateAsync(questRewardDtos).ConfigureAwait(false);
+            logger.Information(logLanguage[LogLanguageKey.QUEST_PRIZES_PARSED], questRewardDtos.Count);
         }
 
         private int ImportData(Dictionary<string, string[][]> chunk)

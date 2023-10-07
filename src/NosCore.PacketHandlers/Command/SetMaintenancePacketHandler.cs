@@ -32,32 +32,25 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetMaintenancePacketHandler : PacketHandler<SetMaintenancePacket>, IWorldPacketHandler
+    public class SetMaintenancePacketHandler
+        (IChannelHttpClient channelHttpClient, Channel channel) : PacketHandler<SetMaintenancePacket>,
+            IWorldPacketHandler
     {
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly Channel _channel;
-
-        public SetMaintenancePacketHandler(IChannelHttpClient channelHttpClient, Channel channel)
-        {
-            _channelHttpClient = channelHttpClient;
-            _channel = channel;
-        }
-
         public override async Task ExecuteAsync(SetMaintenancePacket setMaintenancePacket, ClientSession session)
         {
-            var servers = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
+            var servers = (await channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer).ToList();
 
             var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<ChannelInfo>(o => o.IsMaintenance), setMaintenancePacket.MaintenanceMode.AsJsonElement().AsNode()));
             if (setMaintenancePacket.IsGlobal == false)
             {
-                await _channelHttpClient.PatchAsync(_channel.ChannelId, patch);
+                await channelHttpClient.PatchAsync(channel.ChannelId, patch);
             }
             else
             {
                 foreach (var server in servers ?? new List<ChannelInfo>())
                 {
-                    await _channelHttpClient.PatchAsync(server.Id, patch);
+                    await channelHttpClient.PatchAsync(server.Id, patch);
                 }
             }
         }

@@ -38,26 +38,14 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.PacketHandlers.Movement
 {
-    public class PreqPacketHandler : PacketHandler<PreqPacket>, IWorldPacketHandler
+    public class PreqPacketHandler(IMapInstanceAccessorService mapInstanceAccessorService,
+            IMinilandService minilandProvider, IHeuristic distanceCalculator, IClock clock,
+            IMapChangeService mapChangeService)
+        : PacketHandler<PreqPacket>, IWorldPacketHandler
     {
-        private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
-        private readonly IMinilandService _minilandProvider;
-        private readonly IHeuristic _distanceCalculator;
-        private readonly IClock _clock;
-        private readonly IMapChangeService _mapChangeService;
-
-        public PreqPacketHandler(IMapInstanceAccessorService mapInstanceAccessorService, IMinilandService minilandProvider, IHeuristic distanceCalculator, IClock clock, IMapChangeService mapChangeService)
-        {
-            _mapInstanceAccessorService = mapInstanceAccessorService;
-            _minilandProvider = minilandProvider;
-            _distanceCalculator = distanceCalculator;
-            _mapChangeService = mapChangeService;
-            _clock = clock;
-        }
-
         public override async Task ExecuteAsync(PreqPacket _, ClientSession session)
         {
-            if (((_clock.GetCurrentInstant() - session.Character.LastPortal).TotalSeconds < 4) ||
+            if (((clock.GetCurrentInstant() - session.Character.LastPortal).TotalSeconds < 4) ||
                 (session.Character.LastPortal > session.Character.LastMove))
             {
                 await session.SendPacketAsync(new SayiPacket
@@ -72,11 +60,11 @@ namespace NosCore.PacketHandlers.Movement
 
             var portals = new List<Portal>();
             portals.AddRange(session.Character.MapInstance.Portals);
-            portals.AddRange(_minilandProvider
+            portals.AddRange(minilandProvider
                 .GetMinilandPortals(session.Character.CharacterId)
                 .Where(s => s.SourceMapInstanceId == session.Character.MapInstanceId));
             var portal = portals.Find(port =>
-                _distanceCalculator.GetDistance((session.Character.PositionX, session.Character.PositionY), (port.SourceX, port.SourceY))
+                distanceCalculator.GetDistance((session.Character.PositionX, session.Character.PositionY), (port.SourceX, port.SourceY))
                   <= 2);
             if (portal == null)
             {
@@ -88,18 +76,18 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
-            session.Character.LastPortal = _clock.GetCurrentInstant();
+            session.Character.LastPortal = clock.GetCurrentInstant();
 
-            if ((_mapInstanceAccessorService.GetMapInstance(portal.SourceMapInstanceId)!.MapInstanceType
+            if ((mapInstanceAccessorService.GetMapInstance(portal.SourceMapInstanceId)!.MapInstanceType
                     != MapInstanceType.BaseMapInstance)
-                && (_mapInstanceAccessorService.GetMapInstance(portal.DestinationMapInstanceId)!.MapInstanceType
+                && (mapInstanceAccessorService.GetMapInstance(portal.DestinationMapInstanceId)!.MapInstanceType
                     == MapInstanceType.BaseMapInstance))
             {
-                await _mapChangeService.ChangeMapAsync(session, session.Character.MapId, session.Character.MapX, session.Character.MapY).ConfigureAwait(false);
+                await mapChangeService.ChangeMapAsync(session, session.Character.MapId, session.Character.MapX, session.Character.MapY).ConfigureAwait(false);
             }
             else
             {
-                await _mapChangeService.ChangeMapInstanceAsync(session, portal.DestinationMapInstanceId, portal.DestinationX,
+                await mapChangeService.ChangeMapInstanceAsync(session, portal.DestinationMapInstanceId, portal.DestinationX,
                     portal.DestinationY).ConfigureAwait(false);
             }
         }
