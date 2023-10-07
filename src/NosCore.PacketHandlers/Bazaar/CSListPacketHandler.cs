@@ -30,21 +30,13 @@ using NodaTime;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
-    public class CSListPacketHandler : PacketHandler<CSListPacket>, IWorldPacketHandler
+    public class CSListPacketHandler(IBazaarHttpClient bazaarHttpClient, IClock clock) : PacketHandler<CSListPacket>,
+        IWorldPacketHandler
     {
-        private readonly IBazaarHttpClient _bazaarHttpClient;
-        private readonly IClock _clock;
-
-        public CSListPacketHandler(IBazaarHttpClient bazaarHttpClient, IClock clock)
-        {
-            _bazaarHttpClient = bazaarHttpClient;
-            _clock = clock;
-        }
-
         public override async Task ExecuteAsync(CSListPacket packet, ClientSession clientSession)
         {
             var list = new List<RcsListPacket.RcsListElementPacket?>();
-            var bzlist = await _bazaarHttpClient.GetBazaarLinksAsync(-1, packet.Index, 50, 0, 0, 0, 0, 0,
+            var bzlist = await bazaarHttpClient.GetBazaarLinksAsync(-1, packet.Index, 50, 0, 0, 0, 0, 0,
                 clientSession.Character.CharacterId).ConfigureAwait(false);
 
             foreach (var bz in bzlist)
@@ -53,7 +45,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 int amount = bz.BazaarItem.Amount;
                 var isNosbazar = bz.BazaarItem.MedalUsed;
                 var price = bz.BazaarItem.Price;
-                var minutesLeft = (long)(bz.BazaarItem.DateStart.Plus(Duration.FromHours(bz.BazaarItem.Duration)) - _clock.GetCurrentInstant())
+                var minutesLeft = (long)(bz.BazaarItem.DateStart.Plus(Duration.FromHours(bz.BazaarItem.Duration)) - clock.GetCurrentInstant())
                     .TotalMinutes;
                 var status = minutesLeft >= 0 ? soldedAmount < amount ? BazaarStatusType.OnSale
                     : BazaarStatusType.Solded : BazaarStatusType.DelayExpired;
@@ -61,7 +53,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     minutesLeft =
                         (long)(bz.BazaarItem.DateStart.Plus(Duration.FromHours(bz.BazaarItem.Duration)).Plus(Duration.FromDays(isNosbazar ? 30 : 7)) -
-                            _clock.GetCurrentInstant()).TotalMinutes;
+                            clock.GetCurrentInstant()).TotalMinutes;
                 }
 
                 var info = new EInfoPacket();

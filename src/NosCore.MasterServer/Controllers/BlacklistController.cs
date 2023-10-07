@@ -31,21 +31,14 @@ namespace NosCore.MasterServer.Controllers
 {
     [Route("api/[controller]")]
     [AuthorizeRole(AuthorityType.GameMaster)]
-    public class BlacklistController : Controller
+    public class BlacklistController(IBlacklistService blacklistService) : Controller
     {
-        private readonly IBlacklistService _blacklistService;
-
-        public BlacklistController(IBlacklistService blacklistService)
-        {
-            _blacklistService = blacklistService;
-        }
-
         [HttpPost]
-        public Task<LanguageKey> AddBlacklistAsync([FromBody] BlacklistRequest blacklistRequest) => _blacklistService.BlacklistPlayerAsync(blacklistRequest.CharacterId, blacklistRequest.BlInsPacket!.CharacterId);
+        public Task<LanguageKey> AddBlacklistAsync([FromBody] BlacklistRequest blacklistRequest) => blacklistService.BlacklistPlayerAsync(blacklistRequest.CharacterId, blacklistRequest.BlInsPacket!.CharacterId);
 
         [HttpGet]
-        public Task<List<CharacterRelationStatus>> GetBlacklistedAsync(long id) => _blacklistService.GetBlacklistedListAsync(id);
+        public Task<List<CharacterRelationStatus>> GetBlacklistedAsync(long id) => blacklistService.GetBlacklistedListAsync(id);
 
-        public async Task<IActionResult> DeleteAsync(Guid id) => await _blacklistService.UnblacklistAsync(id) ? (IActionResult)Ok() : NotFound();
+        public async Task<IActionResult> DeleteAsync(Guid id) => await blacklistService.UnblacklistAsync(id) ? (IActionResult)Ok() : NotFound();
     }
 }

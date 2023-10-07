@@ -31,24 +31,17 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.HttpClients.StatHttpClient
 {
-    public class StatHttpClient : IStatHttpClient
+    public class StatHttpClient(IHttpClientFactory httpClientFactory, IChannelHttpClient channelHttpClient)
+        : IStatHttpClient
     {
         private const string ApiUrl = "api/stat";
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IHttpClientFactory _httpClientFactory;
-
-        public StatHttpClient(IHttpClientFactory httpClientFactory, IChannelHttpClient channelHttpClient)
-        {
-            _channelHttpClient = channelHttpClient;
-            _httpClientFactory = httpClientFactory;
-        }
 
         public async Task ChangeStatAsync(StatData data, ServerConfiguration item1)
         {
-            var client = _httpClientFactory.CreateClient();
+            var client = httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(item1.ToString());
             client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
+                new AuthenticationHeaderValue("Bearer", await channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
 
             var content = new StringContent(JsonSerializer.Serialize(data, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)),
                 Encoding.Default, "application/json");

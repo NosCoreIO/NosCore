@@ -34,19 +34,10 @@ using System.Threading.Tasks;
 namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
-    public class StatController : Controller
+    public class StatController(IOptions<WorldConfiguration> worldConfiguration, ILogger logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : Controller
     {
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly IOptions<WorldConfiguration> _worldConfiguration;
-
-        public StatController(IOptions<WorldConfiguration> worldConfiguration, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _worldConfiguration = worldConfiguration;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         // POST api/stat
         [HttpPost]
         public async Task<IActionResult> UpdateStatsAsync([FromBody] StatData data)
@@ -78,7 +69,7 @@ namespace NosCore.WorldServer.Controllers
                     await session.SetReputationAsync(data.Data).ConfigureAwait(false);
                     break;
                 case UpdateStatActionType.UpdateGold:
-                    if (session.Gold + data.Data > _worldConfiguration.Value.MaxGoldAmount)
+                    if (session.Gold + data.Data > worldConfiguration.Value.MaxGoldAmount)
                     {
                         return BadRequest(); // MaxGold
                     }
@@ -89,7 +80,7 @@ namespace NosCore.WorldServer.Controllers
                     await session.ChangeClassAsync((CharacterClassType)data.Data).ConfigureAwait(false);
                     break;
                 default:
-                    _logger.Error(_logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
+                    logger.Error(logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
                     break;
             }
 

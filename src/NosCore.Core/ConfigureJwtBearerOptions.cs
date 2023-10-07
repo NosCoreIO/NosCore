@@ -27,17 +27,9 @@ using System.Text;
 
 namespace NosCore.Core
 {
-    public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions>
+    public class ConfigureJwtBearerOptions(IOptions<WebApiConfiguration> webApiConfiguration, IHasher hasher)
+        : IConfigureNamedOptions<JwtBearerOptions>
     {
-        private readonly IOptions<WebApiConfiguration> _webApiConfiguration;
-        private readonly IHasher _hasher;
-
-        public ConfigureJwtBearerOptions(IOptions<WebApiConfiguration> webApiConfiguration, IHasher hasher)
-        {
-            _webApiConfiguration = webApiConfiguration;
-            _hasher = hasher;
-        }
-
         public void Configure(string? name, JwtBearerOptions options)
         {
             if (options == null)
@@ -45,7 +37,7 @@ namespace NosCore.Core
                 throw new ArgumentNullException(nameof(options));
             }
 
-            var password = _hasher.Hash(_webApiConfiguration.Value.Password!, _webApiConfiguration.Value.Salt);
+            var password = hasher.Hash(webApiConfiguration.Value.Password!, webApiConfiguration.Value.Salt);
             if (name == JwtBearerDefaults.AuthenticationScheme)
             {
                 options.RequireHttpsMetadata = false;

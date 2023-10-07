@@ -21,13 +21,8 @@ using System;
 
 namespace NosCore.Data.Dto
 {
-    public class I18NFromAttribute : Attribute
+    public class I18NFromAttribute(Type type) : Attribute
     {
-        public I18NFromAttribute(Type type)
-        {
-            Type = type;
-        }
-
-        public Type Type { get; set; }
+        public Type Type { get; set; } = type;
     }
 }

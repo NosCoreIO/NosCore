@@ -33,7 +33,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class CardParser
+    public class CardParser(IDao<CardDto, short> cardDao, IDao<BCardDto, short> bcardDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         //  VNUM	CardId
         //  NAME    Name
@@ -51,19 +51,6 @@ namespace NosCore.Parser.Parsers
         //#========================================================
         private readonly string _fileCardDat = $"{Path.DirectorySeparatorChar}Card.dat";
 
-        private readonly IDao<CardDto, short> _cardDao;
-        private readonly IDao<BCardDto, short> _bcardDao;
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public CardParser(IDao<CardDto, short> cardDao, IDao<BCardDto, short> bcardDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _cardDao = cardDao;
-            _bcardDao = bcardDao;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public async Task InsertCardsAsync(string folder)
         {
             var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
@@ -80,12 +67,12 @@ namespace NosCore.Parser.Parsers
                 {nameof(CardDto.TimeoutBuffChance), chunk => Convert.ToByte(chunk["LAST"][0][3])}
             };
             var genericParser = new GenericParser<CardDto>(folder + _fileCardDat,
-                "END", 1, actionList, _logger, _logLanguage);
+                "END", 1, actionList, logger, logLanguage);
             var cards = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.CardId).Select(g => g.First()).ToList();
-            await _cardDao.TryInsertOrUpdateAsync(cards).ConfigureAwait(false);
-            await _bcardDao.TryInsertOrUpdateAsync(cards.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
+            await cardDao.TryInsertOrUpdateAsync(cards).ConfigureAwait(false);
+            await bcardDao.TryInsertOrUpdateAsync(cards.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
 
-            _logger.Information(_logLanguage[LogLanguageKey.CARDS_PARSED], cards.Count);
+            logger.Information(logLanguage[LogLanguageKey.CARDS_PARSED], cards.Count);
         }
 
         public List<BCardDto> AddBCards(Dictionary<string, string[][]> chunks)

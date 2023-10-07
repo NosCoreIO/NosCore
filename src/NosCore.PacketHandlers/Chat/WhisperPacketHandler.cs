@@ -44,29 +44,12 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
 {
-    public class WhisperPacketHandler : PacketHandler<WhisperPacket>, IWorldPacketHandler
-    {
-        private readonly IBlacklistHttpClient _blacklistHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly ILogger _logger;
-        private readonly IPacketHttpClient _packetHttpClient;
-        private readonly ISerializer _packetSerializer;
-        private readonly Channel _channel;
-        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
-
-        public WhisperPacketHandler(ILogger logger, ISerializer packetSerializer,
+    public class WhisperPacketHandler(ILogger logger, ISerializer packetSerializer,
             IBlacklistHttpClient blacklistHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IPacketHttpClient packetHttpClient, Channel channel, IGameLanguageLocalizer gameLanguageLocalizer)
-        {
-            _logger = logger;
-            _packetSerializer = packetSerializer;
-            _blacklistHttpClient = blacklistHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _packetHttpClient = packetHttpClient;
-            _channel = channel;
-            _gameLanguageLocalizer = gameLanguageLocalizer;
-        }
-
+            IConnectedAccountHttpClient connectedAccountHttpClient, IPacketHttpClient packetHttpClient, Channel channel,
+            IGameLanguageLocalizer gameLanguageLocalizer)
+        : PacketHandler<WhisperPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(WhisperPacket whisperPacket, ClientSession session)
         {
             try
@@ -101,7 +84,7 @@ namespace NosCore.PacketHandlers.Chat
                 var receiverSession =
                     Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
 
-                var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, receiverName).ConfigureAwait(false);
+                var receiver = await connectedAccountHttpClient.GetCharacterAsync(null, receiverName).ConfigureAwait(false);
 
                 if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
                 {
@@ -114,7 +97,7 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
-                var blacklisteds = await _blacklistHttpClient.GetBlackListsAsync(session.Character.VisualId).ConfigureAwait(false);
+                var blacklisteds = await blacklistHttpClient.GetBlackListsAsync(session.Character.VisualId).ConfigureAwait(false);
                 if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter?.Id))
                 {
                     await session.SendPacketAsync(new InfoiPacket
@@ -125,20 +108,20 @@ namespace NosCore.PacketHandlers.Chat
                 }
 
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
-                    $"{speakPacket.Message} <{_gameLanguageLocalizer[LanguageKey.CHANNEL, receiver.Item2.Language]}: {_channel.ChannelId}>";
+                    $"{speakPacket.Message} <{gameLanguageLocalizer[LanguageKey.CHANNEL, receiver.Item2.Language]}: {channel.ChannelId}>";
 
-                await _packetHttpClient.BroadcastPacketAsync(new PostedPacket
+                await packetHttpClient.BroadcastPacketAsync(new PostedPacket
                 {
-                    Packet = _packetSerializer.Serialize(new[] { speakPacket }),
+                    Packet = packetSerializer.Serialize(new[] { speakPacket }),
                     ReceiverCharacter = new Character { Name = receiverName },
                     SenderCharacter = new Character { Name = session.Character.Name },
-                    OriginWorldId = _channel.ChannelId,
+                    OriginWorldId = channel.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
                 }, receiver.Item2.ChannelId).ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                _logger.Error("Whisper failed.", e);
+                logger.Error("Whisper failed.", e);
             }
         }
     }

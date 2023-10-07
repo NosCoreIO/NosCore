@@ -34,15 +34,9 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
 {
-    public class SellPacketHandler : PacketHandler<SellPacket>, IWorldPacketHandler
+    public class SellPacketHandler(IOptions<WorldConfiguration> worldConfiguration) : PacketHandler<SellPacket>,
+        IWorldPacketHandler
     {
-        private readonly IOptions<WorldConfiguration> _worldConfiguration;
-
-        public SellPacketHandler(IOptions<WorldConfiguration> worldConfiguration)
-        {
-            _worldConfiguration = worldConfiguration;
-        }
-
         public override async Task ExecuteAsync(SellPacket sellPacket, ClientSession clientSession)
         {
             var type = (NoscorePocketType)sellPacket.Data;
@@ -67,7 +61,7 @@ namespace NosCore.PacketHandlers.Shops
             var price = inv.ItemInstance.Item.ItemType == ItemType.Sell ? inv.ItemInstance.Item.Price
                 : inv.ItemInstance.Item.Price / 20;
 
-            if (clientSession.Character.Gold + price * sellPacket.Amount > _worldConfiguration.Value.MaxGoldAmount)
+            if (clientSession.Character.Gold + price * sellPacket.Amount > worldConfiguration.Value.MaxGoldAmount)
             {
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {

@@ -33,34 +33,23 @@ using NosCore.Core.Configuration;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
-    public class CharacterDeletePacketHandler : PacketHandler<CharacterDeletePacket>, IWorldPacketHandler
+    public class CharacterDeletePacketHandler(IDao<CharacterDto, long> characterDao, IDao<AccountDto, long> accountDao,
+            IHasher hasher, IOptions<WorldConfiguration> configuration)
+        : PacketHandler<CharacterDeletePacket>, IWorldPacketHandler
     {
-        private readonly IDao<AccountDto, long> _accountDao;
-        private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IHasher _hasher;
-        private readonly IOptions<WorldConfiguration> _configuration;
-
-        public CharacterDeletePacketHandler(IDao<CharacterDto, long> characterDao, IDao<AccountDto, long> accountDao, IHasher hasher, IOptions<WorldConfiguration> configuration)
-        {
-            _characterDao = characterDao;
-            _accountDao = accountDao;
-            _hasher = hasher;
-            _configuration = configuration;
-        }
-
         public override async Task ExecuteAsync(CharacterDeletePacket packet, ClientSession clientSession)
         {
-            var account = await _accountDao
+            var account = await accountDao
                 .FirstOrDefaultAsync(s => s.AccountId.Equals(clientSession.Account.AccountId)).ConfigureAwait(false);
             if (account == null)
             {
                 return;
             }
 
-            if ((account.Password!.ToLower() == _hasher.Hash(packet.Password!)) || (account.Name == packet.Password))
+            if ((account.Password!.ToLower() == hasher.Hash(packet.Password!)) || (account.Name == packet.Password))
             {
-                var character = await _characterDao.FirstOrDefaultAsync(s =>
-                    (s.AccountId == account.AccountId) && (s.Slot == packet.Slot) && (s.ServerId == _configuration.Value.ServerId)
+                var character = await characterDao.FirstOrDefaultAsync(s =>
+                    (s.AccountId == account.AccountId) && (s.Slot == packet.Slot) && (s.ServerId == configuration.Value.ServerId)
                     && (s.State == CharacterState.Active)).ConfigureAwait(false);
                 if (character == null)
                 {
@@ -68,7 +57,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
 
                 character.State = CharacterState.Inactive;
-                character = await _characterDao.TryInsertOrUpdateAsync(character).ConfigureAwait(false);
+                character = await characterDao.TryInsertOrUpdateAsync(character).ConfigureAwait(false);
 
                 await clientSession.HandlePacketsAsync(new[]
                 {

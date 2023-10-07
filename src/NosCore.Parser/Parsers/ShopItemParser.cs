@@ -29,28 +29,15 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class ShopItemParser
+    public class ShopItemParser(IDao<ShopItemDto, int> shopItemDao, IDao<ShopDto, int> shopDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly IDao<ShopDto, int> _shopDao;
-        private readonly IDao<ShopItemDto, int> _shopItemDao;
-
-        public ShopItemParser(IDao<ShopItemDto, int> shopItemDao, IDao<ShopDto, int> shopDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _shopItemDao = shopItemDao;
-            _shopDao = shopDao;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public async Task InsertShopItemsAsync(List<string[]> packetList)
         {
             var shopitems = new List<ShopItemDto>();
             var itemCounter = 0;
             byte type = 0;
-            var shopItemdb = _shopItemDao.LoadAll().ToList();
-            var shopdb = _shopDao.LoadAll().ToList();
+            var shopItemdb = shopItemDao.LoadAll().ToList();
+            var shopdb = shopDao.LoadAll().ToList();
             foreach (var currentPacket in packetList.Where(o => o[0].Equals("n_inv") || o[0].Equals("shopping")))
             {
                 if (currentPacket[0].Equals("n_inv"))
@@ -113,8 +100,8 @@ namespace NosCore.Parser.Parsers
                 shopListItemDtos.AddRange(shopItemDtos);
             }
 
-            await _shopItemDao.TryInsertOrUpdateAsync(shopListItemDtos).ConfigureAwait(false);
-            _logger.Information(_logLanguage[LogLanguageKey.SHOPITEMS_PARSED],
+            await shopItemDao.TryInsertOrUpdateAsync(shopListItemDtos).ConfigureAwait(false);
+            logger.Information(logLanguage[LogLanguageKey.SHOPITEMS_PARSED],
                 itemCounter);
         }
     }

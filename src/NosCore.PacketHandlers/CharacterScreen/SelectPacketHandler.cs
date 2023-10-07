@@ -45,59 +45,27 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
-    public class SelectPacketHandler : PacketHandler<SelectPacket>, IWorldPacketHandler
-    {
-        private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IDao<InventoryItemInstanceDto, Guid> _inventoryItemInstanceDao;
-        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
-        private readonly IItemGenerationService _itemProvider;
-        private readonly ILogger _logger;
-        private readonly IMapInstanceAccessorService _mapInstanceAccessorService;
-        private readonly IDao<QuicklistEntryDto, Guid> _quickListEntriesDao;
-        private readonly IDao<StaticBonusDto, long> _staticBonusDao;
-        private readonly IDao<TitleDto, Guid> _titleDao;
-        private readonly IDao<CharacterQuestDto, Guid> _characterQuestDao;
-        private readonly IDao<ScriptDto, Guid> _scriptDao;
-        private readonly List<QuestObjectiveDto> _questObjectives;
-        private readonly List<QuestDto> _quests;
-        private readonly IOptions<WorldConfiguration> _configuration;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public SelectPacketHandler(IDao<CharacterDto, long> characterDao, ILogger logger,
+    public class SelectPacketHandler(IDao<CharacterDto, long> characterDao, ILogger logger,
             IItemGenerationService itemProvider,
             IMapInstanceAccessorService mapInstanceAccessorService, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<StaticBonusDto, long> staticBonusDao,
-            IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao, IDao<CharacterQuestDto, Guid> characterQuestDao,
-            IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives, IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _characterDao = characterDao;
-            _logger = logger;
-            _mapInstanceAccessorService = mapInstanceAccessorService;
-            _itemProvider = itemProvider;
-            _itemInstanceDao = itemInstanceDao;
-            _inventoryItemInstanceDao = inventoryItemInstanceDao;
-            _staticBonusDao = staticBonusDao;
-            _quickListEntriesDao = quickListEntriesDao;
-            _titleDao = titleDao;
-            _characterQuestDao = characterQuestDao;
-            _scriptDao = scriptDao;
-            _quests = quests;
-            _questObjectives = questObjectives;
-            _configuration = configuration;
-            _logLanguage = logLanguage;
-        }
-
+            IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao,
+            IDao<CharacterQuestDto, Guid> characterQuestDao,
+            IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives,
+            IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<SelectPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
         {
             try
             {
                 var characterDto = await
-                    _characterDao.FirstOrDefaultAsync(s =>
+                    characterDao.FirstOrDefaultAsync(s =>
                         (s.AccountId == clientSession.Account.AccountId) && (s.Slot == packet.Slot)
-                        && (s.State == CharacterState.Active) && s.ServerId == _configuration.Value.ServerId).ConfigureAwait(false);
+                        && (s.State == CharacterState.Active) && s.ServerId == configuration.Value.ServerId).ConfigureAwait(false);
                 if (characterDto == null)
                 {
-                    _logger.Error(_logLanguage[LogLanguageKey.CHARACTER_SLOT_EMPTY], new
+                    logger.Error(logLanguage[LogLanguageKey.CHARACTER_SLOT_EMPTY], new
                     {
                         clientSession.Account.AccountId,
                         packet.Slot
@@ -107,25 +75,25 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 var character = characterDto.Adapt<Character>();
                 
-                character.MapInstance = _mapInstanceAccessorService.GetBaseMapById(character.MapId)!;
+                character.MapInstance = mapInstanceAccessorService.GetBaseMapById(character.MapId)!;
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Direction = 2;
-                character.Script = character.CurrentScriptId != null ? await _scriptDao.FirstOrDefaultAsync(s => s.Id == character.CurrentScriptId).ConfigureAwait(false) : null;
+                character.Script = character.CurrentScriptId != null ? await scriptDao.FirstOrDefaultAsync(s => s.Id == character.CurrentScriptId).ConfigureAwait(false) : null;
                 character.Group!.JoinGroup(character);
 
-                var inventories = _inventoryItemInstanceDao
+                var inventories = inventoryItemInstanceDao
                     .Where(s => s.CharacterId == character.CharacterId)
                     ?.ToList() ?? new List<InventoryItemInstanceDto>();
                 var ids = inventories.Select(o => o.ItemInstanceId).ToArray();
-                var items = _itemInstanceDao.Where(s => ids.Contains(s!.Id))?.ToList() ?? new List<IItemInstanceDto?>();
+                var items = itemInstanceDao.Where(s => ids.Contains(s!.Id))?.ToList() ?? new List<IItemInstanceDto?>();
                 inventories.ForEach(k => character.InventoryService[k.ItemInstanceId] =
-                    InventoryItemInstance.Create(_itemProvider.Convert(items.First(s => s!.Id == k.ItemInstanceId)!),
+                    InventoryItemInstance.Create(itemProvider.Convert(items.First(s => s!.Id == k.ItemInstanceId)!),
                         character.CharacterId, k));
                 await clientSession.SetCharacterAsync(character).ConfigureAwait(false);
 
 #pragma warning disable CS0618
-                await clientSession.SendPacketsAsync(clientSession.Character.GenerateInv(_logger, _logLanguage)).ConfigureAwait(false);
+                await clientSession.SendPacketsAsync(clientSession.Character.GenerateInv(logger, logLanguage)).ConfigureAwait(false);
 #pragma warning restore CS0618
                 await clientSession.SendPacketAsync(clientSession.Character.GenerateMlobjlst()).ConfigureAwait(false);
                 if (clientSession.Character.Hp > clientSession.Character.MaxHp)
@@ -138,27 +106,27 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     clientSession.Character.Mp = clientSession.Character.MaxMp;
                 }
 
-                var quests = _characterQuestDao
+                var daoQuests = characterQuestDao
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId) ?? new List<CharacterQuestDto>();
-                clientSession.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(quests.ToDictionary(x => x.Id, x =>
+                clientSession.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(daoQuests.ToDictionary(x => x.Id, x =>
                     {
                         var charquest = x.Adapt<CharacterQuest>();
-                        charquest.Quest = _quests.First(s => s.QuestId == charquest.QuestId).Adapt<GameObject.Services.QuestService.Quest>();
+                        charquest.Quest = quests.First(s => s.QuestId == charquest.QuestId).Adapt<GameObject.Services.QuestService.Quest>();
                         charquest.Quest.QuestObjectives =
-                            _questObjectives.Where(s => s.QuestId == charquest.QuestId).ToList();
+                            questObjectives.Where(s => s.QuestId == charquest.QuestId).ToList();
                         return charquest;
                     }));
-                clientSession.Character.QuicklistEntries = _quickListEntriesDao
+                clientSession.Character.QuicklistEntries = quickListEntriesDao
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<QuicklistEntryDto>();
-                clientSession.Character.StaticBonusList = _staticBonusDao
+                clientSession.Character.StaticBonusList = staticBonusDao
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<StaticBonusDto>();
-                clientSession.Character.Titles = _titleDao
+                clientSession.Character.Titles = titleDao
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<TitleDto>();
                 await clientSession.SendPacketAsync(new OkPacket()).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                _logger.Error(_logLanguage[LogLanguageKey.CHARACTER_SELECTION_FAILED], ex, new
+                logger.Error(logLanguage[LogLanguageKey.CHARACTER_SELECTION_FAILED], ex, new
                 {
                     clientSession.Account.AccountId,
                     packet.Slot

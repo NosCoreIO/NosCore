@@ -40,34 +40,18 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.QuestService
 {
-    public class QuestService : IQuestService
+    public class QuestService(List<ScriptDto> scripts,
+            IOptions<WorldConfiguration> worldConfiguration, List<QuestDto> quests,
+            List<QuestObjectiveDto> questObjectives, ILogger logger, IClock clock,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : IQuestService
     {
-        private readonly List<ScriptDto> _scripts;
-        private readonly List<QuestDto> _quests;
-        private readonly List<QuestObjectiveDto> _questObjectives;
-        private readonly IOptions<WorldConfiguration> _worldConfiguration;
-        private readonly ILogger _logger;
-        private readonly IClock _clock;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public QuestService(List<ScriptDto> scripts,
-            IOptions<WorldConfiguration> worldConfiguration, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives, ILogger logger, IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _scripts = scripts;
-            _quests = quests;
-            _worldConfiguration = worldConfiguration;
-            _logger = logger;
-            _questObjectives = questObjectives;
-            _clock = clock;
-            _logLanguage = logLanguage;
-        }
-
         public Task RunScriptAsync(Character character) => RunScriptAsync(character, null);
         public async Task RunScriptAsync(Character character, ScriptClientPacket? packet)
         {
             if (character.CurrentScriptId == null) //todo handle other acts
             {
-                if (_worldConfiguration.Value.SceneOnCreate)
+                if (worldConfiguration.Value.SceneOnCreate)
                 {
                     await character.SendPacketAsync(new ScenePacket { SceneId = 40 }).ConfigureAwait(false);
                     await Task.Delay(TimeSpan.FromSeconds(71)).ConfigureAwait(false);
@@ -86,15 +70,15 @@ namespace NosCore.GameObject.Services.QuestService
                     var quest = character.Quests.Values.FirstOrDefault(s => s.Quest.QuestId == packet.FirstArgument);
                     if (quest != null)
                     {
-                        quest.CompletedOn = _clock.GetCurrentInstant();
+                        quest.CompletedOn = clock.GetCurrentInstant();
                         await character.SendPacketAsync(quest.GenerateQstiPacket(false)).ConfigureAwait(false);
                     }
                 }
             }
 
-            var scripts = _scripts.OrderBy(s => s.ScriptId).ThenBy(s => s.ScriptStepId).ToList();
-            var nextScript = scripts.FirstOrDefault(s => (s.ScriptId == (character.Script?.ScriptId ?? 0)) && (s.ScriptStepId > (character.Script?.ScriptStepId ?? 0))) ??
-                scripts.FirstOrDefault(s => s.ScriptId > (character.Script?.ScriptId ?? 0));
+            var orderedScripts = scripts.OrderBy(s => s.ScriptId).ThenBy(s => s.ScriptStepId).ToList();
+            var nextScript = orderedScripts.FirstOrDefault(s => (s.ScriptId == (character.Script?.ScriptId ?? 0)) && (s.ScriptStepId > (character.Script?.ScriptStepId ?? 0))) ??
+                orderedScripts.FirstOrDefault(s => s.ScriptId > (character.Script?.ScriptId ?? 0));
             if (nextScript == null)
             {
                 return;
@@ -137,7 +121,7 @@ namespace NosCore.GameObject.Services.QuestService
 
         private async Task<bool> IsValidScriptAsync(ICharacterEntity character, QuestActionType type, int scriptId, int scriptStepId)
         {
-            var script = _scripts.FirstOrDefault(s => (s.ScriptId == scriptId) && (s.ScriptStepId == scriptStepId));
+            var script = scripts.FirstOrDefault(s => (s.ScriptId == scriptId) && (s.ScriptStepId == scriptStepId));
             if (script == null)
             {
                 return false;
@@ -170,13 +154,13 @@ namespace NosCore.GameObject.Services.QuestService
 
         private async Task<bool> TargetOffPacketAsync(short questId, ICharacterEntity character)
         {
-            var questDto = _quests.FirstOrDefault(s => s.QuestId == questId);
+            var questDto = quests.FirstOrDefault(s => s.QuestId == questId);
             if (questDto != null)
             {
                 return await ValidateQuestAsync(character, questId).ConfigureAwait(false);
             }
 
-            _logger.Error(_logLanguage[LogLanguageKey.QUEST_NOT_FOUND]);
+            logger.Error(logLanguage[LogLanguageKey.QUEST_NOT_FOUND]);
             return false;
         }
 
@@ -213,14 +197,14 @@ namespace NosCore.GameObject.Services.QuestService
                 await character.SendPacketAsync(character.GenerateQuestPacket()).ConfigureAwait(false);
             }
 
-            var questDto = _quests.FirstOrDefault(s => s.QuestId == questId);
+            var questDto = quests.FirstOrDefault(s => s.QuestId == questId);
             if (questDto == null)
             {
-                _logger.Error(_logLanguage[LogLanguageKey.QUEST_NOT_FOUND]);
+                logger.Error(logLanguage[LogLanguageKey.QUEST_NOT_FOUND]);
                 return true;
             }
             var quest = questDto.Adapt<Quest>();
-            quest.QuestObjectives = _questObjectives.Where(s => s.QuestId == questId).ToList();
+            quest.QuestObjectives = questObjectives.Where(s => s.QuestId == questId).ToList();
 
             if (character.Quests.Where(s => s.Value.CompletedOn == null).Any(q => !q.Value.Quest.IsSecondary) ||
                 (character.Quests.Where(s => s.Value.CompletedOn == null).Where(q => q.Value.Quest.QuestType != QuestType.WinRaid).ToList().Count >= 5 &&
@@ -249,7 +233,7 @@ namespace NosCore.GameObject.Services.QuestService
                 return false;
             }
 
-            if (quest.IsDaily && (characterQuest.Value?.CompletedOn?.Plus(Duration.FromDays(1)) > _clock.GetCurrentInstant()))
+            if (quest.IsDaily && (characterQuest.Value?.CompletedOn?.Plus(Duration.FromDays(1)) > clock.GetCurrentInstant()))
             {
                 await character.SendPacketAsync(new MsgiPacket
                 {

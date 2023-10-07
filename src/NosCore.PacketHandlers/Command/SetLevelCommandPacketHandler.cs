@@ -39,20 +39,10 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetLevelCommandPacketHandler : PacketHandler<SetLevelCommandPacket>, IWorldPacketHandler
-    {
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IStatHttpClient _statHttpClient;
-
-        public SetLevelCommandPacketHandler(IChannelHttpClient channelHttpClient, IStatHttpClient statHttpClient,
+    public class SetLevelCommandPacketHandler(IChannelHttpClient channelHttpClient, IStatHttpClient statHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient)
-        {
-            _channelHttpClient = channelHttpClient;
-            _statHttpClient = statHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-        }
-
+        : PacketHandler<SetLevelCommandPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(SetLevelCommandPacket levelPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
@@ -68,7 +58,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var channels = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
+            var channels = (await channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer);
 
             ConnectedAccount? receiver = null;
@@ -77,7 +67,7 @@ namespace NosCore.PacketHandlers.Command
             foreach (var channel in channels ?? new List<ChannelInfo>())
             {
                 var accounts = await
-                    _connectedAccountHttpClient.GetConnectedAccountAsync(channel).ConfigureAwait(false);
+                    connectedAccountHttpClient.GetConnectedAccountAsync(channel).ConfigureAwait(false);
 
                 var target = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Name == levelPacket.Name);
 
@@ -99,7 +89,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _statHttpClient.ChangeStatAsync(data, config!).ConfigureAwait(false);
+            await statHttpClient.ChangeStatAsync(data, config!).ConfigureAwait(false);
         }
     }
 }

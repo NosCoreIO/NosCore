@@ -33,20 +33,13 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService.Handlers
 {
-    public class MinilandEntranceHandler : IMapInstanceEntranceEventHandler
+    public class MinilandEntranceHandler(IMinilandService minilandProvider) : IMapInstanceEntranceEventHandler
     {
-        private readonly IMinilandService _minilandProvider;
-
-        public MinilandEntranceHandler(IMinilandService minilandProvider)
-        {
-            _minilandProvider = minilandProvider;
-        }
-
-        public bool Condition(MapInstance condition) => _minilandProvider.GetMinilandFromMapInstanceId(condition.MapInstanceId) != null;
+        public bool Condition(MapInstance condition) => minilandProvider.GetMinilandFromMapInstanceId(condition.MapInstanceId) != null;
 
         public async Task ExecuteAsync(RequestData<MapInstance> requestData)
         {
-            var miniland = _minilandProvider.GetMinilandFromMapInstanceId(requestData.Data.MapInstanceId)!;
+            var miniland = minilandProvider.GetMinilandFromMapInstanceId(requestData.Data.MapInstanceId)!;
             if (miniland.CharacterEntity!.VisualId != requestData.ClientSession.Character.CharacterId)
             {
                 await requestData.ClientSession.SendPacketAsync(new MsgPacket

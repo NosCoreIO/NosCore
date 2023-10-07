@@ -25,18 +25,11 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Game
 {
-    public class GuriPacketHandler : PacketHandler<GuriPacket>, IWorldPacketHandler
+    public class GuriPacketHandler(IGuriRunnerService guriProvider) : PacketHandler<GuriPacket>, IWorldPacketHandler
     {
-        private readonly IGuriRunnerService _guriProvider;
-
-        public GuriPacketHandler(IGuriRunnerService guriProvider)
-        {
-            _guriProvider = guriProvider;
-        }
-
         public override Task ExecuteAsync(GuriPacket guriPacket, ClientSession session)
         {
-            _guriProvider.GuriLaunch(session, guriPacket);
+            guriProvider.GuriLaunch(session, guriPacket);
             return Task.CompletedTask;
         }
     }

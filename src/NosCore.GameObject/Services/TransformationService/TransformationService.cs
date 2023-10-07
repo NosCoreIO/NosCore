@@ -40,27 +40,11 @@ using Serilog;
 
 namespace NosCore.GameObject.Services.TransformationService
 {
-    public class TransformationService : ITransformationService
-    {
-        private readonly IClock _clock;
-        private readonly IExperienceService _experienceService;
-        private readonly IJobExperienceService _jobExperienceService;
-        private readonly IHeroExperienceService _heroExperienceService;
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public TransformationService(IClock clock, IExperienceService experienceService,
+    public class TransformationService(IClock clock, IExperienceService experienceService,
             IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ILogger logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _clock = clock;
-            _experienceService = experienceService;
-            _jobExperienceService = jobExperienceService;
-            _heroExperienceService = heroExperienceService;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
+        : ITransformationService
+    {
         public async Task RemoveSpAsync(Character character)
         {
             character.UseSp = false;
@@ -68,7 +52,7 @@ namespace NosCore.GameObject.Services.TransformationService
             character.MorphUpgrade = 0;
             character.MorphDesign = 0;
             await character.SendPacketAsync(character.GenerateCond()).ConfigureAwait(false);
-            await character.SendPacketAsync(character.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
+            await character.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
             character.SpCooldown = 30;
             await character.SendPacketAsync(new SayiPacket
             {
@@ -109,7 +93,7 @@ namespace NosCore.GameObject.Services.TransformationService
             if (character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is
                 not SpecialistInstance sp)
             {
-                _logger.Error(_logLanguage[LogLanguageKey.USE_SP_WITHOUT_SP_ERROR]);
+                logger.Error(logLanguage[LogLanguageKey.USE_SP_WITHOUT_SP_ERROR]);
                 return;
             }
 
@@ -138,13 +122,13 @@ namespace NosCore.GameObject.Services.TransformationService
                 return;
             }
 
-            character.LastSp = _clock.GetCurrentInstant();
+            character.LastSp = clock.GetCurrentInstant();
             character.UseSp = true;
             character.Morph = sp.Item.Morph;
             character.MorphUpgrade = sp.Upgrade;
             character.MorphDesign = sp.Design;
             await character.MapInstance.SendPacketAsync(character.GenerateCMode()).ConfigureAwait(false);
-            await character.SendPacketAsync(character.GenerateLev(_experienceService, _jobExperienceService, _heroExperienceService)).ConfigureAwait(false);
+            await character.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
             await character.MapInstance.SendPacketAsync(character.GenerateEff(196)).ConfigureAwait(false);
             await character.MapInstance.SendPacketAsync(new GuriPacket
             {
@@ -189,7 +173,7 @@ namespace NosCore.GameObject.Services.TransformationService
                 }
                 else
                 {
-                    _logger.Error(_logLanguage[LogLanguageKey.USE_SP_WITHOUT_SP_ERROR]);
+                    logger.Error(logLanguage[LogLanguageKey.USE_SP_WITHOUT_SP_ERROR]);
                 }
             }
             else

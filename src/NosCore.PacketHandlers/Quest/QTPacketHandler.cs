@@ -29,15 +29,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Quest
 {
-    public class QtPacketHandler : PacketHandler<QtPacket>, IWorldPacketHandler
+    public class QtPacketHandler(IQuestService questProvider) : PacketHandler<QtPacket>, IWorldPacketHandler
     {
-        private readonly IQuestService _questProvider;
-
-        public QtPacketHandler(IQuestService questProvider)
-        {
-            _questProvider = questProvider;
-        }
-
         public override async Task ExecuteAsync(QtPacket qtPacket, ClientSession session)
         {
             var charQuest = session.Character.Quests.FirstOrDefault(q => q.Value.QuestId == qtPacket.Data);
@@ -49,7 +42,7 @@ namespace NosCore.PacketHandlers.Quest
             switch (qtPacket.Type)
             {
                 case QuestActionType.Validate:
-                    await _questProvider.RunScriptAsync(session.Character, session.Character.Script == null ? null : new ScriptClientPacket
+                    await questProvider.RunScriptAsync(session.Character, session.Character.Script == null ? null : new ScriptClientPacket
                     {
                         Type = QuestActionType.Validate,
                         FirstArgument = session.Character.Script.Argument1,
@@ -59,7 +52,7 @@ namespace NosCore.PacketHandlers.Quest
                     break;
 
                 case QuestActionType.Achieve:
-                    await _questProvider.RunScriptAsync(session.Character, session.Character.Script == null ? null : new ScriptClientPacket
+                    await questProvider.RunScriptAsync(session.Character, session.Character.Script == null ? null : new ScriptClientPacket
                     {
                         Type = QuestActionType.Achieve,
                         FirstArgument = session.Character.Script.Argument1,

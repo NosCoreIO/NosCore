@@ -41,42 +41,24 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.LoginService
 {
-    public class LoginService : ILoginService
-    {
-        private readonly IDao<AccountDto, long> _accountDao;
-        private readonly IAuthHttpClient _authHttpClient;
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IOptions<LoginConfiguration> _loginConfiguration;
-        private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly ISessionRefHolder _sessionRefHolder;
-
-        public LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
+    public class LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
             IAuthHttpClient authHttpClient,
             IChannelHttpClient channelHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient,
             IDao<CharacterDto, long> characterDao, ISessionRefHolder sessionRefHolder)
-        {
-            _loginConfiguration = loginConfiguration;
-            _accountDao = accountDao;
-            _authHttpClient = authHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _channelHttpClient = channelHttpClient;
-            _characterDao = characterDao;
-            _sessionRefHolder = sessionRefHolder;
-        }
-
+        : ILoginService
+    {
         public async Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,
             Networking.ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language)
         {
             try
             {
                 clientSession.SessionId = clientSession.Channel?.Id != null
-                    ? _sessionRefHolder[clientSession.Channel.Id.AsLongText()].SessionId : 0;
+                    ? sessionRefHolder[clientSession.Channel.Id.AsLongText()].SessionId : 0;
 
 
-                if (((_loginConfiguration.Value.ClientVersion != null) &&
-                        (clientVersion != _loginConfiguration.Value.ClientVersion))
-                    || ((_loginConfiguration.Value.Md5String != null) && (md5String != _loginConfiguration.Value.Md5String)))
+                if (((loginConfiguration.Value.ClientVersion != null) &&
+                        (clientVersion != loginConfiguration.Value.ClientVersion))
+                    || ((loginConfiguration.Value.Md5String != null) && (md5String != loginConfiguration.Value.Md5String)))
                 {
                     await clientSession.SendPacketAsync(new FailcPacket
                     {
@@ -88,10 +70,10 @@ namespace NosCore.GameObject.Services.LoginService
 
                 if (useApiAuth)
                 {
-                    username = await _authHttpClient.GetAwaitingConnectionAsync(null, passwordToken, clientSession.SessionId).ConfigureAwait(false);
+                    username = await authHttpClient.GetAwaitingConnectionAsync(null, passwordToken, clientSession.SessionId).ConfigureAwait(false);
                 }
 
-                var acc = await _accountDao.FirstOrDefaultAsync(s => s.Name.ToLower() == (username ?? "").ToLower()).ConfigureAwait(false);
+                var acc = await accountDao.FirstOrDefaultAsync(s => s.Name.ToLower() == (username ?? "").ToLower()).ConfigureAwait(false);
 
                 if ((acc != null) && (acc.Name != username))
                 {
@@ -130,14 +112,14 @@ namespace NosCore.GameObject.Services.LoginService
                         }).ConfigureAwait(false);
                         break;
                     default:
-                        var servers = (await _channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
+                        var servers = (await channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
                             ?.Where(c => c.Type == ServerType.WorldServer).ToList();
                         var alreadyConnnected = false;
                         var connectedAccount = new Dictionary<int, List<ConnectedAccount>>();
                         var i = 1;
                         foreach (var server in servers ?? new List<ChannelInfo>())
                         {
-                            var channelList = await _connectedAccountHttpClient.GetConnectedAccountAsync(
+                            var channelList = await connectedAccountHttpClient.GetConnectedAccountAsync(
                                 server).ConfigureAwait(false);
                             connectedAccount.Add(i, channelList);
                             i++;
@@ -159,7 +141,7 @@ namespace NosCore.GameObject.Services.LoginService
 
                         acc.Language = language;
 
-                        acc = await _accountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
+                        acc = await accountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
                         if (servers == null || servers.Count <= 0)
                         {
                             await clientSession.SendPacketAsync(new FailcPacket
@@ -213,7 +195,7 @@ namespace NosCore.GameObject.Services.LoginService
                             });
 
                             nstest.ServerCharacters[serverId].WorldId = i;
-                            nstest.ServerCharacters[serverId].CharacterCount = (byte)_characterDao.Where(o =>
+                            nstest.ServerCharacters[serverId].CharacterCount = (byte)characterDao.Where(o =>
                                 o.AccountId == acc.AccountId && o.State == CharacterState.Active &&
                                 o.ServerId == serverId)!.Count();
 

@@ -36,21 +36,13 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Parcel
 {
-    public class PstClientPacketHandler : PacketHandler<PstClientPacket>, IWorldPacketHandler
+    public class PstClientPacketHandler(IMailHttpClient mailHttpClient, IDao<CharacterDto, long> characterDao)
+        : PacketHandler<PstClientPacket>, IWorldPacketHandler
     {
-        private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IMailHttpClient _mailHttpClient;
-
-        public PstClientPacketHandler(IMailHttpClient mailHttpClient, IDao<CharacterDto, long> characterDao)
-        {
-            _mailHttpClient = mailHttpClient;
-            _characterDao = characterDao;
-        }
-
         public override async Task ExecuteAsync(PstClientPacket pstClientPacket, ClientSession clientSession)
         {
             var isCopy = pstClientPacket.Type == 2;
-            var mail = await _mailHttpClient.GetGiftAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+            var mail = await mailHttpClient.GetGiftAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
             switch (pstClientPacket.ActionType)
             {
                 case 3:
@@ -60,7 +52,7 @@ namespace NosCore.PacketHandlers.Parcel
                     }
 
                     var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<MailDto>(o => o.IsOpened), true.AsJsonElement().AsNode()));
-                    await _mailHttpClient.ViewGiftAsync(mail.MailDto.MailId, patch).ConfigureAwait(false);
+                    await mailHttpClient.ViewGiftAsync(mail.MailDto.MailId, patch).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(mail.GeneratePostMessage(pstClientPacket.Type)).ConfigureAwait(false);
                     break;
                 case 2:
@@ -69,7 +61,7 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    await _mailHttpClient.DeleteGiftAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+                    await mailHttpClient.DeleteGiftAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(new SayiPacket
                     {
                         VisualType = VisualType.Player,
@@ -84,10 +76,10 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    var dest = await _characterDao.FirstOrDefaultAsync(s => s.Name == pstClientPacket.ReceiverName && s.ServerId == clientSession.Character.ServerId).ConfigureAwait(false);
+                    var dest = await characterDao.FirstOrDefaultAsync(s => s.Name == pstClientPacket.ReceiverName && s.ServerId == clientSession.Character.ServerId).ConfigureAwait(false);
                     if (dest != null)
                     {
-                        await _mailHttpClient.SendMessageAsync(clientSession.Character, dest.CharacterId, pstClientPacket.Title, pstClientPacket.Text).ConfigureAwait(false);
+                        await mailHttpClient.SendMessageAsync(clientSession.Character, dest.CharacterId, pstClientPacket.Title, pstClientPacket.Text).ConfigureAwait(false);
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
                             VisualType = VisualType.Player,

@@ -38,22 +38,13 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
-    public class CModPacketHandler : PacketHandler<CModPacket>, IWorldPacketHandler
+    public class CModPacketHandler(IBazaarHttpClient bazaarHttpClient, ILogger logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<CModPacket>, IWorldPacketHandler
     {
-        private readonly IBazaarHttpClient _bazaarHttpClient;
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public CModPacketHandler(IBazaarHttpClient bazaarHttpClient, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _bazaarHttpClient = bazaarHttpClient;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public override async Task ExecuteAsync(CModPacket packet, ClientSession clientSession)
         {
-            var bz = await _bazaarHttpClient.GetBazaarLinkAsync(packet.BazaarId).ConfigureAwait(false);
+            var bz = await bazaarHttpClient.GetBazaarLinkAsync(packet.BazaarId).ConfigureAwait(false);
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name) &&
                 (bz.BazaarItem?.Price != packet.NewPrice))
             {
@@ -70,7 +61,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 if (bz.BazaarItem?.Amount == packet.Amount)
                 {
                     var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<BazaarLink>(o => o.BazaarItem!.Price), packet.NewPrice.AsJsonElement().AsNode()));
-                    var bzMod = await _bazaarHttpClient.ModifyAsync(packet.BazaarId, patch).ConfigureAwait(false);
+                    var bzMod = await bazaarHttpClient.ModifyAsync(packet.BazaarId, patch).ConfigureAwait(false);
 
                     if ((bzMod != null) && (bzMod.BazaarItem?.Price != bz.BazaarItem.Price))
                     {
@@ -97,7 +88,7 @@ namespace NosCore.PacketHandlers.Bazaar
             }
             else
             {
-                _logger.Error(_logLanguage[LogLanguageKey.BAZAAR_MOD_ERROR]);
+                logger.Error(logLanguage[LogLanguageKey.BAZAAR_MOD_ERROR]);
             }
         }
     }

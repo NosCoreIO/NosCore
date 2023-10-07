@@ -42,24 +42,11 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class CreateItemPackettHandler : PacketHandler<CreateItemPacket>, IWorldPacketHandler
-    {
-        private readonly IItemGenerationService _itemProvider;
-        private readonly List<ItemDto> _items;
-        private readonly ILogger _logger;
-        private readonly IOptions<WorldConfiguration> _worldConfiguration;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public CreateItemPackettHandler(ILogger logger, List<ItemDto> items, IOptions<WorldConfiguration> worldConfiguration,
+    public class CreateItemPackettHandler(ILogger logger, List<ItemDto> items,
+            IOptions<WorldConfiguration> worldConfiguration,
             IItemGenerationService itemProvider, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _items = items;
-            _itemProvider = itemProvider;
-            _worldConfiguration = worldConfiguration;
-            _logLanguage = logLanguage;
-        }
-
+        : PacketHandler<CreateItemPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(CreateItemPacket createItemPacket, ClientSession session)
         {
             var vnum = createItemPacket.VNum;
@@ -72,7 +59,7 @@ namespace NosCore.PacketHandlers.Command
                 return; // cannot create gold as item, use $Gold instead
             }
 
-            var iteminfo = _items.Find(item => item.VNum == vnum);
+            var iteminfo = items.Find(item => item.VNum == vnum);
             if (iteminfo == null)
             {
                 await session.SendPacketAsync(new MsgiPacket
@@ -127,11 +114,11 @@ namespace NosCore.PacketHandlers.Command
             }
             else if (createItemPacket.DesignOrAmount.HasValue && !createItemPacket.Upgrade.HasValue)
             {
-                amount = createItemPacket.DesignOrAmount.Value > _worldConfiguration.Value.MaxItemAmount
-                    ? _worldConfiguration.Value.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
+                amount = createItemPacket.DesignOrAmount.Value > worldConfiguration.Value.MaxItemAmount
+                    ? worldConfiguration.Value.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
             }
 
-            var inv = session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(
+            var inv = session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemProvider.Create(
                 vnum,
                 amount, rare, upgrade, design), session.Character.CharacterId));
 
@@ -166,8 +153,8 @@ namespace NosCore.PacketHandlers.Command
                         wearable.WaterResistance = (short)(wearable.Item.WaterResistance * upgrade);
                         break;
                     default:
-                        _logger.Debug(
-                            _logLanguage[LogLanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE]);
+                        logger.Debug(
+                            logLanguage[LogLanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE]);
                         break;
                 }
             }

@@ -33,19 +33,10 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
 {
-    public class ShoppingPacketHandler : PacketHandler<ShoppingPacket>, IWorldPacketHandler
+    public class ShoppingPacketHandler(ILogger logger, IDignityService dignityService,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<ShoppingPacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly IDignityService _dignityService;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public ShoppingPacketHandler(ILogger logger, IDignityService dignityService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _dignityService = dignityService;
-            _logLanguage = logLanguage;
-        }
-
         public override async Task ExecuteAsync(ShoppingPacket shoppingPacket, ClientSession clientSession)
         {
             var percent = 0d;
@@ -57,7 +48,7 @@ namespace NosCore.PacketHandlers.Shops
                     break;
                 case VisualType.Npc:
 
-                    percent = (_dignityService.GetLevelFromDignity(clientSession.Character.Dignity)) switch
+                    percent = (dignityService.GetLevelFromDignity(clientSession.Character.Dignity)) switch
                     {
                         DignityType.Dreadful => 1.1,
                         DignityType.Unqualified => 1.2,
@@ -70,14 +61,14 @@ namespace NosCore.PacketHandlers.Shops
                     break;
 
                 default:
-                    _logger.Error(_logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
+                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         shoppingPacket.VisualType);
                     return;
             }
 
             if (aliveEntity == null)
             {
-                _logger.Error(_logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
+                logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
                 return;
             }
 

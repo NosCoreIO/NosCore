@@ -35,15 +35,9 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Miniland
 {
-    public class AddobjPacketHandler : PacketHandler<AddobjPacket>, IWorldPacketHandler
+    public class AddobjPacketHandler(IMinilandService minilandProvider) : PacketHandler<AddobjPacket>,
+        IWorldPacketHandler
     {
-        private readonly IMinilandService _minilandProvider;
-
-        public AddobjPacketHandler(IMinilandService minilandProvider)
-        {
-            _minilandProvider = minilandProvider;
-        }
-
         public override async Task ExecuteAsync(AddobjPacket addobjPacket, ClientSession clientSession)
         {
             var minilandobject =
@@ -63,7 +57,7 @@ namespace NosCore.PacketHandlers.Miniland
                 return;
             }
 
-            if (_minilandProvider.GetMiniland(clientSession.Character.CharacterId).State != MinilandState.Lock)
+            if (minilandProvider.GetMiniland(clientSession.Character.CharacterId).State != MinilandState.Lock)
             {
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {
@@ -98,7 +92,7 @@ namespace NosCore.PacketHandlers.Miniland
                 }
             }
 
-            _minilandProvider.AddMinilandObject(minilandobj, clientSession.Character.CharacterId, minilandobject);
+            minilandProvider.AddMinilandObject(minilandobj, clientSession.Character.CharacterId, minilandobject);
 
             await clientSession.SendPacketAsync(minilandobj.GenerateEffect()).ConfigureAwait(false);
             await clientSession.SendPacketAsync(new MinilandPointPacket

@@ -38,18 +38,10 @@ using NosCore.Networking;
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class SpTransformPacketHandler : PacketHandler<SpTransformPacket>, IWorldPacketHandler
+    public class SpTransformPacketHandler(IClock clock, ITransformationService transformationService,
+            IGameLanguageLocalizer gameLanguageLocalizer)
+        : PacketHandler<SpTransformPacket>, IWorldPacketHandler
     {
-        private readonly IClock _clock;
-        private readonly ITransformationService _transformationService;
-        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
-
-        public SpTransformPacketHandler(IClock clock, ITransformationService transformationService, IGameLanguageLocalizer gameLanguageLocalizer)
-        {
-            _clock = clock;
-            _transformationService = transformationService;
-            _gameLanguageLocalizer = gameLanguageLocalizer;
-        }
         public override async Task ExecuteAsync(SpTransformPacket spTransformPacket, ClientSession clientSession)
         {
             if (spTransformPacket.Type == SlPacketType.ChangePoints)
@@ -83,12 +75,12 @@ namespace NosCore.PacketHandlers.Inventory
                     return;
                 }
 
-                var currentRunningSeconds = (_clock.GetCurrentInstant() - clientSession.Character.LastSp).TotalSeconds;
+                var currentRunningSeconds = (clock.GetCurrentInstant() - clientSession.Character.LastSp).TotalSeconds;
 
                 if (clientSession.Character.UseSp)
                 {
-                    clientSession.Character.LastSp = _clock.GetCurrentInstant();
-                    await _transformationService.RemoveSpAsync(clientSession.Character);
+                    clientSession.Character.LastSp = clock.GetCurrentInstant();
+                    await transformationService.RemoveSpAsync(clientSession.Character);
                 }
                 else
                 {
@@ -96,7 +88,7 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         await clientSession.SendPacketAsync(new MsgPacket
                         {
-                            Message = _gameLanguageLocalizer[LanguageKey.SP_NOPOINTS,
+                            Message = gameLanguageLocalizer[LanguageKey.SP_NOPOINTS,
                                 clientSession.Account.Language]
                         }).ConfigureAwait(false);
                         return;
@@ -106,7 +98,7 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         if (spTransformPacket.Type == SlPacketType.WearSpAndTransform)
                         {
-                            await _transformationService.ChangeSpAsync(clientSession.Character);
+                            await transformationService.ChangeSpAsync(clientSession.Character);
                         }
                         else
                         {

@@ -32,25 +32,15 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class ScriptParser
+    public class ScriptParser(IDao<ScriptDto, Guid> scriptDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         //script {ScriptId}	
         //{ScriptStepId}	{StepType} {Argument}
         private readonly string _fileCardDat = $"{Path.DirectorySeparatorChar}tutorial.dat";
-        private readonly IDao<ScriptDto, Guid> _scriptDao;
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public ScriptParser(IDao<ScriptDto, Guid> scriptDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _logLanguage = logLanguage;
-            _scriptDao = scriptDao;
-        }
 
         public async Task InsertScriptsAsync(string folder)
         {
-            var allScripts = _scriptDao.LoadAll().ToList();
+            var allScripts = scriptDao.LoadAll().ToList();
             using var stream = new StreamReader(folder + _fileCardDat, Encoding.Default);
             var scripts = new List<ScriptDto>();
             string? line;
@@ -84,8 +74,8 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            await _scriptDao.TryInsertOrUpdateAsync(scripts).ConfigureAwait(false);
-            _logger.Information(_logLanguage[LogLanguageKey.SCRIPTS_PARSED], scripts.Count);
+            await scriptDao.TryInsertOrUpdateAsync(scripts).ConfigureAwait(false);
+            logger.Information(logLanguage[LogLanguageKey.SCRIPTS_PARSED], scripts.Count);
         }
     }
 }

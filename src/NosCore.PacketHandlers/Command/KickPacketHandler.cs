@@ -29,18 +29,12 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class KickPacketHandler : PacketHandler<KickPacket>, IWorldPacketHandler
+    public class KickPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient) : PacketHandler<KickPacket>,
+        IWorldPacketHandler
     {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-
-        public KickPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient)
-        {
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-        }
-
         public override async Task ExecuteAsync(KickPacket kickPacket, ClientSession session)
         {
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, kickPacket.Name ?? session.Character.Name).ConfigureAwait(false);
+            var receiver = await connectedAccountHttpClient.GetCharacterAsync(null, kickPacket.Name ?? session.Character.Name).ConfigureAwait(false);
 
             if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
             {
@@ -51,7 +45,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _connectedAccountHttpClient.DisconnectAsync(receiver.Item2.ConnectedCharacter!.Id).ConfigureAwait(false);
+            await connectedAccountHttpClient.DisconnectAsync(receiver.Item2.ConnectedCharacter!.Id).ConfigureAwait(false);
         }
     }
 }

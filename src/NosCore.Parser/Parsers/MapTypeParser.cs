@@ -30,19 +30,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class MapTypeParser
+    public class MapTypeParser(IDao<MapTypeDto, short> dropDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        private readonly IDao<MapTypeDto, short> _dropDao;
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public MapTypeParser(IDao<MapTypeDto, short> dropDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _dropDao = dropDao;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         internal async Task InsertMapTypesAsync()
         {
             var mts = new List<MapTypeDto> { new()
@@ -232,8 +221,8 @@ namespace NosCore.Parser.Parsers
                     PotionDelay = 5000
                 }
             };
-            await _dropDao.TryInsertOrUpdateAsync(mts).ConfigureAwait(false);
-            _logger.Information(_logLanguage[LogLanguageKey.MAPTYPES_PARSED]);
+            await dropDao.TryInsertOrUpdateAsync(mts).ConfigureAwait(false);
+            logger.Information(logLanguage[LogLanguageKey.MAPTYPES_PARSED]);
         }
     }
 }

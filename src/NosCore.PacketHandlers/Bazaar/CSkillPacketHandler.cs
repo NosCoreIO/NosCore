@@ -31,14 +31,8 @@ using NodaTime;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
-    public class CSkillPacketHandler : PacketHandler<CSkillPacket>, IWorldPacketHandler
+    public class CSkillPacketHandler(IClock clock) : PacketHandler<CSkillPacket>, IWorldPacketHandler
     {
-        private readonly IClock _clock;
-
-        public CSkillPacketHandler(IClock clock)
-        {
-            _clock = clock;
-        }
         public override async Task ExecuteAsync(CSkillPacket packet, ClientSession clientSession)
         {
             var medalBonus = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
@@ -47,7 +41,7 @@ namespace NosCore.PacketHandlers.Bazaar
             if (medalBonus != null)
             {
                 var medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver;
-                var time = (int)(medalBonus.DateEnd == null ? 720 : (((Instant)medalBonus.DateEnd) - _clock.GetCurrentInstant()).TotalHours);
+                var time = (int)(medalBonus.DateEnd == null ? 720 : (((Instant)medalBonus.DateEnd) - clock.GetCurrentInstant()).TotalHours);
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,

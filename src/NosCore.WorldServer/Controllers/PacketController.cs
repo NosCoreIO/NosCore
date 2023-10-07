@@ -33,19 +33,10 @@ using NosCore.Shared.I18N;
 namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
-    public class PacketController : Controller
+    public class PacketController(ILogger logger, IDeserializer deserializer,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : Controller
     {
-        private readonly IDeserializer _deserializer;
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public PacketController(ILogger logger, IDeserializer deserializer, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _logLanguage = logLanguage;
-            _deserializer = deserializer;
-        }
-
         // POST api/packet
         [HttpPost]
         public async Task<IActionResult> PostPacketAsync([FromBody] PostedPacket postedPacket)
@@ -55,7 +46,7 @@ namespace NosCore.WorldServer.Controllers
                 return BadRequest();
             }
 
-            var message = _deserializer.Deserialize(postedPacket.Packet!);
+            var message = deserializer.Deserialize(postedPacket.Packet!);
 
             switch (postedPacket.ReceiverType)
             {
@@ -84,7 +75,7 @@ namespace NosCore.WorldServer.Controllers
                     await receiverSession.SendPacketAsync(message).ConfigureAwait(false);
                     break;
                 default:
-                    _logger.Error(_logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
+                    logger.Error(logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
                     break;
             }
 

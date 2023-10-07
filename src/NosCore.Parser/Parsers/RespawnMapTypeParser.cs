@@ -30,19 +30,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class RespawnMapTypeParser
+    public class RespawnMapTypeParser(IDao<RespawnMapTypeDto, long> respawnMapTypeDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly IDao<RespawnMapTypeDto, long> _respawnMapTypeDao;
-
-        public RespawnMapTypeParser(IDao<RespawnMapTypeDto, long> respawnMapTypeDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _respawnMapTypeDao = respawnMapTypeDao;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         internal async Task InsertRespawnMapTypeAsync()
         {
             var respawnmaptypemaps = new List<RespawnMapTypeDto>
@@ -104,8 +93,8 @@ namespace NosCore.Parser.Parsers
                     Name = "DefaultOasis"
                 }
             };
-            await _respawnMapTypeDao.TryInsertOrUpdateAsync(respawnmaptypemaps).ConfigureAwait(false);
-            _logger.Information(_logLanguage[LogLanguageKey.RESPAWNTYPE_PARSED],
+            await respawnMapTypeDao.TryInsertOrUpdateAsync(respawnmaptypemaps).ConfigureAwait(false);
+            logger.Information(logLanguage[LogLanguageKey.RESPAWNTYPE_PARSED],
                 respawnmaptypemaps.Count());
         }
     }

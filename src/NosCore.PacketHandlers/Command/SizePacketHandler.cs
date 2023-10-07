@@ -32,17 +32,9 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SizePacketHandler : PacketHandler<SizePacket>, IWorldPacketHandler
+    public class SizePacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<SizePacket>, IWorldPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public SizePacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public override Task ExecuteAsync(SizePacket sizePacket, ClientSession session)
         {
             IAliveEntity entity;
@@ -58,14 +50,14 @@ namespace NosCore.PacketHandlers.Command
                     entity = session.Character.MapInstance.Npcs.Find(s => s.VisualId == sizePacket.VisualId)!;
                     break;
                 default:
-                    _logger.Error(_logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
+                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         sizePacket.VisualType);
                     return Task.CompletedTask;
             }
 
             if (entity == null)
             {
-                _logger.Error(_logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST],
+                logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST],
                     sizePacket.VisualType);
                 return Task.CompletedTask;
             }

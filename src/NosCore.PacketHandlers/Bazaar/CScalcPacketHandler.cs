@@ -42,29 +42,15 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
-    public class CScalcPacketHandler : PacketHandler<CScalcPacket>, IWorldPacketHandler
+    public class CScalcPacketHandler(IOptions<WorldConfiguration> worldConfiguration,
+            IBazaarHttpClient bazaarHttpClient,
+            IItemGenerationService itemProvider, ILogger logger, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<CScalcPacket>, IWorldPacketHandler
     {
-        private readonly IBazaarHttpClient _bazaarHttpClient;
-        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
-        private readonly IItemGenerationService _itemProvider;
-        private readonly ILogger _logger;
-        private readonly IOptions<WorldConfiguration> _worldConfiguration;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public CScalcPacketHandler(IOptions<WorldConfiguration> worldConfiguration, IBazaarHttpClient bazaarHttpClient,
-            IItemGenerationService itemProvider, ILogger logger, IDao<IItemInstanceDto?, Guid> itemInstanceDao, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _worldConfiguration = worldConfiguration;
-            _bazaarHttpClient = bazaarHttpClient;
-            _itemProvider = itemProvider;
-            _logger = logger;
-            _itemInstanceDao = itemInstanceDao;
-            _logLanguage = logLanguage;
-        }
-
         public override async Task ExecuteAsync(CScalcPacket packet, ClientSession clientSession)
         {
-            var bz = await _bazaarHttpClient.GetBazaarLinkAsync(packet.BazaarId).ConfigureAwait(false);
+            var bz = await bazaarHttpClient.GetBazaarLinkAsync(packet.BazaarId).ConfigureAwait(false);
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name))
             {
                 var soldedamount = bz.BazaarItem!.Amount - bz.ItemInstance!.Amount;
@@ -72,7 +58,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 var price = bz.BazaarItem.Price * soldedamount - taxes;
                 if (clientSession.Character.InventoryService.CanAddItem(bz.ItemInstance.ItemVNum))
                 {
-                    if (clientSession.Character.Gold + price <= _worldConfiguration.Value.MaxGoldAmount)
+                    if (clientSession.Character.Gold + price <= worldConfiguration.Value.MaxGoldAmount)
                     {
                         clientSession.Character.Gold += price;
                         await clientSession.SendPacketAsync(new SayiPacket
@@ -95,19 +81,19 @@ namespace NosCore.PacketHandlers.Bazaar
                         }).ConfigureAwait(false);
                         await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
                         
-                        var itemInstance = await _itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == bz.ItemInstance.Id).ConfigureAwait(false);
+                        var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == bz.ItemInstance.Id).ConfigureAwait(false);
                         if (itemInstance == null)
                         {
                             return;
                         }
-                        var item = _itemProvider.Convert(itemInstance);
+                        var item = itemProvider.Convert(itemInstance);
                         item.Id = Guid.NewGuid();
 
                         var newInv =
                             clientSession.Character.InventoryService.AddItemToPocket(
                                 InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
                         await clientSession.SendPacketAsync(newInv!.GeneratePocketChange()).ConfigureAwait(false);
-                        var remove = await _bazaarHttpClient.RemoveAsync(packet.BazaarId, bz.ItemInstance.Amount,
+                        var remove = await bazaarHttpClient.RemoveAsync(packet.BazaarId, bz.ItemInstance.Amount,
                             clientSession.Character.Name).ConfigureAwait(false);
                         if (remove)
                         {
@@ -125,7 +111,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             return;
                         }
 
-                        _logger.Error(_logLanguage[LogLanguageKey.BAZAAR_DELETE_ERROR]);
+                        logger.Error(logLanguage[LogLanguageKey.BAZAAR_DELETE_ERROR]);
                     }
                     else
                     {

@@ -31,15 +31,8 @@ using System.Threading.Tasks;
 namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
-    public class IncommingMailController : Controller
+    public class IncommingMailController(IGameLanguageLocalizer gameLanguageLocalizer) : Controller
     {
-        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
-
-        public IncommingMailController(IGameLanguageLocalizer gameLanguageLocalizer)
-        {
-            _gameLanguageLocalizer = gameLanguageLocalizer;
-        }
-
         [HttpPost]
         public async Task<IActionResult> IncommingMailAsync([FromBody] MailData data)
         {
@@ -58,7 +51,7 @@ namespace NosCore.WorldServer.Controllers
             if (data.ItemInstance != null)
             {
                 await session.SendPacketAsync(session.GenerateSay(
-                    string.Format(_gameLanguageLocalizer[LanguageKey.ITEM_GIFTED, session.AccountLanguage],
+                    string.Format(gameLanguageLocalizer[LanguageKey.ITEM_GIFTED, session.AccountLanguage],
                         data.ItemInstance.Amount), SayColorType.Green)).ConfigureAwait(false);
             }
 

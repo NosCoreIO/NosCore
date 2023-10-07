@@ -29,13 +29,7 @@ namespace NosCore.GameObject
     {
         private int? _size;
 
-        public Shop()
-        {
-            ShopItems = new ConcurrentDictionary<int, ShopItem>();
-            Name = new I18NString();
-        }
-
-        public ConcurrentDictionary<int, ShopItem> ShopItems { get; set; }
+        public ConcurrentDictionary<int, ShopItem> ShopItems { get; set; } = new();
 
         public ClientSession? Session { get; set; }
         public long Sell { get; internal set; }
@@ -45,6 +39,6 @@ namespace NosCore.GameObject
             get => _size ?? ShopItems.Values.Select(s => s.Slot).DefaultIfEmpty().Max() + 1;
             set => _size = value;
         }
-        public I18NString Name { get; set; }
+        public I18NString Name { get; set; } = new();
     }
 }

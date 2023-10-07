@@ -284,7 +284,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             _session!.Character.Gold = 5000000;
             _session.Character.InventoryService!
                 .AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!.First();
-            _bazaarHttpClient.Reset();
+            _bazaarHttpClient!.Reset();
             _bazaarHttpClient!.Setup(s => s.AddBazaarAsync(It.IsAny<BazaarRequest>())).ReturnsAsync(LanguageKey.LIMIT_EXCEEDED);
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {

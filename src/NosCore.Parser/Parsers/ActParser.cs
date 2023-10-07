@@ -59,21 +59,9 @@ namespace NosCore.Parser.Parsers
     //A   {ActId}	{Name}
     //~
 
-    public class ActParser
+    public class ActParser(IDao<ActDto, byte> actDao, IDao<ActPartDto, byte> actDescDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         private readonly string _fileQuestDat = $"{Path.DirectorySeparatorChar}act_desc.dat";
-        private readonly ILogger _logger;
-        private readonly IDao<ActDto, byte> _actDao;
-        private readonly IDao<ActPartDto, byte> _actDescDao;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public ActParser(IDao<ActDto, byte> actDao, IDao<ActPartDto, byte> actDescDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _actDao = actDao;
-            _actDescDao = actDescDao;
-            _logLanguage = logLanguage;
-        }
 
         public async Task ImportActAsync(string folder)
         {
@@ -108,9 +96,9 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            await _actDao.TryInsertOrUpdateAsync(acts).ConfigureAwait(false);
-            await _actDescDao.TryInsertOrUpdateAsync(actParts).ConfigureAwait(false);
-            _logger.Information(_logLanguage[LogLanguageKey.ACTS_PARTS_PARSED], actParts.Count);
+            await actDao.TryInsertOrUpdateAsync(acts).ConfigureAwait(false);
+            await actDescDao.TryInsertOrUpdateAsync(actParts).ConfigureAwait(false);
+            logger.Information(logLanguage[LogLanguageKey.ACTS_PARTS_PARSED], actParts.Count);
         }
     }
 }

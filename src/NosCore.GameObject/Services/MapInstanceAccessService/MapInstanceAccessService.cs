@@ -25,23 +25,16 @@ using System.Linq;
 
 namespace NosCore.GameObject.Services.MapInstanceAccessService
 {
-    public class MapInstanceAccessorService : IMapInstanceAccessorService
+    public class MapInstanceAccessorService(MapInstanceHolder holder) : IMapInstanceAccessorService
     {
-        private readonly MapInstanceHolder _holder;
-
-        public MapInstanceAccessorService(MapInstanceHolder holder)
-        {
-            _holder = holder;
-        }
-
         public MapInstance? GetMapInstance(Guid id)
         {
-            return _holder.MapInstances.ContainsKey(id) ? _holder.MapInstances[id] : null;
+            return holder.MapInstances.ContainsKey(id) ? holder.MapInstances[id] : null;
         }
 
         public MapInstance? GetBaseMapById(short mapId)
         {
-            var mapInstance = _holder.MapInstances.FirstOrDefault(s =>
+            var mapInstance = holder.MapInstances.FirstOrDefault(s =>
                 (s.Value?.Map.MapId == mapId) && (s.Value.MapInstanceType == MapInstanceType.BaseMapInstance));
             return mapInstance.Key == default ? null : mapInstance.Value;
         }

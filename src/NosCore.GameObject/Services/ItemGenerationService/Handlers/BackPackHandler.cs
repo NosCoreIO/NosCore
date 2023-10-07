@@ -38,17 +38,8 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
-    public class BackPackHandler : IUseItemEventHandler
+    public class BackPackHandler(IOptions<WorldConfiguration> conf, IClock clock) : IUseItemEventHandler
     {
-        private readonly IOptions<WorldConfiguration> _conf;
-        private readonly IClock _clock;
-
-        public BackPackHandler(IOptions<WorldConfiguration> conf, IClock clock)
-        {
-            _conf = conf;
-            _clock = clock;
-        }
-
         public bool Condition(Item.Item item)
         {
             return (item.Effect == ItemEffectType.InventoryUpgrade || item.Effect == ItemEffectType.InventoryTicketUpgrade);
@@ -87,7 +78,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto
             {
                 CharacterId = requestData.ClientSession.Character.CharacterId,
-                DateEnd = itemInstance.ItemInstance.Item.EffectValue == 0 ? (Instant?)null : _clock.GetCurrentInstant().Plus(Duration.FromDays(itemInstance.ItemInstance.Item.EffectValue)),
+                DateEnd = itemInstance.ItemInstance.Item.EffectValue == 0 ? (Instant?)null : clock.GetCurrentInstant().Plus(Duration.FromDays(itemInstance.ItemInstance.Item.EffectValue)),
                 StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.InventoryTicketUpgrade ? StaticBonusType.InventoryTicketUpgrade : StaticBonusType.BackPack
             });
 
@@ -106,7 +97,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 itemInstance.ItemInstanceId);
 
             requestData.ClientSession.Character.LoadExpensions();
-            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateExts(_conf)).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateExts(conf)).ConfigureAwait(false);
         }
     }
 }

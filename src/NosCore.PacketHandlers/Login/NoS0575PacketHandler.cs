@@ -32,31 +32,20 @@ using NosCore.GameObject.Services.LoginService;
 
 namespace NosCore.PacketHandlers.Login
 {
-    public class NoS0575PacketHandler : PacketHandler<NoS0575Packet>, ILoginPacketHandler
+    public class NoS0575PacketHandler(ILoginService loginService, IOptions<LoginConfiguration> loginConfiguration,
+            ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<NoS0575Packet>, ILoginPacketHandler
     {
-        private readonly ILogger _logger;
-        private readonly IOptions<LoginConfiguration> _loginConfiguration;
-        private readonly ILoginService _loginService;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public NoS0575PacketHandler(ILoginService loginService, IOptions<LoginConfiguration> loginConfiguration, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _loginService = loginService;
-            _loginConfiguration = loginConfiguration;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public override Task ExecuteAsync(NoS0575Packet packet, ClientSession clientSession)
         {
-            if (!_loginConfiguration.Value.EnforceNewAuth)
+            if (!loginConfiguration.Value.EnforceNewAuth)
             {
-                return _loginService.LoginAsync(packet.Username, packet.Md5String!, packet.ClientVersion!, clientSession,
+                return loginService.LoginAsync(packet.Username, packet.Md5String!, packet.ClientVersion!, clientSession,
                     packet.Password!,
                     false, packet.RegionType);
             }
 
-            _logger.Warning(_logLanguage[LogLanguageKey.TRY_OLD_AUTH], packet.Username);
+            logger.Warning(logLanguage[LogLanguageKey.TRY_OLD_AUTH], packet.Username);
             return Task.CompletedTask;
 
         }

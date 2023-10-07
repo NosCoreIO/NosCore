@@ -31,29 +31,22 @@ namespace NosCore.MasterServer.Controllers
 {
     [Route("api/[controller]")]
     [AuthorizeRole(AuthorityType.GameMaster)]
-    public class BazaarController : Controller
+    public class BazaarController(IBazaarService bazaarService) : Controller
     {
-        private readonly IBazaarService _bazaarService;
-
-        public BazaarController(IBazaarService bazaarService)
-        {
-            _bazaarService = bazaarService;
-        }
-
         [HttpGet]
         public List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
-            byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter) => _bazaarService.GetBazaar(id, index, pageSize, typeFilter,
+            byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter) => bazaarService.GetBazaar(id, index, pageSize, typeFilter,
             subTypeFilter, levelFilter, rareFilter, upgradeFilter, sellerFilter);
 
 
         [HttpDelete]
-        public Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName) => _bazaarService.DeleteBazaarAsync(id, count, requestCharacterName);
+        public Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName) => bazaarService.DeleteBazaarAsync(id, count, requestCharacterName);
 
         [HttpPost]
-        public Task<LanguageKey> AddBazaarAsync([FromBody] BazaarRequest bazaarRequest) => _bazaarService.AddBazaarAsync(bazaarRequest.ItemInstanceId,
+        public Task<LanguageKey> AddBazaarAsync([FromBody] BazaarRequest bazaarRequest) => bazaarService.AddBazaarAsync(bazaarRequest.ItemInstanceId,
             bazaarRequest.CharacterId, bazaarRequest.CharacterName, bazaarRequest.HasMedal, bazaarRequest.Price, bazaarRequest.IsPackage, bazaarRequest.Duration, bazaarRequest.Amount);
 
         [HttpPatch]
-        public Task<BazaarLink?> ModifyBazaarAsync(long id, [FromBody] Json.Patch.JsonPatch bzMod) => _bazaarService.ModifyBazaarAsync(id, bzMod);
+        public Task<BazaarLink?> ModifyBazaarAsync(long id, [FromBody] Json.Patch.JsonPatch bzMod) => bazaarService.ModifyBazaarAsync(id, bzMod);
     }
 }

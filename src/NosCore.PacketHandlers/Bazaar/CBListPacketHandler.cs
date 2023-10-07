@@ -32,24 +32,14 @@ using static NosCore.Packets.ServerPackets.Auction.RcbListPacket;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
-    public class CBListPacketHandler : PacketHandler<CBListPacket>, IWorldPacketHandler
+    public class CBListPacketHandler(IBazaarHttpClient bazaarHttpClient, List<ItemDto> items, IClock clock)
+        : PacketHandler<CBListPacket>, IWorldPacketHandler
     {
-        private readonly IBazaarHttpClient _bazaarHttpClient;
-        private readonly List<ItemDto> _items;
-        private readonly IClock _clock;
-
-        public CBListPacketHandler(IBazaarHttpClient bazaarHttpClient, List<ItemDto> items, IClock clock)
-        {
-            _bazaarHttpClient = bazaarHttpClient;
-            _items = items;
-            _clock = clock;
-        }
-
         public override async Task ExecuteAsync(CBListPacket packet, ClientSession clientSession)
         {
             var itemssearch = packet.ItemVNumFilter?.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
 
-            var bzlist = await _bazaarHttpClient.GetBazaarLinksAsync(-1, packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
+            var bzlist = await bazaarHttpClient.GetBazaarLinksAsync(-1, packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
                 packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null).ConfigureAwait(false);
             var bzlistsearched = bzlist.Where(s => itemssearch!.Contains(s.ItemInstance!.ItemVNum)).ToList();
 
@@ -58,22 +48,22 @@ namespace NosCore.PacketHandlers.Bazaar
             definitivelist = packet.OrderFilter switch
             {
                 0 => definitivelist
-                    .OrderBy(s => _items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
+                    .OrderBy(s => items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
                     .ThenBy(s => s.BazaarItem!.Price)
                     .ToList(),
                 1 => definitivelist
-                    .OrderBy(s => _items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
+                    .OrderBy(s => items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
                     .ThenByDescending(s => s.BazaarItem!.Price)
                     .ToList(),
                 2 => definitivelist
-                    .OrderBy(s => _items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
+                    .OrderBy(s => items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
                     .ThenBy(s => s.BazaarItem!.Amount)
                     .ToList(),
                 3 => definitivelist
-                    .OrderBy(s => _items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
+                    .OrderBy(s => items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
                     .ThenByDescending(s => s.BazaarItem!.Amount)
                     .ToList(),
-                _ => definitivelist.OrderBy(s => _items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
+                _ => definitivelist.OrderBy(s => items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
                     .ToList()
             };
 
@@ -82,7 +72,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 PageIndex = packet.Index,
                 Items = definitivelist
                     .Where(s => ((s.BazaarItem!.DateStart.Plus(Duration.FromHours(s.BazaarItem.Duration))
-                         > _clock.GetCurrentInstant()) && (s.ItemInstance!.Amount > 0)))
+                         > clock.GetCurrentInstant()) && (s.ItemInstance!.Amount > 0)))
                     .Select(bzlink => new RcbListElementPacket
                     {
                         AuctionId = bzlink.BazaarItem!.BazaarItemId,
@@ -93,7 +83,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         IsPackage = bzlink.BazaarItem.IsPackage,
                         Price = bzlink.BazaarItem.Price,
                         MinutesLeft =
-                            (long)(bzlink.BazaarItem.DateStart.Plus(Duration.FromHours(bzlink.BazaarItem.Duration)).Minus(_clock.GetCurrentInstant()))
+                            (long)(bzlink.BazaarItem.DateStart.Plus(Duration.FromHours(bzlink.BazaarItem.Duration)).Minus(clock.GetCurrentInstant()))
                             .TotalMinutes,
                         Unknown1 = false,
                         Unknown = 2,

@@ -223,7 +223,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             for (var i = 0; i < 12; i++)
             {
                 var guid = Guid.NewGuid();
-                _mockItemDao.Reset();
+                _mockItemDao!.Reset();
                 _mockItemDao!.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                     .Returns<IItemInstanceDto?>(Task.FromResult);
                 _mockItemDao!

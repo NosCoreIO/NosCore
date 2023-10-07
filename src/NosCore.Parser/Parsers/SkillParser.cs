@@ -32,7 +32,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class SkillParser
+    public class SkillParser(IDao<BCardDto, short> bCardDao, IDao<ComboDto, int> comboDao,
+        IDao<SkillDto, short> skillDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         //  VNUM    {VNum}  
         //	NAME    {Name}
@@ -54,21 +55,6 @@ namespace NosCore.Parser.Parsers
 
         //#=========================================================
         private readonly string _fileCardDat = $"{Path.DirectorySeparatorChar}Skill.dat";
-        private readonly IDao<BCardDto, short> _bCardDao;
-        private readonly IDao<ComboDto, int> _comboDao;
-        private readonly IDao<SkillDto, short> _skillDao;
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public SkillParser(IDao<BCardDto, short> bCardDao, IDao<ComboDto, int> comboDao,
-            IDao<SkillDto, short> skillDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _bCardDao = bCardDao;
-            _comboDao = comboDao;
-            _skillDao = skillDao;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
 
         public async Task InsertSkillsAsync(string folder)
         {
@@ -106,7 +92,7 @@ namespace NosCore.Parser.Parsers
                 {nameof(SkillDto.LevelMinimum), chunk => chunk["LEVEL"][0][2] != "-1" ? byte.Parse(chunk["LEVEL"][0][2]) : (byte)0 },
             };
             var genericParser = new GenericParser<SkillDto>(folder + _fileCardDat,
-                "#=========================================================", 1, actionList, _logger, _logLanguage);
+                "#=========================================================", 1, actionList, logger, logLanguage);
             var skills = await genericParser.GetDtosAsync().ConfigureAwait(false);
 
             foreach (var skill in skills.Where(s => s.Class > 31))
@@ -134,11 +120,11 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            await _skillDao.TryInsertOrUpdateAsync(skills).ConfigureAwait(false);
-            await _comboDao.TryInsertOrUpdateAsync(skills.Where(s => s.Combo != null).SelectMany(s => s.Combo)).ConfigureAwait(false);
-            await _bCardDao.TryInsertOrUpdateAsync(skills.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
+            await skillDao.TryInsertOrUpdateAsync(skills).ConfigureAwait(false);
+            await comboDao.TryInsertOrUpdateAsync(skills.Where(s => s.Combo != null).SelectMany(s => s.Combo)).ConfigureAwait(false);
+            await bCardDao.TryInsertOrUpdateAsync(skills.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
 
-            _logger.Information(_logLanguage[LogLanguageKey.SKILLS_PARSED], skills.Count);
+            logger.Information(logLanguage[LogLanguageKey.SKILLS_PARSED], skills.Count);
         }
 
         private List<BCardDto> AddBCards(Dictionary<string, string[][]> chunks)

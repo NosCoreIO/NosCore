@@ -26,18 +26,11 @@ using NosCore.GameObject.Services.LoginService;
 
 namespace NosCore.PacketHandlers.Login
 {
-    public class NoS0577PacketHandler : PacketHandler<NoS0577Packet>, ILoginPacketHandler
+    public class NoS0577PacketHandler(ILoginService loginService) : PacketHandler<NoS0577Packet>, ILoginPacketHandler
     {
-        private readonly ILoginService _loginService;
-
-        public NoS0577PacketHandler(ILoginService loginService)
-        {
-            _loginService = loginService;
-        }
-
         public override Task ExecuteAsync(NoS0577Packet packet, ClientSession clientSession)
         {
-            return _loginService.LoginAsync(null, packet.Md5String!, packet.ClientVersion!, clientSession,
+            return loginService.LoginAsync(null, packet.Md5String!, packet.ClientVersion!, clientSession,
                 packet.AuthToken!, true, packet.RegionType);
         }
     }

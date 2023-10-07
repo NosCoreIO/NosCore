@@ -35,26 +35,16 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
-    public class FinsPacketHandler : PacketHandler<FinsPacket>, IWorldPacketHandler
-    {
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IFriendHttpClient _friendHttpClient;
-
-        public FinsPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient,
+    public class FinsPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient,
             IConnectedAccountHttpClient connectedAccountHttpClient)
-        {
-            _friendHttpClient = friendHttpClient;
-            _channelHttpClient = channelHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-        }
-
+        : PacketHandler<FinsPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(FinsPacket finsPacket, ClientSession session)
         {
             var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == finsPacket.CharacterId);
             if (targetCharacter != null)
             {
-                var result = await _friendHttpClient.AddFriendAsync(new FriendShipRequest
+                var result = await friendHttpClient.AddFriendAsync(new FriendShipRequest
                 { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket }).ConfigureAwait(false);
 
                 switch (result)
@@ -112,10 +102,10 @@ namespace NosCore.PacketHandlers.Friend
                             Message = Game18NConstString.Registered
                         }).ConfigureAwait(false);
 
-                        await targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
-                            _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
-                        await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient,
-                            _channelHttpClient, _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                        await targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(friendHttpClient, channelHttpClient,
+                            connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                        await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient,
+                            channelHttpClient, connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
                         break;
 
                     case LanguageKey.FRIEND_REJECTED:

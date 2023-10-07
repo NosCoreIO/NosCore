@@ -36,21 +36,10 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.BazaarService
 {
-    public class BazaarService : IBazaarService
-    {
-        private readonly IDao<BazaarItemDto, long> _bazaarItemDao;
-        private readonly BazaarItemsHolder _holder;
-        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
-        private readonly IClock _clock;
-
-        public BazaarService(BazaarItemsHolder holder, IDao<BazaarItemDto, long> bazaarItemDao,
+    public class BazaarService(BazaarItemsHolder holder, IDao<BazaarItemDto, long> bazaarItemDao,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao, IClock clock)
-        {
-            _bazaarItemDao = bazaarItemDao;
-            _itemInstanceDao = itemInstanceDao;
-            _holder = holder;
-            _clock = clock;
-        }
+        : IBazaarService
+    {
         public List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
             byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter)
         {
@@ -68,11 +57,11 @@ namespace NosCore.GameObject.Services.BazaarService
             IEnumerable<BazaarLink> bzlinks;
             if (id != -1)
             {
-                bzlinks = _holder.BazaarItems.Values.Where(s => s.BazaarItem?.BazaarItemId == id);
+                bzlinks = holder.BazaarItems.Values.Where(s => s.BazaarItem?.BazaarItemId == id);
             }
             else
             {
-                bzlinks = _holder.BazaarItems.Values.Where(s =>
+                bzlinks = holder.BazaarItems.Values.Where(s =>
                     (s.BazaarItem?.SellerId == sellerFilter) || (sellerFilter == null));
             }
 
@@ -177,7 +166,7 @@ namespace NosCore.GameObject.Services.BazaarService
 
         public async Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName)
         {
-            var bzlink = _holder.BazaarItems.Values.FirstOrDefault(s => s.BazaarItem?.BazaarItemId == id);
+            var bzlink = holder.BazaarItems.Values.FirstOrDefault(s => s.BazaarItem?.BazaarItemId == id);
             if (bzlink == null)
             {
                 throw new ArgumentException();
@@ -190,15 +179,15 @@ namespace NosCore.GameObject.Services.BazaarService
 
             if ((bzlink.ItemInstance?.Amount == count) && (requestCharacterName == bzlink.SellerName))
             {
-                await _bazaarItemDao.TryDeleteAsync(bzlink.BazaarItem!.BazaarItemId).ConfigureAwait(false);
-                _holder.BazaarItems.TryRemove(bzlink.BazaarItem.BazaarItemId, out _);
-                await _itemInstanceDao.TryDeleteAsync(bzlink.ItemInstance.Id).ConfigureAwait(false);
+                await bazaarItemDao.TryDeleteAsync(bzlink.BazaarItem!.BazaarItemId).ConfigureAwait(false);
+                holder.BazaarItems.TryRemove(bzlink.BazaarItem.BazaarItemId, out _);
+                await itemInstanceDao.TryDeleteAsync(bzlink.ItemInstance.Id).ConfigureAwait(false);
             }
             else
             {
                 var item = (IItemInstanceDto)bzlink.ItemInstance!;
                 item.Amount -= count;
-                await _itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(false);
+                await itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(false);
             }
 
             return true;
@@ -206,13 +195,13 @@ namespace NosCore.GameObject.Services.BazaarService
 
         public async Task<LanguageKey> AddBazaarAsync(Guid itemInstanceId, long characterId, string? characterName, bool hasMedal, long price, bool isPackage, short duration, short amount)
         {
-            var items = _holder.BazaarItems.Values.Where(o => o.BazaarItem!.SellerId == characterId);
+            var items = holder.BazaarItems.Values.Where(o => o.BazaarItem!.SellerId == characterId);
             if (items.Count() > 10 * (hasMedal ? 10 : 1) - 1)
             {
                 return LanguageKey.LIMIT_EXCEEDED;
             }
 
-            var item = await _itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == itemInstanceId).ConfigureAwait(true);
+            var item = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == itemInstanceId).ConfigureAwait(true);
             if ((item == null) || (item.Amount < amount) || (amount < 0) ||
                 (price < 0))
             {
@@ -228,16 +217,16 @@ namespace NosCore.GameObject.Services.BazaarService
             {
                 itemId = item.Id;
                 item.Amount -= amount;
-                item = await _itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(true);
+                item = await itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(true);
                 item!.Id = Guid.NewGuid();
             }
 
-            item = await _itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(true);
+            item = await itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(true);
 
             var bazaarItem = new BazaarItemDto
             {
                 Amount = amount,
-                DateStart = _clock.GetCurrentInstant(),
+                DateStart = clock.GetCurrentInstant(),
                 Duration = duration,
                 IsPackage = isPackage,
                 MedalUsed = hasMedal,
@@ -245,8 +234,8 @@ namespace NosCore.GameObject.Services.BazaarService
                 SellerId = characterId,
                 ItemInstanceId = item!.Id
             };
-            bazaarItem = await _bazaarItemDao.TryInsertOrUpdateAsync(bazaarItem).ConfigureAwait(true);
-            _holder.BazaarItems.TryAdd(bazaarItem.BazaarItemId,
+            bazaarItem = await bazaarItemDao.TryInsertOrUpdateAsync(bazaarItem).ConfigureAwait(true);
+            holder.BazaarItems.TryAdd(bazaarItem.BazaarItemId,
                 new BazaarLink
                 {
                     BazaarItem = bazaarItem, SellerName = characterName,
@@ -258,7 +247,7 @@ namespace NosCore.GameObject.Services.BazaarService
 
         public async Task<BazaarLink?> ModifyBazaarAsync(long id, Json.Patch.JsonPatch bzMod)
         {
-            var item = _holder.BazaarItems.Values
+            var item = holder.BazaarItems.Values
                 .FirstOrDefault(o => o.BazaarItem?.BazaarItemId == id);
             if ((item?.BazaarItem == null) || (item.BazaarItem?.Amount != item.ItemInstance?.Amount))
             {
@@ -268,8 +257,8 @@ namespace NosCore.GameObject.Services.BazaarService
             var result = bzMod.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(item, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement.AsNode());
             item = JsonSerializer.Deserialize<BazaarLink>(result!.Result, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
             var bz = item!.BazaarItem!;
-            await _bazaarItemDao.TryInsertOrUpdateAsync(bz).ConfigureAwait(true);
-            _holder.BazaarItems[item.BazaarItem!.BazaarItemId] = item;
+            await bazaarItemDao.TryInsertOrUpdateAsync(bz).ConfigureAwait(true);
+            holder.BazaarItems[item.BazaarItem!.BazaarItemId] = item;
             return item;
         }
     }

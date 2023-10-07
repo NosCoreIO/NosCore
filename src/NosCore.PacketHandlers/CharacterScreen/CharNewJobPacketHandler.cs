@@ -31,22 +31,15 @@ using NosCore.Core.Configuration;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
-    public class CharNewJobPacketHandler : PacketHandler<CharNewJobPacket>, IWorldPacketHandler
+    public class CharNewJobPacketHandler(IDao<CharacterDto, long> characterDao,
+            IOptions<WorldConfiguration> configuration)
+        : PacketHandler<CharNewJobPacket>, IWorldPacketHandler
     {
-        private readonly IDao<CharacterDto, long> _characterDao;
-        private readonly IOptions<WorldConfiguration> _configuration;
-
-        public CharNewJobPacketHandler(IDao<CharacterDto, long> characterDao, IOptions<WorldConfiguration> configuration)
-        {
-            _characterDao = characterDao;
-            _configuration = configuration;
-        }
-
         public override async Task ExecuteAsync(CharNewJobPacket packet, ClientSession clientSession)
         {
             //TODO add a flag on Account
-            if (await _characterDao.FirstOrDefaultAsync(s =>
-                (s.Level >= 80) && (s.AccountId == clientSession.Account.AccountId) && (s.ServerId == _configuration.Value.ServerId) &&
+            if (await characterDao.FirstOrDefaultAsync(s =>
+                (s.Level >= 80) && (s.AccountId == clientSession.Account.AccountId) && (s.ServerId == configuration.Value.ServerId) &&
                 (s.State == CharacterState.Active)).ConfigureAwait(false) == null)
             {
                 //Needs at least a level 80 to create a martial artist
@@ -54,7 +47,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            if (await _characterDao.FirstOrDefaultAsync(s =>
+            if (await characterDao.FirstOrDefaultAsync(s =>
                 (s.AccountId == clientSession.Account.AccountId) &&
                 (s.Class == CharacterClassType.MartialArtist) && (s.State == CharacterState.Active)).ConfigureAwait(false) != null)
             {

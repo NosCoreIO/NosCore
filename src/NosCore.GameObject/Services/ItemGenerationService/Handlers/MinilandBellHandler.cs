@@ -34,17 +34,9 @@ using NosCore.GameObject.Services.MapChangeService;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
-    public class MinilandBellHandler : IUseItemEventHandler
+    public class MinilandBellHandler(IMinilandService minilandProvider, IMapChangeService mapChangeService)
+        : IUseItemEventHandler
     {
-        private readonly IMinilandService _minilandProvider;
-        private readonly IMapChangeService _mapChangeService;
-
-        public MinilandBellHandler(IMinilandService minilandProvider, IMapChangeService mapChangeService)
-        {
-            _minilandProvider = minilandProvider;
-            _mapChangeService = mapChangeService;
-        }
-
         public bool Condition(Item.Item item) => item.Effect == ItemEffectType.Teleport && item.EffectValue == 2;
 
         public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
@@ -89,8 +81,8 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
             await requestData.ClientSession.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
-            var miniland = _minilandProvider.GetMiniland(requestData.ClientSession.Character.CharacterId);
-            await _mapChangeService.ChangeMapInstanceAsync(requestData.ClientSession, miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
+            var miniland = minilandProvider.GetMiniland(requestData.ClientSession.Character.CharacterId);
+            await mapChangeService.ChangeMapInstanceAsync(requestData.ClientSession, miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
         }
     }
 }

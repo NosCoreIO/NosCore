@@ -35,31 +35,22 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Exchange
 {
-    public class ExcListPacketHandler : PacketHandler<ExcListPacket>, IWorldPacketHandler
+    public class ExcListPacketHandler(IExchangeService exchangeService, ILogger logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : PacketHandler<ExcListPacket>, IWorldPacketHandler
     {
-        private readonly IExchangeService _exchangeProvider;
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public ExcListPacketHandler(IExchangeService exchangeService, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _exchangeProvider = exchangeService;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
-
         public override async Task ExecuteAsync(ExcListPacket packet, ClientSession clientSession)
         {
             if ((packet.Gold > clientSession.Character.Gold) || (packet.BankGold > clientSession.Account.BankMoney))
             {
-                _logger.Error(_logLanguage[LogLanguageKey.NOT_ENOUGH_GOLD]);
+                logger.Error(logLanguage[LogLanguageKey.NOT_ENOUGH_GOLD]);
                 return;
             }
 
             var subPacketList = new List<ServerExcListSubPacket?>();
 
             var target = Broadcaster.Instance.GetCharacter(s =>
-                (s.VisualId == _exchangeProvider.GetTargetId(clientSession.Character.VisualId)) &&
+                (s.VisualId == exchangeService.GetTargetId(clientSession.Character.VisualId)) &&
                 (s.MapInstanceId == clientSession.Character.MapInstanceId)) as Character;
 
             if ((packet.SubPackets!.Count > 0) && (target != null))
@@ -73,25 +64,25 @@ namespace NosCore.PacketHandlers.Exchange
                     if ((item == null) || (item.ItemInstance!.Amount < value.Amount))
                     {
                         var closeExchange =
-                            _exchangeProvider.CloseExchange(clientSession.Character.VisualId,
+                            exchangeService.CloseExchange(clientSession.Character.VisualId,
                                 ExchangeResultType.Failure);
                         await clientSession.SendPacketAsync(closeExchange).ConfigureAwait(false);
                         await target.SendPacketAsync(closeExchange).ConfigureAwait(false);
-                        _logger.Error(_logLanguage[LogLanguageKey.INVALID_EXCHANGE_LIST]);
+                        logger.Error(logLanguage[LogLanguageKey.INVALID_EXCHANGE_LIST]);
                         return;
                     }
 
                     if (!item.ItemInstance.Item!.IsTradable)
                     {
-                        await clientSession.SendPacketAsync(_exchangeProvider.CloseExchange(clientSession.Character.CharacterId,
+                        await clientSession.SendPacketAsync(exchangeService.CloseExchange(clientSession.Character.CharacterId,
                             ExchangeResultType.Failure)).ConfigureAwait(false);
-                        await target.SendPacketAsync(_exchangeProvider.CloseExchange(target.VisualId, ExchangeResultType.Failure)).ConfigureAwait(false);
-                        _logger.Error(
-                            _logLanguage[LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM]);
+                        await target.SendPacketAsync(exchangeService.CloseExchange(target.VisualId, ExchangeResultType.Failure)).ConfigureAwait(false);
+                        logger.Error(
+                            logLanguage[LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM]);
                         return;
                     }
 
-                    _exchangeProvider.AddItems(clientSession.Character.CharacterId, item, value.Amount);
+                    exchangeService.AddItems(clientSession.Character.CharacterId, item, value.Amount);
 
                     var subPacket = new ServerExcListSubPacket
                     {
@@ -112,7 +103,7 @@ namespace NosCore.PacketHandlers.Exchange
                 subPacketList.Add(new ServerExcListSubPacket { ExchangeSlot = null });
             }
 
-            _exchangeProvider.SetGold(clientSession.Character.CharacterId, packet.Gold, packet.BankGold);
+            exchangeService.SetGold(clientSession.Character.CharacterId, packet.Gold, packet.BankGold);
             await (target == null ? Task.CompletedTask : target.SendPacketAsync(
                 clientSession.Character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList))).ConfigureAwait(false);
         }

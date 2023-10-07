@@ -33,17 +33,9 @@ using Serilog;
 
 namespace NosCore.GameObject.Services.NRunService.Handlers
 {
-    public class ChangeClassEventHandler : INrunEventHandler
+    public class ChangeClassEventHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> languageLocalizer)
+        : INrunEventHandler
     {
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _languageLocalizer;
-
-        public ChangeClassEventHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> languageLocalizer)
-        {
-            _logger = logger;
-            _languageLocalizer = languageLocalizer;
-        }
-
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
         {
             return (item.Item2.Runner == NrunRunnerType.ChangeClass) &&
@@ -78,7 +70,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
             var classType = (CharacterClassType)(requestData.Data.Item2.Type ?? 0);
             if (requestData.ClientSession.Character.Class == classType)
             {
-                _logger.Error(_languageLocalizer[LogLanguageKey.CANT_CHANGE_SAME_CLASS]);
+                logger.Error(languageLocalizer[LogLanguageKey.CANT_CHANGE_SAME_CLASS]);
                 return;
             }
 

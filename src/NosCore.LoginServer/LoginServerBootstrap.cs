@@ -92,7 +92,7 @@ namespace NosCore.LoginServer
                 conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
-            Shared.I18N.Logger.PrintHeader(ConsoleText);
+            Logger.PrintHeader(ConsoleText);
             CultureInfo.DefaultThreadCurrentCulture = new(loginConfiguration.Language.ToString());
         }
 

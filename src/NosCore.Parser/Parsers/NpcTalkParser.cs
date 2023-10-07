@@ -45,19 +45,9 @@ namespace NosCore.Parser.Parsers
     //b zts16038e  . n_talk 7 0&@
     //b zts4759e  . n_run 3000 0
     //b zts4760e  . n_talk 100 0
-    public class NpcTalkParser
+    public class NpcTalkParser(IDao<NpcTalkDto, short> npcTalkDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         private readonly string _fileNpcTalkDat = $"{Path.DirectorySeparatorChar}npctalk.dat";
-        private readonly ILogger _logger;
-        private readonly IDao<NpcTalkDto, short> _npcTalkDao;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public NpcTalkParser(IDao<NpcTalkDto, short> npcTalkDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _npcTalkDao = npcTalkDao;
-            _logLanguage = logLanguage;
-        }
 
 
         public async Task ParseAsync(string folder)
@@ -69,12 +59,12 @@ namespace NosCore.Parser.Parsers
             };
 
             var genericParser = new GenericParser<NpcTalkDto>(folder + _fileNpcTalkDat,
-                "%", 0, actionList, _logger, _logLanguage);
+                "%", 0, actionList, logger, logLanguage);
             var npcTalks = (await genericParser.GetDtosAsync(" ").ConfigureAwait(false)).ToList();
             npcTalks.Add(new NpcTalkDto { DialogId = 99, NameI18NKey = "" });
-            await _npcTalkDao.TryInsertOrUpdateAsync(npcTalks).ConfigureAwait(false);
+            await npcTalkDao.TryInsertOrUpdateAsync(npcTalks).ConfigureAwait(false);
 
-            _logger.Information(_logLanguage[LogLanguageKey.NPCTALKS_PARSED], npcTalks.Count);
+            logger.Information(logLanguage[LogLanguageKey.NPCTALKS_PARSED], npcTalks.Count);
         }
 
     }

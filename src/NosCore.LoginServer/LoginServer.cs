@@ -35,46 +35,32 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.LoginServer
 {
-    public class LoginServer : BackgroundService
+    public class LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager,
+            ILogger logger,
+            IChannelHttpClient channelHttpClient, NosCoreContext context,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : BackgroundService
     {
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly ILogger _logger;
-        private readonly IOptions<LoginConfiguration> _loginConfiguration;
-        private readonly NetworkManager _networkManager;
-        private readonly NosCoreContext _context;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager, ILogger logger,
-            IChannelHttpClient channelHttpClient, NosCoreContext context, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _loginConfiguration = loginConfiguration;
-            _networkManager = networkManager;
-            _logger = logger;
-            _channelHttpClient = channelHttpClient;
-            _logLanguage = logLanguage;
-            _context = context;
-        }
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Console.Title += $@" - Port : {Convert.ToInt32(_loginConfiguration.Value.Port)}";
+                Console.Title += $@" - Port : {Convert.ToInt32(loginConfiguration.Value.Port)}";
             }
 
             try
             {
-                await _context.Database.MigrateAsync(stoppingToken);
-                await _context.Database.GetDbConnection().OpenAsync(stoppingToken);
-                _logger.Information(_logLanguage[LogLanguageKey.DATABASE_INITIALIZED]);
+                await context.Database.MigrateAsync(stoppingToken);
+                await context.Database.GetDbConnection().OpenAsync(stoppingToken);
+                logger.Information(logLanguage[LogLanguageKey.DATABASE_INITIALIZED]);
             }
             catch (Exception ex)
             {
-                _logger.Error(_logLanguage[LogLanguageKey.DATABASE_ERROR], ex);
-                _logger.Error(_logLanguage[LogLanguageKey.DATABASE_NOT_UPTODATE]);
+                logger.Error(logLanguage[LogLanguageKey.DATABASE_ERROR], ex);
+                logger.Error(logLanguage[LogLanguageKey.DATABASE_NOT_UPTODATE]);
                 throw;
             }
-            await Task.WhenAny(_channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
+            await Task.WhenAny(channelHttpClient.ConnectAsync(), networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }
 }

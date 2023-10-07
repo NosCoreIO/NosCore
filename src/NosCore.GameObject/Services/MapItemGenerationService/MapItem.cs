@@ -33,19 +33,8 @@ using NodaTime;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService
 {
-    public class MapItem : ICountableEntity, IRequestableEntity<Tuple<MapItem, GetPacket>>
+    public class MapItem(long visualId) : ICountableEntity, IRequestableEntity<Tuple<MapItem, GetPacket>>
     {
-        private long _visualId;
-
-        public MapItem(long visualId)
-        {
-            Requests = new Dictionary<Type, Subject<RequestData<Tuple<MapItem, GetPacket>>>>
-            {
-                [typeof(IGetMapItemEventHandler)] = new()
-            };
-            _visualId = visualId;
-        }
-
         public IItemInstance? ItemInstance { get; set; }
 
         public long? OwnerId { get; set; }
@@ -53,9 +42,9 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
 
         public long VisualId
         {
-            get => _visualId;
+            get => visualId;
 
-            set => _visualId = value;
+            set => visualId = value;
         }
 
         public short Amount => ItemInstance?.Amount ?? 0;
@@ -71,7 +60,10 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
         public MapInstance MapInstance { get; set; } = null!;
 
         public List<Task> HandlerTasks { get; set; } = new();
-        public Dictionary<Type, Subject<RequestData<Tuple<MapItem, GetPacket>>>> Requests { get; set; }
+        public Dictionary<Type, Subject<RequestData<Tuple<MapItem, GetPacket>>>> Requests { get; set; } = new()
+        {
+            [typeof(IGetMapItemEventHandler)] = new()
+        };
 
         public DropPacket GenerateDrop()
         {

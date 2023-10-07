@@ -27,23 +27,13 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.ChannelService
 {
-    public class ChannelService : IChannelService
-    {
-        private readonly IAuthHttpClient _authHttpClient;
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly ISaveService _saveService;
-
-        public ChannelService(IAuthHttpClient authHttpClient,
+    public class ChannelService(IAuthHttpClient authHttpClient,
             IChannelHttpClient channelHttpClient, ISaveService saveService)
-        {
-            _authHttpClient = authHttpClient;
-            _channelHttpClient = channelHttpClient;
-            _saveService = saveService;
-        }
-
+        : IChannelService
+    {
         public async Task MoveChannelAsync(Networking.ClientSession.ClientSession clientSession, int channelId)
         {
-            var server = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
+            var server = await channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
             if (server == null || server.Type != ServerType.WorldServer)
             {
                 return;
@@ -59,8 +49,8 @@ namespace NosCore.GameObject.Services.ChannelService
                 Mode = 1
             });
 
-            await _authHttpClient.SetAwaitingConnectionAsync(-1, clientSession.Account.Name);
-            await _saveService.SaveAsync(clientSession.Character);
+            await authHttpClient.SetAwaitingConnectionAsync(-1, clientSession.Account.Name);
+            await saveService.SaveAsync(clientSession.Character);
             await clientSession.DisconnectAsync();
         }
 

@@ -39,19 +39,9 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
-    public class WearEventHandler : IUseItemEventHandler
+    public class WearEventHandler(ILogger logger, IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        : IUseItemEventHandler
     {
-        private readonly ILogger _logger;
-        private readonly IClock _clock;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public WearEventHandler(ILogger logger, IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _logger = logger;
-            _clock = clock;
-            _logLanguage = logLanguage;
-        }
-
         public bool Condition(Item.Item item)
         {
             return (item.ItemType == ItemType.Weapon)
@@ -69,7 +59,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             var packet = requestData.Data.Item2;
             if (requestData.ClientSession.Character.InExchangeOrShop)
             {
-                _logger.Error(_logLanguage[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]);
+                logger.Error(logLanguage[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]);
                 return;
             }
 
@@ -127,7 +117,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
             {
                 var timeSpanSinceLastSpUsage =
-                    (_clock.GetCurrentInstant().Minus(requestData.ClientSession.Character.LastSp)).TotalSeconds;
+                    (clock.GetCurrentInstant().Minus(requestData.ClientSession.Character.LastSp)).TotalSeconds;
                 var sp = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(
                     (byte)EquipmentType.Sp, NoscorePocketType.Wear);
                 if ((timeSpanSinceLastSpUsage < requestData.ClientSession.Character.SpCooldown) && (sp != null))
@@ -210,7 +200,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 (itemInstance.ItemInstance.BoundCharacterId != null))
             {
                 itemInstance.ItemInstance.ItemDeleteTime =
-                    _clock.GetCurrentInstant().Plus(Duration.FromSeconds(itemInstance.ItemInstance.Item.ItemValidTime));
+                    clock.GetCurrentInstant().Plus(Duration.FromSeconds(itemInstance.ItemInstance.Item.ItemValidTime));
             }
         }
     }

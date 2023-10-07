@@ -33,33 +33,19 @@ using System.Threading.Tasks;
 namespace NosCore.Parser.Parsers.Generic
 {
 
-    public class GenericParser<T> where T : new()
+    public class GenericParser<T>(string fileAddress, string endPattern, int firstIndex,
+        Dictionary<string, Func<Dictionary<string, string[][]>, object?>> actionList, ILogger logger,
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    where T : new()
     {
-        private readonly ILogger _logger;
-        private readonly string _fileAddress;
-        private readonly string _endPattern;
-        private readonly TypeAccessor _typeAccessor;
-        private readonly Dictionary<string, Func<Dictionary<string, string[][]>, object?>> _actionList;
-        private readonly int _firstIndex;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public GenericParser(string fileAddress, string endPattern, int firstIndex, Dictionary<string, Func<Dictionary<string, string[][]>, object?>> actionList, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _fileAddress = fileAddress;
-            _endPattern = endPattern;
-            _firstIndex = firstIndex;
-            _typeAccessor = TypeAccessor.Create(typeof(T), true);
-            _actionList = actionList;
-            _logger = logger;
-            _logLanguage = logLanguage;
-        }
+        private readonly TypeAccessor _typeAccessor = TypeAccessor.Create(typeof(T), true);
 
         private IEnumerable<string> ParseTextFromFile()
         {
-            using var stream = new StreamReader(_fileAddress, Encoding.Default);
+            using var stream = new StreamReader(fileAddress, Encoding.Default);
             var content = stream.ReadToEnd();
             var i = 0;
-            return content.Split(_endPattern).Select(s => $"{(i++ == 0 ? "" : _endPattern)}{s}");
+            return content.Split(endPattern).Select(s => $"{(i++ == 0 ? "" : endPattern)}{s}");
         }
         public Task<List<T>> GetDtosAsync() => GetDtosAsync("\t");
         public async Task<List<T>> GetDtosAsync(string splitter)
@@ -73,8 +59,8 @@ namespace NosCore.Parser.Parsers.Generic
                         StringSplitOptions.None
                     )
                     .Select(s => s.Split(splitter))
-                    .Where(s => s.Length > _firstIndex)
-                    .GroupBy(x => x[_firstIndex]).ToDictionary(x => x.Key, y => y.ToArray());
+                    .Where(s => s.Length > firstIndex)
+                    .GroupBy(x => x[firstIndex]).ToDictionary(x => x.Key, y => y.ToArray());
                 if (lines.Count == 0)
                 {
                     return;
@@ -82,11 +68,11 @@ namespace NosCore.Parser.Parsers.Generic
                 try
                 {
                     var parsedItem = new T();
-                    foreach (var actionOnKey in _actionList.Keys)
+                    foreach (var actionOnKey in actionList.Keys)
                     {
                         try
                         {
-                            _typeAccessor[parsedItem, actionOnKey] = _actionList[actionOnKey].Invoke(lines);
+                            _typeAccessor[parsedItem, actionOnKey] = actionList[actionOnKey].Invoke(lines);
                         }
                         catch (Exception ex)
                         {
@@ -99,7 +85,7 @@ namespace NosCore.Parser.Parsers.Generic
                 }
                 catch (Exception ex)
                 {
-                    _logger.Verbose(_logLanguage[LogLanguageKey.CHUNK_FORMAT_INVALID], lines, ex);
+                    logger.Verbose(logLanguage[LogLanguageKey.CHUNK_FORMAT_INVALID], lines, ex);
                 }
             }))).ConfigureAwait(false);
             return resultCollection.ToList();

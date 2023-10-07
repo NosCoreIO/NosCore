@@ -27,22 +27,16 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Warehouse
 {
-    public class DepositPacketHandler : PacketHandler<DepositPacket>, IWorldPacketHandler
+    public class DepositPacketHandler(IWarehouseHttpClient warehouseHttpClient) : PacketHandler<DepositPacket>,
+        IWorldPacketHandler
     {
-        private readonly IWarehouseHttpClient _warehouseHttpClient;
-
-        public DepositPacketHandler(IWarehouseHttpClient warehouseHttpClient)
-        {
-            _warehouseHttpClient = warehouseHttpClient;
-        }
-
         public override Task ExecuteAsync(DepositPacket depositPacket, ClientSession clientSession)
         {
 #pragma warning disable CS0612 //remove the pragma when the actual itemInstance is fetched
             IItemInstance itemInstance = new ItemInstance();
 #pragma warning restore CS0612
             short slot = 0;
-            return _warehouseHttpClient.DepositItemAsync(clientSession.Character.CharacterId,
+            return warehouseHttpClient.DepositItemAsync(clientSession.Character.CharacterId,
                 WarehouseType.Warehouse, itemInstance, slot);
         }
     }

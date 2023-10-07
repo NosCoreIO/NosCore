@@ -31,19 +31,9 @@ using System.Linq;
 
 namespace NosCore.GameObject.Services.InventoryService
 {
-    public class InventoryService : ConcurrentDictionary<Guid, InventoryItemInstance>, IInventoryService
+    public class InventoryService(List<ItemDto> items, IOptions<WorldConfiguration> configuration, ILogger logger)
+        : ConcurrentDictionary<Guid, InventoryItemInstance>, IInventoryService
     {
-        private readonly IOptions<WorldConfiguration> _configuration;
-        private readonly List<ItemDto> _items;
-        private readonly ILogger _logger;
-
-        public InventoryService(List<ItemDto> items, IOptions<WorldConfiguration> configuration, ILogger logger)
-        {
-            _items = items;
-            _configuration = configuration;
-            _logger = logger;
-        }
-
         private byte GetMaxSlot(NoscorePocketType pocket)
         {
             //TODO make this configurable
@@ -53,7 +43,7 @@ namespace NosCore.GameObject.Services.InventoryService
                 NoscorePocketType.Specialist => 45 + Expensions[pocket],
                 NoscorePocketType.Costume => 60 + Expensions[pocket],
                 NoscorePocketType.Wear => 17,
-                _ => _configuration.Value.BackpackSize + Expensions[pocket]
+                _ => configuration.Value.BackpackSize + Expensions[pocket]
             });
         }
 
@@ -78,7 +68,7 @@ namespace NosCore.GameObject.Services.InventoryService
             }
             catch (InvalidOperationException ioEx)
             {
-                _logger.Error(ioEx.Message, ioEx);
+                logger.Error(ioEx.Message, ioEx);
             }
 
             return retItem;
@@ -86,7 +76,7 @@ namespace NosCore.GameObject.Services.InventoryService
 
         public bool CanAddItem(short itemVnum)
         {
-            var type = _items.Find(item => item.VNum == itemVnum)?.Type;
+            var type = items.Find(item => item.VNum == itemVnum)?.Type;
             return type != null && GetFreeSlot((NoscorePocketType)type).HasValue;
         }
 
@@ -127,17 +117,17 @@ namespace NosCore.GameObject.Services.InventoryService
             {
                 var slotNotFull = this.ToList().Select(s => s.Value).Where(i =>
                     i.ItemInstance!.ItemVNum.Equals(newItem.ItemInstance!.ItemVNum) &&
-                    (i.ItemInstance.Amount < _configuration.Value.MaxItemAmount));
+                    (i.ItemInstance.Amount < configuration.Value.MaxItemAmount));
                 var freeslot = GetMaxSlot(newItem.Type) - this.Count(s => s.Value.Type == newItem.Type);
                 IEnumerable<InventoryItemInstance> itemInstances =
                     slotNotFull as IList<InventoryItemInstance> ?? slotNotFull.ToList();
-                if (newItem.ItemInstance!.Amount <= freeslot * _configuration.Value.MaxItemAmount
-                    + itemInstances.Sum(s => _configuration.Value.MaxItemAmount - s.ItemInstance!.Amount))
+                if (newItem.ItemInstance!.Amount <= freeslot * configuration.Value.MaxItemAmount
+                    + itemInstances.Sum(s => configuration.Value.MaxItemAmount - s.ItemInstance!.Amount))
                 {
                     foreach (var slotToAdd in itemInstances)
                     {
                         var max = slotToAdd.ItemInstance?.Amount + newItem.ItemInstance?.Amount;
-                        max = max > _configuration.Value.MaxItemAmount ? _configuration.Value.MaxItemAmount : max;
+                        max = max > configuration.Value.MaxItemAmount ? configuration.Value.MaxItemAmount : max;
                         newItem.ItemInstance!.Amount =
                             (short)((slotToAdd.ItemInstance?.Amount + newItem.ItemInstance?.Amount - max) ?? 0);
                         slotToAdd.ItemInstance!.Amount = (short)(max ?? 0);
@@ -167,7 +157,7 @@ namespace NosCore.GameObject.Services.InventoryService
             if (ContainsKey(newItem.ItemInstanceId))
             {
                 var e = new InvalidOperationException("Cannot add the same ItemInstance twice to pocket.");
-                _logger.Error(e.Message, e);
+                logger.Error(e.Message, e);
                 return null;
             }
 
@@ -181,7 +171,7 @@ namespace NosCore.GameObject.Services.InventoryService
             {
                 var e = new InvalidOperationException(
                     "Cannot add an item of type Specialist without beeing a SpecialistInstance.");
-                _logger.Error(e.Message, e);
+                logger.Error(e.Message, e);
                 return null;
             }
 
@@ -190,7 +180,7 @@ namespace NosCore.GameObject.Services.InventoryService
             {
                 var e = new InvalidOperationException(
                     "Cannot add an item of type Equipment or Wear without beeing a WearableInstance or a SpecialistInstance.");
-                _logger.Error(e.Message, e);
+                logger.Error(e.Message, e);
                 return null;
             }
 
@@ -214,7 +204,7 @@ namespace NosCore.GameObject.Services.InventoryService
             }
 
             var e = new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!");
-            _logger.Error(e.Message, e);
+            logger.Error(e.Message, e);
             return null;
         }
 
@@ -238,7 +228,7 @@ namespace NosCore.GameObject.Services.InventoryService
             }
 
             var e = new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!");
-            _logger.Error(e.Message, e);
+            logger.Error(e.Message, e);
             return null;
         }
 
@@ -255,7 +245,7 @@ namespace NosCore.GameObject.Services.InventoryService
             if ((sourceSlot == targetSlot) && (sourceType == targetType))
             {
                 var e = new InvalidOperationException("SourceInstance can't be moved on the same spot");
-                _logger.Error(e.Message, e);
+                logger.Error(e.Message, e);
                 return null;
             }
 
@@ -263,7 +253,7 @@ namespace NosCore.GameObject.Services.InventoryService
             if (!(sourceInstance!.ItemInstance is WearableInstance || sourceInstance.ItemInstance is SpecialistInstance))
             {
                 var e = new InvalidOperationException("SourceInstance can't be moved between pockets");
-                _logger.Error(e.Message, e);
+                logger.Error(e.Message, e);
                 return null;
             }
 
@@ -271,7 +261,7 @@ namespace NosCore.GameObject.Services.InventoryService
                 (targetType != NoscorePocketType.Costume) && (targetType != NoscorePocketType.Wear))
             {
                 var e = new InvalidOperationException("WearableInstance can't be move to this inventory");
-                _logger.Error(e.Message, e);
+                logger.Error(e.Message, e);
                 return null;
             }
 
@@ -279,7 +269,7 @@ namespace NosCore.GameObject.Services.InventoryService
                 (targetType != NoscorePocketType.Specialist) && (targetType != NoscorePocketType.Wear))
             {
                 var e = new InvalidOperationException("SpecialistInstance can't be move to this inventory");
-                _logger.Error(e.Message, e);
+                logger.Error(e.Message, e);
                 return null;
             }
 
@@ -305,7 +295,7 @@ namespace NosCore.GameObject.Services.InventoryService
                 else
                 {
                     var e = new InvalidOperationException("Source can not be swapped");
-                    _logger.Error(e.Message, e);
+                    logger.Error(e.Message, e);
                     return null;
                 }
 
@@ -387,13 +377,13 @@ namespace NosCore.GameObject.Services.InventoryService
                             && ((sourcePocket.ItemInstance.Item!.Type == NoscorePocketType.Main) ||
                                 (sourcePocket.ItemInstance.Item.Type == NoscorePocketType.Etc)))
                         {
-                            if (destinationPocket.ItemInstance.Amount + amount > _configuration.Value.MaxItemAmount)
+                            if (destinationPocket.ItemInstance.Amount + amount > configuration.Value.MaxItemAmount)
                             {
                                 var saveItemCount = destinationPocket.ItemInstance.Amount;
-                                destinationPocket.ItemInstance.Amount = _configuration.Value.MaxItemAmount;
+                                destinationPocket.ItemInstance.Amount = configuration.Value.MaxItemAmount;
                                 sourcePocket.ItemInstance.Amount =
                                     (short)(saveItemCount + sourcePocket.ItemInstance.Amount -
-                                        _configuration.Value.MaxItemAmount);
+                                        configuration.Value.MaxItemAmount);
                             }
                             else
                             {
@@ -450,10 +440,10 @@ namespace NosCore.GameObject.Services.InventoryService
                 }
 
                 var amount = itemGroup.Sum(s => s.Amount);
-                var rest = amount % (type == NoscorePocketType.Equipment ? 1 : _configuration.Value.MaxItemAmount);
+                var rest = amount % (type == NoscorePocketType.Equipment ? 1 : configuration.Value.MaxItemAmount);
                 var newSlotNeeded = itemList.Where(s => s.ItemInstance?.ItemVNum == itemGroup.Key)
-                    .Sum(s => _configuration.Value.MaxItemAmount - s.ItemInstance?.Amount) <= rest;
-                place[type] -= amount / (type == NoscorePocketType.Equipment ? 1 : _configuration.Value.MaxItemAmount) +
+                    .Sum(s => configuration.Value.MaxItemAmount - s.ItemInstance?.Amount) <= rest;
+                place[type] -= amount / (type == NoscorePocketType.Equipment ? 1 : configuration.Value.MaxItemAmount) +
                     (newSlotNeeded ? 1 : 0);
 
                 if (place[type] < 0)
@@ -480,7 +470,7 @@ namespace NosCore.GameObject.Services.InventoryService
             }
 
             var e = new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!");
-            _logger.Error(e.Message, e);
+            logger.Error(e.Message, e);
             return null;
         }
 

@@ -28,26 +28,19 @@ using NodaTime;
 
 namespace NosCore.GameObject.Services.EventLoaderService
 {
-    public class Clock : IRequestableEntity<Instant>
+    public class Clock(EventLoaderService<Clock, Instant, ITimedEventHandler> eventRunnerService, IClock clock)
+        : IRequestableEntity<Instant>
     {
-        private readonly IEventLoaderService<Clock, Instant> _eventRunnerService;
-        public Instant LastTick;
-        private readonly IClock _clock;
-
-        public Clock(EventLoaderService<Clock, Instant, ITimedEventHandler> eventRunnerService, IClock clock)
-        {
-            _eventRunnerService = eventRunnerService;
-            LastTick = clock.GetCurrentInstant();
-            _clock = clock;
-        }
+        private readonly IEventLoaderService<Clock, Instant> _eventRunnerService = eventRunnerService;
+        public Instant LastTick = clock.GetCurrentInstant();
 
         public async Task Run(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                LastTick = _clock.GetCurrentInstant();
+                LastTick = clock.GetCurrentInstant();
                 _eventRunnerService.LoadHandlers(this);
-                Requests[typeof(ITimedEventHandler)]!.OnNext(new RequestData<Instant>(_clock.GetCurrentInstant()));
+                Requests[typeof(ITimedEventHandler)]!.OnNext(new RequestData<Instant>(clock.GetCurrentInstant()));
                 await Task.Delay(1000, stoppingToken);
             }
         }

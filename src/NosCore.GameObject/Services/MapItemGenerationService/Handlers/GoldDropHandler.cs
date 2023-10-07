@@ -34,15 +34,8 @@ using NosCore.Packets.ServerPackets.Chats;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {
-    public class GoldDropEventHandler : IGetMapItemEventHandler
+    public class GoldDropEventHandler(IOptions<WorldConfiguration> worldConfiguration) : IGetMapItemEventHandler
     {
-        private readonly IOptions<WorldConfiguration> _worldConfiguration;
-
-        public GoldDropEventHandler(IOptions<WorldConfiguration> worldConfiguration)
-        {
-            _worldConfiguration = worldConfiguration;
-        }
-
         public bool Condition(MapItem item)
         {
             return item.VNum == 1046;
@@ -51,7 +44,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
         public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
             // handle gold drop
-            var maxGold = _worldConfiguration.Value.MaxGoldAmount;
+            var maxGold = worldConfiguration.Value.MaxGoldAmount;
             if (requestData.ClientSession.Character.Gold + requestData.Data.Item1.Amount <= maxGold)
             {
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)

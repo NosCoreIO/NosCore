@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { _charNewPacketHandler }).ConfigureAwait(false);
             _chara = _session.Character;
             _mapChangeService = new Mock<IMapChangeService>();
-            TypeAdapterConfig<CharacterDto, GameObject.Character>.NewConfig().ConstructUsing(src => _chara);
+            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => _chara);
             await _session.SetCharacterAsync(null).ConfigureAwait(false);
         }
 

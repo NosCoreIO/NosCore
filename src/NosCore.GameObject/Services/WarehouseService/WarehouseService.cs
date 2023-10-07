@@ -27,26 +27,16 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.WarehouseService
 {
-    public class WarehouseService : IWarehouseService
-    {
-        private readonly IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
-        private readonly IDao<WarehouseDto, Guid> _warehouseDao;
-        private readonly IDao<WarehouseItemDto, Guid> _warehouseItemDao;
-
-        public WarehouseService(IDao<WarehouseItemDto, Guid> warehouseItemDao,
+    public class WarehouseService(IDao<WarehouseItemDto, Guid> warehouseItemDao,
             IDao<WarehouseDto, Guid> warehouseDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao)
-        {
-            _itemInstanceDao = itemInstanceDao;
-            _warehouseItemDao = warehouseItemDao;
-            _warehouseDao = warehouseDao;
-        }
-
+        : IWarehouseService
+    {
         public List<WarehouseLink> GetItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot)
         {
             var list = new List<WarehouseLink>();
             if (id == null)
             {
-                var warehouse = _warehouseDao.FirstOrDefaultAsync(s
+                var warehouse = warehouseDao.FirstOrDefaultAsync(s
                     => s.Type == warehouseType
                     && s.CharacterId == (warehouseType == WarehouseType.FamilyWareHouse ? null : ownerId)
                     && s.FamilyId == (warehouseType == WarehouseType.FamilyWareHouse ? ownerId : null));
@@ -70,14 +60,14 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         public async Task<bool> WithdrawItemAsync(Guid id)
         {
-            var item = await _warehouseItemDao.FirstOrDefaultAsync(s => s.Id == id).ConfigureAwait(false);
+            var item = await warehouseItemDao.FirstOrDefaultAsync(s => s.Id == id).ConfigureAwait(false);
             if (item == null)
             {
                 return false;
             }
-            await _warehouseItemDao.TryDeleteAsync(item.Id).ConfigureAwait(false);
-            await _warehouseDao.TryDeleteAsync(item.WarehouseId).ConfigureAwait(false);
-            await _itemInstanceDao.TryDeleteAsync(item.ItemInstanceId).ConfigureAwait(false);
+            await warehouseItemDao.TryDeleteAsync(item.Id).ConfigureAwait(false);
+            await warehouseDao.TryDeleteAsync(item.WarehouseId).ConfigureAwait(false);
+            await itemInstanceDao.TryDeleteAsync(item.ItemInstanceId).ConfigureAwait(false);
             return true;
         }
 
@@ -85,7 +75,7 @@ namespace NosCore.GameObject.Services.WarehouseService
         {
             var item = itemInstance as IItemInstanceDto;
             item!.Id = Guid.NewGuid();
-            item = await _itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(true);
+            item = await itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(true);
             var warehouse = new WarehouseDto
             {
                 CharacterId = warehouseType == WarehouseType.FamilyWareHouse ? null
@@ -95,7 +85,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                     ? (long?)ownerId : null,
                 Type = warehouseType,
             };
-            warehouse = await _warehouseDao.TryInsertOrUpdateAsync(warehouse).ConfigureAwait(true);
+            warehouse = await warehouseDao.TryInsertOrUpdateAsync(warehouse).ConfigureAwait(true);
             var warehouseItem = new WarehouseItemDto
             {
                 Slot = slot,
@@ -103,7 +93,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                 ItemInstanceId = item!.Id,
                 WarehouseId = warehouse.Id
             };
-            await _warehouseItemDao.TryInsertOrUpdateAsync(warehouseItem).ConfigureAwait(true);
+            await warehouseItemDao.TryInsertOrUpdateAsync(warehouseItem).ConfigureAwait(true);
             return true;
         }
     }

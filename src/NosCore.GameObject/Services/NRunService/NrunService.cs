@@ -29,16 +29,12 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.NRunService
 {
-    public class NrunService : INrunService
+    public class NrunService(
+            IEnumerable<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> handlers)
+        : INrunService
     {
         private readonly List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
-            _handlers;
-
-        public NrunService(
-            IEnumerable<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> handlers)
-        {
-            _handlers = handlers.ToList();
-        }
+            _handlers = Enumerable.ToList<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>(handlers);
 
         public Task NRunLaunchAsync(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data)
         {

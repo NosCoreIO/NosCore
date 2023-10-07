@@ -33,20 +33,13 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class GiftPacketHandler : PacketHandler<GiftPacket>, IWorldPacketHandler
+    public class GiftPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
+            IMailHttpClient mailHttpClient)
+        : PacketHandler<GiftPacket>, IWorldPacketHandler
     {
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IMailHttpClient _mailHttpClient;
-
-        public GiftPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient, IMailHttpClient mailHttpClient)
-        {
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _mailHttpClient = mailHttpClient;
-        }
-
         public override async Task ExecuteAsync(GiftPacket giftPacket, ClientSession session)
         {
-            var receiver = await _connectedAccountHttpClient.GetCharacterAsync(null, giftPacket.CharacterName ?? session.Character.Name).ConfigureAwait(false);
+            var receiver = await connectedAccountHttpClient.GetCharacterAsync(null, giftPacket.CharacterName ?? session.Character.Name).ConfigureAwait(false);
 
             if (receiver.Item2 == null)
             {
@@ -57,7 +50,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await _mailHttpClient.SendGiftAsync(session.Character!, receiver.Item2.ConnectedCharacter!.Id, giftPacket.VNum,
+            await mailHttpClient.SendGiftAsync(session.Character!, receiver.Item2.ConnectedCharacter!.Id, giftPacket.VNum,
                 giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false).ConfigureAwait(false);
             await session.SendPacketAsync(new SayiPacket
             {

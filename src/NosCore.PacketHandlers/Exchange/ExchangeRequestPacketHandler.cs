@@ -39,22 +39,10 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Exchange
 {
-    public class ExchangeRequestPackettHandler : PacketHandler<ExchangeRequestPacket>, IWorldPacketHandler
-    {
-        private readonly IBlacklistHttpClient _blacklistHttpClient;
-        private readonly IExchangeService _exchangeProvider;
-        private readonly ILogger _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-
-        public ExchangeRequestPackettHandler(IExchangeService exchangeService, ILogger logger,
+    public class ExchangeRequestPackettHandler(IExchangeService exchangeService, ILogger logger,
             IBlacklistHttpClient blacklistHttpClient, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        {
-            _exchangeProvider = exchangeService;
-            _logger = logger;
-            _blacklistHttpClient = blacklistHttpClient;
-            _logLanguage = logLanguage;
-        }
-
+        : PacketHandler<ExchangeRequestPacket>, IWorldPacketHandler
+    {
         public override async Task ExecuteAsync(ExchangeRequestPacket packet, ClientSession clientSession)
         {
             var target = Broadcaster.Instance.GetCharacter(s =>
@@ -65,21 +53,21 @@ namespace NosCore.PacketHandlers.Exchange
             if ((target != null) && ((packet.RequestType == RequestExchangeType.Confirmed) ||
                 (packet.RequestType == RequestExchangeType.Cancelled)))
             {
-                _logger.Error(_logLanguage[LogLanguageKey.CANT_FIND_CHARACTER]);
+                logger.Error(logLanguage[LogLanguageKey.CANT_FIND_CHARACTER]);
                 return;
             }
 
             if (clientSession.Character.InShop || (target?.InShop ?? false))
             {
-                _logger.Error(_logLanguage[LogLanguageKey.PLAYER_IN_SHOP]);
+                logger.Error(logLanguage[LogLanguageKey.PLAYER_IN_SHOP]);
                 return;
             }
 
             switch (packet.RequestType)
             {
                 case RequestExchangeType.Requested:
-                    if (_exchangeProvider.CheckExchange(clientSession.Character.CharacterId) ||
-                        _exchangeProvider.CheckExchange(target?.VisualId ?? 0))
+                    if (exchangeService.CheckExchange(clientSession.Character.CharacterId) ||
+                        exchangeService.CheckExchange(target?.VisualId ?? 0))
                     {
                         await clientSession.SendPacketAsync(new Infoi2Packet
                         {
@@ -101,7 +89,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    var blacklisteds = await _blacklistHttpClient.GetBlackListsAsync(clientSession.Character.VisualId).ConfigureAwait(false);
+                    var blacklisteds = await blacklistHttpClient.GetBlackListsAsync(clientSession.Character.VisualId).ConfigureAwait(false);
                     if (blacklisteds.Any(s => s.CharacterId == target.VisualId))
                     {
                         await clientSession.SendPacketAsync(new SayiPacket
@@ -143,7 +131,7 @@ namespace NosCore.PacketHandlers.Exchange
                     return;
 
                 case RequestExchangeType.List:
-                    if (!_exchangeProvider.OpenExchange(clientSession.Character.VisualId, target?.CharacterId ?? 0))
+                    if (!exchangeService.OpenExchange(clientSession.Character.VisualId, target?.CharacterId ?? 0))
                     {
                         return;
                     }
@@ -172,11 +160,11 @@ namespace NosCore.PacketHandlers.Exchange
                     return;
 
                 case RequestExchangeType.Confirmed:
-                    var targetId = _exchangeProvider.GetTargetId(clientSession.Character.CharacterId);
+                    var targetId = exchangeService.GetTargetId(clientSession.Character.CharacterId);
 
                     if (!targetId.HasValue)
                     {
-                        _logger.Error(_logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+                        logger.Error(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                         return;
                     }
 
@@ -185,14 +173,14 @@ namespace NosCore.PacketHandlers.Exchange
 
                     if (exchangeTarget == null)
                     {
-                        _logger.Error(_logLanguage[LogLanguageKey.CANT_FIND_CHARACTER]);
+                        logger.Error(logLanguage[LogLanguageKey.CANT_FIND_CHARACTER]);
                         return;
                     }
 
-                    _exchangeProvider.ConfirmExchange(clientSession.Character.VisualId);
+                    exchangeService.ConfirmExchange(clientSession.Character.VisualId);
 
-                    if (!_exchangeProvider.IsExchangeConfirmed(clientSession.Character.VisualId) ||
-                        !_exchangeProvider.IsExchangeConfirmed(exchangeTarget.VisualId))
+                    if (!exchangeService.IsExchangeConfirmed(clientSession.Character.VisualId) ||
+                        !exchangeService.IsExchangeConfirmed(exchangeTarget.VisualId))
                     {
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
@@ -201,7 +189,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    var success = _exchangeProvider.ValidateExchange(clientSession, exchangeTarget);
+                    var success = exchangeService.ValidateExchange(clientSession, exchangeTarget);
 
                     if (success.Item1 == ExchangeResultType.Success)
                     {
@@ -217,13 +205,13 @@ namespace NosCore.PacketHandlers.Exchange
                             }
                             else
                             {
-                                _logger.Error(_logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+                                logger.Error(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                             }
                         }
                     }
                     else
                     {
-                        var itemList = _exchangeProvider.ProcessExchange(clientSession.Character.VisualId,
+                        var itemList = exchangeService.ProcessExchange(clientSession.Character.VisualId,
                             exchangeTarget.VisualId, clientSession.Character.InventoryService, exchangeTarget.InventoryService);
 
                         foreach (var item in itemList)
@@ -238,14 +226,14 @@ namespace NosCore.PacketHandlers.Exchange
                             }
                         }
 
-                        var getSessionData = _exchangeProvider.GetData(clientSession.Character.CharacterId);
+                        var getSessionData = exchangeService.GetData(clientSession.Character.CharacterId);
                         await clientSession.Character.RemoveGoldAsync(getSessionData.Gold).ConfigureAwait(false);
                         clientSession.Character.RemoveBankGold(getSessionData.BankGold * 1000);
 
                         await exchangeTarget.AddGoldAsync(getSessionData.Gold).ConfigureAwait(false);
                         exchangeTarget.AddBankGold(getSessionData.BankGold * 1000);
 
-                        var getTargetData = _exchangeProvider.GetData(exchangeTarget.VisualId);
+                        var getTargetData = exchangeService.GetData(exchangeTarget.VisualId);
                         await exchangeTarget.RemoveGoldAsync(getTargetData.Gold).ConfigureAwait(false);
                         exchangeTarget.RemoveBankGold(getTargetData.BankGold * 1000);
 
@@ -253,23 +241,23 @@ namespace NosCore.PacketHandlers.Exchange
                         clientSession.Character.AddBankGold(getTargetData.BankGold * 1000);
                     }
 
-                    closeExchange = _exchangeProvider.CloseExchange(clientSession.Character.VisualId, success.Item1)!;
+                    closeExchange = exchangeService.CloseExchange(clientSession.Character.VisualId, success.Item1)!;
                     await exchangeTarget.SendPacketAsync(closeExchange).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(closeExchange).ConfigureAwait(false);
                     return;
 
                 case RequestExchangeType.Cancelled:
-                    var cancelId = _exchangeProvider.GetTargetId(clientSession.Character.CharacterId);
+                    var cancelId = exchangeService.GetTargetId(clientSession.Character.CharacterId);
                     if (!cancelId.HasValue)
                     {
-                        _logger.Error(_logLanguage[LogLanguageKey.USER_NOT_IN_EXCHANGE]);
+                        logger.Error(logLanguage[LogLanguageKey.USER_NOT_IN_EXCHANGE]);
                         return;
                     }
 
                     var cancelTarget = Broadcaster.Instance.GetCharacter(s => s.VisualId == cancelId.Value);
 
                     closeExchange =
-                        _exchangeProvider.CloseExchange(clientSession.Character.VisualId, ExchangeResultType.Failure)!;
+                        exchangeService.CloseExchange(clientSession.Character.VisualId, ExchangeResultType.Failure)!;
                     cancelTarget?.SendPacketAsync(closeExchange);
                     await clientSession.SendPacketAsync(closeExchange).ConfigureAwait(false);
                     return;

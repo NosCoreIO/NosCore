@@ -38,53 +38,31 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.WorldServer
 {
-    public class WorldServer : BackgroundService
-    {
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly ILogger<WorldServer> _logger;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly NetworkManager _networkManager;
-        private readonly IOptions<WorldConfiguration> _worldConfiguration;
-        private readonly IMapInstanceGeneratorService _mapInstanceGeneratorService;
-        private readonly Clock _clock;
-        private readonly IClock _nodatimeClock;
-        private readonly ISaveService _saveService;
-        private readonly ILogger<SaveAll> _saveAllLogger;
-
-        public WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager, Clock clock, ILogger<WorldServer> logger, 
-            IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService, IClock nodatimeClock, ISaveService saveService, 
+    public class WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager,
+            Clock clock, ILogger<WorldServer> logger,
+            IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService,
+            IClock nodatimeClock, ISaveService saveService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger)
-        {
-            _worldConfiguration = worldConfiguration;
-            _networkManager = networkManager;
-            _logger = logger;
-            _channelHttpClient = channelHttpClient;
-            _mapInstanceGeneratorService = mapInstanceGeneratorService;
-            _clock = clock;
-            _nodatimeClock = nodatimeClock;
-            _saveService = saveService;
-            _logLanguage = logLanguage;
-            _saveAllLogger = saveAllLogger;
-        }
-
+        : BackgroundService
+    {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await _mapInstanceGeneratorService.InitializeAsync().ConfigureAwait(false);
-            _logger.LogInformation(_logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
+            await mapInstanceGeneratorService.InitializeAsync().ConfigureAwait(false);
+            logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
-                var eventSaveAll = new SaveAll(_saveAllLogger, _nodatimeClock, _saveService, _logLanguage);
+                var eventSaveAll = new SaveAll(saveAllLogger, nodatimeClock, saveService, logLanguage);
                 _ = eventSaveAll.ExecuteAsync();
-                _logger.LogInformation(_logLanguage[LogLanguageKey.CHANNEL_WILL_EXIT], 30);
+                logger.LogInformation(logLanguage[LogLanguageKey.CHANNEL_WILL_EXIT], 30);
                 Thread.Sleep(30000);
             };
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Console.Title += $@" - Port : {_worldConfiguration.Value.Port} - WebApi : {_worldConfiguration.Value.WebApi}";
+                Console.Title += $@" - Port : {worldConfiguration.Value.Port} - WebApi : {worldConfiguration.Value.WebApi}";
             }
 
-            await Task.WhenAny(_clock.Run(stoppingToken), _channelHttpClient.ConnectAsync(), _networkManager.RunServerAsync()).ConfigureAwait(false);
+            await Task.WhenAny(clock.Run(stoppingToken), channelHttpClient.ConnectAsync(), networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }
 }

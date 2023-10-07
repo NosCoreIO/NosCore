@@ -27,23 +27,14 @@ using System.Threading.Tasks;
 namespace NosCore.Parser.Parsers
 
 {
-    public class MapTypeMapParser
+    public class MapTypeMapParser(IDao<MapTypeMapDto, short> mapTypeMapDao, IDao<MapDto, short> mapDao)
     {
-        private readonly IDao<MapDto, short> _mapDao;
-        private readonly IDao<MapTypeMapDto, short> _mapTypeMapDao;
-
-        public MapTypeMapParser(IDao<MapTypeMapDto, short> mapTypeMapDao, IDao<MapDto, short> mapDao)
-        {
-            _mapTypeMapDao = mapTypeMapDao;
-            _mapDao = mapDao;
-        }
-
         internal Task InsertMapTypeMapsAsync()
         {
             var maptypemaps = new List<MapTypeMapDto>();
             short mapTypeId = 1;
-            var mapsdb = _mapDao.LoadAll().ToList();
-            var maptypemapdb = _mapTypeMapDao.LoadAll().ToList();
+            var mapsdb = mapDao.LoadAll().ToList();
+            var maptypemapdb = mapTypeMapDao.LoadAll().ToList();
             for (var i = 1; i < 300; i++)
             {
                 var objectset = false;
@@ -202,7 +193,7 @@ namespace NosCore.Parser.Parsers
             }
 
             IEnumerable<MapTypeMapDto> mapDtos = maptypemaps;
-            return _mapTypeMapDao.TryInsertOrUpdateAsync(mapDtos);
+            return mapTypeMapDao.TryInsertOrUpdateAsync(mapDtos);
         }
     }
 }

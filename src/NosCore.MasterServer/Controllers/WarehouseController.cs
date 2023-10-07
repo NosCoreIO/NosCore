@@ -31,22 +31,15 @@ namespace NosCore.MasterServer.Controllers
 {
     [Route("api/[controller]")]
     [AuthorizeRole(AuthorityType.GameMaster)]
-    public class WarehouseController : Controller
+    public class WarehouseController(IWarehouseService warehouseService) : Controller
     {
-        private readonly IWarehouseService _warehouseService;
-
-        public WarehouseController(IWarehouseService warehouseService)
-        {
-            _warehouseService = warehouseService;
-        }
-
         [HttpGet]
-        public List<WarehouseLink> GetWarehouseItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot) => _warehouseService.GetItems(id, ownerId, warehouseType, slot);
+        public List<WarehouseLink> GetWarehouseItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot) => warehouseService.GetItems(id, ownerId, warehouseType, slot);
 
         [HttpDelete]
-        public Task<bool> DeleteWarehouseItemAsync(Guid id) => _warehouseService.WithdrawItemAsync(id);
+        public Task<bool> DeleteWarehouseItemAsync(Guid id) => warehouseService.WithdrawItemAsync(id);
 
         [HttpPost]
-        public Task<bool> AddWarehouseItemAsync([FromBody] WareHouseDepositRequest depositRequest) => _warehouseService.DepositItemAsync(depositRequest.OwnerId, depositRequest.WarehouseType, depositRequest.ItemInstance, depositRequest.Slot);
+        public Task<bool> AddWarehouseItemAsync([FromBody] WareHouseDepositRequest depositRequest) => warehouseService.DepositItemAsync(depositRequest.OwnerId, depositRequest.WarehouseType, depositRequest.ItemInstance, depositRequest.Slot);
     }
 }

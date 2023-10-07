@@ -73,16 +73,10 @@ using ILogger = Serilog.ILogger;
 
 namespace NosCore.MasterServer
 {
-    public class Startup
+    public class Startup(IConfiguration configuration)
     {
         private const string Title = "NosCore - MasterServer";
         private const string ConsoleText = "MASTER SERVER - NosCoreIO";
-        private readonly IConfiguration _configuration;
-
-        public Startup(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
 
         private static void RegisterDto(ContainerBuilder containerBuilder)
         {
@@ -208,12 +202,12 @@ namespace NosCore.MasterServer
                 Console.Title = Title;
             }
             Logger.PrintHeader(ConsoleText);
-            services.AddOptions<MasterConfiguration>().Bind(_configuration).ValidateDataAnnotations();
-            services.AddOptions<WebApiConfiguration>().Bind(_configuration.GetSection(nameof(MasterConfiguration.WebApi))).ValidateDataAnnotations();
+            services.AddOptions<MasterConfiguration>().Bind(configuration).ValidateDataAnnotations();
+            services.AddOptions<WebApiConfiguration>().Bind(configuration.GetSection(nameof(MasterConfiguration.WebApi))).ValidateDataAnnotations();
             services.AddI18NLogs();
 
             var masterConfiguration = new MasterConfiguration();
-            _configuration.Bind(masterConfiguration);
+            configuration.Bind(masterConfiguration);
 
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(masterConfiguration.WebApi.Port));
             services.AddDbContext<NosCoreContext>(

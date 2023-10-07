@@ -33,41 +33,29 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
-    public class FdelPacketHandler : PacketHandler<FdelPacket>, IWorldPacketHandler
+    public class FdelPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient,
+            IConnectedAccountHttpClient connectedAccountHttpClient, IGameLanguageLocalizer gameLanguageLocalizer)
+        : PacketHandler<FdelPacket>, IWorldPacketHandler
     {
-        private readonly IChannelHttpClient _channelHttpClient;
-        private readonly IConnectedAccountHttpClient _connectedAccountHttpClient;
-        private readonly IFriendHttpClient _friendHttpClient;
-        private readonly IGameLanguageLocalizer _gameLanguageLocalizer;
-
-        public FdelPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient,  IGameLanguageLocalizer gameLanguageLocalizer)
-        {
-            _friendHttpClient = friendHttpClient;
-            _channelHttpClient = channelHttpClient;
-            _connectedAccountHttpClient = connectedAccountHttpClient;
-            _gameLanguageLocalizer = gameLanguageLocalizer;
-        }
-
         public override async Task ExecuteAsync(FdelPacket fdelPacket, ClientSession session)
         {
-            var list = await _friendHttpClient.GetListFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
+            var list = await friendHttpClient.GetListFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == fdelPacket.CharacterId);
             if (idtorem != null)
             {
-                await _friendHttpClient.DeleteFriendAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
+                await friendHttpClient.DeleteFriendAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
                 var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
-                await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
-                    _connectedAccountHttpClient).ConfigureAwait(false))).ConfigureAwait(false);
+                await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(friendHttpClient, channelHttpClient,
+                    connectedAccountHttpClient).ConfigureAwait(false))).ConfigureAwait(false);
 
-                await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(_friendHttpClient, _channelHttpClient,
-                    _connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient, channelHttpClient,
+                    connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             }
             else
             {
                 await session.SendPacketAsync(new InfoPacket
                 {
-                    Message = _gameLanguageLocalizer[LanguageKey.NOT_IN_FRIENDLIST,
+                    Message = gameLanguageLocalizer[LanguageKey.NOT_IN_FRIENDLIST,
                         session.Account.Language]
                 }).ConfigureAwait(false);
             }
