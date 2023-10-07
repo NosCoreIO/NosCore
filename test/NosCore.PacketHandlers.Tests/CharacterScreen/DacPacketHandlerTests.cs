@@ -25,6 +25,7 @@ using NosCore.Core;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.MessageQueue;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
@@ -43,8 +44,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private DacPacketHandler _dacPacketHandler = null!;
         private ClientSession _session = null!;
         private Mock<IAuthHttpClient> _authHttpClient = null!;
-        private Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = null!;
-        private Mock<IChannelHttpClient> _channelHttpClient = null!;
+        private Mock<IPubSubHub> _pubSubHub = null!;
         private string _accountName = null!;
 
         [TestInitialize]
@@ -57,10 +57,11 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_session.Character);
             await _session.SetCharacterAsync(null).ConfigureAwait(false);
             _authHttpClient = new Mock<IAuthHttpClient>();
-            _connectedAccountHttpClient = new Mock<IConnectedAccountHttpClient>();
-            _channelHttpClient = new Mock<IChannelHttpClient>();
+            _pubSubHub = TestHelpers.Instance.PubSubHub;
+            _pubSubHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
+            _pubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             _dacPacketHandler =
-                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, _authHttpClient.Object, _connectedAccountHttpClient.Object, _channelHttpClient.Object, new SessionRefHolder(), TestHelpers.Instance.LogLanguageLocalizer);
+                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, _authHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, new SessionRefHolder(), TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]
@@ -70,14 +71,14 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             {
                 Slot = 2,
             };
-            _channelHttpClient.Setup(o => o.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>()
+            _pubSubHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>()
             {
                 new()
                 {
                     Id = 1,
                 }
             });
-            _connectedAccountHttpClient.Setup(o => o.GetConnectedAccountAsync(It.IsAny<ChannelInfo>())).ReturnsAsync(
+            _pubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(
                 new List<Subscriber>
                 {
                     new()

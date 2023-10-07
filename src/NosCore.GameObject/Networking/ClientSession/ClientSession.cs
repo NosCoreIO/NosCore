@@ -42,6 +42,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
 using NosCore.Networking.SessionRef;
@@ -71,10 +72,11 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly ISaveService _saveService = null!;
         private readonly IGameLanguageLocalizer _gameLanguageLocalizer = null!;
+        private readonly IPubSubHub _pubSubHub;
 
         public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder,
-            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub)
             : base(logger, networkingLogLanguage)
         {
             _logger = logger;
@@ -84,6 +86,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             _packetHttpClient = packetHttpClient;
             _sessionRefHolder = sessionRefHolder;
             _logLanguage = logLanguage;
+            _pubSubHub = pubSubHub;
             foreach (var handler in _packetsHandlers)
             {
                 var type = handler.GetType().BaseType?.GenericTypeArguments[0]!;
@@ -97,9 +100,9 @@ namespace NosCore.GameObject.Networking.ClientSession
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder,
-            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage) 
+            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub) 
             : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient,
-                sessionRefHolder, networkingLogLanguage, logLanguage)
+                sessionRefHolder, networkingLogLanguage, logLanguage, pubSubHub)
         {
         }
 
@@ -109,8 +112,8 @@ namespace NosCore.GameObject.Networking.ClientSession
             ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
             IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, ISessionRefHolder sessionRefHolder, 
             ISaveService saveService,
-            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer)
-            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, networkingLogLanguage, logLanguage)
+            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer, IPubSubHub pubSubHub)
+            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, networkingLogLanguage, logLanguage, pubSubHub)
         {
             _exchangeProvider = exchangeService!;
             _minilandProvider = minilandProvider!;
@@ -242,6 +245,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             finally
             {
                 Broadcaster.Instance.UnregisterSession(this);
+                await _pubSubHub.UnsubscribeAsync(this.SessionId);
                 _logger.Information(_logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);
             }
         }

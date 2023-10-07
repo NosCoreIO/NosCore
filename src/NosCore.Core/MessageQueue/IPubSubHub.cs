@@ -37,4 +37,7 @@ public interface IPubSubHub
     Task<bool> SendMessageAsync(IMessage message);
 
     Task<List<Subscriber>> GetSubscribersAsync();
+    public Task SubscribeAsync(Subscriber subscriber);
+
+    public Task UnsubscribeAsync(long id);
 }

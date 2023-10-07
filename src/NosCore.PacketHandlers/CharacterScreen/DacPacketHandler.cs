@@ -29,6 +29,7 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
 
@@ -36,15 +37,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class DacPacketHandler(IDao<AccountDto, long> accountDao,
             ILogger logger, IAuthHttpClient authHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient, ISessionRefHolder sessionRefHolder,
+            IPubSubHub pubSubHub, ISessionRefHolder sessionRefHolder,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<DacPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(DacPacket packet, ClientSession clientSession)
         {
             await EntryPointPacketHandler.VerifyConnectionAsync(clientSession, logger, authHttpClient,
-                connectedAccountHttpClient, accountDao, channelHttpClient, true, packet.AccountName, "thisisgfmode", -1, sessionRefHolder, logLanguage);
+                accountDao, pubSubHub, true, packet.AccountName, "thisisgfmode", -1, sessionRefHolder, logLanguage);
             if (clientSession.Account == null!)
             {
                 return;

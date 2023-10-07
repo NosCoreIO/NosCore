@@ -42,38 +42,26 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
+using NosCore.Core.MessageQueue;
 using NosCore.Networking;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
+using NosCore.Data.WebApi;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
             IDao<MateDto, long> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient, IOptions<WorldConfiguration> configuration,
+            IPubSubHub pubSubHub, IOptions<WorldConfiguration> configuration,
             ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IDao<AccountDto, long> accountDao, IChannelHttpClient channelHttpClient, bool passwordLessConnection, string accountName, string password, int sessionId, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IDao<AccountDto, long> accountDao, IPubSubHub pubSubHub, bool passwordLessConnection, string accountName, string password, int sessionId, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
-            var alreadyConnnected = false;
-            var servers = await channelHttpClient.GetChannelsAsync().ConfigureAwait(false) ?? new List<ChannelInfo>();
-            foreach (var channel in servers.Where(c => c.Type == ServerType.WorldServer))
-            {
-                var accounts = await connectedAccountHttpClient.GetConnectedAccountAsync(channel).ConfigureAwait(false);
-                var target = accounts.FirstOrDefault(s => s.Name == accountName);
-
-                if (target == null)
-                {
-                    continue;
-                }
-
-                alreadyConnnected = true;
-                break;
-            }
+            var subscribers = await pubSubHub.GetSubscribersAsync();
+            var alreadyConnnected = subscribers.Any(x=>x.Name == accountName);
 
             if (alreadyConnnected)
             {
@@ -122,7 +110,16 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 sessionMapping.Value.RegionType = account.Language;
             }
             clientSession.InitializeAccount(account);
-            //todo Send Account Connected
+            await pubSubHub.SubscribeAsync(new Subscriber
+            {
+                Name = clientSession.Account.Name,
+                Language = clientSession.Account.Language,
+                ConnectedCharacter = clientSession.Character == null! ? null : new Data.WebApi.Character
+                {
+                    Name = clientSession.Character.Name, Id = clientSession.Character.CharacterId,
+                    FriendRequestBlocked = clientSession.Character.FriendRequestBlocked
+                }
+            });
         }
 
         public override async Task ExecuteAsync(EntryPointPacket packet, ClientSession clientSession)
@@ -130,8 +127,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
             if (clientSession.Account == null!) // we bypass this when create new char
             {
                 var passwordLessConnection = packet.Password == "thisisgfmode";
-                await VerifyConnectionAsync(clientSession, logger, authHttpClient, connectedAccountHttpClient,
-                    accountDao, channelHttpClient, passwordLessConnection, packet.Name, packet.Password,
+                await VerifyConnectionAsync(clientSession, logger, authHttpClient,
+                    accountDao, pubSubHub, passwordLessConnection, packet.Name, packet.Password,
                     clientSession.SessionId, sessionRefHolder, logLanguage);
                 if (clientSession.Account == null!)
                 {
@@ -163,7 +160,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             // load characterlist packet for each character in Character
             await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 }).ConfigureAwait(false);
-            foreach (var character in characters!.Select(characterDto => characterDto.Adapt<Character>()))
+            foreach (var character in characters!.Select(characterDto => characterDto.Adapt<GameObject.Character>()))
             {
                 var equipment = new WearableInstance?[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = _iteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);

@@ -332,7 +332,7 @@ namespace NosCore.Tests.Shared
                 PacketHttpClient.Object,
                 minilandProvider.Object,
                 MapInstanceGeneratorService, new SessionRefHolder(), new Mock<ISaveService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, 
-                Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer)
+                Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, TestHelpers.Instance.PubSubHub.Object)
             {
                 SessionId = _lastId
             };
@@ -359,7 +359,6 @@ namespace NosCore.Tests.Shared
             session.Character.MapInstance = MapInstanceAccessorService.GetBaseMapById(0)!;
             session.Account = acc;
             session.RegisterChannel(new Mock<ISocketChannel>().Object);
-            Broadcaster.Instance.RegisterSession(session);
             return session;
         }
 
