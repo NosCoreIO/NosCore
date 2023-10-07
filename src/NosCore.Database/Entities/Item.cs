@@ -173,7 +173,7 @@ namespace NosCore.Database.Entities
         [Required]
         [MaxLength(255)]
         [I18NString(typeof(I18NItem))]
-        public string Name { get; set; } = "";
+        public required string Name { get; set; } 
 
         public long Price { get; set; }
 

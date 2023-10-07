@@ -125,7 +125,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 var passwordLessConnection = packet.Password == "thisisgfmode";
                 await VerifyConnectionAsync(clientSession, logger, authHttpClient,
-                    accountDao, pubSubHub, passwordLessConnection, packet.Name, packet.Password,
+                    accountDao, pubSubHub, passwordLessConnection, packet.Name, packet.Password ?? throw new InvalidOperationException(),
                     clientSession.SessionId, sessionRefHolder, logLanguage);
                 if (clientSession.Account == null!)
                 {

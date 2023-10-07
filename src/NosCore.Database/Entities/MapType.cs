@@ -41,7 +41,7 @@ namespace NosCore.Database.Entities
         public virtual ICollection<MapTypeMap> MapTypeMap { get; set; }
 
         [Required]
-        public string MapTypeName { get; set; } = "";
+        public required string MapTypeName { get; set; } 
 
         public short PotionDelay { get; set; }
 

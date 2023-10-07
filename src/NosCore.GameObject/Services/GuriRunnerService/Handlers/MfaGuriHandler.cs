@@ -45,7 +45,10 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
             if (tfa.VerifyCode(requestData.ClientSession.Account.MfaSecret, requestData.Data.Value))
             {
                 requestData.ClientSession.MfaValidated = true;
-                await requestData.ClientSession.HandlePacketsAsync(new[] { new EntryPointPacket() });
+                await requestData.ClientSession.HandlePacketsAsync(new[] { new EntryPointPacket()
+                {
+                    Name = requestData.ClientSession.Account.Name
+                } });
             }
             else
             {

@@ -46,7 +46,7 @@ namespace NosCore.Database.Entities
         [Required]
         [MaxLength(255)]
         [I18NString(typeof(I18NBCard))]
-        public string Name { get; set; } = "";
+        public required string Name { get; set; } 
 
         public int Delay { get; set; }
 

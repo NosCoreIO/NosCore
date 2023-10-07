@@ -179,7 +179,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     await inventoryItemInstanceDao.TryInsertOrUpdateAsync(charaGo.InventoryService.Values.ToArray()).ConfigureAwait(false);
 
                     await clientSession.SendPacketAsync(new SuccessPacket()).ConfigureAwait(false);
-                    await clientSession.HandlePacketsAsync(new[] { new EntryPointPacket() }).ConfigureAwait(false);
+                    await clientSession.HandlePacketsAsync(new[] { new EntryPointPacket()
+                    {
+                        Name = clientSession.Account.Name,
+                    } }).ConfigureAwait(false);
                 }
                 else
                 {

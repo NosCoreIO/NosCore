@@ -31,11 +31,11 @@ namespace NosCore.Database.Entities
 
         [Required]
         [MaxLength(80)]
-        public string TargetId { get; set; } = "";
+        public required string TargetId { get; set; } 
 
         [Required]
         [MaxLength(32)]
-        public string TargetType { get; set; } = "";
+        public required string TargetType { get; set; } 
 
         public Instant Time { get; set; }
 
@@ -43,6 +43,6 @@ namespace NosCore.Database.Entities
 
         [Required]
         [MaxLength(255)]
-        public string Value { get; set; } = "";
+        public required string Value { get; set; } 
     }
 }

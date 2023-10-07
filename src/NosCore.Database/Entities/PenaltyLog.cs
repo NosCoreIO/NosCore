@@ -31,7 +31,7 @@ namespace NosCore.Database.Entities
         public long AccountId { get; set; }
 
         [Required]
-        public string AdminName { get; set; } = "";
+        public required string AdminName { get; set; } 
 
         public Instant DateEnd { get; set; }
 
@@ -44,6 +44,6 @@ namespace NosCore.Database.Entities
 
         [Required]
         [MaxLength(255)]
-        public string Reason { get; set; } = "";
+        public required string Reason { get; set; } 
     }
 }

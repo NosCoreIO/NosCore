@@ -114,7 +114,7 @@ namespace NosCore.Database.Entities
         [Required]
         [MaxLength(255)]
         [I18NString(typeof(I18NNpcMonster))]
-        public string Name { get; set; } = "";
+        public required string Name { get; set; } 
 
         public bool NoAggresiveIcon { get; set; }
 

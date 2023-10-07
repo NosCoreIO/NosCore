@@ -64,7 +64,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     new EntryPointPacket
                     {
                         Header = "EntryPoint",
-                        Name = account.Name
+                        Name = account.Name,
+                        Password = account.Password
                     }
                 }).ConfigureAwait(false);
             }
