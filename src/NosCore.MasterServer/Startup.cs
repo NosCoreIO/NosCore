@@ -44,6 +44,7 @@ using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.HttpClients.IncommingMailHttpClients;
+using NosCore.Core.MessageQueue;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -152,6 +153,7 @@ namespace NosCore.MasterServer
         private ContainerBuilder InitializeContainer(IServiceCollection services)
         {
             var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterType<MasterClientList>().SingleInstance();
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
             {
                 HashingType.BCrypt => new BcryptHasher(),
@@ -221,6 +223,7 @@ namespace NosCore.MasterServer
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
+            services.AddSignalR();
             services.AddAuthorization(o =>
                 {
                     o.DefaultPolicy = new AuthorizationPolicyBuilder()
@@ -253,11 +256,13 @@ namespace NosCore.MasterServer
             app.UseAuthentication();
             app.UseRouting();
 
+            app.UseWebSockets();
             app.UseAuthorization();
             CultureInfo.DefaultThreadCurrentCulture = new(app.ApplicationServices.GetRequiredService<IOptions<MasterConfiguration>>().Value.Language.ToString());
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<PubSubHub>(nameof(PubSubHub));
                 endpoints.MapControllers();
             });
         }

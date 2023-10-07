@@ -67,6 +67,7 @@ using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels.Sockets;
 using NodaTime;
+using NosCore.Core.MessageQueue;
 using NosCore.Core.Services.IdService;
 using NosCore.GameObject.Services.LoginService;
 using NosCore.GameObject.Services.SaveService;
@@ -92,6 +93,8 @@ namespace NosCore.LoginServer
                 conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
+            services.AddOptions<WebApiConfiguration>().Bind(conf.GetSection(nameof(LoginConfiguration.MasterCommunication))).ValidateDataAnnotations();
+
             Logger.PrintHeader(ConsoleText);
             CultureInfo.DefaultThreadCurrentCulture = new(loginConfiguration.Language.ToString());
         }
@@ -115,6 +118,7 @@ namespace NosCore.LoginServer
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
 
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<PubSubHubClient>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
