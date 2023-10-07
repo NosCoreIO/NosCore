@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace NosCore.MasterServer.Controllers
+namespace NosCore.WebApi.Controllers
 {
     [Route("[controller]")]
     [AllowAnonymous]
