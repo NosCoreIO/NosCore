@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -32,15 +31,10 @@ using NosCore.Core.Configuration;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.MessageQueue;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.LoginService;
 using NosCore.GameObject.Services.LoginService;
-using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets.ClientPackets.Login;
@@ -49,9 +43,7 @@ using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
-using Serilog;
 
 namespace NosCore.PacketHandlers.Tests.Login
 {

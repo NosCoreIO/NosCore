@@ -20,12 +20,9 @@
 using Json.More;
 using Json.Patch;
 using Json.Pointer;
-using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Parcel;

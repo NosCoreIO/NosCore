@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Packets.ClientPackets.Login;
-using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Networking.LoginService

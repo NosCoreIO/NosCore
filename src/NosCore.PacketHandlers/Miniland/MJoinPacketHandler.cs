@@ -19,8 +19,6 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;

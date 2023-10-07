@@ -20,13 +20,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -35,7 +33,6 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
-using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 

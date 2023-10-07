@@ -25,7 +25,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -37,9 +36,7 @@ using NosCore.Core.Encryption;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Configuration;
-using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
-using Serilog;
 using TwoFactorAuthNet;
 
 namespace NosCore.WebApi.Tests.ApiTests

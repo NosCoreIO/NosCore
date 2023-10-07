@@ -35,9 +35,6 @@ using NosCore.Algorithm.MpService;
 using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Core.I18N;
-
-using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;

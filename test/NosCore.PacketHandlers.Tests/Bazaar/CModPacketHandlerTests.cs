@@ -20,12 +20,9 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Json.Patch;
-using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core.I18N;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking;
@@ -36,7 +33,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 

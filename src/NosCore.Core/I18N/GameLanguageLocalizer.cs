@@ -21,10 +21,7 @@ using System.Collections.Generic;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.Enumerations;
 using System.Globalization;
-using System.Resources;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Localization;
-using NosCore.Data.Resource;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Core.I18N

@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using JetBrains.Annotations;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -29,7 +28,6 @@ using Microsoft.Extensions.Logging;
 using NodaTime;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Shared.I18N;
-using ILogger = Serilog.ILogger;
 
 namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 {

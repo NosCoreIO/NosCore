@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -30,14 +28,11 @@ using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.MpService;
 using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Services.IdService;
-using NosCore.Dao.Interfaces;
-using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Tests.Shared;
 using Serilog;

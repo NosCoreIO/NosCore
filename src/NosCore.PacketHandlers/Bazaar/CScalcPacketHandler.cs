@@ -19,7 +19,6 @@
 
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;

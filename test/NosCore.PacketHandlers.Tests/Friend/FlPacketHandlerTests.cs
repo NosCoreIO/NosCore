@@ -19,13 +19,11 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Holders;
 using NosCore.GameObject.Networking;
@@ -34,7 +32,6 @@ using NosCore.GameObject.Services.FriendService;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Configuration;
-using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
