@@ -108,6 +108,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             clientSession.InitializeAccount(account);
             await pubSubHub.SubscribeAsync(new Subscriber
             {
+                Id = clientSession.SessionId,
                 Name = clientSession.Account.Name,
                 Language = clientSession.Account.Language,
                 ConnectedCharacter = clientSession.Character == null! ? null : new Data.WebApi.Character

@@ -20,8 +20,8 @@
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.LoginService;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.ChannelService;
 
 namespace NosCore.PacketHandlers.Command
 {

@@ -71,7 +71,7 @@ namespace NosCore.Core.MessageQueue
                 WebApi = data.WebApi,
                 Type = data.ClientType,
             };
-            masterClientList.Channels.TryAdd(Context.ConnectionId, serv);
+            masterClientList.Channels.AddOrUpdate(Context.ConnectionId, serv, (_, _) => serv);
             return Task.CompletedTask;
         }
 
@@ -117,6 +117,7 @@ namespace NosCore.Core.MessageQueue
 
         public Task SubscribeAsync(Subscriber subscriber)
         {
+            subscriber.ChannelId = masterClientList.Channels[Context.ConnectionId].Id;
             masterClientList.ConnectedAccounts[Context.ConnectionId].AddOrUpdate(subscriber.Id, subscriber, (_, _) => subscriber);
             return Task.FromResult(masterClientList.ConnectedAccounts.SelectMany(x => x.Value.Values).ToList());
         }

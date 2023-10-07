@@ -189,6 +189,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             catch (Exception ex)
             {
                 _logger.Error(_logLanguage[LogLanguageKey.PACKET_HANDLING_ERROR], ex);
+                await _pubSubHub.UnsubscribeAsync(SessionId);
                 await DisconnectAsync();
             }
         }
