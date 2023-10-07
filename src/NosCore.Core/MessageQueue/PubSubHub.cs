@@ -22,7 +22,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -35,10 +34,6 @@ namespace NosCore.Core.MessageQueue
     public class PubSubHub(ILogger<PubSubHub> logger, MasterClientList masterClientList, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : Hub, IPubSubHub
     {
-        private readonly ConcurrentDictionary<Guid, IMessage> _messages = new();
-
-        private readonly ConcurrentDictionary<Guid, ChannelInfo> _channels = new();
-
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             var data = masterClientList.Channels.ContainsKey(Context.ConnectionId) ? masterClientList.Channels[Context.ConnectionId] : null;
@@ -55,7 +50,7 @@ namespace NosCore.Core.MessageQueue
             await base.OnDisconnectedAsync(exception);
         }
 
-        public Task BindAsync(Channel data, CancellationToken stoppingToken)
+        public Task Bind(Channel data)
         {
             var id = ++masterClientList.ConnectionCounter;
             logger.LogDebug(logLanguage[LogLanguageKey.AUTHENTICATED_SUCCESS],
@@ -76,34 +71,34 @@ namespace NosCore.Core.MessageQueue
                 WebApi = data.WebApi,
                 Type = data.ClientType,
             };
-            _channels.TryAdd(Guid.NewGuid(), serv);
+            masterClientList.Channels.TryAdd(Context.ConnectionId, serv);
             return Task.CompletedTask;
         }
 
         public Task<List<ChannelInfo>> GetCommunicationChannels()
         {
-            throw new NotImplementedException();
+            return Task.FromResult(masterClientList.Channels.Values.ToList());
         }
 
         public Task<List<IMessage>> ReceiveMessagesAsync(int maxNumberOfMessages = 100, TimeSpan? visibilityTimeout = null)
         {
-            var messages = _messages.Values.Take(maxNumberOfMessages).ToList();
+            var messages = masterClientList.Messages.Values.Take(maxNumberOfMessages).ToList();
             return Task.FromResult(messages);
         }
 
         public Task DeleteMessageAsync(Guid messageId)
         {
-            _messages.TryRemove(messageId, out _);
+            masterClientList.Messages.TryRemove(messageId, out _);
             return Task.CompletedTask;
         }
 
         public async Task<bool> SendMessageAsync(IMessage message)
         {
-            _messages.TryAdd(message.Id, message);
+            masterClientList.Messages.TryAdd(message.Id, message);
 
             for (var i = 0; i < 10; i++)
             {
-                if (_messages.ContainsKey(message.Id))
+                if (masterClientList.Messages.ContainsKey(message.Id))
                 {
                     await Task.Delay(100);
                     continue;
@@ -111,7 +106,7 @@ namespace NosCore.Core.MessageQueue
                 return true;
             };
 
-            _messages.TryRemove(message.Id, out _);
+            masterClientList.Messages.TryRemove(message.Id, out _);
             return false;
         }
 

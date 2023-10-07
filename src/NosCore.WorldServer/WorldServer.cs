@@ -70,7 +70,7 @@ namespace NosCore.WorldServer
                         logger.LogError(
                             logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
                             timeSpan.TotalSeconds)
-                ).ExecuteAsync(() => pubSubClient.BindAsync(channel, stoppingToken));
+                ).ExecuteAsync(() => pubSubClient.Bind(channel));
             await Task.WhenAny(clock.Run(stoppingToken), channelHttpClient.ConnectAsync(), networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }

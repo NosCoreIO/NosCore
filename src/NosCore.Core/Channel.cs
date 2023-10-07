@@ -19,21 +19,14 @@
 
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
-using System;
 
 namespace NosCore.Core
 {
-    [Serializable]
     public class Channel
     {
-        private string _clientName = "";
         public WebApiConfiguration? MasterCommunication { get; set; }
 
-        public string ClientName
-        {
-            get => string.IsNullOrEmpty(_clientName) ? ClientType.ToString() : _clientName;
-            set => _clientName = value;
-        }
+        public required string ClientName { get; set; }
 
         public ServerType ClientType { get; set; }
 
@@ -49,7 +42,7 @@ namespace NosCore.Core
 
         public bool StartInMaintenance { get; set; }
 
-        public string Host { get; set; } = "";
+        public required string Host { get; set; }
 
         public int ConnectedAccountLimit { get; set; }
 

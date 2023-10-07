@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NosCore.Data.WebApi;
@@ -11,7 +10,6 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace NosCore.Core.MessageQueue
@@ -40,9 +38,6 @@ namespace NosCore.Core.MessageQueue
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
             });
             _hubConnection = new HubConnectionBuilder()
-                .AddJsonProtocol(options => {
-                    options.PayloadSerializerOptions.PropertyNamingPolicy = null;
-                })
                 .WithUrl($"{configuration.Value}/{nameof(PubSubHub)}", options =>
                 {
                     options.AccessTokenProvider = () => Task.FromResult((string?)handler.WriteToken(securityToken));
@@ -50,10 +45,10 @@ namespace NosCore.Core.MessageQueue
                 .Build();
         }
 
-        public async Task BindAsync(Channel data, CancellationToken stoppingToken)
+        public async Task Bind(Channel data)
         {
-            await _hubConnection.StartAsync(stoppingToken);
-            await _hubConnection.InvokeAsync(nameof(BindAsync), data, stoppingToken);
+            await _hubConnection.StartAsync();
+            await _hubConnection.InvokeAsync(nameof(Bind), data);
         }
 
         public Task<List<ChannelInfo>> GetCommunicationChannels()

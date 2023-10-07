@@ -17,9 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core.MessageQueue;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
@@ -28,17 +26,13 @@ using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Shared.Configuration;
-using NosCore.Shared.Enumerations;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetLevelCommandPacketHandler(IChannelHttpClient channelHttpClient, IStatHttpClient statHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient)
+    public class SetLevelCommandPacketHandler(IStatHttpClient statHttpClient, IPubSubHub pubSubHub)
         : PacketHandler<SetLevelCommandPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetLevelCommandPacket levelPacket, ClientSession session)
@@ -56,27 +50,9 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var channels = (await channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
-                ?.Where(c => c.Type == ServerType.WorldServer);
-
-            Subscriber? receiver = null;
-            ServerConfiguration? config = null;
-
-            foreach (var channel in channels ?? new List<ChannelInfo>())
-            {
-                var accounts = await
-                    connectedAccountHttpClient.GetConnectedAccountAsync(channel).ConfigureAwait(false);
-
-                var target = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Name == levelPacket.Name);
-
-                if (target == null)
-                {
-                    continue;
-                }
-
-                receiver = target;
-                config = channel.WebApi;
-            }
+            var channels = await pubSubHub.GetCommunicationChannels();
+            var subscribers = await pubSubHub.GetSubscribersAsync();
+            var receiver = subscribers.FirstOrDefault(s => s.ConnectedCharacter?.Name == levelPacket.Name);
 
             if (receiver == null) //TODO: Handle 404 in WebApi
             {
@@ -87,7 +63,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await statHttpClient.ChangeStatAsync(data, config!).ConfigureAwait(false);
+            await statHttpClient.ChangeStatAsync(data, channels.First(x => x.ServerId == receiver.ChannelId).WebApi!).ConfigureAwait(false);
         }
     }
 }

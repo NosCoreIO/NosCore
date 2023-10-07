@@ -17,31 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using NosCore.Core;
-using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Character = NosCore.GameObject.Character;
 
 namespace NosCore.WorldServer.Controllers
 {
     [Route("api/[controller]")]
-    public class ConnectedAccountController(Channel channel) : Controller
+    public class ConnectedAccountController : Controller
     {
-        // GET api/connectedAccount
-        [HttpGet]
-        public List<Subscriber> GetconnectedAccount()
-        {
-            return Broadcaster.Instance.ConnectedAccounts().Select(o =>
-            {
-                o.ChannelId = channel.ChannelId;
-                return o;
-            }).ToList();
-        }
-
         // DELETE api/connectedAccount
         [HttpDelete]
         public async Task<IActionResult> DisconnectAsync(long id)

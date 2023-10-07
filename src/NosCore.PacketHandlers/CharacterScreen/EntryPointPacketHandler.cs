@@ -18,11 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Mapster;
-using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
@@ -34,7 +31,6 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Shared.Enumerations;
 using Serilog;
 using System;
 using System.Collections.Generic;

@@ -20,7 +20,6 @@
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -38,6 +37,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 using NosCore.GameObject.Services.MapChangeService;
 
 namespace NosCore.PacketHandlers.Game
@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Game
     public class GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration,
             IFriendHttpClient friendHttpClient,
             IChannelHttpClient channelHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient,
+            IPubSubHub pubSubHub, IBlacklistHttpClient blacklistHttpClient,
             IPacketHttpClient packetHttpClient,
             ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider,
             IMapChangeService mapChangeService)
@@ -171,8 +171,7 @@ namespace NosCore.PacketHandlers.Game
 
             await session.Character.SendFinfoAsync(friendHttpClient, packetHttpClient, packetSerializer, true).ConfigureAwait(false);
 
-            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient, channelHttpClient,
-                connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient, channelHttpClient, pubSubHub).ConfigureAwait(false)).ConfigureAwait(false);
             await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);

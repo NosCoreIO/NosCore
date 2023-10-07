@@ -20,14 +20,13 @@
 using NosCore.Data.WebApi;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace NosCore.Core.MessageQueue;
 
 public interface IPubSubHub
 {
-    Task BindAsync(Channel data, CancellationToken stoppingToken);
+    Task Bind(Channel data);
     Task<List<ChannelInfo>> GetCommunicationChannels();
 
     Task<List<IMessage>> ReceiveMessagesAsync(int maxNumberOfMessages, TimeSpan? visibilityTimeout = null);

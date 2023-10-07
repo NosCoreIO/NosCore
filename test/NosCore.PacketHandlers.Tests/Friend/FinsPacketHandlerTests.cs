@@ -80,7 +80,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     new Subscriber
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             _finsPacketHandler = new FinsPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
-                _connectedAccountHttpClient.Object);
+                TestHelpers.Instance.PubSubHub.Object);
         }
 
         [TestMethod]

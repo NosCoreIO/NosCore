@@ -108,7 +108,8 @@ namespace NosCore.GameObject.Services.LoginService
                         break;
                     default:
                         var connectedAccount = await pubSubHub.GetSubscribersAsync();
-                        var servers = await pubSubHub.GetCommunicationChannels();
+                        var comChannels = await pubSubHub.GetCommunicationChannels();
+                        var servers = comChannels.Where(x => x.Type == ServerType.WorldServer).ToList();
                         if (connectedAccount.Any(x=>x.Name == acc.Name))
                         {
                             await clientSession.SendPacketAsync(new FailcPacket

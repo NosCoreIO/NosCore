@@ -24,10 +24,11 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class KickPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient) : PacketHandler<KickPacket>,
+    public class KickPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient, IPubSubHub pubSubHub) : PacketHandler<KickPacket>,
         IWorldPacketHandler
     {
         public override async Task ExecuteAsync(KickPacket kickPacket, ClientSession session)
@@ -43,7 +44,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await connectedAccountHttpClient.DisconnectAsync(receiver.Item2.ConnectedCharacter!.Id).ConfigureAwait(false);
+            await pubSubHub.UnsubscribeAsync(receiver.Item2.ConnectedCharacter!.Id);
         }
     }
 }

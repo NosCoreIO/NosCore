@@ -165,6 +165,7 @@ namespace NosCore.MasterServer
                 var configuration = c.Resolve<IOptions<MasterConfiguration>>();
                 return new Channel
                 {
+                    Host = "",
                     MasterCommunication = configuration.Value.WebApi,
                     ClientName = "Master Server",
                     ClientType = ServerType.MasterServer,
@@ -223,7 +224,10 @@ namespace NosCore.MasterServer
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
-            services.AddSignalR();
+            services.AddSignalR(options =>
+            {
+                options.DisableImplicitFromServicesParameters = true;
+            });
             services.AddAuthorization(o =>
                 {
                     o.DefaultPolicy = new AuthorizationPolicyBuilder()

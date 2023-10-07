@@ -69,7 +69,7 @@ namespace NosCore.LoginServer
                         logger.Error(
                             logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
                             timeSpan.TotalSeconds)
-                ).ExecuteAsync(() => pubSubClient.BindAsync(channel, stoppingToken));
+                ).ExecuteAsync(() => pubSubClient.Bind(channel));
 
             await Task.WhenAny(channelHttpClient.ConnectAsync(), networkManager.RunServerAsync()).ConfigureAwait(false);
         }
