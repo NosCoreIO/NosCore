@@ -18,9 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Core;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
@@ -31,6 +33,7 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
@@ -52,15 +55,25 @@ namespace NosCore.PacketHandlers.Tests.Friend
             Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            TestHelpers.Instance.ConnectedAccountHttpClient
-                .Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+
+            TestHelpers.Instance.PubSubHub.Setup(s => s.GetCommunicationChannels())
+                .ReturnsAsync(new List<ChannelInfo>(){
+                    new ChannelInfo
+                    {
+                        Type = ServerType.WorldServer,
+                        Id = 1
+                    }
+
+                });
+            TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>(){
+        
                     new Subscriber
-                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
-            TestHelpers.Instance.ConnectedAccountHttpClient.Setup(s => s.GetCharacterAsync(null, _session.Character.Name))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
-                    new Subscriber
-                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
+                    {
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                    }
+
+                });
             _blPacketHandler = new BlPacketHandler();
         }
 
@@ -72,14 +85,19 @@ namespace NosCore.PacketHandlers.Tests.Friend
             {
                 CharacterName = targetSession.Character.Name
             };
-            TestHelpers.Instance.ConnectedAccountHttpClient
-                .Setup(s => s.GetCharacterAsync(targetSession.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+            TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId }
-                    }));
-             var blacklist = new BlacklistService(TestHelpers.Instance.ConnectedAccountHttpClient.Object,
+                    },
+                    new Subscriber
+                    {
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                    }
+
+                });
+            var blacklist = new BlacklistService(TestHelpers.Instance.PubSubHub.Object,
                 _characterRelationDao!, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklistAsync(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.BlacklistPlayerAsync( _session!.Character.CharacterId, targetSession.Character.VisualId));

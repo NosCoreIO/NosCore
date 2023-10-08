@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Core;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.MessageQueue;
 using NosCore.Dao.Interfaces;
@@ -39,6 +40,7 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
@@ -69,6 +71,16 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
+
+            _connectedAccountHttpClient.Setup(s => s.GetCommunicationChannels())
+                .ReturnsAsync(new List<ChannelInfo>(){
+                    new ChannelInfo
+                    {
+                        Type = ServerType.WorldServer,
+                        Id = 1
+                    }
+
+                });
             _friendRequestHolder = new FriendRequestHolder();
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
@@ -83,7 +95,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
                     });
             _finsPacketHandler = new FinsPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
-                TestHelpers.Instance.PubSubHub.Object);
+                _connectedAccountHttpClient.Object);
         }
 
         [TestMethod]
