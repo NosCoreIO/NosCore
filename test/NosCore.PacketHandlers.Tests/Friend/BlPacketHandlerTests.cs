@@ -54,12 +54,12 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
-                    new ConnectedAccount
+                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    new Subscriber
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             TestHelpers.Instance.ConnectedAccountHttpClient.Setup(s => s.GetCharacterAsync(null, _session.Character.Name))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
-                    new ConnectedAccount
+                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    new Subscriber
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             _blPacketHandler = new BlPacketHandler();
         }
@@ -74,8 +74,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
             };
             TestHelpers.Instance.ConnectedAccountHttpClient
                 .Setup(s => s.GetCharacterAsync(targetSession.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
-                    new ConnectedAccount
+                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    new Subscriber
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId }
                     }));

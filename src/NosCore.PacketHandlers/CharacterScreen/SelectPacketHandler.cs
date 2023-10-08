@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Mapster;
-using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
@@ -42,6 +41,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Shared.I18N;
+using NosCore.Core.MessageQueue;
+using NosCore.Data.WebApi;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -52,7 +53,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao,
             IDao<CharacterQuestDto, Guid> characterQuestDao,
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives,
-            IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -73,8 +74,19 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     return;
                 }
 
-                var character = characterDto.Adapt<Character>();
-                
+                var character = characterDto.Adapt<GameObject.Character>();
+                await pubSubHub.SubscribeAsync(new Subscriber
+                {
+                    Id = clientSession.SessionId,
+                    Name = clientSession.Account.Name,
+                    Language = clientSession.Account.Language,
+                    ConnectedCharacter = new Data.WebApi.Character
+                    {
+                        Name = character.Name,
+                        Id = character.CharacterId,
+                        FriendRequestBlocked = character.FriendRequestBlocked
+                    }
+                });
                 character.MapInstance = mapInstanceAccessorService.GetBaseMapById(character.MapId)!;
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;

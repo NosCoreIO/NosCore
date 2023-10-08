@@ -22,12 +22,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -42,7 +40,6 @@ using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Configuration;
-using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
@@ -72,12 +69,12 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(It.IsAny<long?>(), It.IsAny<string?>()))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
-                    new ConnectedAccount
+                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    new Subscriber
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
             _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
-                _connectedAccountHttpClient.Object, TestHelpers.Instance.GameLanguageLocalizer);
+                TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.GameLanguageLocalizer);
             _characterDao = new Mock<IDao<CharacterDto, long>>();
             _friendController = new FriendService(Logger, _characterRelationDao, _characterDao.Object,
                 new FriendRequestHolder(), _connectedAccountHttpClient.Object, TestHelpers.Instance.LogLanguageLocalizer);

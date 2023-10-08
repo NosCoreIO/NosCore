@@ -17,17 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.WebApi;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using NosCore.Shared.Enumerations;
 
-namespace NosCore.GameObject.HttpClients.PacketHttpClient
+namespace NosCore.Data.WebApi
 {
-    public interface IPacketHttpClient
+    public class Subscriber
     {
-        Task BroadcastPacketAsync(PostedPacket packet, long channelId);
-        Task BroadcastPacketAsync(PostedPacket packet);
-        Task BroadcastPacketsAsync(List<PostedPacket> packets);
-        Task BroadcastPacketsAsync(List<PostedPacket> packets, long channelId);
+        public string? Name { get; set; }
+        public RegionType Language { get; set; }
+        public long ChannelId { get; set; }
+        public Character? ConnectedCharacter { get; set; }
+        public long Id { get; set; }
     }
 }

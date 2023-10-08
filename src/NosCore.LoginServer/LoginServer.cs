@@ -22,7 +22,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database;
 using Serilog;
@@ -30,15 +29,18 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Core;
 using NosCore.Networking;
 using NosCore.Shared.I18N;
+using Polly;
+using NosCore.Core.MessageQueue;
 
 namespace NosCore.LoginServer
 {
     public class LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager,
             ILogger logger,
             IChannelHttpClient channelHttpClient, NosCoreContext context,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, Channel channel, IPubSubHub pubSubClient)
         : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -60,6 +62,15 @@ namespace NosCore.LoginServer
                 logger.Error(logLanguage[LogLanguageKey.DATABASE_NOT_UPTODATE]);
                 throw;
             }
+            await Policy
+                .Handle<Exception>()
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (_, __, timeSpan) =>
+                        logger.Error(
+                            logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
+                            timeSpan.TotalSeconds)
+                ).ExecuteAsync(() => pubSubClient.Bind(channel));
+
             await Task.WhenAny(channelHttpClient.ConnectAsync(), networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }

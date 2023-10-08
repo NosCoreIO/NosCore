@@ -165,6 +165,7 @@ namespace NosCore.Data.Enumerations.I18N
         UNBOUND_ITEM_DETECTED,
         MAP_DONT_EXIST,
         CANT_CHANGE_SAME_CLASS,
+        CHANNEL_CONNECTION_LOST,
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

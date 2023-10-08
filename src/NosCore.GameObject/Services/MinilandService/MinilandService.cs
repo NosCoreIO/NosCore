@@ -79,9 +79,9 @@ namespace NosCore.GameObject.Services.MinilandService
 
         public Miniland GetMiniland(long characterId)
         {
-            if (minilandHolder.Minilands.ContainsKey(characterId))
+            if (minilandHolder.Minilands.TryGetValue(characterId, out var miniland))
             {
-                return minilandHolder.Minilands[characterId];
+                return miniland;
             }
 
             throw new ArgumentException();

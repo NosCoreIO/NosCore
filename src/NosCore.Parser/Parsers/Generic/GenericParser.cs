@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using FastMember;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 using Serilog;

@@ -19,11 +19,9 @@
 
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.LoginService;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Shared.I18N;
 using Serilog;

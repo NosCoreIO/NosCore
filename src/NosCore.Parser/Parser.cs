@@ -17,27 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Autofac;
-using AutofacSerilogIntegration;
-using Mapster;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using NosCore.Core.I18N;
-using NosCore.Dao;
-using NosCore.Dao.Interfaces;
-using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Database;
-using NosCore.Database.Entities;
-using NosCore.Database.Entities.Base;
-using NosCore.Parser.Parsers;
-using NosCore.Shared.Configuration;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;

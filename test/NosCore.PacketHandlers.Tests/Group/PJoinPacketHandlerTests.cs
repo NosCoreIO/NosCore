@@ -17,22 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.PacketHandlers.Group;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Groups;
-using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 

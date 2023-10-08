@@ -36,17 +36,14 @@ using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Core.I18N;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.LoginService;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets;
 using NosCore.Packets.Attributes;
@@ -57,19 +54,15 @@ using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using DotNetty.Buffers;
-using DotNetty.Codecs;
-using DotNetty.Transport.Channels.Sockets;
 using NodaTime;
+using NosCore.Core.MessageQueue;
 using NosCore.Core.Services.IdService;
 using NosCore.GameObject.Services.LoginService;
-using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
 using NosCore.Networking.Encoding.Filter;
@@ -92,6 +85,8 @@ namespace NosCore.LoginServer
                 conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
+            services.AddOptions<WebApiConfiguration>().Bind(conf.GetSection(nameof(LoginConfiguration.MasterCommunication))).ValidateDataAnnotations();
+
             Logger.PrintHeader(ConsoleText);
             CultureInfo.DefaultThreadCurrentCulture = new(loginConfiguration.Language.ToString());
         }
@@ -115,6 +110,7 @@ namespace NosCore.LoginServer
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
 
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<PubSubHubClient>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();

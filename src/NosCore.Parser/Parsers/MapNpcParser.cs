@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -60,7 +59,7 @@ namespace NosCore.Parser.Parsers
                     MapId = map,
                     VNum = short.Parse(currentPacket[2]),
                     MapNpcId = mapnpcid,
-                    Effect = effPacketsDictionary.ContainsKey(mapnpcid) ? effPacketsDictionary[mapnpcid] : (short)0,
+                    Effect = effPacketsDictionary.TryGetValue(mapnpcid, out var value) ? value : (short)0,
                     EffectDelay = 4750,
                     IsMoving = npcMvPacketsList.Contains(mapnpcid),
                     Direction = byte.Parse(currentPacket[6]),

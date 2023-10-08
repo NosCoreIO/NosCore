@@ -21,9 +21,7 @@ using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -32,13 +30,16 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 using Character = NosCore.Data.WebApi.Character;
+using System.Linq;
+using NosCore.Core.MessageQueue.Messages;
 //TODO stop using obsolete
 #pragma warning disable 618
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class ShoutPacketHandler(ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
+    public class ShoutPacketHandler(ISerializer packetSerializer, IPubSubHub packetHttpClient,
             IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<ShoutPacket>, IWorldPacketHandler
     {
@@ -78,7 +79,7 @@ namespace NosCore.PacketHandlers.Command
                 ReceiverType = ReceiverType.All
             };
 
-            await packetHttpClient.BroadcastPacketsAsync(new List<PostedPacket>(new[] { sayPostedPacket, msgPostedPacket })).ConfigureAwait(false);
+            await packetHttpClient.SendMessagesAsync(new List<IMessage>(new[] { sayPostedPacket, msgPostedPacket })).ConfigureAwait(false);
         }
     }
 }

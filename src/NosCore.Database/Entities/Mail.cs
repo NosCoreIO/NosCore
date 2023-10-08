@@ -63,7 +63,7 @@ namespace NosCore.Database.Entities
 
         [Required]
         [MaxLength(255)]
-        public string Message { get; set; } = "";
+        public required string Message { get; set; } 
 
         public virtual Character Receiver { get; set; } = null!;
 
@@ -85,6 +85,6 @@ namespace NosCore.Database.Entities
 
         [Required]
         [MaxLength(255)]
-        public string Title { get; set; } = "";
+        public required string Title { get; set; } 
     }
 }

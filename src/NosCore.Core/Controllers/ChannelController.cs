@@ -17,13 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Json.Patch;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NodaTime;
-using NodaTime.Serialization.SystemTextJson;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.Authentication;
@@ -33,14 +31,11 @@ using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
 
 namespace NosCore.Core.Controllers
 {
@@ -145,28 +140,6 @@ namespace NosCore.Core.Controllers
 #pragma warning restore CA1822 // Mark members as static
         {
             return id != null ? channelInfoIdService.Items.Values.Where(s => s.Id == id).ToList() : channelInfoIdService.Items.Values.ToList();
-        }
-
-        [HttpPatch]
-        public HttpStatusCode PingUpdate(int id, [FromBody] JsonPatch data)
-        {
-            var chann = channelInfoIdService.Items.Values.FirstOrDefault(s => s.Id == id);
-            if (chann == null)
-            {
-                return HttpStatusCode.NotFound;
-            }
-
-            if ((chann.LastPing.Plus(Duration.FromSeconds(10)) < clock.GetCurrentInstant()) && !Debugger.IsAttached)
-            {
-                channelInfoIdService.Items.TryRemove(_id, out _);
-                logger.Warning(logLanguage[LogLanguageKey.CONNECTION_LOST],
-                    _id.ToString(CultureInfo.CurrentCulture));
-                return HttpStatusCode.RequestTimeout;
-            }
-
-            var result = data?.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(chann, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement);
-            channelInfoIdService.Items[channelInfoIdService.Items.First(s => s.Value.Id == id).Key] = JsonSerializer.Deserialize<ChannelInfo>(result!.Value.GetRawText(), new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))!;
-            return HttpStatusCode.OK;
         }
     }
 }

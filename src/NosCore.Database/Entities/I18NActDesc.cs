@@ -29,11 +29,11 @@ namespace NosCore.Database.Entities
         public int I18NActDescId { get; set; }
 
         [Required]
-        public string Key { get; set; } = "";
+        public required string Key { get; set; } 
 
         public RegionType RegionType { get; set; }
 
         [Required]
-        public string Text { get; set; } = "";
+        public required string Text { get; set; } 
     }
 }

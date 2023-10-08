@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -61,7 +60,7 @@ namespace NosCore.Parser.Parsers
             var maps = new DirectoryInfo(folderMap).GetFiles().Select(file => new MapDto
             {
                 NameI18NKey = dictionaryId.FirstOrDefault(s => s.MapId == int.Parse(file.Name))?.NameI18NKey ?? string.Empty,
-                Music = dictionaryMusic.ContainsKey(file.Name) ? int.Parse(dictionaryMusic[file.Name]) : 0,
+                Music = dictionaryMusic.TryGetValue(file.Name, out var value) ? int.Parse(value) : 0,
                 MapId = short.Parse(file.Name),
                 Data = File.ReadAllBytes(file.FullName),
                 ShopAllowed = short.Parse(file.Name) == 147

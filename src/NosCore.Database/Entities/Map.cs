@@ -62,7 +62,7 @@ namespace NosCore.Database.Entities
         [Required]
         [MaxLength(255)]
         [I18NString(typeof(I18NMapIdData))]
-        public string Name { get; set; } = "";
+        public required string Name { get; set; } 
 
         public virtual ICollection<Portal> Portal { get; set; }
 

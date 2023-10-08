@@ -18,9 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.HttpClients.AuthHttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -30,6 +27,7 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
 
@@ -37,15 +35,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class DacPacketHandler(IDao<AccountDto, long> accountDao,
             ILogger logger, IAuthHttpClient authHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient,
-            IChannelHttpClient channelHttpClient, ISessionRefHolder sessionRefHolder,
+            IPubSubHub pubSubHub, ISessionRefHolder sessionRefHolder,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<DacPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(DacPacket packet, ClientSession clientSession)
         {
             await EntryPointPacketHandler.VerifyConnectionAsync(clientSession, logger, authHttpClient,
-                connectedAccountHttpClient, accountDao, channelHttpClient, true, packet.AccountName, "thisisgfmode", -1, sessionRefHolder, logLanguage);
+                accountDao, pubSubHub, true, packet.AccountName, "thisisgfmode", -1, sessionRefHolder, logLanguage);
             if (clientSession.Account == null!)
             {
                 return;

@@ -24,7 +24,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
 
 namespace NosCore.GameObject.Networking
@@ -89,10 +88,10 @@ namespace NosCore.GameObject.Networking
             _instance = null;
         }
 
-        public List<ConnectedAccount> ConnectedAccounts()
+        public List<Subscriber> ConnectedAccounts()
         {
             return ClientSessions.Values.Select(s =>
-                new ConnectedAccount
+                new Subscriber
                 {
                     Name = s.Account.Name,
                     Language = s.Account.Language,

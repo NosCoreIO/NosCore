@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -32,14 +31,10 @@ using NosCore.Core.Configuration;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.AuthHttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Data.Enumerations.I18N;
+using NosCore.Core.MessageQueue;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.LoginService;
 using NosCore.GameObject.Services.LoginService;
-using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets.ClientPackets.Login;
@@ -48,9 +43,7 @@ using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
-using Serilog;
 
 namespace NosCore.PacketHandlers.Tests.Login
 {
@@ -60,8 +53,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         private readonly string _tokenGuid = Guid.NewGuid().ToString();
         private IHasher _encryption = null!;
         private readonly Mock<IAuthHttpClient> _authHttpClient = new();
-        private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
-        private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
+        private readonly Mock<IPubSubHub> _pubSubHub = TestHelpers.Instance.PubSubHub;
         private readonly IOptions<LoginConfiguration> _loginConfiguration = Options.Create(new LoginConfiguration
         {
             MasterCommunication = new WebApiConfiguration()
@@ -81,7 +73,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration,
                 TestHelpers.Instance.AccountDao,
-                _authHttpClient.Object, _channelHttpClient.Object, _connectedAccountHttpClient.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder()));
+                _authHttpClient.Object, _pubSubHub.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder()));
             var authController = new AuthController(Options.Create(_loginConfiguration.Value.MasterCommunication),
                 TestHelpers.Instance.AccountDao, new Mock<ILogger<AuthController>>().Object, _encryption, TestHelpers.Instance.LogLanguageLocalizer);
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
@@ -95,9 +87,9 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginBCryptAsync()
         {
             _encryption = new BcryptHasher();
-            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
-                .ReturnsAsync(new List<ConnectedAccount>());
+            _pubSubHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            _pubSubHub.Setup(s => s.GetSubscribersAsync())
+                 .ReturnsAsync(new List<Subscriber>());
             _session!.Account.NewAuthSalt = BCrypt.Net.BCrypt.GenerateSalt();
             _session.Account.NewAuthPassword = _encryption.Hash(_tokenGuid, _session.Account.NewAuthSalt);
 
@@ -115,9 +107,9 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginPbkdf2Async()
         {
             _encryption = new Pbkdf2Hasher();
-            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
-                .ReturnsAsync(new List<ConnectedAccount>());
+            _pubSubHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            _pubSubHub.Setup(s => s.GetSubscribersAsync())
+             .ReturnsAsync(new List<Subscriber>());
             _session!.Account.NewAuthPassword = _encryption.Hash(_tokenGuid, "MY_SUPER_SECRET_HASH");
             _session.Account.NewAuthSalt = "MY_SUPER_SECRET_HASH";
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
@@ -158,9 +150,9 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginAsync()
         {
-            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
-                .ReturnsAsync(new List<ConnectedAccount>());
+            _pubSubHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            _pubSubHub.Setup(s => s.GetSubscribersAsync())
+                 .ReturnsAsync(new List<Subscriber>());
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
@@ -173,9 +165,9 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginAlreadyConnectedAsync()
         {
-            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
-                .ReturnsAsync(new List<ConnectedAccount>
+            _pubSubHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            _pubSubHub.Setup(s => s.GetSubscribersAsync())
+                 .ReturnsAsync(new List<Subscriber>
                     {new() {Name = _session!.Account.Name}});
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
@@ -189,9 +181,9 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginNoServerAsync()
         {
-            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo>());
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
-                .ReturnsAsync(new List<ConnectedAccount>());
+            _pubSubHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
+            _pubSubHub.Setup(s => s.GetSubscribersAsync())
+                 .ReturnsAsync(new List<Subscriber>());
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
@@ -216,9 +208,9 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginMaintenanceAsync()
         {
-            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
-                .ReturnsAsync(new List<ConnectedAccount>());
+            _pubSubHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
+            _pubSubHub.Setup(s => s.GetSubscribersAsync())
+                  .ReturnsAsync(new List<Subscriber>());
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
@@ -232,9 +224,9 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginMaintenanceGameMasterAsync()
         {
-            _channelHttpClient.Setup(s => s.GetChannelsAsync()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
-            _connectedAccountHttpClient.Setup(s => s.GetConnectedAccountAsync(It.IsAny<ChannelInfo>()))
-                .ReturnsAsync(new List<ConnectedAccount>());
+            _pubSubHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
+            _pubSubHub.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>());
             _session!.Account.Authority = AuthorityType.GameMaster;
             await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session!.Account);
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;

@@ -173,7 +173,7 @@ namespace NosCore.Database.Entities
 
         [Required]
         [MaxLength(255)]
-        public string Name { get; set; } = "";
+        public required string Name { get; set; } 
 
         public bool QuickGetUp { get; set; }
 

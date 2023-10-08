@@ -32560,7 +32560,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="0" sequenceCoverage="0" branchCoverage="100" isConstructor="False" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="7" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.Collections.Generic.List`1&lt;NosCore.Data.WebApi.ConnectedAccount&gt; NosCore.WorldServer.Controllers.ConnectedAccountController::GetconnectedAccount()</Name>
+              <Name>System.Collections.Generic.List`1&lt;NosCore.Data.WebApi.Subscriber&gt; NosCore.WorldServer.Controllers.ConnectedAccountController::GetconnectedAccount()</Name>
               <FileRef uid="329" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="43" ordinal="0" sl="43" sc="1" el="43" ec="2" bec="0" bev="0" fileid="329" />

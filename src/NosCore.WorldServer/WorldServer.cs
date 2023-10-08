@@ -21,7 +21,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.EventLoaderService.Handlers;
@@ -32,9 +31,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using NosCore.Core;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
 using NosCore.Shared.I18N;
+using Polly;
+using NosCore.Core.MessageQueue;
 
 namespace NosCore.WorldServer
 {
@@ -42,7 +44,7 @@ namespace NosCore.WorldServer
             Clock clock, ILogger<WorldServer> logger,
             IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService,
             IClock nodatimeClock, ISaveService saveService,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger, Channel channel, IPubSubHub pubSubClient)
         : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -61,7 +63,14 @@ namespace NosCore.WorldServer
             {
                 Console.Title += $@" - Port : {worldConfiguration.Value.Port} - WebApi : {worldConfiguration.Value.WebApi}";
             }
-
+            await Policy
+                .Handle<Exception>()
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (_, __, timeSpan) =>
+                        logger.LogError(
+                            logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
+                            timeSpan.TotalSeconds)
+                ).ExecuteAsync(() => pubSubClient.Bind(channel));
             await Task.WhenAny(clock.Run(stoppingToken), channelHttpClient.ConnectAsync(), networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }

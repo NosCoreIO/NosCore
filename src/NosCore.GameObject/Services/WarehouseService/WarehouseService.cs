@@ -44,10 +44,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                 {
                     //todo add
                 }
-                else
-                {
-                    //todo add
-                }
+                //todo add
             }
             else
             {

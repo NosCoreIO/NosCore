@@ -17,20 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.Enumerations.Interaction;
+using System.Threading.Tasks;
+using NosCore.Core.MessageQueue.Messages;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.Interfaces;
 
-namespace NosCore.Data.WebApi
+namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
+
+public interface IChannelCommunicationMessageHandler<in T> where T : IMessage
 {
-    public class PostedPacket
+    Task Handle(T message);
+}
+
+public abstract class ChannelCommunicationMessageHandler<T> : IChannelCommunicationMessageHandler<IMessage> where T : IMessage
+{
+    public abstract Task Handle(T message);
+
+    public Task Handle(IMessage message)
     {
-        public string? Packet { get; set; }
-
-        public Character? SenderCharacter { get; set; }
-
-        public Character? ReceiverCharacter { get; set; }
-
-        public long OriginWorldId { get; set; }
-
-        public ReceiverType ReceiverType { get; set; }
+        return Handle((T)message);
     }
 }

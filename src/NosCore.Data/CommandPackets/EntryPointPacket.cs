@@ -27,10 +27,10 @@ namespace NosCore.Data.CommandPackets
     public class EntryPointPacket : PacketBase
     {
         [PacketIndex(1)]
-        public string Name { get; set; } = "";
+        public required string Name { get; set; } 
 
         [PacketIndex(2)]
-        public string Password { get; set; } = "";
+        public string? Password { get; set; } 
     }
 
 }

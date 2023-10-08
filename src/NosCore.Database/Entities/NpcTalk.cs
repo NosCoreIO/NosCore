@@ -39,7 +39,7 @@ namespace NosCore.Database.Entities
         [Required]
         [MaxLength(255)]
         [I18NString(typeof(I18NNpcMonsterTalk))]
-        public string Name { get; set; } = "";
+        public required string Name { get; set; } 
 
         public virtual ICollection<MapNpc> MapNpc { get; set; }
     }

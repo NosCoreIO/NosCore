@@ -19,7 +19,6 @@
 
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Networking.LoginService;
 using NosCore.Packets.ClientPackets.Login;
 using System.Threading.Tasks;
 using NosCore.GameObject.Services.LoginService;

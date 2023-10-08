@@ -20,7 +20,6 @@
 using System.Threading.Tasks;
 using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.GameObject.Networking.LoginService;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Enumerations;

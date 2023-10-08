@@ -20,16 +20,12 @@
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Buff;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.MailHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -40,6 +36,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 using NosCore.GameObject.Services.MapChangeService;
 
 namespace NosCore.PacketHandlers.Game
@@ -47,8 +44,7 @@ namespace NosCore.PacketHandlers.Game
     public class GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration,
             IFriendHttpClient friendHttpClient,
             IChannelHttpClient channelHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IBlacklistHttpClient blacklistHttpClient,
-            IPacketHttpClient packetHttpClient,
+            IPubSubHub pubSubHub, IBlacklistHttpClient blacklistHttpClient,
             ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider,
             IMapChangeService mapChangeService)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
@@ -171,10 +167,9 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            await session.Character.SendFinfoAsync(friendHttpClient, packetHttpClient, packetSerializer, true).ConfigureAwait(false);
+            await session.Character.SendFinfoAsync(friendHttpClient, pubSubHub, packetSerializer, true).ConfigureAwait(false);
 
-            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient, channelHttpClient,
-                connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient, channelHttpClient, pubSubHub).ConfigureAwait(false)).ConfigureAwait(false);
             await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
@@ -197,7 +192,7 @@ namespace NosCore.PacketHandlers.Game
             //                Session.SendPacket(Session.Character.GenerateFamilyMemberExp());
             //                if (!string.IsNullOrWhiteSpace(Session.Character.Family.FamilyMessage))
             //                {
-            //                    Session.SendPacket(UserInterfaceHelper.Instance.GenerateInfo("--- Family Message ---\n" + Session.Character.Family.FamilyMessage));
+            //                    Session.SendPacket(UserInterfaceHelper.Instance.GenerateInfo("--- Family IMessage ---\n" + Session.Character.Family.FamilyMessage));
             //                }
             //            }
 

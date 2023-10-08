@@ -38,7 +38,7 @@ namespace NosCore.Database.Entities
         [Required]
         [MaxLength(255)]
         [I18NString(typeof(I18NQuest))]
-        public string Title { get; set; } = "";
+        public required string Title { get; set; } 
 
         public virtual HashSet<ActPart> ActParts { get; set; }
 

@@ -35,16 +35,12 @@ using NosCore.Algorithm.MpService;
 using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Core.I18N;
-
-using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -278,8 +274,8 @@ namespace NosCore.GameObject.Tests
         private async Task<ClientSession> PrepareSessionShopAsync()
         {
             var conf = Options.Create(new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 });
-            var session2 = new ClientSession(conf, new Mock<IExchangeService>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IPacketHttpClient>().Object, new Mock<IMinilandService>().Object, TestHelpers.Instance.MapInstanceGeneratorService, new SessionRefHolder(),
-                new Mock<ISaveService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
+            var session2 = new ClientSession(conf, new Mock<IExchangeService>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IMinilandService>().Object, TestHelpers.Instance.MapInstanceGeneratorService, new SessionRefHolder(),
+                new Mock<ISaveService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.PubSubHub.Object);
             var channelMock = new Mock<ISocketChannel>();
             session2.RegisterChannel(channelMock.Object);
             var account = new AccountDto { Name = "AccountTest", Password = new Sha512Hasher().Hash("test") };

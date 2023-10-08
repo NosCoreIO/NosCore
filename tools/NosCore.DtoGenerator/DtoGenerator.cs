@@ -59,7 +59,7 @@ namespace NosCore.DtoGenerator
                     {
                         continue;
                     }
-                    //var directory = "";
+                    //var directory 
                     string classNamespace = "NosCore.Data.Dto";
                     int keyCount = 0;
                     string dtoInterface = "IDto";

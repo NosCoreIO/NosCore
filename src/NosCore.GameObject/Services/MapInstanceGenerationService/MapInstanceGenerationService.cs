@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Mapster;
-using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -90,17 +89,15 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 {
                     var mapinstance = CreateMapInstance(map, mapsdic[map.MapId], map.ShopAllowed, MapInstanceType.BaseMapInstance);
 
-                    if (monsters.ContainsKey(map.MapId))
+                    if (monsters.TryGetValue(map.MapId, out var monster))
                     {
-                        var mapMonsters = monsters[map.MapId];
-                        mapMonsters.ForEach(s => s.Initialize(npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!));
-                        mapinstance.LoadMonsters(mapMonsters);
+                        monster.ForEach(s => s.Initialize(npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!));
+                        mapinstance.LoadMonsters(monster);
                     }
 
-                    if (npcs.ContainsKey(map.MapId))
+                    if (npcs.TryGetValue(map.MapId, out var npc))
                     {
-                        var mapNpcs = npcs[map.MapId];
-                        mapNpcs.ForEach(s =>
+                        npc.ForEach(s =>
                         {
                             List<ShopItemDto> dtoShopItems = new List<ShopItemDto>();
                             NpcTalkDto? dialog = null;
@@ -112,14 +109,14 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                             }
                             s.Initialize(npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!, shop, dialog, dtoShopItems);
                         });
-                        mapinstance.LoadNpcs(mapNpcs);
+                        mapinstance.LoadNpcs(npc);
                     }
                     entranceRunnerService.LoadHandlers(mapinstance);
                     return mapinstance;
                 }));
 
             await Task.WhenAll(holder.MapInstances.Values.Select(s => s.StartLifeAsync())).ConfigureAwait(false);
-            await Task.WhenAll(holder.MapInstances.Values.Select(mapInstance => portals.ContainsKey(mapInstance.Map.MapId) ? LoadPortalsAsync(mapInstance, portals[mapInstance.Map.MapId]) : Task.CompletedTask)).ConfigureAwait(false);
+            await Task.WhenAll(holder.MapInstances.Values.Select(mapInstance => portals.TryGetValue(mapInstance.Map.MapId, out var portal) ? LoadPortalsAsync(mapInstance, portal) : Task.CompletedTask)).ConfigureAwait(false);
         }
 
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)

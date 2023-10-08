@@ -18,18 +18,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class KickPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient) : PacketHandler<KickPacket>,
+    public class KickPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient, IPubSubHub pubSubHub) : PacketHandler<KickPacket>,
         IWorldPacketHandler
     {
         public override async Task ExecuteAsync(KickPacket kickPacket, ClientSession session)
@@ -45,7 +44,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await connectedAccountHttpClient.DisconnectAsync(receiver.Item2.ConnectedCharacter!.Id).ConfigureAwait(false);
+            await pubSubHub.UnsubscribeAsync(receiver.Item2.ConnectedCharacter!.Id);
         }
     }
 }

@@ -40,6 +40,7 @@ using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
+using NosCore.Core.MessageQueue;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -58,8 +59,6 @@ using NosCore.GameObject.Holders;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
@@ -117,9 +116,9 @@ namespace NosCore.Tests.Shared
         private int _lastId = 100;
         public Mock<IBlacklistHttpClient> BlacklistHttpClient = new();
         public Mock<IChannelHttpClient> ChannelHttpClient = new();
+        public Mock<IPubSubHub> PubSubHub = new();
         public Mock<IConnectedAccountHttpClient> ConnectedAccountHttpClient = new();
         public Mock<IFriendHttpClient> FriendHttpClient = new();
-        public Mock<IPacketHttpClient> PacketHttpClient = new();
         public FakeClock Clock = new(Instant.FromUtc(2021,01,01,01,01,01)); 
         private TestHelpers()
         {
@@ -315,11 +314,10 @@ namespace NosCore.Tests.Shared
                             new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), WorldConfiguration),
                     new BlInsPackettHandler(BlacklistHttpClient.Object, _logger, Instance.LogLanguageLocalizer),
                     new UseItemPacketHandler(),
-                    new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
-                        ConnectedAccountHttpClient.Object),
+                    new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, TestHelpers.Instance.PubSubHub.Object),
                     new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                         _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
-                        new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer),
+                        new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer, Instance.PubSubHub.Object),
                     new CSkillPacketHandler(Instance.Clock),
                     new CBuyPacketHandler(new Mock<IBazaarHttpClient>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao, Instance.LogLanguageLocalizer),
                     new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, _itemInstanceDao, _inventoryItemInstanceDao),
@@ -327,10 +325,9 @@ namespace NosCore.Tests.Shared
                 },
                 FriendHttpClient.Object,
                 new Mock<ISerializer>().Object,
-                PacketHttpClient.Object,
                 minilandProvider.Object,
                 MapInstanceGeneratorService, new SessionRefHolder(), new Mock<ISaveService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, 
-                Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer)
+                Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, TestHelpers.Instance.PubSubHub.Object)
             {
                 SessionId = _lastId
             };
@@ -357,7 +354,6 @@ namespace NosCore.Tests.Shared
             session.Character.MapInstance = MapInstanceAccessorService.GetBaseMapById(0)!;
             session.Account = acc;
             session.RegisterChannel(new Mock<ISocketChannel>().Object);
-            Broadcaster.Instance.RegisterSession(session);
             return session;
         }
 

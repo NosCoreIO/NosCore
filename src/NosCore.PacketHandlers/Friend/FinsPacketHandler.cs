@@ -18,8 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Core.I18N;
+using NosCore.Core.MessageQueue;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
@@ -36,7 +35,7 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Friend
 {
     public class FinsPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient)
+            IPubSubHub pubSubHub)
         : PacketHandler<FinsPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(FinsPacket finsPacket, ClientSession session)
@@ -103,9 +102,9 @@ namespace NosCore.PacketHandlers.Friend
                         }).ConfigureAwait(false);
 
                         await targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(friendHttpClient, channelHttpClient,
-                            connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                            pubSubHub).ConfigureAwait(false)).ConfigureAwait(false);
                         await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient,
-                            channelHttpClient, connectedAccountHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                            channelHttpClient, pubSubHub).ConfigureAwait(false)).ConfigureAwait(false);
                         break;
 
                     case LanguageKey.FRIEND_REJECTED:

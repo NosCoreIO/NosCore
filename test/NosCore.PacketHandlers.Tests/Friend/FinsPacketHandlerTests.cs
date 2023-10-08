@@ -21,14 +21,12 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Mapster;
-using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Holders;
@@ -40,7 +38,6 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Configuration;
-using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
@@ -73,17 +70,17 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
             _friendRequestHolder = new FriendRequestHolder();
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_targetSession.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
-                    new ConnectedAccount
+                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    new Subscriber
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
                     }));
             _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, ConnectedAccount?>(new ServerConfiguration(),
-                    new ConnectedAccount
+                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    new Subscriber
                     { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
             _finsPacketHandler = new FinsPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
-                _connectedAccountHttpClient.Object);
+                TestHelpers.Instance.PubSubHub.Object);
         }
 
         [TestMethod]
