@@ -27,6 +27,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Parcel;
 using System;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue.Messages;
 
 namespace NosCore.WorldServer.Controllers
 {

@@ -17,23 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Json.Patch;
+using System;
+using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using NosCore.Core.MessageQueue.Messages;
-using NosCore.Data.Dto;
 
-namespace NosCore.GameObject.Services.MailService
+namespace NosCore.Core.MessageQueue.Messages
 {
-    public interface IMailService
+    public class StatData : IMessage
     {
-        List<MailData> GetMails(long id, long characterId, bool senderCopy);
+        public Character? Character { get; set; }
 
-        Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy);
+        public UpdateStatActionType ActionType { get; set; }
 
-        Task<MailData?> EditMailAsync(long id, JsonPatch mailData);
-
-        Task<bool> SendMailAsync(MailDto mail, short? vNum, short? amount, sbyte? rare, byte? upgrade);
+        public long Data { get; set; } //TODO: find other type(s)
+        public Guid Id { get; set; } = Guid.NewGuid();
     }
 }

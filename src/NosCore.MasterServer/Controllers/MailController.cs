@@ -25,6 +25,7 @@ using NosCore.GameObject.Services.MailService;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue.Messages;
 
 namespace NosCore.MasterServer.Controllers
 {

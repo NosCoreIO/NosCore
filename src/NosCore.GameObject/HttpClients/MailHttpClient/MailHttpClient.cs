@@ -32,6 +32,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Core.MessageQueue.Messages;
 
 namespace NosCore.GameObject.HttpClients.MailHttpClient
 {

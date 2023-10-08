@@ -17,18 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Globalization;
 using NosCore.Data.Dto;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
-using System;
-using System.Globalization;
 
-namespace NosCore.Data.WebApi
+namespace NosCore.Core.MessageQueue.Messages
 {
-    public class MailData
+    public class MailData : IMessage
     {
         public string? ReceiverName { get; set; }
         public string? SenderName { get; set; }
@@ -112,5 +112,7 @@ namespace NosCore.Data.WebApi
                     throw new ArgumentException();
             }
         }
+
+        public Guid Id { get; set; } = Guid.NewGuid();
     }
 }

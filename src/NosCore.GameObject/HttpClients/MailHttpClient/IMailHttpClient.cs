@@ -23,6 +23,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue.Messages;
 
 namespace NosCore.GameObject.HttpClients.MailHttpClient
 {

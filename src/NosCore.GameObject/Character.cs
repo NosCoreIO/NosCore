@@ -59,6 +59,7 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
 using NodaTime;
+using NosCore.Core.MessageQueue.Messages;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking;

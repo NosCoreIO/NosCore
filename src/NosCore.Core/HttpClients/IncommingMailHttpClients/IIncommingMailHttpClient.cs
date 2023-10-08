@@ -19,6 +19,7 @@
 
 using NosCore.Data.WebApi;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue.Messages;
 
 namespace NosCore.Core.HttpClients.IncommingMailHttpClients
 {
