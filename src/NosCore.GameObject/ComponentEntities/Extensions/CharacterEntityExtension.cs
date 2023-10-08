@@ -23,11 +23,9 @@ using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -51,6 +49,7 @@ using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.MessageQueue;
+using NosCore.Core.MessageQueue.Messages;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ServerPackets.Quicklist;
@@ -394,11 +393,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         }
 
         public static async Task SendFinfoAsync(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
-            IPacketHttpClient packetHttpClient, ISerializer packetSerializer, bool isConnected)
+            IPubSubHub pubSubHub, ISerializer packetSerializer, bool isConnected)
         {
             var friendlist = await friendHttpClient.GetListFriendsAsync(visualEntity.VisualId).ConfigureAwait(false);
             await Task.WhenAll(friendlist.Select(friend =>
-                packetHttpClient.BroadcastPacketAsync(new PostedPacket
+                pubSubHub.SendMessageAsync(new PostedPacket
                 {
                     Packet = packetSerializer.Serialize(new[]
                     {

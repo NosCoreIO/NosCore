@@ -90,6 +90,8 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue.Messages;
+using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using Character = NosCore.GameObject.Character;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using Deserializer = NosCore.Packets.Deserializer;
@@ -296,6 +298,12 @@ namespace NosCore.WorldServer
             containerBuilder
                 .RegisterAssemblyTypes(typeof(IEventHandler<,>).Assembly)
                 .AsClosedTypesOf(typeof(IEventHandler<,>))
+                .SingleInstance()
+                .AsImplementedInterfaces();
+
+            containerBuilder
+                .RegisterAssemblyTypes(typeof(ChannelCommunicationMessageHandler<>).Assembly)
+                .Where(t => typeof(IChannelCommunicationMessageHandler<IMessage>).IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
         }

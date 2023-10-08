@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccessService
     {
         public MapInstance? GetMapInstance(Guid id)
         {
-            return holder.MapInstances.ContainsKey(id) ? holder.MapInstances[id] : null;
+            return holder.MapInstances.TryGetValue(id, out var instance) ? instance : null;
         }
 
         public MapInstance? GetBaseMapById(short mapId)

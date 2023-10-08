@@ -22,11 +22,9 @@ using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Chat;
@@ -36,12 +34,14 @@ using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
+using NosCore.Core.MessageQueue.Messages;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
 {
     public class BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
-            IPacketHttpClient packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, Channel channel,
+            IPubSubHub packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<BtkPacket>, IWorldPacketHandler
     {
@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            await packetHttpClient.BroadcastPacketAsync(new PostedPacket
+            await packetHttpClient.SendMessageAsync(new PostedPacket
             {
                 Packet = packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character
@@ -93,7 +93,7 @@ namespace NosCore.PacketHandlers.Chat
                 { Name = session.Character.Name, Id = session.Character.CharacterId },
                 OriginWorldId = channel.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
-            }, receiver.Item2.ChannelId).ConfigureAwait(false);
+            }).ConfigureAwait(false);
         }
     }
 }

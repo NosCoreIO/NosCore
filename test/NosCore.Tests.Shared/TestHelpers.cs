@@ -59,7 +59,6 @@ using NosCore.GameObject.Holders;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
@@ -120,7 +119,6 @@ namespace NosCore.Tests.Shared
         public Mock<IPubSubHub> PubSubHub = new();
         public Mock<IConnectedAccountHttpClient> ConnectedAccountHttpClient = new();
         public Mock<IFriendHttpClient> FriendHttpClient = new();
-        public Mock<IPacketHttpClient> PacketHttpClient = new();
         public FakeClock Clock = new(Instant.FromUtc(2021,01,01,01,01,01)); 
         private TestHelpers()
         {
@@ -319,7 +317,7 @@ namespace NosCore.Tests.Shared
                     new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, TestHelpers.Instance.PubSubHub.Object),
                     new SelectPacketHandler(CharacterDao, _logger, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                         _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
-                        new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer),
+                        new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer, Instance.PubSubHub.Object),
                     new CSkillPacketHandler(Instance.Clock),
                     new CBuyPacketHandler(new Mock<IBazaarHttpClient>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao, Instance.LogLanguageLocalizer),
                     new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, _itemInstanceDao, _inventoryItemInstanceDao),
@@ -327,7 +325,6 @@ namespace NosCore.Tests.Shared
                 },
                 FriendHttpClient.Object,
                 new Mock<ISerializer>().Object,
-                PacketHttpClient.Object,
                 minilandProvider.Object,
                 MapInstanceGeneratorService, new SessionRefHolder(), new Mock<ISaveService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, 
                 Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, TestHelpers.Instance.PubSubHub.Object)

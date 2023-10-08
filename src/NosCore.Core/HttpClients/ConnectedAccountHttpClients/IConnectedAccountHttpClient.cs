@@ -27,8 +27,6 @@ namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 {
     public interface IConnectedAccountHttpClient
     {
-        Task<List<Subscriber>> GetConnectedAccountAsync(ChannelInfo channel);
-        Task DisconnectAsync(long connectedCharacterId);
 
         Task<Tuple<ServerConfiguration?, Subscriber?>> GetCharacterAsync(long? characterId, string? characterName);
     }

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using NosCore.Core.MessageQueue.Messages;
 using NosCore.Data.WebApi;
 
 namespace NosCore.Core.MessageQueue;

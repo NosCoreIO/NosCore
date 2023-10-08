@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
+using NosCore.Core.MessageQueue.Messages;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.Shared.I18N;
@@ -36,7 +37,7 @@ namespace NosCore.Core.MessageQueue
     {
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var data = masterClientList.Channels.ContainsKey(Context.ConnectionId) ? masterClientList.Channels[Context.ConnectionId] : null;
+            var data = masterClientList.Channels.TryGetValue(Context.ConnectionId, out var channel) ? channel : null;
             if (data != null)
             {
                 logger.LogDebug(logLanguage[LogLanguageKey.CHANNEL_CONNECTION_LOST],
@@ -80,34 +81,24 @@ namespace NosCore.Core.MessageQueue
             return Task.FromResult(masterClientList.Channels.Values.ToList());
         }
 
-        public Task<List<IMessage>> ReceiveMessagesAsync(int maxNumberOfMessages = 100, TimeSpan? visibilityTimeout = null)
+        public Task<List<IMessage>> ReceiveMessagesAsync()
         {
-            var messages = masterClientList.Messages.Values.Take(maxNumberOfMessages).ToList();
-            return Task.FromResult(messages);
+            return Task.FromResult(masterClientList.Messages.Values.ToList());
         }
 
-        public Task DeleteMessageAsync(Guid messageId)
+        public Task<bool> DeleteMessageAsync(Guid messageId)
         {
-            masterClientList.Messages.TryRemove(messageId, out _);
-            return Task.CompletedTask;
+            return Task.FromResult(masterClientList.Messages.TryRemove(messageId, out _));
         }
 
-        public async Task<bool> SendMessageAsync(IMessage message)
+        public Task<bool> SendMessageAsync(IMessage message)
         {
-            masterClientList.Messages.TryAdd(message.Id, message);
+            return Task.FromResult(masterClientList.Messages.TryAdd(message.Id, message));
+        }
 
-            for (var i = 0; i < 10; i++)
-            {
-                if (masterClientList.Messages.ContainsKey(message.Id))
-                {
-                    await Task.Delay(100);
-                    continue;
-                }
-                return true;
-            };
-
-            masterClientList.Messages.TryRemove(message.Id, out _);
-            return false;
+        public Task<bool> SendMessagesAsync(List<IMessage> messages)
+        {
+            return Task.FromResult(messages.Select(message => masterClientList.Messages.TryAdd(message.Id, message)).All(x => x));
         }
 
         public Task<List<Subscriber>> GetSubscribersAsync()
@@ -115,17 +106,16 @@ namespace NosCore.Core.MessageQueue
             return Task.FromResult(masterClientList.ConnectedAccounts.SelectMany(x => x.Value.Values).ToList());
         }
 
-        public Task SubscribeAsync(Subscriber subscriber)
+        public Task<bool> SubscribeAsync(Subscriber subscriber)
         {
             subscriber.ChannelId = masterClientList.Channels[Context.ConnectionId].Id;
             masterClientList.ConnectedAccounts[Context.ConnectionId].AddOrUpdate(subscriber.Id, subscriber, (_, _) => subscriber);
-            return Task.FromResult(masterClientList.ConnectedAccounts.SelectMany(x => x.Value.Values).ToList());
+            return Task.FromResult(true);
         }
 
-        public Task UnsubscribeAsync(long id)
+        public Task<bool> UnsubscribeAsync(long id)
         {
-            masterClientList.ConnectedAccounts[Context.ConnectionId].TryRemove(id, out _);
-            return Task.CompletedTask;
+            return Task.FromResult(masterClientList.ConnectedAccounts[Context.ConnectionId].TryRemove(id, out _));
         }
     }
 }

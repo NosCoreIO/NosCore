@@ -60,7 +60,7 @@ namespace NosCore.Parser.Parsers
             var maps = new DirectoryInfo(folderMap).GetFiles().Select(file => new MapDto
             {
                 NameI18NKey = dictionaryId.FirstOrDefault(s => s.MapId == int.Parse(file.Name))?.NameI18NKey ?? string.Empty,
-                Music = dictionaryMusic.ContainsKey(file.Name) ? int.Parse(dictionaryMusic[file.Name]) : 0,
+                Music = dictionaryMusic.TryGetValue(file.Name, out var value) ? int.Parse(value) : 0,
                 MapId = short.Parse(file.Name),
                 Data = File.ReadAllBytes(file.FullName),
                 ShopAllowed = short.Parse(file.Name) == 147

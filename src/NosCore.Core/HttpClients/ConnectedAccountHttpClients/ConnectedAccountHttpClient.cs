@@ -29,65 +29,38 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
+using System.Threading.Channels;
 
 namespace NosCore.Core.HttpClients.ConnectedAccountHttpClients
 {
     public class ConnectedAccountHttpClient : MasterServerHttpClient, IConnectedAccountHttpClient
     {
-        private readonly IChannelHttpClient _channelHttpClient;
+        private readonly IPubSubHub _pubSubHub;
 
         public ConnectedAccountHttpClient(IHttpClientFactory httpClientFactory, Channel channel,
-            IChannelHttpClient channelHttpClient)
+            IChannelHttpClient channelHttpClient, IPubSubHub pubSubHub)
             : base(httpClientFactory, channel, channelHttpClient)
         {
-            _channelHttpClient = channelHttpClient;
             ApiUrl = "api/connectedAccount";
             RequireConnection = true;
-        }
-
-        public Task DisconnectAsync(long connectedCharacterId)
-        {
-            return DeleteAsync(connectedCharacterId);
+            _pubSubHub = pubSubHub;
         }
 
         public async Task<Tuple<ServerConfiguration?, Subscriber?>> GetCharacterAsync(long? characterId, string? characterName)
         {
-            var servers = await _channelHttpClient.GetChannelsAsync();
-            foreach (var channel in servers.Where(c => c.Type == ServerType.WorldServer))
-            {
-                var accounts = await GetConnectedAccountAsync(channel).ConfigureAwait(false);
-                var target = accounts.FirstOrDefault(s =>
-                    (s.ConnectedCharacter?.Name == characterName) || (s.ConnectedCharacter?.Id == characterId));
+            var servers = await _pubSubHub.GetCommunicationChannels();
+            var accounts = await _pubSubHub.GetSubscribersAsync();
+            var target = accounts.FirstOrDefault(s => (characterName != null && s.ConnectedCharacter?.Name == characterName) || (characterId != null && s.ConnectedCharacter?.Id == characterId));
 
-                if (target != null)
-                {
-                    return new Tuple<ServerConfiguration?, Subscriber?>(channel.WebApi, target);
-                }
-            }
-            return new Tuple<ServerConfiguration?, Subscriber?>(null, null);
-        }
-
-        public async Task<List<Subscriber>> GetConnectedAccountAsync(ChannelInfo channel)
-        {
-            if (channel == null)
+            if (target == null)
             {
-                throw new ArgumentNullException(nameof(channel));
+                return new Tuple<ServerConfiguration?, Subscriber?>(null, null);
             }
 
-            using var client = CreateClient();
-            client.BaseAddress = new Uri(channel.WebApi?.ToString() ?? "");
-
-            var response = await client.GetAsync(new Uri($"{client.BaseAddress}{ApiUrl}")).ConfigureAwait(false);
-            if (response.IsSuccessStatusCode)
-            {
-                return JsonSerializer.Deserialize<List<Subscriber>>(
-                    await response.Content!.ReadAsStringAsync().ConfigureAwait(false), new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))!;
-            }
-
-            throw new HttpRequestException();
+            var channel = servers.Where(c => c.Type == ServerType.WorldServer).FirstOrDefault(x => x.Id == target.ChannelId);
+            return channel != null ? new Tuple<ServerConfiguration?, Subscriber?>(channel.WebApi, target)
+                : new Tuple<ServerConfiguration?, Subscriber?>(null, null);
         }
     }
 }

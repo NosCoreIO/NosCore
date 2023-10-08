@@ -36,6 +36,7 @@ using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 using NosCore.Core;
@@ -68,6 +69,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue.Messages;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using FriendController = NosCore.MasterServer.Controllers.FriendController;
 using ILogger = Serilog.ILogger;
@@ -152,7 +154,8 @@ namespace NosCore.MasterServer
 
         private ContainerBuilder InitializeContainer(IServiceCollection services)
         {
-            var containerBuilder = new ContainerBuilder();
+            var containerBuilder = new ContainerBuilder(); 
+            containerBuilder.RegisterType<PubSubHub>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<MasterClientList>().SingleInstance();
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
             {
@@ -227,6 +230,9 @@ namespace NosCore.MasterServer
             services.AddSignalR(options =>
             {
                 options.DisableImplicitFromServicesParameters = true;
+            }).AddJsonProtocol(options =>
+            {
+                options.PayloadSerializerOptions.Converters.Add(new PolymorphicJsonConverter<IMessage>());
             });
             services.AddAuthorization(o =>
                 {
@@ -259,7 +265,7 @@ namespace NosCore.MasterServer
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore Master API"));
             app.UseAuthentication();
             app.UseRouting();
-
+            
             app.UseWebSockets();
             app.UseAuthorization();
             CultureInfo.DefaultThreadCurrentCulture = new(app.ApplicationServices.GetRequiredService<IOptions<MasterConfiguration>>().Value.Language.ToString());

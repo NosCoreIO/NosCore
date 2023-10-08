@@ -111,11 +111,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 Id = clientSession.SessionId,
                 Name = clientSession.Account.Name,
                 Language = clientSession.Account.Language,
-                ConnectedCharacter = clientSession.Character == null! ? null : new Data.WebApi.Character
-                {
-                    Name = clientSession.Character.Name, Id = clientSession.Character.CharacterId,
-                    FriendRequestBlocked = clientSession.Character.FriendRequestBlocked
-                }
             });
         }
 

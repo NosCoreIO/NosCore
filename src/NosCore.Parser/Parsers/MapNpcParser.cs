@@ -59,7 +59,7 @@ namespace NosCore.Parser.Parsers
                     MapId = map,
                     VNum = short.Parse(currentPacket[2]),
                     MapNpcId = mapnpcid,
-                    Effect = effPacketsDictionary.ContainsKey(mapnpcid) ? effPacketsDictionary[mapnpcid] : (short)0,
+                    Effect = effPacketsDictionary.TryGetValue(mapnpcid, out var value) ? value : (short)0,
                     EffectDelay = 4750,
                     IsMoving = npcMvPacketsList.Contains(mapnpcid),
                     Direction = byte.Parse(currentPacket[6]),

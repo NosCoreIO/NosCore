@@ -22,11 +22,9 @@ using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Chat;
@@ -40,13 +38,15 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
+using NosCore.Core.MessageQueue.Messages;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
 {
     public class WhisperPacketHandler(ILogger logger, ISerializer packetSerializer,
             IBlacklistHttpClient blacklistHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IPacketHttpClient packetHttpClient, Channel channel,
+            IConnectedAccountHttpClient connectedAccountHttpClient, IPubSubHub packetHttpClient, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<WhisperPacket>, IWorldPacketHandler
     {
@@ -86,7 +86,7 @@ namespace NosCore.PacketHandlers.Chat
 
                 var receiver = await connectedAccountHttpClient.GetCharacterAsync(null, receiverName).ConfigureAwait(false);
 
-                if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
+                if (receiver.Item2 == null)
                 {
                     await session.SendPacketAsync(new Infoi2Packet
                     {
@@ -110,14 +110,14 @@ namespace NosCore.PacketHandlers.Chat
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
                     $"{speakPacket.Message} <{gameLanguageLocalizer[LanguageKey.CHANNEL, receiver.Item2.Language]}: {channel.ChannelId}>";
 
-                await packetHttpClient.BroadcastPacketAsync(new PostedPacket
+                await packetHttpClient.SendMessageAsync(new PostedPacket
                 {
                     Packet = packetSerializer.Serialize(new[] { speakPacket }),
                     ReceiverCharacter = new Character { Name = receiverName },
                     SenderCharacter = new Character { Name = session.Character.Name },
                     OriginWorldId = channel.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
-                }, receiver.Item2.ChannelId).ConfigureAwait(false);
+                }).ConfigureAwait(false);
             }
             catch (Exception e)
             {

@@ -26,7 +26,6 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
@@ -62,7 +61,6 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         private readonly IMapInstanceGeneratorService _mapInstanceGeneratorService = null!;
         private readonly IMinilandService _minilandProvider = null!;
-        private readonly IPacketHttpClient _packetHttpClient;
         private readonly ISerializer _packetSerializer;
         private readonly IEnumerable<IPacketHandler> _packetsHandlers;
         private Character? _character;
@@ -75,7 +73,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly IPubSubHub _pubSubHub;
 
         public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder,
+            ISerializer packetSerializer, ISessionRefHolder sessionRefHolder,
             ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub)
             : base(logger, networkingLogLanguage)
         {
@@ -83,7 +81,6 @@ namespace NosCore.GameObject.Networking.ClientSession
             _packetsHandlers = packetsHandlers.ToList();
             _friendHttpClient = friendHttpClient;
             _packetSerializer = packetSerializer;
-            _packetHttpClient = packetHttpClient;
             _sessionRefHolder = sessionRefHolder;
             _logLanguage = logLanguage;
             _pubSubHub = pubSubHub;
@@ -99,9 +96,9 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient, ISessionRefHolder sessionRefHolder,
+            ISerializer packetSerializer,  ISessionRefHolder sessionRefHolder,
             ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub) 
-            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient,
+            : this(logger, packetsHandlers, friendHttpClient, packetSerializer,
                 sessionRefHolder, networkingLogLanguage, logLanguage, pubSubHub)
         {
         }
@@ -109,11 +106,11 @@ namespace NosCore.GameObject.Networking.ClientSession
         public ClientSession(IOptions<WorldConfiguration> configuration,
             IExchangeService? exchangeService, ILogger logger,
             IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
-            ISerializer packetSerializer, IPacketHttpClient packetHttpClient,
+            ISerializer packetSerializer,
             IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, ISessionRefHolder sessionRefHolder, 
             ISaveService saveService,
             ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer, IPubSubHub pubSubHub)
-            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, packetHttpClient, sessionRefHolder, networkingLogLanguage, logLanguage, pubSubHub)
+            : this(logger, packetsHandlers, friendHttpClient, packetSerializer, sessionRefHolder, networkingLogLanguage, logLanguage, pubSubHub)
         {
             _exchangeProvider = exchangeService!;
             _minilandProvider = minilandProvider!;
@@ -213,7 +210,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         Character.Hp = 1;
                     }
 
-                    await Character.SendFinfoAsync(_friendHttpClient, _packetHttpClient, _packetSerializer, false)
+                    await Character.SendFinfoAsync(_friendHttpClient, _pubSubHub, _packetSerializer, false)
                         .ConfigureAwait(false);
 
                     var targetId = _exchangeProvider.GetTargetId(Character.VisualId);

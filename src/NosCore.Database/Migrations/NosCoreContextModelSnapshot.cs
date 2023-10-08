@@ -1438,7 +1438,7 @@ namespace NosCore.Database.Migrations
                     b.Property<short?>("Mask")
                         .HasColumnType("smallint");
 
-                    b.Property<string>("Message")
+                    b.Property<string>("IMessage")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");

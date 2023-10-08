@@ -17,20 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using NosCore.Data.Enumerations.Interaction;
 
-namespace NosCore.Data.WebApi
+namespace NosCore.Core.MessageQueue.Messages
 {
-    public class PostedPacket
+    public class PostedPacket : IMessage
     {
         public string? Packet { get; set; }
 
-        public Character? SenderCharacter { get; set; }
+        public Data.WebApi.Character? SenderCharacter { get; set; }
 
-        public Character? ReceiverCharacter { get; set; }
+        public Data.WebApi.Character? ReceiverCharacter { get; set; }
 
         public long OriginWorldId { get; set; }
 
         public ReceiverType ReceiverType { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
     }
 }

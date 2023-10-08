@@ -17,14 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
+using System.Threading.Tasks;
+using NosCore.Core.MessageQueue.Messages;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.Interfaces;
 
-namespace NosCore.Core.MessageQueue
+namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
+
+public interface IChannelCommunicationMessageHandler<in T> where T : IMessage
 {
-    public interface IMessage
+    Task Handle(T message);
+}
+
+public abstract class ChannelCommunicationMessageHandler<T> : IChannelCommunicationMessageHandler<IMessage> where T : IMessage
+{
+    public abstract Task Handle(T message);
+
+    public Task Handle(IMessage message)
     {
-        public Guid Id { get; set; }
-        public string Body { get; set; }
-        public DateTime VisibilityTimeout { get; set; }
+        return Handle((T)message);
     }
 }

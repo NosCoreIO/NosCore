@@ -26,7 +26,6 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.HttpClients.MailHttpClient;
-using NosCore.GameObject.HttpClients.PacketHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -46,7 +45,6 @@ namespace NosCore.PacketHandlers.Game
             IFriendHttpClient friendHttpClient,
             IChannelHttpClient channelHttpClient,
             IPubSubHub pubSubHub, IBlacklistHttpClient blacklistHttpClient,
-            IPacketHttpClient packetHttpClient,
             ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider,
             IMapChangeService mapChangeService)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
@@ -169,7 +167,7 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            await session.Character.SendFinfoAsync(friendHttpClient, packetHttpClient, packetSerializer, true).ConfigureAwait(false);
+            await session.Character.SendFinfoAsync(friendHttpClient, pubSubHub, packetSerializer, true).ConfigureAwait(false);
 
             await session.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient, channelHttpClient, pubSubHub).ConfigureAwait(false)).ConfigureAwait(false);
             await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
@@ -194,7 +192,7 @@ namespace NosCore.PacketHandlers.Game
             //                Session.SendPacket(Session.Character.GenerateFamilyMemberExp());
             //                if (!string.IsNullOrWhiteSpace(Session.Character.Family.FamilyMessage))
             //                {
-            //                    Session.SendPacket(UserInterfaceHelper.Instance.GenerateInfo("--- Family Message ---\n" + Session.Character.Family.FamilyMessage));
+            //                    Session.SendPacket(UserInterfaceHelper.Instance.GenerateInfo("--- Family IMessage ---\n" + Session.Character.Family.FamilyMessage));
             //                }
             //            }
 
