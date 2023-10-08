@@ -19,7 +19,6 @@
 
 using Mapster;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
@@ -43,6 +42,7 @@ using NosCore.Networking;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.HttpClients.AuthHttpClients;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {

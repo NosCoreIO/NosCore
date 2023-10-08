@@ -42,7 +42,6 @@ using NosCore.Core;
 using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Core.MessageQueue;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
@@ -170,7 +169,6 @@ namespace NosCore.MasterServer
                     MasterCommunication = configuration.Value.WebApi,
                     ClientName = "Master Server",
                     ClientType = ServerType.MasterServer,
-                    WebApi = configuration.Value.WebApi
                 };
             });
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
@@ -183,7 +181,6 @@ namespace NosCore.MasterServer
                 .SingleInstance();
 
             containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
-            containerBuilder.RegisterType<IncommingMailHttpClient>().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces();

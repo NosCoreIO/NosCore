@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using NosCore.Core.MessageQueue;
 using NosCore.Core.MessageQueue.Messages;
 using NosCore.GameObject.Networking;
@@ -15,7 +14,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 
             if (session == null)
             {
-                throw new InvalidOperationException();
+                return;
             }
 
             await session.SendPacketAsync(new PostPacket

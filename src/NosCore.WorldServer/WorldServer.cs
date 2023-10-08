@@ -61,7 +61,7 @@ namespace NosCore.WorldServer
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Console.Title += $@" - Port : {worldConfiguration.Value.Port} - WebApi : {worldConfiguration.Value.WebApi}";
+                Console.Title += $@" - Port : {worldConfiguration.Value.Port}";
             }
             await Policy
                 .Handle<Exception>()

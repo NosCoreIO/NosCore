@@ -19,7 +19,7 @@
 
 using System.Threading.Tasks;
 
-namespace NosCore.Core.HttpClients.AuthHttpClients
+namespace NosCore.GameObject.HttpClients.AuthHttpClients
 {
     public interface IAuthHttpClient
     {

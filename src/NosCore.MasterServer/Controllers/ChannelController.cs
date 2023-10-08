@@ -106,7 +106,6 @@ namespace NosCore.Core.Controllers
                 ServerId = data.ServerId,
                 Id = _id,
                 ConnectedAccountLimit = data.ConnectedAccountLimit,
-                WebApi = data.WebApi,
                 LastPing = clock.GetCurrentInstant(),
                 Type = data.ClientType,
             };

@@ -19,7 +19,6 @@
 
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
-using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;

@@ -40,7 +40,7 @@ namespace NosCore.Core.MessageQueue
             var data = masterClientList.Channels.TryGetValue(Context.ConnectionId, out var channel) ? channel : null;
             if (data != null)
             {
-                logger.LogDebug(logLanguage[LogLanguageKey.CHANNEL_CONNECTION_LOST],
+                logger.LogDebug(logLanguage[LogLanguageKey.CONNECTION_LOST],
                     data.Id.ToString(CultureInfo.CurrentCulture),
                     data.Name);
                 masterClientList.Channels.Remove(Context.ConnectionId, out _);
@@ -69,7 +69,6 @@ namespace NosCore.Core.MessageQueue
                 IsMaintenance = data.StartInMaintenance,
                 Id = id,
                 ConnectedAccountLimit = data.ConnectedAccountLimit,
-                WebApi = data.WebApi,
                 Type = data.ClientType,
             };
             masterClientList.Channels.AddOrUpdate(Context.ConnectionId, serv, (_, _) => serv);

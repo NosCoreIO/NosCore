@@ -28,11 +28,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
 using NosCore.Core.Configuration;
-using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.MessageQueue;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.HttpClients.AuthHttpClients;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.LoginService;
 using NosCore.Networking.SessionRef;
@@ -58,6 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         {
             MasterCommunication = new WebApiConfiguration()
         });
+
         private NoS0577PacketHandler? _noS0577PacketHandler;
         private ClientSession? _session;
 
@@ -71,15 +71,13 @@ namespace NosCore.PacketHandlers.Tests.Login
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
+                (string?)((new OkObjectResult(_session.Account.Name)).Value));
             _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration,
                 TestHelpers.Instance.AccountDao,
                 _authHttpClient.Object, _pubSubHub.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder()));
-            var authController = new AuthController(Options.Create(_loginConfiguration.Value.MasterCommunication),
-                TestHelpers.Instance.AccountDao, new Mock<ILogger<AuthController>>().Object, _encryption, TestHelpers.Instance.LogLanguageLocalizer);
-            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
-                (string?)((OkObjectResult)authController.GetExpectingConnection(a, b, c)).Value);
+             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             SessionFactory.Instance.ReadyForAuth.Clear();
         }
 
@@ -138,6 +136,9 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task LoginWrongTokenAsync()
         {
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
+            _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
+                (string?)((new OkObjectResult(null)).Value));
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(Guid.NewGuid().ToString()),

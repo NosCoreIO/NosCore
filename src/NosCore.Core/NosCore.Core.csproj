@@ -55,4 +55,8 @@
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Data\NosCore.Data.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="HttpClients\" />
+  </ItemGroup>
 </Project>

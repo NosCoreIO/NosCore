@@ -40,7 +40,6 @@ using System.Threading.Tasks;
 using NosCore.Core.MessageQueue;
 using NosCore.Core.MessageQueue.Messages;
 using Character = NosCore.Data.WebApi.Character;
-using NosCore.Data.CommandPackets;
 
 namespace NosCore.PacketHandlers.Chat
 {

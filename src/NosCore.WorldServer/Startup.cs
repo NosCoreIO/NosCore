@@ -25,9 +25,7 @@ using FastMember;
 using JetBrains.Annotations;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,13 +36,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using NodaTime;
-using NodaTime.Serialization.SystemTextJson;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Core;
 using NosCore.Core.Configuration;
-using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.MessageQueue;
@@ -89,8 +84,8 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NosCore.Core.MessageQueue.Messages;
+using NosCore.GameObject.HttpClients.AuthHttpClients;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
-using NosCore.WorldServer.Controllers;
 using Character = NosCore.GameObject.Character;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using Deserializer = NosCore.Packets.Deserializer;
@@ -244,7 +239,6 @@ namespace NosCore.WorldServer
                     ServerId = configuration.Value.ServerId,
                     StartInMaintenance = configuration.Value.StartInMaintenance,
                     Host = configuration.Value.Host!,
-                    WebApi = configuration.Value.WebApi,
                 };
             });
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
@@ -321,26 +315,12 @@ namespace NosCore.WorldServer
             var worldConfiguration = new WorldConfiguration();
             configuration.Bind(worldConfiguration);
             services.AddDbContext<NosCoreContext>(conf => conf.UseNpgsql(worldConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
-            services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(worldConfiguration.WebApi.Port));
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "NosCore World API", Version = "v1" }));
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddHttpClient();
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             services.ConfigureOptions<ConfigureJwtBearerOptions>();
-            services.AddAuthorization(o =>
-                {
-                    o.DefaultPolicy = new AuthorizationPolicyBuilder()
-                        .RequireAuthenticatedUser()
-                        .Build();
-                });
-
-            services
-                .AddControllers()
-                .AddApplicationPart(typeof(IncommingMailController).GetTypeInfo().Assembly)
-                .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
-                .AddControllersAsServices()
-                .AddJsonOptions(settings => settings.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
-
+   
             services.AddI18NLogs();
             services.AddTransient(typeof(IGameLanguageLocalizer), typeof(GameLanguageLocalizer));
             services.AddTransient(typeof(ILogLanguageLocalizer<LanguageKey>),
@@ -368,17 +348,7 @@ namespace NosCore.WorldServer
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app)
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore World API"));
-            app.UseAuthentication();
-            app.UseRouting();
-            app.UseAuthorization();
-
             CultureInfo.DefaultThreadCurrentCulture = new(app.ApplicationServices.GetRequiredService<IOptions<WorldConfiguration>>().Value.Language.ToString());
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
         }
     }
 }

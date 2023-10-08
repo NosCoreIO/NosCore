@@ -51,11 +51,6 @@ namespace NosCore.Core.HttpClients
 #pragma warning restore CA1056 // Uri properties should not be strings
         public virtual bool RequireConnection { get; set; }
 
-        protected HttpClient CreateClient()
-        {
-            return _httpClientFactory.CreateClient();
-        }
-
         public virtual async Task<HttpClient> ConnectAsync()
         {
             var client = _httpClientFactory.CreateClient();
@@ -67,19 +62,6 @@ namespace NosCore.Core.HttpClients
                     new AuthenticationHeaderValue("Bearer", await _channelHttpClient.GetOrRefreshTokenAsync().ConfigureAwait(false));
             }
 
-            return client;
-        }
-
-        public async Task<HttpClient?> ConnectAsync(long channelId)
-        {
-            using var client = _httpClientFactory.CreateClient();
-            var channel = await _channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
-            if (channel == null)
-            {
-                return null;
-            }
-
-            client.BaseAddress = new Uri(channel.WebApi!.ToString());
             return client;
         }
 
