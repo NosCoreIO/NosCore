@@ -38,7 +38,6 @@ using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Core.MessageQueue;
 using NosCore.Core.Services.IdService;
@@ -117,7 +116,6 @@ namespace NosCore.Tests.Shared
         public Mock<IBlacklistHttpClient> BlacklistHttpClient = new();
         public Mock<IChannelHttpClient> ChannelHttpClient = new();
         public Mock<IPubSubHub> PubSubHub = new();
-        public Mock<IConnectedAccountHttpClient> ConnectedAccountHttpClient = new();
         public Mock<IFriendHttpClient> FriendHttpClient = new();
         public FakeClock Clock = new(Instant.FromUtc(2021,01,01,01,01,01)); 
         private TestHelpers()

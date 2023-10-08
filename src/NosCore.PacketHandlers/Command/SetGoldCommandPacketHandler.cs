@@ -17,22 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
+using NosCore.Core.MessageQueue.Messages;
 using Character = NosCore.Data.WebApi.Character;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetGoldCommandPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
-            IStatHttpClient statHttpClient)
+    public class SetGoldCommandPacketHandler(IPubSubHub pubSubHub)
         : PacketHandler<SetGoldCommandPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetGoldCommandPacket goldPacket, ClientSession session)
@@ -44,9 +44,10 @@ namespace NosCore.PacketHandlers.Command
                 Data = goldPacket.Gold
             };
 
-            var receiver = await connectedAccountHttpClient.GetCharacterAsync(null, goldPacket.Name ?? session.Character.Name).ConfigureAwait(false);
+            var accounts = await pubSubHub.GetSubscribersAsync();
+            var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == goldPacket.Name);
 
-            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
+            if (receiver == null)
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
@@ -55,7 +56,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await statHttpClient.ChangeStatAsync(data, receiver.Item1!).ConfigureAwait(false);
+            await pubSubHub.SendMessageAsync(data).ConfigureAwait(false);
         }
     }
 }

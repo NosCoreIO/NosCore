@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -30,24 +29,29 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.FriendService
 {
     public class FriendService(ILogger logger, IDao<CharacterRelationDto, Guid> characterRelationDao,
             IDao<CharacterDto, long> characterDao, FriendRequestHolder friendRequestHolder,
-            IConnectedAccountHttpClient connectedAccountHttpClient, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IPubSubHub pubSubHub, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : IFriendService
     {
         public async Task<LanguageKey> AddFriendAsync(long characterId, long secondCharacterId, FinsPacketType friendsPacketType)
         {
-            var character = await connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
-            var targetCharacter = await connectedAccountHttpClient.GetCharacterAsync(secondCharacterId, null).ConfigureAwait(false);
+            var servers = await pubSubHub.GetCommunicationChannels();
+            var accounts = await pubSubHub.GetSubscribersAsync();
+            var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == characterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
+            var targetCharacter = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == secondCharacterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
+
             var friendRequest = friendRequestHolder.FriendRequestCharacters.Where(s =>
-                (s.Value.Item2 == character.Item2?.ConnectedCharacter?.Id) &&
-                (s.Value.Item1 == targetCharacter.Item2?.ConnectedCharacter?.Id)).ToList();
-            if ((character.Item2 != null) && (targetCharacter.Item2 != null))
+                (s.Value.Item2 == character?.ConnectedCharacter?.Id) &&
+                (s.Value.Item1 == targetCharacter?.ConnectedCharacter?.Id)).ToList();
+            if ((character != null) && (targetCharacter != null))
             {
-                if (character.Item2.ChannelId != targetCharacter.Item2.ChannelId)
+                if (character.ChannelId != targetCharacter.ChannelId)
                 {
                     throw new ArgumentException();
                 }
@@ -72,8 +76,8 @@ namespace NosCore.GameObject.Services.FriendService
                     return LanguageKey.ALREADY_FRIEND;
                 }
 
-                if (character.Item2.ConnectedCharacter!.FriendRequestBlocked ||
-                    targetCharacter.Item2.ConnectedCharacter!.FriendRequestBlocked)
+                if (character.ConnectedCharacter!.FriendRequestBlocked ||
+                    targetCharacter.ConnectedCharacter!.FriendRequestBlocked)
                 {
                     return LanguageKey.FRIEND_REQUEST_BLOCKED;
                 }
@@ -81,8 +85,8 @@ namespace NosCore.GameObject.Services.FriendService
                 if (!friendRequest.Any())
                 {
                     friendRequestHolder.FriendRequestCharacters[Guid.NewGuid()] =
-                        new Tuple<long, long>(character.Item2.ConnectedCharacter.Id,
-                            targetCharacter.Item2.ConnectedCharacter.Id);
+                        new Tuple<long, long>(character.ConnectedCharacter.Id,
+                            targetCharacter.ConnectedCharacter.Id);
                     return LanguageKey.FRIEND_REQUEST_SENT;
                 }
 
@@ -91,16 +95,16 @@ namespace NosCore.GameObject.Services.FriendService
                     case FinsPacketType.Accepted:
                         var data = new CharacterRelationDto
                         {
-                            CharacterId = character.Item2.ConnectedCharacter.Id,
-                            RelatedCharacterId = targetCharacter.Item2.ConnectedCharacter.Id,
+                            CharacterId = character.ConnectedCharacter.Id,
+                            RelatedCharacterId = targetCharacter.ConnectedCharacter.Id,
                             RelationType = CharacterRelationType.Friend
                         };
 
                         await characterRelationDao.TryInsertOrUpdateAsync(data).ConfigureAwait(false);
                         var data2 = new CharacterRelationDto
                         {
-                            CharacterId = targetCharacter.Item2.ConnectedCharacter.Id,
-                            RelatedCharacterId = character.Item2.ConnectedCharacter.Id,
+                            CharacterId = targetCharacter.ConnectedCharacter.Id,
+                            RelatedCharacterId = character.ConnectedCharacter.Id,
                             RelationType = CharacterRelationType.Friend
                         };
 
@@ -132,11 +136,15 @@ namespace NosCore.GameObject.Services.FriendService
             }
             foreach (var rel in list)
             {
+                var servers = await pubSubHub.GetCommunicationChannels();
+                var accounts = await pubSubHub.GetSubscribersAsync();
+                var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == rel.RelatedCharacterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
+          
                 charList.Add(new CharacterRelationStatus
                 {
                     CharacterName = (await characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId).ConfigureAwait(false))?.Name,
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = (await connectedAccountHttpClient.GetCharacterAsync(rel.RelatedCharacterId, null).ConfigureAwait(false)).Item1 != null,
+                    IsConnected = character != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId
                 });

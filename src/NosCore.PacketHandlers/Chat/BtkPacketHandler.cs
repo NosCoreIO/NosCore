@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
@@ -37,11 +36,12 @@ using System.Threading.Tasks;
 using NosCore.Core.MessageQueue;
 using NosCore.Core.MessageQueue.Messages;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.Data.CommandPackets;
 
 namespace NosCore.PacketHandlers.Chat
 {
     public class BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
-            IPubSubHub packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, Channel channel,
+            IPubSubHub packetHttpClient, IPubSubHub pubSubHub, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<BtkPacket>, IWorldPacketHandler
     {
@@ -73,9 +73,10 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            var receiver = await connectedAccountHttpClient.GetCharacterAsync(btkPacket.CharacterId, null).ConfigureAwait(false);
+            var accounts = await pubSubHub.GetSubscribersAsync();
+            var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Id == btkPacket.CharacterId);
 
-            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
+            if (receiver == null)
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
@@ -88,7 +89,7 @@ namespace NosCore.PacketHandlers.Chat
             {
                 Packet = packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character
-                { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name ?? "" },
+                { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name ?? "" },
                 SenderCharacter = new Character
                 { Name = session.Character.Name, Id = session.Character.CharacterId },
                 OriginWorldId = channel.ChannelId,

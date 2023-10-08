@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.MailHttpClient;
@@ -27,18 +26,21 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
+using NosCore.Core.MessageQueue;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class GiftPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
+    public class GiftPacketHandler(IPubSubHub pubSubHub,
             IMailHttpClient mailHttpClient)
         : PacketHandler<GiftPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(GiftPacket giftPacket, ClientSession session)
         {
-            var receiver = await connectedAccountHttpClient.GetCharacterAsync(null, giftPacket.CharacterName ?? session.Character.Name).ConfigureAwait(false);
+            var accounts = await pubSubHub.GetSubscribersAsync();
+            var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == giftPacket.CharacterName);
 
-            if (receiver.Item2 == null)
+            if (receiver == null)
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
@@ -47,7 +49,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await mailHttpClient.SendGiftAsync(session.Character!, receiver.Item2.ConnectedCharacter!.Id, giftPacket.VNum,
+            await mailHttpClient.SendGiftAsync(session.Character!, receiver.ConnectedCharacter!.Id, giftPacket.VNum,
                 giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false).ConfigureAwait(false);
             await session.SendPacketAsync(new SayiPacket
             {

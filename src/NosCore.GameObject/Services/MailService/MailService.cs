@@ -20,8 +20,6 @@
 using Json.Patch;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -36,12 +34,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NosCore.Core.HttpClients.IncommingMailHttpClients;
+using NosCore.Core.MessageQueue;
 using NosCore.Core.MessageQueue.Messages;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.MailService
 {
     public class MailService(IDao<MailDto, long> mailDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            IConnectedAccountHttpClient connectedAccountHttpClient,
+            IPubSubHub pubSubHub,
             List<ItemDto> items, IItemGenerationService itemProvider, IIncommingMailHttpClient incommingMailHttpClient,
             ParcelHolder parcelHolder,
             IDao<CharacterDto, long> characterDto)
@@ -81,8 +82,11 @@ namespace NosCore.GameObject.Services.MailService
             {
                 return false;
             }
-            var receiver = await connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
-            await NotifyAsync(1, receiver, maildata).ConfigureAwait(false);
+            var servers = await pubSubHub.GetCommunicationChannels();
+            var accounts = await pubSubHub.GetSubscribersAsync();
+            var receiver = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == characterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
+
+            await NotifyAsync(1, new(servers.Where(c => c.Type == ServerType.WorldServer).First(x => x.Id == receiver!.ChannelId).WebApi, receiver), maildata).ConfigureAwait(false);
             return true;
         }
 
@@ -169,9 +173,10 @@ namespace NosCore.GameObject.Services.MailService
                 mailref.ItemInstanceId = itemInstance?.Id;
             }
 
-            var receiver = await connectedAccountHttpClient.GetCharacterAsync(mailref.ReceiverId, null).ConfigureAwait(false);
-            var sender = await connectedAccountHttpClient.GetCharacterAsync(mailref.SenderId, null).ConfigureAwait(false);
-
+            var servers = await pubSubHub.GetCommunicationChannels();
+            var accounts = await pubSubHub.GetSubscribersAsync();
+            var receiver = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == mailref.ReceiverId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
+            
             mailref = await mailDao.TryInsertOrUpdateAsync(mailref).ConfigureAwait(false);
             if (itemInstance == null)
             {
@@ -179,7 +184,7 @@ namespace NosCore.GameObject.Services.MailService
             }
             var mailData = await GenerateMailDataAsync(mailref, (short?)it?.ItemType ?? -1, itemInstance, receiverName).ConfigureAwait(false);
             parcelHolder[mailref.ReceiverId][mailData.MailDto.IsSenderCopy].TryAdd(mailData.MailId, mailData);
-            await NotifyAsync(0, receiver, mailData).ConfigureAwait(false);
+            await NotifyAsync(0, new (servers.Where(c => c.Type == ServerType.WorldServer).First(x => x.Id == receiver!.ChannelId).WebApi, receiver ), mailData).ConfigureAwait(false);
 
             if (mailref.SenderId == null)
             {
@@ -195,7 +200,7 @@ namespace NosCore.GameObject.Services.MailService
             var mailDataCopy = await GenerateMailDataAsync(mailref, (short?)it?.ItemType ?? -1, itemInstance!, receiverName).ConfigureAwait(false);
             parcelHolder[mailref.ReceiverId][mailDataCopy.MailDto.IsSenderCopy]
                 .TryAdd(mailDataCopy.MailId, mailDataCopy);
-            await NotifyAsync(0, receiver, mailDataCopy).ConfigureAwait(false);
+            await NotifyAsync(0, new(servers.Where(c => c.Type == ServerType.WorldServer).First(x => x.Id == receiver!.ChannelId).WebApi, receiver), mailDataCopy).ConfigureAwait(false);
 
             return true;
         }

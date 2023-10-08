@@ -32,7 +32,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Core.MessageQueue;
 using Character = NosCore.Data.WebApi.Character;
-using System.Linq;
 using NosCore.Core.MessageQueue.Messages;
 //TODO stop using obsolete
 #pragma warning disable 618

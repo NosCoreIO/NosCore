@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
@@ -41,12 +40,13 @@ using System.Threading.Tasks;
 using NosCore.Core.MessageQueue;
 using NosCore.Core.MessageQueue.Messages;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.Data.CommandPackets;
 
 namespace NosCore.PacketHandlers.Chat
 {
     public class WhisperPacketHandler(ILogger logger, ISerializer packetSerializer,
             IBlacklistHttpClient blacklistHttpClient,
-            IConnectedAccountHttpClient connectedAccountHttpClient, IPubSubHub packetHttpClient, Channel channel,
+             IPubSubHub pubSubHub, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<WhisperPacket>, IWorldPacketHandler
     {
@@ -84,9 +84,10 @@ namespace NosCore.PacketHandlers.Chat
                 var receiverSession =
                     Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
 
-                var receiver = await connectedAccountHttpClient.GetCharacterAsync(null, receiverName).ConfigureAwait(false);
+                var accounts = await pubSubHub.GetSubscribersAsync();
+                var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == receiverName);
 
-                if (receiver.Item2 == null)
+                if (receiver == null)
                 {
                     await session.SendPacketAsync(new Infoi2Packet
                     {
@@ -98,7 +99,7 @@ namespace NosCore.PacketHandlers.Chat
                 }
 
                 var blacklisteds = await blacklistHttpClient.GetBlackListsAsync(session.Character.VisualId).ConfigureAwait(false);
-                if (blacklisteds.Any(s => s.CharacterId == receiver.Item2.ConnectedCharacter?.Id))
+                if (blacklisteds.Any(s => s.CharacterId == receiver.ConnectedCharacter?.Id))
                 {
                     await session.SendPacketAsync(new InfoiPacket
                     {
@@ -108,9 +109,9 @@ namespace NosCore.PacketHandlers.Chat
                 }
 
                 speakPacket.Message = receiverSession != null ? speakPacket.Message :
-                    $"{speakPacket.Message} <{gameLanguageLocalizer[LanguageKey.CHANNEL, receiver.Item2.Language]}: {channel.ChannelId}>";
+                    $"{speakPacket.Message} <{gameLanguageLocalizer[LanguageKey.CHANNEL, receiver.Language]}: {channel.ChannelId}>";
 
-                await packetHttpClient.SendMessageAsync(new PostedPacket
+                await pubSubHub.SendMessageAsync(new PostedPacket
                 {
                     Packet = packetSerializer.Serialize(new[] { speakPacket }),
                     ReceiverCharacter = new Character { Name = receiverName },
