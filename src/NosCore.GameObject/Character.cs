@@ -286,6 +286,19 @@ namespace NosCore.GameObject
         // todo move this
         public async Task ChangeClassAsync(CharacterClassType classType)
         {
+
+            if (Group != null)
+            {
+                await Session.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = Session.Character.CharacterId,
+                    Type = SayColorType.Red,
+                    Message = Game18NConstString.CantUseInGroup
+                }).ConfigureAwait(false);
+                return;
+            }
+
             if (InventoryService.Any(s => s.Value.Type == NoscorePocketType.Wear))
             {
                 await SendPacketAsync(new SayiPacket
