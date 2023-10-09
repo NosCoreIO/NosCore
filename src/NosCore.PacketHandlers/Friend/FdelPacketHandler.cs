@@ -17,34 +17,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Linq;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
-using System.Linq;
 using System.Threading.Tasks;
-using NosCore.GameObject.HttpClients.ChannelHttpClients;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
 namespace NosCore.PacketHandlers.Friend
 {
-    public class FdelPacketHandler(IFriendHttpClient friendHttpClient, IChannelHttpClient channelHttpClient,
+    public class FdelPacketHandler(IFriendHub friendHttpClient, IChannelHub channelHttpClient,
             IPubSubHub pubSubHub, IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<FdelPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(FdelPacket fdelPacket, ClientSession session)
         {
-            var list = await friendHttpClient.GetListFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
+            var list = await friendHttpClient.GetFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == fdelPacket.CharacterId);
             if (idtorem != null)
             {
-                await friendHttpClient.DeleteFriendAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
+                await friendHttpClient.DeleteAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
                 var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
                 await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(friendHttpClient, channelHttpClient,
                     pubSubHub).ConfigureAwait(false))).ConfigureAwait(false);

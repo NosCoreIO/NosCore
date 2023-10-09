@@ -20,7 +20,6 @@
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -33,17 +32,19 @@ using NosCore.Shared.Enumerations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 
 namespace NosCore.PacketHandlers.Parcel
 {
-    public class PclPacketHandler(IMailHttpClient mailHttpClient, IItemGenerationService itemProvider,
+    public class PclPacketHandler(IMailHub mailHttpClient, IItemGenerationService itemProvider,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao)
         : PacketHandler<PclPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PclPacket getGiftPacket, ClientSession clientSession)
         {
             var isCopy = getGiftPacket.Type == 2;
-            var mail = await mailHttpClient.GetGiftAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+            var mails = await mailHttpClient.GetMails(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+            var mail = mails.FirstOrDefault();
             if (mail == null)
             {
                 return;
@@ -71,7 +72,7 @@ namespace NosCore.PacketHandlers.Parcel
                     
                     await clientSession.SendPacketAsync(
                         new ParcelPacket { Type = 2, Unknown = 1, Id = (short)getGiftPacket.GiftId }).ConfigureAwait(false);
-                    await mailHttpClient.DeleteGiftAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+                    await mailHttpClient.DeleteMailAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
                 }
                 else
                 {
@@ -86,7 +87,7 @@ namespace NosCore.PacketHandlers.Parcel
             else if (getGiftPacket.Type == 5)
             {
                 await clientSession.SendPacketAsync(new ParcelPacket { Type = 7, Unknown = 1, Id = (short)getGiftPacket.GiftId }).ConfigureAwait(false);
-                await mailHttpClient.DeleteGiftAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+                await mailHttpClient.DeleteMailAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
             }
         }
     }

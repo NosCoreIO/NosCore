@@ -24,7 +24,7 @@ using Moq;
 using NosCore.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.AuthHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private static readonly Mock<ILogger> Logger = new();
         private DacPacketHandler _dacPacketHandler = null!;
         private ClientSession _session = null!;
-        private Mock<IAuthHttpClient> _authHttpClient = null!;
+        private Mock<IAuthHub> _authHttpClient = null!;
         private Mock<IPubSubHub> _pubSubHub = null!;
         private Mock<IChannelHub> _channelHub = null!;
         private string _accountName = null!;
@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             _session!.Account = null!;
             await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_session.Character);
             await _session.SetCharacterAsync(null).ConfigureAwait(false);
-            _authHttpClient = new Mock<IAuthHttpClient>();
+            _authHttpClient = new Mock<IAuthHub>();
             _pubSubHub = TestHelpers.Instance.PubSubHub;
             _channelHub = TestHelpers.Instance.ChannelHub;
             _channelHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());

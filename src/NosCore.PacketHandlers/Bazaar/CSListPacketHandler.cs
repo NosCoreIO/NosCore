@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
@@ -27,16 +26,17 @@ using NosCore.Packets.ServerPackets.Inventory;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
-    public class CSListPacketHandler(IBazaarHttpClient bazaarHttpClient, IClock clock) : PacketHandler<CSListPacket>,
+    public class CSListPacketHandler(IBazaarHub bazaarHttpClient, IClock clock) : PacketHandler<CSListPacket>,
         IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CSListPacket packet, ClientSession clientSession)
         {
             var list = new List<RcsListPacket.RcsListElementPacket?>();
-            var bzlist = await bazaarHttpClient.GetBazaarLinksAsync(-1, packet.Index, 50, 0, 0, 0, 0, 0,
+            var bzlist = await bazaarHttpClient.GetBazaar(-1, packet.Index, 50, 0, 0, 0, 0, 0,
                 clientSession.Character.CharacterId).ConfigureAwait(false);
 
             foreach (var bz in bzlist)

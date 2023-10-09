@@ -53,11 +53,11 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
 using NosCore.GameObject.Holders;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
-using NosCore.GameObject.HttpClients.ChannelHttpClients;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -114,16 +114,16 @@ namespace NosCore.Tests.Shared
         private IDao<ShopItemDto, int> _shopItemDao = null!;
         private IDao<StaticBonusDto, long> _staticBonusDao = null!;
         private int _lastId = 100;
-        public Mock<IBlacklistHttpClient> BlacklistHttpClient = new();
-        public Mock<IChannelHttpClient> ChannelHttpClient = new();
+        public Mock<IBlacklistHub> BlacklistHttpClient = new();
+        public Mock<IChannelHub> ChannelHttpClient = new();
         public Mock<IPubSubHub> PubSubHub = new();
-        public Mock<IFriendHttpClient> FriendHttpClient = new();
+        public Mock<IFriendHub> FriendHttpClient = new();
         public FakeClock Clock = new(Instant.FromUtc(2021,01,01,01,01,01)); 
         private TestHelpers()
         {
-            BlacklistHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
+            BlacklistHttpClient.Setup(s => s.GetBlacklistedAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
-            FriendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>()))
+            FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
             InitDatabase();
             var mock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
@@ -319,9 +319,9 @@ namespace NosCore.Tests.Shared
                         _itemInstanceDao, _inventoryItemInstanceDao, _staticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
                         new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer, Instance.PubSubHub.Object),
                     new CSkillPacketHandler(Instance.Clock),
-                    new CBuyPacketHandler(new Mock<IBazaarHttpClient>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao, Instance.LogLanguageLocalizer),
-                    new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, _itemInstanceDao, _inventoryItemInstanceDao),
-                    new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHttpClient>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao, Instance.LogLanguageLocalizer)
+                    new CBuyPacketHandler(new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao, Instance.LogLanguageLocalizer),
+                    new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, _itemInstanceDao, _inventoryItemInstanceDao),
+                    new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao, Instance.LogLanguageLocalizer)
                 },
                 FriendHttpClient.Object,
                 new Mock<ISerializer>().Object,

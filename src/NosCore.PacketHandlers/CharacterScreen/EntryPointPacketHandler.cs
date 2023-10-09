@@ -41,20 +41,19 @@ using NosCore.Networking;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.AuthHttpClients;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
-            IDao<MateDto, long> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
+            IDao<MateDto, long> mateDao, ILogger logger, IAuthHub authHttpClient,
             IPubSubHub pubSubHub, IOptions<WorldConfiguration> configuration,
             ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {
-        public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient,
+        public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHub authHttpClient,
             IDao<AccountDto, long> accountDao, IPubSubHub pubSubHub, bool passwordLessConnection, string accountName, string password, int sessionId, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             var subscribers = await pubSubHub.GetSubscribersAsync();

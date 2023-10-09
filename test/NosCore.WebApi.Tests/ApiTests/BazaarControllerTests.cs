@@ -35,6 +35,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Services.BazaarService;
 using NosCore.Tests.Shared;
 
+//Todo: move that
 namespace NosCore.WebApi.Tests.ApiTests
 {
     [TestClass]

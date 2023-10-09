@@ -20,20 +20,22 @@
 using System.Linq;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NodaTime;
+using NosCore.GameObject.Helper;
+using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class GiftPacketHandler(IPubSubHub pubSubHub,
-            IMailHttpClient mailHttpClient)
+            IMailHub mailHttpClient, IClock clock)
         : PacketHandler<GiftPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(GiftPacket giftPacket, ClientSession session)
@@ -50,8 +52,8 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await mailHttpClient.SendGiftAsync(session.Character!, receiver.ConnectedCharacter!.Id, giftPacket.VNum,
-                giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false).ConfigureAwait(false);
+            await mailHttpClient.SendMailAsync(GiftHelper.GenerateMailRequest(clock, session.Character!, receiver.ConnectedCharacter!.Id,null, giftPacket.VNum,
+                giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false, null, null)).ConfigureAwait(false);
             await session.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,
@@ -60,5 +62,7 @@ namespace NosCore.PacketHandlers.Command
                 Message = Game18NConstString.GiftDelivered
             }).ConfigureAwait(false);
         }
+
+    
     }
 }

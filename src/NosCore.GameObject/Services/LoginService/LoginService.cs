@@ -26,7 +26,7 @@ using NosCore.Core.Configuration;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
-using NosCore.GameObject.HttpClients.AuthHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.Networking.SessionRef;
@@ -39,7 +39,7 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Services.LoginService
 {
     public class LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
-            IAuthHttpClient authHttpClient,
+            IAuthHub authHttpClient,
             IPubSubHub pubSubHub, IChannelHub channelHub,
             IDao<CharacterDto, long> characterDao, ISessionRefHolder sessionRefHolder)
         : ILoginService

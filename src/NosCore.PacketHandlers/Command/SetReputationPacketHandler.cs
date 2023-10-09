@@ -26,7 +26,6 @@ using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
 using System.Linq;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 

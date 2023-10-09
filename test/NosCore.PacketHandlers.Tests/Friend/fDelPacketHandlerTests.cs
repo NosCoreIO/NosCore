@@ -29,9 +29,8 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Holders;
-using NosCore.GameObject.HttpClients.ChannelHttpClients;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -50,14 +49,14 @@ namespace NosCore.PacketHandlers.Tests.Friend
     public class FDelPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private Mock<IChannelHttpClient>? _channelHttpClient;
+        private Mock<IChannelHub>? _channelHttpClient;
         private Mock<IDao<CharacterDto, long>>? _characterDao;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
         private Mock<IPubSubHub>? _connectedAccountHttpClient;
         private Mock<IChannelHub>? _channelHub;
         private FdelPacketHandler? _fDelPacketHandler;
         private FriendService? _friendController;
-        private Mock<IFriendHttpClient>? _friendHttpClient;
+        private Mock<IFriendHub>? _friendHttpClient;
         private ClientSession? _session;
 
         [TestInitialize]
@@ -84,9 +83,9 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _characterDao = new Mock<IDao<CharacterDto, long>>();
             _friendController = new FriendService(Logger, _characterRelationDao, _characterDao.Object,
                 new FriendRequestHolder(), _connectedAccountHttpClient.Object, _channelHub.Object, TestHelpers.Instance.LogLanguageLocalizer);
-            _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>()))
+            _friendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .Returns((long id) => _friendController.GetFriendsAsync(id));
-            _friendHttpClient.Setup(s => s.DeleteFriendAsync(It.IsAny<Guid>()))
+            _friendHttpClient.Setup(s => s.DeleteAsync(It.IsAny<Guid>()))
                 .Callback((Guid id) => Task.FromResult(_friendController.DeleteAsync(id)));
         }
 

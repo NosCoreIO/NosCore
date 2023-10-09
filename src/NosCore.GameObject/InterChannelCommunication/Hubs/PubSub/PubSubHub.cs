@@ -28,7 +28,6 @@ using Microsoft.Extensions.Logging;
 using NosCore.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.Shared.I18N;
 

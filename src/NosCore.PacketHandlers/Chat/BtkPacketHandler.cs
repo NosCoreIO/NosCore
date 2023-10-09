@@ -23,7 +23,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Chat;
@@ -33,21 +32,21 @@ using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using Character = NosCore.Data.WebApi.Character;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 
 namespace NosCore.PacketHandlers.Chat
 {
-    public class BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
+    public class BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHub friendHttpClient,
             IPubSubHub packetHttpClient, IPubSubHub pubSubHub, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<BtkPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(BtkPacket btkPacket, ClientSession session)
         {
-            var friendlist = await friendHttpClient.GetListFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
+            var friendlist = await friendHttpClient.GetFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
 
             if (friendlist.All(s => s.CharacterId != btkPacket.CharacterId))
             {

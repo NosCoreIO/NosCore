@@ -19,12 +19,11 @@
 
 using System.Threading.Tasks;
 
-namespace NosCore.GameObject.HttpClients.AuthHttpClients
-{
-    public interface IAuthHttpClient
-    {
-        Task<string?> GetAwaitingConnectionAsync(string? name, string packetPassword, int clientSessionSessionId);
+namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 
-        Task SetAwaitingConnectionAsync(long sessionId, string accountName);
-    }
+public interface IAuthHub
+{
+    Task<string?> GetAwaitingConnectionAsync(string? name, string packetPassword, int clientSessionSessionId);
+
+    Task SetAwaitingConnectionAsync(long sessionId, string accountName);
 }

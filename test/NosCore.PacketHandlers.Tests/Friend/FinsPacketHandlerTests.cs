@@ -30,9 +30,8 @@ using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Holders;
-using NosCore.GameObject.HttpClients.ChannelHttpClients;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -51,12 +50,12 @@ namespace NosCore.PacketHandlers.Tests.Friend
     public class FinsPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
+        private readonly Mock<IChannelHub> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
         private readonly Mock<IPubSubHub> _connectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
         private Mock<IChannelHub>? _channelHub;
         private FinsPacketHandler? _finsPacketHandler;
-        private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
+        private readonly Mock<IFriendHub> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
         private FriendRequestHolder? _friendRequestHolder;
 
         private ClientSession? _session;

@@ -37,7 +37,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using NodaTime;
-using NodaTime.Serialization.SystemTextJson;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Services.IdService;
@@ -65,8 +64,8 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using ILogger = Serilog.ILogger;
-using NosCore.GameObject.HttpClients.ChannelHttpClients;
 using NosCore.GameObject.InterChannelCommunication;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
@@ -75,7 +74,6 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
-using NosCore.MasterServer.Controllers;
 
 namespace NosCore.MasterServer
 {
@@ -157,7 +155,7 @@ namespace NosCore.MasterServer
 
         private ContainerBuilder InitializeContainer(IServiceCollection services)
         {
-            var containerBuilder = new ContainerBuilder(); 
+            var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterType<ChannelHub>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<MasterClientList>().SingleInstance();
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
@@ -186,7 +184,7 @@ namespace NosCore.MasterServer
                 .Where(t => t.Name.EndsWith("Holder"))
                 .SingleInstance();
 
-            containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
+            containerBuilder.RegisterType<ChannelHub>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces();
@@ -241,12 +239,6 @@ namespace NosCore.MasterServer
                         .Build();
                 });
 
-            services
-                .AddControllers()
-                .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
-                .AddApplicationPart(typeof(FriendHub).GetTypeInfo().Assembly)
-                .AddControllersAsServices()
-                .AddJsonOptions(settings => settings.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
             services.AddHostedService<MasterServer>();
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
@@ -265,13 +257,14 @@ namespace NosCore.MasterServer
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NosCore Master API"));
             app.UseAuthentication();
             app.UseRouting();
-            
+
             app.UseWebSockets();
             app.UseAuthorization();
             CultureInfo.DefaultThreadCurrentCulture = new(app.ApplicationServices.GetRequiredService<IOptions<MasterConfiguration>>().Value.Language.ToString());
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<AuthHub>(nameof(AuthHub));
                 endpoints.MapHub<PubSubHub>(nameof(PubSubHub));
                 endpoints.MapHub<BazaarHub>(nameof(BazaarHub));
                 endpoints.MapHub<BlacklistHub>(nameof(BlacklistHub));
@@ -279,7 +272,6 @@ namespace NosCore.MasterServer
                 endpoints.MapHub<FriendHub>(nameof(FriendHub));
                 endpoints.MapHub<MailHub>(nameof(MailHub));
                 endpoints.MapHub<WarehouseHub>(nameof(WarehouseHub));
-                endpoints.MapControllers();
             });
         }
     }

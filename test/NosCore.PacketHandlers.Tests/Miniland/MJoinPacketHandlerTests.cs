@@ -26,8 +26,7 @@ using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -49,7 +48,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private readonly Mock<IPubSubHub> _connectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
-        private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
+        private readonly Mock<IFriendHub> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
         private Mock<IMinilandService>? _minilandProvider;
         private MJoinPacketHandler? _mjoinPacketHandler;
 
@@ -119,7 +118,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                     }
 
                 });
-            _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
+            _friendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new()
                 {
@@ -148,7 +147,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             };
             _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new GameObject.Services.MinilandService.Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Open });
-            _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
+            _friendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new()
                 {
@@ -195,7 +194,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                     }
 
                 });
-            _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
+            _friendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new()
                 {
@@ -232,7 +231,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                     }
 
                 });
-            _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
+            _friendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new()
                 {

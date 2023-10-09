@@ -29,9 +29,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NosCore.Core;
-using NosCore.GameObject.HttpClients.ChannelHttpClients;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.Networking;
 using NosCore.Shared.I18N;
 using Polly;
@@ -39,8 +37,7 @@ using Polly;
 namespace NosCore.LoginServer
 {
     public class LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager,
-            ILogger logger,
-            IChannelHttpClient channelHttpClient, NosCoreContext context,
+            ILogger logger, NosCoreContext context,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, Channel channel, IChannelHub channelHubClient)
         : BackgroundService
     {
@@ -63,7 +60,7 @@ namespace NosCore.LoginServer
                 logger.Error(logLanguage[LogLanguageKey.DATABASE_NOT_UPTODATE]);
                 throw;
             }
-            await Policy
+            var connectTask = Policy
                 .Handle<Exception>()
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     (_, __, timeSpan) =>
@@ -72,7 +69,7 @@ namespace NosCore.LoginServer
                             timeSpan.TotalSeconds)
                 ).ExecuteAsync(() => channelHubClient.Bind(channel));
 
-            await Task.WhenAny(channelHttpClient.ConnectAsync(), networkManager.RunServerAsync()).ConfigureAwait(false);
+            await Task.WhenAny(connectTask, networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }
 }

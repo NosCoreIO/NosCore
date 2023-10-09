@@ -17,22 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Linq;
 using System.Threading.Tasks;
-using NosCore.GameObject.HttpClients.AuthHttpClients;
-using NosCore.GameObject.HttpClients.ChannelHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.ChannelService
 {
-    public class ChannelService(IAuthHttpClient authHttpClient,
-            IChannelHttpClient channelHttpClient, ISaveService saveService)
+    public class ChannelService(IAuthHub authHttpClient,
+            IChannelHub channelHttpClient, ISaveService saveService)
         : IChannelService
     {
         public async Task MoveChannelAsync(Networking.ClientSession.ClientSession clientSession, int channelId)
         {
-            var server = await channelHttpClient.GetChannelAsync(channelId).ConfigureAwait(false);
+            var servers = await channelHttpClient.GetCommunicationChannels().ConfigureAwait(false);
+            var server = servers.FirstOrDefault(x => x.Id == channelId);
             if (server == null || server.Type != ServerType.WorldServer)
             {
                 return;

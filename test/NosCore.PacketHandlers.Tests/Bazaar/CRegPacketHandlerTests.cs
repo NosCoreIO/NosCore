@@ -32,7 +32,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class CRegPacketHandlerTest
     {
-        private Mock<IBazaarHttpClient>? _bazaarHttpClient;
+        private Mock<IBazaarHub>? _bazaarHttpClient;
         private CRegPacketHandler? _cregPacketHandler;
         private Mock<IDao<InventoryItemInstanceDto, Guid>>? _inventoryItemInstanceDao;
         private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _session.Character.StaticBonusList = new List<StaticBonusDto>();
-            _bazaarHttpClient = new Mock<IBazaarHttpClient>();
+            _bazaarHttpClient = new Mock<IBazaarHub>();
             _inventoryItemInstanceDao = new Mock<IDao<InventoryItemInstanceDto, Guid>>();
             _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _bazaarHttpClient.Setup(s => s.AddBazaarAsync(It.IsAny<BazaarRequest>())).ReturnsAsync(LanguageKey.OBJECT_IN_BAZAAR);

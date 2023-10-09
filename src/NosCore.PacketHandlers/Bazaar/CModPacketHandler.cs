@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Linq;
 using Json.More;
 using Json.Patch;
 using Json.Pointer;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
@@ -33,16 +33,18 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
-    public class CModPacketHandler(IBazaarHttpClient bazaarHttpClient, ILogger logger,
+    public class CModPacketHandler(IBazaarHub bazaarHttpClient, ILogger logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<CModPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CModPacket packet, ClientSession clientSession)
         {
-            var bz = await bazaarHttpClient.GetBazaarLinkAsync(packet.BazaarId).ConfigureAwait(false);
+            var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId,null,null,null,null,null,null,null,null).ConfigureAwait(false);
+            var bz = bzs.FirstOrDefault();
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name) &&
                 (bz.BazaarItem?.Price != packet.NewPrice))
             {
@@ -59,7 +61,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 if (bz.BazaarItem?.Amount == packet.Amount)
                 {
                     var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<BazaarLink>(o => o.BazaarItem!.Price), packet.NewPrice.AsJsonElement().AsNode()));
-                    var bzMod = await bazaarHttpClient.ModifyAsync(packet.BazaarId, patch).ConfigureAwait(false);
+                    var bzMod = await bazaarHttpClient.ModifyBazaarAsync(packet.BazaarId, patch).ConfigureAwait(false);
 
                     if ((bzMod != null) && (bzMod.BazaarItem?.Price != bz.BazaarItem.Price))
                     {

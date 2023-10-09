@@ -55,7 +55,6 @@ using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
 using NosCore.GameObject;
 using NosCore.GameObject.Holders;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
@@ -81,7 +80,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using NosCore.GameObject.HttpClients.AuthHttpClients;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using Character = NosCore.GameObject.Character;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
@@ -89,9 +87,7 @@ using Deserializer = NosCore.Packets.Deserializer;
 using ILogger = Serilog.ILogger;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
 using Serializer = NosCore.Packets.Serializer;
-using NosCore.GameObject.HttpClients.ChannelHttpClients;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 
 namespace NosCore.WorldServer
@@ -218,10 +214,8 @@ namespace NosCore.WorldServer
 
             //NosCore.Configuration
             containerBuilder.RegisterLogger();
-            containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
-            containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
-            containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
-                .Where(t => t.Name.EndsWith("HttpClient"))
+            containerBuilder.RegisterAssemblyTypes(typeof(ChannelHubClient).Assembly)
+                .Where(t => t.Name.EndsWith("HubClient") && t.Name != nameof(ChannelHubClient))
                 .AsImplementedInterfaces();
             containerBuilder.RegisterType<ChannelHubClient>().AsImplementedInterfaces().SingleInstance();
 

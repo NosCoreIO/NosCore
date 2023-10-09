@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Json.Patch;
 using Microsoft.AspNetCore.SignalR.Client;
 using NosCore.Core;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -19,6 +20,11 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
         public Task<List<ChannelInfo>> GetCommunicationChannels()
         {
             return _hubConnection.InvokeAsync<List<ChannelInfo>>(nameof(GetCommunicationChannels));
+        }
+
+        public Task SetMaintenance(bool isGlobal, bool value)
+        {
+            return _hubConnection.InvokeAsync(nameof(SetMaintenance), isGlobal, value);
         }
     }
 }

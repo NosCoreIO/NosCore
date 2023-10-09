@@ -98,7 +98,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 });
             var blacklist = new BlacklistService(TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.ChannelHub.Object,
                 _characterRelationDao!, TestHelpers.Instance.CharacterDao);
-            TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklistAsync(It.IsAny<BlacklistRequest>()))
+            TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddBlacklistAsync(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.BlacklistPlayerAsync( _session!.Character.CharacterId, targetSession.Character.VisualId));
             await _blPacketHandler!.ExecuteAsync(blPacket, _session).ConfigureAwait(false);
             Assert.IsTrue(await _characterRelationDao!.FirstOrDefaultAsync(s =>

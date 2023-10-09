@@ -42,7 +42,6 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Shared.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
 namespace NosCore.PacketHandlers.CharacterScreen

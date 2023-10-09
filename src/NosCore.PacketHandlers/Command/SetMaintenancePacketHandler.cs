@@ -28,31 +28,17 @@ using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.GameObject.HttpClients.ChannelHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class SetMaintenancePacketHandler
-        (IChannelHttpClient channelHttpClient, Channel channel) : PacketHandler<SetMaintenancePacket>,
+        (IChannelHub channelHttpClient) : PacketHandler<SetMaintenancePacket>,
             IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetMaintenancePacket setMaintenancePacket, ClientSession session)
         {
-            var servers = (await channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
-                ?.Where(c => c.Type == ServerType.WorldServer).ToList();
-
-            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<ChannelInfo>(o => o.IsMaintenance), setMaintenancePacket.MaintenanceMode.AsJsonElement().AsNode()));
-            if (setMaintenancePacket.IsGlobal == false)
-            {
-                await channelHttpClient.PatchAsync(channel.ChannelId, patch);
-            }
-            else
-            {
-                foreach (var server in servers ?? new List<ChannelInfo>())
-                {
-                    await channelHttpClient.PatchAsync(server.Id, patch);
-                }
-            }
+            await channelHttpClient.SetMaintenance(setMaintenancePacket.IsGlobal, setMaintenancePacket.MaintenanceMode);
         }
     }
 }

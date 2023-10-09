@@ -20,7 +20,7 @@
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ExchangeService;
@@ -39,7 +39,7 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Exchange
 {
     public class ExchangeRequestPackettHandler(IExchangeService exchangeService, ILogger logger,
-            IBlacklistHttpClient blacklistHttpClient, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IBlacklistHub blacklistHttpClient, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<ExchangeRequestPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(ExchangeRequestPacket packet, ClientSession clientSession)
@@ -88,7 +88,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    var blacklisteds = await blacklistHttpClient.GetBlackListsAsync(clientSession.Character.VisualId).ConfigureAwait(false);
+                    var blacklisteds = await blacklistHttpClient.GetBlacklistedAsync(clientSession.Character.VisualId).ConfigureAwait(false);
                     if (blacklisteds.Any(s => s.CharacterId == target.VisualId))
                     {
                         await clientSession.SendPacketAsync(new SayiPacket

@@ -28,7 +28,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private BlacklistService? _blackListController;
-        private Mock<IBlacklistHttpClient>? _blackListHttpClient;
+        private Mock<IBlacklistHub>? _blackListHttpClient;
         private BlDelPacketHandler? _blDelPacketHandler;
         private Mock<IDao<CharacterDto, long>>? _characterDao;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
@@ -78,9 +78,9 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _characterDao = new Mock<IDao<CharacterDto, long>>();
             _blackListController = new BlacklistService(_connectedAccountHttpClient.Object, _channelHub.Object, _characterRelationDao,
                 _characterDao.Object);
-            _blackListHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
+            _blackListHttpClient.Setup(s => s.GetBlacklistedAsync(It.IsAny<long>()))
                 .Returns((long id) => _blackListController.GetBlacklistedListAsync(id));
-            _blackListHttpClient.Setup(s => s.DeleteFromBlacklistAsync(It.IsAny<Guid>()))
+            _blackListHttpClient.Setup(s => s.DeleteAsync(It.IsAny<Guid>()))
                 .Callback((Guid id) => Task.FromResult(_blackListController.UnblacklistAsync(id)));
         }
 

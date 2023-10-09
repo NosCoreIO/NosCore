@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.GameObject.HttpClients.MailHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -39,7 +40,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
     [TestClass]
     public class PclPacketHandlerTests
     {
-        private Mock<IMailHttpClient>? _mailHttpClient;
+        private Mock<IMailHub>? _mailHttpClient;
         private PclPacketHandler? _pclPacketHandler;
         private IItemGenerationService? _item;
         private ClientSession? _session;
@@ -51,7 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _mailHttpClient = new Mock<IMailHttpClient>();
+            _mailHttpClient = new Mock<IMailHub>();
             _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _pclPacketHandler = new PclPacketHandler(_mailHttpClient.Object, _item, _itemInstanceDao.Object);
         }
@@ -59,7 +60,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         [TestMethod]
         public async Task Test_GiftNotFoundAsync()
         {
-            _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync((MailData?)null);
+            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData>());
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 5,
@@ -72,7 +73,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         [TestMethod]
         public async Task Test_DeleteGiftAsync()
         {
-            _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync(new MailData());
+            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData>());
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 5,
@@ -96,7 +97,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             };
             _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync(item);
-            _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync(mail);
+            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData>{mail});
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 4,
@@ -121,7 +122,6 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             };
             _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync(item);
-            _mailHttpClient!.Setup(s => s.GetGiftAsync(1, _session!.Character.CharacterId, false)).ReturnsAsync(mail);
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 4,

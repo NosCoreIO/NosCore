@@ -25,7 +25,6 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Holders;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -34,11 +33,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 
 namespace NosCore.GameObject.Services.MinilandService
 {
     public class MinilandService(IMapInstanceAccessorService mapInstanceAccessorService,
-            IFriendHttpClient friendHttpClient, List<MapDto> maps,
+            IFriendHub friendHttpClient, List<MapDto> maps,
             IDao<MinilandDto, Guid> minilandDao, IDao<MinilandObjectDto, Guid> minilandObjectsDao,
             MinilandHolder minilandHolder)
         : IMinilandService
@@ -158,7 +158,7 @@ namespace NosCore.GameObject.Services.MinilandService
                     return;
                 case MinilandState.Private:
                     {
-                        List<long> friends = (await friendHttpClient.GetListFriendsAsync(characterId).ConfigureAwait(false))
+                        List<long> friends = (await friendHttpClient.GetFriendsAsync(characterId).ConfigureAwait(false))
                             .Select(s => s.CharacterId)
                             .ToList();
                         // Kick all players in miniland except owner and his friends

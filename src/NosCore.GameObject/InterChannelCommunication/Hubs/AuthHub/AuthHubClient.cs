@@ -17,39 +17,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
 
-namespace NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub
+namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
 {
-    public class FriendHubClient(HubConnectionFactory hubConnectionFactory) : IFriendHub
+    public class AuthHubClient(HubConnectionFactory hubConnectionFactory) : IAuthHub
     {
-        private readonly HubConnection _hubConnection = hubConnectionFactory.Create(nameof(FriendHub));
+        private readonly HubConnection _hubConnection = hubConnectionFactory.Create(nameof(AuthHubClient));
 
-        public async Task<LanguageKey> AddFriendAsync(FriendShipRequest friendPacket)
+        public async Task<string?> GetAwaitingConnectionAsync(string? name, string packetPassword, int clientSessionSessionId)
         {
             await _hubConnection.StartAsync();
-            var result = await _hubConnection.InvokeAsync<LanguageKey>(nameof(AddFriendAsync), friendPacket);
+            var result = await _hubConnection.InvokeAsync<string?>(nameof(GetAwaitingConnectionAsync), name, packetPassword, clientSessionSessionId);
             await _hubConnection.StopAsync();
             return result;
         }
-        public async Task<List<CharacterRelationStatus>> GetFriendsAsync(long id)
+
+        public async Task SetAwaitingConnectionAsync(long sessionId, string accountName)
         {
             await _hubConnection.StartAsync();
-            var result = await _hubConnection.InvokeAsync<List<CharacterRelationStatus>>(nameof(GetFriendsAsync), id);
+            await _hubConnection.InvokeAsync(nameof(SetAwaitingConnectionAsync), sessionId, accountName);
             await _hubConnection.StopAsync();
-            return result;
-        }
-        public async Task<bool> DeleteAsync(Guid id)
-        {
-            await _hubConnection.StartAsync();
-            var result = await _hubConnection.InvokeAsync<bool>(nameof(DeleteAsync), id);
-            await _hubConnection.StopAsync();
-            return result;
         }
     }
 }

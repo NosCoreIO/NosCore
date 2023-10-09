@@ -18,20 +18,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR.Client;
-using NosCore.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.Services.BazaarService;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.Packets.Enumerations;
-using NosCore.Shared.Enumerations;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using static NosCore.Data.Enumerations.Buff.AdditionalTypes;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub
 {

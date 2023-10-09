@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NosCore.Core;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 

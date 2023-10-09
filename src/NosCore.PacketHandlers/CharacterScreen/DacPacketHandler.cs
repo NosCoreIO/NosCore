@@ -26,8 +26,7 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using Serilog;
 using System.Threading.Tasks;
-using NosCore.GameObject.HttpClients.AuthHttpClients;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
@@ -35,7 +34,7 @@ using NosCore.Shared.I18N;
 namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class DacPacketHandler(IDao<AccountDto, long> accountDao,
-            ILogger logger, IAuthHttpClient authHttpClient,
+            ILogger logger, IAuthHub authHttpClient,
             IPubSubHub pubSubHub, ISessionRefHolder sessionRefHolder,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<DacPacket>, IWorldPacketHandler

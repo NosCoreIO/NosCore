@@ -17,12 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Json.Patch;
 using NosCore.Core;
-using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Messages;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 
@@ -31,4 +29,5 @@ public interface IChannelHub
     Task Bind(Channel data);
 
     Task<List<ChannelInfo>> GetCommunicationChannels();
+    Task SetMaintenance(bool isGlobal, bool value);
 }

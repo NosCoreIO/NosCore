@@ -35,15 +35,12 @@ using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
 using NosCore.Shared.I18N;
 using Polly;
-using NosCore.GameObject.HttpClients.ChannelHttpClients;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
 namespace NosCore.WorldServer
 {
     public class WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager,
-            Clock clock, ILogger<WorldServer> logger,
-            IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService,
+            Clock clock, ILogger<WorldServer> logger, IMapInstanceGeneratorService mapInstanceGeneratorService,
             IClock nodatimeClock, ISaveService saveService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger, Channel channel, IChannelHub channelHubClient)
         : BackgroundService
@@ -64,7 +61,7 @@ namespace NosCore.WorldServer
             {
                 Console.Title += $@" - Port : {worldConfiguration.Value.Port}";
             }
-            await Policy
+            var connectTask = Policy
                 .Handle<Exception>()
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     (_, __, timeSpan) =>
@@ -72,7 +69,7 @@ namespace NosCore.WorldServer
                             logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
                             timeSpan.TotalSeconds)
                 ).ExecuteAsync(() => channelHubClient.Bind(channel));
-            await Task.WhenAny(clock.Run(stoppingToken), channelHttpClient.ConnectAsync(), networkManager.RunServerAsync()).ConfigureAwait(false);
+            await Task.WhenAny(connectTask, clock.Run(stoppingToken), networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }
 }

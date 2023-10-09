@@ -27,7 +27,7 @@ using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.AuthHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Tests.Login
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private string _password = null!;
-        private Mock<IAuthHttpClient>? _authHttpClient;
+        private Mock<IAuthHub>? _authHttpClient;
         private Mock<IPubSubHub>? _pubSubHub;
         private IOptions<LoginConfiguration>? _loginConfiguration;
         private NoS0575PacketHandler? _noS0575PacketHandler;
@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             _password = new Sha512Hasher().Hash("test");
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _authHttpClient = new Mock<IAuthHttpClient>();
+            _authHttpClient = new Mock<IAuthHub>();
             _pubSubHub = TestHelpers.Instance.PubSubHub;
             _loginConfiguration = Options.Create(new LoginConfiguration());
             _channelHub = new Mock<IChannelHub>();

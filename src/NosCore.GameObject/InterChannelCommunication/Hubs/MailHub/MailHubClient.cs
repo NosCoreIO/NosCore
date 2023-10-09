@@ -20,16 +20,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Json.Patch;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
-using NosCore.Core;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
-using NosCore.GameObject.Services.MailService;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.MailHub
 {

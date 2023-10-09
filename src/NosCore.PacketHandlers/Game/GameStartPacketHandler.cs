@@ -22,9 +22,6 @@ using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
-using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -35,18 +32,20 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.GameObject.Services.MapChangeService;
-using NosCore.GameObject.HttpClients.ChannelHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
+using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
 namespace NosCore.PacketHandlers.Game
 {
     public class GameStartPacketHandler(IOptions<WorldConfiguration> worldConfiguration,
-            IFriendHttpClient friendHttpClient,
-            IChannelHttpClient channelHttpClient,
-            IPubSubHub pubSubHub, IBlacklistHttpClient blacklistHttpClient,
-            ISerializer packetSerializer, IMailHttpClient mailHttpClient, IQuestService questProvider,
+            IFriendHub friendHttpClient,
+            IChannelHub channelHttpClient,
+            IPubSubHub pubSubHub, IBlacklistHub blacklistHttpClient,
+            ISerializer packetSerializer, IMailHub mailHttpClient, IQuestService questProvider,
             IMapChangeService mapChangeService)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
@@ -205,7 +204,7 @@ namespace NosCore.PacketHandlers.Game
             //            }
 
             //            // finfo - friends info
-            var mails = await mailHttpClient.GetGiftsAsync(session.Character.CharacterId).ConfigureAwait(false);
+            var mails = await mailHttpClient.GetMails(-1, session.Character.CharacterId, false).ConfigureAwait(false);
             await session.Character.GenerateMailAsync(mails).ConfigureAwait(false);
 
             await session.SendPacketAsync(session.Character.GenerateTitle()).ConfigureAwait(false);

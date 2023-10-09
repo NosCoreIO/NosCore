@@ -23,13 +23,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Json.Patch;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using NosCore.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
@@ -80,6 +80,21 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
         public Task<List<ChannelInfo>> GetCommunicationChannels()
         {
             return Task.FromResult(masterClientList.Channels.Values.ToList());
+        }
+
+        public Task SetMaintenance(bool isGlobal, bool value)
+        {
+            if (isGlobal)
+            {
+                foreach (var channel in masterClientList.Channels)
+                {
+                    channel.Value.IsMaintenance = value;
+                }
+
+                return Task.CompletedTask;
+            }
+            masterClientList.Channels[Context.ConnectionId].IsMaintenance = value;
+            return Task.CompletedTask;
         }
     }
 }

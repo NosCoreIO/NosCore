@@ -29,7 +29,7 @@ using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.AuthHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Tests.Login
     {
         private readonly string _tokenGuid = Guid.NewGuid().ToString();
         private IHasher _encryption = null!;
-        private readonly Mock<IAuthHttpClient> _authHttpClient = new();
+        private readonly Mock<IAuthHub> _authHttpClient = new();
         private readonly Mock<IPubSubHub> _pubSubHub = TestHelpers.Instance.PubSubHub;
         private readonly IOptions<LoginConfiguration> _loginConfiguration = Options.Create(new LoginConfiguration
         {

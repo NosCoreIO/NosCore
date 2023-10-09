@@ -2,13 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.Options;
-using NosCore.Core;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
-using NosCore.Shared.Authentication;
-using NosCore.Shared.Configuration;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
 {

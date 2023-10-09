@@ -26,7 +26,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class CbListPacketHandlerTest
     {
-        private Mock<IBazaarHttpClient>? _bazaarHttpClient;
+        private Mock<IBazaarHub>? _bazaarHttpClient;
         private CBListPacketHandler? _cblistPacketHandler;
         private ClientSession? _session;
 
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _bazaarHttpClient = new Mock<IBazaarHttpClient>();
+            _bazaarHttpClient = new Mock<IBazaarHub>();
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Main, VNum = 1012, IsSoldable = true}
@@ -63,10 +63,10 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task ListShouldReturnEmptyWhenNoItemsAsync()
         {
             _bazaarHttpClient!.Setup(b =>
-                b.GetBazaarLinksAsync(
+                b.GetBazaar(
                     It.IsAny<int>(),
-                    It.IsAny<int>(),
-                    It.IsAny<int>(),
+                    It.IsAny<byte>(),
+                    It.IsAny<byte>(),
                     It.IsAny<BazaarListType>(),
                     It.IsAny<byte>(),
                     It.IsAny<byte>(),
@@ -83,10 +83,10 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task ListShouldReturnTheItemsAsync()
         {
             _bazaarHttpClient!.Setup(b =>
-                b.GetBazaarLinksAsync(
+                b.GetBazaar(
                     It.IsAny<int>(),
-                    It.IsAny<int>(),
-                    It.IsAny<int>(),
+                    It.IsAny<byte>(),
+                    It.IsAny<byte>(),
                     It.IsAny<BazaarListType>(),
                     It.IsAny<byte>(),
                     It.IsAny<byte>(),
@@ -112,10 +112,10 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task ListShouldReturnTheItemsNotValidAsync()
         {
             _bazaarHttpClient!.Setup(b =>
-                b.GetBazaarLinksAsync(
+                b.GetBazaar(
                     It.IsAny<int>(),
-                    It.IsAny<int>(),
-                    It.IsAny<int>(),
+                    It.IsAny<byte>(),
+                    It.IsAny<byte>(),
                     It.IsAny<BazaarListType>(),
                     It.IsAny<byte>(),
                     It.IsAny<byte>(),

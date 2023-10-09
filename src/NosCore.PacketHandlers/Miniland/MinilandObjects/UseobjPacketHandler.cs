@@ -17,11 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Helper;
-using NosCore.GameObject.HttpClients.WarehouseHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.Enumerations;
@@ -29,10 +28,19 @@ using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.Warehouse;
 using System.Linq;
 using System.Threading.Tasks;
+using Mapster;
+using NosCore.Data.Dto;
+using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Dao.Interfaces;
+using NosCore.GameObject.Services.ItemGenerationService;
+using System;
 
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
-    public class UseobjPacketHandler(IMinilandService minilandProvider, IWarehouseHttpClient warehouseHttpClient)
+    public class UseobjPacketHandler(IMinilandService minilandProvider, IWarehouseHub warehouseHttpClient, IDao<IItemInstanceDto?, Guid> itemInstanceDao, IItemGenerationService itemProvider)
         : PacketHandler<UseObjPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(UseObjPacket useobjPacket, ClientSession clientSession)
@@ -94,8 +102,16 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             }
             else
             {
-                var warehouseItems = await warehouseHttpClient.GetWarehouseItemsAsync(clientSession.Character.CharacterId,
-                    WarehouseType.Warehouse).ConfigureAwait(false);
+                var links = await warehouseHttpClient.GetWarehouseItems(null, clientSession.Character.CharacterId,
+                    WarehouseType.Warehouse, null).ConfigureAwait(false);
+                var warehouseItems = new List<WarehouseItem>();
+                foreach (var warehouselink in links)
+                {
+                    var warehouseItem = warehouselink.Warehouse!.Adapt<WarehouseItem>();
+                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == warehouselink.ItemInstance!.Id).ConfigureAwait(false);
+                    warehouseItem.ItemInstance = itemProvider.Convert(itemInstance!);
+                    warehouseItems.Add(warehouseItem);
+                }
                 await clientSession.SendPacketAsync(new StashAllPacket
                 {
                     WarehouseSize =

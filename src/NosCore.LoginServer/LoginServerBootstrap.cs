@@ -39,7 +39,6 @@ using NosCore.Data.Dto;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets;
@@ -58,10 +57,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Core.Services.IdService;
-using NosCore.GameObject.HttpClients.AuthHttpClients;
-using NosCore.GameObject.HttpClients.ChannelHttpClients;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.LoginService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
@@ -111,12 +107,7 @@ namespace NosCore.LoginServer
 
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ChannelHubClient>().AsImplementedInterfaces().SingleInstance();
-            containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
-            containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
-            containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
-                .Where(t => t.Name.EndsWith("HttpClient"))
-                .AsImplementedInterfaces();
 
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication.HashingType switch
             {

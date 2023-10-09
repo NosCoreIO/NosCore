@@ -25,7 +25,6 @@ using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
@@ -41,6 +40,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic = new();
 
         private readonly IExchangeService _exchangeProvider = null!;
-        private readonly IFriendHttpClient _friendHttpClient;
+        private readonly IFriendHub _friendHttpClient;
         private readonly SemaphoreSlim _handlingPacketLock = new(1, 1);
         private readonly bool _isWorldClient;
         private readonly ILogger _logger;
@@ -73,7 +73,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly IGameLanguageLocalizer _gameLanguageLocalizer = null!;
         private readonly IPubSubHub _pubSubHub;
 
-        public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
+        public ClientSession(ILogger logger, IEnumerable<IPacketHandler> packetsHandlers, IFriendHub friendHttpClient,
             ISerializer packetSerializer, ISessionRefHolder sessionRefHolder,
             ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub)
             : base(logger, networkingLogLanguage)
@@ -96,7 +96,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         }
 
         public ClientSession(IOptions<LoginConfiguration> configuration, ILogger logger,
-            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
+            IEnumerable<IPacketHandler> packetsHandlers, IFriendHub friendHttpClient,
             ISerializer packetSerializer,  ISessionRefHolder sessionRefHolder,
             ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub) 
             : this(logger, packetsHandlers, friendHttpClient, packetSerializer,
@@ -106,7 +106,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public ClientSession(IOptions<WorldConfiguration> configuration,
             IExchangeService? exchangeService, ILogger logger,
-            IEnumerable<IPacketHandler> packetsHandlers, IFriendHttpClient friendHttpClient,
+            IEnumerable<IPacketHandler> packetsHandlers, IFriendHub friendHttpClient,
             ISerializer packetSerializer,
             IMinilandService? minilandProvider, IMapInstanceGeneratorService mapInstanceGeneratorService, ISessionRefHolder sessionRefHolder, 
             ISaveService saveService,
