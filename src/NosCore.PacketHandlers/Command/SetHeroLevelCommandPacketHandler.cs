@@ -25,13 +25,14 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
-using NosCore.Core.MessageQueue.Messages;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetHeroLevelCommandPacketHandler(IPubSubHub pubSubHub)
+    public class SetHeroLevelCommandPacketHandler(IPubSubHub pubSubHub, IChannelHub channelHub)
         : PacketHandler<SetHeroLevelCommandPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetHeroLevelCommandPacket levelPacket, ClientSession session)
@@ -49,7 +50,7 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var channels = await pubSubHub.GetCommunicationChannels();
+            var channels = await channelHub.GetCommunicationChannels();
             var subscribers = await pubSubHub.GetSubscribersAsync();
             var receiver = subscribers.FirstOrDefault(s => s.ConnectedCharacter?.Name == levelPacket.Name);
 

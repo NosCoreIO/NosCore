@@ -26,8 +26,9 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using Serilog;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
 using NosCore.GameObject.HttpClients.AuthHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
 

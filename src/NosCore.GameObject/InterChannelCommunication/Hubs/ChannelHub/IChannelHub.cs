@@ -18,20 +18,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Concurrent;
-using NosCore.Core.MessageQueue.Messages;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using NosCore.Core;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 
-namespace NosCore.Core.MessageQueue;
+namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 
-public class MasterClientList
+public interface IChannelHub
 {
-    public readonly ConcurrentDictionary<string, ChannelInfo> Channels = new();
-    public readonly ConcurrentDictionary<string, ConcurrentDictionary<long, Subscriber>> ConnectedAccounts = new();
+    Task Bind(Channel data);
 
-    public readonly ConcurrentDictionary<Guid, IMessage> Messages = new();
-    public int ConnectionCounter { get; set; }
-    public ConcurrentDictionary<string, long> ReadyForAuth { get; } = new();
-
-    public ConcurrentDictionary<string, string> AuthCodes { get; } = new();
+    Task<List<ChannelInfo>> GetCommunicationChannels();
 }

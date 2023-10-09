@@ -132,10 +132,6 @@
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>At least one of the required files are missing, try again when you have all the required files.</value>
   </data>
-  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Authenticated Error.</value>
-    <comment>check</comment>
-  </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Client {0} : {1} authenticated successfully!</value>
     <comment>check</comment>

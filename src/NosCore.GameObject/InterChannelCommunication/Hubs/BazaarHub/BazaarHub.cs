@@ -17,36 +17,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using NosCore.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Services.BazaarService;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace NosCore.MasterServer.Controllers
+namespace NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub
 {
-    [Route("api/[controller]")]
-    [AuthorizeRole(AuthorityType.GameMaster)]
-    public class BazaarController(IBazaarService bazaarService) : Controller
+    public class BazaarHub(IBazaarService bazaarService) : Hub, IBazaarHub
     {
-        [HttpGet]
-        public List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
-            byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter) => bazaarService.GetBazaar(id, index, pageSize, typeFilter,
-            subTypeFilter, levelFilter, rareFilter, upgradeFilter, sellerFilter);
+        public Task<List<BazaarLink>> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
+            byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter) => Task.FromResult(bazaarService.GetBazaar(id, index, pageSize, typeFilter,
+            subTypeFilter, levelFilter, rareFilter, upgradeFilter, sellerFilter));
 
-
-        [HttpDelete]
         public Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName) => bazaarService.DeleteBazaarAsync(id, count, requestCharacterName);
 
-        [HttpPost]
-        public Task<LanguageKey> AddBazaarAsync([FromBody] BazaarRequest bazaarRequest) => bazaarService.AddBazaarAsync(bazaarRequest.ItemInstanceId,
+        public Task<LanguageKey> AddBazaarAsync( BazaarRequest bazaarRequest) => bazaarService.AddBazaarAsync(bazaarRequest.ItemInstanceId,
             bazaarRequest.CharacterId, bazaarRequest.CharacterName, bazaarRequest.HasMedal, bazaarRequest.Price, bazaarRequest.IsPackage, bazaarRequest.Duration, bazaarRequest.Amount);
 
-        [HttpPatch]
-        public Task<BazaarLink?> ModifyBazaarAsync(long id, [FromBody] Json.Patch.JsonPatch bzMod) => bazaarService.ModifyBazaarAsync(id, bzMod);
+        public Task<BazaarLink?> ModifyBazaarAsync(long id, Json.Patch.JsonPatch bzMod) => bazaarService.ModifyBazaarAsync(id, bzMod);
     }
 }

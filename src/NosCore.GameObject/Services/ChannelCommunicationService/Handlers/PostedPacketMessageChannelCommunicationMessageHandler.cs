@@ -1,14 +1,15 @@
 ﻿using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.Networking;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
 using Serilog;
-using PostedPacket = NosCore.Core.MessageQueue.Messages.PostedPacket;
+
+using PostedPacket = NosCore.GameObject.InterChannelCommunication.Messages.PostedPacket;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {

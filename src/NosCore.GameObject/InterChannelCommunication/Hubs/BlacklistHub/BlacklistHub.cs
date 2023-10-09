@@ -17,29 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.AspNetCore.Mvc;
-using NosCore.Core;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
-using NosCore.GameObject.Services.FriendService;
-using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using NosCore.Core;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.Services.BlackListService;
+using NosCore.Shared.Enumerations;
 
-namespace NosCore.MasterServer.Controllers
+namespace NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub
 {
-    [Route("api/[controller]")]
-    [AuthorizeRole(AuthorityType.GameMaster)]
-    public class FriendController(IFriendService friendService) : Controller
+    public class BlacklistHub(IBlacklistService blacklistService) : Hub, IBlacklistHub
     {
-        [HttpPost]
-        public Task<LanguageKey> AddFriendAsync([FromBody] FriendShipRequest friendPacket) => friendService.AddFriendAsync(friendPacket.CharacterId, friendPacket.FinsPacket!.CharacterId, friendPacket.FinsPacket.Type);
+        public Task<LanguageKey> AddBlacklistAsync(BlacklistRequest blacklistRequest) => blacklistService.BlacklistPlayerAsync(blacklistRequest.CharacterId, blacklistRequest.BlInsPacket!.CharacterId);
 
-        [HttpGet]
-        public Task<List<CharacterRelationStatus>> GetFriendsAsync(long id) => friendService.GetFriendsAsync(id);
+        public Task<List<CharacterRelationStatus>> GetBlacklistedAsync(long id) => blacklistService.GetBlacklistedListAsync(id);
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteAsync(Guid id) => await friendService.DeleteAsync(id) ? (IActionResult)Ok() : NotFound();
+        public async Task<bool> DeleteAsync(Guid id) => await blacklistService.UnblacklistAsync(id);
     }
 }

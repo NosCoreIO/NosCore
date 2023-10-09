@@ -22,10 +22,11 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
-using NosCore.Core.MessageQueue;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.HttpClients.AuthHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.CharacterScreen;
@@ -43,6 +44,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private ClientSession _session = null!;
         private Mock<IAuthHttpClient> _authHttpClient = null!;
         private Mock<IPubSubHub> _pubSubHub = null!;
+        private Mock<IChannelHub> _channelHub = null!;
         private string _accountName = null!;
 
         [TestInitialize]
@@ -56,7 +58,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await _session.SetCharacterAsync(null).ConfigureAwait(false);
             _authHttpClient = new Mock<IAuthHttpClient>();
             _pubSubHub = TestHelpers.Instance.PubSubHub;
-            _pubSubHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
+            _channelHub = TestHelpers.Instance.ChannelHub;
+            _channelHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
             _pubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             _dacPacketHandler =
                 new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, _authHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, new SessionRefHolder(), TestHelpers.Instance.LogLanguageLocalizer);
@@ -69,7 +72,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             {
                 Slot = 2,
             };
-            _pubSubHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>()
+            _channelHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>()
             {
                 new()
                 {

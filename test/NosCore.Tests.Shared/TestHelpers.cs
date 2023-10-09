@@ -37,9 +37,7 @@ using NosCore.Algorithm.MpService;
 using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
-using NosCore.Core.MessageQueue;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -57,7 +55,10 @@ using NosCore.GameObject;
 using NosCore.GameObject.Holders;
 using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.HttpClients.BlacklistHttpClient;
+using NosCore.GameObject.HttpClients.ChannelHttpClients;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
@@ -185,6 +186,7 @@ namespace NosCore.Tests.Shared
 
         public MapInstanceAccessorService MapInstanceAccessorService { get; set; } = null!;
         public IHeuristic DistanceCalculator { get; set; } = new OctileDistanceHeuristic();
+        public Mock<IChannelHub> ChannelHub = new Mock<IChannelHub>();
 
         private async Task GenerateMapInstanceProviderAsync()
         {

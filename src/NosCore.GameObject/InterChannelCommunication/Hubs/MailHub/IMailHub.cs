@@ -17,19 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Json.Patch;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
+using Json.Patch;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 
-namespace NosCore.Core.HttpClients.ChannelHttpClients
+namespace NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
+
+public interface IMailHub
 {
-    public interface IChannelHttpClient
-    {
-        Task ConnectAsync();
-        Task<HttpStatusCode> PatchAsync(long channelId, JsonPatch patch);
-        Task<string?> GetOrRefreshTokenAsync();
-        Task<List<ChannelInfo>> GetChannelsAsync();
-        Task<ChannelInfo?> GetChannelAsync(long channelId);
-    }
+    Task<List<MailData>> GetMails(long id, long characterId, bool senderCopy);
+    Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy);
+    Task<MailData?> ViewMailAsync(long id, JsonPatch mailData);
+    Task<bool> SendMailAsync(MailRequest mail);
 }

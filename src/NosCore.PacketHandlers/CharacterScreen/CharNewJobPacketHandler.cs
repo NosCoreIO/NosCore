@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 (s.Level >= 80) && (s.AccountId == clientSession.Account.AccountId) && (s.ServerId == configuration.Value.ServerId) &&
                 (s.State == CharacterState.Active)).ConfigureAwait(false) == null)
             {
-                //Needs at least a level 80 to create a martial artist
+                //Needs at least a level 80 to Create a martial artist
                 //TODO log
                 return;
             }
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 (s.AccountId == clientSession.Account.AccountId) &&
                 (s.Class == CharacterClassType.MartialArtist) && (s.State == CharacterState.Active)).ConfigureAwait(false) != null)
             {
-                //If already a martial artist, can't create another
+                //If already a martial artist, can't Create another
                 //TODO log
                 return;
             }

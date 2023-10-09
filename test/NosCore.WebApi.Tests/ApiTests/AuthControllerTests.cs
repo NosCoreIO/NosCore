@@ -30,11 +30,11 @@ using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
-using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.MasterServer.Controllers;
 using NosCore.Shared.Configuration;
 using NosCore.Tests.Shared;
 using TwoFactorAuthNet;

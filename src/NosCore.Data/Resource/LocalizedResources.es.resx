@@ -132,9 +132,6 @@
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Al menos uno de los archivos necesarios no esta presente.</value>
   </data>
-  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Error de autentificado.</value>
-  </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Â¡Autentificado exitoso!</value>
   </data>

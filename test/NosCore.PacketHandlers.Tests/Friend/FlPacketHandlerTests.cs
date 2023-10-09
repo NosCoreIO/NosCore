@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
-            TestHelpers.Instance.PubSubHub.Setup(s => s.GetCommunicationChannels())
+            TestHelpers.Instance.ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
                     new ChannelInfo
                     {
@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
                 });
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                friendRequestHolder, TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                friendRequestHolder, TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.ChannelHub.Object, TestHelpers.Instance.LogLanguageLocalizer);
             TestHelpers.Instance.FriendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session.Character.CharacterId,
                     targetSession.Character.VisualId,

@@ -20,7 +20,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.EventLoaderService.Handlers;
@@ -36,7 +35,9 @@ using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
 using NosCore.Shared.I18N;
 using Polly;
-using NosCore.Core.MessageQueue;
+using NosCore.GameObject.HttpClients.ChannelHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
 namespace NosCore.WorldServer
 {
@@ -44,7 +45,7 @@ namespace NosCore.WorldServer
             Clock clock, ILogger<WorldServer> logger,
             IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService,
             IClock nodatimeClock, ISaveService saveService,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger, Channel channel, IPubSubHub pubSubClient)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger, Channel channel, IChannelHub channelHubClient)
         : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -70,7 +71,7 @@ namespace NosCore.WorldServer
                         logger.LogError(
                             logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
                             timeSpan.TotalSeconds)
-                ).ExecuteAsync(() => pubSubClient.Bind(channel));
+                ).ExecuteAsync(() => channelHubClient.Bind(channel));
             await Task.WhenAny(clock.Run(stoppingToken), channelHttpClient.ConnectAsync(), networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }

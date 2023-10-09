@@ -20,8 +20,8 @@
 using Json.Patch;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue.Messages;
 using NosCore.Data.Dto;
+using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
 namespace NosCore.GameObject.Services.MailService
 {

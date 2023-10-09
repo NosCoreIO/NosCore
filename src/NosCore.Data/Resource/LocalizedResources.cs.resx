@@ -132,10 +132,6 @@
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Nejméně jeden z požadovaných souborů chybí</value>
   </data>
-  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Chyba při přihlášení</value>
-    <comment>check</comment>
-  </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Přihlášení proběhlo úspěšně</value>
     <comment>check</comment>

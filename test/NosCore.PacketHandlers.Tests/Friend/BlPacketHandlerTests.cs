@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
 
-            TestHelpers.Instance.PubSubHub.Setup(s => s.GetCommunicationChannels())
+            TestHelpers.Instance.ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
                     new ChannelInfo
                     {
@@ -96,7 +96,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     }
 
                 });
-            var blacklist = new BlacklistService(TestHelpers.Instance.PubSubHub.Object,
+            var blacklist = new BlacklistService(TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.ChannelHub.Object,
                 _characterRelationDao!, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddToBlacklistAsync(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.BlacklistPlayerAsync( _session!.Character.CharacterId, targetSession.Character.VisualId));

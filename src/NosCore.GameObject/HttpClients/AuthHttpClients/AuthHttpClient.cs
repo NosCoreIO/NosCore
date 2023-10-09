@@ -26,9 +26,8 @@ using Mapster;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 using NosCore.Core;
-using NosCore.Core.HttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.HttpClients.ChannelHttpClients;
 
 namespace NosCore.GameObject.HttpClients.AuthHttpClients
 {

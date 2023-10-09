@@ -21,7 +21,7 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace NosCore.Core.MessageQueue;
+namespace NosCore.GameObject.InterChannelCommunication;
 public class PolymorphicJsonConverter<T> : JsonConverter<T>
 {
     //Inspired by https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/converters-how-to?pivots=dotnet-6-0#support-polymorphic-deserialization
@@ -57,7 +57,7 @@ public class PolymorphicJsonConverter<T> : JsonConverter<T>
         }
         var type = reader.GetString();
 
-        //Check type exists
+
         var tp = Type.GetType(type ?? throw new InvalidOperationException());
 
         reader.Read();

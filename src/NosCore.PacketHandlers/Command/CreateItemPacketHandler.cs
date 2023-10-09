@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Command
             short amount = 1;
             if (vnum == 1046)
             {
-                return; // cannot create gold as item, use $Gold instead
+                return; // cannot Create gold as item, use $Gold instead
             }
 
             var iteminfo = items.Find(item => item.VNum == vnum);

@@ -17,18 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 
-namespace NosCore.GameObject.HttpClients.BlacklistHttpClient
+namespace NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
+
+public interface IBlacklistHub
 {
-    public interface IBlacklistHttpClient
-    {
-        Task<List<CharacterRelationStatus>> GetBlackListsAsync(long characterVisualId);
-        Task<LanguageKey> AddToBlacklistAsync(BlacklistRequest blacklistRequest);
-        Task DeleteFromBlacklistAsync(Guid characterRelationId);
-    }
+    Task<LanguageKey> AddBlacklistAsync(BlacklistRequest blacklistRequest);
+    Task<List<CharacterRelationStatus>> GetBlacklistedAsync(long id);
+    Task<bool> DeleteAsync(Guid id);
 }

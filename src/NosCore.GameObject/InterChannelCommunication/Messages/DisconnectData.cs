@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NosCore.Core.MessageQueue.Messages
+namespace NosCore.GameObject.InterChannelCommunication.Messages
 {
     public class DisconnectData : IMessage
     {

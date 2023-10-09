@@ -18,11 +18,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using NosCore.Data.Enumerations.Miniland;
+using NosCore.Data.WebApi;
 
-namespace NosCore.Core.MessageQueue.Messages
+namespace NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
+
+public interface IWarehouseHub
 {
-    public interface IMessage
-    {
-        public Guid Id { get; set; }
-    }
+    Task<List<WarehouseLink>> GetWarehouseItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot);
+    Task<bool> DeleteWarehouseItemAsync(Guid id);
+    Task<bool> AddWarehouseItemAsync(WareHouseDepositRequest depositRequest);
 }

@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
-using NosCore.Core.MessageQueue.Messages;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
+using DisconnectData = NosCore.GameObject.InterChannelCommunication.Messages.DisconnectData;
+
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {

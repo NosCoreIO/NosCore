@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
-using NosCore.Core.MessageQueue.Messages;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.ServerPackets.Parcel;
+using DeleteMailData = NosCore.GameObject.InterChannelCommunication.Messages.DeleteMailData;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {

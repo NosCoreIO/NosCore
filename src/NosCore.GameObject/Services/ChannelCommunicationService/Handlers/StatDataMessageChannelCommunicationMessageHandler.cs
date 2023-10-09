@@ -1,15 +1,16 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.MessageQueue;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
-using StatData = NosCore.Core.MessageQueue.Messages.StatData;
+
+using StatData = NosCore.GameObject.InterChannelCommunication.Messages.StatData;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {

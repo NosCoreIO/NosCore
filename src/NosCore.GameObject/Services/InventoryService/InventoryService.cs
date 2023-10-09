@@ -141,7 +141,7 @@ namespace NosCore.GameObject.Services.InventoryService
                 return invlist;
             }
 
-            // create new item
+            // Create new item
             var freeSlot = newItem.Type == NoscorePocketType.Wear
                 ? LoadBySlotAndType((short)newItem.ItemInstance!.Item!.EquipmentSlot, NoscorePocketType.Wear) == null
                     ? (short?)newItem.ItemInstance.Item.EquipmentSlot

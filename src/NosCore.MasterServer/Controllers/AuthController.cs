@@ -17,19 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using NosCore.Dao.Interfaces;
-using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
-using NosCore.Shared.Authentication;
-using NosCore.Shared.Configuration;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
@@ -38,9 +25,23 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using NosCore.Core;
+using NosCore.Dao.Interfaces;
+using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
+using NosCore.Shared.Authentication;
+using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using TwoFactorAuthNet;
 
-namespace NosCore.Core.Controllers
+namespace NosCore.MasterServer.Controllers
 {
     [ApiController]
     [Route("api/v1/auth/thin")]

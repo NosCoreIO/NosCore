@@ -29,19 +29,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.Shared.Enumerations;
+
 
 namespace NosCore.GameObject.Services.FriendService
 {
     public class FriendService(ILogger logger, IDao<CharacterRelationDto, Guid> characterRelationDao,
             IDao<CharacterDto, long> characterDao, FriendRequestHolder friendRequestHolder,
-            IPubSubHub pubSubHub, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IPubSubHub pubSubHub, IChannelHub channelHub, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : IFriendService
     {
         public async Task<LanguageKey> AddFriendAsync(long characterId, long secondCharacterId, FinsPacketType friendsPacketType)
         {
-            var servers = await pubSubHub.GetCommunicationChannels();
+            var servers = await channelHub.GetCommunicationChannels();
             var accounts = await pubSubHub.GetSubscribersAsync();
             var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == characterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
             var targetCharacter = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == secondCharacterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
@@ -136,7 +138,7 @@ namespace NosCore.GameObject.Services.FriendService
             }
             foreach (var rel in list)
             {
-                var servers = await pubSubHub.GetCommunicationChannels();
+                var servers = await channelHub.GetCommunicationChannels();
                 var accounts = await pubSubHub.GetSubscribersAsync();
                 var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == rel.RelatedCharacterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
           

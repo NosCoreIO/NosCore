@@ -24,14 +24,15 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.MessageQueue;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Holders;
+using NosCore.GameObject.HttpClients.ChannelHttpClients;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FriendService;
@@ -53,6 +54,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private Mock<IDao<CharacterDto, long>>? _characterDao;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
         private Mock<IPubSubHub>? _connectedAccountHttpClient;
+        private Mock<IChannelHub>? _channelHub;
         private FdelPacketHandler? _fDelPacketHandler;
         private FriendService? _friendController;
         private Mock<IFriendHttpClient>? _friendHttpClient;
@@ -67,6 +69,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             _connectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
+            _channelHub = new Mock<IChannelHub>();
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
@@ -80,7 +83,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.GameLanguageLocalizer);
             _characterDao = new Mock<IDao<CharacterDto, long>>();
             _friendController = new FriendService(Logger, _characterRelationDao, _characterDao.Object,
-                new FriendRequestHolder(), _connectedAccountHttpClient.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                new FriendRequestHolder(), _connectedAccountHttpClient.Object, _channelHub.Object, TestHelpers.Instance.LogLanguageLocalizer);
             _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>()))
                 .Returns((long id) => _friendController.GetFriendsAsync(id));
             _friendHttpClient.Setup(s => s.DeleteFriendAsync(It.IsAny<Guid>()))

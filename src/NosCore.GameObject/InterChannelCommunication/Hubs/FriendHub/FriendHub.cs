@@ -17,24 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Json.Patch;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
-using NosCore.Packets.Enumerations;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using NosCore.Core;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.Services.FriendService;
+using NosCore.Shared.Enumerations;
 
-namespace NosCore.GameObject.HttpClients.BazaarHttpClient
+namespace NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub
 {
-    public interface IBazaarHttpClient
+    public class FriendHub(IFriendService friendService) : Hub, IFriendHub
     {
-        Task<List<BazaarLink>> GetBazaarLinksAsync(int i, int packetIndex, int pagesize, BazaarListType packetTypeFilter,
-            byte packetSubTypeFilter, byte packetLevelFilter,
-            byte packetRareFilter, byte packetUpgradeFilter, long? sellerFilter);
+        public Task<LanguageKey> AddFriendAsync(FriendShipRequest friendPacket) => friendService.AddFriendAsync(friendPacket.CharacterId, friendPacket.FinsPacket!.CharacterId, friendPacket.FinsPacket.Type);
 
-        Task<LanguageKey?> AddBazaarAsync(BazaarRequest bazaarRequest);
-        Task<BazaarLink?> GetBazaarLinkAsync(long bazaarId);
-        Task<bool> RemoveAsync(long bazaarId, int count, string requestCharacterName);
-        Task<BazaarLink> ModifyAsync(long bazaarId, JsonPatch patchBz);
+        public Task<List<CharacterRelationStatus>> GetFriendsAsync(long id) => friendService.GetFriendsAsync(id);
+
+        public async Task<bool> DeleteAsync(Guid id) => await friendService.DeleteAsync(id);
     }
 }

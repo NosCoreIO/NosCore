@@ -33,14 +33,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
-using NosCore.Core.MessageQueue.Messages;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.Shared.Enumerations;
+using DeleteMailData = NosCore.GameObject.InterChannelCommunication.Messages.DeleteMailData;
+
+using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 
 namespace NosCore.GameObject.Services.MailService
 {
     public class MailService(IDao<MailDto, long> mailDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            IPubSubHub pubSubHub,
+            IPubSubHub pubSubHub, IChannelHub channelHub,
             List<ItemDto> items, IItemGenerationService itemProvider,
             ParcelHolder parcelHolder,
             IDao<CharacterDto, long> characterDto)
@@ -80,7 +83,7 @@ namespace NosCore.GameObject.Services.MailService
             {
                 return false;
             }
-            var servers = await pubSubHub.GetCommunicationChannels();
+            var servers = await channelHub.GetCommunicationChannels();
             var accounts = await pubSubHub.GetSubscribersAsync();
             var receiver = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == characterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
 
@@ -171,7 +174,7 @@ namespace NosCore.GameObject.Services.MailService
                 mailref.ItemInstanceId = itemInstance?.Id;
             }
 
-            var servers = await pubSubHub.GetCommunicationChannels();
+            var servers = await channelHub.GetCommunicationChannels();
             var accounts = await pubSubHub.GetSubscribersAsync();
             var receiver = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == mailref.ReceiverId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
 

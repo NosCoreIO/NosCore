@@ -30,8 +30,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
-using NosCore.Core.MessageQueue.Messages;
 using NosCore.GameObject.Services.MapChangeService;
+using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {

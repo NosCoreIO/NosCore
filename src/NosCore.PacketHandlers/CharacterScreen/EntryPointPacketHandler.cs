@@ -37,12 +37,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.MessageQueue;
 using NosCore.Networking;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.HttpClients.AuthHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -116,7 +117,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public override async Task ExecuteAsync(EntryPointPacket packet, ClientSession clientSession)
         {
-            if (clientSession.Account == null!) // we bypass this when create new char
+            if (clientSession.Account == null!) // we bypass this when Create new char
             {
                 var passwordLessConnection = packet.Password == "thisisgfmode";
                 await VerifyConnectionAsync(clientSession, logger, authHttpClient,

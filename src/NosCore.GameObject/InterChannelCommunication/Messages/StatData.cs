@@ -19,13 +19,12 @@
 
 using System;
 using NosCore.Data.Enumerations;
-using NosCore.Data.WebApi;
 
-namespace NosCore.Core.MessageQueue.Messages
+namespace NosCore.GameObject.InterChannelCommunication.Messages
 {
     public class StatData : IMessage
     {
-        public Character? Character { get; set; }
+        public Data.WebApi.Character? Character { get; set; }
 
         public UpdateStatActionType ActionType { get; set; }
 

@@ -17,31 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.MessageQueue.Messages;
-using NosCore.Data.WebApi;
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace NosCore.Core.MessageQueue;
-
-public interface IPubSubHub
+namespace NosCore.GameObject.InterChannelCommunication.Messages
 {
-    Task Bind(Channel data);
-
-    Task<List<ChannelInfo>> GetCommunicationChannels();
-
-    Task<List<IMessage>> ReceiveMessagesAsync();
-
-    Task<bool> DeleteMessageAsync(Guid messageId);
-
-    Task<bool> SendMessageAsync(IMessage message);
-
-    public Task<bool> SendMessagesAsync(List<IMessage> messages);
-
-    Task<List<Subscriber>> GetSubscribersAsync();
-
-    public Task<bool> SubscribeAsync(Subscriber subscriber);
-
-    public Task<bool> UnsubscribeAsync(long id);
+    public interface IMessage
+    {
+        public Guid Id { get; set; }
+    }
 }

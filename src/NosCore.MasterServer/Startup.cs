@@ -39,10 +39,7 @@ using Microsoft.OpenApi.Models;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 using NosCore.Core;
-using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.MessageQueue;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -66,10 +63,19 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue.Messages;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
-using FriendController = NosCore.MasterServer.Controllers.FriendController;
 using ILogger = Serilog.ILogger;
+using NosCore.GameObject.HttpClients.ChannelHttpClients;
+using NosCore.GameObject.InterChannelCommunication;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
+using NosCore.MasterServer.Controllers;
 
 namespace NosCore.MasterServer
 {
@@ -152,7 +158,7 @@ namespace NosCore.MasterServer
         private ContainerBuilder InitializeContainer(IServiceCollection services)
         {
             var containerBuilder = new ContainerBuilder(); 
-            containerBuilder.RegisterType<PubSubHub>().AsImplementedInterfaces().SingleInstance();
+            containerBuilder.RegisterType<ChannelHub>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<MasterClientList>().SingleInstance();
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
             {
@@ -238,7 +244,7 @@ namespace NosCore.MasterServer
             services
                 .AddControllers()
                 .AddApplicationPart(typeof(AuthController).GetTypeInfo().Assembly)
-                .AddApplicationPart(typeof(FriendController).GetTypeInfo().Assembly)
+                .AddApplicationPart(typeof(FriendHub).GetTypeInfo().Assembly)
                 .AddControllersAsServices()
                 .AddJsonOptions(settings => settings.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
             services.AddHostedService<MasterServer>();
@@ -267,6 +273,12 @@ namespace NosCore.MasterServer
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<PubSubHub>(nameof(PubSubHub));
+                endpoints.MapHub<BazaarHub>(nameof(BazaarHub));
+                endpoints.MapHub<BlacklistHub>(nameof(BlacklistHub));
+                endpoints.MapHub<ChannelHub>(nameof(ChannelHub));
+                endpoints.MapHub<FriendHub>(nameof(FriendHub));
+                endpoints.MapHub<MailHub>(nameof(MailHub));
+                endpoints.MapHub<WarehouseHub>(nameof(WarehouseHub));
                 endpoints.MapControllers();
             });
         }

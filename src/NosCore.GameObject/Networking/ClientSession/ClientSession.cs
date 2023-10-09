@@ -41,11 +41,12 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
+
 
 namespace NosCore.GameObject.Networking.ClientSession
 {

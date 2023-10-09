@@ -26,7 +26,7 @@ using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
 
-namespace NosCore.Core.MessageQueue.Messages
+namespace NosCore.GameObject.InterChannelCommunication.Messages
 {
     public class MailData : IMessage
     {

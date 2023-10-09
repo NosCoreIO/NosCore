@@ -135,9 +135,6 @@
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Manca almeno un file richiesto</value>
   </data>
-  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Autentificazione errata.</value>
-  </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Autentificazione avvennuta con successo!</value>
   </data>
@@ -515,9 +512,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Supporter</value>
-  </data>
-  <data name="TOKEN_UPDATED" xml:space="preserve">
-    <value>Token aggiornato.</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Il negoziante non ha abbastanza spazio per ricevere il tuo oro.</value>

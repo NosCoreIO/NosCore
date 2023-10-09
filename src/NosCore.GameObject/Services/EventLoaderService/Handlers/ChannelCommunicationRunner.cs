@@ -23,10 +23,11 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.Core.MessageQueue;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using System.Collections.Generic;
-using NosCore.Core.MessageQueue.Messages;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using IMessage = NosCore.GameObject.InterChannelCommunication.Messages.IMessage;
+
 
 namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 {

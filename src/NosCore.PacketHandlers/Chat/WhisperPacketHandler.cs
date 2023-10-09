@@ -37,8 +37,9 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
-using NosCore.Core.MessageQueue.Messages;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat

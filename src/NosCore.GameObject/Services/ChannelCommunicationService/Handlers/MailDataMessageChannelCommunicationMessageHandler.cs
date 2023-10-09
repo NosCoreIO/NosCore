@@ -1,11 +1,12 @@
 ﻿using System.Threading.Tasks;
 using NosCore.Core.I18N;
-using NosCore.Core.MessageQueue;
-using NosCore.Core.MessageQueue.Messages;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.Packets.Enumerations;
+
+using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {

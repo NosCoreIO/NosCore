@@ -20,7 +20,7 @@
 using System;
 using NosCore.Data.Enumerations.Interaction;
 
-namespace NosCore.Core.MessageQueue.Messages
+namespace NosCore.GameObject.InterChannelCommunication.Messages
 {
     public class PostedPacket : IMessage
     {

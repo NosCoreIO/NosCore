@@ -33,9 +33,10 @@ using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
-using NosCore.Core.MessageQueue.Messages;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 
 namespace NosCore.PacketHandlers.Chat
 {

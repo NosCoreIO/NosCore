@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Linq;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
 using NosCore.GameObject.HttpClients.MailHttpClient;
@@ -26,8 +27,8 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
-using System.Linq;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
 namespace NosCore.PacketHandlers.Command
 {

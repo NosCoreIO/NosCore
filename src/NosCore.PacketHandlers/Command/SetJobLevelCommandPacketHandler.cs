@@ -24,10 +24,11 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
-using NosCore.Core.MessageQueue.Messages;
 using Character = NosCore.Data.WebApi.Character;
 using System.Linq;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 
 namespace NosCore.PacketHandlers.Command
 {

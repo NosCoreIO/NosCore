@@ -201,9 +201,6 @@
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Authentification avec succès.</value>
   </data>
-  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Erreur d'authentification.</value>
-  </data>
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
     <value>La base de données n'est pas à jour.</value>
   </data>
@@ -506,9 +503,6 @@
   </data>
   <data name="SHOPSKILLS_LOADED" xml:space="preserve">
     <value>{0} ShopSkills chargés !</value>
-  </data>
-  <data name="TOKEN_UPDATED" xml:space="preserve">
-    <value>Token mis à jour.</value>
   </data>
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Essayez d'utiliser l'ancienne méthode d'autorisation {0}.</value>

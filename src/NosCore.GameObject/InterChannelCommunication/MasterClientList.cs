@@ -17,18 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Collections.Concurrent;
+using NosCore.Core;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 
-namespace NosCore.GameObject.HttpClients.FriendHttpClient
+namespace NosCore.GameObject.InterChannelCommunication;
+
+public class MasterClientList
 {
-    public interface IFriendHttpClient
-    {
-        Task<LanguageKey> AddFriendAsync(FriendShipRequest friendShipRequest);
-        Task<List<CharacterRelationStatus>> GetListFriendsAsync(long visualEntityVisualId);
-        Task DeleteFriendAsync(Guid characterRelationId);
-    }
+    public readonly ConcurrentDictionary<string, ChannelInfo> Channels = new();
+    public readonly ConcurrentDictionary<string, ConcurrentDictionary<long, Subscriber>> ConnectedAccounts = new();
+
+    public readonly ConcurrentDictionary<Guid, IMessage> Messages = new();
+    public int ConnectionCounter { get; set; }
+    public ConcurrentDictionary<string, long> ReadyForAuth { get; } = new();
+
+    public ConcurrentDictionary<string, string> AuthCodes { get; } = new();
 }

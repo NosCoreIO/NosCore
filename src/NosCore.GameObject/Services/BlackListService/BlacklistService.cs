@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.MessageQueue;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -27,17 +26,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.Shared.Enumerations;
+
 
 namespace NosCore.GameObject.Services.BlackListService
 {
-    public class BlacklistService(IPubSubHub pubSubHub,
+    public class BlacklistService(IPubSubHub pubSubHub, IChannelHub channelHub,
             IDao<CharacterRelationDto, Guid> characterRelationDao, IDao<CharacterDto, long> characterDao)
         : IBlacklistService
     {
         public async Task<LanguageKey> BlacklistPlayerAsync(long characterId, long secondCharacterId)
         {
-            var servers = await pubSubHub.GetCommunicationChannels();
+            var servers = await channelHub.GetCommunicationChannels();
             var accounts = await pubSubHub.GetSubscribersAsync();
             var character = accounts.FirstOrDefault(s =>s.ConnectedCharacter?.Id == characterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
             var targetCharacter = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == secondCharacterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
@@ -89,7 +91,7 @@ namespace NosCore.GameObject.Services.BlackListService
             foreach (var rel in list)
             {
 
-                var servers = await pubSubHub.GetCommunicationChannels();
+                var servers = await channelHub.GetCommunicationChannels();
                 var accounts = await pubSubHub.GetSubscribersAsync();
                 var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == rel.RelatedCharacterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
 

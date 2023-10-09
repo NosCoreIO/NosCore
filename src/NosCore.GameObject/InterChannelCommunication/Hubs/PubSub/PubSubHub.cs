@@ -25,12 +25,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
-using NosCore.Core.MessageQueue.Messages;
+using NosCore.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.Shared.I18N;
 
-namespace NosCore.Core.MessageQueue
+namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
 {
     public class PubSubHub(ILogger<PubSubHub> logger, MasterClientList masterClientList, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : Hub, IPubSubHub

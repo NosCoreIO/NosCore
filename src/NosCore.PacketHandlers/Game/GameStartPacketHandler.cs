@@ -19,7 +19,6 @@
 
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -36,8 +35,10 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
 using NosCore.GameObject.Services.MapChangeService;
+using NosCore.GameObject.HttpClients.ChannelHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
 namespace NosCore.PacketHandlers.Game
 {

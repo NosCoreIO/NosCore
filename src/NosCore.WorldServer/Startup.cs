@@ -40,9 +40,7 @@ using NosCore.Algorithm.ExperienceService;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Core.I18N;
-using NosCore.Core.MessageQueue;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -83,7 +81,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue.Messages;
 using NosCore.GameObject.HttpClients.AuthHttpClients;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using Character = NosCore.GameObject.Character;
@@ -92,6 +89,10 @@ using Deserializer = NosCore.Packets.Deserializer;
 using ILogger = Serilog.ILogger;
 using ItemInstance = NosCore.Database.Entities.ItemInstance;
 using Serializer = NosCore.Packets.Serializer;
+using NosCore.GameObject.HttpClients.ChannelHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 
 namespace NosCore.WorldServer
 {
@@ -222,7 +223,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
                 .Where(t => t.Name.EndsWith("HttpClient"))
                 .AsImplementedInterfaces();
-            containerBuilder.RegisterType<PubSubHubClient>().AsImplementedInterfaces().SingleInstance();
+            containerBuilder.RegisterType<ChannelHubClient>().AsImplementedInterfaces().SingleInstance();
 
             containerBuilder.Register(c =>
             {

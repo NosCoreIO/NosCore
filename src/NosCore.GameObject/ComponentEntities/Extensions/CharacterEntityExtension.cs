@@ -19,7 +19,6 @@
 
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
@@ -48,13 +47,15 @@ using System.Threading.Tasks;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
-using NosCore.Core.MessageQueue;
-using NosCore.Core.MessageQueue.Messages;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Shared.I18N;
 using Serilog;
+using NosCore.GameObject.HttpClients.ChannelHttpClients;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+
+using PostedPacket = NosCore.GameObject.InterChannelCommunication.Messages.PostedPacket;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {

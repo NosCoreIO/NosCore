@@ -17,28 +17,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.AspNetCore.Mvc;
-using NosCore.Core;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
-using NosCore.GameObject.Services.BlackListService;
-using NosCore.Shared.Enumerations;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Json.Patch;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using NosCore.Core;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.InterChannelCommunication.Messages;
+using NosCore.GameObject.Services.MailService;
+using NosCore.Shared.Enumerations;
 
-namespace NosCore.MasterServer.Controllers
+namespace NosCore.GameObject.InterChannelCommunication.Hubs.MailHub
 {
-    [Route("api/[controller]")]
-    [AuthorizeRole(AuthorityType.GameMaster)]
-    public class BlacklistController(IBlacklistService blacklistService) : Controller
+    public class MailHub(IMailService mailService) : Hub, IMailHub
     {
-        [HttpPost]
-        public Task<LanguageKey> AddBlacklistAsync([FromBody] BlacklistRequest blacklistRequest) => blacklistService.BlacklistPlayerAsync(blacklistRequest.CharacterId, blacklistRequest.BlInsPacket!.CharacterId);
+        public Task<List<MailData>> GetMails(long id, long characterId, bool senderCopy) => Task.FromResult(mailService.GetMails(id, characterId, senderCopy));
 
-        [HttpGet]
-        public Task<List<CharacterRelationStatus>> GetBlacklistedAsync(long id) => blacklistService.GetBlacklistedListAsync(id);
+        public Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy) => mailService.DeleteMailAsync(id, characterId, senderCopy);
 
-        public async Task<IActionResult> DeleteAsync(Guid id) => await blacklistService.UnblacklistAsync(id) ? (IActionResult)Ok() : NotFound();
+        public Task<MailData?> ViewMailAsync(long id, JsonPatch mailData) => mailService.EditMailAsync(id, mailData);
+
+        public Task<bool> SendMailAsync( MailRequest mail) => mailService.SendMailAsync(mail.Mail!, mail.VNum, mail.Amount, mail.Rare, mail.Upgrade);
     }
 }

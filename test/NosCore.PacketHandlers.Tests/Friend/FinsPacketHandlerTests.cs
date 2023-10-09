@@ -25,14 +25,15 @@ using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.MessageQueue;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Holders;
+using NosCore.GameObject.HttpClients.ChannelHttpClients;
 using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FriendService;
@@ -53,6 +54,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
         private readonly Mock<IPubSubHub> _connectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
+        private Mock<IChannelHub>? _channelHub;
         private FinsPacketHandler? _finsPacketHandler;
         private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
         private FriendRequestHolder? _friendRequestHolder;
@@ -70,8 +72,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
-
-            _connectedAccountHttpClient.Setup(s => s.GetCommunicationChannels())
+            _channelHub = new Mock<IChannelHub>();
+            _channelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
                     new ChannelInfo
                     {
@@ -109,7 +111,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             };
 
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder, _connectedAccountHttpClient.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                _friendRequestHolder, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
             await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
@@ -125,7 +127,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 Type = FinsPacketType.Accepted
             };
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder!, _connectedAccountHttpClient.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                _friendRequestHolder!, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session!.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
             await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
@@ -142,7 +144,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 Type = FinsPacketType.Accepted
             };
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder!, _connectedAccountHttpClient.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                _friendRequestHolder!, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session!.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
 

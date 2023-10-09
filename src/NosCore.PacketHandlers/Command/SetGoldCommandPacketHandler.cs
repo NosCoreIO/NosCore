@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Linq;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject;
@@ -24,10 +25,10 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
-using NosCore.Core.MessageQueue.Messages;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 using Character = NosCore.Data.WebApi.Character;
-using System.Linq;
 
 namespace NosCore.PacketHandlers.Command
 {
