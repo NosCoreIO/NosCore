@@ -17,29 +17,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Linq;
 using Json.More;
 using Json.Patch;
 using Json.Pointer;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Parcel;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
+using NodaTime;
+using NosCore.GameObject.Helper;
+using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 
 namespace NosCore.PacketHandlers.Parcel
 {
-    public class PstClientPacketHandler(IMailHttpClient mailHttpClient, IDao<CharacterDto, long> characterDao)
+    public class PstClientPacketHandler(IMailHub mailHttpClient, IDao<CharacterDto, long> characterDao, IClock clock)
         : PacketHandler<PstClientPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PstClientPacket pstClientPacket, ClientSession clientSession)
         {
             var isCopy = pstClientPacket.Type == 2;
-            var mail = await mailHttpClient.GetGiftAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+            var mails = await mailHttpClient.GetMails(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+            var mail = mails.FirstOrDefault();
             switch (pstClientPacket.ActionType)
             {
                 case 3:
@@ -49,7 +53,7 @@ namespace NosCore.PacketHandlers.Parcel
                     }
 
                     var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<MailDto>(o => o.IsOpened), true.AsJsonElement().AsNode()));
-                    await mailHttpClient.ViewGiftAsync(mail.MailDto.MailId, patch).ConfigureAwait(false);
+                    await mailHttpClient.ViewMailAsync(mail.MailDto.MailId, patch).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(mail.GeneratePostMessage(pstClientPacket.Type)).ConfigureAwait(false);
                     break;
                 case 2:
@@ -58,7 +62,7 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    await mailHttpClient.DeleteGiftAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+                    await mailHttpClient.DeleteMailAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(new SayiPacket
                     {
                         VisualType = VisualType.Player,
@@ -76,7 +80,7 @@ namespace NosCore.PacketHandlers.Parcel
                     var dest = await characterDao.FirstOrDefaultAsync(s => s.Name == pstClientPacket.ReceiverName && s.ServerId == clientSession.Character.ServerId).ConfigureAwait(false);
                     if (dest != null)
                     {
-                        await mailHttpClient.SendMessageAsync(clientSession.Character, dest.CharacterId, pstClientPacket.Title, pstClientPacket.Text).ConfigureAwait(false);
+                        await mailHttpClient.SendMailAsync(GiftHelper.GenerateMailRequest(clock, clientSession.Character, dest.CharacterId, null, null, null, null, null, false, pstClientPacket.Title, pstClientPacket.Text)).ConfigureAwait(false);
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
                             VisualType = VisualType.Player,

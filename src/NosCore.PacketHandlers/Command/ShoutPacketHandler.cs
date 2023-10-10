@@ -30,10 +30,10 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 using Character = NosCore.Data.WebApi.Character;
-using System.Linq;
-using NosCore.Core.MessageQueue.Messages;
+
 //TODO stop using obsolete
 #pragma warning disable 618
 

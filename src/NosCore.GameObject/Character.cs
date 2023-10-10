@@ -31,7 +31,6 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
@@ -63,6 +62,7 @@ using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
+using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
 namespace NosCore.GameObject
 {

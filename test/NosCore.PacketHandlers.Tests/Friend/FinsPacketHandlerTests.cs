@@ -18,26 +18,28 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using NosCore.Core;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Holders;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FriendService;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
-using NosCore.Shared.Configuration;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
@@ -48,11 +50,12 @@ namespace NosCore.PacketHandlers.Tests.Friend
     public class FinsPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private readonly Mock<IChannelHttpClient> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
+        private readonly Mock<IChannelHub> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
-        private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
+        private readonly Mock<IPubSubHub> _connectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
+        private Mock<IChannelHub>? _channelHub;
         private FinsPacketHandler? _finsPacketHandler;
-        private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
+        private readonly Mock<IFriendHub> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
         private FriendRequestHolder? _friendRequestHolder;
 
         private ClientSession? _session;
@@ -68,19 +71,31 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
+            _channelHub = new Mock<IChannelHub>();
+            _channelHub.Setup(s => s.GetCommunicationChannels())
+                .ReturnsAsync(new List<ChannelInfo>(){
+                    new ChannelInfo
+                    {
+                        Type = ServerType.WorldServer,
+                        Id = 1
+                    }
+
+                });
             _friendRequestHolder = new FriendRequestHolder();
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_targetSession.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
-                    }));
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_session.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    },
                     new Subscriber
-                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
+                    {
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId }
+                    }
+
+                    });
             _finsPacketHandler = new FinsPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
-                TestHelpers.Instance.PubSubHub.Object);
+                _connectedAccountHttpClient.Object);
         }
 
         [TestMethod]
@@ -95,7 +110,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             };
 
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder, _connectedAccountHttpClient.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                _friendRequestHolder, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
             await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
@@ -111,7 +126,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 Type = FinsPacketType.Accepted
             };
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder!, _connectedAccountHttpClient.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                _friendRequestHolder!, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session!.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
             await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
@@ -128,7 +143,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 Type = FinsPacketType.Accepted
             };
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder!, _connectedAccountHttpClient.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                _friendRequestHolder!, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session!.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
 

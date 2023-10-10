@@ -64,7 +64,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             _session2 = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             var session3 = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             TestHelpers.Instance.FriendHttpClient
-                .Setup(s => s.GetListFriendsAsync(It.IsAny<long>()))
+                .Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>
                 {
                     new()

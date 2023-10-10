@@ -17,22 +17,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.MessageQueue;
+using System.Linq;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
-using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.StatHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetLevelCommandPacketHandler(IStatHttpClient statHttpClient, IPubSubHub pubSubHub)
+    public class SetLevelCommandPacketHandler(IPubSubHub pubSubHub, IChannelHub channelHub)
         : PacketHandler<SetLevelCommandPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetLevelCommandPacket levelPacket, ClientSession session)
@@ -50,11 +50,11 @@ namespace NosCore.PacketHandlers.Command
                 Data = levelPacket.Level
             };
 
-            var channels = await pubSubHub.GetCommunicationChannels();
+            var channels = await channelHub.GetCommunicationChannels();
             var subscribers = await pubSubHub.GetSubscribersAsync();
             var receiver = subscribers.FirstOrDefault(s => s.ConnectedCharacter?.Name == levelPacket.Name);
 
-            if (receiver == null) //TODO: Handle 404 in WebApi
+            if (receiver == null)
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await statHttpClient.ChangeStatAsync(data, channels.First(x => x.ServerId == receiver.ChannelId).WebApi!).ConfigureAwait(false);
+            await pubSubHub.SendMessageAsync(data).ConfigureAwait(false);
         }
     }
 }

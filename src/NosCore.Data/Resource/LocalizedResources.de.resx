@@ -135,10 +135,6 @@
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Mindestens eine der erforderlichen Dateien fehlen</value>
   </data>
-  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Authentifizierung fehlgeschlagen!</value>
-    <comment>check</comment>
-  </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Authentifizierung erfolgreich!</value>
     <comment>check</comment>
@@ -460,9 +456,6 @@
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Speichere alle Dateien!</value>
   </data>
-  <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
-    <value>Sicherheitstoken geändert!</value>
-  </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>{0} ShopItems geladen!</value>
   </data>
@@ -492,9 +485,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Supporter</value>
-  </data>
-  <data name="TOKEN_UPDATED" xml:space="preserve">
-    <value>Token aktualisiert.</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Der Verkäufer besitzt zu viel Gold!</value>

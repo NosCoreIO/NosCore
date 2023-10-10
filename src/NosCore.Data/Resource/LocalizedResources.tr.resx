@@ -132,9 +132,6 @@
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Bir veya daha fazla gerekli dosya eksik, tüm dosyaları tamamladıktan sonra tekrar deneyiniz.</value>
   </data>
-  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Kimlik doğrulama başarılamadı.</value>
-  </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>İstemci : {1} başarıyla doğrulandı.</value>
   </data>

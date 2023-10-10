@@ -17,25 +17,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using System.Linq;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class KickPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient, IPubSubHub pubSubHub) : PacketHandler<KickPacket>,
+    public class KickPacketHandler(IPubSubHub pubSubHub) : PacketHandler<KickPacket>,
         IWorldPacketHandler
     {
         public override async Task ExecuteAsync(KickPacket kickPacket, ClientSession session)
         {
-            var receiver = await connectedAccountHttpClient.GetCharacterAsync(null, kickPacket.Name ?? session.Character.Name).ConfigureAwait(false);
+            var accounts = await pubSubHub.GetSubscribersAsync();
+            var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == kickPacket.Name);
 
-            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
+            if (receiver == null)
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
@@ -44,7 +45,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await pubSubHub.UnsubscribeAsync(receiver.Item2.ConnectedCharacter!.Id);
+            await pubSubHub.UnsubscribeAsync(receiver.ConnectedCharacter!.Id);
         }
     }
 }

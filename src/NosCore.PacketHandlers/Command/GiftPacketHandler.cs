@@ -17,28 +17,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
+using System.Linq;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.MailHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
+using NodaTime;
+using NosCore.GameObject.Helper;
+using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class GiftPacketHandler(IConnectedAccountHttpClient connectedAccountHttpClient,
-            IMailHttpClient mailHttpClient)
+    public class GiftPacketHandler(IPubSubHub pubSubHub,
+            IMailHub mailHttpClient, IClock clock)
         : PacketHandler<GiftPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(GiftPacket giftPacket, ClientSession session)
         {
-            var receiver = await connectedAccountHttpClient.GetCharacterAsync(null, giftPacket.CharacterName ?? session.Character.Name).ConfigureAwait(false);
+            var accounts = await pubSubHub.GetSubscribersAsync();
+            var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == giftPacket.CharacterName);
 
-            if (receiver.Item2 == null)
+            if (receiver == null)
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
@@ -47,8 +52,8 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await mailHttpClient.SendGiftAsync(session.Character!, receiver.Item2.ConnectedCharacter!.Id, giftPacket.VNum,
-                giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false).ConfigureAwait(false);
+            await mailHttpClient.SendMailAsync(GiftHelper.GenerateMailRequest(clock, session.Character!, receiver.ConnectedCharacter!.Id,null, giftPacket.VNum,
+                giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false, null, null)).ConfigureAwait(false);
             await session.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,
@@ -57,5 +62,7 @@ namespace NosCore.PacketHandlers.Command
                 Message = Game18NConstString.GiftDelivered
             }).ConfigureAwait(false);
         }
+
+    
     }
 }

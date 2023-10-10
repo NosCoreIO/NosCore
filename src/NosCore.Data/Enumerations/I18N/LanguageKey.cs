@@ -60,7 +60,6 @@ namespace NosCore.Data.Enumerations.I18N
         MASTER_SERVER_PING_FAILED,
         REGISTRED_ON_MASTER,
         AUTHENTICATED_SUCCESS,
-        AUTHENTICATED_ERROR,
         DATABASE_INITIALIZED,
         DATABASE_NOT_UPTODATE,
         CLIENT_DISCONNECTED,
@@ -129,8 +128,6 @@ namespace NosCore.Data.Enumerations.I18N
         PACKET_USED_WITHOUT_CHARACTER,
         AUTH_API_SUCCESS,
         FRIEND_REQUEST_DISCONNECTED,
-        TOKEN_UPDATED,
-        SECURITY_TOKEN_UPDATED,
         BAZAAR_DELETE_ERROR,
         BAZAAR_BUY_ERROR,
         BAZAAR_MOD_ERROR,
@@ -165,7 +162,6 @@ namespace NosCore.Data.Enumerations.I18N
         UNBOUND_ITEM_DETECTED,
         MAP_DONT_EXIST,
         CANT_CHANGE_SAME_CLASS,
-        CHANNEL_CONNECTION_LOST,
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

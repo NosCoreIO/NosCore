@@ -23,7 +23,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
@@ -38,10 +37,11 @@ using NosCore.Networking;
 using NosCore.Shared.I18N;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 
 namespace NosCore.PacketHandlers.Group
 {
-    public class PjoinPacketHandler(ILogger logger, IBlacklistHttpClient blacklistHttpCLient, IClock clock,
+    public class PjoinPacketHandler(ILogger logger, IBlacklistHub blacklistHttpCLient, IClock clock,
             IIdService<GameObject.Group> groupIdService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<PjoinPacket>, IWorldPacketHandler
@@ -86,7 +86,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    var blacklisteds = await blacklistHttpCLient.GetBlackListsAsync(clientSession.Character.VisualId).ConfigureAwait(false);
+                    var blacklisteds = await blacklistHttpCLient.GetBlacklistedAsync(clientSession.Character.VisualId).ConfigureAwait(false);
                     if (blacklisteds != null && blacklisteds.Any(s => s.CharacterId == pjoinPacket.CharacterId))
                     {
                         await clientSession.SendPacketAsync(new InfoiPacket

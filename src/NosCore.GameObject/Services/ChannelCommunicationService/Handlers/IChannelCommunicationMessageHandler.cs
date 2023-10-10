@@ -18,9 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue.Messages;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.Interfaces;
+using IMessage = NosCore.GameObject.InterChannelCommunication.Messages.IMessage;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 

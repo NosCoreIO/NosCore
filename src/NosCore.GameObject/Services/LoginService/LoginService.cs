@@ -23,22 +23,24 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.HttpClients.AuthHttpClients;
-using NosCore.Core.MessageQueue;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.Networking.SessionRef;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Enumerations;
 
+
 namespace NosCore.GameObject.Services.LoginService
 {
     public class LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
-            IAuthHttpClient authHttpClient,
-            IPubSubHub pubSubHub,
+            IAuthHub authHttpClient,
+            IPubSubHub pubSubHub, IChannelHub channelHub,
             IDao<CharacterDto, long> characterDao, ISessionRefHolder sessionRefHolder)
         : ILoginService
     {
@@ -108,7 +110,7 @@ namespace NosCore.GameObject.Services.LoginService
                         break;
                     default:
                         var connectedAccount = await pubSubHub.GetSubscribersAsync();
-                        var comChannels = await pubSubHub.GetCommunicationChannels();
+                        var comChannels = await channelHub.GetCommunicationChannels();
                         var servers = comChannels.Where(x => x.Type == ServerType.WorldServer).ToList();
                         if (connectedAccount.Any(x=>x.Name == acc.Name))
                         {

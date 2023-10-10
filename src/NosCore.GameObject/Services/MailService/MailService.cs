@@ -20,8 +20,6 @@
 using Json.Patch;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
-using NosCore.Core.HttpClients.IncommingMailHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -30,18 +28,23 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.Shared.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.Shared.Enumerations;
+using DeleteMailData = NosCore.GameObject.InterChannelCommunication.Messages.DeleteMailData;
+
+using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 
 namespace NosCore.GameObject.Services.MailService
 {
     public class MailService(IDao<MailDto, long> mailDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            IConnectedAccountHttpClient connectedAccountHttpClient,
-            List<ItemDto> items, IItemGenerationService itemProvider, IIncommingMailHttpClient incommingMailHttpClient,
+            IPubSubHub pubSubHub, IChannelHub channelHub,
+            List<ItemDto> items, IItemGenerationService itemProvider,
             ParcelHolder parcelHolder,
             IDao<CharacterDto, long> characterDto)
         : IMailService
@@ -80,7 +83,10 @@ namespace NosCore.GameObject.Services.MailService
             {
                 return false;
             }
-            var receiver = await connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
+            var servers = await channelHub.GetCommunicationChannels();
+            var accounts = await pubSubHub.GetSubscribersAsync();
+            var receiver = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == characterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
+
             await NotifyAsync(1, receiver, maildata).ConfigureAwait(false);
             return true;
         }
@@ -168,8 +174,9 @@ namespace NosCore.GameObject.Services.MailService
                 mailref.ItemInstanceId = itemInstance?.Id;
             }
 
-            var receiver = await connectedAccountHttpClient.GetCharacterAsync(mailref.ReceiverId, null).ConfigureAwait(false);
-            var sender = await connectedAccountHttpClient.GetCharacterAsync(mailref.SenderId, null).ConfigureAwait(false);
+            var servers = await channelHub.GetCommunicationChannels();
+            var accounts = await pubSubHub.GetSubscribersAsync();
+            var receiver = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == mailref.ReceiverId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
 
             mailref = await mailDao.TryInsertOrUpdateAsync(mailref).ConfigureAwait(false);
             if (itemInstance == null)
@@ -194,7 +201,7 @@ namespace NosCore.GameObject.Services.MailService
             var mailDataCopy = await GenerateMailDataAsync(mailref, (short?)it?.ItemType ?? -1, itemInstance!, receiverName).ConfigureAwait(false);
             parcelHolder[mailref.ReceiverId][mailDataCopy.MailDto.IsSenderCopy]
                 .TryAdd(mailDataCopy.MailId, mailDataCopy);
-            await NotifyAsync(0, receiver, mailDataCopy).ConfigureAwait(false);
+            await NotifyAsync(0,  receiver, mailDataCopy).ConfigureAwait(false);
 
             return true;
         }
@@ -217,12 +224,12 @@ namespace NosCore.GameObject.Services.MailService
             };
         }
 
-        private async Task NotifyAsync(byte notifyType, Tuple<ServerConfiguration?, Subscriber?> receiver, MailData mailData)
+        private async Task NotifyAsync(byte notifyType, Subscriber? receiver, MailData mailData)
         {
-            var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver.Item2?.Name)
+            var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver?.Name)
                 ? mailData.ItemInstance != null ? (byte)0 : (byte)1 : (byte)2;
 
-            if (receiver.Item2 == null)
+            if (receiver == null)
             {
                 return;
             }
@@ -230,11 +237,15 @@ namespace NosCore.GameObject.Services.MailService
             switch (notifyType)
             {
                 case 0:
-                    await incommingMailHttpClient.NotifyIncommingMailAsync(receiver.Item2.ChannelId, mailData).ConfigureAwait(false);
+                    await pubSubHub.SendMessageAsync(mailData).ConfigureAwait(false);
                     break;
                 case 1:
-                    await incommingMailHttpClient.DeleteIncommingMailAsync(receiver.Item2.ChannelId,
-                        receiver.Item2.ConnectedCharacter!.Id, (short)mailData.MailId, type).ConfigureAwait(false);
+                    await pubSubHub.SendMessageAsync(new DeleteMailData()
+                    {
+                        CharacterId = receiver.ConnectedCharacter!.Id,
+                        MailId = (short)mailData.MailId,
+                        PostType = type
+                    });
                     break;
             }
         }

@@ -30,9 +30,6 @@ namespace NosCore.Core.Configuration
         public WebApiConfiguration MasterCommunication { get; set; } = null!;
 
         [Required]
-        public ServerConfiguration WebApi { get; set; } = null!;
-
-        [Required]
         public SqlConnectionConfiguration Database { get; set; } = null!;
 
         [Range(1, short.MaxValue)]

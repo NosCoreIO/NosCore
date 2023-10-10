@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NodaTime;
-using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.Core
@@ -32,8 +31,6 @@ namespace NosCore.Core
         public string? DisplayHost { get; set; }
         public ushort? DisplayPort { get; set; }
         public int ConnectedAccountLimit { get; set; }
-
-        public ServerConfiguration? WebApi { get; set; }
 
         public Instant LastPing { get; set; }
 

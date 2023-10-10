@@ -132,9 +132,6 @@
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Brakuje co najmniej jednego z wymaganych plików, spróbuj ponownie, gdy masz wszystkie wymagane pliki.</value>
   </data>
-  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Błąd z uwierzytelnieniem.</value>
-  </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Klient: {1} pomyślnie uwierzytelnienio!</value>
   </data>

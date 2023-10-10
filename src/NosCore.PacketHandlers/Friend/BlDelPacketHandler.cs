@@ -17,30 +17,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Linq;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
-using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 
 namespace NosCore.PacketHandlers.Friend
 {
-    public class BlDelPacketHandler(IBlacklistHttpClient blacklistHttpClient,
+    public class BlDelPacketHandler(IBlacklistHub blacklistHttpClient,
             IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<BlDelPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(BlDelPacket bldelPacket, ClientSession session)
         {
-            var list = await blacklistHttpClient.GetBlackListsAsync(session.Character.VisualId).ConfigureAwait(false);
+            var list = await blacklistHttpClient.GetBlacklistedAsync(session.Character.VisualId).ConfigureAwait(false);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == bldelPacket.CharacterId);
             if (idtorem != null)
             {
-                await blacklistHttpClient.DeleteFromBlacklistAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
+                await blacklistHttpClient.DeleteAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
                 await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             }
             else

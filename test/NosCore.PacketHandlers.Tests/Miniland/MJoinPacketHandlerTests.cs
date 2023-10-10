@@ -17,18 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
@@ -37,7 +36,6 @@ using NosCore.PacketHandlers.Miniland;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
@@ -49,8 +47,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland
     public class MJoinPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private readonly Mock<IConnectedAccountHttpClient> _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
-        private readonly Mock<IFriendHttpClient> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
+        private readonly Mock<IPubSubHub> _connectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
+        private readonly Mock<IFriendHub> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
         private Mock<IMinilandService>? _minilandProvider;
         private MJoinPacketHandler? _mjoinPacketHandler;
 
@@ -108,18 +106,19 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 VisualId = _targetSession!.Character.CharacterId,
                 Type = VisualType.Player
             };
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_targetSession.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(
-                    new ServerConfiguration(),
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
-                    }));
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_session!.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    },
                     new Subscriber
-                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }));
-            _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
+                    {
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                    }
+
+                });
+            _friendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new()
                 {
@@ -148,7 +147,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             };
             _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new GameObject.Services.MinilandService.Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Open });
-            _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
+            _friendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new()
                 {
@@ -159,17 +158,18 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 }
             });
             await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session!).ConfigureAwait(false);
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_targetSession.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
-                    }));
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_session!.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    },
                     new Subscriber
-                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }));
+                    {
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                    }
 
+                });
 
             _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MinilandId, 5, 8), Times.Once);
         }
@@ -182,17 +182,19 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 VisualId = _targetSession!.Character.CharacterId,
                 Type = VisualType.Player
             };
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_targetSession.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
-                    }));
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_session!.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    },
                     new Subscriber
-                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }));
-            _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
+                    {
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                    }
+
+                });
+            _friendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new()
                 {
@@ -217,17 +219,19 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 VisualId = _targetSession!.Character.CharacterId,
                 Type = VisualType.Player
             };
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_targetSession.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
                         ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
-                    }));
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(_session!.Character.CharacterId, null))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+                    },
                     new Subscriber
-                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId } }));
-            _friendHttpClient.Setup(s => s.GetListFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
+                    {
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                    }
+
+                });
+            _friendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>
             {
                 new()
                 {

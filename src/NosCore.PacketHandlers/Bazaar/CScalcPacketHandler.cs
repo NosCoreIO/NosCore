@@ -24,7 +24,6 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -38,18 +37,22 @@ using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
     public class CScalcPacketHandler(IOptions<WorldConfiguration> worldConfiguration,
-            IBazaarHttpClient bazaarHttpClient,
+            IBazaarHub bazaarHttpClient,
             IItemGenerationService itemProvider, ILogger logger, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<CScalcPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CScalcPacket packet, ClientSession clientSession)
         {
-            var bz = await bazaarHttpClient.GetBazaarLinkAsync(packet.BazaarId).ConfigureAwait(false);
+            var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId, null, null, null, null, null, null, null, null).ConfigureAwait(false);
+            var bz = bzs.FirstOrDefault();
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name))
             {
                 var soldedamount = bz.BazaarItem!.Amount - bz.ItemInstance!.Amount;
@@ -92,7 +95,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             clientSession.Character.InventoryService.AddItemToPocket(
                                 InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
                         await clientSession.SendPacketAsync(newInv!.GeneratePocketChange()).ConfigureAwait(false);
-                        var remove = await bazaarHttpClient.RemoveAsync(packet.BazaarId, bz.ItemInstance.Amount,
+                        var remove = await bazaarHttpClient.DeleteBazaarAsync(packet.BazaarId, bz.ItemInstance.Amount,
                             clientSession.Character.Name).ConfigureAwait(false);
                         if (remove)
                         {

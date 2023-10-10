@@ -24,12 +24,13 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BlackListService;
@@ -37,7 +38,6 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Shared.Configuration;
 using NosCore.Tests.Shared;
 using Serilog;
 
@@ -48,11 +48,12 @@ namespace NosCore.PacketHandlers.Tests.Friend
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private BlacklistService? _blackListController;
-        private Mock<IBlacklistHttpClient>? _blackListHttpClient;
+        private Mock<IBlacklistHub>? _blackListHttpClient;
         private BlDelPacketHandler? _blDelPacketHandler;
         private Mock<IDao<CharacterDto, long>>? _characterDao;
         private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
-        private Mock<IConnectedAccountHttpClient>? _connectedAccountHttpClient;
+        private Mock<IPubSubHub>? _connectedAccountHttpClient;
+        private Mock<IChannelHub>? _channelHub;
         private ClientSession? _session;
 
         [TestInitialize]
@@ -62,19 +63,24 @@ namespace NosCore.PacketHandlers.Tests.Friend
             Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _connectedAccountHttpClient = TestHelpers.Instance.ConnectedAccountHttpClient;
-            _connectedAccountHttpClient.Setup(s => s.GetCharacterAsync(It.IsAny<long?>(), It.IsAny<string?>()))
-                .ReturnsAsync(new Tuple<ServerConfiguration?, Subscriber?>(new ServerConfiguration(),
+            _connectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
+            _channelHub = new Mock<IChannelHub>();
+            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
-                    { ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId } }));
+                    {
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId }
+                    }
+
+                });
             _blackListHttpClient = TestHelpers.Instance.BlacklistHttpClient;
             _blDelPacketHandler = new BlDelPacketHandler(_blackListHttpClient.Object, TestHelpers.Instance.GameLanguageLocalizer);
             _characterDao = new Mock<IDao<CharacterDto, long>>();
-            _blackListController = new BlacklistService(_connectedAccountHttpClient.Object, _characterRelationDao,
+            _blackListController = new BlacklistService(_connectedAccountHttpClient.Object, _channelHub.Object, _characterRelationDao,
                 _characterDao.Object);
-            _blackListHttpClient.Setup(s => s.GetBlackListsAsync(It.IsAny<long>()))
+            _blackListHttpClient.Setup(s => s.GetBlacklistedAsync(It.IsAny<long>()))
                 .Returns((long id) => _blackListController.GetBlacklistedListAsync(id));
-            _blackListHttpClient.Setup(s => s.DeleteFromBlacklistAsync(It.IsAny<Guid>()))
+            _blackListHttpClient.Setup(s => s.DeleteAsync(It.IsAny<Guid>()))
                 .Callback((Guid id) => Task.FromResult(_blackListController.UnblacklistAsync(id)));
         }
 

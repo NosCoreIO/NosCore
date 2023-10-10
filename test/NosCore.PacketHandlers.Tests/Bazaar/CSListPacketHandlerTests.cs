@@ -22,7 +22,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     //[TestClass]
     //public class CSListPacketHandlerTest
     //{
-    //    private Mock<IBazaarHttpClient> _bazaarHttpClient;
+    //    private Mock<IBazaarHub> _bazaarHttpClient;
     //    private CSListPacketHandler _cSListPacketHandler;
     //    private ClientSession _session;
 

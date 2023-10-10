@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -47,7 +48,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     public class CScalcPacketHandlerTest
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private Mock<IBazaarHttpClient>? _bazaarHttpClient;
+        private Mock<IBazaarHub>? _bazaarHttpClient;
         private CScalcPacketHandler? _cScalcPacketHandler;
         private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
         private Mock<IItemGenerationService>? _itemProvider;
@@ -59,28 +60,29 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _bazaarHttpClient = new Mock<IBazaarHttpClient>();
+            _bazaarHttpClient = new Mock<IBazaarHub>();
             _itemProvider = new Mock<IItemGenerationService>();
             _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _cScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration,
                 _bazaarHttpClient.Object, _itemProvider.Object, Logger, _itemInstanceDao.Object, TestHelpers.Instance.LogLanguageLocalizer);
 
-            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(0)).ReturnsAsync(
-                new BazaarLink
+            _bazaarHttpClient.Setup(b => b.GetBazaar(0, null,null,null,null,null,null,null,null)).ReturnsAsync(
+                new List<BazaarLink>() {new BazaarLink
                 {
                     SellerName = _session.Character.Name,
                     BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 0 }
-                });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(2)).ReturnsAsync(
-                new BazaarLink
-                {
+                }});
+            _bazaarHttpClient.Setup(b => b.GetBazaar(2, null, null, null, null, null, null, null, null)).ReturnsAsync(
+                new List<BazaarLink>() {new BazaarLink
+                    {
+                
                     SellerName = "test",
                     BazaarItem = new BazaarItemDto { Price = 60, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 0 }
-                });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(1)).ReturnsAsync((BazaarLink?)null);
-            _bazaarHttpClient.Setup(b => b.RemoveAsync(It.IsAny<long>(), It.IsAny<int>(), It.IsAny<string>())).ReturnsAsync(true);
+                }});
+            _bazaarHttpClient.Setup(b => b.GetBazaar(1, null, null, null, null, null, null, null, null)).ReturnsAsync(new List<BazaarLink>());
+            _bazaarHttpClient.Setup(b => b.DeleteBazaarAsync(It.IsAny<long>(), It.IsAny<short>(), It.IsAny<string>())).ReturnsAsync(true);
             _itemProvider.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>())).Returns(new ItemInstance(new Item() { VNum = 1012 }) {
              Amount = 0, Item = new Item() });
         }

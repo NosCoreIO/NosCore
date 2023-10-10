@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -27,19 +26,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.Shared.Enumerations;
+
 
 namespace NosCore.GameObject.Services.BlackListService
 {
-    public class BlacklistService(IConnectedAccountHttpClient connectedAccountHttpClient,
+    public class BlacklistService(IPubSubHub pubSubHub, IChannelHub channelHub,
             IDao<CharacterRelationDto, Guid> characterRelationDao, IDao<CharacterDto, long> characterDao)
         : IBlacklistService
     {
         public async Task<LanguageKey> BlacklistPlayerAsync(long characterId, long secondCharacterId)
         {
-            var character = await connectedAccountHttpClient.GetCharacterAsync(characterId, null).ConfigureAwait(false);
-            var targetCharacter = await
-                connectedAccountHttpClient.GetCharacterAsync(secondCharacterId, null).ConfigureAwait(false);
-            if ((character.Item2 == null) || (targetCharacter.Item2 == null))
+            var servers = await channelHub.GetCommunicationChannels();
+            var accounts = await pubSubHub.GetSubscribersAsync();
+            var character = accounts.FirstOrDefault(s =>s.ConnectedCharacter?.Id == characterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
+            var targetCharacter = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == secondCharacterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
+
+
+            if ((character == null) || (targetCharacter == null))
             {
                 throw new ArgumentException();
             }
@@ -62,8 +68,8 @@ namespace NosCore.GameObject.Services.BlackListService
 
             var data = new CharacterRelationDto
             {
-                CharacterId = character.Item2.ConnectedCharacter!.Id,
-                RelatedCharacterId = targetCharacter.Item2.ConnectedCharacter!.Id,
+                CharacterId = character.ConnectedCharacter!.Id,
+                RelatedCharacterId = targetCharacter.ConnectedCharacter!.Id,
                 RelationType = CharacterRelationType.Blocked
             };
 
@@ -77,17 +83,23 @@ namespace NosCore.GameObject.Services.BlackListService
             var charList = new List<CharacterRelationStatus>();
             var list = characterRelationDao
                 .Where(s => (s.CharacterId == id) && (s.RelationType == CharacterRelationType.Blocked));
+            
             if (list == null)
             {
                 return charList;
             }
             foreach (var rel in list)
             {
+
+                var servers = await channelHub.GetCommunicationChannels();
+                var accounts = await pubSubHub.GetSubscribersAsync();
+                var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == rel.RelatedCharacterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
+
                 charList.Add(new CharacterRelationStatus
                 {
                     CharacterName = (await characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId).ConfigureAwait(false))?.Name ?? "",
                     CharacterId = rel.RelatedCharacterId,
-                    IsConnected = (await connectedAccountHttpClient.GetCharacterAsync(rel.RelatedCharacterId, null).ConfigureAwait(false)).Item1 != null,
+                    IsConnected = character != null,
                     RelationType = rel.RelationType,
                     CharacterRelationId = rel.CharacterRelationId
                 });

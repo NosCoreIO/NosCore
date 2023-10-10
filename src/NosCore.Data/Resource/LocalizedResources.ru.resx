@@ -136,9 +136,6 @@
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Как минимум один обязательный файл отсутствует. Попробуйте ещё раз, когда у вас будут все необходимые файлы.</value>
   </data>
-  <data name="AUTHENTICATED_ERROR" xml:space="preserve">
-    <value>Ошибка аутентификации</value>
-  </data>
   <data name="AUTHENTICATED_SUCCESS" xml:space="preserve">
     <value>Пользователь {1} успешно авторизован!</value>
     <comment>check</comment>
@@ -464,9 +461,6 @@
   <data name="SAVING_ALL" xml:space="preserve">
     <value>Сохраняем всю инфомацию!</value>
   </data>
-  <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
-    <value>Токен безопасности обновлен.</value>
-  </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>Загружено {0} товаров!</value>
   </data>
@@ -493,9 +487,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Поддержка</value>
-  </data>
-  <data name="TOKEN_UPDATED" xml:space="preserve">
-    <value>Токен обновлен.</value>
   </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>У продавца слишком много денег.</value>

@@ -19,15 +19,18 @@
 
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.WarehouseHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Warehouse;
 using System.Threading.Tasks;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
+using Mapster;
+using NosCore.Data.Dto;
 
 namespace NosCore.PacketHandlers.Warehouse
 {
-    public class DepositPacketHandler(IWarehouseHttpClient warehouseHttpClient) : PacketHandler<DepositPacket>,
+    public class DepositPacketHandler(IWarehouseHub warehouseHttpClient) : PacketHandler<DepositPacket>,
         IWorldPacketHandler
     {
         public override Task ExecuteAsync(DepositPacket depositPacket, ClientSession clientSession)
@@ -36,8 +39,15 @@ namespace NosCore.PacketHandlers.Warehouse
             IItemInstance itemInstance = new ItemInstance();
 #pragma warning restore CS0612
             short slot = 0;
-            return warehouseHttpClient.DepositItemAsync(clientSession.Character.CharacterId,
-                WarehouseType.Warehouse, itemInstance, slot);
+            return warehouseHttpClient.AddWarehouseItemAsync(new WareHouseDepositRequest
+            {
+
+                OwnerId = clientSession.Character.CharacterId,
+                WarehouseType = WarehouseType.Warehouse,
+                ItemInstance = itemInstance.Adapt<ItemInstanceDto>(),
+                Slot = slot
+
+            });
         }
     }
 }

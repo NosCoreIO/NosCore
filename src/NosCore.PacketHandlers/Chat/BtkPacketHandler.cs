@@ -18,13 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Core;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Chat;
@@ -34,20 +32,21 @@ using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Core.MessageQueue;
-using NosCore.Core.MessageQueue.Messages;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 
 namespace NosCore.PacketHandlers.Chat
 {
-    public class BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHttpClient friendHttpClient,
-            IPubSubHub packetHttpClient, IConnectedAccountHttpClient connectedAccountHttpClient, Channel channel,
+    public class BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHub friendHttpClient,
+            IPubSubHub packetHttpClient, IPubSubHub pubSubHub, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<BtkPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(BtkPacket btkPacket, ClientSession session)
         {
-            var friendlist = await friendHttpClient.GetListFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
+            var friendlist = await friendHttpClient.GetFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
 
             if (friendlist.All(s => s.CharacterId != btkPacket.CharacterId))
             {
@@ -73,9 +72,10 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            var receiver = await connectedAccountHttpClient.GetCharacterAsync(btkPacket.CharacterId, null).ConfigureAwait(false);
+            var accounts = await pubSubHub.GetSubscribersAsync();
+            var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Id == btkPacket.CharacterId);
 
-            if (receiver.Item2 == null) //TODO: Handle 404 in WebApi
+            if (receiver == null)
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
@@ -88,7 +88,7 @@ namespace NosCore.PacketHandlers.Chat
             {
                 Packet = packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
                 ReceiverCharacter = new Character
-                { Id = btkPacket.CharacterId, Name = receiver.Item2.ConnectedCharacter?.Name ?? "" },
+                { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name ?? "" },
                 SenderCharacter = new Character
                 { Name = session.Character.Name, Id = session.Character.CharacterId },
                 OriginWorldId = channel.ChannelId,

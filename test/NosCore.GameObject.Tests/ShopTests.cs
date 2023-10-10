@@ -40,7 +40,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Tests
     public class ShopTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private IFriendHttpClient? _friendHttpClient;
+        private IFriendHub? _friendHttpClient;
         private IMapInstanceAccessorService? _instanceProvider;
         private ClientSession? _session;
 
@@ -77,7 +77,7 @@ namespace NosCore.GameObject.Tests
         {
             Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _friendHttpClient = new Mock<IFriendHttpClient>().Object;
+            _friendHttpClient = new Mock<IFriendHub>().Object;
             TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 3;
             _instanceProvider = TestHelpers.Instance.MapInstanceAccessorService;
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);

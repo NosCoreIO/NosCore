@@ -24,7 +24,7 @@ using Moq;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking;
 using NosCore.PacketHandlers.Group;
 using NosCore.Packets.ClientPackets.Groups;
@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Tests.Group
 
             _pLeavePacketHandler = new PleavePacketHandler(idServer);
 
-            var mock = new Mock<IBlacklistHttpClient>();
+            var mock = new Mock<IBlacklistHub>();
             _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
         }
 

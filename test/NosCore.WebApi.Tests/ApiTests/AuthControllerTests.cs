@@ -30,13 +30,14 @@ using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
-using NosCore.Core.Controllers;
 using NosCore.Core.Encryption;
 
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Shared.Configuration;
 using NosCore.Tests.Shared;
+using NosCore.WebApi.Controllers;
 using TwoFactorAuthNet;
 
 namespace NosCore.WebApi.Tests.ApiTests
@@ -60,7 +61,8 @@ namespace NosCore.WebApi.Tests.ApiTests
             _controller = new AuthController(Options.Create(new WebApiConfiguration()
             {
                 Password = "123"
-            }), TestHelpers.Instance.AccountDao, _logger.Object, new Sha512Hasher(), TestHelpers.Instance.LogLanguageLocalizer);
+            }), TestHelpers.Instance.AccountDao, _logger.Object, new Sha512Hasher(), TestHelpers.Instance.LogLanguageLocalizer,
+               new AuthHub());
         }
 
         [TestMethod]
@@ -198,55 +200,55 @@ namespace NosCore.WebApi.Tests.ApiTests
         }
 
         [TestMethod]
-        public void GetExpectingConnectionReturnNullWhenTokenNull()
+        public async Task GetExpectingConnectionReturnNullWhenTokenNull()
         {
-            var result = _controller.GetExpectingConnection(_session.Account.Name, null, 1);
+            var result = await _controller.GetExpectingConnection(_session.Account.Name, null, 1);
             Assert.AreEqual(null, ((OkObjectResult)result).Value);
         }
 
         [TestMethod]
-        public void GetExpectingConnectionReturnNullWhenNotAuthCode()
+        public async Task GetExpectingConnectionReturnNullWhenNotAuthCode()
         {
-            var result = _controller.GetExpectingConnection(_session.Account.Name, "A1A2A3", 1);
+            var result = await _controller.GetExpectingConnection(_session.Account.Name, "A1A2A3", 1);
             Assert.AreEqual(null, ((OkObjectResult)result).Value);
         }
 
         [TestMethod]
-        public void GetExpectingConnectionReturnAccountNameWhenAuthCode()
+        public async Task GetExpectingConnectionReturnAccountNameWhenAuthCode()
         {
             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            var result = _controller.GetExpectingConnection(_session.Account.Name, string.Join("", _tokenGuid.ToCharArray().Select(s => Convert.ToByte(s).ToString("x"))), 1);
+            var result = await _controller.GetExpectingConnection(_session.Account.Name, string.Join("", _tokenGuid.ToCharArray().Select(s => Convert.ToByte(s).ToString("x"))), 1);
             Assert.AreEqual(_session.Account.Name, ((OkObjectResult)result).Value);
         }
 
         [TestMethod]
-        public void GetExpectingConnectionReturnNullWhenTokenNoneSessionTicket()
+        public async Task GetExpectingConnectionReturnNullWhenTokenNoneSessionTicket()
         {
-            var result = _controller.GetExpectingConnection(_session.Account.Name, "NONE_SESSION_TICKET", 1);
+            var result = await _controller.GetExpectingConnection(_session.Account.Name, "NONE_SESSION_TICKET", 1);
             Assert.AreEqual(null, ((OkObjectResult)result).Value);
         }
 
         [TestMethod]
-        public void GetExpectingConnectionReturnTrueWhenGfModeAndExpecting()
+        public async Task GetExpectingConnectionReturnTrueWhenGfModeAndExpecting()
         {
             SessionFactory.Instance.ReadyForAuth[_session.Account.Name] = 1;
-            var result = _controller.GetExpectingConnection(_session.Account.Name, "thisisgfmode", 1);
-            Assert.AreEqual(true, ((OkObjectResult)result).Value);
+            var result = await _controller.GetExpectingConnection(_session.Account.Name, "thisisgfmode", 1);
+            Assert.AreEqual("true", ((OkObjectResult)result).Value);
         }
 
         [TestMethod]
-        public void GetExpectingConnectionReturnTrueWhenGfModeAndExpectingButWrongSessionId()
+        public async Task GetExpectingConnectionReturnTrueWhenGfModeAndExpectingButWrongSessionId()
         {
             SessionFactory.Instance.ReadyForAuth[_session.Account.Name] = 1;
-            var result = _controller.GetExpectingConnection(_session.Account.Name, "thisisgfmode", 2);
-            Assert.AreEqual(false, ((OkObjectResult)result).Value);
+            var result = await _controller.GetExpectingConnection(_session.Account.Name, "thisisgfmode", 2);
+            Assert.AreEqual("false", ((OkObjectResult)result).Value);
         }
 
         [TestMethod]
-        public void GetExpectingConnectionReturnFalseWhenGfModeAndNotExpecting()
+        public async Task GetExpectingConnectionReturnFalseWhenGfModeAndNotExpecting()
         {
-            var result = _controller.GetExpectingConnection(_session.Account.Name, "thisisgfmode", 1);
-            Assert.AreEqual(false, ((OkObjectResult)result).Value);
+            var result = await _controller.GetExpectingConnection(_session.Account.Name, "thisisgfmode", 1);
+            Assert.AreEqual("false", ((OkObjectResult)result).Value);
         }
 
 

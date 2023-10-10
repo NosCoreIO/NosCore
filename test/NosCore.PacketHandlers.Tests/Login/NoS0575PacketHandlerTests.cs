@@ -26,9 +26,10 @@ using Moq;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.AuthHttpClients;
-using NosCore.Core.MessageQueue;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.LoginService;
 using NosCore.Networking.SessionRef;
@@ -47,11 +48,12 @@ namespace NosCore.PacketHandlers.Tests.Login
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private string _password = null!;
-        private Mock<IAuthHttpClient>? _authHttpClient;
+        private Mock<IAuthHub>? _authHttpClient;
         private Mock<IPubSubHub>? _pubSubHub;
         private IOptions<LoginConfiguration>? _loginConfiguration;
         private NoS0575PacketHandler? _noS0575PacketHandler;
         private ClientSession? _session;
+        private Mock<IChannelHub>? _channelHub;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -59,12 +61,13 @@ namespace NosCore.PacketHandlers.Tests.Login
             _password = new Sha512Hasher().Hash("test");
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _authHttpClient = new Mock<IAuthHttpClient>();
+            _authHttpClient = new Mock<IAuthHub>();
             _pubSubHub = TestHelpers.Instance.PubSubHub;
             _loginConfiguration = Options.Create(new LoginConfiguration());
+            _channelHub = new Mock<IChannelHub>();
             _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration,
                     TestHelpers.Instance.AccountDao,
-                    _authHttpClient.Object, _pubSubHub.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder()),
+                    _authHttpClient.Object, _pubSubHub.Object, _channelHub!.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder()),
                 _loginConfiguration, Logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
@@ -138,7 +141,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginAsync()
         {
-            _pubSubHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
             _pubSubHub!.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>());
             await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
@@ -153,7 +156,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginAlreadyConnectedAsync()
         {
-            _pubSubHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
             _pubSubHub!.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(
                 new List<Subscriber>
                     {new() {Name = _session!.Account.Name}});
@@ -169,7 +172,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginNoServerAsync()
         {
-            _pubSubHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
+            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
             _pubSubHub!.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>());
 
@@ -198,7 +201,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginMaintenanceAsync()
         {
-            _pubSubHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>() { new() { IsMaintenance = true } });
+            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>() { new() { IsMaintenance = true } });
             _pubSubHub!.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>());
 
@@ -215,7 +218,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginMaintenanceGameMasterAsync()
         {
-            _pubSubHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>() { new() { IsMaintenance = true } });
+            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>() { new() { IsMaintenance = true } });
             _pubSubHub!.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>());
 

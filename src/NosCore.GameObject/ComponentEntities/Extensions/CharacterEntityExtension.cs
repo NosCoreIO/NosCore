@@ -19,13 +19,10 @@
 
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
-using NosCore.GameObject.HttpClients.FriendHttpClient;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -48,13 +45,17 @@ using System.Threading.Tasks;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
-using NosCore.Core.MessageQueue;
-using NosCore.Core.MessageQueue.Messages;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Shared.I18N;
 using Serilog;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+
+using PostedPacket = NosCore.GameObject.InterChannelCommunication.Messages.PostedPacket;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -343,10 +344,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         }
 
         public static async Task<BlinitPacket> GenerateBlinitAsync(this ICharacterEntity visualEntity,
-            IBlacklistHttpClient blacklistHttpClient)
+            IBlacklistHub blacklistHttpClient)
         {
             var subpackets = new List<BlinitSubPacket?>();
-            var blackList = await blacklistHttpClient.GetBlackListsAsync(visualEntity.VisualId).ConfigureAwait(false);
+            var blackList = await blacklistHttpClient.GetBlacklistedAsync(visualEntity.VisualId).ConfigureAwait(false);
             foreach (var relation in blackList)
             {
                 if (relation.CharacterId == visualEntity.VisualId)
@@ -364,16 +365,16 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new BlinitPacket { SubPackets = subpackets };
         }
 
-        public static async Task<FinitPacket> GenerateFinitAsync(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
-            IChannelHttpClient channelHttpClient, IPubSubHub pubSubHub)
+        public static async Task<FinitPacket> GenerateFinitAsync(this ICharacterEntity visualEntity, IFriendHub friendHttpClient,
+            IChannelHub channelHttpClient, IPubSubHub pubSubHub)
         {
             //same canal
-            var servers = (await channelHttpClient.GetChannelsAsync().ConfigureAwait(false))
+            var servers = (await channelHttpClient.GetCommunicationChannels().ConfigureAwait(false))
                 ?.Where(c => c.Type == ServerType.WorldServer).ToList();
             var accounts = await pubSubHub.GetSubscribersAsync();
 
             var subpackets = new List<FinitSubPacket?>();
-            var friendlist = await friendHttpClient.GetListFriendsAsync(visualEntity.VisualId).ConfigureAwait(false);
+            var friendlist = await friendHttpClient.GetFriendsAsync(visualEntity.VisualId).ConfigureAwait(false);
             //TODO add spouselist
             //var spouseList = _webApiAccess.Get<List<CharacterRelationDto>>(WebApiRoute.Spouse, friendServer.WebApi, visualEntity.VisualId) ?? new List<CharacterRelationDto>();
             foreach (var relation in friendlist)
@@ -392,10 +393,10 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             return new FinitPacket { SubPackets = subpackets };
         }
 
-        public static async Task SendFinfoAsync(this ICharacterEntity visualEntity, IFriendHttpClient friendHttpClient,
+        public static async Task SendFinfoAsync(this ICharacterEntity visualEntity, IFriendHub friendHttpClient,
             IPubSubHub pubSubHub, ISerializer packetSerializer, bool isConnected)
         {
-            var friendlist = await friendHttpClient.GetListFriendsAsync(visualEntity.VisualId).ConfigureAwait(false);
+            var friendlist = await friendHttpClient.GetFriendsAsync(visualEntity.VisualId).ConfigureAwait(false);
             await Task.WhenAll(friendlist.Select(friend =>
                 pubSubHub.SendMessageAsync(new PostedPacket
                 {

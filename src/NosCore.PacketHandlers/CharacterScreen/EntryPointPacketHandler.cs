@@ -19,7 +19,6 @@
 
 using Mapster;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.AuthHttpClients;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
@@ -38,22 +37,23 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.MessageQueue;
 using NosCore.Networking;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
-            IDao<MateDto, long> mateDao, ILogger logger, IAuthHttpClient authHttpClient,
+            IDao<MateDto, long> mateDao, ILogger logger, IAuthHub authHttpClient,
             IPubSubHub pubSubHub, IOptions<WorldConfiguration> configuration,
             ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {
-        public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHttpClient authHttpClient,
+        public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHub authHttpClient,
             IDao<AccountDto, long> accountDao, IPubSubHub pubSubHub, bool passwordLessConnection, string accountName, string password, int sessionId, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             var subscribers = await pubSubHub.GetSubscribersAsync();
@@ -116,7 +116,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public override async Task ExecuteAsync(EntryPointPacket packet, ClientSession clientSession)
         {
-            if (clientSession.Account == null!) // we bypass this when create new char
+            if (clientSession.Account == null!) // we bypass this when Create new char
             {
                 var passwordLessConnection = packet.Password == "thisisgfmode";
                 await VerifyConnectionAsync(clientSession, logger, authHttpClient,

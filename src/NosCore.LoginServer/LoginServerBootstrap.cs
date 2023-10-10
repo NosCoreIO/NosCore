@@ -33,16 +33,12 @@ using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
-using NosCore.Core.HttpClients.AuthHttpClients;
-using NosCore.Core.HttpClients.ChannelHttpClients;
-using NosCore.Core.HttpClients.ConnectedAccountHttpClients;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
-using NosCore.GameObject.HttpClients.BlacklistHttpClient;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets;
@@ -56,12 +52,16 @@ using Serilog;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.Core.MessageQueue;
 using NosCore.Core.Services.IdService;
+using NosCore.GameObject.InterChannelCommunication;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.LoginService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
@@ -108,16 +108,12 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces();
             containerBuilder.RegisterType<SpamRequestFilter>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
-
+            containerBuilder.RegisterType<HubConnectionFactory>();
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
-            containerBuilder.RegisterType<PubSubHubClient>().AsImplementedInterfaces().SingleInstance();
-            containerBuilder.RegisterType<AuthHttpClient>().AsImplementedInterfaces();
-            containerBuilder.RegisterType<ChannelHttpClient>().SingleInstance().AsImplementedInterfaces();
+            containerBuilder.RegisterType<ChannelHubClient>().AsImplementedInterfaces().SingleInstance();
+            containerBuilder.RegisterType<PubSubHubClient>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<AuthHubClient>().AsImplementedInterfaces();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
-            containerBuilder.RegisterType<ConnectedAccountHttpClient>().AsImplementedInterfaces();
-            containerBuilder.RegisterAssemblyTypes(typeof(BlacklistHttpClient).Assembly)
-                .Where(t => t.Name.EndsWith("HttpClient"))
-                .AsImplementedInterfaces();
 
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication.HashingType switch
             {
@@ -182,7 +178,7 @@ namespace NosCore.LoginServer
                     InitializeConfiguration(args, services);
                     services.AddI18NLogs();
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
-                    services.AddHttpClient();
+           
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);
                     services.AddHostedService<LoginServer>();

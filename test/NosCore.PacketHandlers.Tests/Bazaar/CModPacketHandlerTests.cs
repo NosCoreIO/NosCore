@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Json.Patch;
@@ -24,7 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.HttpClients.BazaarHttpClient;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Bazaar;
@@ -42,7 +43,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     public class CModPacketHandlerTest
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private Mock<IBazaarHttpClient>? _bazaarHttpClient;
+        private Mock<IBazaarHub>? _bazaarHttpClient;
         private CModPacketHandler? _cmodPacketHandler;
         private ClientSession? _session;
 
@@ -52,34 +53,34 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _bazaarHttpClient = new Mock<IBazaarHttpClient>();
+            _bazaarHttpClient = new Mock<IBazaarHub>();
             _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
-            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(0)).ReturnsAsync(
-                new BazaarLink
+            _bazaarHttpClient.Setup(b => b.GetBazaar(0, null, null, null, null, null, null, null, null)).ReturnsAsync(
+                new List<BazaarLink>() {new()
                 {
                     SellerName = "test",
                     BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
-                });
+                }});
 
-            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(3)).ReturnsAsync(
-                new BazaarLink
+            _bazaarHttpClient.Setup(b => b.GetBazaar(3, null, null, null, null, null, null, null, null)).ReturnsAsync(
+                new List<BazaarLink>() {new()
                 {
                     SellerName = _session.Character.Name,
                     BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 0 }
-                });
+                }});
 
-            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(2)).ReturnsAsync(
-                new BazaarLink
+            _bazaarHttpClient.Setup(b => b.GetBazaar(2, null, null, null, null, null, null, null, null)).ReturnsAsync(
+                new List<BazaarLink>() {new()
                 {
                     SellerName = _session.Character.Name,
                     BazaarItem = new BazaarItemDto { Price = 60, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
-                });
-            _bazaarHttpClient.Setup(b => b.GetBazaarLinkAsync(1)).ReturnsAsync((BazaarLink?)null);
-            _bazaarHttpClient.Setup(b => b.ModifyAsync(It.IsAny<long>(), It.IsAny<JsonPatch?>()!)).ReturnsAsync(new BazaarLink
+                }});
+            _bazaarHttpClient.Setup(b => b.GetBazaar(1, null, null, null, null, null, null, null, null)).ReturnsAsync(new List<BazaarLink>());
+            _bazaarHttpClient.Setup(b => b.ModifyBazaarAsync(It.IsAny<long>(), It.IsAny<JsonPatch?>()!)).ReturnsAsync(new BazaarLink
             {
                 SellerName = _session.Character.Name,
                 BazaarItem = new BazaarItemDto { Price = 70, Amount = 1 },

@@ -20,7 +20,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.HttpClients.ChannelHttpClients;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.EventLoaderService.Handlers;
@@ -36,15 +35,14 @@ using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
 using NosCore.Shared.I18N;
 using Polly;
-using NosCore.Core.MessageQueue;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 
 namespace NosCore.WorldServer
 {
     public class WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager,
-            Clock clock, ILogger<WorldServer> logger,
-            IChannelHttpClient channelHttpClient, IMapInstanceGeneratorService mapInstanceGeneratorService,
+            Clock clock, ILogger<WorldServer> logger, IMapInstanceGeneratorService mapInstanceGeneratorService,
             IClock nodatimeClock, ISaveService saveService,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger, Channel channel, IPubSubHub pubSubClient)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger, Channel channel, IChannelHub channelHubClient)
         : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -61,17 +59,17 @@ namespace NosCore.WorldServer
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Console.Title += $@" - Port : {worldConfiguration.Value.Port} - WebApi : {worldConfiguration.Value.WebApi}";
+                Console.Title += $@" - Port : {worldConfiguration.Value.Port}";
             }
-            await Policy
+            var connectTask = Policy
                 .Handle<Exception>()
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     (_, __, timeSpan) =>
                         logger.LogError(
                             logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
                             timeSpan.TotalSeconds)
-                ).ExecuteAsync(() => pubSubClient.Bind(channel));
-            await Task.WhenAny(clock.Run(stoppingToken), channelHttpClient.ConnectAsync(), networkManager.RunServerAsync()).ConfigureAwait(false);
+                ).ExecuteAsync(() => channelHubClient.Bind(channel));
+            await Task.WhenAny(connectTask, clock.Run(stoppingToken), networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }
 }

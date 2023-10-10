@@ -20,7 +20,6 @@
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.Data.WebApi;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.Enumerations;
@@ -32,6 +31,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
 using NosCore.GameObject.Services.MapChangeService;
+using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
