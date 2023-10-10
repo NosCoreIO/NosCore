@@ -26,7 +26,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
     {
         private readonly HubConnection _hubConnection = hubConnectionFactory.Create(nameof(AuthHub));
 
-        public async Task<string?> GetAwaitingConnectionAsync(string? name, string packetPassword, int clientSessionSessionId)
+        public async Task<string?> GetAwaitingConnectionAsync(string? name, string? packetPassword, int clientSessionSessionId)
         {
             await _hubConnection.StartAsync();
             var result = await _hubConnection.InvokeAsync<string?>(nameof(GetAwaitingConnectionAsync), name, packetPassword, clientSessionSessionId);

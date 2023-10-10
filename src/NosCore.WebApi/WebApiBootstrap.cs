@@ -17,9 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 
 namespace NosCore.WebApi
 {
@@ -29,6 +33,13 @@ namespace NosCore.WebApi
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllers();
+
+            builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+            builder.Host.ConfigureContainer<ContainerBuilder>(
+                containerBuilder =>
+                {
+                    containerBuilder.RegisterType<AuthHub>().AsImplementedInterfaces();
+                });
 
             var app = builder.Build();
             if (!app.Environment.IsDevelopment())

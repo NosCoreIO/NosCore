@@ -18,9 +18,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="NosCore.Analyzers" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
+    <ProjectReference Include="..\NosCore.GameObject\NosCore.GameObject.csproj" />
   </ItemGroup>
 </Project>

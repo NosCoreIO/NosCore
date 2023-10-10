@@ -23,7 +23,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 
 public interface IAuthHub
 {
-    Task<string?> GetAwaitingConnectionAsync(string? name, string packetPassword, int clientSessionSessionId);
+    Task<string?> GetAwaitingConnectionAsync(string? name, string? packetPassword, int clientSessionSessionId);
 
     Task SetAwaitingConnectionAsync(long sessionId, string accountName);
 }

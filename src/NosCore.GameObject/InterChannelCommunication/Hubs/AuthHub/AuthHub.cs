@@ -29,7 +29,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
 {
     public class AuthHub : Hub, IAuthHub
     {
-        public Task<string?> GetAwaitingConnectionAsync(string? id, string token, int sessionId)
+        public Task<string?> GetAwaitingConnectionAsync(string? id, string? token, int sessionId)
         {
             if (token != "thisisgfmode")
             {
