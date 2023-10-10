@@ -498,9 +498,6 @@
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
     <value>L'utilisateur n'est pas dans la liste d'amis.</value>
   </data>
-  <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
-    <value>Token de sécurité mis à jour.</value>
-  </data>
   <data name="SHOPSKILLS_LOADED" xml:space="preserve">
     <value>{0} ShopSkills chargés !</value>
   </data>

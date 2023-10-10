@@ -64,14 +64,14 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         {
             _bazaarHttpClient!.Setup(b =>
                 b.GetBazaar(
-                    It.IsAny<int>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<BazaarListType>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<byte>(),
+                    It.IsAny<long>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<BazaarListType?>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<byte?>(),
                     It.IsAny<long?>())
             ).ReturnsAsync(new List<BazaarLink>());
             await _cblistPacketHandler!.ExecuteAsync(new CBListPacket { ItemVNumFilter = new List<short>() }, _session!).ConfigureAwait(false);
@@ -84,14 +84,14 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         {
             _bazaarHttpClient!.Setup(b =>
                 b.GetBazaar(
-                    It.IsAny<int>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<BazaarListType>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<byte>(),
+                    It.IsAny<long>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<BazaarListType?>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<byte?>(),
                     It.IsAny<long?>())
             ).ReturnsAsync(new List<BazaarLink>
             {
@@ -113,14 +113,14 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         {
             _bazaarHttpClient!.Setup(b =>
                 b.GetBazaar(
-                    It.IsAny<int>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<BazaarListType>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<byte>(),
-                    It.IsAny<byte>(),
+                    It.IsAny<long>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<BazaarListType?>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<byte?>(),
+                    It.IsAny<byte?>(),
                     It.IsAny<long?>())
             ).ReturnsAsync(new List<BazaarLink>
             {

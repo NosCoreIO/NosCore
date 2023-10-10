@@ -73,7 +73,18 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         [TestMethod]
         public async Task Test_DeleteGiftAsync()
         {
-            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData>());
+            var item = _item!.Create(1);
+            var mail = new MailData
+            {
+                ItemInstance = (ItemInstanceDto)item,
+                MailDto = new MailDto
+                {
+                    ItemInstanceId = item.Id
+                }
+            };
+            _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(item);
+            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData>() { mail });
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 5,
@@ -97,7 +108,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             };
             _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync(item);
-            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData>{mail});
+            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData> { mail });
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 4,
@@ -122,6 +133,8 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             };
             _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync(item);
+            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData> { mail });
+
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 4,

@@ -480,9 +480,6 @@
   <data name="SCRIPTS_PARSED" xml:space="preserve">
     <value>{0} Script aggiunti !</value>
   </data>
-  <data name="SECURITY_TOKEN_UPDATED" xml:space="preserve">
-    <value>Token di sicurezza aggiornato.</value>
-  </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>{0} ShopItems caricati!</value>
   </data>
