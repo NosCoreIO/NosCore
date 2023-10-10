@@ -48,6 +48,18 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                 return;
             }
 
+            if (!requestData.ClientSession.Character.Group!.IsEmpty)
+            {
+                await requestData.ClientSession.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = requestData.ClientSession.Character.CharacterId,
+                    Type = SayColorType.Red,
+                    Message = Game18NConstString.CantUseInGroup
+                }).ConfigureAwait(false);
+                return;
+            }
+
             if ((requestData.ClientSession.Character.Level < 15) || (requestData.ClientSession.Character.JobLevel < 20))
             {
                 await requestData.ClientSession.SendPacketAsync(new MsgiPacket
