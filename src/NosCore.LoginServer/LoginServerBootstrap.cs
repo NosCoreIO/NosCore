@@ -52,13 +52,16 @@ using Serilog;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Core.Services.IdService;
 using NosCore.GameObject.InterChannelCommunication;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.LoginService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
@@ -108,6 +111,8 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<HubConnectionFactory>();
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ChannelHubClient>().AsImplementedInterfaces().SingleInstance();
+            containerBuilder.RegisterType<PubSubHubClient>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<AuthHubClient>().AsImplementedInterfaces();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
 
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication.HashingType switch
