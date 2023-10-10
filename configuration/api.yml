@@ -3,7 +3,7 @@ MasterCommunication:
   Host: ${MASTER_HOST,http://localhost}
   Port: 5000
 Host: ${HOST,127.0.0.1}
-Port: ${LOGIN_PORT,4000}
+Port: ${API_PORT,8080}
 Language: en
 Database:
   Host: ${DB_HOST,localhost}
