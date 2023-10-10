@@ -39,15 +39,15 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
     {
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var data = masterClientList.Channels.TryGetValue(Context.ConnectionId, out var channel) ? channel : null;
+            var data = masterClientList.Channels.TryGetValue(Context.UserIdentifier ?? throw new InvalidOperationException(), out var channel) ? channel : null;
             if (data != null)
             {
                 logger.LogDebug(logLanguage[LogLanguageKey.CONNECTION_LOST],
                     data.Id.ToString(CultureInfo.CurrentCulture),
                     data.Name);
-                masterClientList.Channels.Remove(Context.ConnectionId, out _);
-                masterClientList.ConnectedAccounts.Remove(Context.ConnectionId, out _);
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, data.Type.ToString());
+                masterClientList.Channels.Remove(Context.UserIdentifier ?? throw new InvalidOperationException(), out _);
+                masterClientList.ConnectedAccounts.Remove(Context.UserIdentifier ?? throw new InvalidOperationException(), out _);
+                await Groups.RemoveFromGroupAsync(Context.UserIdentifier ?? throw new InvalidOperationException(), data.Type.ToString());
             }
 
             await base.OnDisconnectedAsync(exception);
@@ -59,7 +59,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
             logger.LogDebug(logLanguage[LogLanguageKey.AUTHENTICATED_SUCCESS],
                 id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
-            masterClientList.ConnectedAccounts.TryAdd(Context.ConnectionId,
+            masterClientList.ConnectedAccounts.TryAdd(Context.UserIdentifier ?? throw new InvalidOperationException(),
                 new ConcurrentDictionary<long, Subscriber>());
             var serv = new ChannelInfo
             {
@@ -73,7 +73,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
                 ConnectedAccountLimit = data.ConnectedAccountLimit,
                 Type = data.ClientType,
             };
-            masterClientList.Channels.AddOrUpdate(Context.ConnectionId, serv, (_, _) => serv);
+            masterClientList.Channels.AddOrUpdate(Context.UserIdentifier ?? throw new InvalidOperationException(), serv, (_, _) => serv);
             return Task.CompletedTask;
         }
 
@@ -81,6 +81,8 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
         {
             return Task.FromResult(masterClientList.Channels.Values.ToList());
         }
+
+        public Task<bool> Ping() => Task.FromResult(true);
 
         public Task SetMaintenance(bool isGlobal, bool value)
         {
@@ -93,7 +95,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
 
                 return Task.CompletedTask;
             }
-            masterClientList.Channels[Context.ConnectionId].IsMaintenance = value;
+            masterClientList.Channels[Context.UserIdentifier ?? throw new InvalidOperationException()].IsMaintenance = value;
             return Task.CompletedTask;
         }
     }

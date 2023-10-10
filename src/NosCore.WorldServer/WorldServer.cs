@@ -61,7 +61,7 @@ namespace NosCore.WorldServer
             {
                 Console.Title += $@" - Port : {worldConfiguration.Value.Port}";
             }
-            await Policy
+            var connectTask = Policy
                 .Handle<Exception>()
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     (_, __, timeSpan) =>
@@ -69,7 +69,7 @@ namespace NosCore.WorldServer
                             logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
                             timeSpan.TotalSeconds)
                 ).ExecuteAsync(() => channelHubClient.Bind(channel));
-            await Task.WhenAny(clock.Run(stoppingToken), networkManager.RunServerAsync()).ConfigureAwait(false);
+            await Task.WhenAny(connectTask, clock.Run(stoppingToken), networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }
 }

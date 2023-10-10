@@ -32,13 +32,13 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.InterChannelCommunication;
 
-public class HubConnectionFactory(IOptions<WebApiConfiguration> configuration, IHasher hasher)
+public class HubConnectionFactory(IOptions<ServerConfiguration> serverConfiguration, IOptions<WebApiConfiguration> configuration, IHasher hasher)
 {
     public HubConnection Create(string name)
     {
         var claims = new ClaimsIdentity(new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, "Server"),
+            new Claim(ClaimTypes.NameIdentifier, serverConfiguration.Value.ToString()),
             new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
         });
         var password = hasher.Hash(configuration.Value.Password!, configuration.Value.Salt);

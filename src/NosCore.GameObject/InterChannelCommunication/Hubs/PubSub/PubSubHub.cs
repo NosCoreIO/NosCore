@@ -33,54 +33,9 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
 {
-    public class PubSubHub(ILogger<PubSubHub> logger, MasterClientList masterClientList, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class PubSubHub(MasterClientList masterClientList)
         : Hub, IPubSubHub
     {
-        public override async Task OnDisconnectedAsync(Exception? exception)
-        {
-            var data = masterClientList.Channels.TryGetValue(Context.ConnectionId, out var channel) ? channel : null;
-            if (data != null)
-            {
-                logger.LogDebug(logLanguage[LogLanguageKey.CONNECTION_LOST],
-                    data.Id.ToString(CultureInfo.CurrentCulture),
-                    data.Name);
-                masterClientList.Channels.Remove(Context.ConnectionId, out _);
-                masterClientList.ConnectedAccounts.Remove(Context.ConnectionId, out _);
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, data.Type.ToString());
-            }
-
-            await base.OnDisconnectedAsync(exception);
-        }
-
-        public Task Bind(Channel data)
-        {
-            var id = ++masterClientList.ConnectionCounter;
-            logger.LogDebug(logLanguage[LogLanguageKey.AUTHENTICATED_SUCCESS],
-                id.ToString(CultureInfo.CurrentCulture),
-                data.ClientName);
-            masterClientList.ConnectedAccounts.TryAdd(Context.ConnectionId,
-                new ConcurrentDictionary<long, Subscriber>());
-            var serv = new ChannelInfo
-            {
-                Name = data.ClientName,
-                Host = data.Host,
-                Port = data.Port,
-                DisplayPort = (ushort?)data.DisplayPort,
-                DisplayHost = data.DisplayHost,
-                IsMaintenance = data.StartInMaintenance,
-                Id = id,
-                ConnectedAccountLimit = data.ConnectedAccountLimit,
-                Type = data.ClientType,
-            };
-            masterClientList.Channels.AddOrUpdate(Context.ConnectionId, serv, (_, _) => serv);
-            return Task.CompletedTask;
-        }
-
-        public Task<List<ChannelInfo>> GetCommunicationChannels()
-        {
-            return Task.FromResult(masterClientList.Channels.Values.ToList());
-        }
-
         public Task<List<IMessage>> ReceiveMessagesAsync()
         {
             return Task.FromResult(masterClientList.Messages.Values.ToList());
@@ -108,14 +63,14 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
 
         public Task<bool> SubscribeAsync(Subscriber subscriber)
         {
-            subscriber.ChannelId = masterClientList.Channels[Context.ConnectionId].Id;
-            masterClientList.ConnectedAccounts[Context.ConnectionId].AddOrUpdate(subscriber.Id, subscriber, (_, _) => subscriber);
+            subscriber.ChannelId = masterClientList.Channels[Context.UserIdentifier ?? throw new InvalidOperationException()].Id;
+            masterClientList.ConnectedAccounts[Context.UserIdentifier ?? throw new InvalidOperationException()].AddOrUpdate(subscriber.Id, subscriber, (_, _) => subscriber);
             return Task.FromResult(true);
         }
 
         public Task<bool> UnsubscribeAsync(long id)
         {
-            return Task.FromResult(masterClientList.ConnectedAccounts[Context.ConnectionId].TryRemove(id, out _));
+            return Task.FromResult(masterClientList.ConnectedAccounts[Context.UserIdentifier ?? throw new InvalidOperationException()].TryRemove(id, out _));
         }
     }
 }

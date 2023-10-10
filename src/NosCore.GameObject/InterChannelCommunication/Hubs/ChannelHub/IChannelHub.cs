@@ -30,4 +30,6 @@ public interface IChannelHub
 
     Task<List<ChannelInfo>> GetCommunicationChannels();
     Task SetMaintenance(bool isGlobal, bool value);
+
+    Task<bool> Ping();
 }

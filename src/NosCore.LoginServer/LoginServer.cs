@@ -69,7 +69,7 @@ namespace NosCore.LoginServer
                 logger.Error(logLanguage[LogLanguageKey.DATABASE_NOT_UPTODATE]);
                 throw;
             }
-            await Policy
+            var connectTask = Policy
                  .Handle<Exception>()
                  .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                      (_, __, timeSpan) =>
@@ -78,7 +78,7 @@ namespace NosCore.LoginServer
                              timeSpan.TotalSeconds)
                  ).ExecuteAsync(() => channelHubClient.Bind(channel));
 
-            await Task.WhenAny(Task.CompletedTask, networkManager.RunServerAsync()).ConfigureAwait(false);
+            await Task.WhenAny(connectTask, networkManager.RunServerAsync()).ConfigureAwait(false);
         }
     }
 }

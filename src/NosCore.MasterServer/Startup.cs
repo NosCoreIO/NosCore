@@ -184,6 +184,9 @@ namespace NosCore.MasterServer
                 .SingleInstance();
 
             containerBuilder.RegisterType<ChannelHub>().SingleInstance().AsImplementedInterfaces();
+            containerBuilder.RegisterAssemblyTypes(typeof(ChannelHub).Assembly)
+                .Where(t => t.Name.EndsWith("Hub") && t.Name != nameof(ChannelHub))
+                .AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces();
