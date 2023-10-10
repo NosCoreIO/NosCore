@@ -24,7 +24,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
 {
     public class AuthHubClient(HubConnectionFactory hubConnectionFactory) : IAuthHub
     {
-        private readonly HubConnection _hubConnection = hubConnectionFactory.Create(nameof(AuthHubClient));
+        private readonly HubConnection _hubConnection = hubConnectionFactory.Create(nameof(AuthHub));
 
         public async Task<string?> GetAwaitingConnectionAsync(string? name, string packetPassword, int clientSessionSessionId)
         {

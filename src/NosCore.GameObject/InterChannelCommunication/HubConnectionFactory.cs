@@ -54,6 +54,7 @@ public class HubConnectionFactory(IOptions<WebApiConfiguration> configuration, I
             SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
         });
         return new HubConnectionBuilder()
+            .WithAutomaticReconnect()
             .WithUrl($"{configuration.Value}/{name}", options =>
             {
                 options.AccessTokenProvider = () => Task.FromResult((string?)handler.WriteToken(securityToken));

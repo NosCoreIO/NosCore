@@ -60,16 +60,16 @@ namespace NosCore.LoginServer
                 logger.Error(logLanguage[LogLanguageKey.DATABASE_NOT_UPTODATE]);
                 throw;
             }
-            var connectTask = Policy
-                .Handle<Exception>()
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                    (_, __, timeSpan) =>
-                        logger.Error(
-                            logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
-                            timeSpan.TotalSeconds)
-                ).ExecuteAsync(() => channelHubClient.Bind(channel));
+            await Policy
+                 .Handle<Exception>()
+                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                     (_, __, timeSpan) =>
+                         logger.Error(
+                             logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
+                             timeSpan.TotalSeconds)
+                 ).ExecuteAsync(() => channelHubClient.Bind(channel));
 
-            await Task.WhenAny(connectTask, networkManager.RunServerAsync()).ConfigureAwait(false);
+            await networkManager.RunServerAsync().ConfigureAwait(false);
         }
     }
 }

@@ -57,6 +57,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Core.Services.IdService;
+using NosCore.GameObject.InterChannelCommunication;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.Services.LoginService;
 using NosCore.Networking;
@@ -104,7 +105,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces();
             containerBuilder.RegisterType<SpamRequestFilter>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
-
+            containerBuilder.RegisterType<HubConnectionFactory>();
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ChannelHubClient>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
@@ -172,7 +173,7 @@ namespace NosCore.LoginServer
                     InitializeConfiguration(args, services);
                     services.AddI18NLogs();
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
-                    services.AddHttpClient();
+           
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);
                     services.AddHostedService<LoginServer>();

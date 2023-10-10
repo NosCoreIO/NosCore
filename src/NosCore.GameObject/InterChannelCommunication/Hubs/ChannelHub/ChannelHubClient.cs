@@ -9,7 +9,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
 {
     public class ChannelHubClient(HubConnectionFactory hubConnectionFactory) : IChannelHub
     {
-        private readonly HubConnection _hubConnection = hubConnectionFactory.Create(nameof(PubSubHub));
+        private readonly HubConnection _hubConnection = hubConnectionFactory.Create(nameof(ChannelHub));
 
         public async Task Bind(Channel data)
         {
