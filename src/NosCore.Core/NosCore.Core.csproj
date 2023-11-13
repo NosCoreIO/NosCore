@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -26,7 +26,7 @@
     <PackageReference Include="Autofac" Version="7.1.0" />
     <PackageReference Include="AutofacSerilogIntegration" Version="5.0.0" />
     <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
-    <PackageReference Include="FastExpressionCompiler" Version="3.3.4" />
+    <PackageReference Include="FastExpressionCompiler" Version="4.0.0" />
     <PackageReference Include="JsonPatch.Net" Version="2.1.0" />
     <PackageReference Include="Mapster" Version="7.4.0" />
     <PackageReference Include="Mapster.JsonNet" Version="1.1.1" />
