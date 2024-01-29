@@ -1,5 +1,5 @@
 cd ..
 
-dotnet build --runtime linux-musl-x64 --nologo
+dotnet build --nologo -p:TargetArch=linux-musl-x64
 docker-compose up --force-recreate --build master
 PAUSE

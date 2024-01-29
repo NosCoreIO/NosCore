@@ -7,7 +7,9 @@
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <InvariantGlobalization>false</InvariantGlobalization>
   </PropertyGroup>
+  
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>../../build/</OutputPath>
@@ -17,14 +19,18 @@
     <OutputPath>../../build/</OutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetArch)' == 'linux-musl-x64'">
+    <RuntimeIdentifier>linux-musl-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="7.1.0" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
+    <PackageReference Include="Autofac" Version="8.0.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Polly" Version="8.2.0" />
+    <PackageReference Include="Polly" Version="8.2.1" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
