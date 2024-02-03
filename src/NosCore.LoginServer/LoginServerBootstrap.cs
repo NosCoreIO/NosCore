@@ -105,7 +105,9 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<ClientSession>().AsImplementedInterfaces();
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<NetworkManager>();
-            containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces(); 
+            containerBuilder.Register(_ => new PipelineConfiguration()).AsImplementedInterfaces();
+
             containerBuilder.RegisterType<SpamRequestFilter>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
             containerBuilder.RegisterType<HubConnectionFactory>();

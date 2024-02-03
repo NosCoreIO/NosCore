@@ -173,6 +173,8 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces();
+            containerBuilder.Register(_ => new PipelineConfiguration { Delimiter = 63 }).AsImplementedInterfaces();
+
 
             //NosCore.GameObject
             containerBuilder.RegisterType<OctileDistanceHeuristic>().As<IHeuristic>();
@@ -340,9 +342,9 @@ namespace NosCore.WorldServer
                     }
 
                     InitializeConfiguration(args, services);
-                  
+
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
-        
+
                     services.AddI18NLogs();
                     services.AddTransient(typeof(IGameLanguageLocalizer), typeof(GameLanguageLocalizer));
                     services.AddTransient(typeof(ILogLanguageLocalizer<LanguageKey>),
