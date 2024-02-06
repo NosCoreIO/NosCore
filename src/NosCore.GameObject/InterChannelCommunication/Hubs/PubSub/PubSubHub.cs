@@ -63,14 +63,23 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
 
         public Task<bool> SubscribeAsync(Subscriber subscriber)
         {
-            subscriber.ChannelId = masterClientList.Channels[Context.UserIdentifier ?? throw new InvalidOperationException()].Id;
-            masterClientList.ConnectedAccounts[Context.UserIdentifier ?? throw new InvalidOperationException()].AddOrUpdate(subscriber.Id, subscriber, (_, _) => subscriber);
+            if (!masterClientList.ConnectedAccounts.ContainsKey(Context.UserIdentifier ?? throw new InvalidOperationException())
+                || !masterClientList.Channels.ContainsKey(Context.UserIdentifier ?? throw new InvalidOperationException()))
+            {
+                return Task.FromResult(false);
+            }
+            subscriber.ChannelId = masterClientList.Channels[Context.UserIdentifier].Id;
+            masterClientList.ConnectedAccounts[Context.UserIdentifier].AddOrUpdate(subscriber.Id, subscriber, (_, _) => subscriber);
             return Task.FromResult(true);
         }
 
         public Task<bool> UnsubscribeAsync(long id)
         {
-            return Task.FromResult(masterClientList.ConnectedAccounts[Context.UserIdentifier ?? throw new InvalidOperationException()].TryRemove(id, out _));
+            if (!masterClientList.ConnectedAccounts.ContainsKey(Context.UserIdentifier ?? throw new InvalidOperationException()))
+            {
+                return Task.FromResult(false);
+            }
+            return Task.FromResult(masterClientList.ConnectedAccounts[Context.UserIdentifier].TryRemove(id, out _));
         }
     }
 }
