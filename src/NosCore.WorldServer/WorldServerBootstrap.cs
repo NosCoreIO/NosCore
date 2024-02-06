@@ -19,8 +19,6 @@
 
 using Autofac.Extensions.DependencyInjection;
 using Autofac;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,7 +56,6 @@ using Mapster;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Localization;
-using Microsoft.OpenApi.Models;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
@@ -88,10 +85,6 @@ using NosCore.Packets;
 using ILogger = Serilog.ILogger;
 using Character = NosCore.GameObject.Character;
 using NosCore.Packets.Enumerations;
-using DotNetty.Transport.Channels.Sockets;
-using DotNetty.Buffers;
-using DotNetty.Codecs;
-using DotNetty.Transport.Channels;
 
 namespace NosCore.WorldServer
 {

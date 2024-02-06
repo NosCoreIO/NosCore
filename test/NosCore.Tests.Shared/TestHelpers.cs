@@ -53,7 +53,6 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
 using NosCore.GameObject.Holders;
-using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
