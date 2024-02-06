@@ -88,6 +88,10 @@ using NosCore.Packets;
 using ILogger = Serilog.ILogger;
 using Character = NosCore.GameObject.Character;
 using NosCore.Packets.Enumerations;
+using DotNetty.Transport.Channels.Sockets;
+using DotNetty.Buffers;
+using DotNetty.Codecs;
+using DotNetty.Transport.Channels;
 
 namespace NosCore.WorldServer
 {
@@ -173,7 +177,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces();
-            containerBuilder.Register(_ => new PipelineConfiguration { Delimiter = 63 }).AsImplementedInterfaces();
+            containerBuilder.Register(_ => new PipelineConfiguration { UseDelimiter = true }).AsImplementedInterfaces();
 
 
             //NosCore.GameObject
