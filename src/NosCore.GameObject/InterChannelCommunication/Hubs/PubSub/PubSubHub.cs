@@ -18,18 +18,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
-using NosCore.Core;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Messages;
-using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
 {

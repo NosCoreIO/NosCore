@@ -23,7 +23,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Json.Patch;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using NosCore.Core;

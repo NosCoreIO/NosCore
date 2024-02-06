@@ -37,7 +37,6 @@ using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Threading.Tasks;
-using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using System.Linq;
 

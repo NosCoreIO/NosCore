@@ -23,25 +23,15 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database;
-using Serilog;
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using DotNetty.Transport.Channels.Sockets;
 using NosCore.Core;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.Networking;
-using NosCore.Networking.Encoding;
-using NosCore.Networking.Encoding.Filter;
-using NosCore.Networking.SessionRef;
-using NosCore.Shared.Configuration;
 using NosCore.Shared.I18N;
 using Polly;
-using DotNetty.Transport.Bootstrapping;
-using DotNetty.Transport.Channels;
-using Microsoft.Extensions.Logging;
 
 namespace NosCore.LoginServer
 {

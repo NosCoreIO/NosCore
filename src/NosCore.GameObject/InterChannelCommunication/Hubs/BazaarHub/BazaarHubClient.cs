@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub
