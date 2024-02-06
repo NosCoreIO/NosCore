@@ -567,7 +567,7 @@ namespace NosCore.WorldServer
             }
 
             _logger.LogInformation($"last byte (delimiter) expected {(mapper.SessionId == 0 ? (byte)0xE : unchecked((byte)(63 + mapper.SessionId)))}");
-            _logger.LogInformation($"last byte (delimiter) received {str.Last()}");
+            _logger.LogInformation($"last byte (delimiter) received {str.LastOrDefault()}");
 
             if (continueToDecode)
             {
