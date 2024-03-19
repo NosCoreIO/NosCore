@@ -34,7 +34,7 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
-    <PackageReference Include="NodaTime.Serialization.SystemTextJson" Version="1.1.2" />
+    <PackageReference Include="NodaTime.Serialization.SystemTextJson" Version="1.2.0" />
     <PackageReference Include="NosCore.Dao" Version="4.0.0" />
     <PackageReference Include="NosCore.Networking" Version="6.0.0" />
     <PackageReference Include="NosCore.PathFinder" Version="2.0.1" />
