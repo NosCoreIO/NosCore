@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cdn.discordapp.com/attachments/319565884454731795/426892646288457728/N2.png"/>
+  <img src="https://github.com/NosCoreIO/NosCore.Packets/blob/15.0.1/icon.png"/>
 </p>
 
 # NosCore #
@@ -11,7 +11,6 @@
 <p align="left">
 <a href="https://aws.amazon.com"><img height="100px" src="https://chiefit.me/wp-content/uploads/2019/06/Amazon-Web-Services_logo835x396.png"/></a>
 <a href="https://www.navicat.com"><img height="100px" src="https://user-images.githubusercontent.com/35202750/207230064-dcf23adc-9e96-4481-9a53-cd212f5bd60e.png"/></a>
-<a href="https://www.jetbrains.com"><img height="100px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/JetBrains_Logo_2016.svg/1200px-JetBrains_Logo_2016.svg.png"/></a>
 </p>
 
 ## You want to contribute ? ##
