@@ -173,7 +173,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<NetworkManager>();
             containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces();
-            containerBuilder.Register(_ => new PipelineConfiguration { Delimiter = 63 }).AsImplementedInterfaces();
+            containerBuilder.Register(_ => new PipelineConfiguration { UseDelimiter = true }).AsImplementedInterfaces();
 
 
             //NosCore.GameObject
