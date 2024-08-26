@@ -36,6 +36,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NodaTime;
+using System.Threading;
 
 namespace NosCore.GameObject
 {
@@ -46,6 +47,7 @@ namespace NosCore.GameObject
         public NpcMonsterDto NpcMonster { get; private set; } = null!;
 
         public IDisposable? Life { get; private set; }
+        public ConcurrentDictionary<IAliveEntity, int> HitList => new();
 
         public void Initialize(NpcMonsterDto npcMonster, ShopDto? shopDto, NpcTalkDto? npcTalkDto, List<ShopItemDto> shopItemsDto)
         {
@@ -80,6 +82,7 @@ namespace NosCore.GameObject
             Shop.Session = null;
             Shop.ShopItems = shopItemsList;
         }
+        public SemaphoreSlim HitSemaphore { get; } = new SemaphoreSlim(1, 1);
 
         public byte Speed { get; set; }
         public byte Size { get; set; } = 10;

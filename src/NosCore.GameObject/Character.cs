@@ -55,6 +55,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
 using NodaTime;
@@ -75,6 +76,7 @@ namespace NosCore.GameObject
         : CharacterDto, ICharacterEntity
     {
         public ScriptDto? Script { get; set; }
+        public ConcurrentDictionary<IAliveEntity, int> HitList => new();
 
         public bool IsChangingMapInstance { get; set; }
 
@@ -177,6 +179,8 @@ namespace NosCore.GameObject
 
         public bool IsAlive { get; set; }
 
+        public SemaphoreSlim HitSemaphore { get; } = new SemaphoreSlim(1, 1);
+
         public int MaxHp
         {
             get
@@ -201,6 +205,7 @@ namespace NosCore.GameObject
         public List<StaticBonusDto> StaticBonusList { get; set; } = new();
         public List<TitleDto> Titles { get; set; } = new();
         public bool IsDisconnecting { get; internal set; }
+        public bool CanFight { get; set; } = true;
 
         public Task SendPacketAsync(IPacket? packetDefinition)
         {

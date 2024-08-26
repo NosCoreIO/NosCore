@@ -17,6 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
+using NosCore.GameObject.Services.BattleService;
+
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
     public interface IAliveEntity : IVisualEntity
@@ -60,5 +65,9 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         short Race { get; }
 
         Shop? Shop { get; }
+
+        SemaphoreSlim HitSemaphore { get; }
+
+        ConcurrentDictionary<IAliveEntity, int> HitList {get;}
     }
 }
