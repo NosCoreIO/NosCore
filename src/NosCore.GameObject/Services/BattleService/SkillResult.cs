@@ -26,4 +26,5 @@ public record SkillResult
     public int AttackAnimation { get; set; }
     public int SkillEffect { get; set; }
     public int SkillTypeMinusOne { get; set; }
+    public long CastId { get; set; }
 }

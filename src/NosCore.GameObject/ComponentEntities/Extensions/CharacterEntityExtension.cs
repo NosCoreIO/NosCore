@@ -184,33 +184,15 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static SkillPacket GenerateSki(this ICharacterEntity characterEntity)
         {
             List<CharacterSkill> characterSkills = characterEntity.Skills.Values.OrderBy(s => s.Skill?.CastId).ToList();
-            var packet = new SkillPacket();
-            if (!characterEntity.UseSp)
+            var packet = new SkillPacket
             {
-                packet.Skills.Add(new SubSkillPacket()
+                MainSkill = !characterEntity.UseSp ? 201 + 20 * (byte)characterEntity.Class : characterSkills.ElementAt(0).SkillVNum,
+                SecondarySkill = !characterEntity.UseSp ? 200 + 20 * (byte)characterEntity.Class : characterSkills.ElementAt(0).SkillVNum,
+                Skills = characterSkills.Select(x => new SubSkillPacket()
                 {
-                    VNum = 201 + 20 * (byte)characterEntity.Class
-                });
-                packet.Skills.Add(new SubSkillPacket()
-                {
-                    VNum = 200 + 20 * (byte)characterEntity.Class
-                });
-            }
-            else if (characterSkills.Any())
-            {
-                packet.Skills.Add(new SubSkillPacket()
-                {
-                    VNum = characterSkills.ElementAt(0).SkillVNum
-                });
-                packet.Skills.Add(new SubSkillPacket()
-                {
-                    VNum = characterSkills.ElementAt(0).SkillVNum
-                });
-            }
-            packet.Skills.AddRange(characterSkills.Select(x => new SubSkillPacket()
-            {
-                VNum = x.SkillVNum
-            }));
+                    VNum = x.SkillVNum
+                }).ToList()
+            };
             return packet;
         }
 

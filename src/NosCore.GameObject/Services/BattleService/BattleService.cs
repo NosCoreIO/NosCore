@@ -24,6 +24,7 @@ using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.Enumerations;
+using static NosCore.Data.Enumerations.Buff.AdditionalTypes;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -96,6 +97,8 @@ public class BattleService : IBattleService
                 HitMode = damage.HitMode,
                 SkillTypeMinusOne = skillResult.SkillTypeMinusOne,
             });
+
+            await HandleCooldown(origin, skillResult);
         }
         catch
         {
@@ -105,6 +108,22 @@ public class BattleService : IBattleService
         {
             target.HitSemaphore.Release();
         }
+    }
+
+    private Task HandleCooldown(IAliveEntity origin, SkillResult skill)
+    {
+        if (origin is ICharacterEntity character)
+        {
+            _ = Task.Run(async () =>
+             {
+                 await Task.Delay(skill.SkillCooldown * 100);
+                 await character.SendPacketAsync(new SkillResetPacket()
+                 {
+                     CastId = skill.CastId
+                 });
+             });
+        }
+        return Task.CompletedTask;
     }
 
     private async Task HandleReward(IAliveEntity target)
@@ -137,17 +156,33 @@ public class BattleService : IBattleService
 
     private Task<SkillResult> GetSkill(IAliveEntity origin, long argumentsSkillId)
     {
+        var skillVnum = 0;
+        var skillCooldown = 0;
+        var attackAnimation = 0;
+        var skillEffect = 0;
+        var skillTypeMinusOne = 0;
         if (origin is ICharacterEntity character)
         {
-            //character.CharacterSkill
+            var ski = character.Skills.Values.First(s =>
+                s.Skill?.CastId == argumentsSkillId && s.Skill?.UpgradeSkill == 0);
+            var skillinfo = character.Skills.Select(s => s.Value).OrderBy(o => o.SkillVNum)
+                .FirstOrDefault(s =>
+                    s.Skill!.UpgradeSkill == ski.Skill!.SkillVNum && s.Skill.Effect > 0 && s.Skill.SkillType == 2);
+            skillVnum = ski.SkillVNum;
+            skillCooldown = ski.Skill!.Cooldown;
+            attackAnimation = ski.Skill.AttackAnimation;
+            skillEffect = skillinfo?.Skill?.CastEffect ?? ski.Skill.CastEffect;
+            skillTypeMinusOne = ski.Skill.Type - 1;
         }
+
         return Task.FromResult(new SkillResult
         {
-            SkillVnum = 240,
-            SkillCooldown = 7,
-            AttackAnimation = 11,
-            SkillEffect = 257,
-            SkillTypeMinusOne = 175,
+            CastId = argumentsSkillId,
+            SkillVnum = skillVnum,
+            SkillCooldown = skillCooldown,
+            AttackAnimation = attackAnimation,
+            SkillEffect = skillEffect,
+            SkillTypeMinusOne = skillTypeMinusOne,
         });
 
     }
