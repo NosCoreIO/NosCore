@@ -45,6 +45,7 @@ using System.Threading.Tasks;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
+using NosCore.Data;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
@@ -54,7 +55,7 @@ using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Shared.I18N;
 using Serilog;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-
+using NosCore.GameObject.Services.BattleService;
 using PostedPacket = NosCore.GameObject.InterChannelCommunication.Messages.PostedPacket;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
@@ -178,6 +179,21 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
         public static GoldPacket GenerateGold(this ICharacterEntity characterEntity)
         {
             return new GoldPacket { Gold = characterEntity.Gold };
+        }
+
+        public static SkillPacket GenerateSki(this ICharacterEntity characterEntity)
+        {
+            List<CharacterSkill> characterSkills = characterEntity.Skills.Values.OrderBy(s => s.Skill?.CastId).ToList();
+            var packet = new SkillPacket
+            {
+                MainSkill = !characterEntity.UseSp ? 201 + 20 * (byte)characterEntity.Class : characterSkills.ElementAt(0).SkillVNum,
+                SecondarySkill = !characterEntity.UseSp ? 200 + 20 * (byte)characterEntity.Class : characterSkills.ElementAt(0).SkillVNum,
+                Skills = characterSkills.Select(x => new SubSkillPacket()
+                {
+                    VNum = x.SkillVNum
+                }).ToList()
+            };
+            return packet;
         }
 
         public static IEnumerable<QSlotPacket> GenerateQuicklist(this ICharacterEntity characterEntity)

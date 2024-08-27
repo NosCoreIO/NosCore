@@ -30,6 +30,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
@@ -75,6 +76,8 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
 
         List<QuicklistEntryDto> QuicklistEntries { get; }
+
+        ConcurrentDictionary<short, CharacterSkill> Skills { get; }
 
         long Gold { get; }
 

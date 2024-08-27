@@ -68,6 +68,9 @@ namespace NosCore.Core.Configuration
 
 #pragma warning disable CA2227 // Collection properties should be read only
         public Dictionary<string, List<BasicEquipment>> BasicEquipments { get; set; } = new();
+
+        public Dictionary<string, List<short>> BasicSkills { get; set; } = new();
+        
 #pragma warning restore CA2227 // Collection properties should be read only
     }
 

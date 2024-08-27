@@ -25,6 +25,7 @@ using NosCore.Core.Configuration;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
@@ -48,7 +49,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IItemGenerationService itemBuilderService,
             IDao<QuicklistEntryDto, Guid> quicklistEntryDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IHpService hpService, IMpService mpService,
-            IOptions<WorldConfiguration> worldConfiguration)
+            IOptions<WorldConfiguration> worldConfiguration, IDao<CharacterSkillDto, Guid> characterSkillDao)
         : PacketHandler<CharNewPacket>, IWorldPacketHandler
     {
         private readonly WorldConfiguration _worldConfiguration = worldConfiguration.Value;
@@ -135,6 +136,28 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilderService.Create(itemToAdd.VNum, itemToAdd.Amount), charaGo.CharacterId), itemToAdd.NoscorePocketType);
                     }
 
+                    var skillsToAdd = new List<short>();
+                    foreach (var skill in _worldConfiguration.BasicSkills)
+                    {
+                        switch (skill.Key)
+                        {
+                            case nameof(CharacterClassType.Adventurer) when @class != CharacterClassType.Adventurer:
+                            case nameof(CharacterClassType.Archer) when @class != CharacterClassType.Archer:
+                            case nameof(CharacterClassType.Mage) when @class != CharacterClassType.Mage:
+                            case nameof(CharacterClassType.MartialArtist) when @class != CharacterClassType.MartialArtist:
+                            case nameof(CharacterClassType.Swordsman) when @class != CharacterClassType.Swordsman:
+                                break;
+                            default:
+                                skillsToAdd.AddRange(_worldConfiguration.BasicSkills[skill.Key]);
+                                break;
+                        }
+                    }
+
+                    foreach (var skillToAdd in skillsToAdd)
+                    {
+                        await characterSkillDao.TryInsertOrUpdateAsync(new CharacterSkillDto
+                        { CharacterId = chara.CharacterId, SkillVNum = skillToAdd, Id = Guid.NewGuid()});
+                    }
 
                     await quicklistEntryDao.TryInsertOrUpdateAsync(new[] {
                         new QuicklistEntryDto

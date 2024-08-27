@@ -30,6 +30,8 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.GameObject.Services.SpeedCalculationService;
+using System.Threading;
+using System.Collections.Concurrent;
 
 namespace NosCore.GameObject
 {
@@ -40,6 +42,7 @@ namespace NosCore.GameObject
         public NpcMonsterDto NpcMonster { get; private set; } = null!;
 
         public IDisposable? Life { get; private set; }
+        public ConcurrentDictionary<IAliveEntity, int> HitList => new();
 
         public void Initialize(NpcMonsterDto npcMonster)
         {
@@ -64,6 +67,7 @@ namespace NosCore.GameObject
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
         public VisualType VisualType => VisualType.Monster;
+        public SemaphoreSlim HitSemaphore { get; } = new SemaphoreSlim(1, 1);
 
         public long VisualId => MapMonsterId;
 

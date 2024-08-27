@@ -53,3 +53,8 @@ BasicEquipments:
   - VNum: 2081
     Amount: 1
     NoscorePocketType: 2
+BasicSkills:
+  Adventurer:
+  - 200
+  - 201
+  - 209

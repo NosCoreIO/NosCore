@@ -23,7 +23,9 @@ using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Shared.Enumerations;
 using System;
+using System.Collections.Concurrent;
 using NodaTime;
+using System.Threading;
 
 namespace NosCore.GameObject
 {
@@ -48,6 +50,9 @@ namespace NosCore.GameObject
         public string? Name { get; set; }
         public VisualType VisualType => VisualType.Monster;
         public long VisualId => 0; // PetId;
+        public SemaphoreSlim HitSemaphore { get; } = new SemaphoreSlim(1, 1);
+
+        public ConcurrentDictionary<IAliveEntity, int> HitList => new();
 
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
