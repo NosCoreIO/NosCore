@@ -38,6 +38,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.Services.SkillService;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -46,7 +47,7 @@ namespace NosCore.PacketHandlers.Game
             IChannelHub channelHttpClient,
             IPubSubHub pubSubHub, IBlacklistHub blacklistHttpClient,
             ISerializer packetSerializer, IMailHub mailHttpClient, IQuestService questProvider,
-            IMapChangeService mapChangeService)
+            IMapChangeService mapChangeService, ISkillService skillService)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(GameStartPacket packet, ClientSession session)
@@ -74,7 +75,8 @@ namespace NosCore.PacketHandlers.Game
                     SayColorType.Yellow)).ConfigureAwait(false);
             }
 
-            //            Session.Character.LoadSkills();
+
+            await skillService.LoadSkill(session.Character);
             await session.SendPacketAsync(session.Character.GenerateTit()).ConfigureAwait(false);
             await session.SendPacketAsync(session.Character.GenerateSpPoint()).ConfigureAwait(false);
             await session.SendPacketAsync(session.Character.GenerateRsfi()).ConfigureAwait(false);
@@ -156,6 +158,8 @@ namespace NosCore.PacketHandlers.Game
 
             await session.SendPacketAsync(session.Character.GenerateGold()).ConfigureAwait(false);
             await session.SendPacketAsync(session.Character.GenerateCond()).ConfigureAwait(false);
+
+            await session.SendPacketAsync(session.Character.GenerateSki());
             await session.SendPacketsAsync(session.Character.GenerateQuicklist()).ConfigureAwait(false);
 
             //            string clinit = ServerManager.Instance.TopComplimented.Aggregate("clinit",

@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using NodaTime;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using System.Threading;
+using System.Collections.Concurrent;
 
 namespace NosCore.GameObject
 {

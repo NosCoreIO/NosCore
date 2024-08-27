@@ -59,7 +59,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using DotNetty.Transport.Channels;
 using NodaTime;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
+using NosCore.GameObject.Services.SkillService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
@@ -77,6 +79,9 @@ namespace NosCore.GameObject
     {
         public ScriptDto? Script { get; set; }
         public ConcurrentDictionary<IAliveEntity, int> HitList => new();
+
+
+        public ConcurrentDictionary<short, CharacterSkill> Skills { get; } = new();
 
         public bool IsChangingMapInstance { get; set; }
 

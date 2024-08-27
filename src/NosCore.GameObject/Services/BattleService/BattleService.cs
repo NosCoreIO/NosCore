@@ -53,7 +53,7 @@ public class BattleService : IBattleService
                 origin.PositionY = arguments.MapY.Value;
             }
 
-            var skillResult = await GetSkill(origin.VisualType, arguments.SkillId);
+            var skillResult = await GetSkill(origin, arguments.SkillId);
 
             var damage = await CalculateDamage(origin, target);
 
@@ -114,19 +114,8 @@ public class BattleService : IBattleService
         {
             if (damageEntity.Key.IsAlive && damageEntity.Key.MapInstanceId == target.MapInstanceId)
             {
-                var percentageDamage = (float)damageEntity.Value / damageEntities.Sum(x=>x.Value);
-                if (percentageDamage > 0.2)
-                {
-                    await FullReward(damageEntity.Key, target);
-                }
-                else if (percentageDamage > 0.2)
-                {
-                    await HalfReward(damageEntity.Key, target);
-                }
-                else
-                {
-                    await NoReward(damageEntity.Key, target);
-                }
+                var percentageDamage = (float)damageEntity.Value / damageEntities.Sum(x => x.Value);
+                await FullReward(damageEntity.Key, target);
             }
         }
 
@@ -138,27 +127,20 @@ public class BattleService : IBattleService
             switch (received.VisualType)
             {
                 case VisualType.Player:
-                    var character = received as ICharacterEntity;
                     break;
                 default:
                     break;
             }
             return Task.CompletedTask;
         }
-
-        Task HalfReward(IAliveEntity received, IAliveEntity target)
-        {
-            return Task.CompletedTask;
-        }
-
-        Task NoReward(IAliveEntity received, IAliveEntity target)
-        {
-            return Task.CompletedTask;
-        }
     }
 
-    private Task<SkillResult> GetSkill(VisualType originVisualType, long argumentsSkillId)
+    private Task<SkillResult> GetSkill(IAliveEntity origin, long argumentsSkillId)
     {
+        if (origin is ICharacterEntity character)
+        {
+            //character.CharacterSkill
+        }
         return Task.FromResult(new SkillResult
         {
             SkillVnum = 240,
