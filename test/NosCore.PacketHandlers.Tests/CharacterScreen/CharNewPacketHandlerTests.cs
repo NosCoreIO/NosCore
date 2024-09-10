@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _charNewPacketHandler =
                 new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.MinilandDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
-                    new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), TestHelpers.Instance.WorldConfiguration);
+                    new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), TestHelpers.Instance.WorldConfiguration, new Mock<IDao<CharacterSkillDto,Guid>>().Object);
             _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { _charNewPacketHandler }).ConfigureAwait(false);
             _chara = _session.Character;
             _mapChangeService = new Mock<IMapChangeService>();
