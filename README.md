@@ -5,7 +5,6 @@
 # NosCore #
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/643fd3df0ce742ec9b2ac3dab95bdc44)](https://www.codacy.com/gh/NosCoreIO/NosCore/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=NosCoreIO/NosCore&amp;utm_campaign=Badge_Grade)
 [![.NET](https://github.com/NosCoreIO/NosCore/actions/workflows/dotnet.yml/badge.svg?branch=master)](https://github.com/NosCoreIO/NosCore/actions/workflows/dotnet.yml)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/NosCoreIO/NosCore.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/NosCoreIO/NosCore/alerts/)
 
 # Special Thanks for Contributions #
 <p align="left">
