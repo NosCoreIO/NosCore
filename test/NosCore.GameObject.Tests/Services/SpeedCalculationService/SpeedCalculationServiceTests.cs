@@ -39,11 +39,11 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
         }
 
         [DataTestMethod]
-        [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Mage)]
-        [DataRow(CharacterClassType.Swordsman)]
-        [DataRow(CharacterClassType.MartialArtist)]
-        [DataRow(CharacterClassType.Adventurer)]
+        [DataRow((int)CharacterClassType.Archer)]
+        [DataRow((int)CharacterClassType.Mage)]
+        [DataRow((int)CharacterClassType.Swordsman)]
+        [DataRow((int)CharacterClassType.MartialArtist)]
+        [DataRow((int)CharacterClassType.Adventurer)]
         public void DefaultSpeedIsClassSpeed(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
@@ -57,11 +57,11 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
         }
 
         [DataTestMethod]
-        [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Mage)]
-        [DataRow(CharacterClassType.Swordsman)]
-        [DataRow(CharacterClassType.MartialArtist)]
-        [DataRow(CharacterClassType.Adventurer)]
+        [DataRow((int)CharacterClassType.Archer)]
+        [DataRow((int)CharacterClassType.Mage)]
+        [DataRow((int)CharacterClassType.Swordsman)]
+        [DataRow((int)CharacterClassType.MartialArtist)]
+        [DataRow((int)CharacterClassType.Adventurer)]
         public void VehicleSpeedOverrideDefaultSpeed(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
