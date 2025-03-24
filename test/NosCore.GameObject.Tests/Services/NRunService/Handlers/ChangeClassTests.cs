@@ -64,9 +64,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         }
 
         [DataTestMethod]
-        [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Mage)]
-        [DataRow(CharacterClassType.Swordsman)]
+        [DataRow((int)CharacterClassType.Archer)]
+        [DataRow((int)CharacterClassType.Mage)]
+        [DataRow((int)CharacterClassType.Swordsman)]
         public async Task UserCantChangeClassLowLevelAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
@@ -84,9 +84,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         }
 
         [DataTestMethod]
-        [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Mage)]
-        [DataRow(CharacterClassType.Swordsman)]
+        [DataRow((int)CharacterClassType.Archer)]
+        [DataRow((int)CharacterClassType.Mage)]
+        [DataRow((int)CharacterClassType.Swordsman)]
         public async Task UserCantChangeClassLowJobLevelAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
@@ -104,9 +104,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         }
 
         [DataTestMethod]
-        [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Mage)]
-        [DataRow(CharacterClassType.Swordsman)]
+        [DataRow((int)CharacterClassType.Archer)]
+        [DataRow((int)CharacterClassType.Mage)]
+        [DataRow((int)CharacterClassType.Swordsman)]
         public async Task UserCantChangeBadClassAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
@@ -122,8 +122,8 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         }
 
         [DataTestMethod]
-        [DataRow(CharacterClassType.MartialArtist)]
-        [DataRow(CharacterClassType.Adventurer)]
+        [DataRow((int)CharacterClassType.MartialArtist)]
+        [DataRow((int)CharacterClassType.Adventurer)]
         public async Task UserCantChangeToBadClassAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
@@ -143,9 +143,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         }
 
         [DataTestMethod]
-        [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Mage)]
-        [DataRow(CharacterClassType.Swordsman)]
+        [DataRow((int)CharacterClassType.Archer)]
+        [DataRow((int)CharacterClassType.Mage)]
+        [DataRow((int)CharacterClassType.Swordsman)]
         public async Task UserCanChangeClassAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
@@ -164,9 +164,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         }
 
         [DataTestMethod]
-        [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Mage)]
-        [DataRow(CharacterClassType.Swordsman)]
+        [DataRow((int)CharacterClassType.Archer)]
+        [DataRow((int)CharacterClassType.Mage)]
+        [DataRow((int)CharacterClassType.Swordsman)]
         public async Task UserCanNotChangeClassWhenEquipmentAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;

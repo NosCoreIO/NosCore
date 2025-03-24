@@ -63,23 +63,23 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         }
 
         [DataTestMethod]
-        [DataRow(EquipmentType.MainWeapon)]
-        [DataRow(EquipmentType.Armor)]
-        [DataRow(EquipmentType.Hat)]
-        [DataRow(EquipmentType.Gloves)]
-        [DataRow(EquipmentType.Boots)]
-        [DataRow(EquipmentType.SecondaryWeapon)]
-        [DataRow(EquipmentType.Necklace)]
-        [DataRow(EquipmentType.Ring)]
-        [DataRow(EquipmentType.Bracelet)]
-        [DataRow(EquipmentType.Mask)]
-        [DataRow(EquipmentType.Fairy)]
-        [DataRow(EquipmentType.Amulet)]
-        [DataRow(EquipmentType.Sp)]
-        [DataRow(EquipmentType.CostumeSuit)]
-        [DataRow(EquipmentType.CostumeHat)]
-        [DataRow(EquipmentType.WeaponSkin)]
-        [DataRow(EquipmentType.WingSkin)]
+        [DataRow((int)EquipmentType.MainWeapon)]
+        [DataRow((int)EquipmentType.Armor)]
+        [DataRow((int)EquipmentType.Hat)]
+        [DataRow((int)EquipmentType.Gloves)]
+        [DataRow((int)EquipmentType.Boots)]
+        [DataRow((int)EquipmentType.SecondaryWeapon)]
+        [DataRow((int)EquipmentType.Necklace)]
+        [DataRow((int)EquipmentType.Ring)]
+        [DataRow((int)EquipmentType.Bracelet)]
+        [DataRow((int)EquipmentType.Mask)]
+        [DataRow((int)EquipmentType.Fairy)]
+        [DataRow((int)EquipmentType.Amulet)]
+        [DataRow((int)EquipmentType.Sp)]
+        [DataRow((int)EquipmentType.CostumeSuit)]
+        [DataRow((int)EquipmentType.CostumeHat)]
+        [DataRow((int)EquipmentType.WeaponSkin)]
+        [DataRow((int)EquipmentType.WingSkin)]
         public async Task Test_Wear_Put_Item_CorrectSlotAsync(int typeInt)
         {
             var type = (EquipmentType)typeInt;
@@ -103,11 +103,11 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         }
 
         [DataTestMethod]
-        [DataRow(CharacterClassType.Adventurer)]
-        [DataRow(CharacterClassType.Archer)]
-        [DataRow(CharacterClassType.Mage)]
-        [DataRow(CharacterClassType.MartialArtist)]
-        [DataRow(CharacterClassType.Swordsman)]
+        [DataRow((int)CharacterClassType.Adventurer)]
+        [DataRow((int)CharacterClassType.Archer)]
+        [DataRow((int)CharacterClassType.Mage)]
+        [DataRow((int)CharacterClassType.MartialArtist)]
+        [DataRow((int)CharacterClassType.Swordsman)]
         public async Task Test_Wear_Put_Item_BadClassAsync(int characterClassInt)
         {
             var classToTest = (CharacterClassType)characterClassInt;
@@ -145,8 +145,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
 
 
         [DataTestMethod]
-        [DataRow(GenderType.Female)]
-        [DataRow(GenderType.Male)]
+        [DataRow((int)GenderType.Female)]
+        [DataRow((int)GenderType.Male)]
         public async Task Test_Wear_Put_Item_BadGenderAsync(int genderToTestInt)
         {
             var genderToTest = (GenderType)genderToTestInt;
