@@ -966,8 +966,8 @@
       },
       "Serilog.Extensions.Logging": {
         "type": "Transitive",
-        "resolved": "9.0.0",
-        "contentHash": "NwSSYqPJeKNzl5AuXVHpGbr6PkZJFlNa14CdIebVjK3k/76kYj/mz5kiTRNVSsSaxM8kAIa1kpy/qyT9E4npRQ==",
+        "resolved": "9.0.1",
+        "contentHash": "IZo04/stVuOBhe0jzIe+6gVmiZ50i1cDljTnDyz6lqM7rbNhrHsPWg3IraJIvzZBihYPg5V9TVQYgRnm3xX8eA==",
         "dependencies": {
           "Microsoft.Extensions.Logging": "9.0.0",
           "Serilog": "4.2.0"
@@ -1690,7 +1690,7 @@
           "Microsoft.Extensions.Logging": "[9.0.3, )",
           "NosCore.Database": "[1.0.0, )",
           "NosCore.GameObject": "[1.0.0, )",
-          "Serilog.Extensions.Logging": "[9.0.0, )",
+          "Serilog.Extensions.Logging": "[9.0.1, )",
           "System.Reactive": "[6.0.1, )"
         }
       },
@@ -1738,7 +1738,7 @@
           "NosCore.Database": "[1.0.0, )",
           "NosCore.PacketHandlers": "[1.0.0, )",
           "Polly": "[8.5.2, )",
-          "Serilog.Extensions.Logging": "[9.0.0, )",
+          "Serilog.Extensions.Logging": "[9.0.1, )",
           "ServiceStack.Kestrel": "[8.6.0, )",
           "Swashbuckle.AspNetCore": "[8.0.0, )"
         }
