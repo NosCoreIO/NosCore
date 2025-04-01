@@ -83,8 +83,8 @@
       },
       "FastExpressionCompiler": {
         "type": "Transitive",
-        "resolved": "5.0.2",
-        "contentHash": "8YlhS7OVs93Pp8ZHKFDsP/S0DkwDwYz3s3ns5LpourkJdFiFXsgLiiFhvLoKhKCMR7+kApkir7Qrc24AtwA8wA=="
+        "resolved": "5.1.0",
+        "contentHash": "4+7a6iGUkpvRXWgwXNecCaUvPmdUw0gfmBBRitGWnqhN4tnZOlky64WUtuhOka2yflT3we7KKZtngaX10lwChA=="
       },
       "Humanizer.Core": {
         "type": "Transitive",
@@ -1340,7 +1340,7 @@
           "Autofac": "[8.2.0, )",
           "AutofacSerilogIntegration": "[5.0.0, )",
           "BCrypt.Net-Core": "[1.6.0, )",
-          "FastExpressionCompiler": "[5.0.2, )",
+          "FastExpressionCompiler": "[5.1.0, )",
           "JsonPatch.Net": "[3.3.0, )",
           "Mapster": "[7.4.0, )",
           "Mapster.JsonNet": "[1.1.1, )",
