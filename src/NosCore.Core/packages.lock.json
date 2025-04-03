@@ -29,9 +29,9 @@
       },
       "FastExpressionCompiler": {
         "type": "Direct",
-        "requested": "[5.0.2, )",
-        "resolved": "5.0.2",
-        "contentHash": "8YlhS7OVs93Pp8ZHKFDsP/S0DkwDwYz3s3ns5LpourkJdFiFXsgLiiFhvLoKhKCMR7+kApkir7Qrc24AtwA8wA=="
+        "requested": "[5.1.1, )",
+        "resolved": "5.1.1",
+        "contentHash": "oRzJ5PzMZCZiEbFjLmEh/XzvGnL+uIWJHihyCvlFUiE4NLujLNC8a9MBF4DMEQlQaXZM40iSNdckNaW1VQt72Q=="
       },
       "JsonPatch.Net": {
         "type": "Direct",
