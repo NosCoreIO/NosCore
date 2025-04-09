@@ -1423,8 +1423,8 @@
       },
       "System.Text.Json": {
         "type": "Transitive",
-        "resolved": "9.0.3",
-        "contentHash": "r2JRkLjsYrq5Dpo7+y3Wa73OfirZPdVhxiTJWwZ+oJM7FOAe0LkM3GlH+pgkNRdd1G1kwUbmRCdmh4uoaWwu1g=="
+        "resolved": "9.0.4",
+        "contentHash": "pYtmpcO6R3Ef1XilZEHgXP2xBPVORbYEzRP7dl0IAAbN8Dm+kfwio8aCKle97rAWXOExr292MuxWYurIuwN62g=="
       },
       "System.Threading": {
         "type": "Transitive",
@@ -1491,7 +1491,7 @@
           "System.IdentityModel.Tokens.Jwt": "[8.7.0, )",
           "System.Memory": "[4.6.2, )",
           "System.Text.Encoding.CodePages": "[9.0.3, )",
-          "System.Text.Json": "[9.0.3, )",
+          "System.Text.Json": "[9.0.4, )",
           "TwoFactorAuth.Net": "[1.4.0, )"
         }
       },
