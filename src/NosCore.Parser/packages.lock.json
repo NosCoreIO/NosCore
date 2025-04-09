@@ -214,8 +214,8 @@
       },
       "Microsoft.AspNetCore.Authentication.JwtBearer": {
         "type": "Transitive",
-        "resolved": "9.0.3",
-        "contentHash": "7+u/rBzHSd9KDT4uLxI8j6n5IKiQ59Yvct6KcYM0QL2ynfBMkon01dDFgQJMpeZf7PTOi5wtI3EEO/dnjsFA1g==",
+        "resolved": "9.0.4",
+        "contentHash": "0HgfWPfnjlzWFbW4pw6FYNuIMV8obVU+MUkiZ33g4UOpvZcmdWzdayfheKPZ5+EUly8SvfgW0dJwwIrW4IVLZQ==",
         "dependencies": {
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "8.0.1"
         }
@@ -1470,7 +1470,7 @@
           "JsonPatch.Net": "[3.3.0, )",
           "Mapster": "[7.4.0, )",
           "Mapster.JsonNet": "[1.1.1, )",
-          "Microsoft.AspNetCore.Authentication.JwtBearer": "[9.0.3, )",
+          "Microsoft.AspNetCore.Authentication.JwtBearer": "[9.0.4, )",
           "Microsoft.AspNetCore.SignalR.Client": "[9.0.3, )",
           "Microsoft.Extensions.Configuration.Json": "[9.0.3, )",
           "Microsoft.Extensions.Http": "[9.0.3, )",
