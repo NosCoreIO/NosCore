@@ -119,15 +119,15 @@
       },
       "ServiceStack.Kestrel": {
         "type": "Direct",
-        "requested": "[8.6.0, )",
-        "resolved": "8.6.0",
-        "contentHash": "/F8MTSWkJFUkXf0UgjpegEEIGb3mitD3sDn8WoaJXcCQI5VSORB7NQ7+4X+qLDPWVXjk0AfJ2LKWHzlwUByTfA==",
+        "requested": "[8.7.2, )",
+        "resolved": "8.7.2",
+        "contentHash": "mad2DiZJqWeAxm7OJM+lyznxETQO/vavoRkHP4silsk9Bl+W480iAXWMHkEOL8jrHd4Lv8gppiWJTaI1aqhIXQ==",
         "dependencies": {
-          "ServiceStack": "8.6.0",
-          "ServiceStack.Client": "8.6.0",
-          "ServiceStack.Common": "8.6.0",
-          "ServiceStack.Interfaces": "8.6.0",
-          "ServiceStack.Text": "8.6.0",
+          "ServiceStack": "8.7.2",
+          "ServiceStack.Client": "8.7.2",
+          "ServiceStack.Common": "8.7.2",
+          "ServiceStack.Interfaces": "8.7.2",
+          "ServiceStack.Text": "8.7.2",
           "System.Memory": "4.6.0"
         }
       },
@@ -894,44 +894,44 @@
       },
       "ServiceStack": {
         "type": "Transitive",
-        "resolved": "8.6.0",
-        "contentHash": "x/xYs3FtIMWWtX614QjJV2/qctYbwV/y5MbPoC3FLXAuu1BlfOGVC/kp0UK7JnHOeJGM6OhQ//b/SA0i10En8w==",
+        "resolved": "8.7.2",
+        "contentHash": "2xwSq5NF+MdFbuOl29uaUdpZgJ2iwvmQoyRrnHiBQ7ULY4kZwBQW0eXPUf3bK6VuWeXOkENnRbTtNHDQRlYZ/g==",
         "dependencies": {
-          "ServiceStack.Client": "8.6.0",
-          "ServiceStack.Common": "8.6.0",
-          "ServiceStack.Interfaces": "8.6.0",
-          "ServiceStack.Text": "8.6.0"
+          "ServiceStack.Client": "8.7.2",
+          "ServiceStack.Common": "8.7.2",
+          "ServiceStack.Interfaces": "8.7.2",
+          "ServiceStack.Text": "8.7.2"
         }
       },
       "ServiceStack.Client": {
         "type": "Transitive",
-        "resolved": "8.6.0",
-        "contentHash": "lNY7ch6kYLcYxHQJ+wdIuUF7D75Lk5LlWzJtrYyYGBVUXz0gV4eyS4Fzn0l/AzWNt/Wt0J+p6f2SJAF1vN8RfQ==",
+        "resolved": "8.7.2",
+        "contentHash": "ed0HC6icNJXCD0K/17pEdNe6hBv5p+ni6ZhrloeHCzvFGSP2MybY6JB6Dep7RDoeO7EQ/uj5UHFxaP8UfLqXtw==",
         "dependencies": {
           "Microsoft.Extensions.Http": "8.0.0",
-          "ServiceStack.Interfaces": "8.6.0",
-          "ServiceStack.Text": "8.6.0"
+          "ServiceStack.Interfaces": "8.7.2",
+          "ServiceStack.Text": "8.7.2"
         }
       },
       "ServiceStack.Common": {
         "type": "Transitive",
-        "resolved": "8.6.0",
-        "contentHash": "jWzL+t6n7d/ztPITrYXvAWP90Xxn3PN0xZsp4TgWmXF3ES6QkQtDNzz42WyOsl+lV1JrYY4vzQt4tYRfPlIrMw==",
+        "resolved": "8.7.2",
+        "contentHash": "QIpgyMQaQ3y0yRQWp1zTPomXkS/4tl2EEYLVSxnevAnV2Vw/4Nh8pMI2w9gGWTrhLPXirqiT/hd5kfi/jPhh7w==",
         "dependencies": {
-          "ServiceStack.Interfaces": "8.6.0",
-          "ServiceStack.Text": "8.6.0",
+          "ServiceStack.Interfaces": "8.7.2",
+          "ServiceStack.Text": "8.7.2",
           "System.Memory": "4.6.0"
         }
       },
       "ServiceStack.Interfaces": {
         "type": "Transitive",
-        "resolved": "8.6.0",
-        "contentHash": "qD9l9/JZa+O33NJ2638220BdcPAqv/4qSYe6UItf/fEwZXDKwJwO22w6tJ8iLA+PLQvpq+F5laYp77e1QXPibw=="
+        "resolved": "8.7.2",
+        "contentHash": "aXrUqeEqy25+opMPIs+9FWVG1TfthM6qfHw74eX4g32wVHDCYS2OX1VhtohgAN3euD5dNzKa+sJUj8LCO78vBg=="
       },
       "ServiceStack.Text": {
         "type": "Transitive",
-        "resolved": "8.6.0",
-        "contentHash": "Ek2s5lUhG5MaI9Y1a7vZvfTHcavR7MWxJMMzFCyfZbcGedFM9Pm+34sOZw7GhT3xBtNIgNIKD/w7j5I30P1bFg==",
+        "resolved": "8.7.2",
+        "contentHash": "Aa5TCbBllL27yAOBNYuBI6mLfzzCfdeB3kf5pw0A9Iv0vLIUBw9oIWglYIxPdS+QS+CL2cn2a/jUGdHzq2EzMA==",
         "dependencies": {
           "Microsoft.CSharp": "4.7.0",
           "System.Diagnostics.DiagnosticSource": "8.0.0",
