@@ -128,7 +128,7 @@ namespace NosCore.GameObject.Services.MinilandService
             await generator.AddMapInstanceAsync(miniland).ConfigureAwait(false);
 
             var listobjects = character.InventoryService.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();
-            var idlist = listobjects.Select(s => s.Id).ToArray();
+            var idlist = listobjects.Select(s => s.Id).ToList();
             var minilandObjectsDto = minilandObjectsDao.Where(s => idlist.Contains((Guid)s.InventoryItemInstanceId!))?
                 .ToList() ?? new List<MinilandObjectDto>();
             foreach (var mlobjdto in minilandObjectsDto)
