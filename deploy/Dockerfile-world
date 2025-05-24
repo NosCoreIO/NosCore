@@ -1,17 +1,18 @@
 # cf https://github.com/dotnet/dotnet-docker/blob/main/src/aspnet/9.0/alpine3.19/amd64/Dockerfile
 
 ARG REPO=mcr.microsoft.com/dotnet/runtime
-FROM $REPO:9.0.0-alpine3.19-amd64
+FROM $REPO:9.0.5-alpine3.21-amd64
 
 # .NET globalization APIs will use invariant mode by default because DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true is set
 # by the base runtime-deps image. See https://aka.ms/dotnet-globalization-alpine-containers for more information.
 
 # ASP.NET Core version
-ENV ASPNET_VERSION=9.0.0
+ENV ASPNET_VERSION=9.0.5
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 # Install ASP.NET Core
-RUN wget -O aspnetcore.tar.gz https://dotnetcli.azureedge.net/dotnet/aspnetcore/Runtime/$ASPNET_VERSION/aspnetcore-runtime-$ASPNET_VERSION-linux-musl-x64.tar.gz \
-    && aspnetcore_sha512='b749398f5ad059c9d51e3153c9f41ac23145aea38e83a736259c4206fdb920c245685a60a6d4bcf74ce41c70f751fd133219fb66b263018ae53025e129535063' \
+RUN wget -O aspnetcore.tar.gz https://builds.dotnet.microsoft.com/dotnet/aspnetcore/Runtime/$ASPNET_VERSION/aspnetcore-runtime-$ASPNET_VERSION-linux-musl-x64.tar.gz \
+    && aspnetcore_sha512='880d6c516af46dda0686c0e56a55cad5d8c34bfe3cacdbee68a9d21a5ff9e9ee93a6c427ef0aabd4c45ab95aa772edc9b89927f38d07619db6219c93e6f6e43b' \
     && echo "$aspnetcore_sha512  aspnetcore.tar.gz" | sha512sum -c - \
     && tar -oxzf aspnetcore.tar.gz -C /usr/share/dotnet ./shared/Microsoft.AspNetCore.App \
     && rm aspnetcore.tar.gz
@@ -27,4 +28,6 @@ WORKDIR /app/build/net9.0
 
 EXPOSE 1337 5001
 
-RUN dotnet help
+# RUN dotnet help
+
+ENTRYPOINT ["dotnet", "NosCore.WorldServer.dll"]

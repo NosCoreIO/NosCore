@@ -8,7 +8,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=noscore
     ports:
       - 5432:5432
     volumes:
@@ -33,7 +33,7 @@ services:
     container_name: noscore-master
     environment:
       - PORT=5000
-      - DB_HOST=host.docker.internal
+      - DB_HOST=db
       - WEBAPI_HOST=http://master
     build:
       context: ./
@@ -56,7 +56,7 @@ services:
       - WEBAPI_HOST=http://world
       - WORLD_PORT=1337
       - MASTER_HOST=http://master
-      - DB_HOST=host.docker.internal
+      - DB_HOST=db
       - HOST=127.0.0.1
     build:
       context: ./
@@ -78,7 +78,7 @@ services:
     environment:
       - LOGIN_PORT=4000
       - MASTER_HOST=http://master
-      - DB_HOST=host.docker.internal
+      - DB_HOST=db
       - HOST=127.0.0.1
     build:
       context: ./
