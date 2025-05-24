@@ -138,7 +138,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
                 logger.Error(logLanguage[LogLanguageKey.CHARACTER_SELECTION_FAILED], ex, new
                 {
                     clientSession.Account.AccountId,
