@@ -48,8 +48,8 @@
       },
       "Autofac": {
         "type": "Transitive",
-        "resolved": "8.2.0",
-        "contentHash": "T+4+W4byzyUOarCbIcFRbxpYKC+cndfQm/+VeWpB60P2MCN0JMsewUhZqvH5Ooe936HQjn5uHvEY9tq6BfbiIw==",
+        "resolved": "8.3.0",
+        "contentHash": "0Bv8aSKuK4nQAiDKw3+pIv9hUhbPwS63ql9KhjR6DRgE14UNdXrMqO8YMI0PnffZPyCrMs85lNhZRI4eBgQO4w==",
         "dependencies": {
           "System.Diagnostics.DiagnosticSource": "8.0.1"
         }
@@ -1607,7 +1607,7 @@
       "noscore.core": {
         "type": "Project",
         "dependencies": {
-          "Autofac": "[8.2.0, )",
+          "Autofac": "[8.3.0, )",
           "AutofacSerilogIntegration": "[5.0.0, )",
           "BCrypt.Net-Core": "[1.6.0, )",
           "FastExpressionCompiler": "[5.0.2, )",
@@ -1727,7 +1727,7 @@
       "noscore.worldserver": {
         "type": "Project",
         "dependencies": {
-          "Autofac": "[8.2.0, )",
+          "Autofac": "[8.3.0, )",
           "Autofac.Extensions.DependencyInjection": "[10.0.0, )",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "[9.0.3, )",
           "Microsoft.AspNetCore.Authorization": "[9.0.3, )",
