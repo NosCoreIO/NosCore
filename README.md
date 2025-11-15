@@ -44,8 +44,8 @@ We recommend usage of :
 
 # Building the code #
 
-## 1. Install .Net 9 ##
-- https://dotnet.microsoft.com/download/dotnet/9.0
+## 1. Install .Net 10 ##
+- https://dotnet.microsoft.com/download/dotnet/10.0
 - Visual Studio > Tools > Options > Preview Features > Use previews of the .NET CORE SDK
 - Restart
 
