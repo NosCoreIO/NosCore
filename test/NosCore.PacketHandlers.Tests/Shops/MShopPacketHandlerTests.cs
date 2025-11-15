@@ -99,7 +99,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session!).ConfigureAwait(false);
             var packet = (InfoiPacket?)_session?.LastPackets.FirstOrDefault(s => s is InfoiPacket);
-            Assert.IsTrue(packet?.Message == Game18NConstString.OpenShopAwayPortal);
+            Assert.AreEqual(Game18NConstString.OpenShopAwayPortal, packet?.Message);
             Assert.IsNull(_session?.Character.Shop);
         }
 
@@ -111,7 +111,10 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session.Character.Group = new GameObject.Group(GroupType.Team);
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Red && packet?.Message == Game18NConstString.TeammateCanNotOpenShop);
+            Assert.AreEqual(VisualType.Player, packet?.VisualType);
+            Assert.AreEqual(_session.Character.CharacterId, packet?.VisualId);
+            Assert.AreEqual(SayColorType.Red, packet?.Type);
+            Assert.AreEqual(Game18NConstString.TeammateCanNotOpenShop, packet?.Message);
             Assert.IsNull(_session.Character.Shop);
         }
 
@@ -134,7 +137,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
             var packet = (InfoiPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
 
-            Assert.IsTrue(packet?.Message == Game18NConstString.UseCommercialMapToShop);
+            Assert.AreEqual(Game18NConstString.UseCommercialMapToShop, packet?.Message);
             Assert.IsNull(_session.Character.Shop);
         }
 
@@ -177,7 +180,10 @@ namespace NosCore.PacketHandlers.Tests.Shops
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
             Assert.IsNull(_session.Character.Shop);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Red && packet?.Message == Game18NConstString.SomeItemsCannotBeTraded);
+            Assert.AreEqual(VisualType.Player, packet?.VisualType);
+            Assert.AreEqual(_session.Character.CharacterId, packet?.VisualId);
+            Assert.AreEqual(SayColorType.Red, packet?.Type);
+            Assert.AreEqual(Game18NConstString.SomeItemsCannotBeTraded, packet?.Message);
         }
 
         [TestMethod]
@@ -238,7 +244,10 @@ namespace NosCore.PacketHandlers.Tests.Shops
             }, _session).ConfigureAwait(false);
             Assert.IsNull(_session.Character.Shop);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.NoItemToSell);
+            Assert.AreEqual(VisualType.Player, packet?.VisualType);
+            Assert.AreEqual(_session.Character.CharacterId, packet?.VisualId);
+            Assert.AreEqual(SayColorType.Yellow, packet?.Type);
+            Assert.AreEqual(Game18NConstString.NoItemToSell, packet?.Message);
         }
     }
 }

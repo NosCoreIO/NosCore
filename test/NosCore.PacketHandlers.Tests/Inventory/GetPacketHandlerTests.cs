@@ -88,7 +88,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.InventoryService.First().Value.ItemInstance!.Amount == 2);
+            Assert.AreEqual(2, _session.Character.InventoryService.First().Value.ItemInstance!.Amount);
         }
 
         [TestMethod]
@@ -107,8 +107,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PickerType = VisualType.Player
             }, _session).ConfigureAwait(false);
             var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Message == Game18NConstString.NotEnoughSpace && packet.Type == 0);
-            Assert.IsTrue(_session.Character.InventoryService.Count == 2);
+            Assert.AreEqual(Game18NConstString.NotEnoughSpace, packet?.Message);
+            Assert.AreEqual(0, packet.Type);
+            Assert.AreEqual(2, _session.Character.InventoryService.Count);
         }
 
         [TestMethod]
@@ -126,7 +127,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.InventoryService.First().Value.ItemInstance!.Rare == 6);
+            Assert.AreEqual(6, _session.Character.InventoryService.First().Value.ItemInstance!.Rare);
         }
 
         [TestMethod]
@@ -149,9 +150,11 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PickerType = VisualType.Player
             }, _session).ConfigureAwait(false);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId &&
-                packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.UnableToPickUp);
-            Assert.IsTrue(_session.Character.InventoryService!.Count == 0);
+            Assert.AreEqual(VisualType.Player, packet?.VisualType);
+            Assert.AreEqual(_session.Character.CharacterId, packet?.VisualId);
+            Assert.AreEqual(SayColorType.Yellow, packet?.Type);
+            Assert.AreEqual(Game18NConstString.UnableToPickUp, packet?.Message);
+            Assert.AreEqual(0, _session.Character.InventoryService!.Count);
         }
 
         [TestMethod]
@@ -192,7 +195,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.InventoryService!.Count == 0);
+            Assert.AreEqual(0, _session.Character.InventoryService!.Count);
         }
     }
 }

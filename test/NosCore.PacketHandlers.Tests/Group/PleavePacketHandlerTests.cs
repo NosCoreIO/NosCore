@@ -67,7 +67,8 @@ namespace NosCore.PacketHandlers.Tests.Group
         {
             await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _characters[0].Session).ConfigureAwait(false);
 
-            Assert.IsTrue((_characters[0].Group != null) && (_characters[0].Group!.Count == 1));
+            Assert.IsNotNull(_characters[0].Group);
+            Assert.AreEqual(1, _characters[0].Group!.Count);
         }
 
         [TestMethod]
@@ -93,7 +94,7 @@ namespace NosCore.PacketHandlers.Tests.Group
 
             await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _characters[1].Session).ConfigureAwait(false);
 
-            Assert.IsTrue(_characters[1].Group!.Count == 1);
+            Assert.AreEqual(1, _characters[1].Group!.Count);
         }
 
         [TestMethod]
@@ -166,8 +167,8 @@ namespace NosCore.PacketHandlers.Tests.Group
 
             await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _characters[0].Session).ConfigureAwait(false);
-            Assert.IsTrue((_characters[0].Group!.Count == 1)
-                && (_characters[1].Group!.Count == 1));
+            Assert.AreEqual(1, _characters[0].Group!.Count);
+            Assert.AreEqual(1, _characters[1].Group!.Count);
         }
 
         [TestMethod]
@@ -183,15 +184,14 @@ namespace NosCore.PacketHandlers.Tests.Group
             };
 
             await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
-            Assert.IsTrue((_characters[0].Group!.Count > 1)
-                && (_characters[1].Group!.Count > 1)
-                && (_characters[0].Group!.GroupId
-                    == _characters[1].Group!.GroupId));
+            Assert.AreEqual(_characters[1].Group!.GroupId));
 
             await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _characters[0].Session).ConfigureAwait(false);
 
-            Assert.IsTrue((_characters[0].Group!.Count == 1)
-                && (_characters[1].Group!.Count == 1));
+            Assert.AreEqual(1, _characters[0].Group!.Count
+                && (_characters[1].Group!.Count > 1)
+                && (_characters[0].Group!.GroupId);
+            Assert.AreEqual(1, _characters[1].Group!.Count);
         }
     }
 }

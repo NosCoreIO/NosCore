@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                 await _pulsePacketHandler!.ExecuteAsync(pulsePacket, _session!).ConfigureAwait(false);
             }
 
-            Assert.IsTrue(_session?.LastPulse == pulsePacket.Tick);
+            Assert.AreEqual(pulsePacket.Tick, _session?.LastPulse);
         }
     }
 }

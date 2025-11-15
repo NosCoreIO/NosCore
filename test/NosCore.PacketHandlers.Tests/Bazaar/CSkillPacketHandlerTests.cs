@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         {
             await _cskillPacketHandler!.ExecuteAsync(new CSkillPacket(), _session!).ConfigureAwait(false);
             var lastpacket = (InfoiPacket?)_session!.LastPackets.FirstOrDefault(s => s is InfoiPacket);
-            Assert.IsTrue(lastpacket?.Message == Game18NConstString.NosMerchantMedaleAllowPlayerToUseNosbazarOnAllGeneralMaps);
+            Assert.AreEqual(Game18NConstString.NosMerchantMedaleAllowPlayerToUseNosbazarOnAllGeneralMaps, lastpacket?.Message);
         }
 
         [TestMethod]

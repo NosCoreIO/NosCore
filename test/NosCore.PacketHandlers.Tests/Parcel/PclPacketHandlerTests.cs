@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
                 GiftId = 1
             }, _session!).ConfigureAwait(false);
             var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
-            Assert.IsTrue(packet?.Type == 7);
+            Assert.AreEqual(7, packet?.Type);
         }
 
         [TestMethod]
@@ -115,7 +115,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
                 GiftId = 1
             }, _session!).ConfigureAwait(false);
             var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
-            Assert.IsTrue(packet?.Type == 2);
+            Assert.AreEqual(2, packet?.Type);
         }
 
         [TestMethod]
@@ -141,7 +141,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
                 GiftId = 1
             }, _session!).ConfigureAwait(false);
             var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
-            Assert.IsTrue(packet?.Type == 5);
+            Assert.AreEqual(5, packet?.Type);
         }
     }
 }

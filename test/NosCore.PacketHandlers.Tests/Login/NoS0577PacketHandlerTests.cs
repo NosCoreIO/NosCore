@@ -130,8 +130,7 @@ namespace NosCore.PacketHandlers.Tests.Login
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session!).ConfigureAwait(false);
 
-            Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
-                LoginFailType.OldClient);
+            Assert.AreEqual(LoginFailType.OldClient, ((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type);
         }
 
         [TestMethod]
@@ -146,8 +145,7 @@ namespace NosCore.PacketHandlers.Tests.Login
                 AuthToken = GuidToToken(Guid.NewGuid().ToString()),
             }, _session).ConfigureAwait(false);
 
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
-                LoginFailType.AccountOrPasswordWrong);
+            Assert.AreEqual(LoginFailType.AccountOrPasswordWrong, ((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type);
         }
 
         [TestMethod]
@@ -177,8 +175,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             {
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
-                LoginFailType.AlreadyConnected);
+            Assert.AreEqual(LoginFailType.AlreadyConnected, ((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type);
         }
 
         [TestMethod]
@@ -192,8 +189,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             {
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
-                LoginFailType.CantConnect);
+            Assert.AreEqual(LoginFailType.CantConnect, ((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type);
         }
 
         //[TestMethod]
@@ -220,8 +216,7 @@ namespace NosCore.PacketHandlers.Tests.Login
                 AuthToken = GuidToToken(_tokenGuid),
             }, _session).ConfigureAwait(false);
 
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
-                LoginFailType.Maintenance);
+            Assert.AreEqual(LoginFailType.Maintenance, ((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type);
         }
 
         [TestMethod]

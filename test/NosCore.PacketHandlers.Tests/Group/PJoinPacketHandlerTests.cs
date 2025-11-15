@@ -71,10 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             };
 
             await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
-            Assert.IsTrue((_characters[0].Group!.Count > 1)
-                && (_characters[1].Group!.Count > 1)
-                && (_characters[0].Group!.GroupId
-                    == _characters[1].Group!.GroupId));
+            Assert.AreEqual(_characters[1].Group!.GroupId));
         }
 
         [TestMethod]
@@ -110,7 +107,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             };
 
             await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
-            Assert.IsTrue(_characters[3].Group!.Count == 1);
+            Assert.AreEqual(1, _characters[3].Group!.Count);
         }
 
         [TestMethod]
@@ -123,8 +120,10 @@ namespace NosCore.PacketHandlers.Tests.Group
             };
 
             await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
-            Assert.IsTrue((_characters[0].Group!.Count == 1)
-                && (_characters[1].Group!.Count == 1));
+            Assert.AreEqual(1, _characters[0].Group!.Count
+                && (_characters[1].Group!.Count > 1)
+                && (_characters[0].Group!.GroupId);
+            Assert.AreEqual(1, _characters[1].Group!.Count);
         }
 
         [TestMethod]
@@ -137,8 +136,8 @@ namespace NosCore.PacketHandlers.Tests.Group
             };
 
             await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
-            Assert.IsTrue((_characters[0].Group!.Count == 1)
-                && (_characters[1].Group!.Count == 1));
+            Assert.AreEqual(1, _characters[0].Group!.Count);
+            Assert.AreEqual(1, _characters[1].Group!.Count);
         }
 
         [TestMethod]
@@ -171,7 +170,7 @@ namespace NosCore.PacketHandlers.Tests.Group
                 await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             }
 
-            Assert.IsTrue(_characters[0].GroupRequestCharacterIds.Count == 1);
+            Assert.AreEqual(1, _characters[0].GroupRequestCharacterIds.Count);
         }
 
         [TestMethod]
@@ -193,7 +192,7 @@ namespace NosCore.PacketHandlers.Tests.Group
                 await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _characters[0].Session).ConfigureAwait(false);
             }
 
-            Assert.IsTrue(_characters[0].GroupRequestCharacterIds.Count == 2);
+            Assert.AreEqual(2, _characters[0].GroupRequestCharacterIds.Count);
         }
     }
 }

@@ -57,7 +57,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await _biPacketHandler!.ExecuteAsync(new BiPacket
             { Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Main }, _session).ConfigureAwait(false);
             var packet = (IvnPacket?)_session.LastPackets.FirstOrDefault(s => s is IvnPacket);
-            Assert.IsTrue(packet?.IvnSubPackets?.All(iv => (iv?.Slot == 0) && (iv.VNum == -1)) ?? false);
+            Assert.AreEqual(0, packet?.IvnSubPackets?.All(iv => (iv?.Slot);
+            Assert.AreEqual(-1)) ?? false, iv.VNum);
         }
 
         [TestMethod]
@@ -66,9 +67,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
             await _biPacketHandler!.ExecuteAsync(new BiPacket
             { Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Equipment }, _session).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.InventoryService.Count == 0);
+            Assert.AreEqual(0, _session.Character.InventoryService.Count);
             var packet = (IvnPacket?)_session.LastPackets.FirstOrDefault(s => s is IvnPacket);
-            Assert.IsTrue(packet?.IvnSubPackets?.All(iv => (iv?.Slot == 0) && (iv.VNum == -1)) ?? false);
+            Assert.AreEqual(0, packet?.IvnSubPackets?.All(iv => (iv?.Slot);
+            Assert.AreEqual(-1)) ?? false, iv.VNum);
         }
     }
 }

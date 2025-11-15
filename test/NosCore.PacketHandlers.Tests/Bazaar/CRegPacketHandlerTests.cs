@@ -124,7 +124,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             }, _session!).ConfigureAwait(false);
 
             var lastpacket = (MsgiPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(lastpacket?.Message == Game18NConstString.NotEnoughGold);
+            Assert.AreEqual(Game18NConstString.NotEnoughGold, lastpacket?.Message);
         }
 
         [TestMethod]
@@ -182,7 +182,10 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Price = 100000001
             }, _session).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.NotExceedMaxPrice && lastpacket?.ArgumentType == 4 && (long?)lastpacket?.Game18NArguments[0] == 1000000);
+            Assert.AreEqual(1, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.NotExceedMaxPrice, lastpacket?.Message);
+            Assert.AreEqual(4, lastpacket?.ArgumentType);
+            Assert.AreEqual(1000000, long?)lastpacket?.Game18NArguments[0]);
         }
 
         [TestMethod]
@@ -209,7 +212,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             }, _session).ConfigureAwait(false);
             var lastpacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(0, _session.Character.InventoryService.Count);
-            Assert.IsTrue(lastpacket?.Type == MessageType.Default && lastpacket?.Message == Game18NConstString.ItemAddedToBazar);
+            Assert.AreEqual(MessageType.Default, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.ItemAddedToBazar, lastpacket?.Message);
         }
 
         [TestMethod]
@@ -231,7 +235,10 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Price = TestHelpers.Instance.WorldConfiguration.Value.MaxGoldAmount + 1
             }, _session).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.NotExceedMaxPrice && lastpacket?.ArgumentType == 4 && (long?)lastpacket?.Game18NArguments[0] == 1000000);
+            Assert.AreEqual(1, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.NotExceedMaxPrice, lastpacket?.Message);
+            Assert.AreEqual(4, lastpacket?.ArgumentType);
+            Assert.AreEqual(1000000, long?)lastpacket?.Game18NArguments[0]);
         }
 
         [TestMethod]
@@ -299,7 +306,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             }, _session!).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
             Assert.AreEqual(999, _session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance!.Amount);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.ListedMaxItemsNumber);
+            Assert.AreEqual(1, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.ListedMaxItemsNumber, lastpacket?.Message);
         }
 
         [TestMethod]
@@ -322,7 +330,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             }, _session).ConfigureAwait(false);
             var lastpacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(0, _session.Character.InventoryService.Count);
-            Assert.IsTrue(lastpacket?.Type == MessageType.Default && lastpacket?.Message == Game18NConstString.ItemAddedToBazar);
+            Assert.AreEqual(MessageType.Default, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.ItemAddedToBazar, lastpacket?.Message);
         }
 
         [TestMethod]
@@ -366,7 +375,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             }, _session).ConfigureAwait(false);
             var lastpacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(50, _session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance!.Amount);
-            Assert.IsTrue(lastpacket?.Type == MessageType.Default && lastpacket?.Message == Game18NConstString.ItemAddedToBazar);
+            Assert.AreEqual(MessageType.Default, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.ItemAddedToBazar, lastpacket?.Message);
         }
     }
 }

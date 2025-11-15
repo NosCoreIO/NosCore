@@ -52,6 +52,3 @@ resharper_place_expr_property_on_single_line=True
 resharper_arrange_missing_parentheses_highlighting=hint
 resharper_redundant_base_qualifier_highlighting=warning
 resharper_virtual_member_call_in_constructor_highlighting=none
-
-# MSTest analyzer rules
-dotnet_diagnostic.MSTEST0037.severity = none

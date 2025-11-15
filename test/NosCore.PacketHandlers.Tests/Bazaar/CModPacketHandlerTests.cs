@@ -140,7 +140,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.CannotChangePriceSoldItems);
+            Assert.AreEqual(1, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.CannotChangePriceSoldItems, lastpacket?.Message);
         }
 
         [TestMethod]
@@ -154,7 +155,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.OfferUpdated);
+            Assert.AreEqual(1, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.OfferUpdated, lastpacket?.Message);
         }
 
         [TestMethod]
@@ -181,9 +183,12 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
             var lastpacket = (SayiPacket?)_session!.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId &&
-                lastpacket?.Type == SayColorType.Yellow && lastpacket?.Message == Game18NConstString.NewSellingPrice &&
-                lastpacket?.ArgumentType == 4 && (long?)lastpacket?.Game18NArguments[0] == 70);
+            Assert.AreEqual(VisualType.Player, lastpacket?.VisualType);
+            Assert.AreEqual(_session.Character.CharacterId, lastpacket?.VisualId);
+            Assert.AreEqual(SayColorType.Yellow, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.NewSellingPrice, lastpacket?.Message);
+            Assert.AreEqual(4, lastpacket?.ArgumentType);
+            Assert.AreEqual(70, long?)lastpacket?.Game18NArguments[0]);
         }
     }
 }

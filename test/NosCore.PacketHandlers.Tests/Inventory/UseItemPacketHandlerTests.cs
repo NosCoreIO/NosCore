@@ -95,7 +95,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Parameter = 0
             }, _session).ConfigureAwait(false);
             var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.CannotBeUsedExceedsCapacity);
+            Assert.AreEqual(MessageType.Default, packet?.Type);
+            Assert.AreEqual(Game18NConstString.CannotBeUsedExceedsCapacity, packet?.Message);
         }
 
         [TestMethod]
@@ -113,8 +114,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Mode = 0,
                 Parameter = 0
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue((_session.Character.SpAdditionPoint == TestHelpers.Instance.WorldConfiguration.Value.MaxAdditionalSpPoints) &&
-                !_session.LastPackets.Any(s => s is MsgiPacket));
+            Assert.AreEqual(TestHelpers.Instance.WorldConfiguration.Value.MaxAdditionalSpPoints, _session.Character.SpAdditionPoint);
+            Assert.IsTrue(!_session.LastPackets.Any(s => s is MsgiPacket));
         }
     }
 }

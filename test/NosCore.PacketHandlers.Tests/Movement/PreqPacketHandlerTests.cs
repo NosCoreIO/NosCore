@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
 
             var time = TestHelpers.Instance.Clock.GetCurrentInstant();
             await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.LastPortal == time);
+            Assert.AreEqual(time, _session.Character.LastPortal);
         }
 
         [TestMethod]

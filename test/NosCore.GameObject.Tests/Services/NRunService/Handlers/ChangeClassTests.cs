@@ -80,7 +80,8 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
             })));
 
             var msgiPacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(msgiPacket?.Type == MessageType.Default && msgiPacket?.Message == Game18NConstString.CanNotChangeJobAtThisLevel);
+            Assert.AreEqual(MessageType.Default, msgiPacket?.Type);
+            Assert.AreEqual(Game18NConstString.CanNotChangeJobAtThisLevel, msgiPacket?.Message);
         }
 
         [DataTestMethod]
@@ -100,7 +101,8 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
             })));
          
             var msgiPacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(msgiPacket?.Type == MessageType.Default && msgiPacket?.Message == Game18NConstString.CanNotChangeJobAtThisLevel);
+            Assert.AreEqual(MessageType.Default, msgiPacket?.Type);
+            Assert.AreEqual(Game18NConstString.CanNotChangeJobAtThisLevel, msgiPacket?.Message);
         }
 
         [DataTestMethod]
@@ -137,9 +139,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
                 Type = (byte)characterClass
             })));
             
-            Assert.IsTrue((_session.Character.Class == CharacterClassType.Adventurer) &&
-                (_session.Character.Level == 15) &&
-                (_session.Character.JobLevel == 20));
+            Assert.AreEqual(CharacterClassType.Adventurer, _session.Character.Class);
+            Assert.AreEqual(15, _session.Character.Level);
+            Assert.AreEqual(20, _session.Character.JobLevel);
         }
 
         [DataTestMethod]
@@ -159,8 +161,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
                 Type = (byte)characterClass
             })));
 
-            Assert.IsTrue((_session.Character.Class == characterClass) && (_session.Character.Level == 15) &&
-                (_session.Character.JobLevel == 1));
+            Assert.AreEqual(characterClass, _session.Character.Class);
+            Assert.AreEqual(15, _session.Character.Level);
+            Assert.AreEqual(1, _session.Character.JobLevel);
         }
 
         [DataTestMethod]
@@ -184,7 +187,10 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
             })));
 
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.RemoveEquipment);
+            Assert.AreEqual(VisualType.Player, packet?.VisualType);
+            Assert.AreEqual(_session.Character.CharacterId, packet?.VisualId);
+            Assert.AreEqual(SayColorType.Yellow, packet?.Type);
+            Assert.AreEqual(Game18NConstString.RemoveEquipment, packet?.Message);
         }
     }
 }

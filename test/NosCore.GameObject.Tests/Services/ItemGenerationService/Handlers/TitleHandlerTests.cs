@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (QnaiPacket?)Session.LastPackets.FirstOrDefault(s => s is QnaiPacket);
             Assert.IsNotNull(lastpacket);
-            Assert.IsTrue(lastpacket!.YesPacket!.GetType() == typeof(GuriPacket));
+            Assert.AreEqual(typeof(GuriPacket), lastpacket!.YesPacket!.GetType());
         }
     }
 }

@@ -83,7 +83,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1)!;
             await _sellPacketHandler!.ExecuteAsync(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
                 _session).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.Gold == 0);
+            Assert.AreEqual(0, _session.Character.Gold);
             Assert.IsNotNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Etc));
         }
 
@@ -108,8 +108,9 @@ namespace NosCore.PacketHandlers.Tests.Shops
             await _sellPacketHandler!.ExecuteAsync(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
                 _session).ConfigureAwait(false);
             var packet = (SMemoiPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoiPacket);
-            Assert.IsTrue(packet?.Type == SMemoType.FailNpc && packet?.Message == Game18NConstString.ItemCanNotBeSold);
-            Assert.IsTrue(_session.Character.Gold == 0);
+            Assert.AreEqual(SMemoType.FailNpc, packet?.Type);
+            Assert.AreEqual(Game18NConstString.ItemCanNotBeSold, packet?.Message);
+            Assert.AreEqual(0, _session.Character.Gold);
             Assert.IsNotNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Etc));
         }
 

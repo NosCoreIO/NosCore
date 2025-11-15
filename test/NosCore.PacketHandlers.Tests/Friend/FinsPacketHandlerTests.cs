@@ -114,7 +114,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
             await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
-            Assert.IsTrue(_characterRelationDao!.LoadAll().Count() == 2);
+            Assert.AreEqual(2, _characterRelationDao!.LoadAll().Count());
         }
 
         [TestMethod]

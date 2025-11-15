@@ -89,7 +89,7 @@ namespace NosCore.GameObject.Tests
 
             _group.LeaveGroup(entity);
 
-            Assert.IsTrue(_group.Count == 0);
+            Assert.AreEqual(0, _group.Count);
         }
 
         [TestMethod]

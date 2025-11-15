@@ -119,7 +119,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.OfferUpdated);
+            Assert.AreEqual(1, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.OfferUpdated, lastpacket?.Message);
         }
 
         [TestMethod]
@@ -133,7 +134,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.OfferUpdated);
+            Assert.AreEqual(1, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.OfferUpdated, lastpacket?.Message);
         }
 
         [TestMethod]
@@ -147,7 +149,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.OfferUpdated);
+            Assert.AreEqual(1, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.OfferUpdated, lastpacket?.Message);
         }
 
         [TestMethod]
@@ -171,7 +174,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 VNum = 1012
             }, _session).ConfigureAwait(false);
             var lastpacket = (InfoiPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
-            Assert.IsTrue(lastpacket?.Message == Game18NConstString.NotEnoughSpace);
+            Assert.AreEqual(Game18NConstString.NotEnoughSpace, lastpacket?.Message);
         }
 
         [TestMethod]
@@ -186,7 +189,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 VNum = 1012
             }, _session).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.OfferUpdated);
+            Assert.AreEqual(1, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.OfferUpdated, lastpacket?.Message);
         }
 
         [TestMethod]
@@ -218,8 +222,13 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 VNum = 1012
             }, _session).ConfigureAwait(false);
             var lastpacket = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId && lastpacket?.Type == SayColorType.Yellow &&
-                lastpacket?.Message == Game18NConstString.BoughtItem && lastpacket?.ArgumentType == 2 && (string?)lastpacket?.Game18NArguments[0] == item.VNum.ToString() && (short?)lastpacket?.Game18NArguments[1] == 99);
+            Assert.AreEqual(VisualType.Player, lastpacket?.VisualType);
+            Assert.AreEqual(_session.Character.CharacterId, lastpacket?.VisualId);
+            Assert.AreEqual(SayColorType.Yellow, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.BoughtItem, lastpacket?.Message);
+            Assert.AreEqual(2, lastpacket?.ArgumentType);
+            Assert.AreEqual(item.VNum.ToString, string?)lastpacket?.Game18NArguments[0]);
+            Assert.AreEqual(99, short?)lastpacket?.Game18NArguments[1]);
         }
 
         [TestMethod]
@@ -233,7 +242,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Message == Game18NConstString.InsufficientGoldAvailable);
+            Assert.AreEqual(Game18NConstString.InsufficientGoldAvailable, lastpacket?.Message);
         }
 
         [TestMethod]
@@ -251,8 +260,13 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 VNum = 1012
             }, _session).ConfigureAwait(false);
             var lastpacket = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId && lastpacket?.Type == SayColorType.Yellow &&
-                lastpacket?.Message == Game18NConstString.BoughtItem && lastpacket?.ArgumentType == 2 && (string?)lastpacket?.Game18NArguments[0] == item.VNum.ToString() && (short?)lastpacket?.Game18NArguments[1] == 1);
+            Assert.AreEqual(VisualType.Player, lastpacket?.VisualType);
+            Assert.AreEqual(_session.Character.CharacterId, lastpacket?.VisualId);
+            Assert.AreEqual(SayColorType.Yellow, lastpacket?.Type);
+            Assert.AreEqual(Game18NConstString.BoughtItem, lastpacket?.Message);
+            Assert.AreEqual(2, lastpacket?.ArgumentType);
+            Assert.AreEqual(item.VNum.ToString, string?)lastpacket?.Game18NArguments[0]);
+            Assert.AreEqual(1, short?)lastpacket?.Game18NArguments[1]);
         }
     }
 }

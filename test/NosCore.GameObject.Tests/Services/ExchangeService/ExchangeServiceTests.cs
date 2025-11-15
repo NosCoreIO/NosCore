@@ -80,8 +80,10 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             var data1 = _exchangeProvider.GetData(1);
             var data2 = _exchangeProvider.GetData(2);
 
-            Assert.IsTrue((data1.Gold == 1000) && (data1.BankGold == 1000) && (data2.Gold == 2000) &&
-                (data2.BankGold == 2000));
+            Assert.AreEqual(1000, data1.Gold);
+            Assert.AreEqual(1000, data1.BankGold);
+            Assert.AreEqual(2000, data2.Gold);
+            Assert.AreEqual(2000, data2.BankGold);
         }
 
         [TestMethod]
@@ -134,7 +136,8 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
 
             _exchangeProvider.OpenExchange(1, 2);
             var goodClose = _exchangeProvider.CloseExchange(1, ExchangeResultType.Failure);
-            Assert.IsTrue((goodClose != null) && (goodClose.Type == ExchangeResultType.Failure));
+            Assert.IsNotNull(goodClose);
+            Assert.AreEqual(ExchangeResultType.Failure, goodClose.Type);
         }
 
         [TestMethod]
@@ -172,7 +175,8 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             _exchangeProvider.AddItems(1, item1, 1);
             _exchangeProvider.AddItems(2, item2, 1);
             var itemList = _exchangeProvider.ProcessExchange(1, 2, inventory1, inventory2);
-            Assert.IsTrue((itemList.Count(s => s.Key == 1) == 2) && (itemList.Count(s => s.Key == 2) == 2));
+            Assert.AreEqual(1) == 2, itemList.Count(s => s.Key);
+            Assert.AreEqual(2) == 2, itemList.Count(s => s.Key);
         }
     }
 }

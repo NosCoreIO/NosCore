@@ -58,8 +58,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Slot = 0,
                 Amount = 500
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue((_session.Character.InventoryService.Count == 1) &&
-                (_session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance?.Amount == 499));
+            Assert.AreEqual(1, _session.Character.InventoryService.Count);
+            Assert.AreEqual(499, _session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance?.Amount);
         }
 
         [TestMethod]
@@ -73,8 +73,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Amount = 1
             }, _session).ConfigureAwait(false);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId &&
-                packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.CantDropItem);
+            Assert.AreEqual(VisualType.Player, packet?.VisualType);
+            Assert.AreEqual(_session.Character.CharacterId, packet?.VisualId);
+            Assert.AreEqual(SayColorType.Yellow, packet?.Type);
+            Assert.AreEqual(Game18NConstString.CantDropItem, packet?.Message);
             Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
 
@@ -89,7 +91,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Slot = 0,
                 Amount = 1
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.InventoryService.Count == 0);
+            Assert.AreEqual(0, _session.Character.InventoryService.Count);
         }
 
         [TestMethod]
@@ -105,8 +107,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Amount = 1
             }, _session).ConfigureAwait(false);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId &&
-                packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.CantDropItem);
+            Assert.AreEqual(VisualType.Player, packet?.VisualType);
+            Assert.AreEqual(_session.Character.CharacterId, packet?.VisualId);
+            Assert.AreEqual(SayColorType.Yellow, packet?.Type);
+            Assert.AreEqual(Game18NConstString.CantDropItem, packet?.Message);
             Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
 
@@ -123,8 +127,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Amount = 1
             }, _session).ConfigureAwait(false);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId &&
-                packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.CantDropItem);
+            Assert.AreEqual(VisualType.Player, packet?.VisualType);
+            Assert.AreEqual(_session.Character.CharacterId, packet?.VisualId);
+            Assert.AreEqual(SayColorType.Yellow, packet?.Type);
+            Assert.AreEqual(Game18NConstString.CantDropItem, packet?.Message);
             Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
     }

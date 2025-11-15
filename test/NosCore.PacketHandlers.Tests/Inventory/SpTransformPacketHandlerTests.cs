@@ -68,7 +68,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSp }, _session!).ConfigureAwait(false);
             var packet = (MsgiPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.NoSpecialistCardEquipped);
+            Assert.AreEqual(MessageType.Default, packet?.Type);
+            Assert.AreEqual(Game18NConstString.NoSpecialistCardEquipped, packet?.Message);
         }
 
         [TestMethod]
@@ -82,7 +83,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             item.Value.Slot = (byte)EquipmentType.Sp;
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSp }, _session).ConfigureAwait(false);
             var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Message == Game18NConstString.CantUseInVehicle);
+            Assert.AreEqual(Game18NConstString.CantUseInVehicle, packet?.Message);
         }
 
 
@@ -139,7 +140,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             fairy.Slot = (byte)EquipmentType.Fairy;
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
             var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Message == Game18NConstString.SpecialistAndFairyDifferentElement);
+            Assert.AreEqual(Game18NConstString.SpecialistAndFairyDifferentElement, packet?.Message);
         }
 
         [TestMethod]
@@ -153,7 +154,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             item.Value.Slot = (byte)EquipmentType.Sp;
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.CanNotBeWornReputationLow);
+            Assert.AreEqual(VisualType.Player, packet?.VisualType);
+            Assert.AreEqual(_session.Character.CharacterId, packet?.VisualId);
+            Assert.AreEqual(SayColorType.Yellow, packet?.Type);
+            Assert.AreEqual(Game18NConstString.CanNotBeWornReputationLow, packet?.Message);
         }
 
 
@@ -170,7 +174,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             item.Value.Slot = (byte)EquipmentType.Sp;
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
             var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.CantTrasformWithSideEffect && packet?.ArgumentType == 4 && (short?)packet?.Game18NArguments[0] == 30);
+            Assert.AreEqual(MessageType.Default, packet?.Type);
+            Assert.AreEqual(Game18NConstString.CantTrasformWithSideEffect, packet?.Message);
+            Assert.AreEqual(4, packet?.ArgumentType);
+            Assert.AreEqual(30, short?)packet?.Game18NArguments[0]);
         }
 
         [TestMethod]
@@ -184,8 +191,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             item.Value.Slot = (byte)EquipmentType.Sp;
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session).ConfigureAwait(false);
             var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message ==
-                TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.SP_NOPOINTS, _session.Account.Language]);
+            Assert.AreEqual(TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.SP_NOPOINTS, _session.Account.Language], packet?.Message);
         }
 
         [TestMethod]
@@ -200,7 +206,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             item.Value.Slot = (byte)EquipmentType.Sp;
             await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSp }, _session).ConfigureAwait(false);
             var packet = (DelayPacket?)_session.LastPackets.FirstOrDefault(s => s is DelayPacket);
-            Assert.IsTrue(packet?.Delay == 5000);
+            Assert.AreEqual(5000, packet?.Delay);
         }
     }
 }
