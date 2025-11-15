@@ -175,8 +175,8 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             _exchangeProvider.AddItems(1, item1, 1);
             _exchangeProvider.AddItems(2, item2, 1);
             var itemList = _exchangeProvider.ProcessExchange(1, 2, inventory1, inventory2);
-            Assert.AreEqual(1) == 2, itemList.Count(s => s.Key);
-            Assert.AreEqual(2) == 2, itemList.Count(s => s.Key);
+            Assert.AreEqual(2, itemList.Count(s => s.Key == 1));
+            Assert.AreEqual(2, itemList.Count(s => s.Key == 2));
         }
     }
 }

@@ -234,7 +234,7 @@ namespace NosCore.GameObject.Tests
                 NoscorePocketType.Etc, 2);
 
             await _session.Character.BuyAsync(shop, 0, 998).ConfigureAwait(false);
-            Assert.AreEqual(999), _session.Character.InventoryService.All(s => s.Value.ItemInstance?.Amount);
+            Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.ItemInstance?.Amount == 999));
             Assert.AreEqual(499002, _session.Character.Gold);
         }
 
@@ -267,7 +267,7 @@ namespace NosCore.GameObject.Tests
                 NoscorePocketType.Etc, 2);
 
             await _session.Character.BuyAsync(shop, 0, 998).ConfigureAwait(false);
-            Assert.AreEqual(999), _session.Character.InventoryService.All(s => s.Value.ItemInstance?.Amount);
+            Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.ItemInstance?.Amount == 999));
             Assert.AreEqual(499002, _session.Character.Reput);
         }
 

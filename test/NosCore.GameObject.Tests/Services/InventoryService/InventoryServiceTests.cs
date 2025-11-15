@@ -109,7 +109,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 990), 0),
                 NoscorePocketType.Main, 2);
             var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 27), 0))!;
-            Assert.AreEqual(999, items.All(item => item.ItemInstance!.Amount);
+            Assert.IsTrue(items.All(item => item.ItemInstance!.Amount == 999));
             Assert.AreEqual(3, items?.Count);
         }
 
@@ -123,7 +123,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 990), 0),
                 NoscorePocketType.Main, 2);
             var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 99), 0));
-            Assert.AreEqual(990, Inventory.Values.All(item => item.ItemInstance?.Amount);
+            Assert.IsTrue(Inventory.Values.All(item => item.ItemInstance?.Amount == 990));
             Assert.AreEqual(0, items?.Count);
         }
 
