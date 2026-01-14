@@ -34,6 +34,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.LoginService;
+using NosCore.Networking;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets.ClientPackets.Login;
@@ -61,6 +62,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         private NoS0577PacketHandler? _noS0577PacketHandler;
         private ClientSession? _session;
         private Mock<IChannelHub>? _channelHub;
+        private SessionRefHolder? _sessionRefHolder;
 
         private static string GuidToToken(string token)
         {
@@ -72,13 +74,15 @@ namespace NosCore.PacketHandlers.Tests.Login
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _channelHub = new Mock<IChannelHub>();
+            _sessionRefHolder = new SessionRefHolder();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _sessionRefHolder[_session.Channel!.Id] = new RegionTypeMapping(_session.SessionId, RegionType.EN);
             _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
                 (string?)((new OkObjectResult(_session.Account.Name)).Value));
             _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration,
                 TestHelpers.Instance.AccountDao,
-                _authHttpClient.Object, _pubSubHub.Object, _channelHub.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder()));
+                _authHttpClient.Object, _pubSubHub.Object, _channelHub.Object, TestHelpers.Instance.CharacterDao, _sessionRefHolder));
              SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             SessionFactory.Instance.ReadyForAuth.Clear();
         }
