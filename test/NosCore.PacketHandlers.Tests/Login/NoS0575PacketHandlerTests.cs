@@ -32,6 +32,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.LoginService;
+using NosCore.Networking;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets.ClientPackets.Login;
@@ -54,6 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         private NoS0575PacketHandler? _noS0575PacketHandler;
         private ClientSession? _session;
         private Mock<IChannelHub>? _channelHub;
+        private SessionRefHolder? _sessionRefHolder;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -64,10 +66,12 @@ namespace NosCore.PacketHandlers.Tests.Login
             _authHttpClient = new Mock<IAuthHub>();
             _pubSubHub = TestHelpers.Instance.PubSubHub;
             _loginConfiguration = Options.Create(new LoginConfiguration());
+            _sessionRefHolder = new SessionRefHolder();
             _channelHub = new Mock<IChannelHub>();
+            _sessionRefHolder![_session!.Channel!.Id] = new RegionTypeMapping(_session.SessionId, RegionType.EN);
             _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration,
                     TestHelpers.Instance.AccountDao,
-                    _authHttpClient.Object, _pubSubHub.Object, _channelHub!.Object, TestHelpers.Instance.CharacterDao, new SessionRefHolder()),
+                    _authHttpClient.Object, _pubSubHub.Object, _channelHub!.Object, TestHelpers.Instance.CharacterDao, _sessionRefHolder!),
                 _loginConfiguration, Logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
