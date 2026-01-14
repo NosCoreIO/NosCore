@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<MailDto>(o => o.IsOpened), true.AsJsonElement().AsNode()));
+                    var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse("/IsOpened"), true.AsJsonElement().AsNode()));
                     await mailHttpClient.ViewMailAsync(mail.MailDto.MailId, patch).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(mail.GeneratePostMessage(pstClientPacket.Type)).ConfigureAwait(false);
                     break;
