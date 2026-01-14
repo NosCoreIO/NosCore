@@ -364,6 +364,9 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Â¿Quieres analizar los TimeSpaces?</value>
   </data>
+  <data name="PARSE_SCRIPTS" xml:space="preserve">
+    <value>Â¿Quieres analizar los Scripts?</value>
+  </data>
   <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
     <value>PocketType desconocido</value>
   </data>
@@ -433,5 +436,8 @@
   </data>
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>VisualType desconocido: {0}</value>
+  </data>
+  <data name="UNKNOWN" xml:space="preserve">
+    <value>Desconocido</value>
   </data>
 </root>

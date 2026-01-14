@@ -46,7 +46,8 @@ namespace NosCore.DtoGenerator
         {
             var path = Path.GetDirectoryName(context.AdditionalFiles.First(f => f.Path.EndsWith(".csproj")).Path);
             var files = Directory.GetFiles(path, "*.cs", SearchOption.AllDirectories);
-            var options = new CSharpParseOptions(LanguageVersion.Preview);
+            var options = (context.Compilation as CSharpCompilation)?.SyntaxTrees.FirstOrDefault()?.Options as CSharpParseOptions
+                ?? new CSharpParseOptions(LanguageVersion.Preview);
             var trees = files.Select(f => CSharpSyntaxTree.ParseText(File.ReadAllText(f), options)).ToList();
             var compilation = context.Compilation.AddSyntaxTrees(trees);
             foreach (var ns in trees)

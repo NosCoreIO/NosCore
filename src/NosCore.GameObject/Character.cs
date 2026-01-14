@@ -57,13 +57,13 @@ using System.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using DotNetty.Transport.Channels;
 using NodaTime;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking;
+using NosCore.Networking.SessionGroup;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
@@ -74,7 +74,8 @@ namespace NosCore.GameObject
             IHpService hpService, IMpService mpService, IExperienceService experienceService,
             IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
             IReputationService reputationService, IDignityService dignityService,
-            IOptions<WorldConfiguration> worldConfiguration, ISpeedCalculationService speedCalculationService)
+            IOptions<WorldConfiguration> worldConfiguration, ISpeedCalculationService speedCalculationService,
+            ISessionGroupFactory sessionGroupFactory)
         : CharacterDto, ICharacterEntity
     {
         public ScriptDto? Script { get; set; }
@@ -136,7 +137,18 @@ namespace NosCore.GameObject
 
         public IInventoryService InventoryService { get; } = inventory;
 
-        public Group? Group { get; set; } = new(GroupType.Group);
+        public Group? Group { get; set; }
+
+        public void InitializeGroup()
+        {
+            if (Group != null)
+            {
+                return;
+            }
+
+            Group = new Group(GroupType.Group, sessionGroupFactory);
+            Group.JoinGroup(this);
+        }
 
         public Instant? LastGroupRequest { get; set; } = null;
 
@@ -289,7 +301,7 @@ namespace NosCore.GameObject
                 await groupMember.SendPacketAsync(groupMember.Group!.GeneratePinit()).ConfigureAwait(false);
             }
 
-            Group = new Group(GroupType.Group);
+            Group = new Group(GroupType.Group, sessionGroupFactory);
             Group.JoinGroup(this);
         }
 

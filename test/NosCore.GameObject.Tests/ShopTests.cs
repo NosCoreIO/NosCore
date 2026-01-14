@@ -22,7 +22,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DotNetty.Transport.Channels.Sockets;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -50,8 +49,10 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MinilandService;
-using NosCore.GameObject.Services.SaveService;
 using NosCore.GameObject.Services.SpeedCalculationService;
+using NosCore.Networking;
+using NosCore.Networking.Encoding;
+using NosCore.Networking.SessionGroup;
 using NosCore.Networking.SessionRef;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
@@ -274,15 +275,27 @@ namespace NosCore.GameObject.Tests
         private async Task<ClientSession> PrepareSessionShopAsync()
         {
             var conf = Options.Create(new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 });
-            var session2 = new ClientSession(conf, new Mock<IExchangeService>().Object, Logger, new List<IPacketHandler>(), _friendHttpClient!, new Mock<ISerializer>().Object, new Mock<IMinilandService>().Object, TestHelpers.Instance.MapInstanceGeneratorService, new SessionRefHolder(),
-                new Mock<ISaveService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.PubSubHub.Object);
-            var channelMock = new Mock<ISocketChannel>();
-            session2.RegisterChannel(channelMock.Object);
+            var session2 = new ClientSession(
+                Logger,
+                new List<IPacketHandler>(),
+                new SessionRefHolder(),
+                new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object,
+                TestHelpers.Instance.LogLanguageLocalizer,
+                TestHelpers.Instance.PubSubHub.Object,
+                new Mock<IEncoder>().Object,
+                new WorldPacketHandlingStrategy(Logger, TestHelpers.Instance.LogLanguageLocalizer),
+                new List<ISessionDisconnectHandler>(),
+                new Mock<IMinilandService>().Object,
+                TestHelpers.Instance.MapInstanceGeneratorService,
+                TestHelpers.Instance.GameLanguageLocalizer);
+            var mockChannel = new Mock<IChannel>();
+            mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
+            session2.RegisterChannel(mockChannel.Object);
             var account = new AccountDto { Name = "AccountTest", Password = new Sha512Hasher().Hash("test") };
             session2.InitializeAccount(account);
             session2.SessionId = 1;
 
-            await session2.SetCharacterAsync(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object)
+            await session2.SetCharacterAsync(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, TestHelpers.Instance.SessionGroupFactory)
             {
                 CharacterId = 1,
                 Name = "chara2",

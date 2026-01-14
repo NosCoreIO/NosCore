@@ -75,6 +75,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
 
                 var character = characterDto.Adapt<GameObject.Character>();
+                character.InitializeGroup();
                 await pubSubHub.SubscribeAsync(new Subscriber
                 {
                     Id = clientSession.SessionId,

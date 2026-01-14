@@ -39,6 +39,7 @@ using NosCore.Networking.Encoding.Filter;
 using NosCore.Networking.Encoding;
 using NosCore.Networking.SessionRef;
 using NosCore.Networking;
+using NosCore.Networking.SessionGroup;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.Authentication;
@@ -85,6 +86,7 @@ using NosCore.Packets;
 using ILogger = Serilog.ILogger;
 using Character = NosCore.GameObject.Character;
 using NosCore.Packets.Enumerations;
+using NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
 
 namespace NosCore.WorldServer
 {
@@ -164,18 +166,48 @@ namespace NosCore.WorldServer
             //NosCore.Core
             containerBuilder.RegisterType<WorldDecoder>().AsImplementedInterfaces();
             containerBuilder.RegisterType<WorldEncoder>().AsImplementedInterfaces();
-            containerBuilder.Register(x => new List<RequestFilter>()).As<IEnumerable<RequestFilter>>();
+            containerBuilder.Register(x => new List<IRequestFilter>()).As<IEnumerable<IRequestFilter>>();
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
-            containerBuilder.RegisterType<ClientSession>().AsImplementedInterfaces();
+            containerBuilder.RegisterType<WorldPacketHandlingStrategy>().As<IPacketHandlingStrategy>().SingleInstance();
+            containerBuilder.RegisterType<ClientSession>().AsSelf().AsImplementedInterfaces();
+            containerBuilder.RegisterAssemblyTypes(typeof(ISessionDisconnectHandler).Assembly)
+                .Where(t => typeof(ISessionDisconnectHandler).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
+                .AsImplementedInterfaces();
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
-            containerBuilder.RegisterType<NetworkManager>();
-            containerBuilder.RegisterType<PipelineFactory>().AsImplementedInterfaces();
-            containerBuilder.Register(_ => new PipelineConfiguration { UseDelimiter = true }).AsImplementedInterfaces();
+            containerBuilder.Register(c =>
+            {
+                var conf = c.Resolve<IOptions<WorldConfiguration>>();
+                return new PipelineConfiguration { UseDelimiter = true, Language = conf.Value.Language };
+            }).As<IPipelineConfiguration>().SingleInstance();
+
+            containerBuilder.Register(c =>
+            {
+                var lifetimeScope = c.Resolve<ILifetimeScope>();
+                return new PipelineFactory(
+                    c.Resolve<IDecoder>(),
+                    c.Resolve<ISessionRefHolder>(),
+                    c.Resolve<IEnumerable<IRequestFilter>>(),
+                    c.Resolve<IPipelineConfiguration>(),
+                    () => lifetimeScope.Resolve<ClientSession>(),
+                    (package, client) => _ = ((ClientSession)client).HandlePacketAsync(package),
+                    client => _ = ((ClientSession)client).OnDisconnectedAsync(),
+                    c.Resolve<Microsoft.Extensions.Logging.ILogger<PipelineFactory>>(),
+                    c.Resolve<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>()
+                );
+            }).SingleInstance();
+
+            containerBuilder.Register(c => new NetworkManager(
+                c.Resolve<IOptions<ServerConfiguration>>(),
+                c.Resolve<PipelineFactory>(),
+                c.Resolve<Microsoft.Extensions.Logging.ILogger<NetworkManager>>(),
+                c.Resolve<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>()
+            ));
 
 
             //NosCore.GameObject
             containerBuilder.RegisterType<OctileDistanceHeuristic>().As<IHeuristic>();
             containerBuilder.RegisterType<Clock>();
+            containerBuilder.RegisterType<SessionGroupFactory>().As<ISessionGroupFactory>().SingleInstance();
             containerBuilder.Register<IIdService<Group>>(_ => new IdService<Group>(1)).SingleInstance();
             containerBuilder.Register<IIdService<MapItem>>(_ => new IdService<MapItem>(100000)).SingleInstance();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();

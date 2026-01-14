@@ -130,7 +130,7 @@ namespace NosCore.GameObject.Tests
                     Id = _guid,
                     Amount = 99
                 });
-            await Assert.ThrowsExceptionAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
+            await Assert.ThrowsExactlyAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = -50,
@@ -154,7 +154,7 @@ namespace NosCore.GameObject.Tests
                     Id = _guid,
                     Amount = 99
                 });
-            await Assert.ThrowsExceptionAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
+            await Assert.ThrowsExactlyAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 50,
@@ -178,7 +178,7 @@ namespace NosCore.GameObject.Tests
                     Id = _guid,
                     Amount = 99
                 });
-            await Assert.ThrowsExceptionAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
+            await Assert.ThrowsExactlyAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 100,
@@ -195,7 +195,7 @@ namespace NosCore.GameObject.Tests
         [TestMethod]
         public async Task AddToBazaarNullItemAsync()
         {
-            await Assert.ThrowsExceptionAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
+            await Assert.ThrowsExactlyAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
                 new BazaarRequest
                 {
                     Amount = 50,
@@ -358,13 +358,13 @@ namespace NosCore.GameObject.Tests
         [TestMethod]
         public async Task DeleteFromBazaarNotRegisteredAsync()
         {
-            await Assert.ThrowsExceptionAsync<ArgumentException>(() => _bazaarController!.DeleteBazaarAsync(0, 99, "test")).ConfigureAwait(false);
+            await Assert.ThrowsExactlyAsync<ArgumentException>(() => _bazaarController!.DeleteBazaarAsync(0, 99, "test")).ConfigureAwait(false);
         }
 
         [TestMethod]
         public async Task ModifyBazaarNotRegisteredAsync()
         {
-            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<BazaarLink>(o => o.BazaarItem!.Price), 50.AsJsonElement().AsNode()));
+            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse("/BazaarItem/Price"), 50.AsJsonElement().AsNode()));
             Assert.IsNull(await _bazaarController!.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
         }
 
@@ -390,7 +390,7 @@ namespace NosCore.GameObject.Tests
                     ItemInstanceId = _guid,
                     Price = 80
                 }).ConfigureAwait(false);
-            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<BazaarLink>(o => o.BazaarItem!.Price), 50.AsJsonElement().AsNode()));
+            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse("/BazaarItem/Price"), 50.AsJsonElement().AsNode()));
             Assert.IsNotNull(await _bazaarController.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
             Assert.AreEqual(50, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.Price);
         }
@@ -418,7 +418,7 @@ namespace NosCore.GameObject.Tests
                     Price = 50
                 }).ConfigureAwait(false);
             _bazaarItemsHolder!.BazaarItems[0].ItemInstance!.Amount--;
-            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<BazaarLink>(o => o.BazaarItem!.Price), 10.AsJsonElement().AsNode()));
+            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse("/BazaarItem/Price"), 10.AsJsonElement().AsNode()));
             Assert.IsNull(await _bazaarController.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
             Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Price);
         }

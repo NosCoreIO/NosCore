@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Bazaar
 
                 if (bz.BazaarItem?.Amount == packet.Amount)
                 {
-                    var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Create<BazaarLink>(o => o.BazaarItem!.Price), packet.NewPrice.AsJsonElement().AsNode()));
+                    var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse("/BazaarItem/Price"), packet.NewPrice.AsJsonElement().AsNode()));
                     var bzMod = await bazaarHttpClient.ModifyBazaarAsync(packet.BazaarId, patch).ConfigureAwait(false);
 
                     if ((bzMod != null) && (bzMod.BazaarItem?.Price != bz.BazaarItem.Price))

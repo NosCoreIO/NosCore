@@ -46,7 +46,7 @@ services:
     networks: 
       - noscore-network
     volumes:
-      - ./build/net9.0/linux-musl-x64:/app/build/net9.0
+      - ./build/net10.0/linux-musl-x64:/app/build/net10.0
       - ./configuration/:/app/build/configuration   
 
   world:
@@ -70,7 +70,7 @@ services:
     networks: 
       - noscore-network
     volumes:
-      - ./build/net9.0/linux-musl-x64:/app/build/net9.0
+      - ./build/net10.0/linux-musl-x64:/app/build/net10.0
       - ./configuration/:/app/build/configuration   
       
   login:
@@ -91,7 +91,7 @@ services:
     networks: 
       - noscore-network
     volumes:
-      - ./build/net9.0/linux-musl-x64:/app/build/net9.0
+      - ./build/net10.0/linux-musl-x64:/app/build/net10.0
       - ./configuration/:/app/build/configuration   
 
 networks:

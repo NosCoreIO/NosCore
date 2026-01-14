@@ -29,6 +29,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Networking.SessionGroup;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -108,7 +109,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
-            _session.Character.Group = new GameObject.Group(GroupType.Team);
+            _session.Character.Group = new GameObject.Group(GroupType.Team, new Mock<ISessionGroupFactory>().Object);
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Red && packet?.Message == Game18NConstString.TeammateCanNotOpenShop);
@@ -120,7 +121,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
-            _session.Character.Group = new GameObject.Group(GroupType.Group);
+            _session.Character.Group = new GameObject.Group(GroupType.Group, new Mock<ISessionGroupFactory>().Object);
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsNull(packet);

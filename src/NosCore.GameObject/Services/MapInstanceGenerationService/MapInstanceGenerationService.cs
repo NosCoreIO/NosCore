@@ -36,6 +36,7 @@ using System.Threading.Tasks;
 using NodaTime;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Shared.I18N;
+using NosCore.Networking.SessionGroup;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
@@ -46,7 +47,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             ILogger logger, EventLoaderService<MapInstance,
                 MapInstance, IMapInstanceEntranceEventHandler> entranceRunnerService, MapInstanceHolder holder,
             IMapInstanceAccessorService mapInstanceAccessorService,
-            IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMapChangeService mapChangeService)
+            IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMapChangeService mapChangeService,
+            ISessionGroupFactory sessionGroupFactory)
         : IMapInstanceGeneratorService
     {
         public Task AddMapInstanceAsync(MapInstance mapInstance)
@@ -121,7 +123,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)
         {
-            return new MapInstance(map, guid, shopAllowed, normalInstance, mapItemGenerationService, logger, clock, mapChangeService);
+            return new MapInstance(map, guid, shopAllowed, normalInstance, mapItemGenerationService, logger, clock, mapChangeService, sessionGroupFactory);
         }
 
         private async Task LoadPortalsAsync(MapInstance mapInstance, List<PortalDto> portals)
