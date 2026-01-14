@@ -35,7 +35,7 @@ This Website and Project is in no way affiliated with, authorized, maintained, s
 ## Disclaimer ##
 This project is a community project not for commercial use. The emulator itself is proof of concept of our idea to try out anything what's not possible on original servers. The result is to learn and program together for prove the study. 
 
-### Contribution is only possible with Visual Studio 2022 ###
+### Contribution is only possible with Visual Studio 2026 ###
 We recommend usage of : 
 * [Roslynator extension](https://github.com/JosefPihrt/Roslynator).
 * [Resharper](https://www.jetbrains.com/resharper/)
@@ -44,8 +44,8 @@ We recommend usage of :
 
 # Building the code #
 
-## 1. Install .Net 9 ##
-- https://dotnet.microsoft.com/download/dotnet/9.0
+## 1. Install .Net 10 ##
+- https://dotnet.microsoft.com/download/dotnet/10.0
 - Visual Studio > Tools > Options > Preview Features > Use previews of the .NET CORE SDK
 - Restart
 
