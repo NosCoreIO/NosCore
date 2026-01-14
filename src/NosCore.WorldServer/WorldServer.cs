@@ -33,20 +33,24 @@ using NodaTime;
 using NosCore.Core;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
+using NosCore.Networking.SessionGroup;
 using NosCore.Shared.I18N;
 using Polly;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.WorldServer
 {
     public class WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager,
             Clock clock, ILogger<WorldServer> logger, IMapInstanceGeneratorService mapInstanceGeneratorService,
             IClock nodatimeClock, ISaveService saveService,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger, Channel channel, IChannelHub channelHubClient)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger, Channel channel, IChannelHub channelHubClient,
+            ISessionGroupFactory sessionGroupFactory)
         : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            Broadcaster.Initialize(sessionGroupFactory);
             await mapInstanceGeneratorService.InitializeAsync().ConfigureAwait(false);
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>

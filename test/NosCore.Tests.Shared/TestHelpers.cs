@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DotNetty.Transport.Channels.Sockets;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
@@ -58,6 +57,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
@@ -70,9 +70,11 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
 using NosCore.GameObject.Services.MinilandService;
-using NosCore.GameObject.Services.SaveService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.GameObject.Services.TransformationService;
+using NosCore.Networking;
+using NosCore.Networking.Encoding;
+using NosCore.Networking.SessionGroup;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.PacketHandlers.CharacterScreen;
@@ -117,9 +119,14 @@ namespace NosCore.Tests.Shared
         public Mock<IChannelHub> ChannelHttpClient = new();
         public Mock<IPubSubHub> PubSubHub = new();
         public Mock<IFriendHub> FriendHttpClient = new();
-        public FakeClock Clock = new(Instant.FromUtc(2021,01,01,01,01,01)); 
+        public FakeClock Clock = new(Instant.FromUtc(2021,01,01,01,01,01));
+        public ISessionGroupFactory SessionGroupFactory { get; private set; } = null!;
         private TestHelpers()
         {
+            var sessionGroupFactoryMock = new Mock<ISessionGroupFactory>();
+            sessionGroupFactoryMock.Setup(x => x.Create()).Returns(new Mock<ISessionGroup>().Object);
+            SessionGroupFactory = sessionGroupFactoryMock.Object;
+            Broadcaster.Initialize(sessionGroupFactoryMock.Object);
             BlacklistHttpClient.Setup(s => s.GetBlacklistedAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
             FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
@@ -246,14 +253,15 @@ namespace NosCore.Tests.Shared
             MapInstanceAccessorService = new MapInstanceAccessorService(holder);
             var mapChangeService = new MapChangeService(new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
                 MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, new Mock<IMinilandService>().Object, _logger, Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer);
+            var sessionGroupFactory = new Mock<ISessionGroupFactory>().Object;
             var instanceGeneratorService = new MapInstanceGeneratorService(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
                 MapItemProvider,
                 _mapNpcDao,
-                _mapMonsterDao, _portalDao, _shopItemDao, _logger, new EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()), 
-                holder, MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, mapChangeService);
+                _mapMonsterDao, _portalDao, _shopItemDao, _logger, new EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()),
+                holder, MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, mapChangeService, sessionGroupFactory);
             await instanceGeneratorService.InitializeAsync().ConfigureAwait(false);
             await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
-                MapInstanceType.NormalInstance, MapItemProvider, _logger, Clock, mapChangeService)).ConfigureAwait(false);
+                MapInstanceType.NormalInstance, MapItemProvider, _logger, Clock, mapChangeService, sessionGroupFactory)).ConfigureAwait(false);
             MapInstanceGeneratorService = instanceGeneratorService;
         }
 
@@ -305,7 +313,6 @@ namespace NosCore.Tests.Shared
             acc = await AccountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
             var minilandProvider = new Mock<IMinilandService>();
             var session = new ClientSession(WorldConfiguration,
-                new Mock<IExchangeService>().Object,
                 _logger,
                 packetHandlers ?? new List<IPacketHandler>
                 {
@@ -322,19 +329,24 @@ namespace NosCore.Tests.Shared
                     new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, _itemInstanceDao, _inventoryItemInstanceDao),
                     new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, _logger, _itemInstanceDao, Instance.LogLanguageLocalizer)
                 },
-                FriendHttpClient.Object,
-                new Mock<ISerializer>().Object,
+                new SessionRefHolder(),
+                new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object,
+                Instance.LogLanguageLocalizer,
+                TestHelpers.Instance.PubSubHub.Object,
+                new Mock<IEncoder>().Object,
+                new WorldPacketHandlingStrategy(_logger, Instance.LogLanguageLocalizer),
+                new List<ISessionDisconnectHandler>(),
                 minilandProvider.Object,
-                MapInstanceGeneratorService, new SessionRefHolder(), new Mock<ISaveService>().Object, new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object, 
-                Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, TestHelpers.Instance.PubSubHub.Object)
+                MapInstanceGeneratorService,
+                Instance.GameLanguageLocalizer)
             {
                 SessionId = _lastId
             };
 
             var chara = new GameObject.Character(new InventoryService(ItemList, WorldConfiguration, _logger),
-                new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestHolder(), Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer), new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), 
-                new HeroExperienceService(), new ReputationService(), new DignityService(), 
-                Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object)
+                new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestHolder(), Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer), new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(),
+                new HeroExperienceService(), new ReputationService(), new DignityService(),
+                Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, Instance.SessionGroupFactory)
             {
                 CharacterId = _lastId,
                 Name = "TestExistingCharacter" + _lastId,
@@ -352,7 +364,9 @@ namespace NosCore.Tests.Shared
             await session.SetCharacterAsync(chara).ConfigureAwait(false);
             session.Character.MapInstance = MapInstanceAccessorService.GetBaseMapById(0)!;
             session.Account = acc;
-            session.RegisterChannel(new Mock<ISocketChannel>().Object);
+            var mockChannel = new Mock<IChannel>();
+            mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
+            session.RegisterChannel(mockChannel.Object);
             return session;
         }
 

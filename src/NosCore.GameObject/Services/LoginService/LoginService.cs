@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Services.LoginService
             try
             {
                 clientSession.SessionId = clientSession.Channel?.Id != null
-                    ? sessionRefHolder[clientSession.Channel.Id.AsLongText()].SessionId : 0;
+                    ? sessionRefHolder[clientSession.Channel.Id].SessionId : 0;
 
 
                 if (((loginConfiguration.Value.ClientVersion != null) &&

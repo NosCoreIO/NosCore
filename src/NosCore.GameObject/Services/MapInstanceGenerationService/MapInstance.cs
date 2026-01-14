@@ -61,7 +61,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IMapChangeService _mapChangeService;
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
-            IMapItemGenerationService mapItemGenerationService, ILogger logger, IClock clock, IMapChangeService mapChangeService)
+            IMapItemGenerationService mapItemGenerationService, ILogger logger, IClock clock, IMapChangeService mapChangeService,
+            ISessionGroupFactory sessionGroupFactory)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -77,7 +78,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _isSleeping = true;
             _clock = clock;
             LastUnregister = _clock.GetCurrentInstant().Plus(Duration.FromMinutes(-1));
-            Sessions = new SessionGroup();
+            Sessions = sessionGroupFactory.Create();
             _mapItemGenerationService = mapItemGenerationService;
             _logger = logger;
             _mapChangeService = mapChangeService;

@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,6 +27,8 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking;
+using NosCore.Networking;
+using NosCore.Networking.SessionGroup;
 using NosCore.PacketHandlers.Group;
 using NosCore.Packets.ClientPackets.Groups;
 using NosCore.Packets.Enumerations;
@@ -51,9 +54,14 @@ namespace NosCore.PacketHandlers.Tests.Group
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
                 var session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-                session.RegisterChannel(null);
+                var mockChannel = new Mock<IChannel>();
+                mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
+                session.RegisterChannel(mockChannel.Object);
                 _characters.Add(i, session.Character!);
-                session.Character.Group!.JoinGroup(session.Character);
+                var sessionGroupFactoryMock = new Mock<ISessionGroupFactory>();
+                sessionGroupFactoryMock.Setup(x => x.Create()).Returns(new Mock<ISessionGroup>().Object);
+                session.Character.Group = new GameObject.Group(GroupType.Group, sessionGroupFactoryMock.Object);
+                session.Character.Group.JoinGroup(session.Character);
             }
 
             _pLeavePacketHandler = new PleavePacketHandler(idServer);

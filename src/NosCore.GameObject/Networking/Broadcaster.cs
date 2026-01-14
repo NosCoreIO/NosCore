@@ -32,15 +32,22 @@ namespace NosCore.GameObject.Networking
     {
         public short MaxPacketsBuffer { get; } = 250;
         private static Broadcaster? _instance;
+        private static ISessionGroupFactory? _sessionGroupFactory;
 
-        private Broadcaster()
+        private Broadcaster(ISessionGroupFactory sessionGroupFactory)
         {
-            Sessions = new SessionGroup();
+            Sessions = sessionGroupFactory.Create();
         }
 
         private ConcurrentDictionary<long, ClientSession.ClientSession> ClientSessions { get; } = new();
 
-        public static Broadcaster Instance => _instance ??= new Broadcaster();
+        public static void Initialize(ISessionGroupFactory sessionGroupFactory)
+        {
+            _sessionGroupFactory = sessionGroupFactory;
+        }
+
+        public static Broadcaster Instance => _instance ??= new Broadcaster(_sessionGroupFactory
+            ?? throw new InvalidOperationException("Broadcaster.Initialize must be called before accessing Instance"));
 
         public ISessionGroup Sessions { get; set; }
 
