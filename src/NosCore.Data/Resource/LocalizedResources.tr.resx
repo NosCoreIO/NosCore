@@ -528,4 +528,7 @@
   <data name="QUEST_NOT_FOUND" xml:space="preserve">
     <value>Görev bulunamadı.</value>
   </data>
+  <data name="UNKNOWN" xml:space="preserve">
+    <value>Bilinmiyor</value>
+  </data>
 </root>

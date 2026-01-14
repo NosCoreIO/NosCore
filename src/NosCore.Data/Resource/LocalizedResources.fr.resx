@@ -192,6 +192,9 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Voulez-vous analyser les espaces temps ?</value>
   </data>
+  <data name="PARSE_SCRIPTS" xml:space="preserve">
+    <value>Voulez-vous analyser les scripts ?</value>
+  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>L'émulateur a bien été chargé.</value>
   </data>

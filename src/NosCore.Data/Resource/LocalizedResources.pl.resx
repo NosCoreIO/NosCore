@@ -360,6 +360,9 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Czy chcesz wprowadzić TimeSpaces?</value>
   </data>
+  <data name="PARSE_SCRIPTS" xml:space="preserve">
+    <value>Czy chcesz wprowadzić Scripts?</value>
+  </data>
   <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
     <value>Nieznany PocketType</value>
   </data>
@@ -443,5 +446,20 @@
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Odebrano pakiet bez postaci: {0}</value>
+  </data>
+  <data name="UNKNOWN" xml:space="preserve">
+    <value>Nieznany</value>
+  </data>
+  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
+    <value>Nie udało się usunąć przedmiotu z ekwipunku.</value>
+  </data>
+  <data name="ALREADY_EXCHANGE" xml:space="preserve">
+    <value>Już jesteś w wymianie.</value>
+  </data>
+  <data name="AUTH_API_SUCCESS" xml:space="preserve">
+    <value>Pomyślna autoryzacja API.</value>
+  </data>
+  <data name="BAZAAR_DELETE_ERROR" xml:space="preserve">
+    <value>Nie udało się usunąć przedmiotu z bazaru.</value>
   </data>
 </root>

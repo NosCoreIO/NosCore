@@ -428,6 +428,9 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Möchtest du die TimeSpaces laden?</value>
   </data>
+  <data name="PARSE_SCRIPTS" xml:space="preserve">
+    <value>Möchtest du die Skripte laden?</value>
+  </data>
   <data name="PLAYER_IN_SHOP" xml:space="preserve">
     <value>{0} befindet sich im Shop.</value>
   </data>

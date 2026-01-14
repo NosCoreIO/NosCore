@@ -362,6 +362,7 @@ namespace NosCore.Tests.Shared
             await CharacterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
             session.InitializeAccount(acc);
             await session.SetCharacterAsync(chara).ConfigureAwait(false);
+            session.Character.InitializeGroup();
             session.Character.MapInstance = MapInstanceAccessorService.GetBaseMapById(0)!;
             session.Account = acc;
             var mockChannel = new Mock<IChannel>();

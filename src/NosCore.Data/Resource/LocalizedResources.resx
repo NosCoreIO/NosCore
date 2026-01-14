@@ -365,6 +365,9 @@
   <data name="PARSE_TIMESPACES" xml:space="preserve">
     <value>Do you want to parse TimeSpaces?</value>
   </data>
+  <data name="PARSE_SCRIPTS" xml:space="preserve">
+    <value>Do you want to parse Scripts?</value>
+  </data>
   <data name="POCKETTYPE_UNKNOWN" xml:space="preserve">
     <value>Unknown PocketType</value>
   </data>
@@ -484,5 +487,104 @@
   </data>
   <data name="SAVE_CHARACTER_FAILED" xml:space="preserve">
     <value>Save Character failed. SessionId: {SessionId}</value>
+  </data>
+  <data name="UNKNOWN" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
+    <value>Failed to remove item from inventory.</value>
+  </data>
+  <data name="ALREADY_EXCHANGE" xml:space="preserve">
+    <value>You are already in an exchange.</value>
+  </data>
+  <data name="AUTH_API_SUCCESS" xml:space="preserve">
+    <value>Authentication API succeeded.</value>
+  </data>
+  <data name="BAZAAR_DELETE_ERROR" xml:space="preserve">
+    <value>Failed to delete bazaar item.</value>
+  </data>
+  <data name="BAZAAR_BUY_ERROR" xml:space="preserve">
+    <value>Failed to buy bazaar item.</value>
+  </data>
+  <data name="BAZAAR_MOD_ERROR" xml:space="preserve">
+    <value>Failed to modify bazaar item.</value>
+  </data>
+  <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
+    <value>Direct access object detected.</value>
+  </data>
+  <data name="TRY_OLD_AUTH" xml:space="preserve">
+    <value>Trying old authentication method.</value>
+  </data>
+  <data name="SHOPSKILLS_LOADED" xml:space="preserve">
+    <value>{0} Shop Skills loaded.</value>
+  </data>
+  <data name="CHUNK_FORMAT_INVALID" xml:space="preserve">
+    <value>Invalid chunk format.</value>
+  </data>
+  <data name="ITEM_NOT_FOUND" xml:space="preserve">
+    <value>Item not found.</value>
+  </data>
+  <data name="QUEST_PRIZES_PARSED" xml:space="preserve">
+    <value>{0} Quest Prizes Parsed!</value>
+  </data>
+  <data name="ACTS_PARTS_PARSED" xml:space="preserve">
+    <value>{0} Acts Parts Parsed!</value>
+  </data>
+  <data name="SCRIPTS_PARSED" xml:space="preserve">
+    <value>{0} Scripts Parsed!</value>
+  </data>
+  <data name="QUEST_NOT_FOUND" xml:space="preserve">
+    <value>Quest not found.</value>
+  </data>
+  <data name="NPCMONSTERSTALKS_LOADED" xml:space="preserve">
+    <value>{0} NPC Monster Talks loaded.</value>
+  </data>
+  <data name="QUESTS_LOADED" xml:space="preserve">
+    <value>{0} Quests loaded.</value>
+  </data>
+  <data name="QUESTOBJECTIVES_LOADED" xml:space="preserve">
+    <value>{0} Quest Objectives loaded.</value>
+  </data>
+  <data name="QUESTREWARDS_LOADED" xml:space="preserve">
+    <value>{0} Quest Rewards loaded.</value>
+  </data>
+  <data name="SCRIPTS_LOADED" xml:space="preserve">
+    <value>{0} Scripts loaded.</value>
+  </data>
+  <data name="NPCTALKS_PARSED" xml:space="preserve">
+    <value>{0} NPC Talks Parsed!</value>
+  </data>
+  <data name="WALK_CHECKSUM_INVALID" xml:space="preserve">
+    <value>Invalid walk checksum.</value>
+  </data>
+  <data name="SPEED_INVALID" xml:space="preserve">
+    <value>Invalid speed detected.</value>
+  </data>
+  <data name="PACKET_USED_WHILE_IN_GAME" xml:space="preserve">
+    <value>Packet used while in game: {0}</value>
+  </data>
+  <data name="PACKET_USED_WHILE_NOT_ON_LOGIN" xml:space="preserve">
+    <value>Packet used while not on login: {0}</value>
+  </data>
+  <data name="CHARACTER_SLOT_EMPTY" xml:space="preserve">
+    <value>Character slot is empty.</value>
+  </data>
+  <data name="CHARACTER_SELECTION_FAILED" xml:space="preserve">
+    <value>Character selection failed.</value>
+  </data>
+  <data name="ALREADY_CONNECTED" xml:space="preserve">
+    <value>Account already connected.</value>
+  </data>
+  <data name="PACKET_HANDLING_ERROR" xml:space="preserve">
+    <value>Error handling packet.</value>
+  </data>
+  <data name="MFA_INCORRECT" xml:space="preserve">
+    <value>MFA verification incorrect.</value>
+  </data>
+  <data name="DATABASE_ERROR" xml:space="preserve">
+    <value>Database error occurred.</value>
+  </data>
+  <data name="UNBOUND_ITEM_DETECTED" xml:space="preserve">
+    <value>Unbound item detected.</value>
   </data>
 </root>
