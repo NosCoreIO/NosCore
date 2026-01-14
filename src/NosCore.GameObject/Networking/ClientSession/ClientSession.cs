@@ -102,38 +102,6 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        public ClientSession(
-            IOptions<LoginConfiguration> configuration,
-            ILogger logger,
-            IEnumerable<IPacketHandler> packetsHandlers,
-            ISessionRefHolder sessionRefHolder,
-            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            IPubSubHub pubSubHub,
-            IEncoder encoder,
-            IPacketHandlingStrategy packetHandlingStrategy,
-            IEnumerable<ISessionDisconnectHandler> disconnectHandlers)
-            : this(logger, packetsHandlers, sessionRefHolder, networkingLogLanguage, logLanguage, pubSubHub, encoder, packetHandlingStrategy, disconnectHandlers)
-        {
-        }
-
-        public ClientSession(
-            IOptions<WorldConfiguration> configuration,
-            ILogger logger,
-            IEnumerable<IPacketHandler> packetsHandlers,
-            ISessionRefHolder sessionRefHolder,
-            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            IPubSubHub pubSubHub,
-            IEncoder encoder,
-            IPacketHandlingStrategy packetHandlingStrategy,
-            IEnumerable<ISessionDisconnectHandler> disconnectHandlers,
-            IMinilandService minilandProvider,
-            IMapInstanceGeneratorService mapInstanceGeneratorService,
-            IGameLanguageLocalizer gameLanguageLocalizer)
-            : this(logger, packetsHandlers, sessionRefHolder, networkingLogLanguage, logLanguage, pubSubHub, encoder, packetHandlingStrategy, disconnectHandlers, minilandProvider, mapInstanceGeneratorService, gameLanguageLocalizer)
-        {
-        }
 
         public bool GameStarted { get; set; }
 

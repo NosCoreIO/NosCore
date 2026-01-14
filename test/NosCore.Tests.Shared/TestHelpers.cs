@@ -312,7 +312,7 @@ namespace NosCore.Tests.Shared
             { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = new Sha512Hasher().Hash("test") };
             acc = await AccountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
             var minilandProvider = new Mock<IMinilandService>();
-            var session = new ClientSession(WorldConfiguration,
+            var session = new ClientSession(
                 _logger,
                 packetHandlers ?? new List<IPacketHandler>
                 {
