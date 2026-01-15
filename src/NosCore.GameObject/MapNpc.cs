@@ -79,7 +79,7 @@ namespace NosCore.GameObject
             });
             Shop = shopObj.Adapt<Shop>();
             Shop.Name = npcTalkDto?.Name ?? new I18NString();
-            Shop.Session = null;
+            Shop.OwnerCharacter = null;
             Shop.ShopItems = shopItemsList;
         }
         public SemaphoreSlim HitSemaphore { get; } = new SemaphoreSlim(1, 1);

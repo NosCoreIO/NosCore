@@ -166,7 +166,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                     if (!session.Character.Invisible)
                     {
                         await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateIn(session.Character.Authority == AuthorityType.Moderator
-                                ? $"[{session.Character.Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" : string.Empty),
+                                ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, session.Character.AccountLanguage]}]" : string.Empty),
                             new EveryoneBut(session.Character.Channel!.Id)).ConfigureAwait(false);
                     }
 
@@ -182,6 +182,15 @@ namespace NosCore.GameObject.Services.MapChangeService
             {
                 logger.Warning(logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
                 session.Character.IsChangingMapInstance = false;
+            }
+        }
+
+        public async Task ChangeMapByCharacterIdAsync(long characterId, short mapId, short mapX, short mapY)
+        {
+            var sender = sessionRegistry.GetSenderByCharacterId(characterId);
+            if (sender is ClientSession session)
+            {
+                await ChangeMapAsync(session, mapId, mapX, mapY).ConfigureAwait(false);
             }
         }
 

@@ -120,6 +120,15 @@ namespace NosCore.GameObject.Services.BroadcastService
                 .Select(s => s.Sender.SendPacketAsync(packet)));
         }
 
+        public async Task DisconnectByCharacterIdAsync(long characterId)
+        {
+            if (_channelIdByCharacterId.TryGetValue(characterId, out var channelId) &&
+                _sessionsByChannelId.TryGetValue(channelId, out var session))
+            {
+                await session.Disconnect();
+            }
+        }
+
         public List<Subscriber> GetConnectedAccounts()
         {
             return _sessionsByChannelId.Values.Select(s =>

@@ -63,6 +63,7 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.GameObject.Services.SpeedCalculationService;
+using NosCore.Core.I18N;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
@@ -76,7 +77,8 @@ namespace NosCore.GameObject
             IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
             IReputationService reputationService, IDignityService dignityService,
             IOptions<WorldConfiguration> worldConfiguration, ISpeedCalculationService speedCalculationService,
-            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
+            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry,
+            IGameLanguageLocalizer gameLanguageLocalizer)
         : CharacterDto, ICharacterEntity
     {
         public ScriptDto? Script { get; set; }
@@ -89,7 +91,9 @@ namespace NosCore.GameObject
 
         public Instant LastPortal { get; set; }
 
-        public ClientSession Session { get; set; } = null!;
+        public AccountDto Account { get; set; } = null!;
+
+        public IChannel? Channel { get; set; }
 
         public Instant LastMove { get; set; }
 
@@ -115,9 +119,9 @@ namespace NosCore.GameObject
 
         public List<QuicklistEntryDto> QuicklistEntries { get; set; } = new();
 
-        public long BankGold => Session.Account.BankMoney;
+        public long BankGold => Account.BankMoney;
 
-        public RegionType AccountLanguage => Session.Account.Language;
+        public RegionType AccountLanguage => Account.Language;
 
         public ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; set; } = new();
 
@@ -157,8 +161,6 @@ namespace NosCore.GameObject
 
         public DignityType DignityIcon => dignityService.GetLevelFromDignity(Dignity);
 
-        public IChannel? Channel => Session?.Channel;
-
         public MapInstance MapInstance { get; set; } = null!;
 
         public VisualType VisualType => VisualType.Player;
@@ -193,7 +195,7 @@ namespace NosCore.GameObject
 
         public Guid MapInstanceId => MapInstance.MapInstanceId;
 
-        public AuthorityType Authority => Session.Account.Authority;
+        public AuthorityType Authority => Account.Authority;
 
         public bool IsAlive { get; set; }
 
@@ -227,12 +229,14 @@ namespace NosCore.GameObject
 
         public Task SendPacketAsync(IPacket? packetDefinition)
         {
-            return Session.SendPacketAsync(packetDefinition);
+            var sender = sessionRegistry.GetSenderByCharacterId(CharacterId);
+            return sender?.SendPacketAsync(packetDefinition) ?? Task.CompletedTask;
         }
 
         public Task SendPacketsAsync(IEnumerable<IPacket?> packetDefinitions)
         {
-            return Session.SendPacketsAsync(packetDefinitions);
+            var sender = sessionRegistry.GetSenderByCharacterId(CharacterId);
+            return sender?.SendPacketsAsync(packetDefinitions) ?? Task.CompletedTask;
         }
 
         public async Task SetHeroLevelAsync(byte level)
@@ -387,7 +391,7 @@ namespace NosCore.GameObject
                 }
             };
 
-            await MapInstance.SendPacketAsync(this.GenerateIn(Prefix ?? ""), new EveryoneBut(Session!.Channel!.Id)).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateIn(Prefix ?? ""), new EveryoneBut(Channel!.Id)).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(Group!.GeneratePidx(this)).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(this.GenerateEff(6)).ConfigureAwait(false);
             await MapInstance.SendPacketAsync(this.GenerateEff(198)).ConfigureAwait(false);
@@ -407,12 +411,12 @@ namespace NosCore.GameObject
 
         public void AddBankGold(long bankGold)
         {
-            Session.Account.BankMoney += bankGold;
+            Account.BankMoney += bankGold;
         }
 
         public void RemoveBankGold(long bankGold)
         {
-            Session.Account.BankMoney -= bankGold;
+            Account.BankMoney -= bankGold;
         }
 
         public async Task SetGoldAsync(long gold)
@@ -442,22 +446,22 @@ namespace NosCore.GameObject
                 {
                     if (mail.ItemInstance != null)
                     {
-                        await Session.SendPacketAsync(mail.GeneratePost(0)).ConfigureAwait(false);
+                        await SendPacketAsync(mail.GeneratePost(0)).ConfigureAwait(false);
                     }
                     else
                     {
-                        await Session.SendPacketAsync(mail.GeneratePost(1)).ConfigureAwait(false);
+                        await SendPacketAsync(mail.GeneratePost(1)).ConfigureAwait(false);
                     }
                 }
                 else
                 {
                     if (mail.ItemInstance != null)
                     {
-                        await Session.SendPacketAsync(mail.GeneratePost(3)).ConfigureAwait(false);
+                        await SendPacketAsync(mail.GeneratePost(3)).ConfigureAwait(false);
                     }
                     else
                     {
-                        await Session.SendPacketAsync(mail.GeneratePost(2)).ConfigureAwait(false);
+                        await SendPacketAsync(mail.GeneratePost(2)).ConfigureAwait(false);
                     }
                 }
             }
@@ -465,12 +469,12 @@ namespace NosCore.GameObject
 
         public Task ChangeMapAsync(IMapChangeService mapChangeService, short mapId, short mapX, short mapY)
         {
-            return mapChangeService.ChangeMapAsync(Session, mapId, mapX, mapY);
+            return mapChangeService.ChangeMapByCharacterIdAsync(CharacterId, mapId, mapX, mapY);
         }
 
         public string GetMessageFromKey(LanguageKey languageKey)
         {
-            return Session.GetMessageFromKey(languageKey);
+            return gameLanguageLocalizer[languageKey, AccountLanguage];
         }
 
         public async Task CloseShopAsync()
@@ -531,14 +535,14 @@ namespace NosCore.GameObject
 
             short slotChar = item.Slot;
             List<InventoryItemInstance>? inv;
-            if (shop.Session == null)
+            if (shop.OwnerCharacter == null)
             {
                 inv = InventoryService.AddItemToPocket(InventoryItemInstance.Create(
                     ItemProvider.Create(item.ItemInstance!.ItemVNum, amount), CharacterId));
             }
             else
             {
-                if (price + shop.Session.Character.Gold > worldConfiguration.Value.MaxGoldAmount)
+                if (price + shop.OwnerCharacter.Gold > worldConfiguration.Value.MaxGoldAmount)
                 {
                     await SendPacketAsync(new SMemoPacket
                     {
@@ -563,7 +567,7 @@ namespace NosCore.GameObject
             if (inv?.Count > 0)
             {
                 inv.ForEach(it => it.CharacterId = CharacterId);
-                var packet = await (shop.Session == null ? Task.FromResult((NInvPacket?)null) : shop.Session.Character.BuyFromAsync(item, amount, slotChar)).ConfigureAwait(false);
+                var packet = await (shop.OwnerCharacter == null ? Task.FromResult((NInvPacket?)null) : shop.OwnerCharacter.BuyFromAsync(item, amount, slotChar)).ConfigureAwait(false);
                 if (packet != null)
                 {
                     await SendPacketAsync(packet).ConfigureAwait(false);
@@ -588,7 +592,7 @@ namespace NosCore.GameObject
                     await SendPacketAsync(new SayiPacket
                     {
                         VisualType = VisualType.Player,
-                        VisualId = Session.Character.CharacterId,
+                        VisualId = CharacterId,
                         Type = SayColorType.Red,
                         Message = Game18NConstString.ReputationReduced,
                         ArgumentType = 4,
@@ -653,7 +657,6 @@ namespace NosCore.GameObject
         {
             await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
             await SendPacketAsync(this.GenerateStatInfo()).ConfigureAwait(false);
-            //Session.SendPacket(GenerateStatChar());
             await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
             var mapSessions = sessionRegistry.GetCharacters(s => s.MapInstance == MapInstance);
 

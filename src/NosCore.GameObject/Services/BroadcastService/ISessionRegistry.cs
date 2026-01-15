@@ -43,6 +43,7 @@ namespace NosCore.GameObject.Services.BroadcastService
 
         Task BroadcastPacketAsync(IPacket packet);
         Task BroadcastPacketAsync(IPacket packet, string excludeChannelId);
+        Task DisconnectByCharacterIdAsync(long characterId);
 
         List<Subscriber> GetConnectedAccounts();
     }
@@ -53,6 +54,7 @@ namespace NosCore.GameObject.Services.BroadcastService
         public required long SessionId { get; init; }
         public required IPacketSender Sender { get; init; }
         public required string AccountName { get; init; }
+        public required Func<Task> Disconnect { get; init; }
 
         public long? CharacterId { get; set; }
         public Guid? MapInstanceId { get; set; }

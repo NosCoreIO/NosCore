@@ -122,7 +122,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                     ChannelId = Channel.Id,
                     SessionId = SessionId,
                     Sender = this,
-                    AccountName = accountDto.Name
+                    AccountName = accountDto.Name,
+                    Disconnect = DisconnectAsync
                 });
             }
         }
@@ -137,7 +138,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                 return Task.CompletedTask;
             }
 
-            character.Session = this;
+            character.Account = Account;
+            character.Channel = Channel;
             if (Channel != null)
             {
                 sessionRegistry.UpdateCharacter(Channel.Id, character.CharacterId, character.MapInstanceId, character);

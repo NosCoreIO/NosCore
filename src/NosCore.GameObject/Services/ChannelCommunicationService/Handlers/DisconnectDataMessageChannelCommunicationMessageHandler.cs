@@ -10,13 +10,13 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
     {
         public override async Task Handle(DisconnectData data)
         {
-            var targetSession = sessionRegistry.GetCharacter(s => s.VisualId == data.CharacterId) as Character;
-            if (targetSession?.Session == null)
+            var targetCharacter = sessionRegistry.GetCharacter(s => s.VisualId == data.CharacterId);
+            if (targetCharacter == null)
             {
                 return;
             }
 
-            await targetSession.Session.DisconnectAsync().ConfigureAwait(false);
+            await sessionRegistry.DisconnectByCharacterIdAsync(data.CharacterId).ConfigureAwait(false);
             await pubSubHub.DeleteMessageAsync(data.Id);
         }
     }

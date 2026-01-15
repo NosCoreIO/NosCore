@@ -351,7 +351,7 @@ namespace NosCore.Tests.Shared
             var chara = new GameObject.Character(new InventoryService(ItemList, WorldConfiguration, _logger),
                 new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestHolder(), Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer), new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(),
                 new HeroExperienceService(), new ReputationService(), new DignityService(),
-                Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, Instance.SessionGroupFactory, Instance.SessionRegistry)
+                Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, Instance.SessionGroupFactory, Instance.SessionRegistry, Instance.GameLanguageLocalizer)
             {
                 CharacterId = _lastId,
                 Name = "TestExistingCharacter" + _lastId,

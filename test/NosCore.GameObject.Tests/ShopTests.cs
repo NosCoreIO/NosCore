@@ -300,7 +300,7 @@ namespace NosCore.GameObject.Tests
             session2.SessionId = 1;
 
             var mapinstance = _instanceProvider!.GetBaseMapById(0)!;
-            var chara2 = new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, TestHelpers.Instance.SessionGroupFactory, TestHelpers.Instance.SessionRegistry)
+            var chara2 = new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, TestHelpers.Instance.SessionGroupFactory, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.GameLanguageLocalizer)
             {
                 CharacterId = 1,
                 Name = "chara2",
@@ -329,7 +329,7 @@ namespace NosCore.GameObject.Tests
             list.TryAdd(1, new ShopItem { Slot = 1, ItemInstance = it, Type = 0, Price = 1, Amount = 500 });
             session2.Character.Shop = new Shop
             {
-                Session = session2,
+                OwnerCharacter = session2.Character,
                 ShopItems = list
             };
             _session.Character.InventoryService!.AddItemToPocket(

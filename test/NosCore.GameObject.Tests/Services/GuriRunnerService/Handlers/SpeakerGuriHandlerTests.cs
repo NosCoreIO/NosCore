@@ -26,7 +26,6 @@ using Moq;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.GuriRunnerService.Handlers;
 using NosCore.GameObject.Services.InventoryService;
@@ -35,6 +34,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Tests.Shared;
 using Serilog;
 using GuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
@@ -46,6 +46,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
     {
         private IItemGenerationService? _itemProvider;
         private Mock<ILogger>? _logger;
+        private ClientSession? _receiverSession;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -60,6 +61,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger.Object, TestHelpers.Instance.LogLanguageLocalizer);
 
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _receiverSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
 
             Handler = new SpeakerGuriHandler(_logger.Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
         }
@@ -76,9 +78,9 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
                 Data = 999,
                 Value = "2 0 {test}"
             }).ConfigureAwait(false);
-            var sayitempacket = (SayItemPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNotNull(sayitempacket);
-            var saypacket = (SayPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNull(saypacket);
         }
 
@@ -95,9 +97,9 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
                 Data = 999,
                 Value = "2 1 {test}"
             }).ConfigureAwait(false);
-            var sayitempacket = (SayItemPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
-            var saypacket = (SayPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNull(saypacket);
         }
 
@@ -113,9 +115,9 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
                 Argument = 3,
                 VisualId = 0,
             }).ConfigureAwait(false);
-            var sayitempacket = (SayItemPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
-            var saypacket = (SayPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNotNull(saypacket);
         }
 
@@ -128,9 +130,9 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
                 Argument = 3,
                 VisualId = 0
             }).ConfigureAwait(false);
-            var sayitempacket = (SayItemPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
-            var saypacket = (SayPacket?)Broadcaster.Instance.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNull(saypacket);
         }
     }

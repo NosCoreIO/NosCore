@@ -47,9 +47,8 @@ namespace NosCore.GameObject.Services.SaveService
             }
 
             try
-
             {
-                var account = character.Session.Account;
+                var account = character.Account;
                 await accountDao.TryInsertOrUpdateAsync(account).ConfigureAwait(false);
 
                 await characterDao.TryInsertOrUpdateAsync(character).ConfigureAwait(false);
@@ -90,7 +89,7 @@ namespace NosCore.GameObject.Services.SaveService
             }
             catch (Exception e)
             {
-                logger.Error(logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], character.Session.SessionId, e);
+                logger.Error(logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], character.CharacterId, e);
             }
         }
     }
