@@ -1,12 +1,11 @@
 ﻿using System.Threading.Tasks;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.GameObject.Services.BroadcastService;
 using DeleteMailData = NosCore.GameObject.InterChannelCommunication.Messages.DeleteMailData;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
-    public class DeleteMailDataMessageChannelCommunicationMessageHandler(IPubSubHub pubSubHub, ISessionRegistry sessionRegistry) : ChannelCommunicationMessageHandler<DeleteMailData>
+    public class DeleteMailDataMessageChannelCommunicationMessageHandler(ISessionRegistry sessionRegistry) : ChannelCommunicationMessageHandler<DeleteMailData>
     {
         public override async Task Handle(DeleteMailData data)
         {
@@ -23,8 +22,6 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                 PostType = data.PostType,
                 Id = data.MailId
             }).ConfigureAwait(false);
-
-            await pubSubHub.DeleteMessageAsync(data.Id);
         }
     }
 }

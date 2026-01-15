@@ -538,4 +538,19 @@
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Неизвестный VisualType: {0}</value>
   </data>
+  <data name="PUBSUB_RECONNECTING" xml:space="preserve">
+    <value>Соединение PubSub потеряно, переподключение...</value>
+  </data>
+  <data name="PUBSUB_RECONNECTED" xml:space="preserve">
+    <value>PubSub переподключен.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_CLOSED" xml:space="preserve">
+    <value>Соединение PubSub закрыто.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STARTED" xml:space="preserve">
+    <value>Соединение PubSub установлено.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STOPPED" xml:space="preserve">
+    <value>Соединение PubSub остановлено.</value>
+  </data>
 </root>

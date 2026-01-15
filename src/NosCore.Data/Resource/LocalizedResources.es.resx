@@ -440,4 +440,19 @@
   <data name="UNKNOWN" xml:space="preserve">
     <value>Desconocido</value>
   </data>
+  <data name="PUBSUB_RECONNECTING" xml:space="preserve">
+    <value>Conexión PubSub perdida, reconectando...</value>
+  </data>
+  <data name="PUBSUB_RECONNECTED" xml:space="preserve">
+    <value>PubSub reconectado.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_CLOSED" xml:space="preserve">
+    <value>Conexión PubSub cerrada.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STARTED" xml:space="preserve">
+    <value>Conexión PubSub iniciada.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STOPPED" xml:space="preserve">
+    <value>Conexión PubSub detenida.</value>
+  </data>
 </root>

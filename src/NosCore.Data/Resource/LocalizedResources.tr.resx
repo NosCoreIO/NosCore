@@ -510,9 +510,6 @@
   <data name="SPEAKER" xml:space="preserve">
     <value>Hoparlör</value>
   </data>
-  <data name="UNKNOWN" xml:space="preserve">
-    <value>Bilinmiyor</value>
-  </data>
   <data name="TRY_REMOVE_FAILED" xml:space="preserve">
     <value>Silme işlemi gerçekleştirilemedi.</value>
   </data>
@@ -530,5 +527,20 @@
   </data>
   <data name="UNKNOWN" xml:space="preserve">
     <value>Bilinmiyor</value>
+  </data>
+  <data name="PUBSUB_RECONNECTING" xml:space="preserve">
+    <value>PubSub bağlantısı kesildi, yeniden bağlanılıyor...</value>
+  </data>
+  <data name="PUBSUB_RECONNECTED" xml:space="preserve">
+    <value>PubSub yeniden bağlandı.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_CLOSED" xml:space="preserve">
+    <value>PubSub bağlantısı kapatıldı.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STARTED" xml:space="preserve">
+    <value>PubSub bağlantısı başlatıldı.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STOPPED" xml:space="preserve">
+    <value>PubSub bağlantısı durduruldu.</value>
   </data>
 </root>

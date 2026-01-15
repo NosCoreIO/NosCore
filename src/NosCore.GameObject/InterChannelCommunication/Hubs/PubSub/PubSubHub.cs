@@ -2,18 +2,18 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -30,24 +30,19 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
     public class PubSubHub(MasterClientList masterClientList)
         : Hub, IPubSubHub
     {
-        public Task<List<IMessage>> ReceiveMessagesAsync()
+        public async Task<bool> SendMessageAsync(IMessage message)
         {
-            return Task.FromResult(masterClientList.Messages.Values.ToList());
+            await Clients.Others.SendAsync("ReceiveMessage", message);
+            return true;
         }
 
-        public Task<bool> DeleteMessageAsync(Guid messageId)
+        public async Task<bool> SendMessagesAsync(List<IMessage> messages)
         {
-            return Task.FromResult(masterClientList.Messages.TryRemove(messageId, out _));
-        }
-
-        public Task<bool> SendMessageAsync(IMessage message)
-        {
-            return Task.FromResult(masterClientList.Messages.TryAdd(message.Id, message));
-        }
-
-        public Task<bool> SendMessagesAsync(List<IMessage> messages)
-        {
-            return Task.FromResult(messages.Select(message => masterClientList.Messages.TryAdd(message.Id, message)).All(x => x));
+            foreach (var message in messages)
+            {
+                await Clients.Others.SendAsync("ReceiveMessage", message);
+            }
+            return true;
         }
 
         public Task<List<Subscriber>> GetSubscribersAsync()

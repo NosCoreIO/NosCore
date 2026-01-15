@@ -18,46 +18,76 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using JetBrains.Annotations;
-using NosCore.GameObject.Networking.ClientSession;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using NodaTime;
+using Microsoft.Extensions.Hosting;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using System.Collections.Generic;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
+using Serilog;
 using IMessage = NosCore.GameObject.InterChannelCommunication.Messages.IMessage;
-
 
 namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 {
     [UsedImplicitly]
-    public class ChannelCommunicationRunner : ITimedEventHandler
+    public class ChannelCommunicationRunner : IHostedService
     {
+        private readonly IPubSubHubClient _pubSubHubClient;
+        private readonly Dictionary<Type, IChannelCommunicationMessageHandler<IMessage>> _handlers;
+        private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public ChannelCommunicationRunner(IClock clock, IPubSubHub pubSubHub, IEnumerable<IChannelCommunicationMessageHandler<IMessage>> handler)
+        public ChannelCommunicationRunner(
+            IPubSubHubClient pubSubHubClient,
+            IEnumerable<IChannelCommunicationMessageHandler<IMessage>> handlers,
+            ILogger logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
-            _clock = clock;
-            _lastRun = _clock.GetCurrentInstant();
-            _pubSubHub = pubSubHub;
-            _handler = handler.ToDictionary(x => x.GetType()
-                .BaseType?.GetGenericArguments().Single() ?? throw new InvalidOperationException(), x => x);
+            _pubSubHubClient = pubSubHubClient;
+            _logger = logger;
+            _logLanguage = logLanguage;
+            _handlers = handlers.ToDictionary(
+                x => x.GetType().BaseType?.GetGenericArguments().Single() ?? throw new InvalidOperationException(),
+                x => x);
+
+            _pubSubHubClient.OnMessageReceived += OnMessageReceived;
         }
 
-        private Instant _lastRun;
-        private readonly IClock _clock;
-        private readonly IPubSubHub _pubSubHub;
-        private readonly Dictionary<Type, IChannelCommunicationMessageHandler<IMessage>> _handler;
-
-        public bool Condition(Clock condition) => condition.LastTick.Minus(_lastRun).ToTimeSpan() >= TimeSpan.FromMilliseconds(100);
-
-        public Task ExecuteAsync() => ExecuteAsync(new RequestData<Instant>(_clock.GetCurrentInstant()));
-
-        public async Task ExecuteAsync(RequestData<Instant> runTime)
+        private void OnMessageReceived(IMessage message)
         {
-            var messages = await _pubSubHub.ReceiveMessagesAsync();
-            await Task.WhenAll(messages.Select(message => _handler[message.GetType()].Handle(message)));
-            _lastRun = runTime.Data;
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    if (_handlers.TryGetValue(message.GetType(), out var handler))
+                    {
+                        await handler.Handle(message).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        _logger.Warning(_logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, _logLanguage[LogLanguageKey.PACKET_HANDLING_ERROR]);
+                }
+            });
+        }
+
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            await _pubSubHubClient.StartAsync().ConfigureAwait(false);
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            _pubSubHubClient.OnMessageReceived -= OnMessageReceived;
+            await _pubSubHubClient.StopAsync().ConfigureAwait(false);
         }
     }
 }

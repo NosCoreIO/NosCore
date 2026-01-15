@@ -162,6 +162,11 @@ namespace NosCore.Data.Enumerations.I18N
         UNBOUND_ITEM_DETECTED,
         MAP_DONT_EXIST,
         CANT_CHANGE_SAME_CLASS,
+        PUBSUB_RECONNECTING,
+        PUBSUB_RECONNECTED,
+        PUBSUB_CONNECTION_CLOSED,
+        PUBSUB_CONNECTION_STARTED,
+        PUBSUB_CONNECTION_STOPPED,
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
