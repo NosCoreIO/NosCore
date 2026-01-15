@@ -38,6 +38,7 @@ using NosCore.Core.Configuration;
 using NosCore.Database;
 using AutofacSerilogIntegration;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.AuthService;
 
 namespace NosCore.WebApi
 {
@@ -63,6 +64,7 @@ namespace NosCore.WebApi
                 containerBuilder =>
                 {
                     containerBuilder.RegisterType<AuthHub>().AsImplementedInterfaces();
+                    containerBuilder.RegisterType<AuthCodeService>().As<IAuthCodeService>().SingleInstance();
                     containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
                     containerBuilder.RegisterLogger();
                     containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>().SingleInstance();

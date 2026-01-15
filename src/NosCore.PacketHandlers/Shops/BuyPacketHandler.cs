@@ -20,8 +20,8 @@
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -30,7 +30,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
 {
-    public class BuyPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class BuyPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            ISessionRegistry sessionRegistry)
         : PacketHandler<BuyPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(BuyPacket buyPacket, ClientSession clientSession)
@@ -39,7 +40,7 @@ namespace NosCore.PacketHandlers.Shops
             switch (buyPacket.VisualType)
             {
                 case VisualType.Player:
-                    aliveEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == buyPacket.VisualId);
+                    aliveEntity = sessionRegistry.GetCharacter(s => s.VisualId == buyPacket.VisualId);
                     break;
                 case VisualType.Npc:
                     aliveEntity = clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == buyPacket.VisualId);

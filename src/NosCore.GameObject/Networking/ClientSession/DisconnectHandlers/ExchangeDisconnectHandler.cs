@@ -18,12 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
 
-public class ExchangeDisconnectHandler(IExchangeService exchangeService) : ISessionDisconnectHandler
+public class ExchangeDisconnectHandler(IExchangeService exchangeService, ISessionRegistry sessionRegistry) : ISessionDisconnectHandler
 {
     public async Task HandleDisconnectAsync(ClientSession session)
     {
@@ -39,7 +40,7 @@ public class ExchangeDisconnectHandler(IExchangeService exchangeService) : ISess
         }
 
         var closeExchange = exchangeService.CloseExchange(session.Character.VisualId, ExchangeResultType.Failure);
-        if (Broadcaster.Instance.GetCharacter(s => s.VisualId == targetId) is Character target)
+        if (sessionRegistry.GetCharacter(s => s.VisualId == targetId) is Character target)
         {
             await target.SendPacketAsync(closeExchange).ConfigureAwait(false);
         }

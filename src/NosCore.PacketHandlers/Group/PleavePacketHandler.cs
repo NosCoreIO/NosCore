@@ -21,8 +21,8 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Groups;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -34,7 +34,7 @@ using NosCore.Networking;
 
 namespace NosCore.PacketHandlers.Group
 {
-    public class PleavePacketHandler(IIdService<GameObject.Group> groupIdService) : PacketHandler<PleavePacket>,
+    public class PleavePacketHandler(IIdService<GameObject.Group> groupIdService, ISessionRegistry sessionRegistry) : PacketHandler<PleavePacket>,
         IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PleavePacket bIPacket, ClientSession clientSession)
@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Group
 
                 if (isLeader)
                 {
-                    var targetsession = Broadcaster.Instance.GetCharacter(s =>
+                    var targetsession = sessionRegistry.GetCharacter(s =>
                         s.VisualId == group.Values.First().Item2.VisualId);
 
                     if (targetsession == null)
@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Group
                 foreach (var member in memberList.Where(s => s is ICharacterEntity))
                 {
                     var targetsession =
-                        Broadcaster.Instance.GetCharacter(s =>
+                        sessionRegistry.GetCharacter(s =>
                             s.VisualId == member.VisualId);
 
                     if (targetsession == null)
@@ -106,7 +106,7 @@ namespace NosCore.PacketHandlers.Group
 
                     await targetsession.LeaveGroupAsync().ConfigureAwait(false);
                     await targetsession.SendPacketAsync(targetsession.Group!.GeneratePinit()).ConfigureAwait(false);
-                    await Broadcaster.Instance.SendPacketAsync(targetsession.Group.GeneratePidx(targetsession)).ConfigureAwait(false);
+                    await targetsession.MapInstance.SendPacketAsync(targetsession.Group.GeneratePidx(targetsession)).ConfigureAwait(false);
                 }
 
                 groupIdService.Items.TryRemove(group.GroupId, out _);

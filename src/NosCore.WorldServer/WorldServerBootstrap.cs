@@ -169,11 +169,15 @@ namespace NosCore.WorldServer
             containerBuilder.Register(x => new List<IRequestFilter>()).As<IEnumerable<IRequestFilter>>();
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
             containerBuilder.RegisterType<WorldPacketHandlingStrategy>().As<IPacketHandlingStrategy>().SingleInstance();
+            containerBuilder.RegisterType<NosCore.GameObject.Services.PacketHandlerService.PacketHandlerRegistry>().As<NosCore.GameObject.Services.PacketHandlerService.IPacketHandlerRegistry>().SingleInstance();
+            containerBuilder.RegisterType<NosCore.GameObject.Services.CharacterService.CharacterInitializationService>().As<NosCore.GameObject.Services.CharacterService.ICharacterInitializationService>().SingleInstance();
             containerBuilder.RegisterType<ClientSession>().AsSelf().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(ISessionDisconnectHandler).Assembly)
                 .Where(t => typeof(ISessionDisconnectHandler).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
                 .AsImplementedInterfaces();
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
+            containerBuilder.RegisterType<NosCore.GameObject.Services.BroadcastService.SessionRegistry>().As<NosCore.GameObject.Services.BroadcastService.ISessionRegistry>().SingleInstance();
+            containerBuilder.RegisterType<NosCore.GameObject.Services.BroadcastService.PacketBroadcaster>().As<NosCore.GameObject.Services.BroadcastService.IPacketBroadcaster>().SingleInstance();
             containerBuilder.Register(c =>
             {
                 var conf = c.Resolve<IOptions<WorldConfiguration>>();

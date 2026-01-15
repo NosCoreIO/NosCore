@@ -21,8 +21,8 @@ using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using Serilog;
 using System.Threading.Tasks;
 using NosCore.GameObject.Services.MapChangeService;
@@ -30,14 +30,14 @@ using NosCore.GameObject.Services.MapChangeService;
 namespace NosCore.PacketHandlers.Command
 {
     public class TeleportPacketHandler(ILogger logger, IMapChangeService mapChangeService,
-            IGameLanguageLocalizer gameLanguageLocalizer)
+            IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry)
         : PacketHandler<TeleportPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(TeleportPacket teleportPacket, ClientSession session)
         {
             var targetSession =
-                Broadcaster.Instance.GetCharacter(s =>
-                    s.Name == teleportPacket.TeleportArgument); //TODO setter to protect
+                sessionRegistry.GetCharacter(s =>
+                    s.Name == teleportPacket.TeleportArgument);
 
             if (!short.TryParse(teleportPacket.TeleportArgument, out var mapId))
             {

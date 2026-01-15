@@ -23,8 +23,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -46,7 +46,8 @@ namespace NosCore.PacketHandlers.Chat
     public class WhisperPacketHandler(ILogger logger, ISerializer packetSerializer,
             IBlacklistHub blacklistHttpClient,
              IPubSubHub pubSubHub, Channel channel,
-            IGameLanguageLocalizer gameLanguageLocalizer)
+            IGameLanguageLocalizer gameLanguageLocalizer,
+            ISessionRegistry sessionRegistry)
         : PacketHandler<WhisperPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(WhisperPacket whisperPacket, ClientSession session)
@@ -81,7 +82,7 @@ namespace NosCore.PacketHandlers.Chat
                 });
 
                 var receiverSession =
-                    Broadcaster.Instance.GetCharacter(s => s.Name == receiverName);
+                    sessionRegistry.GetCharacter(s => s.Name == receiverName);
 
                 var accounts = await pubSubHub.GetSubscribersAsync();
                 var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == receiverName);

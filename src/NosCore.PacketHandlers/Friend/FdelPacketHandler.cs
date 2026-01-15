@@ -22,8 +22,8 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
@@ -34,7 +34,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 namespace NosCore.PacketHandlers.Friend
 {
     public class FdelPacketHandler(IFriendHub friendHttpClient, IChannelHub channelHttpClient,
-            IPubSubHub pubSubHub, IGameLanguageLocalizer gameLanguageLocalizer)
+            IPubSubHub pubSubHub, IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry)
         : PacketHandler<FdelPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(FdelPacket fdelPacket, ClientSession session)
@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.Friend
             if (idtorem != null)
             {
                 await friendHttpClient.DeleteAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
-                var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
+                var targetCharacter = sessionRegistry.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
                 await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(friendHttpClient, channelHttpClient,
                     pubSubHub).ConfigureAwait(false))).ConfigureAwait(false);
 

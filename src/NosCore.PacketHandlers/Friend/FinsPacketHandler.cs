@@ -21,8 +21,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -35,12 +35,12 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 namespace NosCore.PacketHandlers.Friend
 {
     public class FinsPacketHandler(IFriendHub friendHttpClient, IChannelHub channelHttpClient,
-            IPubSubHub pubSubHub)
+            IPubSubHub pubSubHub, ISessionRegistry sessionRegistry)
         : PacketHandler<FinsPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(FinsPacket finsPacket, ClientSession session)
         {
-            var targetCharacter = Broadcaster.Instance.GetCharacter(s => s.VisualId == finsPacket.CharacterId);
+            var targetCharacter = sessionRegistry.GetCharacter(s => s.VisualId == finsPacket.CharacterId);
             if (targetCharacter != null)
             {
                 var result = await friendHttpClient.AddFriendAsync(new FriendShipRequest

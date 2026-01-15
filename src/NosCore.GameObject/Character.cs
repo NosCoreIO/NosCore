@@ -59,6 +59,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.GameObject.Services.SpeedCalculationService;
@@ -75,7 +76,7 @@ namespace NosCore.GameObject
             IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
             IReputationService reputationService, IDignityService dignityService,
             IOptions<WorldConfiguration> worldConfiguration, ISpeedCalculationService speedCalculationService,
-            ISessionGroupFactory sessionGroupFactory)
+            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
         : CharacterDto, ICharacterEntity
     {
         public ScriptDto? Script { get; set; }
@@ -251,7 +252,7 @@ namespace NosCore.GameObject
             JobLevel = (byte)((Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20 : jobLevel);
             JobLevelXp = 0;
             await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
-            var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == MapInstance);
+            var mapSessions = sessionRegistry.GetCharacters(s => s.MapInstance == MapInstance);
             await Task.WhenAll(mapSessions.Select(s =>
             {
                 //if (s.VisualId != VisualId)
@@ -279,7 +280,7 @@ namespace NosCore.GameObject
             Group!.LeaveGroup(this);
             foreach (var member in Group.Keys.Where(s => (s.Item2 != CharacterId) || (s.Item1 != VisualType.Player)))
             {
-                var groupMember = Broadcaster.Instance.GetCharacter(s =>
+                var groupMember = sessionRegistry.GetCharacter(s =>
                     (s.VisualId == member.Item2) && (member.Item1 == VisualType.Player));
 
                 if (groupMember == null)
@@ -654,7 +655,7 @@ namespace NosCore.GameObject
             await SendPacketAsync(this.GenerateStatInfo()).ConfigureAwait(false);
             //Session.SendPacket(GenerateStatChar());
             await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
-            var mapSessions = Broadcaster.Instance.GetCharacters(s => s.MapInstance == MapInstance);
+            var mapSessions = sessionRegistry.GetCharacters(s => s.MapInstance == MapInstance);
 
             await Task.WhenAll(mapSessions.Select(async s =>
             {
@@ -671,7 +672,7 @@ namespace NosCore.GameObject
 
             foreach (var member in Group!.Keys)
             {
-                var groupMember = Broadcaster.Instance.GetCharacter(s =>
+                var groupMember = sessionRegistry.GetCharacter(s =>
                     (s.VisualId == member.Item2) && (member.Item1 == VisualType.Player));
 
                 groupMember?.SendPacketAsync(groupMember.Group!.GeneratePinit());

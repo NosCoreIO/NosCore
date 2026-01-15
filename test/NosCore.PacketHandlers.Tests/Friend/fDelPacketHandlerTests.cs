@@ -79,7 +79,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 });
             _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
             _fDelPacketHandler = new FdelPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
-                TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.GameLanguageLocalizer);
+                TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.GameLanguageLocalizer, new NosCore.GameObject.Services.BroadcastService.SessionRegistry());
             _characterDao = new Mock<IDao<CharacterDto, long>>();
             _friendController = new FriendService(Logger, _characterRelationDao, _characterDao.Object,
                 new FriendRequestHolder(), _connectedAccountHttpClient.Object, _channelHub.Object, TestHelpers.Instance.LogLanguageLocalizer);

@@ -22,12 +22,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using NosCore.Core;
+using NosCore.GameObject.Services.AuthService;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
 {
     public class AuthHub : Hub, IAuthHub
     {
+        private readonly IAuthCodeService _authCodeService;
+
+        public AuthHub(IAuthCodeService authCodeService)
+        {
+            _authCodeService = authCodeService;
+        }
+
         public Task<string?> GetAwaitingConnectionAsync(string? id, string? token, int sessionId)
         {
             if (token != "thisisgfmode")
@@ -38,18 +45,17 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
                 }
 
                 var sessionGuid = HexStringToString(token);
-                if (!SessionFactory.Instance.AuthCodes.ContainsKey(sessionGuid))
+                var username = _authCodeService.GetAccountByAuthCode(sessionGuid);
+                if (username == null)
                 {
                     return Task.FromResult<string?>(null);
                 }
 
-                var username = SessionFactory.Instance.AuthCodes[sessionGuid];
-                SessionFactory.Instance.ReadyForAuth.AddOrUpdate(username, sessionId, (key, oldValue) => sessionId);
+                _authCodeService.MarkReadyForAuth(username, sessionId);
                 return Task.FromResult<string?>(username);
             }
 
-            if (id != null && (SessionFactory.Instance.ReadyForAuth.ContainsKey(id) &&
-                    (sessionId == SessionFactory.Instance.ReadyForAuth[id])))
+            if (id != null && _authCodeService.IsReadyForAuth(id, sessionId))
             {
                 return Task.FromResult<string?>("true");
             }
@@ -68,7 +74,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
 
         public Task SetAwaitingConnectionAsync(long sessionId, string accountName)
         {
-            SessionFactory.Instance.ReadyForAuth.AddOrUpdate(accountName, sessionId, (key, oldValue) => sessionId);
+            _authCodeService.MarkReadyForAuth(accountName, sessionId);
             return Task.CompletedTask;
         }
 

@@ -21,8 +21,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.Packets.ClientPackets.Exchanges;
 using NosCore.Packets.Enumerations;
@@ -39,12 +39,13 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Exchange
 {
     public class ExchangeRequestPackettHandler(IExchangeService exchangeService, ILogger logger,
-            IBlacklistHub blacklistHttpClient, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IBlacklistHub blacklistHttpClient, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            ISessionRegistry sessionRegistry)
         : PacketHandler<ExchangeRequestPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(ExchangeRequestPacket packet, ClientSession clientSession)
         {
-            var target = Broadcaster.Instance.GetCharacter(s =>
+            var target = sessionRegistry.GetCharacter(s =>
                 (s.VisualId == packet.VisualId) &&
                 (s.MapInstanceId == clientSession.Character.MapInstanceId)) as Character;
             ExcClosePacket closeExchange;
@@ -167,7 +168,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    var exchangeTarget = Broadcaster.Instance.GetCharacter(s =>
+                    var exchangeTarget = sessionRegistry.GetCharacter(s =>
                         (s.VisualId == targetId.Value) && (s.MapInstance == clientSession.Character.MapInstance));
 
                     if (exchangeTarget == null)
@@ -253,7 +254,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    var cancelTarget = Broadcaster.Instance.GetCharacter(s => s.VisualId == cancelId.Value);
+                    var cancelTarget = sessionRegistry.GetCharacter(s => s.VisualId == cancelId.Value);
 
                     closeExchange =
                         exchangeService.CloseExchange(clientSession.Character.VisualId, ExchangeResultType.Failure)!;

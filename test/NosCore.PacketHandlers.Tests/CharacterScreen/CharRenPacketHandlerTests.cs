@@ -29,6 +29,7 @@ using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking.SessionGroup;
 using NosCore.GameObject.Services.EventLoaderService;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
@@ -74,7 +75,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()), idServer),
-                    Logger, TestHelpers.Instance.Clock, _mapChangeService.Object, new Mock<ISessionGroupFactory>().Object);
+                    Logger, TestHelpers.Instance.Clock, _mapChangeService.Object, new Mock<ISessionGroupFactory>().Object, TestHelpers.Instance.SessionRegistry);
             const string name = "TestCharacter2";
             await _session!.HandlePacketsAsync(new[] { new CharRenamePacket
             {

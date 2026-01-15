@@ -23,8 +23,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Packets.ServerPackets.UI;
@@ -43,13 +43,14 @@ namespace NosCore.PacketHandlers.Group
 {
     public class PjoinPacketHandler(ILogger logger, IBlacklistHub blacklistHttpCLient, IClock clock,
             IIdService<GameObject.Group> groupIdService,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer,
+            ISessionRegistry sessionRegistry)
         : PacketHandler<PjoinPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PjoinPacket pjoinPacket, ClientSession clientSession)
         {
             var targetSession =
-                Broadcaster.Instance.GetCharacter(s =>
+                sessionRegistry.GetCharacter(s =>
                     s.VisualId == pjoinPacket.CharacterId);
 
             if ((targetSession == null) && (pjoinPacket.RequestType != GroupRequestType.Sharing))
@@ -170,7 +171,7 @@ namespace NosCore.PacketHandlers.Group
                         .Select(s =>
                         {
                             var session =
-                                Broadcaster.Instance.GetCharacter(v =>
+                                sessionRegistry.GetCharacter(v =>
                                     v.VisualId == s.Item2.VisualId);
 
                             if (session == null)
@@ -260,7 +261,7 @@ namespace NosCore.PacketHandlers.Group
                     foreach (var member in currentGroup.Values.Where(s => s.Item2 is ICharacterEntity))
                     {
                         var session =
-                            Broadcaster.Instance.GetCharacter(s =>
+                            sessionRegistry.GetCharacter(s =>
                                 s.VisualId == member.Item2.VisualId);
                         session?.SendPacketAsync(currentGroup.GeneratePinit());
                         session?.SendPacketsAsync(currentGroup.GeneratePst().Where(p => p.VisualId != session.VisualId));

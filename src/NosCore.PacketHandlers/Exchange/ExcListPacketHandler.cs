@@ -31,11 +31,12 @@ using NosCore.Shared.I18N;
 using Serilog;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.PacketHandlers.Exchange
 {
     public class ExcListPacketHandler(IExchangeService exchangeService, ILogger logger,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry)
         : PacketHandler<ExcListPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(ExcListPacket packet, ClientSession clientSession)
@@ -48,7 +49,7 @@ namespace NosCore.PacketHandlers.Exchange
 
             var subPacketList = new List<ServerExcListSubPacket?>();
 
-            var target = Broadcaster.Instance.GetCharacter(s =>
+            var target = sessionRegistry.GetCharacter(s =>
                 (s.VisualId == exchangeService.GetTargetId(clientSession.Character.VisualId)) &&
                 (s.MapInstanceId == clientSession.Character.MapInstanceId)) as Character;
 

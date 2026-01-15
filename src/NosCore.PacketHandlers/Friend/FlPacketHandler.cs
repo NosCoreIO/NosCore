@@ -19,8 +19,8 @@
 
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -28,12 +28,13 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
-    public class FlCommandPacketHandler : PacketHandler<FlCommandPacket>, IWorldPacketHandler
+    public class FlCommandPacketHandler(ISessionRegistry sessionRegistry)
+        : PacketHandler<FlCommandPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(FlCommandPacket flPacket, ClientSession session)
         {
             var target =
-                Broadcaster.Instance.GetCharacter(s => s.Name == flPacket.CharacterName);
+                sessionRegistry.GetCharacter(s => s.Name == flPacket.CharacterName);
 
             if (target == null)
             {

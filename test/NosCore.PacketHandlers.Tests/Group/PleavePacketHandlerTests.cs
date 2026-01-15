@@ -64,10 +64,10 @@ namespace NosCore.PacketHandlers.Tests.Group
                 session.Character.Group.JoinGroup(session.Character);
             }
 
-            _pLeavePacketHandler = new PleavePacketHandler(idServer);
+            _pLeavePacketHandler = new PleavePacketHandler(idServer, TestHelpers.Instance.SessionRegistry);
 
             var mock = new Mock<IBlacklistHub>();
-            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
+            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
         }
 
         [TestMethod]

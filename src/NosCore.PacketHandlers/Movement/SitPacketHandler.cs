@@ -29,10 +29,11 @@ using NosCore.Shared.I18N;
 using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.PacketHandlers.Movement
 {
-    public class SitPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class SitPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry)
         : PacketHandler<SitPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(SitPacket sitpacket, ClientSession clientSession)
@@ -44,7 +45,7 @@ namespace NosCore.PacketHandlers.Movement
                 switch (u!.VisualType)
                 {
                     case VisualType.Player:
-                        entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == u.VisualId)!;
+                        entity = sessionRegistry.GetCharacter(s => s.VisualId == u.VisualId)!;
                         if (entity.VisualId != clientSession.Character.VisualId)
                         {
                             logger.Error(

@@ -9,17 +9,18 @@ using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
+using NosCore.GameObject.Services.BroadcastService;
 
 using StatData = NosCore.GameObject.InterChannelCommunication.Messages.StatData;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
     public class StatDataMessageChannelCommunicationMessageHandler(ILogger logger,
-        ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub, IOptions<WorldConfiguration> worldConfiguration) : ChannelCommunicationMessageHandler<StatData>
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub, IOptions<WorldConfiguration> worldConfiguration, ISessionRegistry sessionRegistry) : ChannelCommunicationMessageHandler<StatData>
     {
         public override async Task Handle(StatData data)
         {
-            var session = Broadcaster.Instance.GetCharacter(s => s.Name == data.Character?.Name);
+            var session = sessionRegistry.GetCharacter(s => s.Name == data.Character?.Name);
 
             if (session == null)
             {

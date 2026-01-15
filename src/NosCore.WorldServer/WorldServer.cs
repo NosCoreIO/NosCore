@@ -38,6 +38,7 @@ using NosCore.Shared.I18N;
 using Polly;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.WorldServer
 {
@@ -45,7 +46,7 @@ namespace NosCore.WorldServer
             Clock clock, ILogger<WorldServer> logger, IMapInstanceGeneratorService mapInstanceGeneratorService,
             IClock nodatimeClock, ISaveService saveService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger, Channel channel, IChannelHub channelHubClient,
-            ISessionGroupFactory sessionGroupFactory)
+            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
         : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -55,7 +56,7 @@ namespace NosCore.WorldServer
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
-                var eventSaveAll = new SaveAll(saveAllLogger, nodatimeClock, saveService, logLanguage);
+                var eventSaveAll = new SaveAll(saveAllLogger, nodatimeClock, saveService, logLanguage, sessionRegistry);
                 _ = eventSaveAll.ExecuteAsync();
                 logger.LogInformation(logLanguage[LogLanguageKey.CHANNEL_WILL_EXIT], 30);
                 Thread.Sleep(30000);

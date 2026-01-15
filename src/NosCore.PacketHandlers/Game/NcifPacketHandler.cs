@@ -21,8 +21,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Battle;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -31,7 +31,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Game
 {
-    public class NcifPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class NcifPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            ISessionRegistry sessionRegistry)
         : PacketHandler<NcifPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(NcifPacket ncifPacket, ClientSession session)
@@ -41,7 +42,7 @@ namespace NosCore.PacketHandlers.Game
             switch (ncifPacket.Type)
             {
                 case VisualType.Player:
-                    entity = Broadcaster.Instance.GetCharacter(s => s.VisualId == ncifPacket.TargetId);
+                    entity = sessionRegistry.GetCharacter(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 case VisualType.Monster:
                     entity = session.Character.MapInstance.Monsters.Find(s => s.VisualId == ncifPacket.TargetId);

@@ -83,8 +83,6 @@ namespace NosCore.PacketHandlers.Tests.Login
             _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration,
                 TestHelpers.Instance.AccountDao,
                 _authHttpClient.Object, _pubSubHub.Object, _channelHub.Object, TestHelpers.Instance.CharacterDao, _sessionRefHolder));
-             SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
-            SessionFactory.Instance.ReadyForAuth.Clear();
         }
 
         [TestMethod]
@@ -97,7 +95,6 @@ namespace NosCore.PacketHandlers.Tests.Login
             _session!.Account.NewAuthSalt = BCrypt.Net.BCrypt.GenerateSalt();
             _session.Account.NewAuthPassword = _encryption.Hash(_tokenGuid, _session.Account.NewAuthSalt);
 
-            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
@@ -116,7 +113,6 @@ namespace NosCore.PacketHandlers.Tests.Login
              .ReturnsAsync(new List<Subscriber>());
             _session!.Account.NewAuthPassword = _encryption.Hash(_tokenGuid, "MY_SUPER_SECRET_HASH");
             _session.Account.NewAuthSalt = "MY_SUPER_SECRET_HASH";
-            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
@@ -141,16 +137,15 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestMethod]
         public async Task LoginWrongTokenAsync()
         {
-            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
                 (string?)((new OkObjectResult(null)).Value));
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(Guid.NewGuid().ToString()),
-            }, _session).ConfigureAwait(false);
+            }, _session!).ConfigureAwait(false);
 
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AccountOrPasswordWrong);
         }
 
@@ -160,13 +155,12 @@ namespace NosCore.PacketHandlers.Tests.Login
             _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
             _pubSubHub.Setup(s => s.GetSubscribersAsync())
                  .ReturnsAsync(new List<Subscriber>());
-            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
-            }, _session).ConfigureAwait(false);
+            }, _session!).ConfigureAwait(false);
 
-            Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
+            Assert.IsNotNull((NsTestPacket?)_session!.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }
 
         [TestMethod]
@@ -176,7 +170,6 @@ namespace NosCore.PacketHandlers.Tests.Login
             _pubSubHub.Setup(s => s.GetSubscribersAsync())
                  .ReturnsAsync(new List<Subscriber>
                     {new() {Name = _session!.Account.Name}});
-            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
@@ -191,12 +184,11 @@ namespace NosCore.PacketHandlers.Tests.Login
             _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
             _pubSubHub.Setup(s => s.GetSubscribersAsync())
                  .ReturnsAsync(new List<Subscriber>());
-            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
-            }, _session).ConfigureAwait(false);
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            }, _session!).ConfigureAwait(false);
+            Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.CantConnect);
         }
 
@@ -218,13 +210,12 @@ namespace NosCore.PacketHandlers.Tests.Login
             _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
             _pubSubHub.Setup(s => s.GetSubscribersAsync())
                   .ReturnsAsync(new List<Subscriber>());
-            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
-            }, _session).ConfigureAwait(false);
+            }, _session!).ConfigureAwait(false);
 
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.Maintenance);
         }
 
@@ -236,7 +227,6 @@ namespace NosCore.PacketHandlers.Tests.Login
                 .ReturnsAsync(new List<Subscriber>());
             _session!.Account.Authority = AuthorityType.GameMaster;
             await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session!.Account);
-            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session!.Account.Name;
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),

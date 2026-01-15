@@ -3,18 +3,18 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.Networking;
 using NosCore.Packets.Enumerations;
+using NosCore.GameObject.Services.BroadcastService;
 
 using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
-    public class MailDataMessageChannelCommunicationMessageHandler(IPubSubHub pubSubHub, IGameLanguageLocalizer gameLanguageLocalizer) : ChannelCommunicationMessageHandler<MailData>
+    public class MailDataMessageChannelCommunicationMessageHandler(IPubSubHub pubSubHub, IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry) : ChannelCommunicationMessageHandler<MailData>
     {
         public override async Task Handle(MailData data)
         {
-            var session = Broadcaster.Instance.GetCharacter(s => s.Name == data.ReceiverName);
+            var session = sessionRegistry.GetCharacter(s => s.Name == data.ReceiverName);
 
             if (session == null)
             {

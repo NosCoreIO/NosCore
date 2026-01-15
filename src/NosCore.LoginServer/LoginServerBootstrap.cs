@@ -103,9 +103,14 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<LoginEncoder>().AsImplementedInterfaces();
 
             containerBuilder.RegisterType<LoginPacketHandlingStrategy>().As<IPacketHandlingStrategy>().SingleInstance();
+            containerBuilder.RegisterType<NosCore.GameObject.Services.PacketHandlerService.PacketHandlerRegistry>().As<NosCore.GameObject.Services.PacketHandlerService.IPacketHandlerRegistry>().SingleInstance();
+            containerBuilder.RegisterType<NosCore.GameObject.Services.CharacterService.CharacterInitializationService>().As<NosCore.GameObject.Services.CharacterService.ICharacterInitializationService>().SingleInstance();
             containerBuilder.RegisterType<ClientSession>().AsSelf().AsImplementedInterfaces();
             containerBuilder.Register(_ => Enumerable.Empty<ISessionDisconnectHandler>()).As<IEnumerable<ISessionDisconnectHandler>>();
             containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
+            containerBuilder.RegisterType<NosCore.GameObject.Services.BroadcastService.SessionRegistry>().As<NosCore.GameObject.Services.BroadcastService.ISessionRegistry>().SingleInstance();
+            containerBuilder.RegisterType<NosCore.GameObject.Services.BroadcastService.PacketBroadcaster>().As<NosCore.GameObject.Services.BroadcastService.IPacketBroadcaster>().SingleInstance();
+            containerBuilder.RegisterType<NosCore.GameObject.Services.AuthService.AuthCodeService>().As<NosCore.GameObject.Services.AuthService.IAuthCodeService>().SingleInstance();
             containerBuilder.Register(c =>
             {
                 var conf = c.Resolve<IOptions<LoginConfiguration>>();
