@@ -43,10 +43,11 @@ using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
+using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.PacketHandlers.Battle
 {
-    public class UseSkillPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IBattleService battleService)
+    public class UseSkillPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IBattleService battleService, ISessionRegistry sessionRegistry)
         : PacketHandler<UseSkillPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(UseSkillPacket packet, ClientSession clientSession)
@@ -71,7 +72,7 @@ namespace NosCore.PacketHandlers.Battle
                 switch (packet.TargetVisualType)
                 {
                     case VisualType.Player:
-                        requestableEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == packet.TargetId);
+                        requestableEntity = sessionRegistry.GetCharacter(s => s.VisualId == packet.TargetId);
                         break;
                     case VisualType.Npc:
                         requestableEntity =

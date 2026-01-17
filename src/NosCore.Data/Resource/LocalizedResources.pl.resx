@@ -462,4 +462,19 @@
   <data name="BAZAAR_DELETE_ERROR" xml:space="preserve">
     <value>Nie udało się usunąć przedmiotu z bazaru.</value>
   </data>
+  <data name="PUBSUB_RECONNECTING" xml:space="preserve">
+    <value>Połączenie PubSub utracone, ponowne łączenie...</value>
+  </data>
+  <data name="PUBSUB_RECONNECTED" xml:space="preserve">
+    <value>PubSub ponownie połączony.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_CLOSED" xml:space="preserve">
+    <value>Połączenie PubSub zamknięte.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STARTED" xml:space="preserve">
+    <value>Połączenie PubSub uruchomione.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STOPPED" xml:space="preserve">
+    <value>Połączenie PubSub zatrzymane.</value>
+  </data>
 </root>

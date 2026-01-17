@@ -26,6 +26,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Shared.I18N;
 
@@ -36,14 +37,16 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
     {
         private readonly ILogger<SaveAll> _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
+        private readonly ISessionRegistry _sessionRegistry;
 
-        public SaveAll(ILogger<SaveAll> logger, IClock clock, ISaveService saveService, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        public SaveAll(ILogger<SaveAll> logger, IClock clock, ISaveService saveService, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry)
         {
             _logger = logger;
             _clock = clock;
             _lastRun = _clock.GetCurrentInstant();
             _saveService = saveService;
             _logLanguage = logLanguage;
+            _sessionRegistry = sessionRegistry;
         }
 
         private Instant _lastRun;
@@ -57,7 +60,7 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
         public async Task ExecuteAsync(RequestData<Instant> runTime)
         {
             _logger.LogInformation(_logLanguage[LogLanguageKey.SAVING_ALL]);
-            await Task.WhenAll(Broadcaster.Instance.GetCharacters().Select(session => _saveService.SaveAsync(session)));
+            await Task.WhenAll(_sessionRegistry.GetCharacters().Select(session => _saveService.SaveAsync(session)));
 
             _lastRun = runTime.Data;
         }

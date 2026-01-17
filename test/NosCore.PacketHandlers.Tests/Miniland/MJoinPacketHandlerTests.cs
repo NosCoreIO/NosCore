@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _minilandProvider = new Mock<IMinilandService>();
             _mapChangeService = new Mock<IMapChangeService>();
-            _mjoinPacketHandler = new MJoinPacketHandler(_friendHttpClient.Object, _minilandProvider.Object, _mapChangeService.Object);
+            _mjoinPacketHandler = new MJoinPacketHandler(_friendHttpClient.Object, _minilandProvider.Object, _mapChangeService.Object, TestHelpers.Instance.SessionRegistry);
         }
 
         [TestMethod]

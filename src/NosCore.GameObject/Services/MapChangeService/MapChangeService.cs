@@ -12,8 +12,8 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -32,7 +32,8 @@ namespace NosCore.GameObject.Services.MapChangeService
             IHeroExperienceService heroExperienceService, IMapInstanceAccessorService mapInstanceAccessorService,
             IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMinilandService minilandProvider, ILogger logger,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer, IGameLanguageLocalizer gameLanguageLocalizer)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer, IGameLanguageLocalizer gameLanguageLocalizer,
+            ISessionRegistry sessionRegistry)
         : IMapChangeService
     {
         public async Task ChangeMapAsync(ClientSession session, short? mapId = null, short? mapX = null, short? mapY = null)
@@ -142,7 +143,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                     await session.Character.MapInstance.SendPacketAsync(session.Character.Group.GeneratePidx(session.Character)).ConfigureAwait(false);
                 }
 
-                var mapSessions = Broadcaster.Instance.GetCharacters(s =>
+                var mapSessions = sessionRegistry.GetCharacters(s =>
                     (s != session.Character) && (s.MapInstance.MapInstanceId == session.Character.MapInstanceId));
 
                 await Task.WhenAll(mapSessions.Select(async s =>
@@ -165,7 +166,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                     if (!session.Character.Invisible)
                     {
                         await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateIn(session.Character.Authority == AuthorityType.Moderator
-                                ? $"[{session.Character.Session.GetMessageFromKey(LanguageKey.SUPPORT)}]" : string.Empty),
+                                ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, session.Character.AccountLanguage]}]" : string.Empty),
                             new EveryoneBut(session.Character.Channel!.Id)).ConfigureAwait(false);
                     }
 
@@ -181,6 +182,15 @@ namespace NosCore.GameObject.Services.MapChangeService
             {
                 logger.Warning(logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
                 session.Character.IsChangingMapInstance = false;
+            }
+        }
+
+        public async Task ChangeMapByCharacterIdAsync(long characterId, short mapId, short mapX, short mapY)
+        {
+            var sender = sessionRegistry.GetSenderByCharacterId(characterId);
+            if (sender is ClientSession session)
+            {
+                await ChangeMapAsync(session, mapId, mapX, mapY).ConfigureAwait(false);
             }
         }
 

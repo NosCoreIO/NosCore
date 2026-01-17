@@ -20,6 +20,7 @@
 using System.Threading.Tasks;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Networking.SessionRef;
 using NosCore.Packets.Attributes;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
@@ -32,7 +33,7 @@ using Serilog;
 
 namespace NosCore.GameObject.Networking.ClientSession;
 
-public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRefHolder sessionRefHolder)
     : IPacketHandlingStrategy
 {
     public async Task HandlePacketAsync(IPacket packet, ClientSession session, bool isFromNetwork)
@@ -117,7 +118,7 @@ public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
             return Task.FromResult(false);
         }
 
-        session.SessionId = session.GetSessionIdFromHolder();
+        session.SessionId = sessionRefHolder[session.SessionKey].SessionId;
         logger.Debug(logLanguage[LogLanguageKey.CLIENT_ARRIVED], session.SessionId);
         session.WaitForPacketsAmount = 2;
         return Task.FromResult(true);

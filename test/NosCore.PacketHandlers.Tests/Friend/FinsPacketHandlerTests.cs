@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
                     });
             _finsPacketHandler = new FinsPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
-                _connectedAccountHttpClient.Object);
+                _connectedAccountHttpClient.Object, new NosCore.GameObject.Services.BroadcastService.SessionRegistry());
         }
 
         [TestMethod]

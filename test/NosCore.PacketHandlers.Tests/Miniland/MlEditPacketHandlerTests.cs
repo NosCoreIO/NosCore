@@ -30,7 +30,6 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject;
 using NosCore.GameObject.Holders;
 using NosCore.GameObject.Map;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.PacketHandlers.Miniland;
@@ -58,7 +57,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         {
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
                 .ConstructUsing(src => new MapNpc(null, Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _session2 = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
@@ -194,10 +192,10 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             var miniland = _minilandProvider.GetMiniland(_session!.Character.CharacterId);
             Assert.AreEqual(MinilandState.Private, miniland.State);
 
-            Assert.IsFalse(Broadcaster.Instance.GetCharacters()
+            Assert.IsFalse(TestHelpers.Instance.SessionRegistry.GetCharacters()
                 .Where(s => s.MapInstanceId == miniland.MapInstanceId)
                 .Any(s => s.VisualId != _session.Character.CharacterId && s.VisualId != _session2.Character.VisualId));
-            Assert.AreEqual(2, Broadcaster.Instance
+            Assert.AreEqual(2, TestHelpers.Instance.SessionRegistry
                 .GetCharacters().Count(s => s.MapInstanceId == miniland.MapInstanceId));
         }
 
@@ -214,11 +212,11 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             var miniland = _minilandProvider.GetMiniland(_session!.Character.CharacterId);
             Assert.AreEqual(MinilandState.Lock, miniland.State);
 
-            Assert.IsFalse(Broadcaster.Instance.GetCharacters()
+            Assert.IsFalse(TestHelpers.Instance.SessionRegistry.GetCharacters()
                 .Where(s => s.MapInstanceId == miniland.MapInstanceId)
                 .Any(s => s.VisualId != _session.Character.CharacterId));
 
-            Assert.AreEqual(1, Broadcaster.Instance
+            Assert.AreEqual(1, TestHelpers.Instance.SessionRegistry
                 .GetCharacters().Count(s => s.MapInstanceId == miniland.MapInstanceId));
         }
     }

@@ -36,12 +36,13 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using Character = NosCore.Data.WebApi.Character;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
+using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.PacketHandlers.Chat
 {
     public class BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHub friendHttpClient,
             IPubSubHub packetHttpClient, IPubSubHub pubSubHub, Channel channel,
-            IGameLanguageLocalizer gameLanguageLocalizer)
+            IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry)
         : PacketHandler<BtkPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(BtkPacket btkPacket, ClientSession session)
@@ -63,7 +64,7 @@ namespace NosCore.PacketHandlers.Chat
 
             message = message.Trim();
             var receiverSession =
-                Broadcaster.Instance.GetCharacter(s =>
+                sessionRegistry.GetCharacter(s =>
                     s.VisualId == btkPacket.CharacterId);
 
             if (receiverSession != null)

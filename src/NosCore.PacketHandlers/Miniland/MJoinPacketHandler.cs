@@ -28,16 +28,17 @@ using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.PacketHandlers.Miniland
 {
     public class MJoinPacketHandler(IFriendHub friendHttpClient, IMinilandService minilandProvider,
-            IMapChangeService mapChangeService)
+            IMapChangeService mapChangeService, ISessionRegistry sessionRegistry)
         : PacketHandler<MJoinPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(MJoinPacket mJoinPacket, ClientSession session)
         {
-            var target = Broadcaster.Instance.GetCharacter(s => s.VisualId == mJoinPacket.VisualId);
+            var target = sessionRegistry.GetCharacter(s => s.VisualId == mJoinPacket.VisualId);
             var friendList = await friendHttpClient.GetFriendsAsync(session.Character.CharacterId).ConfigureAwait(false);
             if (target != null && friendList.Any(s => s.CharacterId == mJoinPacket.VisualId))
             {

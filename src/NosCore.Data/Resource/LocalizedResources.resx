@@ -587,4 +587,19 @@
   <data name="UNBOUND_ITEM_DETECTED" xml:space="preserve">
     <value>Unbound item detected.</value>
   </data>
+  <data name="PUBSUB_RECONNECTING" xml:space="preserve">
+    <value>PubSub connection lost, reconnecting...</value>
+  </data>
+  <data name="PUBSUB_RECONNECTED" xml:space="preserve">
+    <value>PubSub reconnected.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_CLOSED" xml:space="preserve">
+    <value>PubSub connection closed.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STARTED" xml:space="preserve">
+    <value>PubSub connection started.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STOPPED" xml:space="preserve">
+    <value>PubSub connection stopped.</value>
+  </data>
 </root>

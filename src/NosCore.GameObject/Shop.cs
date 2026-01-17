@@ -19,7 +19,6 @@
 
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Networking.ClientSession;
 using System.Collections.Concurrent;
 using System.Linq;
 
@@ -31,7 +30,7 @@ namespace NosCore.GameObject
 
         public ConcurrentDictionary<int, ShopItem> ShopItems { get; set; } = new();
 
-        public ClientSession? Session { get; set; }
+        public Character? OwnerCharacter { get; set; }
         public long Sell { get; internal set; }
 
         public int Size

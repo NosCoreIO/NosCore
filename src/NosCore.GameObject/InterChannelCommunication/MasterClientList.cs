@@ -17,11 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Concurrent;
 using NosCore.Core;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Messages;
 
 namespace NosCore.GameObject.InterChannelCommunication;
 
@@ -30,7 +28,6 @@ public class MasterClientList
     public readonly ConcurrentDictionary<string, ChannelInfo> Channels = new();
     public readonly ConcurrentDictionary<string, ConcurrentDictionary<long, Subscriber>> ConnectedAccounts = new();
 
-    public readonly ConcurrentDictionary<Guid, IMessage> Messages = new();
     public int ConnectionCounter { get; set; }
     public ConcurrentDictionary<string, long> ReadyForAuth { get; } = new();
 

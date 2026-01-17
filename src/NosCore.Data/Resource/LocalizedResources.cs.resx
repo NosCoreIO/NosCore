@@ -513,4 +513,19 @@
   <data name="UNBOUND_ITEM_DETECTED" xml:space="preserve">
     <value>Unbound item detected.</value>
   </data>
+  <data name="PUBSUB_RECONNECTING" xml:space="preserve">
+    <value>Připojení PubSub ztraceno, opětovné připojování...</value>
+  </data>
+  <data name="PUBSUB_RECONNECTED" xml:space="preserve">
+    <value>PubSub znovu připojen.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_CLOSED" xml:space="preserve">
+    <value>Připojení PubSub uzavřeno.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STARTED" xml:space="preserve">
+    <value>Připojení PubSub zahájeno.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STOPPED" xml:space="preserve">
+    <value>Připojení PubSub zastaveno.</value>
+  </data>
 </root>

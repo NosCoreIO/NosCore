@@ -142,7 +142,7 @@ namespace NosCore.PacketHandlers.Shops
                         return;
                     }
 
-                    clientSession.Character.Shop.Session = clientSession;
+                    clientSession.Character.Shop.OwnerCharacter = clientSession.Character;
                     clientSession.Character.Shop.MenuType = 3;
                     clientSession.Character.Shop.ShopId = 501;
                     clientSession.Character.Shop.Size = 60;

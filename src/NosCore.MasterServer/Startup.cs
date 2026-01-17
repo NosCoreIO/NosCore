@@ -73,6 +73,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
+using NosCore.GameObject.Services.AuthService;
 
 namespace NosCore.MasterServer
 {
@@ -184,6 +185,7 @@ namespace NosCore.MasterServer
                 .SingleInstance();
 
             containerBuilder.RegisterType<ChannelHub>().SingleInstance().AsImplementedInterfaces();
+            containerBuilder.RegisterType<AuthCodeService>().As<IAuthCodeService>().SingleInstance();
             containerBuilder.RegisterAssemblyTypes(typeof(ChannelHub).Assembly)
                 .Where(t => t.Name.EndsWith("Hub") && t.Name != nameof(ChannelHub))
                 .AsImplementedInterfaces();

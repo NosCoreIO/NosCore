@@ -29,12 +29,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core;
 using NosCore.Core.Encryption;
-
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.AuthService;
 using NosCore.Shared.Configuration;
 using NosCore.Tests.Shared;
 using NosCore.WebApi.Controllers;
@@ -49,12 +48,12 @@ namespace NosCore.WebApi.Tests.ApiTests
         private AuthController _controller = null!;
         private ClientSession _session = null!;
         private Mock<ILogger<AuthController>> _logger = null!;
+        private IAuthCodeService _authCodeService = null!;
 
         [TestInitialize]
         public async Task Setup()
         {
-            SessionFactory.Instance.AuthCodes.Clear();
-            SessionFactory.Instance.ReadyForAuth.Clear();
+            _authCodeService = new AuthCodeService();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _logger = new Mock<ILogger<AuthController>>();
@@ -62,7 +61,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             {
                 Password = "123"
             }), TestHelpers.Instance.AccountDao, _logger.Object, new Sha512Hasher(), TestHelpers.Instance.LogLanguageLocalizer,
-               new AuthHub());
+               new AuthHub(_authCodeService), _authCodeService);
         }
 
         [TestMethod]
@@ -171,7 +170,12 @@ namespace NosCore.WebApi.Tests.ApiTests
             {
                 PlatformGameAccountId = "123"
             });
-            Assert.AreEqual(JsonSerializer.Serialize(new OkObjectResult(new { code = SessionFactory.Instance.AuthCodes.FirstOrDefault().Key })), JsonSerializer.Serialize(((OkObjectResult)result)));
+            var okResult = (OkObjectResult)result;
+            Assert.IsNotNull(okResult.Value);
+            var codeProperty = okResult.Value.GetType().GetProperty("code");
+            Assert.IsNotNull(codeProperty);
+            var codeValue = codeProperty.GetValue(okResult.Value);
+            Assert.IsTrue(Guid.TryParse(codeValue?.ToString(), out _));
         }
 
         [TestMethod]
@@ -216,7 +220,7 @@ namespace NosCore.WebApi.Tests.ApiTests
         [TestMethod]
         public async Task GetExpectingConnectionReturnAccountNameWhenAuthCode()
         {
-            SessionFactory.Instance.AuthCodes[_tokenGuid] = _session.Account.Name;
+            _authCodeService.StoreAuthCode(_tokenGuid, _session.Account.Name);
             var result = await _controller.GetExpectingConnection(_session.Account.Name, string.Join("", _tokenGuid.ToCharArray().Select(s => Convert.ToByte(s).ToString("x"))), 1);
             Assert.AreEqual(_session.Account.Name, ((OkObjectResult)result).Value);
         }
@@ -231,7 +235,7 @@ namespace NosCore.WebApi.Tests.ApiTests
         [TestMethod]
         public async Task GetExpectingConnectionReturnTrueWhenGfModeAndExpecting()
         {
-            SessionFactory.Instance.ReadyForAuth[_session.Account.Name] = 1;
+            _authCodeService.MarkReadyForAuth(_session.Account.Name, 1);
             var result = await _controller.GetExpectingConnection(_session.Account.Name, "thisisgfmode", 1);
             Assert.AreEqual("true", ((OkObjectResult)result).Value);
         }
@@ -239,7 +243,7 @@ namespace NosCore.WebApi.Tests.ApiTests
         [TestMethod]
         public async Task GetExpectingConnectionReturnTrueWhenGfModeAndExpectingButWrongSessionId()
         {
-            SessionFactory.Instance.ReadyForAuth[_session.Account.Name] = 1;
+            _authCodeService.MarkReadyForAuth(_session.Account.Name, 1);
             var result = await _controller.GetExpectingConnection(_session.Account.Name, "thisisgfmode", 2);
             Assert.AreEqual("false", ((OkObjectResult)result).Value);
         }

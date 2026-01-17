@@ -25,6 +25,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Services.EventLoaderService.Handlers
@@ -32,10 +33,13 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
     [UsedImplicitly]
     public class RemoveTimeoutStaticBonuses : ITimedEventHandler
     {
-        public RemoveTimeoutStaticBonuses(IClock clock)
+        private readonly ISessionRegistry _sessionRegistry;
+
+        public RemoveTimeoutStaticBonuses(IClock clock, ISessionRegistry sessionRegistry)
         {
             _clock = clock;
             _lastRun = _clock.GetCurrentInstant();
+            _sessionRegistry = sessionRegistry;
         }
 
         private Instant _lastRun;
@@ -45,7 +49,7 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 
         public Task ExecuteAsync(RequestData<Instant> runTime)
         {
-            return Task.WhenAll(Broadcaster.Instance.GetCharacters().Select(session =>
+            return Task.WhenAll(_sessionRegistry.GetCharacters().Select(session =>
             {
                 if (session.StaticBonusList.RemoveAll(s => s.DateEnd != null && s.DateEnd < _clock.GetCurrentInstant()) > 0)
                 {

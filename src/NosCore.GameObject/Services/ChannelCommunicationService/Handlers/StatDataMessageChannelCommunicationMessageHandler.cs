@@ -4,22 +4,21 @@ using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
+using NosCore.GameObject.Services.BroadcastService;
 
 using StatData = NosCore.GameObject.InterChannelCommunication.Messages.StatData;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
     public class StatDataMessageChannelCommunicationMessageHandler(ILogger logger,
-        ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub, IOptions<WorldConfiguration> worldConfiguration) : ChannelCommunicationMessageHandler<StatData>
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration, ISessionRegistry sessionRegistry) : ChannelCommunicationMessageHandler<StatData>
     {
         public override async Task Handle(StatData data)
         {
-            var session = Broadcaster.Instance.GetCharacter(s => s.Name == data.Character?.Name);
+            var session = sessionRegistry.GetCharacter(s => s.Name == data.Character?.Name);
 
             if (session == null)
             {
@@ -43,7 +42,6 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                 case UpdateStatActionType.UpdateGold:
                     if (session.Gold + data.Data > worldConfiguration.Value.MaxGoldAmount)
                     {
-                        await pubSubHub.DeleteMessageAsync(data.Id);
                         return;
                     }
 
@@ -56,9 +54,6 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                     logger.Error(logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
                     break;
             }
-
-            await pubSubHub.DeleteMessageAsync(data.Id);
-
         }
     }
 }

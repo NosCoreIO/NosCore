@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Tests
         [TestMethod]
         public void Test_Add_Player()
         {
-            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, new Mock<ISessionGroupFactory>().Object)
+            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, new Mock<ISessionGroupFactory>().Object, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.GameLanguageLocalizer)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -75,7 +75,7 @@ namespace NosCore.GameObject.Tests
         [TestMethod]
         public void Test_Remove_Player()
         {
-            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, new Mock<ISessionGroupFactory>().Object)
+            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, new Mock<ISessionGroupFactory>().Object, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.GameLanguageLocalizer)
             {
                 Name = "TestExistingCharacter",
                 Slot = 1,
@@ -108,7 +108,7 @@ namespace NosCore.GameObject.Tests
         {
             for (var i = 0; i < (long)_group!.Type; i++)
             {
-                var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, new Mock<ISessionGroupFactory>().Object)
+                var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, new Mock<ISessionGroupFactory>().Object, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.GameLanguageLocalizer)
                 {
                     CharacterId = i + 1,
                     Name = $"TestExistingCharacter{i}",

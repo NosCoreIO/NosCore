@@ -557,4 +557,19 @@
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>VisualType sconosciuto: {0}</value>
   </data>
+  <data name="PUBSUB_RECONNECTING" xml:space="preserve">
+    <value>Connessione PubSub persa, riconnessione...</value>
+  </data>
+  <data name="PUBSUB_RECONNECTED" xml:space="preserve">
+    <value>PubSub riconnesso.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_CLOSED" xml:space="preserve">
+    <value>Connessione PubSub chiusa.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STARTED" xml:space="preserve">
+    <value>Connessione PubSub avviata.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STOPPED" xml:space="preserve">
+    <value>Connessione PubSub arrestata.</value>
+  </data>
 </root>

@@ -31,14 +31,13 @@ using Serilog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Networking;
-using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 {
     public class SpeakerGuriHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            IGameLanguageLocalizer gameLanguageLocalizer)
+            IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry)
         : IGuriEventHandler
     {
         public bool Condition(GuriPacket packet)
@@ -84,12 +83,12 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
                     return;
                 }
                 message = CraftMessage(message, valuesplit.Skip(2).ToArray()).Replace(' ', '|');
-                await Broadcaster.Instance.SendPacketAsync(requestData.ClientSession.Character.GenerateSayItem(message, deeplink), new EveryoneBut(requestData.ClientSession.Channel!.Id)).ConfigureAwait(false);
+                await sessionRegistry.BroadcastPacketAsync(requestData.ClientSession.Character.GenerateSayItem(message, deeplink), requestData.ClientSession.Channel!.Id).ConfigureAwait(false);
             }
             else
             {
                 message = CraftMessage(message, valuesplit);
-                await Broadcaster.Instance.SendPacketAsync(requestData.ClientSession.Character.GenerateSay(message, (SayColorType)13), new EveryoneBut(requestData.ClientSession.Channel!.Id)).ConfigureAwait(false);
+                await sessionRegistry.BroadcastPacketAsync(requestData.ClientSession.Character.GenerateSay(message, (SayColorType)13), requestData.ClientSession.Channel!.Id).ConfigureAwait(false);
             }
 
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);

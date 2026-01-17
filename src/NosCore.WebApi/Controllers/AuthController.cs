@@ -30,12 +30,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NosCore.Core;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
+using NosCore.GameObject.Services.AuthService;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
@@ -48,7 +48,8 @@ namespace NosCore.WebApi.Controllers
     [Route("api/v1/auth/thin")]
     [Route("api/[controller]")]
     public class AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao,
-            ILogger<AuthController> logger, IHasher hasher, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IAuthHub authHub)
+            ILogger<AuthController> logger, IHasher hasher, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            IAuthHub authHub, IAuthCodeService authCodeService)
         : Controller
     {
         [AllowAnonymous]
@@ -119,8 +120,8 @@ namespace NosCore.WebApi.Controllers
             }
 
             var authCode = Guid.NewGuid();
-            SessionFactory.Instance.AuthCodes[authCode.ToString()] =
-                identity.Claims.First(s => s.Type == ClaimTypes.NameIdentifier).Value;
+            authCodeService.StoreAuthCode(authCode.ToString(),
+                identity.Claims.First(s => s.Type == ClaimTypes.NameIdentifier).Value);
 
             return Ok(new { code = authCode });
         }

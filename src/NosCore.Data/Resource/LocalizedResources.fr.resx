@@ -510,4 +510,19 @@
   <data name="UNKNOWN" xml:space="preserve">
     <value>Inconnu</value>
   </data>
+  <data name="PUBSUB_RECONNECTING" xml:space="preserve">
+    <value>Connexion PubSub perdue, reconnexion...</value>
+  </data>
+  <data name="PUBSUB_RECONNECTED" xml:space="preserve">
+    <value>PubSub reconnecté.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_CLOSED" xml:space="preserve">
+    <value>Connexion PubSub fermée.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STARTED" xml:space="preserve">
+    <value>Connexion PubSub démarrée.</value>
+  </data>
+  <data name="PUBSUB_CONNECTION_STOPPED" xml:space="preserve">
+    <value>Connexion PubSub arrêtée.</value>
+  </data>
 </root>

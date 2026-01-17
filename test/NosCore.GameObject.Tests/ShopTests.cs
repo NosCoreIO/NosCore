@@ -42,6 +42,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
@@ -275,18 +276,21 @@ namespace NosCore.GameObject.Tests
         private async Task<ClientSession> PrepareSessionShopAsync()
         {
             var conf = Options.Create(new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 });
+            var sessionRefHolder = new SessionRefHolder();
+            var packetHandlerRegistry = new NosCore.GameObject.Services.PacketHandlerService.PacketHandlerRegistry(new List<IPacketHandler>());
+            var characterInitializationService = new Mock<ICharacterInitializationService>();
+            characterInitializationService.Setup(s => s.InitializeAsync(It.IsAny<Character>())).Returns(Task.CompletedTask);
             var session2 = new ClientSession(
                 Logger,
-                new List<IPacketHandler>(),
-                new SessionRefHolder(),
+                packetHandlerRegistry,
                 new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.PubSubHub.Object,
                 new Mock<IEncoder>().Object,
-                new WorldPacketHandlingStrategy(Logger, TestHelpers.Instance.LogLanguageLocalizer),
+                new WorldPacketHandlingStrategy(Logger, TestHelpers.Instance.LogLanguageLocalizer, sessionRefHolder),
                 new List<ISessionDisconnectHandler>(),
-                new Mock<IMinilandService>().Object,
-                TestHelpers.Instance.MapInstanceGeneratorService,
+                new NosCore.GameObject.Services.BroadcastService.SessionRegistry(),
+                characterInitializationService.Object,
                 TestHelpers.Instance.GameLanguageLocalizer);
             var mockChannel = new Mock<IChannel>();
             mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
@@ -295,7 +299,8 @@ namespace NosCore.GameObject.Tests
             session2.InitializeAccount(account);
             session2.SessionId = 1;
 
-            await session2.SetCharacterAsync(new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, TestHelpers.Instance.SessionGroupFactory)
+            var mapinstance = _instanceProvider!.GetBaseMapById(0)!;
+            var chara2 = new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, TestHelpers.Instance.SessionGroupFactory, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.GameLanguageLocalizer)
             {
                 CharacterId = 1,
                 Name = "chara2",
@@ -303,11 +308,10 @@ namespace NosCore.GameObject.Tests
                 AccountId = 1,
                 MapId = 1,
                 State = CharacterState.Active
-            }).ConfigureAwait(false);
-            var mapinstance = _instanceProvider!.GetBaseMapById(0)!;
+            };
+            chara2.MapInstance = mapinstance;
+            await session2.SetCharacterAsync(chara2).ConfigureAwait(false);
             session2.Account = account;
-            session2.Character.MapInstance = _instanceProvider.GetBaseMapById(0)!;
-            session2.Character.MapInstance = mapinstance;
 
             _session!.Character.Gold = 500000;
             var items = new List<ItemDto>
@@ -325,7 +329,7 @@ namespace NosCore.GameObject.Tests
             list.TryAdd(1, new ShopItem { Slot = 1, ItemInstance = it, Type = 0, Price = 1, Amount = 500 });
             session2.Character.Shop = new Shop
             {
-                Session = session2,
+                OwnerCharacter = session2.Character,
                 ShopItems = list
             };
             _session.Character.InventoryService!.AddItemToPocket(

@@ -73,7 +73,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     }
 
                 });
-            _blPacketHandler = new BlPacketHandler();
+            _blPacketHandler = new BlPacketHandler(new NosCore.GameObject.Services.BroadcastService.SessionRegistry());
         }
 
         [TestMethod]

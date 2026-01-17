@@ -28,10 +28,11 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.PacketHandlers.Shops
 {
-    public class RequestNpcPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class RequestNpcPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry)
         : PacketHandler<RequestNpcPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
@@ -40,7 +41,7 @@ namespace NosCore.PacketHandlers.Shops
             switch (requestNpcPacket.Type)
             {
                 case VisualType.Player:
-                    requestableEntity = Broadcaster.Instance.GetCharacter(s => s.VisualId == requestNpcPacket.TargetId);
+                    requestableEntity = sessionRegistry.GetCharacter(s => s.VisualId == requestNpcPacket.TargetId);
                     break;
                 case VisualType.Npc:
                     requestableEntity =

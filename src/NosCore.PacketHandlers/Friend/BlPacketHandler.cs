@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.GameObject;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -27,12 +27,13 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
-    public class BlPacketHandler : PacketHandler<BlPacket>, IWorldPacketHandler
+    public class BlPacketHandler(ISessionRegistry sessionRegistry)
+        : PacketHandler<BlPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(BlPacket finsPacket, ClientSession session)
         {
             var target =
-                Broadcaster.Instance.GetCharacter(s => s.Name == finsPacket.CharacterName);
+                sessionRegistry.GetCharacter(s => s.Name == finsPacket.CharacterName);
 
             if (target == null)
             {

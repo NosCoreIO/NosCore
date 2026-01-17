@@ -17,90 +17,44 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Microsoft.Extensions.Options;
-using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Services.MapInstanceGenerationService;
-using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.Attributes;
 using NosCore.Packets.Interfaces;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.CharacterService;
+using NosCore.GameObject.Services.PacketHandlerService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
-using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
-    public class ClientSession : NetworkClient
+    public class ClientSession(
+        ILogger logger,
+        IPacketHandlerRegistry packetHandlerRegistry,
+        ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage,
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+        IPubSubHub pubSubHub,
+        IEncoder encoder,
+        IPacketHandlingStrategy packetHandlingStrategy,
+        IEnumerable<ISessionDisconnectHandler> disconnectHandlers,
+        ISessionRegistry sessionRegistry,
+        ICharacterInitializationService characterInitializationService,
+        IGameLanguageLocalizer? gameLanguageLocalizer = null)
+        : NetworkClient(logger, networkingLogLanguage, encoder), IPacketSender
     {
-        private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic = new();
-        private readonly Dictionary<Type, IPacketHandler> _handlersByPacketType = new();
         private readonly SemaphoreSlim _handlingPacketLock = new(1, 1);
-        private readonly IPacketHandlingStrategy _packetHandlingStrategy;
-        private readonly ILogger _logger;
-        private readonly ISessionRefHolder _sessionRefHolder;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
-        private readonly IPubSubHub _pubSubHub;
-        private readonly IEnumerable<ISessionDisconnectHandler> _disconnectHandlers;
-        private readonly IMapInstanceGeneratorService? _mapInstanceGeneratorService;
-        private readonly IMinilandService? _minilandProvider;
-        private readonly IGameLanguageLocalizer? _gameLanguageLocalizer;
+        private readonly ILogger _logger = logger;
         private Character? _character;
-
-        public ClientSession(
-            ILogger logger,
-            IEnumerable<IPacketHandler> packetsHandlers,
-            ISessionRefHolder sessionRefHolder,
-            ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            IPubSubHub pubSubHub,
-            IEncoder encoder,
-            IPacketHandlingStrategy packetHandlingStrategy,
-            IEnumerable<ISessionDisconnectHandler> disconnectHandlers,
-            IMinilandService? minilandProvider = null,
-            IMapInstanceGeneratorService? mapInstanceGeneratorService = null,
-            IGameLanguageLocalizer? gameLanguageLocalizer = null)
-            : base(logger, networkingLogLanguage, encoder)
-        {
-            _logger = logger;
-            _sessionRefHolder = sessionRefHolder;
-            _logLanguage = logLanguage;
-            _pubSubHub = pubSubHub;
-            _packetHandlingStrategy = packetHandlingStrategy;
-            _disconnectHandlers = disconnectHandlers;
-            _minilandProvider = minilandProvider;
-            _mapInstanceGeneratorService = mapInstanceGeneratorService;
-            _gameLanguageLocalizer = gameLanguageLocalizer;
-
-            foreach (var handler in packetsHandlers)
-            {
-                var type = handler.GetType().BaseType?.GenericTypeArguments[0]!;
-                if (type == null)
-                {
-                    throw new InvalidOperationException("Packet handler must have a generic type argument");
-                }
-
-                if (!_attributeDic.ContainsKey(type))
-                {
-                    _attributeDic.Add(type, type.GetCustomAttribute<PacketHeaderAttribute>(true)!);
-                }
-
-                if (!_handlersByPacketType.ContainsKey(type))
-                {
-                    _handlersByPacketType.Add(type, handler);
-                }
-            }
-        }
 
 
         public bool GameStarted { get; set; }
@@ -128,30 +82,23 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 if (_character == null)
                 {
-                    _logger.Warning(_logLanguage[LogLanguageKey.CHARACTER_NOT_INIT]);
+                    _logger.Warning(logLanguage[LogLanguageKey.CHARACTER_NOT_INIT]);
                     throw new InvalidOperationException("Character not initialized");
                 }
 
-                _logger.Warning(_logLanguage[LogLanguageKey.CHARACTER_NOT_INIT]);
+                _logger.Warning(logLanguage[LogLanguageKey.CHARACTER_NOT_INIT]);
                 throw new InvalidOperationException("Character not selected");
             }
         }
 
         public IPacketHandler? GetHandler(Type packetType)
         {
-            _handlersByPacketType.TryGetValue(packetType, out var handler);
-            return handler;
+            return packetHandlerRegistry.GetHandler(packetType);
         }
 
         public PacketHeaderAttribute? GetPacketAttribute(Type packetType)
         {
-            _attributeDic.TryGetValue(packetType, out var attr);
-            return attr;
-        }
-
-        public int GetSessionIdFromHolder()
-        {
-            return _sessionRefHolder[SessionKey].SessionId;
+            return packetHandlerRegistry.GetPacketAttribute(packetType);
         }
 
         public Task AcquirePacketLockAsync()
@@ -168,7 +115,17 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
             Account = accountDto;
             IsAuthenticated = true;
-            Broadcaster.Instance.RegisterSession(this);
+            if (Channel != null)
+            {
+                sessionRegistry.Register(new SessionInfo
+                {
+                    ChannelId = Channel.Id,
+                    SessionId = SessionId,
+                    Sender = this,
+                    AccountName = accountDto.Name,
+                    Disconnect = DisconnectAsync
+                });
+            }
         }
 
         public Task SetCharacterAsync(Character? character)
@@ -181,14 +138,14 @@ namespace NosCore.GameObject.Networking.ClientSession
                 return Task.CompletedTask;
             }
 
-            character.Session = this;
-
-            if (_minilandProvider != null && _mapInstanceGeneratorService != null)
+            character.Account = Account;
+            character.Channel = Channel;
+            if (Channel != null)
             {
-                return _minilandProvider.InitializeAsync(character, _mapInstanceGeneratorService);
+                sessionRegistry.UpdateCharacter(Channel.Id, character.CharacterId, character.MapInstanceId, character);
             }
 
-            return Task.CompletedTask;
+            return characterInitializationService.InitializeAsync(character);
         }
 
         public async Task HandlePacketAsync(NosPackageInfo package)
@@ -199,8 +156,8 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (Exception ex)
             {
-                _logger.Error(_logLanguage[LogLanguageKey.PACKET_HANDLING_ERROR], ex);
-                await _pubSubHub.UnsubscribeAsync(SessionId);
+                _logger.Error(logLanguage[LogLanguageKey.PACKET_HANDLING_ERROR], ex);
+                await pubSubHub.UnsubscribeAsync(SessionId);
                 await DisconnectAsync();
             }
         }
@@ -222,7 +179,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                         _character.Hp = 1;
                     }
 
-                    foreach (var handler in _disconnectHandlers)
+                    foreach (var handler in disconnectHandlers)
                     {
                         await handler.HandleDisconnectAsync(this).ConfigureAwait(false);
                     }
@@ -230,30 +187,33 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (Exception ex)
             {
-                _logger.Information(_logLanguage[LogLanguageKey.CLIENT_DISCONNECTED], ex);
+                _logger.Information(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED], ex);
             }
             finally
             {
-                Broadcaster.Instance.UnregisterSession(this);
-                await _pubSubHub.UnsubscribeAsync(SessionId);
-                _logger.Information(_logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);
+                if (Channel != null)
+                {
+                    sessionRegistry.Unregister(Channel.Id);
+                }
+                await pubSubHub.UnsubscribeAsync(SessionId);
+                _logger.Information(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);
             }
         }
 
         public string GetMessageFromKey(LanguageKey languageKey)
         {
-            if (_gameLanguageLocalizer == null)
+            if (gameLanguageLocalizer == null)
             {
                 throw new InvalidOperationException("GameLanguageLocalizer not available in this session type");
             }
 
-            return _gameLanguageLocalizer[languageKey, Account.Language];
+            return gameLanguageLocalizer[languageKey, Account.Language];
         }
 
         public Task HandlePacketsAsync(IEnumerable<IPacket> packetConcatenated, bool isFromNetwork = false)
         {
             return Task.WhenAll(packetConcatenated.Select(packet =>
-                _packetHandlingStrategy.HandlePacketAsync(packet, this, isFromNetwork)));
+                packetHandlingStrategy.HandlePacketAsync(packet, this, isFromNetwork)));
         }
     }
 }
