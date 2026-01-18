@@ -366,9 +366,6 @@
     <value>Registrováno na Master Serveru</value>
     <comment>check</comment>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Tvá pověst byla změněna!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnType bylo úspěšně nahráno!</value>
   </data>
@@ -401,9 +398,6 @@
   </data>
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
     <value>Neznámý ReceiverType</value>
-  </data>
-  <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>Tvé zlato bylo změněno!</value>
   </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>Uživatel není Kamarád</value>

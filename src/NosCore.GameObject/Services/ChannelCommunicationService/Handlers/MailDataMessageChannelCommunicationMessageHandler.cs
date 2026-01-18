@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Services.BroadcastService;
 
@@ -9,25 +9,33 @@ using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
-    public class MailDataMessageChannelCommunicationMessageHandler(IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry) : ChannelCommunicationMessageHandler<MailData>
+    public class MailDataMessageChannelCommunicationMessageHandler(IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry, IEntityPacketSystem entityPacketSystem) : ChannelCommunicationMessageHandler<MailData>
     {
         public override async Task Handle(MailData data)
         {
-            var session = sessionRegistry.GetCharacter(s => s.Name == data.ReceiverName);
+            var player = sessionRegistry.GetPlayer(p => p.Name == data.ReceiverName);
 
-            if (session == null)
+            if (player == null)
             {
                 return;
             }
 
+            var playerValue = player.Value;
+            var sender = sessionRegistry.GetSenderByCharacterId(playerValue.CharacterId);
+
             if (data.ItemInstance != null)
             {
-                await session.SendPacketAsync(session.GenerateSay(
-                    string.Format(gameLanguageLocalizer[LanguageKey.ITEM_GIFTED, session.AccountLanguage],
-                        data.ItemInstance.Amount), SayColorType.Green)).ConfigureAwait(false);
+                await (sender?.SendPacketAsync(entityPacketSystem.GenerateSay(playerValue,
+                    string.Format(gameLanguageLocalizer[LanguageKey.ITEM_GIFTED, playerValue.AccountLanguage],
+                        data.ItemInstance.Amount), SayColorType.Green)) ?? Task.CompletedTask).ConfigureAwait(false);
             }
 
-            await session.GenerateMailAsync(new[] { data }).ConfigureAwait(false);
+            var postType = data.ItemInstance != null ? (byte)0 : (byte)1;
+            var post = data.GeneratePost(postType);
+            if (post != null)
+            {
+                await (sender?.SendPacketAsync(post) ?? Task.CompletedTask).ConfigureAwait(false);
+            }
         }
     }
 }

@@ -22,8 +22,7 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
@@ -36,10 +35,11 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
-using Character = NosCore.Data.WebApi.Character;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Chat
 {
@@ -47,7 +47,8 @@ namespace NosCore.PacketHandlers.Chat
             IBlacklistHub blacklistHttpClient,
              IPubSubHub pubSubHub, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer,
-            ISessionRegistry sessionRegistry)
+            ISessionRegistry sessionRegistry,
+            IVisibilitySystem visibilitySystem)
         : PacketHandler<WhisperPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(WhisperPacket whisperPacket, ClientSession session)
@@ -68,13 +69,13 @@ namespace NosCore.PacketHandlers.Chat
                 var message = new StringBuilder(messageBuilder.ToString().Length > 60
                     ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
 
-                await session.SendPacketAsync(session.Character.GenerateSpk(new SpeakPacket
+                await session.SendPacketAsync(visibilitySystem.GenerateSpk(session.Player, new SpeakPacket
                 {
                     SpeakType = SpeakType.Player,
                     Message = message.ToString()
                 })).ConfigureAwait(false);
 
-                var speakPacket = session.Character.GenerateSpk(new SpeakPacket
+                var speakPacket = visibilitySystem.GenerateSpk(session.Player, new SpeakPacket
                 {
                     SpeakType = session.Account.Authority >= AuthorityType.GameMaster ? SpeakType.GameMaster
                         : SpeakType.Player,
@@ -82,7 +83,7 @@ namespace NosCore.PacketHandlers.Chat
                 });
 
                 var receiverSession =
-                    sessionRegistry.GetCharacter(s => s.Name == receiverName);
+                    sessionRegistry.GetPlayer(s => s.Name == receiverName);
 
                 var accounts = await pubSubHub.GetSubscribersAsync();
                 var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == receiverName);
@@ -98,7 +99,7 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
-                var blacklisteds = await blacklistHttpClient.GetBlacklistedAsync(session.Character.VisualId).ConfigureAwait(false);
+                var blacklisteds = await blacklistHttpClient.GetBlacklistedAsync(session.Player.VisualId).ConfigureAwait(false);
                 if (blacklisteds.Any(s => s.CharacterId == receiver.ConnectedCharacter?.Id))
                 {
                     await session.SendPacketAsync(new InfoiPacket
@@ -114,8 +115,8 @@ namespace NosCore.PacketHandlers.Chat
                 await pubSubHub.SendMessageAsync(new PostedPacket
                 {
                     Packet = packetSerializer.Serialize(new[] { speakPacket }),
-                    ReceiverCharacter = new Character { Name = receiverName },
-                    SenderCharacter = new Character { Name = session.Character.Name },
+                    ReceiverCharacter = new NosCore.Data.WebApi.Character { Name = receiverName },
+                    SenderCharacter = new NosCore.Data.WebApi.Character { Name = session.Player.Name },
                     OriginWorldId = channel.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
                 }).ConfigureAwait(false);

@@ -1,67 +1,76 @@
-﻿// __  _  __    __   ___ __  ___ ___
+// __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+
+using Arch.Core;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Components;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.Enumerations;
-using static NosCore.Data.Enumerations.Buff.AdditionalTypes;
 
 namespace NosCore.GameObject.Services.BattleService;
 
-public class BattleService : IBattleService
+public class BattleService(ISessionRegistry sessionRegistry) : IBattleService
 {
-    public async Task Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
+    public async Task Hit(PlayerContext player, Entity target, HitArguments arguments)
     {
+        var world = player.World;
+        var targetMapInstance = player.MapInstance;
+        var targetCombatState = target.GetCombatState(world);
+        if (targetCombatState == null)
+        {
+            return;
+        }
+
         try
         {
-            if ((origin.Hp <= 0) || (target.Hp <= 0))
+            if ((player.Hp <= 0) || (target.GetHp(world) <= 0))
             {
-                await Cancel(origin, target);
+                await Cancel(player, target, world);
                 return;
             }
 
-            if (origin.NoAttack)
+            if (player.NoAttack)
             {
-                await Cancel(origin, target);
-                // CANT_ATTACK
+                await Cancel(player, target, world);
                 return;
             }
 
             if (arguments is { MapX: not null, MapY: not null })
             {
-                //todo check max distance
-                origin.PositionX = arguments.MapX.Value;
-                origin.PositionY = arguments.MapY.Value;
+                player.SetPosition(arguments.MapX.Value, arguments.MapY.Value);
             }
 
-            var skillResult = await GetSkill(origin, arguments.SkillId);
+            var skillResult = GetSkill(player, arguments.SkillId);
 
-            var damage = await CalculateDamage(origin, target);
+            var damage = CalculateDamage(player, target, world);
 
-            await target.HitSemaphore.WaitAsync();
+            await targetCombatState.HitSemaphore.WaitAsync();
 
             var targetIsAlive = true;
-            var newHp = target.Hp - damage.Damage;
+            var newHp = target.GetHp(world) - damage.Damage;
             var uselessDamage = 0;
             if (newHp <= 0)
             {
@@ -70,80 +79,74 @@ public class BattleService : IBattleService
                 targetIsAlive = false;
             }
 
-            target.HitList.AddOrUpdate(origin, damage.Damage - uselessDamage, (_, oldValue) => oldValue + damage.Damage - uselessDamage);
-            target.Hp = newHp;
+            targetCombatState.HitList.AddOrUpdate(player.Entity, damage.Damage - uselessDamage, (_, oldValue) => oldValue + damage.Damage - uselessDamage);
+            target.SetHp(world, newHp);
 
             if (!targetIsAlive)
             {
-                await HandleReward(target);
+                await HandleReward(target, targetMapInstance, targetCombatState);
             }
 
-            await target.MapInstance.SendPacketAsync(new SuPacket
+            await targetMapInstance.SendPacketAsync(new SuPacket
             {
-                VisualType = origin.VisualType,
-                VisualId = origin.VisualId,
-                TargetVisualType = target.VisualType,
-                TargetId = target.VisualId,
+                VisualType = player.VisualType,
+                VisualId = player.VisualId,
+                TargetVisualType = target.GetVisualType(world),
+                TargetId = target.GetVisualId(world),
                 SkillVnum = skillResult.SkillVnum,
-
                 SkillCooldown = skillResult.SkillCooldown,
                 AttackAnimation = skillResult.AttackAnimation,
                 SkillEffect = skillResult.SkillEffect,
-                PositionX = origin.PositionX,
-                PositionY = origin.PositionY,
+                PositionX = player.PositionX,
+                PositionY = player.PositionY,
                 TargetIsAlive = targetIsAlive,
-                HpPercentage = (byte)((target.Hp / (float)target.MaxHp) * 100),
+                HpPercentage = (byte)((target.GetHp(world) / (float)target.GetMaxHp(world)) * 100),
                 Damage = (uint)damage.Damage,
                 HitMode = damage.HitMode,
                 SkillTypeMinusOne = skillResult.SkillTypeMinusOne,
             });
 
-            await HandleCooldown(origin, skillResult);
+            _ = HandleCooldown(player, skillResult);
         }
         catch
         {
-            await Cancel(origin, target);
+            await Cancel(player, target, world);
         }
         finally
         {
-            target.HitSemaphore.Release();
+            targetCombatState.HitSemaphore.Release();
         }
     }
 
-    private Task HandleCooldown(IAliveEntity origin, SkillResult skill)
+    private async Task HandleCooldown(PlayerContext player, SkillResult skill)
     {
-        if (origin is ICharacterEntity character)
+        await Task.Delay(skill.SkillCooldown * 100);
+        var sender = sessionRegistry.GetSenderByCharacterId(player.CharacterId);
+        await (sender?.SendPacketAsync(new SkillResetPacket()
         {
-            _ = Task.Run(async () =>
-             {
-                 await Task.Delay(skill.SkillCooldown * 100);
-                 await character.SendPacketAsync(new SkillResetPacket()
-                 {
-                     CastId = skill.CastId
-                 });
-             });
-        }
-        return Task.CompletedTask;
+            CastId = skill.CastId
+        }) ?? Task.CompletedTask);
     }
 
-    private async Task HandleReward(IAliveEntity target)
+    private async Task HandleReward(Entity target, MapInstance targetMapInstance, CombatState targetCombatState)
     {
-        var damageEntities = target.HitList.ToList();
+        var world = targetMapInstance.EcsWorld;
+        var damageEntities = targetCombatState.HitList.ToList();
         foreach (var damageEntity in damageEntities)
         {
-            if (damageEntity.Key.IsAlive && damageEntity.Key.MapInstanceId == target.MapInstanceId)
+            if (damageEntity.Key.GetIsAlive(world))
             {
                 var percentageDamage = (float)damageEntity.Value / damageEntities.Sum(x => x.Value);
-                await FullReward(damageEntity.Key, target);
+                await FullReward(damageEntity.Key, target, world);
             }
         }
 
-        target.HitList.Clear();
+        targetCombatState.HitList.Clear();
         return;
 
-        Task FullReward(IAliveEntity received, IAliveEntity target)
+        Task FullReward(Entity received, Entity target, MapWorld world)
         {
-            switch (received.VisualType)
+            switch (received.GetVisualType(world))
             {
                 case VisualType.Player:
                     break;
@@ -154,28 +157,26 @@ public class BattleService : IBattleService
         }
     }
 
-    private Task<SkillResult> GetSkill(IAliveEntity origin, long argumentsSkillId)
+    private SkillResult GetSkill(PlayerContext player, long argumentsSkillId)
     {
         var skillVnum = 0;
         var skillCooldown = 0;
         var attackAnimation = 0;
         var skillEffect = 0;
         var skillTypeMinusOne = 0;
-        if (origin is ICharacterEntity character)
-        {
-            var ski = character.Skills.Values.First(s =>
-                s.Skill?.CastId == argumentsSkillId && s.Skill?.UpgradeSkill == 0);
-            var skillinfo = character.Skills.Select(s => s.Value).OrderBy(o => o.SkillVNum)
-                .FirstOrDefault(s =>
-                    s.Skill!.UpgradeSkill == ski.Skill!.SkillVNum && s.Skill.Effect > 0 && s.Skill.SkillType == 2);
-            skillVnum = ski.SkillVNum;
-            skillCooldown = ski.Skill!.Cooldown;
-            attackAnimation = ski.Skill.AttackAnimation;
-            skillEffect = skillinfo?.Skill?.CastEffect ?? ski.Skill.CastEffect;
-            skillTypeMinusOne = ski.Skill.Type - 1;
-        }
 
-        return Task.FromResult(new SkillResult
+        var ski = player.Skills.Values.First(s =>
+            s.Skill?.CastId == argumentsSkillId && s.Skill?.UpgradeSkill == 0);
+        var skillinfo = player.Skills.Select(s => s.Value).OrderBy(o => o.SkillVNum)
+            .FirstOrDefault(s =>
+                s.Skill!.UpgradeSkill == ski.Skill!.SkillVNum && s.Skill.Effect > 0 && s.Skill.SkillType == 2);
+        skillVnum = ski.SkillVNum;
+        skillCooldown = ski.Skill!.Cooldown;
+        attackAnimation = ski.Skill.AttackAnimation;
+        skillEffect = skillinfo?.Skill?.CastEffect ?? ski.Skill.CastEffect;
+        skillTypeMinusOne = ski.Skill.Type - 1;
+
+        return new SkillResult
         {
             CastId = argumentsSkillId,
             SkillVnum = skillVnum,
@@ -183,25 +184,21 @@ public class BattleService : IBattleService
             AttackAnimation = attackAnimation,
             SkillEffect = skillEffect,
             SkillTypeMinusOne = skillTypeMinusOne,
-        });
-
+        };
     }
 
-    Task<DamageResult> CalculateDamage(IAliveEntity origin, IAliveEntity target)
+    DamageResult CalculateDamage(PlayerContext player, Entity target, MapWorld world)
     {
-        return Task.FromResult(new DamageResult(100, SuPacketHitMode.SuccessAttack));
+        return new DamageResult(100, SuPacketHitMode.SuccessAttack);
     }
 
-    async Task Cancel(IAliveEntity origin, IAliveEntity target)
+    async Task Cancel(PlayerContext player, Entity target, MapWorld world)
     {
-        if (origin is ICharacterEntity character)
+        var sender = sessionRegistry.GetSenderByCharacterId(player.CharacterId);
+        await (sender?.SendPacketAsync(new CancelPacket()
         {
-            await character.SendPacketAsync(new CancelPacket()
-            {
-                Type = CancelPacketType.CancelAutoAttack,
-                TargetId = target.VisualId
-            });
-        }
+            Type = CancelPacketType.CancelAutoAttack,
+            TargetId = target.GetVisualId(world)
+        }) ?? Task.CompletedTask);
     }
-
 }

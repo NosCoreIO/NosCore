@@ -24,7 +24,7 @@ namespace NosCore.GameObject.Services.QuestService
 {
     public interface IQuestService
     {
-        Task RunScriptAsync(Character character);
-        Task RunScriptAsync(Character character, ScriptClientPacket? packet);
+        Task RunScriptAsync(PlayerContext player);
+        Task RunScriptAsync(PlayerContext player, ScriptClientPacket? packet);
     }
 }

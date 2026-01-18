@@ -17,24 +17,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.EventLoaderService
 {
     public class EventLoaderService<T1, T2, TEventType>
         (IEnumerable<IEventHandler<T1, T2>> handlers) : IEventLoaderService<T1, T2>
-    where T1 : IRequestableEntity<T2>
     where TEventType : IEventHandler
     {
         private readonly List<IEventHandler<T1, T2>> _handlers = Enumerable.ToList<IEventHandler<T1, T2>>(handlers);
 
-        public void LoadHandlers(T1 item)
+        public void LoadHandlers(T1 item, Dictionary<Type, Subject<RequestData<T2>>> requests, List<Task> handlerTasks)
         {
             var handlersRequest = new Subject<RequestData<T2>>();
             _handlers.ForEach(handler =>
@@ -44,12 +43,12 @@ namespace NosCore.GameObject.Services.EventLoaderService
                     handlersRequest.Select(request =>
                     {
                         var task = handler.ExecuteAsync(request);
-                        item.HandlerTasks.Add(task);
+                        handlerTasks.Add(task);
                         return task;
                     }).Subscribe();
                 }
             });
-            item.Requests[typeof(TEventType)] = handlersRequest;
+            requests[typeof(TEventType)] = handlersRequest;
         }
     }
 }

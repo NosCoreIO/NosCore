@@ -27,14 +27,13 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Holders;
-using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FriendService;
+using NosCore.GameObject.Networking;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using NosCore.GameObject.Ecs;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
 
@@ -53,7 +52,6 @@ namespace NosCore.PacketHandlers.Tests.Friend
         {
             _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
             await TestHelpers.ResetAsync().ConfigureAwait(false);
-            Broadcaster.Reset();
             TestHelpers.Instance.ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
                     new ChannelInfo
@@ -71,37 +69,36 @@ namespace NosCore.PacketHandlers.Tests.Friend
         public async Task Test_Add_Distant_FriendAsync()
         {
             var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            var friendRequestHolder = new FriendRequestHolder();
-            friendRequestHolder.FriendRequestCharacters.TryAdd(Guid.NewGuid(),
-                new Tuple<long, long>(targetSession.Character.CharacterId, _session!.Character.CharacterId));
+            var friendRequestRegistry = new FriendRequestRegistry();
+            friendRequestRegistry.AddRequest(targetSession.Player.CharacterId, _session!.Player.CharacterId);
             var flPacket = new FlCommandPacket
             {
-                CharacterName = targetSession.Character.Name
+                CharacterName = targetSession.Player.Name
             };
             TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Player.CharacterId }
                     },
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Player.CharacterId }
                     }
 
                 });
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                friendRequestHolder, TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.ChannelHub.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                friendRequestRegistry, TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.ChannelHub.Object, TestHelpers.Instance.LogLanguageLocalizer);
             TestHelpers.Instance.FriendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
-                .Returns(friend.AddFriendAsync(_session.Character.CharacterId,
-                    targetSession.Character.VisualId,
+                .Returns(friend.AddFriendAsync(_session.Player.CharacterId,
+                    targetSession.Player.VisualId,
                     FinsPacketType.Accepted
         ));
 
             await _flPacketHandler!.ExecuteAsync(flPacket, _session).ConfigureAwait(false);
             Assert.IsTrue(await _characterRelationDao!.FirstOrDefaultAsync(s =>
-                (s.CharacterId == _session.Character.CharacterId) &&
-                (s.RelatedCharacterId == targetSession.Character.CharacterId)
+                (s.CharacterId == _session.Player.CharacterId) &&
+                (s.RelatedCharacterId == targetSession.Player.CharacterId)
                 && (s.RelationType == CharacterRelationType.Friend)).ConfigureAwait(false) != null);
         }
     }

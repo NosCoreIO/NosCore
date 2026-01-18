@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.UI;
 

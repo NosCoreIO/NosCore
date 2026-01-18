@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using System;
@@ -28,7 +28,7 @@ using NosCore.Networking;
 
 namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 {
-    public class EmoticonEventHandler : IGuriEventHandler
+    public class EmoticonEventHandler(IEntityPacketSystem entityPacketSystem) : IGuriEventHandler
     {
         public bool Condition(GuriPacket packet)
         {
@@ -37,15 +37,16 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 
         public Task ExecuteAsync(RequestData<GuriPacket> requestData)
         {
-            if (requestData.ClientSession.Character.EmoticonsBlocked)
+            var player = requestData.ClientSession.Player;
+            if (player.CharacterData.EmoticonsBlocked)
             {
                 return Task.CompletedTask;
             }
 
-            if (requestData.Data.VisualId.GetValueOrDefault() == requestData.ClientSession.Character.CharacterId)
+            if (requestData.Data.VisualId.GetValueOrDefault() == player.CharacterId)
             {
-                return requestData.ClientSession.Character.MapInstance.SendPacketAsync(
-                    requestData.ClientSession.Character.GenerateEff(Convert.ToInt32(requestData.Data.Data) +
+                return player.MapInstance.SendPacketAsync(
+                    entityPacketSystem.GenerateEff(player, Convert.ToInt32(requestData.Data.Data) +
                         4099)); //TODO , ReceiverType.AllNoEmoBlocked
             }
 

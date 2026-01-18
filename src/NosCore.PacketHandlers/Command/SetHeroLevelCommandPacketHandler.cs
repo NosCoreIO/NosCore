@@ -20,7 +20,7 @@
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
@@ -29,6 +29,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using Character = NosCore.Data.WebApi.Character;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Command
 {
@@ -37,9 +38,11 @@ namespace NosCore.PacketHandlers.Command
     {
         public override async Task ExecuteAsync(SetHeroLevelCommandPacket levelPacket, ClientSession session)
         {
-            if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
+            var characterName = session.Player.Name;
+            if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == characterName))
             {
-                await session.Character.SetHeroLevelAsync(levelPacket.Level).ConfigureAwait(false);
+                session.Player.SetHeroLevel(levelPacket.Level);
+                session.Player.SetHeroXp(0);
                 return;
             }
 

@@ -19,10 +19,9 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.NRunService;
+using NosCore.GameObject.Ecs;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -32,36 +31,45 @@ using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.PacketHandlers.Shops
 {
-    public class RequestNpcPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry)
+    public class RequestNpcPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            ISessionRegistry sessionRegistry)
         : PacketHandler<RequestNpcPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
         {
-            IRequestableEntity? requestableEntity;
             switch (requestNpcPacket.Type)
             {
                 case VisualType.Player:
-                    requestableEntity = sessionRegistry.GetCharacter(s => s.VisualId == requestNpcPacket.TargetId);
-                    break;
+                    var character = sessionRegistry.GetPlayer(s => s.VisualId == requestNpcPacket.TargetId);
+                    if (character is not { } player)
+                    {
+                        logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
+                        return Task.CompletedTask;
+                    }
+                    player.Requests[typeof(INrunEventHandler)].OnNext(new RequestData(clientSession));
+                    return Task.CompletedTask;
+
                 case VisualType.Npc:
-                    requestableEntity =
-                        clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == requestNpcPacket.TargetId);
-                    break;
+                    var npcEntity = clientSession.Player.MapInstance.GetNpc((int)requestNpcPacket.TargetId);
+                    if (npcEntity == null)
+                    {
+                        logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
+                        return Task.CompletedTask;
+                    }
+                    var world = clientSession.Player.MapInstance.EcsWorld;
+                    var dialog = npcEntity.Value.GetDialog(world);
+                    return clientSession.SendPacketAsync(new RequestNpcPacket
+                    {
+                        Type = npcEntity.Value.GetVisualType(world),
+                        TargetId = npcEntity.Value.GetVisualId(world),
+                        Data = dialog ?? 0
+                    });
 
                 default:
                     logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         requestNpcPacket.Type);
                     return Task.CompletedTask;
             }
-
-            if (requestableEntity == null)
-            {
-                logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
-                return Task.CompletedTask;
-            }
-
-            requestableEntity.Requests[typeof(INrunEventHandler)].OnNext(new RequestData(clientSession));
-            return Task.CompletedTask;
         }
     }
 }

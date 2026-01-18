@@ -18,10 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Login;
 using System.Threading.Tasks;
 using NosCore.GameObject.Services.LoginService;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Login
 {

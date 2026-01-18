@@ -20,7 +20,7 @@
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Miniland;
@@ -39,13 +39,13 @@ namespace NosCore.PacketHandlers.Miniland
         public override async Task ExecuteAsync(AddobjPacket addobjPacket, ClientSession clientSession)
         {
             var minilandobject =
-                clientSession.Character.InventoryService.LoadBySlotAndType(addobjPacket.Slot, NoscorePocketType.Miniland);
+                clientSession.Player.InventoryService.LoadBySlotAndType(addobjPacket.Slot, NoscorePocketType.Miniland);
             if (minilandobject == null)
             {
                 return;
             }
 
-            if (clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
+            if (clientSession.Player.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
             {
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {
@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Miniland
                 return;
             }
 
-            if (minilandProvider.GetMiniland(clientSession.Character.CharacterId).State != MinilandState.Lock)
+            if (minilandProvider.GetMiniland(clientSession.Player.CharacterId).State != MinilandState.Lock)
             {
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {
@@ -80,7 +80,7 @@ namespace NosCore.PacketHandlers.Miniland
 
             if (minilandobject.ItemInstance?.Item?.ItemType == ItemType.House)
             {
-                var min = clientSession.Character.MapInstance.MapDesignObjects
+                var min = clientSession.Player.MapInstance.MapDesignObjects
                     .FirstOrDefault(s => (s.Value.InventoryItemInstance?.ItemInstance?.Item?.ItemType == ItemType.House) &&
                         (s.Value.InventoryItemInstance.ItemInstance.Item.ItemSubType ==
                             minilandobject.ItemInstance.Item.ItemSubType)).Value;
@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Miniland
                 }
             }
 
-            minilandProvider.AddMinilandObject(minilandobj, clientSession.Character.CharacterId, minilandobject);
+            minilandProvider.AddMinilandObject(minilandobj, clientSession.Player.CharacterId, minilandobject);
 
             await clientSession.SendPacketAsync(minilandobj.GenerateEffect()).ConfigureAwait(false);
             await clientSession.SendPacketAsync(new MinilandPointPacket

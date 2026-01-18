@@ -18,8 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Inventory;
 using System;
@@ -29,7 +28,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Item
 {
-    public class Item : ItemDto, IRequestableEntity<Tuple<InventoryItemInstance, UseItemPacket>>
+    public class Item : ItemDto
     {
         public List<Task> HandlerTasks { get; set; } = new();
 

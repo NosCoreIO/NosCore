@@ -8,8 +8,8 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
     {
         public override async Task Handle(DisconnectData data)
         {
-            var targetCharacter = sessionRegistry.GetCharacter(s => s.VisualId == data.CharacterId);
-            if (targetCharacter == null)
+            var player = sessionRegistry.GetPlayer(p => p.VisualId == data.CharacterId);
+            if (player == null)
             {
                 return;
             }

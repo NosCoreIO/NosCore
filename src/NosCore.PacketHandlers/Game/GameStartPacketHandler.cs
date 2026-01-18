@@ -21,9 +21,9 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -39,6 +39,8 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.SkillService;
+using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.MailService;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -47,7 +49,9 @@ namespace NosCore.PacketHandlers.Game
             IChannelHub channelHttpClient,
             IPubSubHub pubSubHub, IBlacklistHub blacklistHttpClient,
             ISerializer packetSerializer, IMailHub mailHttpClient, IQuestService questProvider,
-            IMapChangeService mapChangeService, ISkillService skillService)
+            IMapChangeService mapChangeService, ISkillService skillService, ICondSystem condSystem,
+            IEntityPacketSystem entityPacketSystem, ICharacterPacketSystem characterPacketSystem,
+            IMailService mailService)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(GameStartPacket packet, ClientSession session)
@@ -60,29 +64,29 @@ namespace NosCore.PacketHandlers.Game
 
             session.GameStarted = true;
 
-            if (session.Character.CurrentScriptId == null)
+            if (session.Player.CharacterData.CurrentScriptId == null)
             {
-                _ = questProvider.RunScriptAsync(session.Character);
+                _ = questProvider.RunScriptAsync(session.Player);
             }
 
             if (worldConfiguration.Value.WorldInformation)
             {
-                await session.SendPacketAsync(session.Character.GenerateSay("-------------------[NosCore]---------------",
+                await session.SendPacketAsync(entityPacketSystem.GenerateSay(session.Player, "-------------------[NosCore]---------------",
                     SayColorType.Yellow)).ConfigureAwait(false);
-                await session.SendPacketAsync(session.Character.GenerateSay("Github : https://github.com/NosCoreIO/NosCore/",
+                await session.SendPacketAsync(entityPacketSystem.GenerateSay(session.Player, "Github : https://github.com/NosCoreIO/NosCore/",
                     SayColorType.Red)).ConfigureAwait(false);
-                await session.SendPacketAsync(session.Character.GenerateSay("-----------------------------------------------",
+                await session.SendPacketAsync(entityPacketSystem.GenerateSay(session.Player, "-----------------------------------------------",
                     SayColorType.Yellow)).ConfigureAwait(false);
             }
 
 
-            await skillService.LoadSkill(session.Character);
-            await session.SendPacketAsync(session.Character.GenerateTit()).ConfigureAwait(false);
-            await session.SendPacketAsync(session.Character.GenerateSpPoint()).ConfigureAwait(false);
-            await session.SendPacketAsync(session.Character.GenerateRsfi()).ConfigureAwait(false);
-            await session.SendPacketAsync(session.Character.GenerateQuestPacket()).ConfigureAwait(false);
+            await skillService.LoadSkill(session.Player);
+            await session.SendPacketAsync(characterPacketSystem.GenerateTit(session.Player)).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Player.GenerateSpPoint(worldConfiguration.Value.MaxSpPoints, worldConfiguration.Value.MaxAdditionalSpPoints)).ConfigureAwait(false);
+            await session.SendPacketAsync(characterPacketSystem.GenerateRsfi(session.Player)).ConfigureAwait(false);
+            await session.SendPacketAsync(characterPacketSystem.GenerateQuestPacket(session.Player)).ConfigureAwait(false);
 
-            if (session.Character.Hp <= 0)
+            if (session.Player.CharacterData.Hp <= 0)
             {
                 //                ServerManager.Instance.ReviveFirstPosition(Session.Character.CharacterId);
             }
@@ -93,18 +97,18 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.SendPacket(Session.Character.GenerateSki());
             //            Session.SendPacket($"fd {Session.Character.Reput} 0 {(int)Session.Character.Dignity} {Math.Abs(Session.Character.GetDignityIco())}");
-            await session.SendPacketAsync(session.Character.GenerateFd()).ConfigureAwait(false);
-            await session.SendPacketAsync(session.Character.GenerateStat()).ConfigureAwait(false);
+            await session.SendPacketAsync(characterPacketSystem.GenerateFd(session.Player)).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Player.GenerateStat()).ConfigureAwait(false);
             //            Session.SendPacket("rage 0 250000");
             //            Session.SendPacket("rank_cool 0 0 18000");
             //            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>(8, InventoryType.Wear);
-            var medal = session.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
+            var medal = session.Player.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
             if (medal != null)
             {
                 await session.SendPacketAsync(new SayiPacket
                 {
                     VisualType = VisualType.Player,
-                    VisualId = session.Character.CharacterId,
+                    VisualId = session.Player.CharacterId,
                     Type = SayColorType.Green,
                     Message = Game18NConstString.NosMerchantActive,
                 }).ConfigureAwait(false);
@@ -128,8 +132,8 @@ namespace NosCore.PacketHandlers.Game
             //            {
             //                Session.SendPacket($"bn {i} {Language.Instance.GetMessageFromKey($"BN{i}")}");
             //            }
-            session.Character.LoadExpensions();
-            await session.SendPacketAsync(session.Character.GenerateExts(worldConfiguration)).ConfigureAwait(false);
+            session.Player.LoadExpensions();
+            await session.SendPacketAsync(characterPacketSystem.GenerateExts(session.Player, worldConfiguration)).ConfigureAwait(false);
             //            Session.SendPacket(Session.Character.GenerateMlinfo());
             await session.SendPacketAsync(new PclearPacket()).ConfigureAwait(false);
 
@@ -137,9 +141,9 @@ namespace NosCore.PacketHandlers.Game
             //            Session.SendPackets(Session.Character.GeneratePst());
 
             //            Session.SendPacket("zzim");
-            await session.SendPacketAsync(new TwkPacket(session.Account.Name, session.Character.Name)
+            await session.SendPacketAsync(new TwkPacket(session.Account.Name, session.Player.CharacterData.Name)
             {
-                VisualId = session.Character.VisualId,
+                VisualId = session.Player.VisualId,
                 VisualType = VisualType.Player,
                 AccountName = session.Account.Name,
                 ClientLanguage = session.Account.Language,
@@ -147,7 +151,7 @@ namespace NosCore.PacketHandlers.Game
             });
             //            Session.SendPacket($"twk 2 {Session.Character.CharacterId} {Session.Account.Name} {Session.Character.Name} shtmxpdlfeoqkr");
 
-            await session.SendPacketsAsync(session.Character.Quests.Values.Where(o => o.CompletedOn == null).Select(qst => qst.Quest.GenerateTargetPacket())).ConfigureAwait(false);
+            await session.SendPacketsAsync(session.Player.Quests.Values.Where(o => o.CompletedOn == null).Select(qst => qst.Quest.GenerateTargetPacket())).ConfigureAwait(false);
             //            // sqst bf
             //            Session.SendPacket("act6");
             //            Session.SendPacket(Session.Character.GenerateFaction());
@@ -156,11 +160,11 @@ namespace NosCore.PacketHandlers.Game
             //            Session.SendPackets(Session.Character.GenerateScN());
             //            Session.Character.GenerateStartupInventory();
 
-            await session.SendPacketAsync(session.Character.GenerateGold()).ConfigureAwait(false);
-            await session.SendPacketAsync(session.Character.GenerateCond()).ConfigureAwait(false);
+            await session.SendPacketAsync(characterPacketSystem.GenerateGold(session.Player)).ConfigureAwait(false);
+            await session.SendPacketAsync(condSystem.GenerateCondPacket(session.Player)).ConfigureAwait(false);
 
-            await session.SendPacketAsync(session.Character.GenerateSki());
-            await session.SendPacketsAsync(session.Character.GenerateQuicklist()).ConfigureAwait(false);
+            await session.SendPacketAsync(characterPacketSystem.GenerateSki(session.Player));
+            await session.SendPacketsAsync(characterPacketSystem.GenerateQuicklist(session.Player)).ConfigureAwait(false);
 
             //            string clinit = ServerManager.Instance.TopComplimented.Aggregate("clinit",
             //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Compliment}|{character.Name}");
@@ -171,10 +175,10 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            await session.Character.SendFinfoAsync(friendHttpClient, pubSubHub, packetSerializer, true).ConfigureAwait(false);
+            await characterPacketSystem.SendFinfoAsync(session.Player, friendHttpClient, pubSubHub, packetSerializer, true).ConfigureAwait(false);
 
-            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient, channelHttpClient, pubSubHub).ConfigureAwait(false)).ConfigureAwait(false);
-            await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+            await session.SendPacketAsync(await characterPacketSystem.GenerateFinitAsync(session.Player, friendHttpClient, channelHttpClient, pubSubHub).ConfigureAwait(false)).ConfigureAwait(false);
+            await session.SendPacketAsync(await characterPacketSystem.GenerateBlinitAsync(session.Player, blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);
@@ -208,19 +212,19 @@ namespace NosCore.PacketHandlers.Game
             //            }
 
             //            // finfo - friends info
-            var mails = await mailHttpClient.GetMails(-1, session.Character.CharacterId, false).ConfigureAwait(false);
-            await session.Character.GenerateMailAsync(mails).ConfigureAwait(false);
+            var mails = await mailHttpClient.GetMails(-1, session.Player.CharacterId, false).ConfigureAwait(false);
+            await mailService.GenerateMailAsync(session, session.Player.CharacterId, mails).ConfigureAwait(false);
 
-            await session.SendPacketAsync(session.Character.GenerateTitle()).ConfigureAwait(false);
-            int giftcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId != null && !mail.IsOpened);
-            int mailcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId == null && !mail.IsOpened);
+            await session.SendPacketAsync(characterPacketSystem.GenerateTitle(session.Player)).ConfigureAwait(false);
+            int giftcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Player.CharacterId && mail.ItemInstanceId != null && !mail.IsOpened);
+            int mailcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Player.CharacterId && mail.ItemInstanceId == null && !mail.IsOpened);
 
             if (giftcount > 0)
             {
                 await session.SendPacketAsync(new SayiPacket
                 {
                     VisualType = VisualType.Player,
-                    VisualId = session.Character.CharacterId,
+                    VisualId = session.Player.CharacterId,
                     Type = SayColorType.Green,
                     Message = Game18NConstString.NewParcelArrived,
                     ArgumentType = 4,
@@ -233,7 +237,7 @@ namespace NosCore.PacketHandlers.Game
                 await session.SendPacketAsync(new SayiPacket
                 {
                     VisualType = VisualType.Player,
-                    VisualId = session.Character.CharacterId,
+                    VisualId = session.Player.CharacterId,
                     Type = SayColorType.Green,
                     Message = Game18NConstString.NewNoteArrived,
                     ArgumentType = 4,

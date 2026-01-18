@@ -20,8 +20,8 @@
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System;
@@ -32,7 +32,8 @@ using GuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
 
 namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 {
-    public class TitleGuriHandler : IGuriEventHandler
+    public class TitleGuriHandler(ICharacterPacketSystem characterPacketSystem, IInventoryPacketSystem inventoryPacketSystem)
+        : IGuriEventHandler
     {
         public bool Condition(GuriPacket packet)
         {
@@ -41,26 +42,27 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 
         public async Task ExecuteAsync(RequestData<GuriPacket> requestData)
         {
-            var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)(requestData.Data.VisualId ?? 0),
+            var player = requestData.ClientSession.Player;
+            var inv = player.InventoryService.LoadBySlotAndType((short)(requestData.Data.VisualId ?? 0),
                 NoscorePocketType.Main);
             if (inv?.ItemInstance?.Item?.ItemType != ItemType.Title ||
-                requestData.ClientSession.Character.Titles.Any(s => s.TitleType == inv.ItemInstance?.ItemVNum))
+                player.Titles.Any(s => s.TitleType == inv.ItemInstance?.ItemVNum))
             {
                 return;
             }
 
-            requestData.ClientSession.Character.Titles.Add(new TitleDto
+            player.Titles.Add(new TitleDto
             {
                 Id = Guid.NewGuid(),
                 TitleType = inv.ItemInstance.ItemVNum,
                 Visible = false,
                 Active = false,
-                CharacterId = requestData.ClientSession.Character.VisualId
+                CharacterId = player.VisualId
             });
-            await requestData.ClientSession.Character.MapInstance.SendPacketAsync(requestData.ClientSession.Character.GenerateTitle()).ConfigureAwait(false);
+            await player.MapInstance.SendPacketAsync(characterPacketSystem.GenerateTitle(player)).ConfigureAwait(false);
             await requestData.ClientSession.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.TitleChangedOrHidden }).ConfigureAwait(false);
-            requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
-            await requestData.ClientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot)).ConfigureAwait(false);
+            player.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
+            await requestData.ClientSession.SendPacketAsync(inventoryPacketSystem.GeneratePocketChange(inv, (PocketType)inv.Type, inv.Slot)).ConfigureAwait(false);
         }
     }
 }

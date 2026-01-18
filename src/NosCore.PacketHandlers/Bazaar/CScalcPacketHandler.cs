@@ -23,8 +23,8 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.ClientPackets.Bazaar;
@@ -39,33 +39,35 @@ using System;
 using System.Threading.Tasks;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using System.Linq;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
     public class CScalcPacketHandler(IOptions<WorldConfiguration> worldConfiguration,
             IBazaarHub bazaarHttpClient,
             IItemGenerationService itemProvider, ILogger logger, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            ICharacterPacketSystem characterPacketSystem, IInventoryPacketSystem inventoryPacketSystem)
         : PacketHandler<CScalcPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CScalcPacket packet, ClientSession clientSession)
         {
             var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId, null, null, null, null, null, null, null, null).ConfigureAwait(false);
             var bz = bzs.FirstOrDefault();
-            if ((bz != null) && (bz.SellerName == clientSession.Character.Name))
+            if ((bz != null) && (bz.SellerName == clientSession.Player.Name))
             {
                 var soldedamount = bz.BazaarItem!.Amount - bz.ItemInstance!.Amount;
                 var taxes = bz.BazaarItem.MedalUsed ? (short)0 : (short)(bz.BazaarItem.Price * 0.10 * soldedamount);
                 var price = bz.BazaarItem.Price * soldedamount - taxes;
-                if (clientSession.Character.InventoryService.CanAddItem(bz.ItemInstance.ItemVNum))
+                if (clientSession.Player.InventoryService.CanAddItem(bz.ItemInstance.ItemVNum))
                 {
-                    if (clientSession.Character.Gold + price <= worldConfiguration.Value.MaxGoldAmount)
+                    if (clientSession.Player.Gold + price <= worldConfiguration.Value.MaxGoldAmount)
                     {
-                        clientSession.Character.Gold += price;
+                        clientSession.Player.SetGold(clientSession.Player.Gold + price);
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
                             VisualType = VisualType.Player,
-                            VisualId = clientSession.Character.CharacterId,
+                            VisualId = clientSession.Player.CharacterId,
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.PurchaseCompleted,
                             ArgumentType = 2,
@@ -74,14 +76,14 @@ namespace NosCore.PacketHandlers.Bazaar
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
                             VisualType = VisualType.Player,
-                            VisualId = clientSession.Character.CharacterId,
+                            VisualId = clientSession.Player.CharacterId,
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.PurchaseCompletedWithGoldUsed,
                             ArgumentType = 4,
                             Game18NArguments = { price }
                         }).ConfigureAwait(false);
-                        await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
-                        
+                        await clientSession.SendPacketAsync(characterPacketSystem.GenerateGold(clientSession.Player)).ConfigureAwait(false);
+
                         var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == bz.ItemInstance.Id).ConfigureAwait(false);
                         if (itemInstance == null)
                         {
@@ -91,11 +93,15 @@ namespace NosCore.PacketHandlers.Bazaar
                         item.Id = Guid.NewGuid();
 
                         var newInv =
-                            clientSession.Character.InventoryService.AddItemToPocket(
-                                InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
-                        await clientSession.SendPacketAsync(newInv!.GeneratePocketChange()).ConfigureAwait(false);
+                            clientSession.Player.InventoryService.AddItemToPocket(
+                                InventoryItemInstance.Create(item, clientSession.Player.CharacterId));
+                        var pocketChange = inventoryPacketSystem.GeneratePocketChange(newInv!);
+                        if (pocketChange != null)
+                        {
+                            await clientSession.SendPacketAsync(pocketChange).ConfigureAwait(false);
+                        }
                         var remove = await bazaarHttpClient.DeleteBazaarAsync(packet.BazaarId, bz.ItemInstance.Amount,
-                            clientSession.Character.Name).ConfigureAwait(false);
+                            clientSession.Player.Name).ConfigureAwait(false);
                         if (remove)
                         {
                             await clientSession.SendPacketAsync(new RCScalcPacket

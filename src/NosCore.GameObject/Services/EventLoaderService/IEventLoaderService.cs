@@ -17,10 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.GameObject.Networking;
+using System;
+using System.Collections.Generic;
+using System.Reactive.Subjects;
+using System.Threading.Tasks;
+
 namespace NosCore.GameObject.Services.EventLoaderService
 {
     public interface IEventLoaderService<in T1, T2>
     {
-        void LoadHandlers(T1 item);
+        void LoadHandlers(T1 item, Dictionary<Type, Subject<RequestData<T2>>> requests, List<Task> handlerTasks);
     }
 }

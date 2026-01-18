@@ -22,7 +22,7 @@ using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
@@ -33,6 +33,7 @@ using System.Threading.Tasks;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.GameObject.Networking;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -67,8 +68,8 @@ namespace NosCore.PacketHandlers.Command
                 Packet = packetSerializer.Serialize(new[] { sayPacket }),
                 SenderCharacter = new Character
                 {
-                    Name = session.Character.Name,
-                    Id = session.Character.CharacterId
+                    Name = session.Player.Name,
+                    Id = session.Player.CharacterId
                 },
                 ReceiverType = ReceiverType.All
             };

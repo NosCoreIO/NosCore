@@ -20,7 +20,6 @@
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.ClientPackets.Parcel;
@@ -33,6 +32,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Parcel
 {
@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Parcel
         public override async Task ExecuteAsync(PclPacket getGiftPacket, ClientSession clientSession)
         {
             var isCopy = getGiftPacket.Type == 2;
-            var mails = await mailHttpClient.GetMails(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+            var mails = await mailHttpClient.GetMails(getGiftPacket.GiftId, clientSession.Player.VisualId, isCopy).ConfigureAwait(false);
             var mail = mails.FirstOrDefault();
             if (mail == null)
             {
@@ -55,15 +55,15 @@ namespace NosCore.PacketHandlers.Parcel
                 var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == mail.ItemInstance.Id).ConfigureAwait(false);
                 var item = itemProvider.Convert(itemInstance!);
                 item.Id = Guid.NewGuid();
-                var newInv = clientSession.Character.InventoryService
-                    .AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId))?
+                var newInv = clientSession.Player.InventoryService
+                    .AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Player.CharacterId))?
                     .FirstOrDefault();
                 if (newInv != null)
                 {
                     await clientSession.SendPacketAsync(new SayiPacket
                     {
                         VisualType = VisualType.Player,
-                        VisualId = clientSession.Character.CharacterId,
+                        VisualId = clientSession.Player.CharacterId,
                         Type = SayColorType.Red,
                         Message = Game18NConstString.ParcelReceived,
                         ArgumentType = 2,
@@ -72,7 +72,7 @@ namespace NosCore.PacketHandlers.Parcel
                     
                     await clientSession.SendPacketAsync(
                         new ParcelPacket { Type = 2, Unknown = 1, Id = (short)getGiftPacket.GiftId }).ConfigureAwait(false);
-                    await mailHttpClient.DeleteMailAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+                    await mailHttpClient.DeleteMailAsync(getGiftPacket.GiftId, clientSession.Player.VisualId, isCopy).ConfigureAwait(false);
                 }
                 else
                 {
@@ -87,7 +87,7 @@ namespace NosCore.PacketHandlers.Parcel
             else if (getGiftPacket.Type == 5)
             {
                 await clientSession.SendPacketAsync(new ParcelPacket { Type = 7, Unknown = 1, Id = (short)getGiftPacket.GiftId }).ConfigureAwait(false);
-                await mailHttpClient.DeleteMailAsync(getGiftPacket.GiftId, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+                await mailHttpClient.DeleteMailAsync(getGiftPacket.GiftId, clientSession.Player.VisualId, isCopy).ConfigureAwait(false);
             }
         }
     }

@@ -18,15 +18,22 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using Json.Patch;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.BroadcastService;
 using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
 namespace NosCore.GameObject.Services.MailService
 {
     public interface IMailService
     {
+        Task InitializeAsync(IDao<CharacterDto, long> characterDao, IDao<MailDto, long> mailDao, List<ItemDto> items,
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao);
+
         List<MailData> GetMails(long id, long characterId, bool senderCopy);
 
         Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy);
@@ -34,5 +41,7 @@ namespace NosCore.GameObject.Services.MailService
         Task<MailData?> EditMailAsync(long id, JsonPatch mailData);
 
         Task<bool> SendMailAsync(MailDto mail, short? vNum, short? amount, sbyte? rare, byte? upgrade);
+
+        Task GenerateMailAsync(IPacketSender sender, long characterId, IEnumerable<MailData> mails);
     }
 }

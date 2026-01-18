@@ -21,7 +21,6 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MinilandService
@@ -30,8 +29,7 @@ namespace NosCore.GameObject.Services.MinilandService
     {
         Miniland GetMiniland(long character);
         Task<Guid?> DeleteMinilandAsync(long characterId);
-        Task<Miniland> InitializeAsync(Character character, IMapInstanceGeneratorService generatorService);
-        List<Portal> GetMinilandPortals(long characterId);
+        Task<Miniland> InitializeAsync(PlayerContext player, IMapInstanceGeneratorService generatorService);
         Miniland? GetMinilandFromMapInstanceId(Guid mapInstanceId);
         void AddMinilandObject(MapDesignObject mapObject, long characterId, InventoryItemInstance minilandobject);
         Task SetStateAsync(long characterId, MinilandState state);

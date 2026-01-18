@@ -19,7 +19,6 @@
 
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Warehouse;
 using System.Threading.Tasks;
@@ -27,6 +26,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 using Mapster;
 using NosCore.Data.Dto;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Warehouse
 {
@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Warehouse
             return warehouseHttpClient.AddWarehouseItemAsync(new WareHouseDepositRequest
             {
 
-                OwnerId = clientSession.Character.CharacterId,
+                OwnerId = clientSession.Player.CharacterId,
                 WarehouseType = WarehouseType.Warehouse,
                 ItemInstance = itemInstance.Adapt<ItemInstanceDto>(),
                 Slot = slot

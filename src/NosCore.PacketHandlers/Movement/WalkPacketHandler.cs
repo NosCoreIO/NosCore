@@ -20,8 +20,8 @@
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.PathFinder.Interfaces;
 using Serilog;
@@ -30,11 +30,12 @@ using NodaTime;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Movement
 {
     public class WalkPacketHandler(IHeuristic distanceCalculator, ILogger logger, IClock clock,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IEntityPacketSystem entityPacketSystem)
         : PacketHandler<WalkPacket>, IWorldPacketHandler
     {
         // this is used to avoid network issue to be counted as speed hack.
@@ -42,9 +43,10 @@ namespace NosCore.PacketHandlers.Movement
 
         public override async Task ExecuteAsync(WalkPacket walkPacket, ClientSession session)
         {
-            var distance = (int)distanceCalculator.GetDistance((session.Character.PositionX, session.Character.PositionY), (walkPacket.XCoordinate, walkPacket.YCoordinate)) - 1;
+            var distance = (int)distanceCalculator.GetDistance((session.Player.PositionX, session.Player.PositionY), (walkPacket.XCoordinate, walkPacket.YCoordinate)) - 1;
 
-            if ((session.Character.Speed < walkPacket.Speed) || (distance > session.Character.Speed / 2))
+            var characterSpeed = session.Player.Speed;
+            if ((characterSpeed < walkPacket.Speed) || (distance > characterSpeed / 2))
             {
                 return;
             }
@@ -52,7 +54,7 @@ namespace NosCore.PacketHandlers.Movement
             if ((walkPacket.XCoordinate + walkPacket.YCoordinate) % 3 % 2 != walkPacket.CheckSum)
             {
                 await session.DisconnectAsync();
-                logger.Error(logLanguage[LogLanguageKey.WALK_CHECKSUM_INVALID], session.Character.VisualId);
+                logger.Error(logLanguage[LogLanguageKey.WALK_CHECKSUM_INVALID], session.Player.VisualId);
                 return;
             }
 
@@ -60,22 +62,22 @@ namespace NosCore.PacketHandlers.Movement
             if (travelTime > 1000 * (_speedDiffAllowed + 1))
             {
                 await session.DisconnectAsync();
-                logger.Error(logLanguage[LogLanguageKey.SPEED_INVALID], session.Character.VisualId);
+                logger.Error(logLanguage[LogLanguageKey.SPEED_INVALID], session.Player.VisualId);
                 return;
             }
 
-            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateMove(),
+            await session.Player.MapInstance.SendPacketAsync(entityPacketSystem.GenerateMove(session.Player),
                 new EveryoneBut(session.Channel!.Id)).ConfigureAwait(false);
 
-            session.Character.LastMove = clock.GetCurrentInstant();
-            if (session.Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
+            var player = session.Player;
+            player.LastMove = clock.GetCurrentInstant();
+            if (session.Player.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
             {
-                session.Character.MapX = walkPacket.XCoordinate;
-                session.Character.MapY = walkPacket.YCoordinate;
+                player.MapX = walkPacket.XCoordinate;
+                player.MapY = walkPacket.YCoordinate;
             }
 
-            session.Character.PositionX = walkPacket.XCoordinate;
-            session.Character.PositionY = walkPacket.YCoordinate;
+            player.SetPosition(walkPacket.XCoordinate, walkPacket.YCoordinate);
         }
     }
 }

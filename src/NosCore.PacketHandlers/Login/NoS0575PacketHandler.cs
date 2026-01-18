@@ -21,12 +21,12 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
 using NosCore.GameObject.Services.LoginService;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Login
 {

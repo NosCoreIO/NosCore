@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Services.ChannelService
             IChannelHub channelHttpClient, ISaveService saveService)
         : IChannelService
     {
-        public async Task MoveChannelAsync(Networking.ClientSession.ClientSession clientSession, int channelId)
+        public async Task MoveChannelAsync(Networking.ClientSession clientSession, int channelId)
         {
             var servers = await channelHttpClient.GetCommunicationChannels().ConfigureAwait(false);
             var server = servers.FirstOrDefault(x => x.Id == channelId);
@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Services.ChannelService
             await clientSession.SendPacketAsync(new MzPacket(server.DisplayHost ?? server.Host)
             {
                 Port = server.DisplayPort ?? server.Port,
-                CharacterSlot = clientSession.Character.Slot
+                CharacterSlot = clientSession.Player.CharacterData.Slot
             });
 
             await clientSession.SendPacketAsync(new ItPacket
@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Services.ChannelService
             });
 
             await authHttpClient.SetAwaitingConnectionAsync(-1, clientSession.Account.Name);
-            await saveService.SaveAsync(clientSession.Character);
+            await saveService.SaveAsync(clientSession.Player);
             await clientSession.DisconnectAsync();
         }
 

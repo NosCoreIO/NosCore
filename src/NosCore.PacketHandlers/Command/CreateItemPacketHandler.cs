@@ -25,8 +25,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -43,7 +43,8 @@ namespace NosCore.PacketHandlers.Command
 {
     public class CreateItemPackettHandler(ILogger logger, List<ItemDto> items,
             IOptions<WorldConfiguration> worldConfiguration,
-            IItemGenerationService itemProvider, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IItemGenerationService itemProvider, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            IInventoryPacketSystem inventoryPacketSystem)
         : PacketHandler<CreateItemPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CreateItemPacket createItemPacket, ClientSession session)
@@ -117,9 +118,9 @@ namespace NosCore.PacketHandlers.Command
                     ? worldConfiguration.Value.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
             }
 
-            var inv = session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemProvider.Create(
+            var inv = session.Player.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemProvider.Create(
                 vnum,
-                amount, rare, upgrade, design), session.Character.CharacterId));
+                amount, rare, upgrade, design), session.Player.CharacterId));
 
             if (inv == null || inv.Count <= 0)
             {
@@ -131,10 +132,10 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await session.SendPacketAsync(inv.GeneratePocketChange()).ConfigureAwait(false);
+            await session.SendPacketAsync(inventoryPacketSystem.GeneratePocketChange(inv)).ConfigureAwait(false);
             var firstItem = inv[0];
 
-            if (session.Character.InventoryService.LoadBySlotAndType(firstItem.Slot,
+            if (session.Player.InventoryService.LoadBySlotAndType(firstItem.Slot,
                     firstItem.Type)!.ItemInstance is WearableInstance wearable)
             {
                 switch (wearable.Item.EquipmentSlot)
@@ -161,7 +162,7 @@ namespace NosCore.PacketHandlers.Command
             await session.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,
-                VisualId = session.Character.CharacterId,
+                VisualId = session.Player.CharacterId,
                 Type = SayColorType.Green,
                 Message = Game18NConstString.ReceivedThisItem,
                 ArgumentType = 2,

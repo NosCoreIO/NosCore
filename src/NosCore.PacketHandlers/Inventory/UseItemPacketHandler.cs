@@ -19,7 +19,7 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.ClientPackets.Inventory;
@@ -33,7 +33,7 @@ namespace NosCore.PacketHandlers.Inventory
         public override Task ExecuteAsync(UseItemPacket useItemPacket, ClientSession clientSession)
         {
             var inv =
-                clientSession.Character.InventoryService.LoadBySlotAndType(useItemPacket.Slot,
+                clientSession.Player.InventoryService.LoadBySlotAndType(useItemPacket.Slot,
                     (NoscorePocketType)useItemPacket.Type);
 
             inv?.ItemInstance?.Item?.Requests[typeof(IUseItemEventHandler)]?.OnNext(new RequestData<Tuple<InventoryItemInstance, UseItemPacket>>(clientSession,

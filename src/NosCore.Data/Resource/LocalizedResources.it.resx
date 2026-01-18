@@ -465,9 +465,6 @@
     <value>Registrato sul MasterServer</value>
     <comment>revisionare</comment>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>La reputazione è cambiata!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Caricati!</value>
   </data>
@@ -535,9 +532,6 @@
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
     <value>Tipo di destinatario sconosciuto</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>Il tuo oro è stato aggiornato con successo!</value>
   </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>L'utente non è un amico!</value>

@@ -19,9 +19,9 @@
 
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
 using System.Threading.Tasks;
 using NosCore.GameObject.Services.ChannelService;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Command
 {

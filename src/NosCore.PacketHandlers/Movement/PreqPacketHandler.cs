@@ -19,68 +19,70 @@
 
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.MapInstanceAccessService;
-using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Movement;
-using NosCore.Packets.Enumerations;
 using NosCore.PathFinder.Interfaces;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
+using NosCore.GameObject.Networking;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.PacketHandlers.Movement
 {
     public class PreqPacketHandler(IMapInstanceAccessorService mapInstanceAccessorService,
-            IMinilandService minilandProvider, IHeuristic distanceCalculator, IClock clock,
-            IMapChangeService mapChangeService)
+            IHeuristic distanceCalculator, IClock clock, IMapChangeService mapChangeService)
         : PacketHandler<PreqPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PreqPacket _, ClientSession session)
         {
-            if (((clock.GetCurrentInstant() - session.Character.LastPortal).TotalSeconds < 4) ||
-                (session.Character.LastPortal > session.Character.LastMove))
+            if (((clock.GetCurrentInstant() - session.Player.LastPortal).TotalSeconds < 4) ||
+                (session.Player.LastPortal > session.Player.LastMove))
             {
                 await session.SendPacketAsync(new SayiPacket
                 {
                     VisualType = VisualType.Player,
-                    VisualId = session.Character.CharacterId,
+                    VisualId = session.Player.CharacterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.WillMoveShortly
                 }).ConfigureAwait(false);
                 return;
             }
 
-            var portals = new List<Portal>();
-            portals.AddRange(session.Character.MapInstance.Portals);
-            portals.AddRange(minilandProvider
-                .GetMinilandPortals(session.Character.CharacterId)
-                .Where(s => s.SourceMapInstanceId == session.Character.MapInstanceId));
-            var portal = portals.Find(port =>
-                distanceCalculator.GetDistance((session.Character.PositionX, session.Character.PositionY), (port.SourceX, port.SourceY))
-                  <= 2);
-            if (portal == null)
+            var world = session.Player.MapInstance.EcsWorld;
+            var characterId = session.Player.CharacterId;
+            var portalData = session.Player.MapInstance.Portals
+                .Select(e => (Entity: e, Portal: e.GetPortal(world)))
+                .Where(p => p.Portal != null && (p.Portal.Value.OwnerId == null || p.Portal.Value.OwnerId == characterId))
+                .FirstOrDefault(p =>
+                    distanceCalculator.GetDistance(
+                        (session.Player.PositionX, session.Player.PositionY),
+                        (p.Portal!.Value.SourceX, p.Portal.Value.SourceY)) <= 2);
+
+            if (portalData.Portal == null)
             {
                 return;
             }
 
+            var portal = portalData.Portal.Value;
             if (portal.DestinationMapInstanceId == default)
             {
                 return;
             }
 
-            session.Character.LastPortal = clock.GetCurrentInstant();
+            var player = session.Player;
+            player.LastPortal = clock.GetCurrentInstant();
 
             if ((mapInstanceAccessorService.GetMapInstance(portal.SourceMapInstanceId)!.MapInstanceType
                     != MapInstanceType.BaseMapInstance)
                 && (mapInstanceAccessorService.GetMapInstance(portal.DestinationMapInstanceId)!.MapInstanceType
                     == MapInstanceType.BaseMapInstance))
             {
-                await mapChangeService.ChangeMapAsync(session, session.Character.MapId, session.Character.MapX, session.Character.MapY).ConfigureAwait(false);
+                await mapChangeService.ChangeMapAsync(session, session.Player.MapId, session.Player.MapX, session.Player.MapY).ConfigureAwait(false);
             }
             else
             {

@@ -20,7 +20,6 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Game;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Tests.Shared;
@@ -39,7 +38,6 @@ namespace NosCore.PacketHandlers.Tests.Game
         public async Task SetupAsync()
         {
             _pulsePacketHandler = new PulsePacketHandler();
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
         }

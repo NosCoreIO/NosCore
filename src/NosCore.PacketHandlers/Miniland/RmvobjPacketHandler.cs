@@ -19,7 +19,7 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
@@ -35,13 +35,13 @@ namespace NosCore.PacketHandlers.Miniland
         public override async Task ExecuteAsync(RmvobjPacket rmvobjPacket, ClientSession clientSession)
         {
             var minilandobject =
-                clientSession.Character.InventoryService.LoadBySlotAndType(rmvobjPacket.Slot, NoscorePocketType.Miniland);
+                clientSession.Player.InventoryService.LoadBySlotAndType(rmvobjPacket.Slot, NoscorePocketType.Miniland);
             if (minilandobject == null)
             {
                 return;
             }
 
-            if (minilandProvider.GetMiniland(clientSession.Character.CharacterId).State != MinilandState.Lock)
+            if (minilandProvider.GetMiniland(clientSession.Player.CharacterId).State != MinilandState.Lock)
             {
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {
@@ -51,13 +51,13 @@ namespace NosCore.PacketHandlers.Miniland
                 return;
             }
 
-            if (!clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
+            if (!clientSession.Player.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
             {
                 return;
             }
 
-            var minilandObject = clientSession.Character.MapInstance.MapDesignObjects[minilandobject.Id];
-            clientSession.Character.MapInstance.MapDesignObjects.TryRemove(minilandobject.Id, out _);
+            var minilandObject = clientSession.Player.MapInstance.MapDesignObjects[minilandobject.Id];
+            clientSession.Player.MapInstance.MapDesignObjects.TryRemove(minilandobject.Id, out _);
             await clientSession.SendPacketAsync(minilandObject.GenerateEffect(true)).ConfigureAwait(false);
             await clientSession.SendPacketAsync(new MinilandPointPacket
             { MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100 }).ConfigureAwait(false);

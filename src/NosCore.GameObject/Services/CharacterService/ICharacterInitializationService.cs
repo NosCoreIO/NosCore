@@ -23,6 +23,6 @@ namespace NosCore.GameObject.Services.CharacterService
 {
     public interface ICharacterInitializationService
     {
-        Task InitializeAsync(Character character);
+        Task InitializeAsync(PlayerContext player);
     }
 }

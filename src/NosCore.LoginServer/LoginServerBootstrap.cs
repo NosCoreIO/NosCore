@@ -39,7 +39,6 @@ using NosCore.Data.Dto;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets;
 using NosCore.Packets.Attributes;
@@ -68,6 +67,7 @@ using NosCore.Networking.Encoding;
 using NosCore.Networking.Encoding.Filter;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.LoginServer
 {

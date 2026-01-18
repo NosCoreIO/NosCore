@@ -1,8 +1,6 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.Networking;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
 using Serilog;
@@ -24,25 +22,24 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                     await sessionRegistry.BroadcastPacketAsync(message).ConfigureAwait(false);
                     break;
                 case ReceiverType.OnlySomeone:
-                    ICharacterEntity? receiverSession;
+                    PlayerContext? receiverPlayer;
 
                     if (postedPacket.ReceiverCharacter!.Name != null)
                     {
-                        receiverSession = sessionRegistry.GetCharacter(s =>
-                            s.Name == postedPacket.ReceiverCharacter.Name);
+                        receiverPlayer = sessionRegistry.GetPlayer(p => p.Name == postedPacket.ReceiverCharacter.Name);
                     }
                     else
                     {
-                        receiverSession = sessionRegistry.GetCharacter(s =>
-                            s.VisualId == postedPacket.ReceiverCharacter.Id);
+                        receiverPlayer = sessionRegistry.GetPlayer(p => p.VisualId == postedPacket.ReceiverCharacter.Id);
                     }
 
-                    if (receiverSession == null)
+                    if (receiverPlayer == null)
                     {
                         return;
                     }
 
-                    await receiverSession.SendPacketAsync(message).ConfigureAwait(false);
+                    var sender = sessionRegistry.GetSenderByCharacterId(receiverPlayer.Value.CharacterId);
+                    await (sender?.SendPacketAsync(message) ?? Task.CompletedTask).ConfigureAwait(false);
                     break;
                 default:
                     logger.Error(logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);

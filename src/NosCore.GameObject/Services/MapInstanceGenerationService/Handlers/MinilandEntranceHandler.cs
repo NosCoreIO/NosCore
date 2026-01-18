@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -31,14 +31,14 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService.Handlers
 {
-    public class MinilandEntranceHandler(IMinilandService minilandProvider) : IMapInstanceEntranceEventHandler
+    public class MinilandEntranceHandler(IMinilandService minilandProvider, ICharacterPacketSystem characterPacketSystem) : IMapInstanceEntranceEventHandler
     {
         public bool Condition(MapInstance condition) => minilandProvider.GetMinilandFromMapInstanceId(condition.MapInstanceId) != null;
 
         public async Task ExecuteAsync(RequestData<MapInstance> requestData)
         {
             var miniland = minilandProvider.GetMinilandFromMapInstanceId(requestData.Data.MapInstanceId)!;
-            if (miniland.CharacterEntity!.VisualId != requestData.ClientSession.Character.CharacterId)
+            if (miniland.OwnerId != requestData.ClientSession.Player.CharacterId)
             {
                 await requestData.ClientSession.SendPacketAsync(new MsgPacket
                 {
@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService.Handlers
             else
             {
                 await requestData.ClientSession.SendPacketAsync(miniland.GenerateMlinfo()).ConfigureAwait(false);
-                await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateMlobjlst()).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacketAsync(characterPacketSystem.GenerateMlobjlst(requestData.ClientSession.Player)).ConfigureAwait(false);
             }
 
             //TODO add pets
@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService.Handlers
             await requestData.ClientSession.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,
-                VisualId = requestData.ClientSession.Character.CharacterId,
+                VisualId = requestData.ClientSession.Player.CharacterId,
                 Type = SayColorType.Yellow,
                 Message = Game18NConstString.TotalVisitors,
                 ArgumentType = 4,
@@ -70,7 +70,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService.Handlers
             await requestData.ClientSession.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,
-                VisualId = requestData.ClientSession.Character.CharacterId,
+                VisualId = requestData.ClientSession.Player.CharacterId,
                 Type = SayColorType.Yellow,
                 Message = Game18NConstString.TodayVisitors,
                 ArgumentType = 4,

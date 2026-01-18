@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Arch.Core;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,9 +25,9 @@ using Moq;
 using NodaTime;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.MapChangeService;
-using NosCore.GameObject.Services.MinilandService;
 using NosCore.PacketHandlers.Movement;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Tests.Shared;
@@ -36,7 +37,6 @@ namespace NosCore.PacketHandlers.Tests.Movement
     [TestClass]
     public class PreqPacketHandlerTests
     {
-        private Mock<IMinilandService>? _minilandProvider;
         private PreqPacketHandler? _preqPacketHandler;
         private ClientSession? _session;
         private Mock<IMapChangeService>? _mapChangeService;
@@ -46,31 +46,22 @@ namespace NosCore.PacketHandlers.Tests.Movement
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _minilandProvider = new Mock<IMinilandService>();
             _mapChangeService = new Mock<IMapChangeService>();
-            _minilandProvider.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<Portal>());
             _preqPacketHandler =
-                new PreqPacketHandler(TestHelpers.Instance.MapInstanceAccessorService, _minilandProvider.Object, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock, _mapChangeService.Object);
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
-
-            _session.Character.MapInstance.Portals = new List<Portal>
-            {
-                new()
-                {
-                    DestinationMapId = 1,
-                    DestinationMapInstanceId = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId,
-                    DestinationX = 5, DestinationY = 5, SourceMapId = 0,
-                    SourceMapInstanceId = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!.MapInstanceId,
-                    SourceX = 0, SourceY = 0
-                }
-            };
+                new PreqPacketHandler(TestHelpers.Instance.MapInstanceAccessorService, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock, _mapChangeService.Object);
+            var sourceMapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            _session.ChangeMapInstance(sourceMapInstance);
+            var destMapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            var portalEntity = sourceMapInstance.EcsWorld.CreatePortal(
+                0, 0, 0, 0, 5, 5, 1, Packets.Enumerations.PortalType.MapPortal, false,
+                sourceMapInstance.MapInstanceId, destMapInstance.MapInstanceId);
+            sourceMapInstance.Portals = new List<Entity> { portalEntity };
         }
 
         [TestMethod]
         public async Task UserCanUsePortalAsync()
         {
-            _session!.Character.PositionX = 0;
-            _session.Character.PositionY = 0;
+            _session!.Player.SetPosition(0, 0);
             await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
 
             _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId, 5, 5), Times.Once);
@@ -79,22 +70,22 @@ namespace NosCore.PacketHandlers.Tests.Movement
         [TestMethod]
         public async Task UserLastPortalSetOnUsageAsync()
         {
-            _session!.Character.PositionX = 0;
-            _session.Character.PositionY = 0;
+            var player = _session!.Player;
+            player.SetPosition(0, 0);
 
             var time = TestHelpers.Instance.Clock.GetCurrentInstant();
             await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.LastPortal == time);
+            Assert.IsTrue(_session.Player.LastPortal == time);
         }
 
         [TestMethod]
         public async Task UserCanTUsePortalIfRecentlyMovedAsync()
         {
-            _session!.Character.PositionX = 0;
-            _session.Character.PositionY = 0;
+            var player = _session!.Player;
+            player.SetPosition(0, 0);
             var time = TestHelpers.Instance.Clock.GetCurrentInstant();
-            _session.Character.LastPortal = time.Plus(Duration.FromMinutes(1));
-            _session.Character.LastMove = time;
+            player.LastPortal = time.Plus(Duration.FromMinutes(1));
+            player.LastMove = time;
             await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
             _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId, 5, 5), Times.Never);
         }
@@ -102,10 +93,10 @@ namespace NosCore.PacketHandlers.Tests.Movement
         [TestMethod]
         public async Task UserCanTUsePortalIfRecentlyUsedAsync()
         {
-            _session!.Character.PositionX = 0;
-            _session.Character.PositionY = 0;
+            var player = _session!.Player;
+            player.SetPosition(0, 0);
             var time = TestHelpers.Instance.Clock.GetCurrentInstant();
-            _session.Character.LastPortal = time;
+            player.LastPortal = time;
             await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
             _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId, 5, 5), Times.Never);
         }
@@ -114,8 +105,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
         [TestMethod]
         public async Task UserCanTUsePortalIfTooFarAsync()
         {
-            _session!.Character.PositionX = 8;
-            _session.Character.PositionY = 8;
+            _session!.Player.SetPosition(8, 8);
             await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
             _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId, 5, 5), Times.Never);
         }
@@ -123,11 +113,11 @@ namespace NosCore.PacketHandlers.Tests.Movement
         [TestMethod]
         public async Task UserFromInstanceGoesBackToOriginePlaceAsync()
         {
-            _session!.Character.MapX = 5;
-            _session.Character.MapY = 5;
-            _session.Character.PositionX = 0;
-            _session.Character.PositionY = 0;
-            _session.Character.MapInstance.MapInstanceType = MapInstanceType.NormalInstance;
+            var player = _session!.Player;
+            player.MapX = 5;
+            player.MapY = 5;
+            player.SetPosition(0, 0);
+            player.MapInstance.MapInstanceType = MapInstanceType.NormalInstance;
             await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
 
             _mapChangeService!.Verify(x => x.ChangeMapAsync(_session, 1, 5, 5), Times.Once);

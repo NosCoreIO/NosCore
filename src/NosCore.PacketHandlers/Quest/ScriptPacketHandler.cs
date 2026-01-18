@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Quest;
 using System.Threading.Tasks;
@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Quest
     {
         public override Task ExecuteAsync(ScriptClientPacket scriptPacket, ClientSession session)
         {
-            return questProvider.RunScriptAsync(session.Character, scriptPacket);
+            return questProvider.RunScriptAsync(session.Player, scriptPacket);
         }
     }
 }

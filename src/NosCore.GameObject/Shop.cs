@@ -30,7 +30,7 @@ namespace NosCore.GameObject
 
         public ConcurrentDictionary<int, ShopItem> ShopItems { get; set; } = new();
 
-        public Character? OwnerCharacter { get; set; }
+        public long? OwnerCharacterId { get; set; }
         public long Sell { get; internal set; }
 
         public int Size

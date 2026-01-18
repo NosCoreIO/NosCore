@@ -34,7 +34,6 @@ using NosCore.Database.Entities;
 using NosCore.Database;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking.Encoding.Filter;
 using NosCore.Networking.Encoding;
 using NosCore.Networking.SessionRef;
@@ -69,7 +68,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Data.CommandPackets;
-using NosCore.GameObject.Holders;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
@@ -84,9 +83,8 @@ using NosCore.Data;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.Packets;
 using ILogger = Serilog.ILogger;
-using Character = NosCore.GameObject.Character;
 using NosCore.Packets.Enumerations;
-using NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.WorldServer
 {
@@ -213,15 +211,16 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<Clock>();
             containerBuilder.RegisterType<SessionGroupFactory>().As<ISessionGroupFactory>().SingleInstance();
             containerBuilder.Register<IIdService<Group>>(_ => new IdService<Group>(1)).SingleInstance();
-            containerBuilder.Register<IIdService<MapItem>>(_ => new IdService<MapItem>(100000)).SingleInstance();
+            containerBuilder.Register<IIdService<MapItemRef>>(_ => new IdService<MapItemRef>(100000)).SingleInstance();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
 
             containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly)
-                .Where(t => t.Name.EndsWith("Service"))
+                .Where(t => t.Name.EndsWith("Service") || t.Name.EndsWith("System"))
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(MapInstanceHolder).Assembly)
-                .Where(t => t.Name.EndsWith("Holder"))
+            containerBuilder.RegisterAssemblyTypes(typeof(MapInstanceRegistry).Assembly)
+                .Where(t => t.Name.EndsWith("Holder") || t.Name.EndsWith("Registry"))
+                .AsImplementedInterfaces()
                 .SingleInstance();
 
             RegisterDto(containerBuilder);

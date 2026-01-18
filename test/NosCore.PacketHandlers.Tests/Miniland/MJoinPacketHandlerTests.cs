@@ -29,7 +29,6 @@ using NosCore.GameObject;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.PacketHandlers.Miniland;
@@ -39,6 +38,8 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Ecs;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Tests.Miniland
@@ -59,9 +60,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         [TestInitialize]
         public async Task SetupAsync()
         {
-            TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
-                .ConstructUsing(src => new MapNpc(null, Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
@@ -88,7 +86,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         {
             var mjoinPacket = new MJoinPacket
             {
-                VisualId = _targetSession!.Character.CharacterId,
+                VisualId = _targetSession!.Player.CharacterId,
                 Type = VisualType.Player
             };
             await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session!).ConfigureAwait(false);
@@ -103,18 +101,18 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         {
             var mjoinPacket = new MJoinPacket
             {
-                VisualId = _targetSession!.Character.CharacterId,
+                VisualId = _targetSession!.Player.CharacterId,
                 Type = VisualType.Player
             };
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Player.CharacterId }
                     },
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Player.CharacterId }
                     }
 
                 });
@@ -122,9 +120,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             {
                 new()
                 {
-                    CharacterId = _targetSession.Character.CharacterId,
+                    CharacterId = _targetSession.Player.CharacterId,
                     IsConnected = true,
-                    CharacterName = _targetSession.Character.Name,
+                    CharacterName = _targetSession.Player.Entity.GetName(_targetSession.Player.MapInstance.EcsWorld),
                     RelationType = CharacterRelationType.Friend
                 }
             });
@@ -142,7 +140,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         {
             var mjoinPacket = new MJoinPacket
             {
-                VisualId = _targetSession!.Character.CharacterId,
+                VisualId = _targetSession!.Player.CharacterId,
                 Type = VisualType.Player
             };
             _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new GameObject.Services.MinilandService.Miniland
@@ -151,9 +149,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             {
                 new()
                 {
-                    CharacterId = _targetSession.Character.CharacterId,
+                    CharacterId = _targetSession.Player.CharacterId,
                     IsConnected = true,
-                    CharacterName = _targetSession.Character.Name,
+                    CharacterName = _targetSession.Player.Entity.GetName(_targetSession.Player.MapInstance.EcsWorld),
                     RelationType = CharacterRelationType.Friend
                 }
             });
@@ -162,11 +160,11 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Player.CharacterId }
                     },
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Player.CharacterId }
                     }
 
                 });
@@ -179,18 +177,18 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         {
             var mjoinPacket = new MJoinPacket
             {
-                VisualId = _targetSession!.Character.CharacterId,
+                VisualId = _targetSession!.Player.CharacterId,
                 Type = VisualType.Player
             };
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Player.CharacterId }
                     },
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Player.CharacterId }
                     }
 
                 });
@@ -198,9 +196,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             {
                 new()
                 {
-                    CharacterId = _targetSession.Character.CharacterId,
+                    CharacterId = _targetSession.Player.CharacterId,
                     IsConnected = true,
-                    CharacterName = _targetSession.Character.Name,
+                    CharacterName = _targetSession.Player.Entity.GetName(_targetSession.Player.MapInstance.EcsWorld),
                     RelationType = CharacterRelationType.Friend
                 }
             });
@@ -216,18 +214,18 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         {
             var mjoinPacket = new MJoinPacket
             {
-                VisualId = _targetSession!.Character.CharacterId,
+                VisualId = _targetSession!.Player.CharacterId,
                 Type = VisualType.Player
             };
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Player.CharacterId }
                     },
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Player.CharacterId }
                     }
 
                 });
@@ -235,9 +233,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             {
                 new()
                 {
-                    CharacterId = _targetSession.Character.CharacterId,
+                    CharacterId = _targetSession.Player.CharacterId,
                     IsConnected = true,
-                    CharacterName = _targetSession.Character.Name,
+                    CharacterName = _targetSession.Player.Entity.GetName(_targetSession.Player.MapInstance.EcsWorld),
                     RelationType = CharacterRelationType.Blocked
                 }
             });

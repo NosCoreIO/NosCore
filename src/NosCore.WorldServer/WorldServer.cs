@@ -46,12 +46,11 @@ namespace NosCore.WorldServer
             Clock clock, ILogger<WorldServer> logger, IMapInstanceGeneratorService mapInstanceGeneratorService,
             IClock nodatimeClock, ISaveService saveService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger, Channel channel, IChannelHub channelHubClient,
-            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
+            ISessionRegistry sessionRegistry)
         : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Broadcaster.Initialize(sessionGroupFactory);
             await mapInstanceGeneratorService.InitializeAsync().ConfigureAwait(false);
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>

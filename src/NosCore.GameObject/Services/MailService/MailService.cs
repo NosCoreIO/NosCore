@@ -26,7 +26,6 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.ItemGenerationService;
 using System;
 using System.Collections.Generic;
@@ -34,6 +33,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Shared.Enumerations;
 using DeleteMailData = NosCore.GameObject.InterChannelCommunication.Messages.DeleteMailData;
 
@@ -45,40 +45,89 @@ namespace NosCore.GameObject.Services.MailService
     public class MailService(IDao<MailDto, long> mailDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IPubSubHub pubSubHub, IChannelHub channelHub,
             List<ItemDto> items, IItemGenerationService itemProvider,
-            ParcelHolder parcelHolder,
+            IParcelRegistry parcelRegistry,
             IDao<CharacterDto, long> characterDto)
         : IMailService
     {
+        public async Task InitializeAsync(IDao<CharacterDto, long> charDao, IDao<MailDto, long> mailDaoParam, List<ItemDto> itemsList,
+            IDao<IItemInstanceDto?, Guid> itemInstDao)
+        {
+            var mails = mailDaoParam.LoadAll().ToList();
+            var idcopy = 0;
+            var idmail = 0;
+            var charactersIds = mails.Select(s => s.ReceiverId)
+                .Union(mails.Where(s => s.SenderId != null).Select(s => (long)s.SenderId!));
+            var characternames = new Dictionary<long, string?>();
+            foreach (var characterId in charactersIds)
+            {
+                characternames.Add(characterId, (await charDao.FirstOrDefaultAsync(s => s.CharacterId == characterId).ConfigureAwait(false))?.Name);
+            }
+
+            foreach (var mail in mails)
+            {
+                var itinst = await itemInstDao.FirstOrDefaultAsync(s => s!.Id == mail.ItemInstanceId).ConfigureAwait(false);
+                ItemDto? it = null;
+                if (itinst != null)
+                {
+                    it = itemsList.FirstOrDefault(s => s.VNum == itinst.ItemVNum);
+                }
+
+                var senderName = mail.SenderId == null ? "NOSMALL" : characternames[(long)mail.SenderId];
+                var receiverName = characternames[mail.ReceiverId];
+                var mailId = mail.IsSenderCopy ? (short)idcopy : (short)idmail;
+                parcelRegistry.TryAdd(mail.IsSenderCopy ? mail.SenderId ?? 0 : mail.ReceiverId, mail.IsSenderCopy, mailId,
+                    new MailData
+                    {
+                        ItemInstance = (ItemInstanceDto?)itinst,
+                        SenderName = senderName,
+                        ReceiverName = receiverName,
+                        MailId = mailId,
+                        MailDto = mail,
+                        ItemType = (short?)it?.ItemType ?? -1
+                    });
+                if (mail.IsSenderCopy)
+                {
+                    idcopy++;
+                }
+                else
+                {
+                    idmail++;
+                }
+            }
+        }
+
         public List<MailData> GetMails(long id, long characterId, bool senderCopy)
         {
-            var mails = parcelHolder[characterId][false].Values.Concat(parcelHolder[characterId][true].Values);
+            var mails = parcelRegistry.GetMails(characterId);
             if (id == -1)
             {
                 return mails.ToList();
             }
 
-            if (parcelHolder[characterId][senderCopy].ContainsKey(id))
+            if (parcelRegistry.ContainsMail(characterId, senderCopy, id))
             {
-                mails = new[] { parcelHolder[characterId][senderCopy][id] };
-            }
-            else
-            {
-                return new List<MailData>();
+                var mail = parcelRegistry.GetMail(characterId, senderCopy, id);
+                return mail != null ? new List<MailData> { mail } : new List<MailData>();
             }
 
-            return mails.ToList();
+            return new List<MailData>();
         }
 
         public async Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy)
         {
-            var mail = parcelHolder[characterId][senderCopy][id];
+            var mail = parcelRegistry.GetMail(characterId, senderCopy, id);
+            if (mail == null)
+            {
+                return false;
+            }
+
             await mailDao.TryDeleteAsync(mail.MailDto.MailId).ConfigureAwait(false);
             if (mail.ItemInstance != null)
             {
                 await itemInstanceDao.TryDeleteAsync(mail.ItemInstance.Id).ConfigureAwait(false);
             }
 
-            parcelHolder[characterId][senderCopy].TryRemove(id, out var maildata);
+            parcelRegistry.TryRemove(characterId, senderCopy, id, out var maildata);
             if (maildata == null)
             {
                 return false;
@@ -102,18 +151,15 @@ namespace NosCore.GameObject.Services.MailService
             var result = mailData.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(mail, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement);
             mail = JsonSerializer.Deserialize<MailDto>(result.GetRawText())!;
             await mailDao.TryInsertOrUpdateAsync(mail).ConfigureAwait(false);
-            var savedData =
-                parcelHolder[mail.IsSenderCopy ? (long)mail.SenderId! : mail.ReceiverId][mail.IsSenderCopy]
-                    .FirstOrDefault(s => s.Value.MailDto.MailId == id);
-            if (savedData.Value.ItemInstance == null || savedData.Value.ReceiverName == null)
+            var savedData = parcelRegistry.FindMailByMailDtoId(mail.IsSenderCopy ? (long)mail.SenderId! : mail.ReceiverId, mail.IsSenderCopy, id);
+            if (savedData?.Value.ItemInstance == null || savedData?.Value.ReceiverName == null)
             {
                 return null;
             }
-            var maildata = await GenerateMailDataAsync(mail, savedData.Value.ItemType, savedData.Value.ItemInstance,
-                savedData.Value.ReceiverName).ConfigureAwait(false);
-            maildata.MailId = savedData.Value.MailId;
-            parcelHolder[mail.IsSenderCopy ? mail.SenderId ?? 0 : mail.ReceiverId][mail.IsSenderCopy][
-                savedData.Key] = maildata;
+            var maildata = await GenerateMailDataAsync(mail, savedData.Value.Value.ItemType, savedData.Value.Value.ItemInstance,
+                savedData.Value.Value.ReceiverName).ConfigureAwait(false);
+            maildata.MailId = savedData.Value.Value.MailId;
+            parcelRegistry.Update(mail.IsSenderCopy ? mail.SenderId ?? 0 : mail.ReceiverId, mail.IsSenderCopy, savedData.Value.Key, maildata);
             return maildata;
 
         }
@@ -184,7 +230,7 @@ namespace NosCore.GameObject.Services.MailService
                 return false;
             }
             var mailData = await GenerateMailDataAsync(mailref, (short?)it?.ItemType ?? -1, itemInstance, receiverName).ConfigureAwait(false);
-            parcelHolder[mailref.ReceiverId][mailData.MailDto.IsSenderCopy].TryAdd(mailData.MailId, mailData);
+            parcelRegistry.TryAdd(mailref.ReceiverId, mailData.MailDto.IsSenderCopy, mailData.MailId, mailData);
             await NotifyAsync(0, receiver, mailData).ConfigureAwait(false);
 
             if (mailref.SenderId == null)
@@ -199,8 +245,7 @@ namespace NosCore.GameObject.Services.MailService
             mailref.ItemInstanceId = itemInstance?.Id;
             mailref = await mailDao.TryInsertOrUpdateAsync(mailref).ConfigureAwait(false);
             var mailDataCopy = await GenerateMailDataAsync(mailref, (short?)it?.ItemType ?? -1, itemInstance!, receiverName).ConfigureAwait(false);
-            parcelHolder[mailref.ReceiverId][mailDataCopy.MailDto.IsSenderCopy]
-                .TryAdd(mailDataCopy.MailId, mailDataCopy);
+            parcelRegistry.TryAdd(mailref.ReceiverId, mailDataCopy.MailDto.IsSenderCopy, mailDataCopy.MailId, mailDataCopy);
             await NotifyAsync(0,  receiver, mailDataCopy).ConfigureAwait(false);
 
             return true;
@@ -209,8 +254,7 @@ namespace NosCore.GameObject.Services.MailService
         private async Task<MailData> GenerateMailDataAsync(MailDto mailref, short itemType, IItemInstanceDto itemInstance,
             string receiverName)
         {
-            var count = parcelHolder[mailref.ReceiverId][mailref.IsSenderCopy].Select(s => s.Key).DefaultIfEmpty(-1)
-                .Max();
+            var count = parcelRegistry.GetMaxMailId(mailref.ReceiverId, mailref.IsSenderCopy);
             var sender = mailref.SenderId != null
                 ? (await characterDto.FirstOrDefaultAsync(s => s.CharacterId == mailref.SenderId).ConfigureAwait(false))?.Name : "NOSMALL";
             return new MailData
@@ -247,6 +291,32 @@ namespace NosCore.GameObject.Services.MailService
                         PostType = type
                     });
                     break;
+            }
+        }
+
+        public async Task GenerateMailAsync(IPacketSender sender, long characterId, IEnumerable<MailData> mails)
+        {
+            foreach (var mail in mails)
+            {
+                if (!mail.MailDto.IsSenderCopy && mail.MailDto.ReceiverId == characterId)
+                {
+                    var mailType = mail.MailDto.ItemInstanceId != null ? (byte)0 : (byte)1;
+                    parcelRegistry.TryAdd(characterId, false, mail.MailId, mail);
+                    var packet = mail.GeneratePost(mailType);
+                    if (packet != null)
+                    {
+                        await sender.SendPacketAsync(packet).ConfigureAwait(false);
+                    }
+                }
+                else if (mail.MailDto.IsSenderCopy && mail.MailDto.SenderId == characterId)
+                {
+                    parcelRegistry.TryAdd(characterId, true, mail.MailId, mail);
+                    var packet = mail.GeneratePost(2);
+                    if (packet != null)
+                    {
+                        await sender.SendPacketAsync(packet).ConfigureAwait(false);
+                    }
+                }
             }
         }
     }

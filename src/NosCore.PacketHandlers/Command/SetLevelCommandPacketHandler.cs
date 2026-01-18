@@ -21,7 +21,8 @@ using System.Linq;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
@@ -29,17 +30,19 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetLevelCommandPacketHandler(IPubSubHub pubSubHub, IChannelHub channelHub)
+    public class SetLevelCommandPacketHandler(IPubSubHub pubSubHub, IChannelHub channelHub, IStatsSystem statsSystem)
         : PacketHandler<SetLevelCommandPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetLevelCommandPacket levelPacket, ClientSession session)
         {
-            if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
+            var characterName = session.Player.Name;
+            if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == characterName))
             {
-                await session.Character.SetLevelAsync(levelPacket.Level).ConfigureAwait(false);
+                statsSystem.SetLevel(session.Player, levelPacket.Level);
                 return;
             }
 

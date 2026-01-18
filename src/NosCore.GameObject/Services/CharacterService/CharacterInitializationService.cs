@@ -36,11 +36,11 @@ namespace NosCore.GameObject.Services.CharacterService
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
         }
 
-        public Task InitializeAsync(Character character)
+        public Task InitializeAsync(PlayerContext player)
         {
             if (_minilandService != null && _mapInstanceGeneratorService != null)
             {
-                return _minilandService.InitializeAsync(character, _mapInstanceGeneratorService);
+                return _minilandService.InitializeAsync(player, _mapInstanceGeneratorService);
             }
 
             return Task.CompletedTask;

@@ -30,12 +30,15 @@
   <ItemGroup>
     <Compile Remove="Dto\I18NGenerated\**" />
     <Compile Remove="Dto\StaticEntitiesGenerated\**" />
+    <Compile Remove="Enumerations\Account\**" />
     <Compile Remove="StaticEntities\Text\**" />
     <EmbeddedResource Remove="Dto\I18NGenerated\**" />
     <EmbeddedResource Remove="Dto\StaticEntitiesGenerated\**" />
+    <EmbeddedResource Remove="Enumerations\Account\**" />
     <EmbeddedResource Remove="StaticEntities\Text\**" />
     <None Remove="Dto\I18NGenerated\**" />
     <None Remove="Dto\StaticEntitiesGenerated\**" />
+    <None Remove="Enumerations\Account\**" />
     <None Remove="StaticEntities\Text\**" />
   </ItemGroup>
 
@@ -64,10 +67,6 @@
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Enumerations\Account\" />
   </ItemGroup>
 
   <ItemGroup>

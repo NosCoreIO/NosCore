@@ -24,7 +24,7 @@ using Json.Pointer;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -34,6 +34,7 @@ using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
@@ -45,7 +46,7 @@ namespace NosCore.PacketHandlers.Bazaar
         {
             var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId,null,null,null,null,null,null,null,null).ConfigureAwait(false);
             var bz = bzs.FirstOrDefault();
-            if ((bz != null) && (bz.SellerName == clientSession.Character.Name) &&
+            if ((bz != null) && (bz.SellerName == clientSession.Player.Name) &&
                 (bz.BazaarItem?.Price != packet.NewPrice))
             {
                 if (bz.BazaarItem?.Amount != bz.ItemInstance?.Amount)
@@ -69,7 +70,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
                             VisualType = VisualType.Player,
-                            VisualId = clientSession.Character.CharacterId,
+                            VisualId = clientSession.Player.CharacterId,
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.NewSellingPrice,
                             ArgumentType = 4,

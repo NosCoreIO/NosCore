@@ -20,36 +20,25 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Algorithm.DignityService;
-using NosCore.Algorithm.ExperienceService;
-using NosCore.Algorithm.HeroExperienceService;
-using NosCore.Algorithm.HpService;
-using NosCore.Algorithm.JobExperienceService;
-using NosCore.Algorithm.MpService;
-using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Services.IdService;
-using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject.Services.ExchangeService;
-using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking.SessionGroup;
-using NosCore.Tests.Shared;
-using Serilog;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Tests
 {
     [TestClass]
     public class GroupTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private Group? _group;
+        private Mock<ISessionGroupFactory>? _sessionGroupFactory;
 
         [TestInitialize]
         public void Setup()
         {
-            _group = new Group(GroupType.Group, new Mock<ISessionGroupFactory>().Object)
+            _sessionGroupFactory = new Mock<ISessionGroupFactory>();
+            _sessionGroupFactory.Setup(x => x.Create()).Returns(new Mock<ISessionGroup>().Object);
+            _group = new Group(GroupType.Group, _sessionGroupFactory.Object)
             {
                 GroupId = new IdService<Group>(1).GetNextId()
             };
@@ -58,16 +47,7 @@ namespace NosCore.GameObject.Tests
         [TestMethod]
         public void Test_Add_Player()
         {
-            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, new Mock<ISessionGroupFactory>().Object, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.GameLanguageLocalizer)
-            {
-                Name = "TestExistingCharacter",
-                Slot = 1,
-                AccountId = 1,
-                MapId = 1,
-                State = CharacterState.Active
-            };
-
-            _group!.JoinGroup(entity);
+            _group!.JoinGroup(VisualType.Player, 1);
 
             Assert.IsFalse(_group.Count == 2);
         }
@@ -75,20 +55,11 @@ namespace NosCore.GameObject.Tests
         [TestMethod]
         public void Test_Remove_Player()
         {
-            var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, new Mock<ISessionGroupFactory>().Object, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.GameLanguageLocalizer)
-            {
-                Name = "TestExistingCharacter",
-                Slot = 1,
-                AccountId = 1,
-                MapId = 1,
-                State = CharacterState.Active
-            };
-
-            _group!.JoinGroup(entity);
+            _group!.JoinGroup(VisualType.Player, 1);
 
             Assert.IsFalse(_group.Count == 2);
 
-            _group.LeaveGroup(entity);
+            _group.LeaveGroup(VisualType.Player, 1);
 
             Assert.IsTrue(_group.Count == 0);
         }
@@ -96,9 +67,7 @@ namespace NosCore.GameObject.Tests
         [TestMethod]
         public void Test_Monster_Join_Group()
         {
-            var entity = new Pet();
-
-            _group!.JoinGroup(entity);
+            _group!.JoinGroup(VisualType.Monster, 1);
 
             Assert.IsTrue(_group.IsEmpty);
         }
@@ -108,24 +77,16 @@ namespace NosCore.GameObject.Tests
         {
             for (var i = 0; i < (long)_group!.Type; i++)
             {
-                var entity = new Character(new Mock<IInventoryService>().Object, new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, new Mock<ISessionGroupFactory>().Object, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.GameLanguageLocalizer)
-                {
-                    CharacterId = i + 1,
-                    Name = $"TestExistingCharacter{i}",
-                    Slot = 1,
-                    AccountId = i + 1,
-                    MapId = 1,
-                    State = CharacterState.Active
-                };
-
-                _group.JoinGroup(entity);
+                _group.JoinGroup(VisualType.Player, i + 1);
             }
 
-            Assert.IsTrue(_group.IsGroupFull && _group.IsGroupLeader(_group.ElementAt(0).Value.Item2.VisualId));
+            var playerIds = _group.GetPlayerIds().ToList();
+            Assert.IsTrue(_group.IsGroupFull && _group.IsGroupLeader(playerIds[0]));
 
-            _group.LeaveGroup(_group.ElementAt(0).Value.Item2);
+            _group.LeaveGroup(VisualType.Player, playerIds[0]);
 
-            Assert.IsTrue(!_group.IsGroupFull && _group.IsGroupLeader(_group.ElementAt(1).Value.Item2.VisualId));
+            playerIds = _group.GetPlayerIds().ToList();
+            Assert.IsTrue(!_group.IsGroupFull && _group.IsGroupLeader(playerIds[0]));
         }
     }
 }

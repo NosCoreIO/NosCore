@@ -376,9 +376,6 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrado en el Servidor Maestro.</value>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Â¡Tu reptuaciÃ³n ha cambiado!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>Â¡{0} RespawnTypes Analizados!</value>
   </data>

@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
                 throw new InvalidOperationException(_logLanguage[LogLanguageKey.UNBOUND_ITEM_DETECTED]);
             }
             item.Item = itemDto.Adapt<Item.Item>();
-            _runner?.LoadHandlers(item.Item);
+            _runner?.LoadHandlers(item.Item, item.Item.Requests, item.Item.HandlerTasks);
 
             return item;
         }
@@ -97,7 +97,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
             var item = Generate(itemToCreateVNum, amount, rare, upgrade, design);
             if (item.Item != null)
             {
-                _runner?.LoadHandlers(item.Item);
+                _runner?.LoadHandlers(item.Item, item.Item.Requests, item.Item.HandlerTasks);
             }
             return item;
         }

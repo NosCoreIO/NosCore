@@ -18,28 +18,28 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using System.Threading.Tasks;
 using NosCore.Networking;
+using NosCore.GameObject.Networking;
 
 
 namespace NosCore.PacketHandlers.Group
 {
-    public class GroupTalkPacketHandler : PacketHandler<GroupTalkPacket>, IWorldPacketHandler
+    public class GroupTalkPacketHandler(IVisibilitySystem visibilitySystem) : PacketHandler<GroupTalkPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(GroupTalkPacket groupTalkPacket, ClientSession clientSession)
         {
-            if (clientSession.Character.Group!.Count == 1)
+            if (clientSession.Player.Group!.Count == 1)
             {
                 return Task.CompletedTask;
             }
 
-            return clientSession.Character.Group.SendPacketAsync(
-                clientSession.Character.GenerateSpk(new SpeakPacket
+            return clientSession.Player.Group.SendPacketAsync(
+                visibilitySystem.GenerateSpk(clientSession.Player, new SpeakPacket
                 { Message = groupTalkPacket.Message, SpeakType = SpeakType.Group }));
         }
     }

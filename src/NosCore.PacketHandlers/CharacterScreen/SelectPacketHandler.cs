@@ -24,12 +24,13 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.QuestService;
+using NosCore.Networking.SessionGroup;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using Serilog;
@@ -43,6 +44,7 @@ using NosCore.Core.Configuration;
 using NosCore.Shared.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -53,7 +55,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao,
             IDao<CharacterQuestDto, Guid> characterQuestDao,
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives,
-            IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub)
+            IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub,
+            ICharacterPacketSystem characterPacketSystem,
+            ISessionGroupFactory sessionGroupFactory, Func<IInventoryService> inventoryServiceFactory,
+            ICharacterRegistry characterRegistry)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -74,8 +79,34 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     return;
                 }
 
-                var character = characterDto.Adapt<GameObject.Character>();
-                character.InitializeGroup();
+                var inventoryService = inventoryServiceFactory();
+                var gameState = new CharacterGameState(
+                    characterDto.CharacterId,
+                    clientSession.Account,
+                    inventoryService,
+                    sessionGroupFactory
+                );
+
+                characterRegistry.Register(characterDto.CharacterId, gameState);
+
+                var mapInstance = mapInstanceAccessorService.GetBaseMapById(characterDto.MapId)!;
+                gameState.Script = characterDto.CurrentScriptId != null ? await scriptDao.FirstOrDefaultAsync(s => s.Id == characterDto.CurrentScriptId).ConfigureAwait(false) : null;
+
+                var inventories = inventoryItemInstanceDao
+                    .Where(s => s.CharacterId == characterDto.CharacterId)
+                    ?.ToList() ?? new List<InventoryItemInstanceDto>();
+                var ids = inventories.Select(o => o.ItemInstanceId).ToList();
+                var items = itemInstanceDao.Where(s => ids.Contains(s!.Id))?.ToList() ?? new List<IItemInstanceDto?>();
+                inventories.ForEach(k => inventoryService[k.ItemInstanceId] =
+                    InventoryItemInstance.Create(itemProvider.Convert(items.First(s => s!.Id == k.ItemInstanceId)!),
+                        characterDto.CharacterId, k));
+
+                await clientSession.SetPlayerAsync(gameState, characterDto, mapInstance).ConfigureAwait(false);
+
+                var player = clientSession.Player;
+                player.Group = new GameObject.Group(Data.Enumerations.Group.GroupType.Group, sessionGroupFactory);
+                player.Group.JoinGroup(player);
+
                 await pubSubHub.SubscribeAsync(new Subscriber
                 {
                     Id = clientSession.SessionId,
@@ -83,45 +114,33 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     Language = clientSession.Account.Language,
                     ConnectedCharacter = new Data.WebApi.Character
                     {
-                        Name = character.Name,
-                        Id = character.CharacterId,
-                        FriendRequestBlocked = character.FriendRequestBlocked
+                        Name = characterDto.Name,
+                        Id = characterDto.CharacterId,
+                        FriendRequestBlocked = characterDto.FriendRequestBlocked
                     }
                 });
-                character.MapInstance = mapInstanceAccessorService.GetBaseMapById(character.MapId)!;
-                character.PositionX = character.MapX;
-                character.PositionY = character.MapY;
-                character.Direction = 2;
-                character.Script = character.CurrentScriptId != null ? await scriptDao.FirstOrDefaultAsync(s => s.Id == character.CurrentScriptId).ConfigureAwait(false) : null;
-                character.Group!.JoinGroup(character);
-
-                var inventories = inventoryItemInstanceDao
-                    .Where(s => s.CharacterId == character.CharacterId)
-                    ?.ToList() ?? new List<InventoryItemInstanceDto>();
-                var ids = inventories.Select(o => o.ItemInstanceId).ToList();
-                var items = itemInstanceDao.Where(s => ids.Contains(s!.Id))?.ToList() ?? new List<IItemInstanceDto?>();
-                inventories.ForEach(k => character.InventoryService[k.ItemInstanceId] =
-                    InventoryItemInstance.Create(itemProvider.Convert(items.First(s => s!.Id == k.ItemInstanceId)!),
-                        character.CharacterId, k));
-                await clientSession.SetCharacterAsync(character).ConfigureAwait(false);
 
 #pragma warning disable CS0618
-                await clientSession.SendPacketsAsync(clientSession.Character.GenerateInv(logger, logLanguage)).ConfigureAwait(false);
+                await clientSession.SendPacketsAsync(characterPacketSystem.GenerateInv(clientSession.Player, logger, logLanguage)).ConfigureAwait(false);
 #pragma warning restore CS0618
-                await clientSession.SendPacketAsync(clientSession.Character.GenerateMlobjlst()).ConfigureAwait(false);
-                if (clientSession.Character.Hp > clientSession.Character.MaxHp)
+                await clientSession.SendPacketAsync(characterPacketSystem.GenerateMlobjlst(clientSession.Player)).ConfigureAwait(false);
+                var currentHp = clientSession.Player.Hp;
+                var maxHp = clientSession.Player.MaxHp;
+                if (currentHp > maxHp)
                 {
-                    clientSession.Character.Hp = clientSession.Character.MaxHp;
+                    clientSession.Player.SetHp(maxHp);
                 }
 
-                if (clientSession.Character.Mp > clientSession.Character.MaxMp)
+                var currentMp = clientSession.Player.Mp;
+                var maxMp = clientSession.Player.MaxMp;
+                if (currentMp > maxMp)
                 {
-                    clientSession.Character.Mp = clientSession.Character.MaxMp;
+                    clientSession.Player.SetMp(maxMp);
                 }
 
                 var daoQuests = characterQuestDao
-                    .Where(s => s.CharacterId == clientSession.Character.CharacterId) ?? new List<CharacterQuestDto>();
-                clientSession.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(daoQuests.ToDictionary(x => x.Id, x =>
+                    .Where(s => s.CharacterId == clientSession.Player.CharacterId) ?? new List<CharacterQuestDto>();
+                gameState.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(daoQuests.ToDictionary(x => x.Id, x =>
                     {
                         var charquest = x.Adapt<CharacterQuest>();
                         charquest.Quest = quests.First(s => s.QuestId == charquest.QuestId).Adapt<GameObject.Services.QuestService.Quest>();
@@ -129,12 +148,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
                             questObjectives.Where(s => s.QuestId == charquest.QuestId).ToList();
                         return charquest;
                     }));
-                clientSession.Character.QuicklistEntries = quickListEntriesDao
-                    .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<QuicklistEntryDto>();
-                clientSession.Character.StaticBonusList = staticBonusDao
-                    .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<StaticBonusDto>();
-                clientSession.Character.Titles = titleDao
-                    .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<TitleDto>();
+                gameState.QuicklistEntries = quickListEntriesDao
+                    .Where(s => s.CharacterId == clientSession.Player.CharacterId)?.ToList() ?? new List<QuicklistEntryDto>();
+                gameState.StaticBonusList = staticBonusDao
+                    .Where(s => s.CharacterId == clientSession.Player.CharacterId)?.ToList() ?? new List<StaticBonusDto>();
+                gameState.Titles = titleDao
+                    .Where(s => s.CharacterId == clientSession.Player.CharacterId)?.ToList() ?? new List<TitleDto>();
                 await clientSession.SendPacketAsync(new OkPacket()).ConfigureAwait(false);
             }
             catch (Exception ex)

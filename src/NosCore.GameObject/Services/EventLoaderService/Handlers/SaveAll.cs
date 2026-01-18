@@ -20,7 +20,6 @@
 using JetBrains.Annotations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -60,7 +59,7 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
         public async Task ExecuteAsync(RequestData<Instant> runTime)
         {
             _logger.LogInformation(_logLanguage[LogLanguageKey.SAVING_ALL]);
-            await Task.WhenAll(_sessionRegistry.GetCharacters().Select(session => _saveService.SaveAsync(session)));
+            await Task.WhenAll(_sessionRegistry.GetPlayers().Select(player => _saveService.SaveAsync(player)));
 
             _lastRun = runTime.Data;
         }

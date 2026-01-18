@@ -450,9 +450,6 @@
     <value>Angemeldet auf MasterServer</value>
     <comment>check</comment>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Dein Ruf hat sich geändert!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes geladen!</value>
   </data>
@@ -514,9 +511,6 @@
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
     <value>Unbekannter Empfänger typ: {0}</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>Dein Gold wurde erfolgreich geändert!</value>
   </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>Benutzer ist kein Freund!</value>

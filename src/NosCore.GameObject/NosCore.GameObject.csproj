@@ -17,7 +17,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Arch" Version="2.1.0-beta" />
     <PackageReference Include="NosCore.Algorithm" Version="2.0.0" />
+    <PackageReference Include="NosCore.Networking" Version="7.0.0" />
+    <PackageReference Include="NosCore.Packets" Version="16.0.0" />
     <PackageReference Include="System.Reactive" Version="6.1.0" />
   </ItemGroup>
 

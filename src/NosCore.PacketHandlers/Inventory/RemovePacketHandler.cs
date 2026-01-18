@@ -19,24 +19,24 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Specialists;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 using NosCore.Networking;
+using NosCore.GameObject.Networking;
 
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class RemovePacketHandler : PacketHandler<RemovePacket>, IWorldPacketHandler
+    public class RemovePacketHandler(IInventoryPacketSystem inventoryPacketSystem, ICharacterPacketSystem characterPacketSystem, IEntityPacketSystem entityPacketSystem) : PacketHandler<RemovePacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(RemovePacket removePacket, ClientSession clientSession)
         {
             var inventory =
-                clientSession.Character.InventoryService.LoadBySlotAndType((short)removePacket.InventorySlot,
+                clientSession.Player.InventoryService.LoadBySlotAndType((short)removePacket.InventorySlot,
                     NoscorePocketType.Wear);
             if (inventory == null)
             {
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Inventory
                 } });
             }
 
-            var inv = clientSession.Character.InventoryService.MoveInPocket((short)removePacket.InventorySlot,
+            var inv = clientSession.Player.InventoryService.MoveInPocket((short)removePacket.InventorySlot,
                 NoscorePocketType.Wear, NoscorePocketType.Equipment);
 
             if (inv == null)
@@ -64,15 +64,15 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            await clientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot)).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(inventoryPacketSystem.GeneratePocketChange(inv, (PocketType)inv.Type, inv.Slot)).ConfigureAwait(false);
 
-            await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateEq()).ConfigureAwait(false);
-            await clientSession.SendPacketAsync(clientSession.Character.GenerateEquipment()).ConfigureAwait(false);
+            await clientSession.Player.MapInstance.SendPacketAsync(characterPacketSystem.GenerateEq(clientSession.Player)).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(characterPacketSystem.GenerateEquipment(clientSession.Player)).ConfigureAwait(false);
 
             if (inv.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
-                await clientSession.Character.MapInstance.SendPacketAsync(
-                    clientSession.Character.GeneratePairy(null)).ConfigureAwait(false);
+                await clientSession.Player.MapInstance.SendPacketAsync(
+                    entityPacketSystem.GeneratePairy(clientSession.Player, null)).ConfigureAwait(false);
             }
         }
     }

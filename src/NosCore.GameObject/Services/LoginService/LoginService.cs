@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Services.LoginService
         : ILoginService
     {
         public async Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,
-            Networking.ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language)
+            Networking.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language)
         {
             try
             {

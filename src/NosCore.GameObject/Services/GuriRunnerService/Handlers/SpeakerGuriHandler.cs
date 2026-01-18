@@ -21,9 +21,8 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
@@ -37,7 +36,8 @@ using NosCore.GameObject.Services.BroadcastService;
 namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 {
     public class SpeakerGuriHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry)
+            IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry,
+            IEntityPacketSystem entityPacketSystem, IInventoryPacketSystem inventoryPacketSystem)
         : IGuriEventHandler
     {
         public bool Condition(GuriPacket packet)
@@ -58,7 +58,8 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 
         public async Task ExecuteAsync(RequestData<GuriPacket> requestData)
         {
-            var inv = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType((short)(requestData.Data.VisualId ?? 0),
+            var player = requestData.ClientSession.Player;
+            var inv = player.InventoryService.LoadBySlotAndType((short)(requestData.Data.VisualId ?? 0),
                 NoscorePocketType.Etc);
             if (inv?.ItemInstance?.Item?.Effect != ItemEffectType.Speaker)
             {
@@ -68,14 +69,14 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
 
             var data = requestData.Data.Value;
             string[] valuesplit = (data ?? string.Empty).Split(' ');
-            string message = $"<{gameLanguageLocalizer[LanguageKey.SPEAKER, requestData.ClientSession.Account.Language]}> [{requestData.ClientSession.Character.Name}]:";
+            string message = $"<{gameLanguageLocalizer[LanguageKey.SPEAKER, requestData.ClientSession.Account.Language]}> [{player.Name}]:";
             if (requestData.Data.Data == 999)
             {
                 InventoryItemInstance? deeplink = null;
                 if (short.TryParse(valuesplit[1], out var slot) &
                     Enum.TryParse(typeof(NoscorePocketType), valuesplit[0], out var type))
                 {
-                    deeplink = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)type!);
+                    deeplink = player.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)type!);
                 }
                 if (deeplink == null)
                 {
@@ -83,16 +84,17 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
                     return;
                 }
                 message = CraftMessage(message, valuesplit.Skip(2).ToArray()).Replace(' ', '|');
-                await sessionRegistry.BroadcastPacketAsync(requestData.ClientSession.Character.GenerateSayItem(message, deeplink), requestData.ClientSession.Channel!.Id).ConfigureAwait(false);
+                await sessionRegistry.BroadcastPacketAsync(entityPacketSystem.GenerateSayItem(player, message, deeplink), requestData.ClientSession.Channel!.Id).ConfigureAwait(false);
             }
             else
             {
                 message = CraftMessage(message, valuesplit);
-                await sessionRegistry.BroadcastPacketAsync(requestData.ClientSession.Character.GenerateSay(message, (SayColorType)13), requestData.ClientSession.Channel!.Id).ConfigureAwait(false);
+                await sessionRegistry.BroadcastPacketAsync(entityPacketSystem.GenerateSay(player, message, (SayColorType)13), requestData.ClientSession.Channel!.Id).ConfigureAwait(false);
             }
 
-            requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
-            await requestData.ClientSession.Character.SendPacketAsync(inv.GeneratePocketChange(PocketType.Etc, (short)(requestData.Data.VisualId ?? 0))).ConfigureAwait(false);
+            player.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
+            var sender = sessionRegistry.GetSenderByCharacterId(player.CharacterId);
+            await (sender?.SendPacketAsync(inventoryPacketSystem.GeneratePocketChange(inv, PocketType.Etc, (short)(requestData.Data.VisualId ?? 0))) ?? Task.CompletedTask).ConfigureAwait(false);
         }
     }
 }

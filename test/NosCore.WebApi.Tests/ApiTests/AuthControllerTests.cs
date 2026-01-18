@@ -32,7 +32,7 @@ using Moq;
 using NosCore.Core.Encryption;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.AuthService;
 using NosCore.Shared.Configuration;
 using NosCore.Tests.Shared;

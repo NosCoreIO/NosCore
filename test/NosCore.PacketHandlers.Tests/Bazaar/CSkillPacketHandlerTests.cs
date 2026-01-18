@@ -24,7 +24,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
@@ -44,16 +43,17 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
-            Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _session.Character.StaticBonusList = new List<StaticBonusDto>();
+            var player = _session.Player;
+            player.StaticBonusList = new List<StaticBonusDto>();
             _cskillPacketHandler = new CSkillPacketHandler(TestHelpers.Instance.Clock);
         }
 
         [TestMethod]
         public async Task OpenWhenInShopAsync()
         {
-            _session!.Character.InShop = true;
+            var player = _session!.Player;
+            player.InShop = true;
             await _session!.HandlePacketsAsync(new[]
             {
                 new CSkillPacket()
@@ -73,7 +73,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestMethod]
         public async Task OpenAsync()
         {
-            _session!.Character.StaticBonusList.Add(new StaticBonusDto
+            _session!.Player.StaticBonusList.Add(new StaticBonusDto
             {
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });

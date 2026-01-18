@@ -21,13 +21,14 @@ using System.Linq;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Command
 {
@@ -36,10 +37,11 @@ namespace NosCore.PacketHandlers.Command
     {
         public override async Task ExecuteAsync(SetGoldCommandPacket goldPacket, ClientSession session)
         {
+            var characterName = session.Player.Name;
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateGold,
-                Character = new Character { Name = goldPacket.Name ?? session.Character.Name },
+                Character = new Character { Name = goldPacket.Name ?? characterName },
                 Data = goldPacket.Gold
             };
 

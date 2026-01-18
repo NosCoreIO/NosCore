@@ -2,18 +2,18 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -24,7 +24,6 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -40,46 +39,13 @@ namespace NosCore.GameObject.Services.MinilandService
     public class MinilandService(IMapInstanceAccessorService mapInstanceAccessorService,
             IFriendHub friendHttpClient, List<MapDto> maps,
             IDao<MinilandDto, Guid> minilandDao, IDao<MinilandObjectDto, Guid> minilandObjectsDao,
-            MinilandHolder minilandHolder)
+            IMinilandRegistry minilandRegistry)
         : IMinilandService
     {
-        public List<Portal> GetMinilandPortals(long characterId)
-        {
-            var nosville = mapInstanceAccessorService.GetBaseMapById(1);
-            var oldNosville = mapInstanceAccessorService.GetBaseMapById(145);
-            var miniland = mapInstanceAccessorService.GetMapInstance(minilandHolder.Minilands[characterId].MapInstanceId);
-            return new List<Portal>
-            {
-                new()
-                {
-                    SourceX = 48,
-                    SourceY = 132,
-                    DestinationX = 5,
-                    DestinationY = 8,
-                    Type = PortalType.Miniland,
-                    SourceMapId = 1,
-                    DestinationMapId = 20001,
-                    DestinationMapInstanceId = miniland!.MapInstanceId,
-                    SourceMapInstanceId = nosville!.MapInstanceId
-                },
-                new()
-                {
-                    SourceX = 9,
-                    SourceY = 171,
-                    DestinationX = 5,
-                    DestinationY = 8,
-                    Type = PortalType.Miniland,
-                    SourceMapId = 145,
-                    DestinationMapId = 20001,
-                    DestinationMapInstanceId = miniland.MapInstanceId,
-                    SourceMapInstanceId = oldNosville!.MapInstanceId
-                }
-            };
-        }
-
         public Miniland GetMiniland(long characterId)
         {
-            if (minilandHolder.Minilands.TryGetValue(characterId, out var miniland))
+            var miniland = minilandRegistry.GetMiniland(characterId);
+            if (miniland != null)
             {
                 return miniland;
             }
@@ -89,28 +55,29 @@ namespace NosCore.GameObject.Services.MinilandService
 
         public async Task<Guid?> DeleteMinilandAsync(long characterId)
         {
-            if (!minilandHolder.Minilands.ContainsKey(characterId))
+            var ml = minilandRegistry.GetMiniland(characterId);
+            if (ml == null)
             {
                 return null;
             }
 
-            var miniland = mapInstanceAccessorService.GetMapInstance(minilandHolder.Minilands[characterId].MapInstanceId);
+            var miniland = mapInstanceAccessorService.GetMapInstance(ml.MapInstanceId);
             foreach (var obj in miniland!.MapDesignObjects.Values)
             {
                 await minilandObjectsDao.TryInsertOrUpdateAsync(obj).ConfigureAwait(false);
             }
 
-            if (minilandHolder.Minilands.TryRemove(characterId, out var mapInstance))
+            if (minilandRegistry.TryUnregister(characterId, out var mapInstance))
             {
-                return mapInstance.MapInstanceId;
+                return mapInstance?.MapInstanceId;
             }
 
             return null;
         }
 
-        public async Task<Miniland> InitializeAsync(Character character, IMapInstanceGeneratorService generator)
+        public async Task<Miniland> InitializeAsync(PlayerContext player, IMapInstanceGeneratorService generator)
         {
-            var minilandInfoDto = await minilandDao.FirstOrDefaultAsync(s => s.OwnerId == character.CharacterId).ConfigureAwait(false);
+            var minilandInfoDto = await minilandDao.FirstOrDefaultAsync(s => s.OwnerId == player.CharacterId).ConfigureAwait(false);
             if (minilandInfoDto == null)
             {
                 throw new ArgumentException();
@@ -122,19 +89,38 @@ namespace NosCore.GameObject.Services.MinilandService
 
             var minilandInfo = minilandInfoDto.Adapt<Miniland>();
             minilandInfo.MapInstanceId = miniland.MapInstanceId;
-            minilandInfo.CharacterEntity = character;
+            minilandInfo.OwnerName = player.Name;
 
-            minilandHolder.Minilands.TryAdd(character.CharacterId, minilandInfo);
+            var nosville = mapInstanceAccessorService.GetBaseMapById(1);
+            var oldNosville = mapInstanceAccessorService.GetBaseMapById(145);
+
+            if (nosville != null)
+            {
+                var nosvillePortalEntity = nosville.EcsWorld.CreatePortal(
+                    0, 48, 132, 1, 5, 8, 20001, PortalType.Miniland, false,
+                    nosville.MapInstanceId, miniland.MapInstanceId, player.CharacterId);
+                nosville.Portals.Add(nosvillePortalEntity);
+            }
+
+            if (oldNosville != null)
+            {
+                var oldNosvillePortalEntity = oldNosville.EcsWorld.CreatePortal(
+                    0, 9, 171, 145, 5, 8, 20001, PortalType.Miniland, false,
+                    oldNosville.MapInstanceId, miniland.MapInstanceId, player.CharacterId);
+                oldNosville.Portals.Add(oldNosvillePortalEntity);
+            }
+
+            minilandRegistry.TryRegister(player.CharacterId, minilandInfo);
             await generator.AddMapInstanceAsync(miniland).ConfigureAwait(false);
 
-            var listobjects = character.InventoryService.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();
+            var listobjects = player.InventoryService.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();
             var idlist = listobjects.Select(s => s.Id).ToList();
             var minilandObjectsDto = minilandObjectsDao.Where(s => idlist.Contains((Guid)s.InventoryItemInstanceId!))?
                 .ToList() ?? new List<MinilandObjectDto>();
             foreach (var mlobjdto in minilandObjectsDto)
             {
                 var mlobj = mlobjdto.Adapt<MapDesignObject>();
-                AddMinilandObject(mlobj, character.CharacterId,
+                AddMinilandObject(mlobj, player.CharacterId,
                     listobjects.First(s => s.Id == mlobjdto.InventoryItemInstanceId));
             }
 
@@ -143,12 +129,12 @@ namespace NosCore.GameObject.Services.MinilandService
 
         public async Task SetStateAsync(long characterId, MinilandState state)
         {
-            if (!minilandHolder.Minilands.ContainsKey(characterId))
+            var ml = minilandRegistry.GetMiniland(characterId);
+            if (ml == null)
             {
                 throw new ArgumentException();
             }
 
-            var ml = minilandHolder.Minilands[characterId];
             var miniland = mapInstanceAccessorService.GetMapInstance(ml.MapInstanceId);
             ml.State = state;
 
@@ -161,24 +147,28 @@ namespace NosCore.GameObject.Services.MinilandService
                         List<long> friends = (await friendHttpClient.GetFriendsAsync(characterId).ConfigureAwait(false))
                             .Select(s => s.CharacterId)
                             .ToList();
-                        // Kick all players in miniland except owner and his friends
-                        miniland!.Kick(o => o.VisualId != characterId && !friends.Contains(o.VisualId));
+                        await miniland!.KickAsync(o => o.VisualId != characterId && !friends.Contains(o.VisualId)).ConfigureAwait(false);
                         break;
                     }
                 default:
-                    miniland!.Kick(o => o.VisualId != characterId);
+                    await miniland!.KickAsync(o => o.VisualId != characterId).ConfigureAwait(false);
                     break;
             }
         }
 
         public Miniland? GetMinilandFromMapInstanceId(Guid mapInstanceId)
         {
-            return minilandHolder.Minilands.FirstOrDefault(s => s.Value.MapInstanceId == mapInstanceId).Value;
+            return minilandRegistry.FindByMapInstanceId(mapInstanceId);
         }
 
         public void AddMinilandObject(MapDesignObject mapObject, long characterId, InventoryItemInstance minilandobject)
         {
-            var miniland = mapInstanceAccessorService.GetMapInstance(minilandHolder.Minilands[characterId].MapInstanceId);
+            var ml = minilandRegistry.GetMiniland(characterId);
+            if (ml == null)
+            {
+                throw new ArgumentException();
+            }
+            var miniland = mapInstanceAccessorService.GetMapInstance(ml.MapInstanceId);
 
             mapObject.Effect =
                 (short)(minilandobject?.ItemInstance?.Item?.EffectValue ?? minilandobject?.ItemInstance?.Design ?? 0);

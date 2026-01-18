@@ -24,12 +24,12 @@ namespace NosCore.GameObject.Services.TransformationService
 {
     public interface ITransformationService
     {
-        Task RemoveSpAsync(Character character);
+        Task RemoveSpAsync(PlayerContext player);
 
-        Task ChangeSpAsync(Character character);
+        Task ChangeSpAsync(PlayerContext player);
 
-        Task ChangeVehicleAsync(Character character, Item item);
+        Task ChangeVehicleAsync(PlayerContext player, Item item);
 
-        Task RemoveVehicleAsync(Character character);
+        Task RemoveVehicleAsync(PlayerContext player);
     }
 }

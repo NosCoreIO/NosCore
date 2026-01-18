@@ -23,13 +23,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
+using NosCore.Algorithm.ReputationService;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -55,7 +59,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _logger = new Mock<ILogger>();
-            Handler = new VehicleEventHandler(_logger.Object, TestHelpers.Instance.LogLanguageLocalizer, new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, _logger.Object, TestHelpers.Instance.LogLanguageLocalizer));
+            Handler = new VehicleEventHandler(_logger.Object, TestHelpers.Instance.LogLanguageLocalizer, new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, _logger.Object, TestHelpers.Instance.LogLanguageLocalizer, new CondSystem(), new MorphSystem(), new CharacterPacketSystem(new ReputationService(), new DignityService(), TestHelpers.Instance.GameLanguageLocalizer), new EntityPacketSystem(), TestHelpers.Instance.SessionRegistry, new ReputationService(), TestHelpers.Instance.WorldConfiguration), new EntityPacketSystem());
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon}
@@ -68,8 +72,9 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         [TestMethod]
         public async Task Test_Can_Not_Vehicle_In_ShopAsync()
         {
-            Session!.Character.InShop = true;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            var player = Session!.Player;
+            player.InShop = true;
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Player.CharacterId);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             _logger!.Verify(s => s.Error(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]), Times.Exactly(1));
         }
@@ -78,7 +83,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_Vehicle_GetDelayedAsync()
         {
             UseItem.Mode = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Player.CharacterId);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (DelayPacket?)Session.LastPackets.FirstOrDefault(s => s is DelayPacket);
             Assert.IsNotNull(lastpacket);
@@ -88,18 +93,18 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_VehicleAsync()
         {
             UseItem.Mode = 2;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Player.CharacterId);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
-            Assert.IsTrue(Session.Character.IsVehicled);
+            Assert.IsTrue(Session.Player.IsVehicled);
         }
 
         [TestMethod]
         public async Task Test_Vehicle_RemoveAsync()
         {
-            Session!.Character.IsVehicled = true;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            Session!.Player.SetIsVehicled(true);
+            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Player.CharacterId);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
-            Assert.IsFalse(Session.Character.IsVehicled);
+            Assert.IsFalse(Session.Player.IsVehicled);
         }
     }
 }

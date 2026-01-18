@@ -1,19 +1,19 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -21,7 +21,6 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Holders;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
@@ -33,11 +32,10 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.Shared.Enumerations;
 
-
 namespace NosCore.GameObject.Services.FriendService
 {
     public class FriendService(ILogger logger, IDao<CharacterRelationDto, Guid> characterRelationDao,
-            IDao<CharacterDto, long> characterDao, FriendRequestHolder friendRequestHolder,
+            IDao<CharacterDto, long> characterDao, IFriendRequestRegistry friendRequestRegistry,
             IPubSubHub pubSubHub, IChannelHub channelHub, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : IFriendService
     {
@@ -48,9 +46,10 @@ namespace NosCore.GameObject.Services.FriendService
             var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == characterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
             var targetCharacter = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == secondCharacterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
 
-            var friendRequest = friendRequestHolder.FriendRequestCharacters.Where(s =>
-                (s.Value.Item2 == character?.ConnectedCharacter?.Id) &&
-                (s.Value.Item1 == targetCharacter?.ConnectedCharacter?.Id)).ToList();
+            var friendRequests = friendRequestRegistry.FindRequests(
+                targetCharacter?.ConnectedCharacter?.Id ?? 0,
+                character?.ConnectedCharacter?.Id ?? 0);
+
             if ((character != null) && (targetCharacter != null))
             {
                 if (character.ChannelId != targetCharacter.ChannelId)
@@ -84,11 +83,11 @@ namespace NosCore.GameObject.Services.FriendService
                     return LanguageKey.FRIEND_REQUEST_BLOCKED;
                 }
 
-                if (!friendRequest.Any())
+                if (!friendRequests.Any())
                 {
-                    friendRequestHolder.FriendRequestCharacters[Guid.NewGuid()] =
-                        new Tuple<long, long>(character.ConnectedCharacter.Id,
-                            targetCharacter.ConnectedCharacter.Id);
+                    friendRequestRegistry.AddRequest(
+                        character.ConnectedCharacter.Id,
+                        targetCharacter.ConnectedCharacter.Id);
                     return LanguageKey.FRIEND_REQUEST_SENT;
                 }
 
@@ -111,19 +110,22 @@ namespace NosCore.GameObject.Services.FriendService
                         };
 
                         await characterRelationDao.TryInsertOrUpdateAsync(data2).ConfigureAwait(false);
-                        friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
+                        friendRequestRegistry.TryRemoveRequest(friendRequests.First().Key);
                         return LanguageKey.FRIEND_ADDED;
                     case FinsPacketType.Rejected:
-                        friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
+                        friendRequestRegistry.TryRemoveRequest(friendRequests.First().Key);
                         return LanguageKey.FRIEND_REJECTED;
                     default:
                         logger.Error(logLanguage[LogLanguageKey.INVITETYPE_UNKNOWN]);
-                        friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
+                        friendRequestRegistry.TryRemoveRequest(friendRequests.First().Key);
                         throw new ArgumentException();
                 }
             }
 
-            friendRequestHolder.FriendRequestCharacters.TryRemove(friendRequest.First().Key, out _);
+            if (friendRequests.Any())
+            {
+                friendRequestRegistry.TryRemoveRequest(friendRequests.First().Key);
+            }
             throw new ArgumentException();
         }
 
@@ -141,7 +143,7 @@ namespace NosCore.GameObject.Services.FriendService
                 var servers = await channelHub.GetCommunicationChannels();
                 var accounts = await pubSubHub.GetSubscribersAsync();
                 var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == rel.RelatedCharacterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
-          
+
                 charList.Add(new CharacterRelationStatus
                 {
                     CharacterName = (await characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId).ConfigureAwait(false))?.Name,

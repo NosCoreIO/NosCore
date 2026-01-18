@@ -19,7 +19,7 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Shared.I18N;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -40,18 +41,18 @@ namespace NosCore.PacketHandlers.Inventory
     {
         public override async Task ExecuteAsync(GetPacket getPacket, ClientSession clientSession)
         {
-            if (!clientSession.Character.MapInstance.MapItems.ContainsKey(getPacket.VisualId))
+            if (!clientSession.Player.MapInstance.MapItems.ContainsKey(getPacket.VisualId))
             {
                 return;
             }
 
-            var mapItem = clientSession.Character.MapInstance.MapItems[getPacket.VisualId];
+            var mapItem = clientSession.Player.MapInstance.MapItems[getPacket.VisualId];
 
             bool canpick;
             switch (getPacket.PickerType)
             {
                 case VisualType.Player:
-                    canpick = distanceCalculator.GetDistance((clientSession.Character.PositionX, clientSession.Character.PositionY),
+                    canpick = distanceCalculator.GetDistance((clientSession.Player.PositionX, clientSession.Player.PositionY),
                         (mapItem.PositionX, mapItem.PositionY)) < 8;
                     break;
 
@@ -70,20 +71,20 @@ namespace NosCore.PacketHandlers.Inventory
 
             //TODO add group drops
             if ((mapItem.OwnerId != null) && (mapItem.DroppedAt.Plus(Duration.FromSeconds(30)) > clock.GetCurrentInstant()) &&
-                (mapItem.OwnerId != clientSession.Character.CharacterId))
+                (mapItem.OwnerId != clientSession.Player.CharacterId))
             {
                 await clientSession.SendPacketAsync(new SayiPacket
                 {
                     VisualType = VisualType.Player,
-                    VisualId = clientSession.Character.CharacterId,
+                    VisualId = clientSession.Player.CharacterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.UnableToPickUp
                 }).ConfigureAwait(false);
                 return;
             }
 
-            mapItem.Requests[typeof(IGetMapItemEventHandler)].OnNext(new RequestData<Tuple<MapItem, GetPacket>>(clientSession,
-                new Tuple<MapItem, GetPacket>(mapItem, getPacket)));
+            mapItem.Requests[typeof(IGetMapItemEventHandler)].OnNext(new RequestData<Tuple<MapItemRef, GetPacket>>(clientSession,
+                new Tuple<MapItemRef, GetPacket>(mapItem, getPacket)));
 
             await Task.WhenAll(mapItem.HandlerTasks).ConfigureAwait(false);
         }

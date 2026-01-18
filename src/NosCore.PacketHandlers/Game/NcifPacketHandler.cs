@@ -17,48 +17,55 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Arch.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.ClientPackets.Battle;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Game
 {
     public class NcifPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            ISessionRegistry sessionRegistry)
+            ISessionRegistry sessionRegistry, IStatsSystem statsSystem)
         : PacketHandler<NcifPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(NcifPacket ncifPacket, ClientSession session)
         {
-            IAliveEntity? entity;
+            var world = session.Player.MapInstance.EcsWorld.World;
 
             switch (ncifPacket.Type)
             {
                 case VisualType.Player:
-                    entity = sessionRegistry.GetCharacter(s => s.VisualId == ncifPacket.TargetId);
+                    var character = sessionRegistry.GetPlayer(s => s.VisualId == ncifPacket.TargetId);
+                    if (character.HasValue)
+                    {
+                        await session.SendPacketAsync(statsSystem.GenerateStatPacket(character.Value)).ConfigureAwait(false);
+                    }
                     break;
                 case VisualType.Monster:
-                    entity = session.Character.MapInstance.Monsters.Find(s => s.VisualId == ncifPacket.TargetId);
+                    var monster = session.Player.MapInstance.GetMonster((int)ncifPacket.TargetId);
+                    if (monster != null)
+                    {
+                        await session.SendPacketAsync(statsSystem.GenerateStatPacket(world, monster.Value)).ConfigureAwait(false);
+                    }
                     break;
                 case VisualType.Npc:
-                    entity = session.Character.MapInstance.Npcs.Find(s => s.VisualId == ncifPacket.TargetId);
+                    var npc = session.Player.MapInstance.GetNpc((int)ncifPacket.TargetId);
+                    if (npc != null)
+                    {
+                        await session.SendPacketAsync(statsSystem.GenerateStatPacket(world, npc.Value)).ConfigureAwait(false);
+                    }
                     break;
                 default:
                     logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         ncifPacket.Type);
                     return;
-            }
-
-            if (entity != null)
-            {
-                await session.SendPacketAsync(entity.GenerateStatInfo()).ConfigureAwait(false);
             }
         }
     }

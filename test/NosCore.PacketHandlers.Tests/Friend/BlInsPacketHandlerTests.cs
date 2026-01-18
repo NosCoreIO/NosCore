@@ -24,12 +24,12 @@ using Moq;
 using NosCore.Core;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BlackListService;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Tests.Shared;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
@@ -47,7 +47,6 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
 
@@ -60,12 +59,12 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     }
 
                 });
-            _blInsPacketHandler = new BlInsPackettHandler(TestHelpers.Instance.BlacklistHttpClient.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            _blInsPacketHandler = new BlInsPackettHandler(TestHelpers.Instance.BlacklistHttpClient.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer, new CharacterPacketSystem(new NosCore.Algorithm.ReputationService.ReputationService(), new NosCore.Algorithm.DignityService.DignityService(), TestHelpers.Instance.GameLanguageLocalizer));
             TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Player.CharacterId }
                     }
 
                 });
@@ -82,7 +81,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session!).ConfigureAwait(false);
             Assert.IsNull(await
                 TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s =>
-                    (_session!.Character.CharacterId == s.CharacterId) &&
+                    (_session!.Player.CharacterId == s.CharacterId) &&
                     (s.RelationType == CharacterRelationType.Blocked)).ConfigureAwait(false));
         }
 
@@ -94,27 +93,27 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Player.CharacterId }
                     },
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Player.CharacterId }
                     }
 
                 });
             var blacklist = new BlacklistService(TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.ChannelHub.Object,
                 TestHelpers.Instance.CharacterRelationDao, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddBlacklistAsync(It.IsAny<BlacklistRequest>()))
-                .Returns(blacklist.BlacklistPlayerAsync(_session!.Character.CharacterId, targetSession.Character.VisualId));
+                .Returns(blacklist.BlacklistPlayerAsync(_session!.Player.CharacterId, targetSession.Player.VisualId));
             var blinsPacket = new BlInsPacket
             {
-                CharacterId = targetSession.Character.CharacterId
+                CharacterId = targetSession.Player.CharacterId
             };
 
             await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session).ConfigureAwait(false);
             Assert.IsNotNull(
-                TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s => (_session.Character.CharacterId == s.CharacterId)
-                    && (targetSession.Character.CharacterId == s.RelatedCharacterId) &&
+                TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s => (_session.Player.CharacterId == s.CharacterId)
+                    && (targetSession.Player.CharacterId == s.RelatedCharacterId) &&
                     (s.RelationType == CharacterRelationType.Blocked)));
         }
     }

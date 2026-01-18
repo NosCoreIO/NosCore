@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Dto;
-using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ServerPackets.Miniland;
 using System;
 
@@ -28,7 +27,7 @@ namespace NosCore.GameObject.Services.MinilandService
     {
         public Guid MapInstanceId { get; set; }
 
-        public ICharacterEntity? CharacterEntity { get; set; }
+        public string? OwnerName { get; set; }
         public int CurrentMinigame { get; set; }
 
         public MlInfoBrPacket GenerateMlinfobr()
@@ -36,7 +35,7 @@ namespace NosCore.GameObject.Services.MinilandService
             return new MlInfoBrPacket
             {
                 MinilandMusicId = 3800,
-                Name = CharacterEntity?.Name,
+                Name = OwnerName,
                 MinilandMessage = MinilandMessage,
                 DailyVisitCount = DailyVisitCount,
                 Unknown2 = 0,

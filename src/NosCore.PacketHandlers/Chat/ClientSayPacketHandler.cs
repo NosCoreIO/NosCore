@@ -18,24 +18,24 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using System.Threading.Tasks;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Chat
 {
-    public class ClientSayPacketHandler : PacketHandler<ClientSayPacket>, IWorldPacketHandler
+    public class ClientSayPacketHandler(IEntityPacketSystem entityPacketSystem) : PacketHandler<ClientSayPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(ClientSayPacket clientSayPacket, ClientSession session)
         {
             //TODO: Add a penalty check when it will be ready
             const SayColorType type = SayColorType.Default;
-            return session.Character.MapInstance.SendPacketAsync(session.Character.GenerateSay(new SayPacket
+            return session.Player.MapInstance.SendPacketAsync(entityPacketSystem.GenerateSay(session.Player, new SayPacket
             {
                 Message = clientSayPacket.Message,
                 Type = type

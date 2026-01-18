@@ -19,20 +19,21 @@
 
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.Enumerations;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class PositionPacketHandler : PacketHandler<PositionPacket>, IWorldPacketHandler
+    public class PositionPacketHandler(IEntityPacketSystem entityPacketSystem) : PacketHandler<PositionPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(PositionPacket _, ClientSession session)
         {
-            return session.SendPacketAsync(session.Character.GenerateSay(
-                $"Map:{session.Character.MapInstance.Map.MapId} - X:{session.Character.PositionX} - Y:{session.Character.PositionY} - " +
-                $"Dir:{session.Character.Direction} - Cell:{session.Character.MapInstance.Map[session.Character.PositionX, session.Character.PositionY]}",
+            return session.SendPacketAsync(entityPacketSystem.GenerateSay(session.Player,
+                $"Map:{session.Player.MapInstance.Map.MapId} - X:{session.Player.PositionX} - Y:{session.Player.PositionY} - " +
+                $"Dir:{session.Player.Direction} - Cell:{session.Player.MapInstance.Map[session.Player.PositionX, session.Player.PositionY]}",
                 SayColorType.Green));
         }
     }

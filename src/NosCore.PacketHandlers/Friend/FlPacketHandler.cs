@@ -19,7 +19,8 @@
 
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
@@ -34,9 +35,9 @@ namespace NosCore.PacketHandlers.Friend
         public override async Task ExecuteAsync(FlCommandPacket flPacket, ClientSession session)
         {
             var target =
-                sessionRegistry.GetCharacter(s => s.Name == flPacket.CharacterName);
+                sessionRegistry.GetPlayer(s => s.Name == flPacket.CharacterName);
 
-            if (target == null)
+            if (target is not { } player)
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
@@ -47,7 +48,7 @@ namespace NosCore.PacketHandlers.Friend
 
             var fins = new FinsPacket
             {
-                CharacterId = target.VisualId,
+                CharacterId = player.VisualId,
                 Type = FinsPacketType.Accepted
             };
 

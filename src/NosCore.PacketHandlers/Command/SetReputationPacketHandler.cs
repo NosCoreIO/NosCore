@@ -20,7 +20,7 @@
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
@@ -28,6 +28,7 @@ using Character = NosCore.Data.WebApi.Character;
 using System.Linq;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Command
 {
@@ -36,9 +37,10 @@ namespace NosCore.PacketHandlers.Command
     {
         public override async Task ExecuteAsync(SetReputationPacket setReputationPacket, ClientSession session)
         {
-            if ((setReputationPacket.Name == session.Character.Name) || string.IsNullOrEmpty(setReputationPacket.Name))
+            var characterName = session.Player.Name;
+            if ((setReputationPacket.Name == characterName) || string.IsNullOrEmpty(setReputationPacket.Name))
             {
-                await session.Character.SetReputationAsync(setReputationPacket.Reputation).ConfigureAwait(false);
+                session.Player.SetReput(setReputationPacket.Reputation);
                 return;
             }
 

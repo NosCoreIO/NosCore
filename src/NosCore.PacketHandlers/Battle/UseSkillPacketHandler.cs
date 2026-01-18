@@ -17,49 +17,38 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.Data.StaticEntities;
-using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Packets.ServerPackets.Auction;
-using NosCore.Packets.ServerPackets.Inventory;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NodaTime;
-using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
-using NosCore.Packets.ClientPackets.Battle;
-using static NosCore.Packets.ServerPackets.Auction.RcbListPacket;
-using NosCore.Data.Enumerations.Buff;
-using NosCore.Packets.Enumerations;
-using System;
+using Arch.Core;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Packets.ServerPackets.Battle;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.BattleService;
-using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.Packets.ClientPackets.Battle;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
-using NosCore.GameObject.Services.BroadcastService;
+using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Battle
 {
-    public class UseSkillPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IBattleService battleService, ISessionRegistry sessionRegistry)
+    public class UseSkillPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IBattleService battleService, ISessionRegistry sessionRegistry, IRestSystem restSystem)
         : PacketHandler<UseSkillPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(UseSkillPacket packet, ClientSession clientSession)
         {
+            var player = clientSession.Player;
 
-            if (clientSession.Character.CanFight)
+            if (player.CanFight)
             {
-                if (clientSession.Character.IsSitting)
+                if (player.IsSitting)
                 {
-                    await clientSession.Character.RestAsync();
+                    await restSystem.ToggleRestAsync(player.World.World, player.Entity, player.MapInstance);
                 }
-                if (clientSession.Character.IsVehicled)
+                if (player.IsVehicled)
                 {
                     await clientSession.SendPacketAsync(new CancelPacket()
                     {
@@ -68,19 +57,23 @@ namespace NosCore.PacketHandlers.Battle
                     return;
                 }
 
-                IAliveEntity? requestableEntity;
+                Entity? targetEntity;
                 switch (packet.TargetVisualType)
                 {
                     case VisualType.Player:
-                        requestableEntity = sessionRegistry.GetCharacter(s => s.VisualId == packet.TargetId);
+                        var targetPlayer = sessionRegistry.GetPlayer(s => s.VisualId == packet.TargetId);
+                        if (targetPlayer == null)
+                        {
+                            logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
+                            return;
+                        }
+                        targetEntity = targetPlayer.Value.Entity;
                         break;
                     case VisualType.Npc:
-                        requestableEntity =
-                            clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == packet.TargetId);
+                        targetEntity = player.MapInstance.GetNpc((int)packet.TargetId);
                         break;
                     case VisualType.Monster:
-                        requestableEntity =
-                            clientSession.Character.MapInstance.Monsters.Find(s => s.VisualId == packet.TargetId);
+                        targetEntity = player.MapInstance.GetMonster((int)packet.TargetId);
                         break;
                     default:
                         logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
@@ -88,13 +81,13 @@ namespace NosCore.PacketHandlers.Battle
                         return;
                 }
 
-                if (requestableEntity == null)
+                if (targetEntity == null)
                 {
                     logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
                     return;
                 }
 
-                await battleService.Hit(clientSession.Character, requestableEntity, new HitArguments()
+                await battleService.Hit(player, targetEntity.Value, new HitArguments()
                 {
                     SkillId = packet.CastId,
                     MapX = packet.MapX,

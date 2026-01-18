@@ -22,9 +22,9 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -33,7 +33,6 @@ using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
-using Character = NosCore.Data.WebApi.Character;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Services.BroadcastService;
@@ -42,12 +41,13 @@ namespace NosCore.PacketHandlers.Chat
 {
     public class BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHub friendHttpClient,
             IPubSubHub packetHttpClient, IPubSubHub pubSubHub, Channel channel,
-            IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry)
+            IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry,
+            ICharacterPacketSystem characterPacketSystem)
         : PacketHandler<BtkPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(BtkPacket btkPacket, ClientSession session)
         {
-            var friendlist = await friendHttpClient.GetFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
+            var friendlist = await friendHttpClient.GetFriendsAsync(session.Player.VisualId).ConfigureAwait(false);
 
             if (friendlist.All(s => s.CharacterId != btkPacket.CharacterId))
             {
@@ -64,12 +64,16 @@ namespace NosCore.PacketHandlers.Chat
 
             message = message.Trim();
             var receiverSession =
-                sessionRegistry.GetCharacter(s =>
+                sessionRegistry.GetPlayer(s =>
                     s.VisualId == btkPacket.CharacterId);
 
-            if (receiverSession != null)
+            if (receiverSession is {} player)
             {
-                await receiverSession.SendPacketAsync(session.Character.GenerateTalk(message)).ConfigureAwait(false);
+                var receiverSender = sessionRegistry.GetSenderByCharacterId(player.VisualId);
+                if (receiverSender != null)
+                {
+                    await receiverSender.SendPacketAsync(characterPacketSystem.GenerateTalk(session.Player, message)).ConfigureAwait(false);
+                }
                 return;
             }
 
@@ -87,11 +91,11 @@ namespace NosCore.PacketHandlers.Chat
 
             await packetHttpClient.SendMessageAsync(new PostedPacket
             {
-                Packet = packetSerializer.Serialize(new[] { session.Character.GenerateTalk(message) }),
-                ReceiverCharacter = new Character
+                Packet = packetSerializer.Serialize(new[] { characterPacketSystem.GenerateTalk(session.Player, message) }),
+                ReceiverCharacter = new NosCore.Data.WebApi.Character
                 { Id = btkPacket.CharacterId, Name = receiver.ConnectedCharacter?.Name ?? "" },
-                SenderCharacter = new Character
-                { Name = session.Character.Name, Id = session.Character.CharacterId },
+                SenderCharacter = new NosCore.Data.WebApi.Character
+                { Name = session.Player.Name, Id = session.Player.CharacterId },
                 OriginWorldId = channel.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
             }).ConfigureAwait(false);

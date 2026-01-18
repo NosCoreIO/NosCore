@@ -19,31 +19,44 @@
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using NosCore.Dao.Interfaces;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.BazaarService;
+using NosCore.GameObject.Services.MailService;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace NosCore.MasterServer
 {
-    public class MasterServer(IOptions<MasterConfiguration> masterConfiguration, ILogger logger, 
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class MasterServer(IOptions<MasterConfiguration> masterConfiguration, ILogger logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            IBazaarService bazaarService,
+            IMailService mailService,
+            IDao<BazaarItemDto, long> bazaarItemDao,
+            IDao<MailDto, long> mailDao,
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao,
+            IDao<CharacterDto, long> characterDao,
+            List<ItemDto> items)
         : BackgroundService
     {
         private readonly MasterConfiguration _masterConfiguration = masterConfiguration.Value;
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            bazaarService.Initialize(bazaarItemDao, itemInstanceDao, characterDao);
+            await mailService.InitializeAsync(characterDao, mailDao, items, itemInstanceDao).ConfigureAwait(false);
             logger.Information(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Console.Title += $@" - WebApi : {_masterConfiguration.WebApi}";
             }
-
-            return Task.CompletedTask;
         }
     }
 }

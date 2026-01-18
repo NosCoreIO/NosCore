@@ -20,20 +20,22 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.SpeedService;
-using NosCore.Data.StaticEntities;
-using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
 {
     [TestClass]
     public class SpeedCalculationServiceTests
     {
-        private readonly GameObject.Services.SpeedCalculationService.SpeedCalculationService _speedCalculationService;
-        private readonly Mock<ISpeedService> _speedService;
+        private GameObject.Services.SpeedCalculationService.SpeedCalculationService? _speedCalculationService;
+        private Mock<ISpeedService>? _speedService;
 
-        public SpeedCalculationServiceTests()
+        [TestInitialize]
+        public async Task SetupAsync()
         {
+            await TestHelpers.ResetAsync().ConfigureAwait(false);
             _speedService = new Mock<ISpeedService>();
             _speedCalculationService = new GameObject.Services.SpeedCalculationService.SpeedCalculationService(_speedService.Object);
         }
@@ -44,15 +46,15 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
         [DataRow((int)CharacterClassType.Swordsman)]
         [DataRow((int)CharacterClassType.MartialArtist)]
         [DataRow((int)CharacterClassType.Adventurer)]
-        public void DefaultSpeedIsClassSpeed(int characterClassInt)
+        public async Task DefaultSpeedIsClassSpeedAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
-            _speedService.Setup(x => x.GetSpeed(characterClass)).Returns((byte)characterClassInt);
+            _speedService!.Setup(x => x.GetSpeed(characterClass)).Returns((byte)characterClassInt);
 
-            var charMock = new Mock<ICharacterEntity>();
-            charMock.SetupGet(x => x.Class).Returns(characterClass);
+            var session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            session.Player.SetClass(characterClass);
 
-            var speed = _speedCalculationService.CalculateSpeed(charMock.Object);
+            var speed = _speedCalculationService!.CalculateSpeed(session.Player);
             Assert.AreEqual((byte)characterClassInt, speed);
         }
 
@@ -62,29 +64,18 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
         [DataRow((int)CharacterClassType.Swordsman)]
         [DataRow((int)CharacterClassType.MartialArtist)]
         [DataRow((int)CharacterClassType.Adventurer)]
-        public void VehicleSpeedOverrideDefaultSpeed(int characterClassInt)
+        public async Task VehicleSpeedOverrideDefaultSpeedAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
-            _speedService.Setup(x => x.GetSpeed(characterClass)).Returns((byte)characterClassInt);
+            _speedService!.Setup(x => x.GetSpeed(characterClass)).Returns((byte)characterClassInt);
 
-            var charMock = new Mock<ICharacterEntity>();
-            charMock.SetupGet(x => x.Class).Returns(characterClass);
-            charMock.SetupGet(x => x.VehicleSpeed).Returns(50);
+            var session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            session.Player.SetClass(characterClass);
+            session.Player.SetVehicleSpeed(50);
 
-            var speed = _speedCalculationService.CalculateSpeed(charMock.Object);
-            Assert.AreEqual(50, speed);
+            var speed = _speedCalculationService!.CalculateSpeed(session.Player);
+            Assert.AreEqual((byte)50, speed);
         }
 
-        [TestMethod]
-        public void DefaultMonsterSpeedIsNpcMonsterSpeed()
-        {
-            var charMock = new Mock<INonPlayableEntity>();
-            charMock.SetupGet(x => x.NpcMonster).Returns(new NpcMonsterDto
-            {
-                Speed = 50
-            });
-            var speed = _speedCalculationService.CalculateSpeed(charMock.Object);
-            Assert.AreEqual(50, speed);
-        }
     }
 }

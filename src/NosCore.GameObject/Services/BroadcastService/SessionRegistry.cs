@@ -22,8 +22,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Arch.Core;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.Interfaces;
 
 namespace NosCore.GameObject.Services.BroadcastService
@@ -46,7 +47,7 @@ namespace NosCore.GameObject.Services.BroadcastService
             }
         }
 
-        public void UpdateCharacter(string channelId, long characterId, Guid? mapInstanceId, ICharacterEntity? character)
+        public void UpdatePlayer(string channelId, long characterId, Guid? mapInstanceId, Entity entity)
         {
             if (_sessionsByChannelId.TryGetValue(channelId, out var session))
             {
@@ -57,7 +58,7 @@ namespace NosCore.GameObject.Services.BroadcastService
 
                 session.CharacterId = characterId;
                 session.MapInstanceId = mapInstanceId;
-                session.Character = character;
+                session.PlayerEntity = entity;
                 _channelIdByCharacterId[characterId] = channelId;
             }
         }
@@ -72,6 +73,16 @@ namespace NosCore.GameObject.Services.BroadcastService
             if (_channelIdByCharacterId.TryGetValue(characterId, out var channelId))
             {
                 return GetSenderByChannelId(channelId);
+            }
+            return null;
+        }
+
+        public ClientSession? GetSessionByCharacterId(long characterId)
+        {
+            if (_channelIdByCharacterId.TryGetValue(characterId, out var channelId) &&
+                _sessionsByChannelId.TryGetValue(channelId, out var session))
+            {
+                return session.Sender as ClientSession;
             }
             return null;
         }
@@ -91,21 +102,29 @@ namespace NosCore.GameObject.Services.BroadcastService
             return _sessionsByChannelId.Values;
         }
 
-        public ICharacterEntity? GetCharacter(Func<ICharacterEntity, bool> predicate)
+        public PlayerContext? GetPlayer(Func<PlayerContext, bool> predicate)
         {
-            return _sessionsByChannelId.Values
-                .Where(s => s.Character != null)
-                .Select(s => s.Character!)
-                .FirstOrDefault(predicate);
+            foreach (var session in _sessionsByChannelId.Values)
+            {
+                if (session.Sender is ClientSession clientSession && clientSession.TryGetPlayer(out var player))
+                {
+                    if (predicate(player))
+                    {
+                        return player;
+                    }
+                }
+            }
+            return null;
         }
 
-        public IEnumerable<ICharacterEntity> GetCharacters(Func<ICharacterEntity, bool>? predicate = null)
+        public IEnumerable<PlayerContext> GetPlayers(Func<PlayerContext, bool>? predicate = null)
         {
-            var characters = _sessionsByChannelId.Values
-                .Where(s => s.Character != null)
-                .Select(s => s.Character!);
+            var players = _sessionsByChannelId.Values
+                .Select(s => s.Sender as ClientSession)
+                .Where(cs => cs != null && cs.TryGetPlayer(out _))
+                .Select(cs => cs!.Player);
 
-            return predicate == null ? characters : characters.Where(predicate);
+            return predicate == null ? players : players.Where(predicate);
         }
 
         public async Task BroadcastPacketAsync(IPacket packet)
@@ -132,16 +151,25 @@ namespace NosCore.GameObject.Services.BroadcastService
         public List<Subscriber> GetConnectedAccounts()
         {
             return _sessionsByChannelId.Values.Select(s =>
-                new Subscriber
+            {
+                var clientSession = s.Sender as ClientSession;
+                PlayerContext? player = null;
+                if (clientSession?.TryGetPlayer(out var p) == true)
+                {
+                    player = p;
+                }
+
+                return new Subscriber
                 {
                     Name = s.AccountName,
-                    ConnectedCharacter = s.Character == null ? null : new Data.WebApi.Character
+                    ConnectedCharacter = player == null ? null : new Data.WebApi.Character
                     {
-                        Name = s.Character.Name!,
-                        Id = s.Character.VisualId,
-                        FriendRequestBlocked = s.Character.FriendRequestBlocked
+                        Name = player.Value.Name,
+                        Id = player.Value.VisualId,
+                        FriendRequestBlocked = player.Value.CharacterData.FriendRequestBlocked
                     }
-                }).ToList();
+                };
+            }).ToList();
         }
     }
 }

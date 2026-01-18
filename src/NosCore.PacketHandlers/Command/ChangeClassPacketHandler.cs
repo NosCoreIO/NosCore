@@ -21,13 +21,14 @@ using System.Linq;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Command
 {
@@ -36,9 +37,10 @@ namespace NosCore.PacketHandlers.Command
     {
         public override async Task ExecuteAsync(ChangeClassPacket changeClassPacket, ClientSession session)
         {
-            if ((changeClassPacket.Name == session.Character.Name) || string.IsNullOrEmpty(changeClassPacket.Name))
+            var characterName = session.Player.Name;
+            if ((changeClassPacket.Name == characterName) || string.IsNullOrEmpty(changeClassPacket.Name))
             {
-                await session.Character.ChangeClassAsync(changeClassPacket.ClassType).ConfigureAwait(false);
+                session.Player.SetClass(changeClassPacket.ClassType);
                 return;
             }
 

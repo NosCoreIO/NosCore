@@ -20,8 +20,7 @@
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -29,17 +28,18 @@ using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Friend
 {
     public class BlInsPackettHandler(IBlacklistHub blacklistHttpClient, ILogger logger,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ICharacterPacketSystem characterPacketSystem)
         : PacketHandler<BlInsPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(BlInsPacket blinsPacket, ClientSession session)
         {
             var result = await blacklistHttpClient.AddBlacklistAsync(new BlacklistRequest
-            { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket }).ConfigureAwait(false);
+            { CharacterId = session.Player.CharacterId, BlInsPacket = blinsPacket }).ConfigureAwait(false);
             switch (result)
             {
                 case LanguageKey.CANT_BLOCK_FRIEND:
@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Friend
                     {
                         Message = Game18NConstString.CharacterBlacklisted
                     }).ConfigureAwait(false);
-                    await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                    await session.SendPacketAsync(await characterPacketSystem.GenerateBlinitAsync(session.Player, blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
                     break;
                 default:
                     logger.Warning(logLanguage[LogLanguageKey.FRIEND_REQUEST_DISCONNECTED]);

@@ -19,24 +19,25 @@
 
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.Enumerations;
 using System.Threading.Tasks;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SpeedPacketHandler : PacketHandler<SpeedPacket>, IWorldPacketHandler
+    public class SpeedPacketHandler(ICondSystem condSystem, IEntityPacketSystem entityPacketSystem) : PacketHandler<SpeedPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(SpeedPacket speedPacket, ClientSession session)
         {
             if ((speedPacket.Speed <= 0) || (speedPacket.Speed >= 60))
             {
-                return session.SendPacketAsync(session.Character.GenerateSay(speedPacket.Help(), SayColorType.Yellow));
+                return session.SendPacketAsync(entityPacketSystem.GenerateSay(session.Player, speedPacket.Help(), SayColorType.Yellow));
             }
 
-            session.Character.VehicleSpeed = speedPacket.Speed >= 60 ? (byte)59 : speedPacket.Speed;
-            return session.SendPacketAsync(session.Character.GenerateCond());
+            session.Player.SetVehicleSpeed(speedPacket.Speed >= 60 ? (byte)59 : speedPacket.Speed);
+            return session.SendPacketAsync(condSystem.GenerateCondPacket(session.Player));
         }
     }
 }

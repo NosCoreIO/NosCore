@@ -18,50 +18,48 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject;
 using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.PacketHandlers.Movement
 {
-    public class SitPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry)
+    public class SitPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry, IRestSystem restSystem)
         : PacketHandler<SitPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(SitPacket sitpacket, ClientSession clientSession)
         {
             return Task.WhenAll(sitpacket.Users!.Select(u =>
             {
-                IAliveEntity entity;
-
                 switch (u!.VisualType)
                 {
                     case VisualType.Player:
-                        entity = sessionRegistry.GetCharacter(s => s.VisualId == u.VisualId)!;
-                        if (entity.VisualId != clientSession.Character.VisualId)
+                        if (sessionRegistry.GetPlayer(s => s.VisualId == u.VisualId) is not {} player)
+                        {
+                            return Task.CompletedTask;
+                        }
+                        if (player.VisualId != clientSession.Player.VisualId)
                         {
                             logger.Error(
                                 logLanguage[LogLanguageKey.DIRECT_ACCESS_OBJECT_DETECTED],
-                                clientSession.Character, sitpacket);
+                                clientSession.Player, sitpacket);
                             return Task.CompletedTask;
                         }
 
-                        break;
+                        return restSystem.ToggleRestAsync(player);
                     default:
                         logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                             u.VisualType);
                         return Task.CompletedTask;
                 }
-
-                return entity.RestAsync();
             }));
         }
     }

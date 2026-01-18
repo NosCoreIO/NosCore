@@ -28,7 +28,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Parcel;
 using NosCore.Packets.ClientPackets.Parcel;
@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         [TestMethod]
         public async Task Test_GiftNotFoundAsync()
         {
-            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData>());
+            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Player.CharacterId, false)).ReturnsAsync(new List<MailData>());
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 5,
@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             };
             _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync(item);
-            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData>() { mail });
+            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Player.CharacterId, false)).ReturnsAsync(new List<MailData>() { mail });
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 5,
@@ -108,7 +108,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             };
             _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync(item);
-            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData> { mail });
+            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Player.CharacterId, false)).ReturnsAsync(new List<MailData> { mail });
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {
                 Type = 4,
@@ -133,7 +133,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             };
             _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync(item);
-            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData> { mail });
+            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Player.CharacterId, false)).ReturnsAsync(new List<MailData> { mail });
 
             await _pclPacketHandler!.ExecuteAsync(new PclPacket
             {

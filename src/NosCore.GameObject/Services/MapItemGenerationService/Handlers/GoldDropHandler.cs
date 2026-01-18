@@ -19,8 +19,8 @@
 
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -32,32 +32,33 @@ using NosCore.Packets.ServerPackets.Chats;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {
-    public class GoldDropEventHandler(IOptions<WorldConfiguration> worldConfiguration) : IGetMapItemEventHandler
+    public class GoldDropEventHandler(IOptions<WorldConfiguration> worldConfiguration, ICharacterPacketSystem characterPacketSystem) : IGetMapItemEventHandler
     {
-        public bool Condition(MapItem item)
+        public bool Condition(MapItemRef item)
         {
             return item.VNum == 1046;
         }
 
-        public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
+        public async Task ExecuteAsync(RequestData<Tuple<MapItemRef, GetPacket>> requestData)
         {
-            // handle gold drop
+            var player = requestData.ClientSession.Player;
             var maxGold = worldConfiguration.Value.MaxGoldAmount;
-            if (requestData.ClientSession.Character.Gold + requestData.Data.Item1.Amount <= maxGold)
+            var currentGold = player.Gold;
+            if (currentGold + requestData.Data.Item1.Amount <= maxGold)
             {
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     await requestData.ClientSession.SendPacketAsync(
-                        requestData.ClientSession.Character.GenerateIcon(1, requestData.Data.Item1.VNum)).ConfigureAwait(false);
+                        characterPacketSystem.GenerateIcon(player, 1, requestData.Data.Item1.VNum)).ConfigureAwait(false);
                 }
 
-                requestData.ClientSession.Character.Gold += requestData.Data.Item1.Amount;
+                player.SetGold(currentGold + requestData.Data.Item1.Amount);
 
-#pragma warning disable NosCoreAnalyzers // For some reason this packet doesn't have the right amount of arguments
+#pragma warning disable NosCoreAnalyzers
                 await requestData.ClientSession.SendPacketAsync(new Sayi2Packet
                 {
                     VisualType = VisualType.Player,
-                    VisualId = requestData.ClientSession.Character.CharacterId,
+                    VisualId = player.CharacterId,
                     Type = SayColorType.Green,
                     Message = Game18NConstString.ItemReceived,
                     ArgumentType = 9,
@@ -67,7 +68,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
             }
             else
             {
-                requestData.ClientSession.Character.Gold = maxGold;
+                player.SetGold(maxGold);
                 await requestData.ClientSession.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,
@@ -75,10 +76,10 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                 }).ConfigureAwait(false);
             }
 
-            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateGold()).ConfigureAwait(false);
-            requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
-            await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
-                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId)).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacketAsync(characterPacketSystem.GenerateGold(player)).ConfigureAwait(false);
+            player.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
+            await player.MapInstance.SendPacketAsync(
+                characterPacketSystem.GenerateGet(player, requestData.Data.Item1.VisualId)).ConfigureAwait(false);
         }
     }
 }

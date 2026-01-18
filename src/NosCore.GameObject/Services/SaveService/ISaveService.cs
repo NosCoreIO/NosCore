@@ -18,12 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
-using NosCore.GameObject.ComponentEntities.Interfaces;
 
 namespace NosCore.GameObject.Services.SaveService
 {
     public interface ISaveService
     {
-        Task SaveAsync(ICharacterEntity character);
+        Task SaveAsync(PlayerContext player);
     }
 }

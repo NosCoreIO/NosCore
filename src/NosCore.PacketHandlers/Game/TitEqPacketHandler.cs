@@ -18,23 +18,24 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Networking;
 
 
 namespace NosCore.PacketHandlers.Game
 {
-    public class TitEqPacketHandler : PacketHandler<TitEqPacket>, IWorldPacketHandler
+    public class TitEqPacketHandler(ICharacterPacketSystem characterPacketSystem, ISessionRegistry sessionRegistry) : PacketHandler<TitEqPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(TitEqPacket titEqPacket, ClientSession session)
         {
-            var tit = session.Character.Titles.FirstOrDefault(s => s.TitleType == titEqPacket.TitleId);
+            var tit = session.Player.Titles.FirstOrDefault(s => s.TitleType == titEqPacket.TitleId);
             if (tit == null)
             {
                 return;
@@ -44,7 +45,7 @@ namespace NosCore.PacketHandlers.Game
             switch (titEqPacket.Mode)
             {
                 case 1:
-                    foreach (var title in session.Character.Titles.Where(s => s.TitleType != titEqPacket.TitleId))
+                    foreach (var title in session.Player.Titles.Where(s => s.TitleType != titEqPacket.TitleId))
                     {
                         title.Visible = false;
                     }
@@ -55,7 +56,7 @@ namespace NosCore.PacketHandlers.Game
                     }).ConfigureAwait(false);
                     break;
                 default:
-                    foreach (var title in session.Character.Titles.Where(s => s.TitleType != titEqPacket.TitleId))
+                    foreach (var title in session.Player.Titles.Where(s => s.TitleType != titEqPacket.TitleId))
                     {
                         title.Active = false;
                     }
@@ -66,8 +67,8 @@ namespace NosCore.PacketHandlers.Game
                     }).ConfigureAwait(false);
                     break;
             }
-            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateTitInfo()).ConfigureAwait(false);
-            await session.Character.SendPacketAsync(session.Character.GenerateTitle()).ConfigureAwait(false);
+            await session.Player.MapInstance.SendPacketAsync(characterPacketSystem.GenerateTitInfo(session.Player)).ConfigureAwait(false);
+            await (sessionRegistry.GetSenderByCharacterId(session.Player.CharacterId)?.SendPacketAsync(characterPacketSystem.GenerateTitle(session.Player)) ?? Task.CompletedTask).ConfigureAwait(false);
         }
     }
 }

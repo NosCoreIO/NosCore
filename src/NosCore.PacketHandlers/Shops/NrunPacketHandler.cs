@@ -17,19 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using Arch.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.NRunService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
-using System;
 using System.Threading.Tasks;
-using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.PacketHandlers.Shops
 {
@@ -40,17 +39,26 @@ namespace NosCore.PacketHandlers.Shops
         public override async Task ExecuteAsync(NrunPacket nRunPacket, ClientSession clientSession)
         {
             var forceNull = false;
-            IAliveEntity? aliveEntity;
+            Entity? entity = null;
+            MapInstance? mapInstance = null;
+
             switch (nRunPacket.VisualType)
             {
                 case VisualType.Player:
-                    aliveEntity = sessionRegistry.GetCharacter(s => s.VisualId == nRunPacket.VisualId);
+                    var character = sessionRegistry.GetPlayer(s => s.VisualId == nRunPacket.VisualId);
+                    if (character is { } player)
+                    {
+                        entity = player.Entity;
+                        mapInstance = player.MapInstance;
+                    }
                     break;
                 case VisualType.Npc:
-                    aliveEntity = clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == nRunPacket.VisualId);
+                    entity = nRunPacket.VisualId.HasValue
+                        ? clientSession.Player.MapInstance.GetNpc((int)nRunPacket.VisualId.Value)
+                        : null;
+                    mapInstance = clientSession.Player.MapInstance;
                     break;
                 case null:
-                    aliveEntity = null;
                     forceNull = true;
                     break;
 
@@ -60,13 +68,13 @@ namespace NosCore.PacketHandlers.Shops
                     return;
             }
 
-            if ((aliveEntity == null) && !forceNull)
+            if ((entity == null) && !forceNull)
             {
                 logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
                 return;
             }
 
-            await nRunRunnerService.NRunLaunchAsync(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity!, nRunPacket)).ConfigureAwait(false);
+            await nRunRunnerService.NRunLaunchAsync(clientSession, new NrunData(entity, mapInstance, nRunPacket)).ConfigureAwait(false);
         }
     }
 }

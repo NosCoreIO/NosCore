@@ -455,9 +455,6 @@
     <value>Зарегистрирован на Master сервере</value>
     <comment>check</comment>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Твоя репутация изменилась!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>Импортировано {0} RespawnTypes!</value>
   </data>
@@ -516,9 +513,6 @@
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
     <value>Неизвестный Reciever type</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>Золото было обновлено!</value>
   </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>Игрок не является твоим другом!</value>

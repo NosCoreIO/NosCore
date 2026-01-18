@@ -19,13 +19,13 @@
 
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
@@ -33,7 +33,7 @@ namespace NosCore.PacketHandlers.Bazaar
     {
         public override async Task ExecuteAsync(CSkillPacket packet, ClientSession clientSession)
         {
-            var medalBonus = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
+            var medalBonus = clientSession.Player.StaticBonusList.FirstOrDefault(s =>
                 (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
                 (s.StaticBonusType == StaticBonusType.BazaarMedalSilver));
             if (medalBonus != null)

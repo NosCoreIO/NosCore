@@ -369,9 +369,6 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Ana Sunucu'ya bağlanıldı.</value>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>İtibarın değişti!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Parsed!</value>
   </data>
@@ -437,9 +434,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Destek</value>
-  </data>
-  <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>Altının güncellendi!</value>
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>{0} Paketi karakter olmadan kullanılmaya çalışılıyor!</value>

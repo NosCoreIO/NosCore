@@ -21,7 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.HpService;
@@ -32,19 +31,22 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject;
 using NosCore.GameObject.Map;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking.SessionGroup;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.PacketHandlers.CharacterScreen;
+using NosCore.PathFinder.Interfaces;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Services.ShopService;
+using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Tests.CharacterScreen
 {
@@ -52,7 +54,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     public class CharNewPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private Character? _chara;
+        private PlayerContext _player;
         private CharNewPacketHandler? _charNewPacketHandler;
         private ClientSession? _session;
         private Mock<IMapChangeService> _mapChangeService = null!;
@@ -64,23 +66,22 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _charNewPacketHandler =
                 new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.MinilandDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
-                    new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), TestHelpers.Instance.WorldConfiguration, new Mock<IDao<CharacterSkillDto,Guid>>().Object);
+                    new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), TestHelpers.Instance.WorldConfiguration, new Mock<IDao<CharacterSkillDto,Guid>>().Object, () => new Mock<NosCore.GameObject.Services.InventoryService.IInventoryService>().Object);
             _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { _charNewPacketHandler }).ConfigureAwait(false);
-            _chara = _session.Character;
+            _player = _session.Player;
             _mapChangeService = new Mock<IMapChangeService>();
-            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => _chara);
-            await _session.SetCharacterAsync(null).ConfigureAwait(false);
+            _session.ClearPlayer();
         }
 
         [TestMethod]
         public async Task CreateCharacterWhenInGame_Does_Not_Create_CharacterAsync()
         {
-            var idServer = new IdService<MapItem>(1);
-            await _session!.SetCharacterAsync(_chara).ConfigureAwait(false);
-            _session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
-                    new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()), idServer),
-                    Logger, TestHelpers.Instance.Clock, _mapChangeService.Object, new Mock<ISessionGroupFactory>().Object, TestHelpers.Instance.SessionRegistry);
+            var idServer = new IdService<MapItemRef>(1);
+            var mapInstance = new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
+                new MapItemGenerationService(new EventLoaderService<MapItemRef, Tuple<MapItemRef, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItemRef, Tuple<MapItemRef, GetPacket>>>()), idServer, new MapItemRegistry()),
+                Logger, TestHelpers.Instance.Clock, _mapChangeService.Object, new Mock<ISessionGroupFactory>().Object, TestHelpers.Instance.SessionRegistry, new Mock<IHeuristic>().Object,
+                new VisibilitySystem(), new MorphSystem(), new EntityPacketSystem(), new ShopRegistry());
+            await _session!.SetPlayerAsync(_player.GameState, _player.CharacterData, mapInstance).ConfigureAwait(false);
             const string name = "TestCharacter";
             await _session!.HandlePacketsAsync(new[] {new CharNewPacket
             {

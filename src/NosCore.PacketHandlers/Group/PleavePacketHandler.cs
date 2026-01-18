@@ -19,27 +19,28 @@
 
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.ClientPackets.Groups;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Services.IdService;
 using NosCore.Networking;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Group
 {
-    public class PleavePacketHandler(IIdService<GameObject.Group> groupIdService, ISessionRegistry sessionRegistry) : PacketHandler<PleavePacket>,
-        IWorldPacketHandler
+    public class PleavePacketHandler(IIdService<GameObject.Group> groupIdService, ISessionRegistry sessionRegistry,
+            IGroupPacketSystem groupPacketSystem)
+        : PacketHandler<PleavePacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PleavePacket bIPacket, ClientSession clientSession)
         {
-            var group = clientSession.Character.Group;
+            var group = clientSession.Player.Group;
 
             if (group!.Count == 1)
             {
@@ -48,23 +49,26 @@ namespace NosCore.PacketHandlers.Group
 
             if (group.Count > 2)
             {
-                var isLeader = group.IsGroupLeader(clientSession.Character.CharacterId);
-                await clientSession.Character.LeaveGroupAsync().ConfigureAwait(false);
+                var isLeader = group.IsGroupLeader(clientSession.Player.CharacterId);
+                clientSession.Player.Group?.LeaveGroup(clientSession.Player);
+                var player = clientSession.Player;
+                player.Group = null;
+                clientSession.Player.GameState.InitializeGroup();
 
                 if (isLeader)
                 {
-                    var targetsession = sessionRegistry.GetCharacter(s =>
-                        s.VisualId == group.Values.First().Item2.VisualId);
+                    var firstMemberId = group.GetPlayerIds().FirstOrDefault();
+                    var targetsession = sessionRegistry.GetPlayer(s => s.CharacterId == firstMemberId);
 
-                    if (targetsession == null)
+                    if (targetsession is not {} target)
                     {
                         return;
                     }
 
-                    await targetsession.SendPacketAsync(new InfoiPacket
+                    await (sessionRegistry.GetSenderByCharacterId(target.CharacterId)?.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.YouAreNowGroupLeader
-                    }).ConfigureAwait(false);
+                    }) ?? Task.CompletedTask).ConfigureAwait(false);
                 }
 
                 if (group.Type != GroupType.Group)
@@ -72,41 +76,45 @@ namespace NosCore.PacketHandlers.Group
                     return;
                 }
 
-                foreach (var member in group.Values.Where(s => s.Item2 is ICharacterEntity))
+                foreach (var characterId in group.GetPlayerIds())
                 {
-                    var character = member.Item2 as ICharacterEntity;
-                    await (character == null ? Task.CompletedTask : character.SendPacketAsync(character.Group!.GeneratePinit())).ConfigureAwait(false);
+                    var memberPlayer = sessionRegistry.GetPlayer(s => s.CharacterId == characterId);
+                    if (memberPlayer is {} member)
+                    {
+                        await (sessionRegistry.GetSenderByCharacterId(member.CharacterId)?.SendPacketAsync(member.Group!.GeneratePinit(sessionRegistry)) ?? Task.CompletedTask).ConfigureAwait(false);
+                    }
                 }
 
-                await clientSession.SendPacketAsync(clientSession.Character.Group!.GeneratePinit()).ConfigureAwait(false);
-                await clientSession.Character.MapInstance.SendPacketAsync(
-                    clientSession.Character.Group.GeneratePidx(clientSession.Character)).ConfigureAwait(false);
+                await clientSession.SendPacketAsync(clientSession.Player.Group!.GeneratePinit(sessionRegistry)).ConfigureAwait(false);
+                await clientSession.Player.MapInstance.SendPacketAsync(
+                    groupPacketSystem.GeneratePidx(clientSession.Player.Group, clientSession.Player)).ConfigureAwait(false);
             }
             else
             {
-                var memberList = new List<INamedEntity>();
-                memberList.AddRange(group.Values.Select(s => s.Item2));
-
-                foreach (var member in memberList.Where(s => s is ICharacterEntity))
+                var memberList = new List<PlayerContext>();
+                foreach (var characterId in group.GetPlayerIds())
                 {
-                    var targetsession =
-                        sessionRegistry.GetCharacter(s =>
-                            s.VisualId == member.VisualId);
-
-                    if (targetsession == null)
+                    var player = sessionRegistry.GetPlayer(s => s.CharacterId == characterId);
+                    if (player is {} p)
                     {
-                        continue;
+                        memberList.Add(p);
                     }
+                }
 
-                    await targetsession.SendPacketAsync(new MsgiPacket
+                foreach (var targetsession in memberList)
+                {
+                    var sender = sessionRegistry.GetSenderByCharacterId(targetsession.CharacterId);
+                    await (sender?.SendPacketAsync(new MsgiPacket
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.PartyDisbanded
-                    }).ConfigureAwait(false);
+                    }) ?? Task.CompletedTask).ConfigureAwait(false);
 
-                    await targetsession.LeaveGroupAsync().ConfigureAwait(false);
-                    await targetsession.SendPacketAsync(targetsession.Group!.GeneratePinit()).ConfigureAwait(false);
-                    await targetsession.MapInstance.SendPacketAsync(targetsession.Group.GeneratePidx(targetsession)).ConfigureAwait(false);
+                    targetsession.Group?.LeaveGroup(targetsession);
+                    targetsession.GameState.Group = null;
+                    targetsession.GameState.InitializeGroup();
+                    await (sender?.SendPacketAsync(targetsession.Group!.GeneratePinit(sessionRegistry)) ?? Task.CompletedTask).ConfigureAwait(false);
+                    await targetsession.MapInstance.SendPacketAsync(groupPacketSystem.GeneratePidx(targetsession.Group!, targetsession)).ConfigureAwait(false);
                 }
 
                 groupIdService.Items.TryRemove(group.GroupId, out _);

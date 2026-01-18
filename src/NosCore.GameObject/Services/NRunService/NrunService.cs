@@ -17,9 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets.Npcs;
+
+using NosCore.GameObject.Networking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,16 +28,13 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.NRunService
 {
-    public class NrunService(
-            IEnumerable<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>> handlers)
-        : INrunService
+    public class NrunService(IEnumerable<IEventHandler<NrunData, NrunData>> handlers) : INrunService
     {
-        private readonly List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
-            _handlers = Enumerable.ToList<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>(handlers);
+        private readonly List<IEventHandler<NrunData, NrunData>> _handlers = Enumerable.ToList(handlers);
 
-        public Task NRunLaunchAsync(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data)
+        public Task NRunLaunchAsync(ClientSession clientSession, NrunData data)
         {
-            var handlersRequest = new Subject<RequestData<Tuple<IAliveEntity, NrunPacket>>>();
+            var handlersRequest = new Subject<RequestData<NrunData>>();
             var taskList = new List<Task>();
             _handlers.ForEach(handler =>
             {
@@ -52,7 +48,7 @@ namespace NosCore.GameObject.Services.NRunService
                     }).Subscribe();
                 }
             });
-            handlersRequest.OnNext(new RequestData<Tuple<IAliveEntity, NrunPacket>>(clientSession, data));
+            handlersRequest.OnNext(new RequestData<NrunData>(clientSession, data));
             return Task.WhenAll(taskList);
         }
     }

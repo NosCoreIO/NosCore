@@ -21,27 +21,27 @@ using System.Linq;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Friend
 {
     public class BlDelPacketHandler(IBlacklistHub blacklistHttpClient,
-            IGameLanguageLocalizer gameLanguageLocalizer)
+            IGameLanguageLocalizer gameLanguageLocalizer, ICharacterPacketSystem characterPacketSystem)
         : PacketHandler<BlDelPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(BlDelPacket bldelPacket, ClientSession session)
         {
-            var list = await blacklistHttpClient.GetBlacklistedAsync(session.Character.VisualId).ConfigureAwait(false);
+            var list = await blacklistHttpClient.GetBlacklistedAsync(session.Player.VisualId).ConfigureAwait(false);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == bldelPacket.CharacterId);
             if (idtorem != null)
             {
                 await blacklistHttpClient.DeleteAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
-                await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                await session.SendPacketAsync(await characterPacketSystem.GenerateBlinitAsync(session.Player, blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
             }
             else
             {

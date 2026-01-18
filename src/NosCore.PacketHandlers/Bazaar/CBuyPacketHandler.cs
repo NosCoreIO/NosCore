@@ -21,8 +21,8 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.ClientPackets.Bazaar;
@@ -38,19 +38,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
     public class CBuyPacketHandler(IBazaarHub bazaarHttpClient, IItemGenerationService itemProvider,
             ILogger logger,
-            IDao<IItemInstanceDto?, Guid> itemInstanceDao, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            ICharacterPacketSystem characterPacketSystem, IInventoryPacketSystem inventoryPacketSystem)
         : PacketHandler<CBuyPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CBuyPacket packet, ClientSession clientSession)
         {
             var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId, null, null, null, null, null, null, null, null).ConfigureAwait(false);
             var bz = bzs.FirstOrDefault();
-            if ((bz != null) && (bz.SellerName != clientSession.Character.Name) &&
+            if ((bz != null) && (bz.SellerName != clientSession.Player.Name) &&
                 (packet.Price == bz.BazaarItem?.Price) && (bz.ItemInstance?.Amount >= packet.Amount))
             {
                 if (bz.BazaarItem.IsPackage && (bz.BazaarItem.Amount != packet.Amount))
@@ -59,23 +61,27 @@ namespace NosCore.PacketHandlers.Bazaar
                 }
 
                 var price = bz.BazaarItem.Price * packet.Amount;
-                if (clientSession.Character.InventoryService.CanAddItem(bz.ItemInstance.ItemVNum))
+                if (clientSession.Player.InventoryService.CanAddItem(bz.ItemInstance.ItemVNum))
                 {
-                    if (clientSession.Character.Gold - price > 0)
+                    if (clientSession.Player.Gold - price > 0)
                     {
-                        clientSession.Character.Gold -= price;
-                        await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
+                        clientSession.Player.SetGold(clientSession.Player.Gold - price);
+                        await clientSession.SendPacketAsync(characterPacketSystem.GenerateGold(clientSession.Player)).ConfigureAwait(false);
 
                         var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == bz.ItemInstance.Id).ConfigureAwait(false);
                         var item = itemProvider.Convert(itemInstance!);
                         item.Id = Guid.NewGuid();
                         var newInv =
-                            clientSession.Character.InventoryService.AddItemToPocket(
-                                InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
-                        await clientSession.SendPacketAsync(newInv!.GeneratePocketChange()).ConfigureAwait(false);
+                            clientSession.Player.InventoryService.AddItemToPocket(
+                                InventoryItemInstance.Create(item, clientSession.Player.CharacterId));
+                        var pocketChange = inventoryPacketSystem.GeneratePocketChange(newInv!);
+                        if (pocketChange != null)
+                        {
+                            await clientSession.SendPacketAsync(pocketChange).ConfigureAwait(false);
+                        }
 
                         var remove = await bazaarHttpClient.DeleteBazaarAsync(packet.BazaarId, packet.Amount,
-                            clientSession.Character.Name).ConfigureAwait(false);
+                            clientSession.Player.Name).ConfigureAwait(false);
                         if (remove)
                         {
                             await clientSession.HandlePacketsAsync(new[] { new CBListPacket { Index = 0, ItemVNumFilter = new List<short>() } }).ConfigureAwait(false);
@@ -93,7 +99,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             await clientSession.SendPacketAsync(new SayiPacket
                             {
                                 VisualType = VisualType.Player,
-                                VisualId = clientSession.Character.CharacterId,
+                                VisualId = clientSession.Player.CharacterId,
                                 Type = SayColorType.Yellow,
                                 Message = Game18NConstString.BoughtItem,
                                 ArgumentType = 2,
@@ -110,7 +116,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
                             VisualType = VisualType.Player,
-                            VisualId = clientSession.Character.CharacterId,
+                            VisualId = clientSession.Player.CharacterId,
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.InsufficientGoldAvailable
                         }).ConfigureAwait(false);

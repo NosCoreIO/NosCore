@@ -18,11 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Threading.Tasks;
-using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Data.Dto;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Shared.Enumerations;
@@ -33,8 +31,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class CharNewJobPacketHandlerTests
     {
-        private Character? _chara;
-
+        private PlayerContext _player;
         private CharNewJobPacketHandler? _charNewJobPacketHandler;
         private ClientSession? _session;
 
@@ -43,9 +40,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _chara = _session.Character;
-            await _session.SetCharacterAsync(null).ConfigureAwait(false);
-            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => _chara);
+            _player = _session.Player;
+            _session.ClearPlayer();
             _charNewJobPacketHandler = new CharNewJobPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.WorldConfiguration);
         }
 
@@ -64,9 +60,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         public async Task CreateMartialArtist_WorksAsync()
         {
             const string name = "TestCharacter";
-            _chara!.Level = 80;
-            CharacterDto character = _chara;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(character).ConfigureAwait(false);
+            _player.SetLevel(80);
+            _player.CharacterData.Level = 80;
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_player.CharacterData).ConfigureAwait(false);
             await _charNewJobPacketHandler!.ExecuteAsync(new CharNewJobPacket
             {
                 Name = name
@@ -78,10 +74,11 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         public async Task CreateMartialArtistWhenAlreadyOne_Does_Not_Create_CharacterAsync()
         {
             const string name = "TestCharacter";
-            _chara!.Class = CharacterClassType.MartialArtist;
-            CharacterDto character = _chara;
-            _chara.Level = 80;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(character).ConfigureAwait(false);
+            _player.SetClass(CharacterClassType.MartialArtist);
+            _player.CharacterData.Class = CharacterClassType.MartialArtist;
+            _player.SetLevel(80);
+            _player.CharacterData.Level = 80;
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_player.CharacterData).ConfigureAwait(false);
             await _charNewJobPacketHandler!.ExecuteAsync(new CharNewJobPacket
             {
                 Name = name

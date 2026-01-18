@@ -372,9 +372,6 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Zarejestrowano na MasterServer</value>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Your reputation została zmieniona!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes wprowadzono!</value>
   </data>
@@ -440,9 +437,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Wsparcie</value>
-  </data>
-  <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>Twoje złoto zostało pomyślnie zaktualizowane!</value>
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Odebrano pakiet bez postaci: {0}</value>

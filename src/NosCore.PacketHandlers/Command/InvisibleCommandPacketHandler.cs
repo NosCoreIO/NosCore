@@ -19,22 +19,22 @@
 
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Systems;
 using System.Threading.Tasks;
 using NosCore.Networking;
+using NosCore.GameObject.Networking;
 
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class InvisibleCommandPacketHandler : PacketHandler<InvisibleCommandPacket>, IWorldPacketHandler
+    public class InvisibleCommandPacketHandler(ICharacterPacketSystem characterPacketSystem) : PacketHandler<InvisibleCommandPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(InvisibleCommandPacket changeClassPacket, ClientSession session)
         {
-            session.Character.Camouflage = !session.Character.Camouflage;
-            session.Character.Invisible = !session.Character.Invisible;
-            return session.Character.MapInstance.SendPacketAsync(session.Character.GenerateInvisible());
-            //Session.SendPacket(Session.Character.GenerateEq());
+            session.Player.SetCamouflage(!session.Player.Camouflage);
+            session.Player.SetInvisible(!session.Player.Invisible);
+            return session.Player.MapInstance.SendPacketAsync(characterPacketSystem.GenerateInvisible(session.Player));
         }
     }
 }

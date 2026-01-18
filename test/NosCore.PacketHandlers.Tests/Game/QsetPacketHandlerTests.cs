@@ -20,7 +20,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using NosCore.PacketHandlers.Game;
 using NosCore.Packets.ClientPackets.Quicklist;
 using NosCore.Packets.Enumerations;
@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             Assert.AreEqual(0, lastpacket?.Data?.Data ?? 0);
             Assert.AreEqual(3, lastpacket?.Data?.OriginQuickList ?? 0);
             Assert.AreEqual(4, lastpacket?.Data?.OriginQuickListSlot ?? 0);
-            Assert.AreEqual(1, _session.Character.QuicklistEntries.Count);
+            Assert.AreEqual(1, _session.Player.QuicklistEntries.Count);
         }
 
         [TestMethod]
@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             Assert.AreEqual(0, lastpacket?.Data?.Data ?? 0);
             Assert.AreEqual(7, lastpacket?.Data?.OriginQuickList ?? 0);
             Assert.AreEqual(-1, lastpacket?.Data?.OriginQuickListSlot ?? 0);
-            Assert.AreEqual(0, _session.Character.QuicklistEntries.Count);
+            Assert.AreEqual(0, _session.Player.QuicklistEntries.Count);
         }
 
         [TestMethod]
@@ -130,7 +130,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             Assert.AreEqual(3, firstpacket?.Data?.OriginQuickList ?? 0);
             Assert.AreEqual(4, firstpacket?.Data?.OriginQuickListSlot ?? 0);
 
-            Assert.AreEqual(2, _session.Character.QuicklistEntries.Count);
+            Assert.AreEqual(2, _session.Player.QuicklistEntries.Count);
         }
 
         [TestMethod]
@@ -154,7 +154,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                 SecondData = 2
             }, _session).ConfigureAwait(false);
 
-            Assert.AreEqual(1, _session.Character.QuicklistEntries.Count);
+            Assert.AreEqual(1, _session.Player.QuicklistEntries.Count);
 
             var firstPacket = (QsetClientPacket?)_session.LastPackets.FirstOrDefault(s => s is QsetClientPacket);
             var lastpacket = (QsetClientPacket?)_session.LastPackets.Skip(1).FirstOrDefault(s => s is QsetClientPacket);

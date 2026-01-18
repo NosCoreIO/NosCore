@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.GameObject.Services.BroadcastService;
 using DeleteMailData = NosCore.GameObject.InterChannelCommunication.Messages.DeleteMailData;
@@ -9,19 +9,20 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
     {
         public override async Task Handle(DeleteMailData data)
         {
-            var session = sessionRegistry.GetCharacter(s => s.VisualId == data.CharacterId);
+            var player = sessionRegistry.GetPlayer(p => p.VisualId == data.CharacterId);
 
-            if (session == null)
+            if (player == null)
             {
                 return;
             }
 
-            await session.SendPacketAsync(new PostPacket
+            var sender = sessionRegistry.GetSenderByCharacterId(player.Value.CharacterId);
+            await (sender?.SendPacketAsync(new PostPacket
             {
                 Type = 2,
                 PostType = data.PostType,
                 Id = data.MailId
-            }).ConfigureAwait(false);
+            }) ?? Task.CompletedTask).ConfigureAwait(false);
         }
     }
 }

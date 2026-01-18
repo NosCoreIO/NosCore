@@ -21,7 +21,6 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Specialists;
 using NosCore.Packets.Enumerations;
@@ -31,6 +30,8 @@ using System.Threading.Tasks;
 using NodaTime;
 using NosCore.GameObject.Services.TransformationService;
 using NosCore.Networking;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Networking;
 
 
 //TODO stop using obsolete
@@ -50,12 +51,12 @@ namespace NosCore.PacketHandlers.Inventory
             }
             else
             {
-                if (clientSession.Character.IsSitting)
+                if (clientSession.Player.IsSitting)
                 {
                     return;
                 }
 
-                if (!(clientSession.Character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is SpecialistInstance specialistInstance))
+                if (!(clientSession.Player.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is SpecialistInstance specialistInstance))
                 {
                     await clientSession.SendPacketAsync(new MsgiPacket
                     {
@@ -65,7 +66,7 @@ namespace NosCore.PacketHandlers.Inventory
                     return;
                 }
 
-                if (clientSession.Character.IsVehicled)
+                if (clientSession.Player.IsVehicled)
                 {
                     await clientSession.SendPacketAsync(new MsgiPacket
                     {
@@ -75,16 +76,17 @@ namespace NosCore.PacketHandlers.Inventory
                     return;
                 }
 
-                var currentRunningSeconds = (clock.GetCurrentInstant() - clientSession.Character.LastSp).TotalSeconds;
+                var currentRunningSeconds = (clock.GetCurrentInstant() - clientSession.Player.LastSp).TotalSeconds;
 
-                if (clientSession.Character.UseSp)
+                if (clientSession.Player.UseSp)
                 {
-                    clientSession.Character.LastSp = clock.GetCurrentInstant();
-                    await transformationService.RemoveSpAsync(clientSession.Character);
+                    var player = clientSession.Player;
+                    player.LastSp = clock.GetCurrentInstant();
+                    await transformationService.RemoveSpAsync(clientSession.Player);
                 }
                 else
                 {
-                    if ((clientSession.Character.SpPoint == 0) && (clientSession.Character.SpAdditionPoint == 0))
+                    if ((clientSession.Player.SpPoint == 0) && (clientSession.Player.SpAdditionPoint == 0))
                     {
                         await clientSession.SendPacketAsync(new MsgPacket
                         {
@@ -94,11 +96,11 @@ namespace NosCore.PacketHandlers.Inventory
                         return;
                     }
 
-                    if (currentRunningSeconds >= clientSession.Character.SpCooldown)
+                    if (currentRunningSeconds >= clientSession.Player.SpCooldown)
                     {
                         if (spTransformPacket.Type == SlPacketType.WearSpAndTransform)
                         {
-                            await transformationService.ChangeSpAsync(clientSession.Character);
+                            await transformationService.ChangeSpAsync(clientSession.Player);
                         }
                         else
                         {
@@ -108,11 +110,11 @@ namespace NosCore.PacketHandlers.Inventory
                                 Delay = 5000,
                                 Packet = new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }
                             }).ConfigureAwait(false);
-                            await clientSession.Character.MapInstance.SendPacketAsync(new GuriPacket
+                            await clientSession.Player.MapInstance.SendPacketAsync(new GuriPacket
                             {
                                 Type = GuriPacketType.Dance,
                                 Argument = 1,
-                                EntityId = clientSession.Character.CharacterId
+                                EntityId = clientSession.Player.CharacterId
                             }).ConfigureAwait(false);
                         }
                     }
@@ -123,7 +125,7 @@ namespace NosCore.PacketHandlers.Inventory
                             Type = MessageType.Default,
                             Message = Game18NConstString.CantTrasformWithSideEffect,
                             ArgumentType = 4,
-                            Game18NArguments = { (short)(clientSession.Character.SpCooldown - (int)Math.Round(currentRunningSeconds)) }
+                            Game18NArguments = { (short)(clientSession.Player.SpCooldown - (int)Math.Round(currentRunningSeconds)) }
                         }).ConfigureAwait(false);
                     }
                 }

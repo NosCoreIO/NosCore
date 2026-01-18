@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using System;
@@ -27,6 +28,7 @@ namespace NosCore.GameObject.Services.InventoryService
     public interface IInventoryService : IDictionary<Guid, InventoryItemInstance>
     {
         Dictionary<NoscorePocketType, byte> Expensions { get; set; }
+        void LoadExpensions(List<StaticBonusDto> staticBonusList);
 
         List<InventoryItemInstance>? AddItemToPocket(InventoryItemInstance newItem);
         List<InventoryItemInstance>? AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type);

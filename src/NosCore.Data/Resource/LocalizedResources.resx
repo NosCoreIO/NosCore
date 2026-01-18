@@ -378,9 +378,6 @@
     <value>Registered on MasterServer</value>
     <comment>check</comment>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Your reputation has changed!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Parsed!</value>
   </data>
@@ -448,9 +445,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Support</value>
-  </data>
-  <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>Your gold has been updated successfully!</value>
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Packet received without character being set {0}</value>

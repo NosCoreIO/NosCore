@@ -19,25 +19,25 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Inventory;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class MvePacketHandler : PacketHandler<MvePacket>, IWorldPacketHandler
+    public class MvePacketHandler(IInventoryPacketSystem inventoryPacketSystem) : PacketHandler<MvePacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(MvePacket mvePacket, ClientSession clientSession)
         {
-            var inv = clientSession.Character.InventoryService.MoveInPocket(mvePacket.Slot,
+            var inv = clientSession.Player.InventoryService.MoveInPocket(mvePacket.Slot,
                 (NoscorePocketType)mvePacket.InventoryType,
                 (NoscorePocketType)mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
-            await clientSession.SendPacketAsync(inv.GeneratePocketChange(mvePacket.DestinationInventoryType,
+            await clientSession.SendPacketAsync(inventoryPacketSystem.GeneratePocketChange(inv, mvePacket.DestinationInventoryType,
                 mvePacket.DestinationSlot)).ConfigureAwait(false);
             await clientSession.SendPacketAsync(
-                ((InventoryItemInstance?)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot)).ConfigureAwait(false);
+                inventoryPacketSystem.GeneratePocketChange((InventoryItemInstance?)null, mvePacket.InventoryType, mvePacket.Slot)).ConfigureAwait(false);
         }
     }
 }

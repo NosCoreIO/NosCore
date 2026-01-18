@@ -20,19 +20,18 @@
 using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Ecs.Systems;
 
 namespace NosCore.GameObject.Helper;
 
 public static class GiftHelper
 {
-    public static MailRequest GenerateMailRequest(IClock clock, ICharacterEntity characterEntity, long receiverId,
+    public static MailRequest GenerateMailRequest(IClock clock, PlayerContext player, long receiverId,
         IItemInstanceDto? itemInstance,
         short? vnum, short? amount, sbyte? rare,
-        byte? upgrade, bool isNosmall, string? title, string? text)
+        byte? upgrade, bool isNosmall, string? title, string? text, ICharacterPacketSystem characterPacketSystem)
     {
-        var equipment = isNosmall ? null : characterEntity.GetEquipmentSubPacket();
+        var equipment = isNosmall ? null : characterPacketSystem.GetEquipmentSubPacket(player);
         var mail = new MailDto
         {
             IsOpened = false,
@@ -40,13 +39,13 @@ public static class GiftHelper
             ReceiverId = receiverId,
             IsSenderCopy = false,
             ItemInstanceId = itemInstance?.Id,
-            Title = isNosmall ? "NOSMALL" : title ?? characterEntity.Name,
+            Title = isNosmall ? "NOSMALL" : title ?? player.Name,
             Message = text,
-            SenderId = isNosmall ? null : characterEntity.VisualId,
-            SenderCharacterClass = isNosmall ? null : characterEntity.Class,
-            SenderGender = isNosmall ? null : characterEntity.Gender,
-            SenderHairColor = isNosmall ? null : characterEntity.HairColor,
-            SenderHairStyle = isNosmall ? null : characterEntity.HairStyle,
+            SenderId = isNosmall ? null : player.VisualId,
+            SenderCharacterClass = isNosmall ? null : player.Class,
+            SenderGender = isNosmall ? null : player.Gender,
+            SenderHairColor = isNosmall ? null : player.HairColor,
+            SenderHairStyle = isNosmall ? null : player.HairStyle,
             Hat = equipment?.Hat,
             Armor = equipment?.Armor,
             MainWeapon = equipment?.MainWeapon,
@@ -57,8 +56,7 @@ public static class GiftHelper
             CostumeHat = equipment?.CostumeHat,
             WeaponSkin = equipment?.WeaponSkin,
             WingSkin = equipment?.WingSkin,
-            SenderMorphId = isNosmall ? null : characterEntity.Morph == 0 ? (short)-1
-                : characterEntity.Morph
+            SenderMorphId = isNosmall ? null : player.Morph == 0 ? (short)-1 : player.Morph
         };
         return new MailRequest { Mail = mail, VNum = vnum, Amount = amount, Rare = rare, Upgrade = upgrade };
     }

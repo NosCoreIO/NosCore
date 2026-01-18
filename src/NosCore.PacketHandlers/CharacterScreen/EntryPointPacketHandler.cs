@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Mapster;
 using NosCore.Core.Encryption;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
@@ -25,7 +24,6 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
@@ -43,6 +41,7 @@ using NosCore.Shared.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -152,22 +151,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             // load characterlist packet for each character in Character
             await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 }).ConfigureAwait(false);
-            foreach (var character in characters!.Select(characterDto => characterDto.Adapt<GameObject.Character>()))
+            foreach (var characterDto in characters!)
             {
                 var equipment = new WearableInstance?[16];
-                /* IEnumerable<ItemInstanceDTO> inventory = _iteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
-
-
-                 foreach (ItemInstanceDTO equipmentEntry in inventory)
-                 {
-                     // explicit load of iteminstance
-                     WearableInstance currentInstance = equipmentEntry as WearableInstance;
-                     equipment[(short)currentInstance.Item.EquipmentSlot] = currentInstance;
-
-                 }
-                    */
                 var petlist = new List<short?>();
-                var mates = mateDao.Where(s => s.CharacterId == character.CharacterId)!
+                var mates = mateDao.Where(s => s.CharacterId == characterDto.CharacterId)!
                     .ToList();
                 for (var i = 0; i < 26; i++)
                 {
@@ -182,19 +170,18 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     }
                 }
 
-                // 1 1 before long string of -1.-1 = act completion
                 await clientSession.SendPacketAsync(new ClistPacket
                 {
-                    Slot = character.Slot,
-                    Name = character.Name,
+                    Slot = characterDto.Slot,
+                    Name = characterDto.Name,
                     Unknown = 0,
-                    Gender = character.Gender,
-                    HairStyle = character.HairStyle,
-                    HairColor = character.HairColor,
+                    Gender = characterDto.Gender,
+                    HairStyle = characterDto.HairStyle,
+                    HairColor = characterDto.HairColor,
                     Unknown1 = 0,
-                    Class = character.Class,
-                    Level = character.Level,
-                    HeroLevel = character.HeroLevel,
+                    Class = characterDto.Class,
+                    Level = characterDto.Level,
+                    HeroLevel = characterDto.HeroLevel,
                     Equipments = new List<short?>
                     {
                         equipment[(byte) EquipmentType.Hat]?.ItemVNum,
@@ -207,13 +194,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         equipment[(byte) EquipmentType.CostumeSuit]?.ItemVNum,
                         equipment[(byte) EquipmentType.CostumeHat]?.ItemVNum
                     },
-                    JobLevel = character.JobLevel,
+                    JobLevel = characterDto.JobLevel,
                     QuestCompletion = 1,
                     QuestPart = 1,
                     Pets = petlist,
                     Design = equipment[(byte)EquipmentType.Hat]?.Item?.IsColored ?? false
                         ? equipment[(byte)EquipmentType.Hat]?.Design ?? 0 : 0,
-                    Rename = character.ShouldRename
+                    Rename = characterDto.ShouldRename
                 }).ConfigureAwait(false);
             }
 

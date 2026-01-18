@@ -23,6 +23,6 @@ namespace NosCore.GameObject.Services.ChannelService
 {
     public interface IChannelService
     {
-        Task MoveChannelAsync(Networking.ClientSession.ClientSession clientSession, int channelId);
+        Task MoveChannelAsync(Networking.ClientSession clientSession, int channelId);
     }
 }

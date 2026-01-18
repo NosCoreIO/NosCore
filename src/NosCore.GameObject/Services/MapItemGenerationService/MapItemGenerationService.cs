@@ -27,23 +27,21 @@ using NosCore.Core.Services.IdService;
 namespace NosCore.GameObject.Services.MapItemGenerationService
 {
     public class MapItemGenerationService(
-            EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler> runner,
-            IIdService<MapItem> mapItemIdService)
+            EventLoaderService<MapItemRef, Tuple<MapItemRef, GetPacket>, IGetMapItemEventHandler> runner,
+            IIdService<MapItemRef> mapItemIdService,
+            IMapItemRegistry mapItemRegistry)
         : IMapItemGenerationService
     {
-        private readonly IEventLoaderService<MapItem, Tuple<MapItem, GetPacket>> _runner = runner;
+        private readonly IEventLoaderService<MapItemRef, Tuple<MapItemRef, GetPacket>> _runner = runner;
 
-        public MapItem Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY)
+        public MapItemRef Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY)
         {
-            var mapItem = new MapItem(mapItemIdService.GetNextId())
-            {
-                MapInstance = mapInstance,
-                ItemInstance = itemInstance,
-                PositionX = positionX,
-                PositionY = positionY
-            };
-            _runner.LoadHandlers(mapItem);
-            return mapItem;
+            var visualId = mapItemIdService.GetNextId();
+            var entity = mapInstance.EcsWorld.CreateMapItem(visualId, itemInstance.ItemVNum, positionX, positionY, null, itemInstance.Amount);
+            var data = mapItemRegistry.GetOrCreate(entity, itemInstance);
+            var mapItemRef = new MapItemRef(entity, mapInstance, data);
+            _runner.LoadHandlers(mapItemRef, data.Requests, data.HandlerTasks);
+            return mapItemRef;
         }
     }
 }

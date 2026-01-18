@@ -19,12 +19,13 @@
 
 using NosCore.Data.Dto;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Quicklist;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Quicklist;
 using System;
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -50,7 +51,7 @@ namespace NosCore.PacketHandlers.Game
         {
             short data1 = 0, data2 = 0, quickListIndex = qSetPacket.OriginQuickList, q2 = qSetPacket.OriginQuickListSlot;
             var type = qSetPacket.Type;
-            var morph = session.Character.UseSp ? session.Character.Morph : (short)0;
+            var morph = session.Player.UseSp ? session.Player.Morph : (short)0;
             if (qSetPacket.FirstData.HasValue)
             {
                 data1 = qSetPacket.FirstData.Value;
@@ -65,12 +66,12 @@ namespace NosCore.PacketHandlers.Game
             {
                 case QSetType.Default:
                 case QSetType.Set:
-                    session.Character.QuicklistEntries.RemoveAll(
+                    session.Player.QuicklistEntries.RemoveAll(
                         n => (n.QuickListIndex == quickListIndex) && (n.Slot == q2) && (n.Morph == morph));
-                    session.Character.QuicklistEntries.Add(new QuicklistEntryDto
+                    session.Player.QuicklistEntries.Add(new QuicklistEntryDto
                     {
                         Id = Guid.NewGuid(),
-                        CharacterId = session.Character.CharacterId,
+                        CharacterId = session.Player.CharacterId,
                         Type = (short)type,
                         QuickListIndex = quickListIndex,
                         Slot = q2,
@@ -82,11 +83,11 @@ namespace NosCore.PacketHandlers.Game
                     break;
 
                 case QSetType.Move:
-                    var qlFrom = session.Character.QuicklistEntries.Find(n =>
+                    var qlFrom = session.Player.QuicklistEntries.Find(n =>
                         (n.QuickListIndex == data1) && (n.Slot == data2) && (n.Morph == morph));
                     if (qlFrom != null)
                     {
-                        var qlTo = session.Character.QuicklistEntries.Find(n =>
+                        var qlTo = session.Player.QuicklistEntries.Find(n =>
                             (n.QuickListIndex == quickListIndex) && (n.Slot == q2) && (n.Morph == morph));
 
                         qlFrom.QuickListIndex = quickListIndex;
@@ -109,7 +110,7 @@ namespace NosCore.PacketHandlers.Game
                     break;
 
                 case QSetType.Remove:
-                    session.Character.QuicklistEntries.RemoveAll(
+                    session.Player.QuicklistEntries.RemoveAll(
                         n => (n.QuickListIndex == quickListIndex) && (n.Slot == q2) && (n.Morph == morph));
                     await SendQSetAsync(session, quickListIndex, q2, QSetType.Reset, 7, -1).ConfigureAwait(false);
                     break;

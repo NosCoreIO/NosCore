@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Quest;
 using NosCore.Packets.Enumerations;
@@ -33,7 +33,7 @@ namespace NosCore.PacketHandlers.Quest
     {
         public override async Task ExecuteAsync(QtPacket qtPacket, ClientSession session)
         {
-            var charQuest = session.Character.Quests.FirstOrDefault(q => q.Value.QuestId == qtPacket.Data);
+            var charQuest = session.Player.Quests.FirstOrDefault(q => q.Value.QuestId == qtPacket.Data);
             if (charQuest.Equals(new KeyValuePair<Guid, CharacterQuest>()))
             {
                 return;
@@ -42,27 +42,27 @@ namespace NosCore.PacketHandlers.Quest
             switch (qtPacket.Type)
             {
                 case QuestActionType.Validate:
-                    await questProvider.RunScriptAsync(session.Character, session.Character.Script == null ? null : new ScriptClientPacket
+                    await questProvider.RunScriptAsync(session.Player, session.Player.Script == null ? null : new ScriptClientPacket
                     {
                         Type = QuestActionType.Validate,
-                        FirstArgument = session.Character.Script.Argument1,
-                        SecondArgument = session.Character.Script.ScriptId,
-                        ThirdArgument = session.Character.Script.ScriptStepId,
+                        FirstArgument = session.Player.Script.Argument1,
+                        SecondArgument = session.Player.Script.ScriptId,
+                        ThirdArgument = session.Player.Script.ScriptStepId,
                     }).ConfigureAwait(false);
                     break;
 
                 case QuestActionType.Achieve:
-                    await questProvider.RunScriptAsync(session.Character, session.Character.Script == null ? null : new ScriptClientPacket
+                    await questProvider.RunScriptAsync(session.Player, session.Player.Script == null ? null : new ScriptClientPacket
                     {
                         Type = QuestActionType.Achieve,
-                        FirstArgument = session.Character.Script.Argument1,
-                        SecondArgument = session.Character.Script.ScriptId,
-                        ThirdArgument = session.Character.Script.ScriptStepId,
+                        FirstArgument = session.Player.Script.Argument1,
+                        SecondArgument = session.Player.Script.ScriptId,
+                        ThirdArgument = session.Player.Script.ScriptStepId,
                     }).ConfigureAwait(false);
                     break;
 
                 case QuestActionType.GiveUp:
-                    session.Character.Quests.TryRemove(charQuest.Key, out var questToRemove);
+                    session.Player.Quests.TryRemove(charQuest.Key, out var questToRemove);
                     questToRemove?.GenerateQstiPacket(false);
                     break;
             }

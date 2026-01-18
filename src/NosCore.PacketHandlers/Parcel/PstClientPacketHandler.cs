@@ -24,7 +24,7 @@ using Json.Pointer;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.ClientPackets.Parcel;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -33,16 +33,17 @@ using System.Threading.Tasks;
 using NodaTime;
 using NosCore.GameObject.Helper;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
+using NosCore.GameObject.Networking;
 
 namespace NosCore.PacketHandlers.Parcel
 {
-    public class PstClientPacketHandler(IMailHub mailHttpClient, IDao<CharacterDto, long> characterDao, IClock clock)
+    public class PstClientPacketHandler(IMailHub mailHttpClient, IDao<CharacterDto, long> characterDao, IClock clock, ICharacterPacketSystem characterPacketSystem)
         : PacketHandler<PstClientPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PstClientPacket pstClientPacket, ClientSession clientSession)
         {
             var isCopy = pstClientPacket.Type == 2;
-            var mails = await mailHttpClient.GetMails(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+            var mails = await mailHttpClient.GetMails(pstClientPacket.Id, clientSession.Player.VisualId, isCopy).ConfigureAwait(false);
             var mail = mails.FirstOrDefault();
             switch (pstClientPacket.ActionType)
             {
@@ -62,11 +63,11 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    await mailHttpClient.DeleteMailAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy).ConfigureAwait(false);
+                    await mailHttpClient.DeleteMailAsync(pstClientPacket.Id, clientSession.Player.VisualId, isCopy).ConfigureAwait(false);
                     await clientSession.SendPacketAsync(new SayiPacket
                     {
                         VisualType = VisualType.Player,
-                        VisualId = clientSession.Character.CharacterId,
+                        VisualId = clientSession.Player.CharacterId,
                         Type = SayColorType.Red,
                         Message = Game18NConstString.NoteDeleted
                     }).ConfigureAwait(false);
@@ -77,14 +78,14 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    var dest = await characterDao.FirstOrDefaultAsync(s => s.Name == pstClientPacket.ReceiverName && s.ServerId == clientSession.Character.ServerId).ConfigureAwait(false);
+                    var dest = await characterDao.FirstOrDefaultAsync(s => s.Name == pstClientPacket.ReceiverName && s.ServerId == clientSession.Player.CharacterData.ServerId).ConfigureAwait(false);
                     if (dest != null)
                     {
-                        await mailHttpClient.SendMailAsync(GiftHelper.GenerateMailRequest(clock, clientSession.Character, dest.CharacterId, null, null, null, null, null, false, pstClientPacket.Title, pstClientPacket.Text)).ConfigureAwait(false);
+                        await mailHttpClient.SendMailAsync(GiftHelper.GenerateMailRequest(clock, clientSession.Player, dest.CharacterId, null, null, null, null, null, false, pstClientPacket.Title, pstClientPacket.Text, characterPacketSystem)).ConfigureAwait(false);
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
                             VisualType = VisualType.Player,
-                            VisualId = clientSession.Character.CharacterId,
+                            VisualId = clientSession.Player.CharacterId,
                             Type = SayColorType.Red,
                             Message = Game18NConstString.NoteSent
                         }).ConfigureAwait(false);
@@ -94,7 +95,7 @@ namespace NosCore.PacketHandlers.Parcel
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
                             VisualType = VisualType.Player,
-                            VisualId = clientSession.Character.CharacterId,
+                            VisualId = clientSession.Player.CharacterId,
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.CanNotFindPlayer
                         }).ConfigureAwait(false);

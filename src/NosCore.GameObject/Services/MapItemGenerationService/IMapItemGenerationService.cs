@@ -24,6 +24,6 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
 {
     public interface IMapItemGenerationService
     {
-        MapItem Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY);
+        MapItemRef Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY);
     }
 }

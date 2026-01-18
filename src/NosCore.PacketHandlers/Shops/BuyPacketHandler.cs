@@ -19,9 +19,9 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -31,19 +31,21 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Shops
 {
     public class BuyPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            ISessionRegistry sessionRegistry)
+            ISessionRegistry sessionRegistry, IShopRegistry shopRegistry)
         : PacketHandler<BuyPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(BuyPacket buyPacket, ClientSession clientSession)
         {
-            IAliveEntity? aliveEntity;
+            Shop? shop = null;
             switch (buyPacket.VisualType)
             {
                 case VisualType.Player:
-                    aliveEntity = sessionRegistry.GetCharacter(s => s.VisualId == buyPacket.VisualId);
+                    var character = sessionRegistry.GetPlayer(s => s.VisualId == buyPacket.VisualId);
+                    shop = character?.Shop;
                     break;
                 case VisualType.Npc:
-                    aliveEntity = clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == buyPacket.VisualId);
+                    var npc = clientSession.Player.MapInstance.GetNpc((int)buyPacket.VisualId);
+                    shop = npc != null ? shopRegistry.GetShop(npc.Value) : null;
                     break;
 
                 default:
@@ -52,9 +54,11 @@ namespace NosCore.PacketHandlers.Shops
                     return Task.CompletedTask;
             }
 
-            if (aliveEntity != null)
+            if (shop != null)
             {
-                return clientSession.Character.BuyAsync(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount);
+                // TODO: BuyAsync logic should be moved to a shop service
+                // return clientSession.Character.BuyAsync(shop, buyPacket.Slot, buyPacket.Amount);
+                return Task.CompletedTask;
             }
 
             logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);

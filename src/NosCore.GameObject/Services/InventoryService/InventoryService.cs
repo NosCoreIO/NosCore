@@ -21,6 +21,7 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using Serilog;
@@ -57,6 +58,17 @@ namespace NosCore.GameObject.Services.InventoryService
             { NoscorePocketType.Specialist, 0 },
             { NoscorePocketType.Wear, 0 },
         };
+
+        public void LoadExpensions(List<StaticBonusDto> staticBonusList)
+        {
+            var backpack = staticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BackPack);
+            var backpackTicket = staticBonusList.Any(s => s.StaticBonusType == StaticBonusType.InventoryTicketUpgrade);
+
+            var expension = (byte)((backpack ? 12 : 0) + (backpackTicket ? 60 : 0));
+            Expensions[NoscorePocketType.Equipment] = expension;
+            Expensions[NoscorePocketType.Main] = expension;
+            Expensions[NoscorePocketType.Etc] = expension;
+        }
 
         public InventoryItemInstance? LoadBySlotAndType(short slot, NoscorePocketType type)
         {

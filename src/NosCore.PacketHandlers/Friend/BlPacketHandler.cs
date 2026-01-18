@@ -18,7 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
@@ -33,9 +34,9 @@ namespace NosCore.PacketHandlers.Friend
         public override Task ExecuteAsync(BlPacket finsPacket, ClientSession session)
         {
             var target =
-                sessionRegistry.GetCharacter(s => s.Name == finsPacket.CharacterName);
+                sessionRegistry.GetPlayer(s => s.Name == finsPacket.CharacterName);
 
-            if (target == null)
+            if (target is not { } player)
             {
                 return session.SendPacketAsync(new InfoiPacket
                 {
@@ -45,7 +46,7 @@ namespace NosCore.PacketHandlers.Friend
 
             var blinsPacket = new BlInsPacket
             {
-                CharacterId = target.VisualId
+                CharacterId = player.VisualId
             };
 
             return session.HandlePacketsAsync(new[] { blinsPacket });

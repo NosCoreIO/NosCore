@@ -27,7 +27,6 @@ using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
@@ -35,6 +34,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using NosCore.GameObject.Ecs;
 using Serilog;
 
 namespace NosCore.PacketHandlers.Tests.Bazaar
@@ -51,7 +51,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
-            Broadcaster.Reset();
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _bazaarHttpClient = new Mock<IBazaarHub>();
             _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer);
@@ -67,7 +66,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             _bazaarHttpClient.Setup(b => b.GetBazaar(3, null, null, null, null, null, null, null, null)).ReturnsAsync(
                 new List<BazaarLink>() {new()
                 {
-                    SellerName = _session.Character.Name,
+                    SellerName = _session.Player.Name,
                     BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 0 }
                 }});
@@ -75,14 +74,14 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             _bazaarHttpClient.Setup(b => b.GetBazaar(2, null, null, null, null, null, null, null, null)).ReturnsAsync(
                 new List<BazaarLink>() {new()
                 {
-                    SellerName = _session.Character.Name,
+                    SellerName = _session.Player.Name,
                     BazaarItem = new BazaarItemDto { Price = 60, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
                 }});
             _bazaarHttpClient.Setup(b => b.GetBazaar(1, null, null, null, null, null, null, null, null)).ReturnsAsync(new List<BazaarLink>());
             _bazaarHttpClient.Setup(b => b.ModifyBazaarAsync(It.IsAny<long>(), It.IsAny<JsonPatch?>()!)).ReturnsAsync(new BazaarLink
             {
-                SellerName = _session.Character.Name,
+                SellerName = _session.Player.Name,
                 BazaarItem = new BazaarItemDto { Price = 70, Amount = 1 },
                 ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
             });
@@ -91,7 +90,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestMethod]
         public async Task ModifyWhenInExchangeAsync()
         {
-            _session!.Character.InShop = true;
+            var player = _session!.Player;
+            player.InShop = true;
             await _cmodPacketHandler!.ExecuteAsync(new CModPacket
             {
                 BazaarId = 1,
@@ -181,7 +181,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 VNum = 1012
             }, _session!).ConfigureAwait(false);
             var lastpacket = (SayiPacket?)_session!.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId &&
+            Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Player.CharacterId &&
                 lastpacket?.Type == SayColorType.Yellow && lastpacket?.Message == Game18NConstString.NewSellingPrice &&
                 lastpacket?.ArgumentType == 4 && (long?)lastpacket?.Game18NArguments[0] == 70);
         }

@@ -23,7 +23,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.Encryption;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Tests.Shared;
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestMethod]
         public async Task DeleteCharacter_Invalid_PasswordAsync()
         {
-            await _session!.SetCharacterAsync(null).ConfigureAwait(false);
+            _session!.ClearPlayer();
             await _characterDeletePacketHandler!.ExecuteAsync(new CharacterDeletePacket
             {
                 Slot = 1,
@@ -80,7 +80,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestMethod]
         public async Task DeleteCharacterAsync()
         {
-            await _session!.SetCharacterAsync(null).ConfigureAwait(false);
+            _session!.ClearPlayer();
             await _characterDeletePacketHandler!.ExecuteAsync(new CharacterDeletePacket
             {
                 Slot = 1,

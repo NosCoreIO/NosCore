@@ -19,8 +19,9 @@
 
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Inventory;
@@ -34,7 +35,7 @@ using NosCore.GameObject.Services.MapChangeService;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
-    public class MinilandBellHandler(IMinilandService minilandProvider, IMapChangeService mapChangeService)
+    public class MinilandBellHandler(IMinilandService minilandProvider, IMapChangeService mapChangeService, IInventoryPacketSystem inventoryPacketSystem, IEntityPacketSystem entityPacketSystem)
         : IUseItemEventHandler
     {
         public bool Condition(Item.Item item) => item.Effect == ItemEffectType.Teleport && item.EffectValue == 2;
@@ -43,25 +44,26 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
         {
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
+            var player = requestData.ClientSession.Player;
 
-            if (requestData.ClientSession.Character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance)
+            if (player.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance)
             {
-                await requestData.ClientSession.Character.SendPacketAsync(new SayiPacket
+                await requestData.ClientSession.SendPacketAsync(new SayiPacket
                 {
                     VisualType = VisualType.Player,
-                    VisualId = requestData.ClientSession.Character.CharacterId,
+                    VisualId = player.CharacterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.CanNotBeUsedHere
                 }).ConfigureAwait(false);
                 return;
             }
 
-            if (requestData.ClientSession.Character.IsVehicled)
+            if (player.IsVehicled)
             {
-                await requestData.ClientSession.Character.SendPacketAsync(new SayiPacket
+                await requestData.ClientSession.SendPacketAsync(new SayiPacket
                 {
                     VisualType = VisualType.Player,
-                    VisualId = requestData.ClientSession.Character.CharacterId,
+                    VisualId = player.CharacterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.OnlyPotionInVehicle
                 }).ConfigureAwait(false);
@@ -74,14 +76,14 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 {
                     Delay = 5000,
                     Type = DelayPacketType.ItemInUse,
-                    Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, 2, 0)
+                    Packet = entityPacketSystem.GenerateUseItem(player, (PocketType)itemInstance.Type, itemInstance.Slot, 2, 0)
                 }).ConfigureAwait(false);
                 return;
             }
 
-            requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await requestData.ClientSession.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
-            var miniland = minilandProvider.GetMiniland(requestData.ClientSession.Character.CharacterId);
+            player.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
+            await requestData.ClientSession.SendPacketAsync(inventoryPacketSystem.GeneratePocketChange(itemInstance, (PocketType)itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
+            var miniland = minilandProvider.GetMiniland(player.CharacterId);
             await mapChangeService.ChangeMapInstanceAsync(requestData.ClientSession, miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
         }
     }

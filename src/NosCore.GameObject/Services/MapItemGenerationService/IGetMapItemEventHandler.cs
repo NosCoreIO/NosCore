@@ -22,7 +22,7 @@ using System;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService
 {
-    public interface IGetMapItemEventHandler : IEventHandler<MapItem, Tuple<MapItem, GetPacket>>
+    public interface IGetMapItemEventHandler : IEventHandler<MapItemRef, Tuple<MapItemRef, GetPacket>>
     {
     }
 }

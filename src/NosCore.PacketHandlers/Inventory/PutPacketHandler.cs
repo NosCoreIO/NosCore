@@ -23,8 +23,7 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
@@ -32,6 +31,7 @@ using NosCore.Networking;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
+using NosCore.GameObject.Networking;
 
 
 //TODO stop using obsolete
@@ -40,39 +40,39 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.PacketHandlers.Inventory
 {
     public class PutPacketHandler(IOptions<WorldConfiguration> worldConfiguration,
-            IGameLanguageLocalizer gameLanguageLocalizer)
+            IGameLanguageLocalizer gameLanguageLocalizer, IInventoryPacketSystem inventoryPacketSystem)
         : PacketHandler<PutPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PutPacket putPacket, ClientSession clientSession)
         {
             var invitem =
-                clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
+                clientSession.Player.InventoryService.LoadBySlotAndType(putPacket.Slot,
                     (NoscorePocketType)putPacket.PocketType);
             if (invitem?.ItemInstance?.Item?.IsDroppable ?? false)
             {
                 if ((putPacket.Amount > 0) && (putPacket.Amount <= worldConfiguration.Value.MaxItemAmount))
                 {
-                    if (clientSession.Character.MapInstance.MapItems.Count < 200)
+                    if (clientSession.Player.MapInstance.MapItems.Count < 200)
                     {
                         var droppedItem =
-                            clientSession.Character.MapInstance.PutItem(putPacket.Amount, invitem.ItemInstance,
+                            clientSession.Player.MapInstance.PutItem(putPacket.Amount, invitem.ItemInstance,
                                 clientSession);
                         if (droppedItem == null)
                         {
                             await clientSession.SendPacketAsync(new SayiPacket
                             {
                                 VisualType = VisualType.Player,
-                                VisualId = clientSession.Character.CharacterId,
+                                VisualId = clientSession.Player.CharacterId,
                                 Type = SayColorType.Yellow,
                                 Message = Game18NConstString.CantDropItem
                             }).ConfigureAwait(false);
                             return;
                         }
 
-                        invitem = clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
+                        invitem = clientSession.Player.InventoryService.LoadBySlotAndType(putPacket.Slot,
                             (NoscorePocketType)putPacket.PocketType);
-                        await clientSession.SendPacketAsync(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot)).ConfigureAwait(false);
-                        await clientSession.Character.MapInstance.SendPacketAsync(droppedItem.GenerateDrop()).ConfigureAwait(false);
+                        await clientSession.SendPacketAsync(inventoryPacketSystem.GeneratePocketChange(invitem, putPacket.PocketType, putPacket.Slot)).ConfigureAwait(false);
+                        await clientSession.Player.MapInstance.SendPacketAsync(droppedItem.GenerateDrop()).ConfigureAwait(false);
                     }
                     else
                     {
@@ -97,7 +97,7 @@ namespace NosCore.PacketHandlers.Inventory
                 await clientSession.SendPacketAsync(new SayiPacket
                 {
                     VisualType = VisualType.Player,
-                    VisualId = clientSession.Character.CharacterId,
+                    VisualId = clientSession.Player.CharacterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.CantDropItem
                 }).ConfigureAwait(false);

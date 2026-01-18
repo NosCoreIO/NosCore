@@ -2,24 +2,24 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Groups;
@@ -34,7 +34,7 @@ using NosCore.Networking.SessionGroup;
 
 namespace NosCore.GameObject
 {
-    public class Group(GroupType type, ISessionGroupFactory sessionGroupFactory) : ConcurrentDictionary<Tuple<VisualType, long>, Tuple<int, INamedEntity>>,
+    public class Group(GroupType type, ISessionGroupFactory sessionGroupFactory) : ConcurrentDictionary<(VisualType VisualType, long VisualId), int>,
         IBroadcastable
     {
         public short MaxPacketsBuffer { get; } = 250;
@@ -49,68 +49,138 @@ namespace NosCore.GameObject
 
         public bool IsGroupFull => Count == (long)Type;
 
-        public new bool IsEmpty => Keys.Count(s => s.Item1 == VisualType.Player) <= 1;
+        public new bool IsEmpty => Keys.Count(s => s.VisualType == VisualType.Player) <= 1;
 
-        public new int Count => Keys.Count(s => s.Item1 == VisualType.Player);
+        public new int Count => Keys.Count(s => s.VisualType == VisualType.Player);
 
         public ISessionGroup Sessions { get; set; } = sessionGroupFactory.Create();
 
-        public PinitPacket GeneratePinit()
+        public IEnumerable<(VisualType VisualType, long VisualId)> GetMemberIds()
+        {
+            return Keys.OrderBy(k => this[k]);
+        }
+
+        public IEnumerable<long> GetPlayerIds()
+        {
+            return Keys.Where(k => k.VisualType == VisualType.Player).OrderBy(k => this[k]).Select(k => k.VisualId);
+        }
+
+        public PinitPacket GeneratePinit(ISessionRegistry sessionRegistry)
         {
             var i = 0;
+            var subPackets = new List<PinitSubPacket?>();
+
+            foreach (var (visualType, visualId) in GetMemberIds())
+            {
+                if (visualType == VisualType.Player)
+                {
+                    var player = sessionRegistry.GetPlayer(p => p.CharacterId == visualId);
+                    if (player != null)
+                    {
+                        subPackets.Add(new PinitSubPacket
+                        {
+                            VisualType = VisualType.Player,
+                            VisualId = visualId,
+                            GroupPosition = Count == 1 ? i : ++i,
+                            Level = player.Value.Level,
+                            Name = player.Value.Name,
+                            Gender = player.Value.Gender,
+                            Race = (byte)player.Value.Class,
+                            Morph = player.Value.Morph,
+                            HeroLevel = player.Value.HeroLevel
+                        });
+                    }
+                }
+            }
 
             return new PinitPacket
             {
                 GroupSize = Count == 1 ? 0 : Count,
-                PinitSubPackets = Values.Select(s => s.Item2.GenerateSubPinit(Count == 1 ? i : ++i)).ToList() as List<PinitSubPacket?>
+                PinitSubPackets = subPackets
             };
         }
 
-        public List<PstPacket> GeneratePst()
+        public List<PstPacket> GeneratePst(ISessionRegistry sessionRegistry)
         {
             var i = 0;
+            var packets = new List<PstPacket>();
 
-            return Values.OrderBy(s => s.Item1).Select(s => s.Item2).Select(member => new PstPacket
+            foreach (var (visualType, visualId) in GetMemberIds())
             {
-                Type = member.VisualType,
-                VisualId = member.VisualId,
-                GroupOrder = ++i,
-                HpLeft = (int)(member.Hp / (float)member.MaxHp * 100),
-                MpLeft = (int)(member.Mp / (float)member.MaxMp * 100),
-                HpLoad = member.MaxHp,
-                MpLoad = member.MaxMp,
-                Race = member.Race,
-                Gender = (member as ICharacterEntity)?.Gender ?? GenderType.Male,
-                Morph = member.Morph,
-                BuffIds = null
-            }).ToList();
+                if (visualType == VisualType.Player)
+                {
+                    var player = sessionRegistry.GetPlayer(p => p.CharacterId == visualId);
+                    if (player != null)
+                    {
+                        var p = player.Value;
+                        packets.Add(new PstPacket
+                        {
+                            Type = VisualType.Player,
+                            VisualId = visualId,
+                            GroupOrder = ++i,
+                            HpLeft = p.MaxHp > 0 ? (int)(p.Hp / (float)p.MaxHp * 100) : 0,
+                            MpLeft = p.MaxMp > 0 ? (int)(p.Mp / (float)p.MaxMp * 100) : 0,
+                            HpLoad = p.MaxHp,
+                            MpLoad = p.MaxMp,
+                            Race = (short)p.Class,
+                            Gender = p.Gender,
+                            Morph = p.Morph,
+                            BuffIds = null
+                        });
+                    }
+                }
+            }
+
+            return packets;
         }
 
         public bool IsGroupLeader(long visualId)
         {
-            var leader = Values.OrderBy(s => s.Item1).FirstOrDefault(s => s.Item2.VisualType == VisualType.Player);
-            return (Count > 1) && (leader?.Item2.VisualId == visualId);
+            var leader = Keys
+                .Where(k => k.VisualType == VisualType.Player)
+                .OrderBy(k => this[k])
+                .FirstOrDefault();
+            return Count > 1 && leader.VisualId == visualId;
         }
 
-        public void JoinGroup(INamedEntity namedEntity)
+        public void JoinGroup(PlayerContext player)
         {
-            if (namedEntity is ICharacterEntity characterEntity && (characterEntity.Channel != null))
+            if (player.Channel != null)
             {
-                Sessions.Add(characterEntity.Channel);
+                Sessions.Add(player.Channel);
             }
 
-            TryAdd(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId),
-                new Tuple<int, INamedEntity>(++_lastId, namedEntity));
+            TryAdd((VisualType.Player, player.CharacterId), ++_lastId);
         }
 
-        public void LeaveGroup(INamedEntity namedEntity)
+        public void JoinGroup(VisualType visualType, long visualId, IChannel? channel = null)
         {
-            if (namedEntity is ICharacterEntity characterEntity && (characterEntity.Channel != null))
+            if (channel != null)
             {
-                Sessions.Remove(characterEntity.Channel);
+                Sessions.Add(channel);
             }
 
-            TryRemove(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId), out _);
+            TryAdd((visualType, visualId), ++_lastId);
+        }
+
+        public void LeaveGroup(PlayerContext player)
+        {
+            if (player.Channel != null)
+            {
+                Sessions.Remove(player.Channel);
+            }
+
+            TryRemove((VisualType.Player, player.CharacterId), out _);
+        }
+
+        public void LeaveGroup(VisualType visualType, long visualId, IChannel? channel = null)
+        {
+            if (channel != null)
+            {
+                Sessions.Remove(channel);
+            }
+
+            TryRemove((visualType, visualId), out _);
         }
     }
 }

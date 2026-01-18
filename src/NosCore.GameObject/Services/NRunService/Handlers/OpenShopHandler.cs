@@ -17,32 +17,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets.Npcs;
+
+using NosCore.GameObject.Networking;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
-using System;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.NRunService.Handlers
 {
     public class OpenShopEventHandler : INrunEventHandler
     {
-        public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
+        public bool Condition(NrunData item)
         {
-            return (item.Item2.Runner == NrunRunnerType.OpenShop) && (item.Item1 != null);
+            return (item.Packet.Runner == NrunRunnerType.OpenShop) && (item.Entity != null);
         }
 
-        public Task ExecuteAsync(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
+        public Task ExecuteAsync(RequestData<NrunData> requestData)
         {
             return requestData.ClientSession.HandlePacketsAsync(new[]
             {
                 new ShoppingPacket
                 {
-                    VisualType = requestData.Data.Item2.VisualType ?? 0,
-                    VisualId = requestData.Data.Item2.VisualId ?? 0,
-                    ShopType = requestData.Data.Item2.Type ?? 0,
+                    VisualType = requestData.Data.Packet.VisualType ?? 0,
+                    VisualId = requestData.Data.Packet.VisualId ?? 0,
+                    ShopType = requestData.Data.Packet.Type ?? 0,
                     Unknown = 0
                 }
             });

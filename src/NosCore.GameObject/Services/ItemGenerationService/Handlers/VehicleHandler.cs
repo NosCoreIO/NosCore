@@ -19,8 +19,9 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
@@ -34,7 +35,7 @@ using NosCore.Shared.I18N;
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
     public class VehicleEventHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            ITransformationService transformationService)
+            ITransformationService transformationService, IEntityPacketSystem entityPacketSystem)
         : IUseItemEventHandler
     {
         public bool Condition(Item.Item item)
@@ -46,32 +47,33 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
         {
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
-            if (requestData.ClientSession.Character.InExchangeOrShop)
+            var player = requestData.ClientSession.Player;
+            if (player.InExchangeOrShop)
             {
                 logger.Error(logLanguage[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]);
                 return;
             }
 
-            if ((packet.Mode == 1) && !requestData.ClientSession.Character.IsVehicled)
+            if ((packet.Mode == 1) && !player.IsVehicled)
             {
                 await requestData.ClientSession.SendPacketAsync(new DelayPacket
                 {
                     Type = DelayPacketType.Locomotion,
                     Delay = 3000,
-                    Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type,
+                    Packet = entityPacketSystem.GenerateUseItem(player, (PocketType)itemInstance.Type,
                         itemInstance.Slot,
                         2, 0)
                 }).ConfigureAwait(false);
                 return;
             }
 
-            if ((packet.Mode == 2) && !requestData.ClientSession.Character.IsVehicled)
+            if ((packet.Mode == 2) && !player.IsVehicled)
             {
-                await transformationService.ChangeVehicleAsync(requestData.ClientSession.Character, itemInstance.ItemInstance.Item);
+                await transformationService.ChangeVehicleAsync(player, itemInstance.ItemInstance.Item);
                 return;
             }
 
-            await transformationService.RemoveVehicleAsync(requestData.ClientSession.Character);
+            await transformationService.RemoveVehicleAsync(player);
         }
     }
 }

@@ -29,17 +29,16 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject;
-using NosCore.GameObject.Holders;
+using NosCore.GameObject.Services.FriendService;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.FriendService;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.Tests.Shared;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
@@ -56,7 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private Mock<IChannelHub>? _channelHub;
         private FinsPacketHandler? _finsPacketHandler;
         private readonly Mock<IFriendHub> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
-        private FriendRequestHolder? _friendRequestHolder;
+        private IFriendRequestRegistry? _friendRequestRegistry;
 
         private ClientSession? _session;
         private ClientSession? _targetSession;
@@ -64,9 +63,6 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestInitialize]
         public async Task SetupAsync()
         {
-            TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
-                .ConstructUsing(src => new MapNpc(null, Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
@@ -81,38 +77,37 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     }
 
                 });
-            _friendRequestHolder = new FriendRequestHolder();
+            _friendRequestRegistry = new FriendRequestRegistry();
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Player.CharacterId }
                     },
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Player.CharacterId }
                     }
 
                     });
             _finsPacketHandler = new FinsPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
-                _connectedAccountHttpClient.Object, new NosCore.GameObject.Services.BroadcastService.SessionRegistry());
+                _connectedAccountHttpClient.Object, new NosCore.GameObject.Services.BroadcastService.SessionRegistry(), new CharacterPacketSystem(new NosCore.Algorithm.ReputationService.ReputationService(), new NosCore.Algorithm.DignityService.DignityService(), TestHelpers.Instance.GameLanguageLocalizer));
         }
 
         [TestMethod]
         public async Task Test_Add_FriendAsync()
         {
-            _friendRequestHolder!.FriendRequestCharacters.TryAdd(Guid.NewGuid(),
-                new Tuple<long, long>(_targetSession!.Character.CharacterId, _session!.Character.CharacterId));
+            _friendRequestRegistry!.AddRequest(_targetSession!.Player.CharacterId, _session!.Player.CharacterId);
             var finsPacket = new FinsPacket
             {
-                CharacterId = _targetSession.Character.CharacterId,
+                CharacterId = _targetSession.Player.CharacterId,
                 Type = FinsPacketType.Accepted
             };
 
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                _friendRequestRegistry, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
-                .Returns(friend.AddFriendAsync(_session.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
+                .Returns(friend.AddFriendAsync(_session.Player.CharacterId, finsPacket.CharacterId, finsPacket.Type));
             await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
             Assert.IsTrue(_characterRelationDao!.LoadAll().Count() == 2);
         }
@@ -122,13 +117,13 @@ namespace NosCore.PacketHandlers.Tests.Friend
         {
             var finsPacket = new FinsPacket
             {
-                CharacterId = _targetSession!.Character.CharacterId,
+                CharacterId = _targetSession!.Player.CharacterId,
                 Type = FinsPacketType.Accepted
             };
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder!, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                _friendRequestRegistry!, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
-                .Returns(friend.AddFriendAsync(_session!.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
+                .Returns(friend.AddFriendAsync(_session!.Player.CharacterId, finsPacket.CharacterId, finsPacket.Type));
             await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
 
             Assert.IsFalse(_characterRelationDao!.LoadAll().Any());
@@ -139,13 +134,13 @@ namespace NosCore.PacketHandlers.Tests.Friend
         {
             var finsPacket = new FinsPacket
             {
-                CharacterId = _targetSession!.Character.CharacterId,
+                CharacterId = _targetSession!.Player.CharacterId,
                 Type = FinsPacketType.Accepted
             };
             var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder!, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                _friendRequestRegistry!, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
-                .Returns(friend.AddFriendAsync(_session!.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
+                .Returns(friend.AddFriendAsync(_session!.Player.CharacterId, finsPacket.CharacterId, finsPacket.Type));
 
             await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
             Assert.IsFalse(_characterRelationDao!.LoadAll().Any());

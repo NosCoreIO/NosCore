@@ -18,12 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations.Buff;
-using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.GameObject.Networking;
+using NosCore.Shared.Enumerations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
@@ -32,15 +30,16 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
 {
     public class BazaarHandler(IClock clock) : INrunEventHandler
     {
-        public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
+        public bool Condition(NrunData item)
         {
-            return (item.Item2.Runner == NrunRunnerType.OpenNosBazaar)
-                && item.Item1 is MapNpc;
+            return (item.Packet.Runner == NrunRunnerType.OpenNosBazaar)
+                && item.VisualType == VisualType.Npc;
         }
 
-        public Task ExecuteAsync(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)
+        public Task ExecuteAsync(RequestData<NrunData> requestData)
         {
-            var medalBonus = requestData.ClientSession.Character.StaticBonusList
+            var player = requestData.ClientSession.Player;
+            var medalBonus = player.StaticBonusList
                 .FirstOrDefault(s =>
                     (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
                     (s.StaticBonusType == StaticBonusType.BazaarMedalSilver));

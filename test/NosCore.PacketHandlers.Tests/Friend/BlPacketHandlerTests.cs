@@ -27,13 +27,13 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BlackListService;
 using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using NosCore.GameObject.Ecs;
 using Serilog;
 using Character = NosCore.Data.WebApi.Character;
 
@@ -51,7 +51,6 @@ namespace NosCore.PacketHandlers.Tests.Friend
         public async Task SetupAsync()
         {
             _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
 
@@ -69,7 +68,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Player.CharacterId }
                     }
 
                 });
@@ -82,28 +81,28 @@ namespace NosCore.PacketHandlers.Tests.Friend
             var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
             var blPacket = new BlPacket
             {
-                CharacterName = targetSession.Character.Name
+                CharacterName = targetSession.Player.Entity.GetName(targetSession.Player.MapInstance.EcsWorld)
             };
             TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Player.CharacterId }
                     },
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Player.CharacterId }
                     }
 
                 });
             var blacklist = new BlacklistService(TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.ChannelHub.Object,
                 _characterRelationDao!, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddBlacklistAsync(It.IsAny<BlacklistRequest>()))
-                .Returns(blacklist.BlacklistPlayerAsync( _session!.Character.CharacterId, targetSession.Character.VisualId));
+                .Returns(blacklist.BlacklistPlayerAsync( _session!.Player.CharacterId, targetSession.Player.VisualId));
             await _blPacketHandler!.ExecuteAsync(blPacket, _session).ConfigureAwait(false);
             Assert.IsTrue(await _characterRelationDao!.FirstOrDefaultAsync(s =>
-                (s.CharacterId == _session.Character.CharacterId) &&
-                (s.RelatedCharacterId == targetSession.Character.CharacterId)
+                (s.CharacterId == _session.Player.CharacterId) &&
+                (s.RelatedCharacterId == targetSession.Player.CharacterId)
                 && (s.RelationType == CharacterRelationType.Blocked)).ConfigureAwait(false) != null);
         }
     }
