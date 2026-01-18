@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 .ConfigureAwait(false);
 
             logger.Information(logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],
-                clientSession.Account!.Name);
+                clientSession.Account.Name);
         }
     }
 }

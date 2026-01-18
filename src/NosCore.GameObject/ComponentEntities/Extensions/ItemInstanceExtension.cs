@@ -77,7 +77,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     new()
                     {
                         Slot = slot,
-                        VNum = itemInstance.ItemInstance!.ItemVNum,
+                        VNum = itemInstance.ItemInstance.ItemVNum,
                         RareAmount =
                             itemInstance.Type != NoscorePocketType.Equipment ? itemInstance.ItemInstance.Amount
                                 : itemInstance.ItemInstance.Rare,

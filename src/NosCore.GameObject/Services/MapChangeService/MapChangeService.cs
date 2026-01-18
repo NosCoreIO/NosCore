@@ -117,7 +117,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(session.Character.GenerateCond()).ConfigureAwait(false);
                 await session.SendPacketAsync(session.Character.MapInstance.GenerateCMap(true)).ConfigureAwait(false);
                 await session.SendPacketAsync(session.Character.GeneratePairy(
-                    session.Character.InventoryService!.LoadBySlotAndType((byte)EquipmentType.Fairy,
+                    session.Character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy,
                         NoscorePocketType.Wear)?.ItemInstance as WearableInstance)).ConfigureAwait(false);
                 await session.SendPacketsAsync(session.Character.MapInstance.GetMapItems(session.Character.AccountLanguage)).ConfigureAwait(false);
                 await session.SendPacketsAsync(session.Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect())).ConfigureAwait(false);

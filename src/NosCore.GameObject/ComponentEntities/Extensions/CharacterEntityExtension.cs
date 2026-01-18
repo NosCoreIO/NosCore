@@ -83,7 +83,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 switch (inv.Type)
                 {
                     case NoscorePocketType.Equipment:
-                        if (inv.ItemInstance!.Item!.EquipmentSlot == EquipmentType.Sp)
+                        if (inv.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
                         {
                             if (inv.ItemInstance is SpecialistInstance specialistInstance)
                             {
@@ -117,21 +117,21 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     case NoscorePocketType.Main:
                         inv1.IvnSubPackets.Add(new IvnSubPacket
                         {
-                            Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                            Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount
                         });
                         break;
 
                     case NoscorePocketType.Etc:
                         inv2.IvnSubPackets.Add(new IvnSubPacket
                         {
-                            Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                            Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount
                         });
                         break;
 
                     case NoscorePocketType.Miniland:
                         inv3.IvnSubPackets.Add(new IvnSubPacket
                         {
-                            Slot = inv.Slot, VNum = inv.ItemInstance!.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                            Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount
                         });
                         break;
 
@@ -284,7 +284,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     {
                         MapX = used ? mp!.MapX : (short)0,
                         MapY = used ? mp!.MapY : (short)0,
-                        Width = item.ItemInstance!.Item!.Width != 0 ? item.ItemInstance.Item.Width : (byte)1,
+                        Width = item.ItemInstance.Item.Width != 0 ? item.ItemInstance.Item.Width : (byte)1,
                         Height = item.ItemInstance.Item.Height != 0 ? item.ItemInstance.Item.Height : (byte)1,
                         DurabilityPoint = used ? item.ItemInstance.DurabilityPoint : 0,
                         Unknown = 100,
@@ -633,9 +633,9 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 return new EquipmentSubPacket
                 {
                     EquipmentType = eqType,
-                    VNum = eq.ItemInstance!.ItemVNum,
+                    VNum = eq.ItemInstance.ItemVNum,
                     Rare = eq.ItemInstance.Rare,
-                    Upgrade = (eq.ItemInstance!.Item!.IsColored ? eq.ItemInstance?.Design
+                    Upgrade = (eq.ItemInstance.Item.IsColored ? eq.ItemInstance?.Design
                         : eq.ItemInstance.Upgrade) ?? 0,
                     Unknown = 0
                 };

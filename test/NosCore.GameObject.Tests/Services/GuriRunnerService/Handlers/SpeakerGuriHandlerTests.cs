@@ -69,7 +69,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
         [TestMethod]
         public async Task Test_SpeakerWithItemAsync()
         {
-            Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
                 Type = GuriPacketType.TextInput,
@@ -88,7 +88,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
         [TestMethod]
         public async Task Test_SpeakerWithItemDoesNotExistAsync()
         {
-            Session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
                 Type = GuriPacketType.TextInput,
@@ -107,7 +107,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
         [TestMethod]
         public async Task Test_SpeakerWithoutItemAsync()
         {
-            Session!.Character.InventoryService!.AddItemToPocket(
+            Session!.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {

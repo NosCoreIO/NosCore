@@ -39,7 +39,7 @@ namespace NosCore.PacketHandlers.Chat
             {
                 Message = clientSayPacket.Message,
                 Type = type
-            }), new EveryoneBut(session!.Channel!.Id));
+            }), new EveryoneBut(session.Channel!.Id));
         }
     }
 }

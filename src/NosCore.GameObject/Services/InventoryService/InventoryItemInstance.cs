@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Services.InventoryService
                 Id = inventoryItemInstance?.Id ?? Guid.NewGuid(),
                 CharacterId = characterId,
                 Slot = inventoryItemInstance?.Slot ?? 0,
-                Type = inventoryItemInstance?.Type ?? it.Item!.Type
+                Type = inventoryItemInstance?.Type ?? it.Item.Type
             };
         }
     }

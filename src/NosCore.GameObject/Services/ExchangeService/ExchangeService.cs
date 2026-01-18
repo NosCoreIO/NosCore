@@ -97,7 +97,7 @@ namespace NosCore.GameObject.Services.ExchangeService
                     dictionary);
             }
 
-            if (exchangeInfo.ExchangeItems.Keys.Any(s => !s.ItemInstance!.Item!.IsTradable))
+            if (exchangeInfo.ExchangeItems.Keys.Any(s => !s.ItemInstance.Item.IsTradable))
             {
                 dictionary.Add(session.Character.CharacterId, new InfoiPacket
                 {
@@ -108,9 +108,9 @@ namespace NosCore.GameObject.Services.ExchangeService
             }
 
             if (session.Character.InventoryService.EnoughPlace(
-                targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance!).ToList(),
+                targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
                 targetInfo.ExchangeItems.Keys.First().Type) && targetSession.InventoryService.EnoughPlace(
-                exchangeInfo.ExchangeItems.Keys.Select(s => s.ItemInstance!).ToList(),
+                exchangeInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
                 targetInfo.ExchangeItems.Keys.First().Type))
             {
                 return new Tuple<ExchangeResultType, Dictionary<long, IPacket>?>(ExchangeResultType.Success, null);
@@ -234,7 +234,7 @@ namespace NosCore.GameObject.Services.ExchangeService
                     var sessionId = user == firstUser ? firstUser : secondUser;
                     InventoryItemInstance? newItem = null;
 
-                    if (item.Value == item.Key.ItemInstance!.Amount)
+                    if (item.Value == item.Key.ItemInstance.Amount)
                     {
                         originInventory.Remove(item.Key.ItemInstanceId);
                     }

@@ -219,7 +219,7 @@ namespace NosCore.PacketHandlers.Group
                             Message = Game18NConstString.GroupIsFull
                         }).ConfigureAwait(false);
 
-                        await targetSession!.SendPacketAsync(new InfoiPacket
+                        await targetSession.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.GroupIsFull
                         }).ConfigureAwait(false);

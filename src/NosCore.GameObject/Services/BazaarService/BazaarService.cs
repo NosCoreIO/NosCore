@@ -255,7 +255,7 @@ namespace NosCore.GameObject.Services.BazaarService
             }
 
             var result = bzMod.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(item, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement.AsNode());
-            item = JsonSerializer.Deserialize<BazaarLink>(result!.Result, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
+            item = JsonSerializer.Deserialize<BazaarLink>(result.Result, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
             var bz = item!.BazaarItem!;
             await bazaarItemDao.TryInsertOrUpdateAsync(bz).ConfigureAwait(true);
             holder.BazaarItems[item.BazaarItem!.BazaarItemId] = item;

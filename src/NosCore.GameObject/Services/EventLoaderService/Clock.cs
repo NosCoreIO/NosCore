@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Services.EventLoaderService
             {
                 LastTick = clock.GetCurrentInstant();
                 _eventRunnerService.LoadHandlers(this);
-                Requests[typeof(ITimedEventHandler)]!.OnNext(new RequestData<Instant>(clock.GetCurrentInstant()));
+                Requests[typeof(ITimedEventHandler)].OnNext(new RequestData<Instant>(clock.GetCurrentInstant()));
                 await Task.Delay(100, stoppingToken);
             }
         }

@@ -192,7 +192,7 @@ namespace NosCore.GameObject.Tests
             {
                 ShopItems = list
             };
-            _session!.Character.InventoryService!.AddItemToPocket(
+            _session!.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(
@@ -225,7 +225,7 @@ namespace NosCore.GameObject.Tests
             {
                 ShopItems = list
             };
-            _session!.Character.InventoryService!.AddItemToPocket(
+            _session!.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(
@@ -258,7 +258,7 @@ namespace NosCore.GameObject.Tests
             {
                 ShopItems = list
             };
-            _session.Character.InventoryService!.AddItemToPocket(
+            _session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(
@@ -323,7 +323,7 @@ namespace NosCore.GameObject.Tests
             _session.Character.ItemProvider = itemBuilder;
             var list = new ConcurrentDictionary<int, ShopItem>();
             var it = itemBuilder.Create(1, 999);
-            session2.Character.InventoryService!.AddItemToPocket(
+            session2.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(it, session2.Character.CharacterId), NoscorePocketType.Etc, 0);
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = it, Type = 0, Price = 1, Amount = 999 });
             list.TryAdd(1, new ShopItem { Slot = 1, ItemInstance = it, Type = 0, Price = 1, Amount = 500 });
@@ -332,7 +332,7 @@ namespace NosCore.GameObject.Tests
                 OwnerCharacter = session2.Character,
                 ShopItems = list
             };
-            _session.Character.InventoryService!.AddItemToPocket(
+            _session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId),
                 NoscorePocketType.Etc, 0);
             _session.Character.InventoryService.AddItemToPocket(
@@ -347,7 +347,7 @@ namespace NosCore.GameObject.Tests
             var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
             await _session!.Character.BuyAsync(session2.Character.Shop!, 0, 999).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 999);
-            Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 0);
+            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 0);
         }
 
         [TestMethod]
@@ -356,7 +356,7 @@ namespace NosCore.GameObject.Tests
             var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
             await _session!.Character.BuyAsync(session2.Character.Shop!, 0, 998).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 998);
-            Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 1);
+            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 1);
         }
 
         [TestMethod]
@@ -365,7 +365,7 @@ namespace NosCore.GameObject.Tests
             var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
             await _session!.Character.BuyAsync(session2.Character.Shop!, 1, 501).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 0);
-            Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 999);
+            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 999);
         }
 
         [TestMethod]
@@ -374,7 +374,7 @@ namespace NosCore.GameObject.Tests
             var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
             await _session!.Character.BuyAsync(session2.Character.Shop!, 1, 500).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 500);
-            Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 499);
+            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 499);
         }
 
         [TestMethod]
@@ -384,7 +384,7 @@ namespace NosCore.GameObject.Tests
             session2.Character.Gold = 999_999_999;
             await _session!.Character.BuyAsync(session2.Character.Shop!, 0, 999).ConfigureAwait(false);
             Assert.IsTrue(session2.Character.Gold == 999_999_999);
-            Assert.IsTrue(session2.Character.InventoryService!.CountItem(1) == 999);
+            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 999);
             var packet = (SMemoPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
             Assert.IsTrue(packet?.Message == TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.TOO_RICH_SELLER, _session.Account.Language]);
         }

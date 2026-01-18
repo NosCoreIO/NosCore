@@ -52,8 +52,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         {
             await TestHelpers.ResetAsync().ConfigureAwait(false);
             _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _accountName = _session!.Account.Name;
-            _session!.Account = null!;
+            _accountName = _session.Account.Name;
+            _session.Account = null!;
             await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_session.Character);
             await _session.SetCharacterAsync(null).ConfigureAwait(false);
             _authHttpClient = new Mock<IAuthHub>();
@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 });
             await _dacPacketHandler.ExecuteAsync(packet, _session);
             Logger.Verify(o => o.Error(It.Is<string>(o => o == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.ALREADY_CONNECTED]), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
-            Assert.IsNull(_session!.Account);
+            Assert.IsNull(_session.Account);
         }
 
         [TestMethod]
@@ -105,7 +105,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
 
-            Assert.IsNull(_session!.Account);
+            Assert.IsNull(_session.Account);
         }
 
         [TestMethod]
@@ -118,7 +118,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             Logger.Verify(o => o.Error(It.Is<string>(o => o == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_PASSWORD]),
 
         It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
-            Assert.IsNull(_session!.Account);
+            Assert.IsNull(_session.Account);
         }
 
         [TestMethod]
@@ -132,7 +132,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                     .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
                 .ReturnsAsync("123");
             await _dacPacketHandler.ExecuteAsync(packet, _session);
-            Assert.IsNotNull(_session!.Account);
+            Assert.IsNotNull(_session.Account);
         }
     }
 }

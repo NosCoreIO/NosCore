@@ -137,7 +137,7 @@ namespace NosCore.PacketHandlers.Command
             if (session.Character.InventoryService.LoadBySlotAndType(firstItem.Slot,
                     firstItem.Type)!.ItemInstance is WearableInstance wearable)
             {
-                switch (wearable.Item!.EquipmentSlot)
+                switch (wearable.Item.EquipmentSlot)
                 {
                     case EquipmentType.Armor:
                     case EquipmentType.MainWeapon:

@@ -40,13 +40,13 @@ namespace NosCore.PacketHandlers.Shops
             var type = (NoscorePocketType)sellPacket.Data;
 
             var inv = clientSession.Character.InventoryService.LoadBySlotAndType(sellPacket.Slot, type);
-            if ((inv == null) || (sellPacket.Amount > inv.ItemInstance!.Amount))
+            if ((inv == null) || (sellPacket.Amount > inv.ItemInstance.Amount))
             {
                 //TODO log
                 return;
             }
 
-            if (!inv.ItemInstance.Item!.IsSoldable)
+            if (!inv.ItemInstance.Item.IsSoldable)
             {
                 await clientSession.SendPacketAsync(new SMemoiPacket
                 {

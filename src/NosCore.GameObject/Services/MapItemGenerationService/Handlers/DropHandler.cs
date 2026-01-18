@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
     {
         public bool Condition(MapItem item)
         {
-            return (item.ItemInstance!.Item!.ItemType != ItemType.Map) && (item.VNum != 1046);
+            return (item.ItemInstance!.Item.ItemType != ItemType.Map) && (item.VNum != 1046);
         }
 
         public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
@@ -59,7 +59,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     await requestData.ClientSession.SendPacketAsync(
-                        requestData.ClientSession.Character.GenerateIcon(1, inv.ItemInstance!.ItemVNum)).ConfigureAwait(false);
+                        requestData.ClientSession.Character.GenerateIcon(1, inv.ItemInstance.ItemVNum)).ConfigureAwait(false);
                 }
 
                 await requestData.ClientSession.SendPacketAsync(new SayiPacket
@@ -69,7 +69,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                     Type = SayColorType.Green,
                     Message = Game18NConstString.ReceivedThisItem,
                     ArgumentType = 2,
-                    Game18NArguments = { inv.ItemInstance!.ItemVNum.ToString(), amount }
+                    Game18NArguments = { inv.ItemInstance.ItemVNum.ToString(), amount }
                 }).ConfigureAwait(false);
 
                 if (requestData.ClientSession.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)

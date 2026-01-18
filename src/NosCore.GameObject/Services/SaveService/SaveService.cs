@@ -67,7 +67,7 @@ namespace NosCore.GameObject.Services.SaveService
                 await inventoryItemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.Id).ToArray()).ConfigureAwait(false);
                 await itemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.ItemInstanceId).ToArray()).ConfigureAwait(false);
 
-                await itemInstanceDao.TryInsertOrUpdateAsync(character.InventoryService.Values.Select(s => s.ItemInstance!).ToArray()).ConfigureAwait(false);
+                await itemInstanceDao.TryInsertOrUpdateAsync(character.InventoryService.Values.Select(s => s.ItemInstance).ToArray()).ConfigureAwait(false);
                 await inventoryItemInstanceDao.TryInsertOrUpdateAsync(character.InventoryService.Values.ToArray()).ConfigureAwait(false);
 
                 var staticBonusToDelete = staticBonusDao

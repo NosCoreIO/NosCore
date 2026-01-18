@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Command
             switch (sizePacket.VisualType)
             {
                 case VisualType.Player:
-                    entity = session.Character!;
+                    entity = session.Character;
                     break;
                 case VisualType.Monster:
                     entity = session.Character.MapInstance.Monsters.Find(s => s.VisualId == sizePacket.VisualId)!;

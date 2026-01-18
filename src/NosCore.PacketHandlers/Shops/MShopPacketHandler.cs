@@ -97,13 +97,13 @@ namespace NosCore.PacketHandlers.Shops
                             continue;
                         }
 
-                        if (inv.ItemInstance!.Amount < item.Amount)
+                        if (inv.ItemInstance.Amount < item.Amount)
                         {
                             //todo log
                             return;
                         }
 
-                        if (!inv.ItemInstance.Item!.IsTradable || (inv.ItemInstance.BoundCharacterId != null))
+                        if (!inv.ItemInstance.Item.IsTradable || (inv.ItemInstance.BoundCharacterId != null))
                         {
                             await clientSession.SendPacketAsync(new SayiPacket
                             {

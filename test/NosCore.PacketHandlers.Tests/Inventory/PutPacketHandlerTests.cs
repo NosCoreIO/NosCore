@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestMethod]
         public async Task Test_PutPartialSlotAsync()
         {
-            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 999), 0));
+            _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 999), 0));
             await _putPacketHandler!.ExecuteAsync(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -59,13 +59,13 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Amount = 500
             }, _session).ConfigureAwait(false);
             Assert.IsTrue((_session.Character.InventoryService.Count == 1) &&
-                (_session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance?.Amount == 499));
+                (_session.Character.InventoryService.FirstOrDefault().Value.ItemInstance?.Amount == 499));
         }
 
         [TestMethod]
         public async Task Test_PutNotDroppableAsync()
         {
-            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1013, 1), 0));
+            _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1013, 1), 0));
             await _putPacketHandler!.ExecuteAsync(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestMethod]
         public async Task Test_PutAsync()
         {
-            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 1), 0));
+            _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 1), 0));
             await _putPacketHandler!.ExecuteAsync(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -97,7 +97,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             _session!.Character.PositionX = 2;
             _session.Character.PositionY = 2;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 1), 0));
             await _putPacketHandler!.ExecuteAsync(new PutPacket
             {
                 PocketType = PocketType.Main,
@@ -115,7 +115,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             _session!.Character.PositionX = -1;
             _session.Character.PositionY = -1;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 1), 0));
             await _putPacketHandler!.ExecuteAsync(new PutPacket
             {
                 PocketType = PocketType.Main,

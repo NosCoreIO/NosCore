@@ -213,7 +213,7 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 Message = message,
                 IconInfo = isNormalItem ? new IconInfoPacket
                 {
-                    IconId = item.ItemInstance!.ItemVNum
+                    IconId = item.ItemInstance.ItemVNum
                 } : null,
                 EquipmentInfo = isNormalItem ? null : new EInfoPacket(),
                 SlInfo = item.Type != NoscorePocketType.Specialist ? null : new SlInfoPacket()

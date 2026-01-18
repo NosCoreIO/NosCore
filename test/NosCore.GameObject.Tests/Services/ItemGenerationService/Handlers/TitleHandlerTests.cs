@@ -61,11 +61,11 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_TitleItemHandlerAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (QnaiPacket?)Session.LastPackets.FirstOrDefault(s => s is QnaiPacket);
             Assert.IsNotNull(lastpacket);
-            Assert.IsTrue(lastpacket!.YesPacket!.GetType() == typeof(GuriPacket));
+            Assert.IsTrue(lastpacket.YesPacket!.GetType() == typeof(GuriPacket));
         }
     }
 }

@@ -122,9 +122,9 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 .FirstOrDefault();
             if (item != null)
             {
-                var point = item.ItemInstance!.ItemVNum == 1269 ? 300 : 500;
+                var point = item.ItemInstance.ItemVNum == 1269 ? 300 : 500;
                 _clientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, item.ItemInstance.Id);
-                _minilandObject!.InventoryItemInstance!.ItemInstance!.DurabilityPoint += point;
+                _minilandObject!.InventoryItemInstance!.ItemInstance.DurabilityPoint += point;
                 await _clientSession.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.ToppedUpPoints,
@@ -143,8 +143,8 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 MinilandPoint = _miniland!.MinilandPoint,
                 Unknown1 = 0,
                 Unknown2 = 0,
-                DurabilityPoint = _minilandObject!.InventoryItemInstance!.ItemInstance!.DurabilityPoint,
-                MinilandObjectPoint = _minilandObject.InventoryItemInstance.ItemInstance.Item!.MinilandObjectPoint
+                DurabilityPoint = _minilandObject!.InventoryItemInstance!.ItemInstance.DurabilityPoint,
+                MinilandObjectPoint = _minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint
             });
         }
 
@@ -249,7 +249,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             {
                 MinigameVNum = _minigamePacket!.MinigameVNum,
                 MinilandPoint = _miniland!.MinilandPoint,
-                LowDurability = _minilandObject!.InventoryItemInstance!.ItemInstance!.DurabilityPoint < 1000,
+                LowDurability = _minilandObject!.InventoryItemInstance!.ItemInstance.DurabilityPoint < 1000,
                 IsFull = false,
                 MloPmgSubPackets = new[]
                 {
@@ -273,7 +273,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             {
                 _clientSession.Character.Gold -= (int)_minigamePacket.Point;
                 await _clientSession.SendPacketAsync(_clientSession.Character.GenerateGold()).ConfigureAwait(false);
-                _minilandObject!.InventoryItemInstance!.ItemInstance!.DurabilityPoint +=
+                _minilandObject!.InventoryItemInstance!.ItemInstance.DurabilityPoint +=
                     (int)(_minigamePacket.Point / 100);
                 await _clientSession.SendPacketAsync(new InfoiPacket
                 {
@@ -377,7 +377,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
         private async Task PlayAsync(byte game)
         {
-            if (_minilandObject!.InventoryItemInstance!.ItemInstance!.DurabilityPoint <= 0)
+            if (_minilandObject!.InventoryItemInstance!.ItemInstance.DurabilityPoint <= 0)
             {
                 await _clientSession!.SendPacketAsync(new SayiPacket
                 {

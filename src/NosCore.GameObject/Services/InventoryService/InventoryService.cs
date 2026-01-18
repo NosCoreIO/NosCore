@@ -116,13 +116,13 @@ namespace NosCore.GameObject.Services.InventoryService
                 && ((newItem.Type == NoscorePocketType.Etc) || (newItem.Type == NoscorePocketType.Main)))
             {
                 var slotNotFull = this.ToList().Select(s => s.Value).Where(i =>
-                    i.ItemInstance!.ItemVNum.Equals(newItem.ItemInstance!.ItemVNum) &&
+                    i.ItemInstance.ItemVNum.Equals(newItem.ItemInstance.ItemVNum) &&
                     (i.ItemInstance.Amount < configuration.Value.MaxItemAmount));
                 var freeslot = GetMaxSlot(newItem.Type) - this.Count(s => s.Value.Type == newItem.Type);
                 IEnumerable<InventoryItemInstance> itemInstances =
                     slotNotFull as IList<InventoryItemInstance> ?? slotNotFull.ToList();
-                if (newItem.ItemInstance!.Amount <= freeslot * configuration.Value.MaxItemAmount
-                    + itemInstances.Sum(s => configuration.Value.MaxItemAmount - s.ItemInstance!.Amount))
+                if (newItem.ItemInstance.Amount <= freeslot * configuration.Value.MaxItemAmount
+                    + itemInstances.Sum(s => configuration.Value.MaxItemAmount - s.ItemInstance.Amount))
                 {
                     foreach (var slotToAdd in itemInstances)
                     {
@@ -143,7 +143,7 @@ namespace NosCore.GameObject.Services.InventoryService
 
             // Create new item
             var freeSlot = newItem.Type == NoscorePocketType.Wear
-                ? LoadBySlotAndType((short)newItem.ItemInstance!.Item!.EquipmentSlot, NoscorePocketType.Wear) == null
+                ? LoadBySlotAndType((short)newItem.ItemInstance!.Item.EquipmentSlot, NoscorePocketType.Wear) == null
                     ? (short?)newItem.ItemInstance.Item.EquipmentSlot
                     : null
                 : GetFreeSlot(newItem.Type);
@@ -307,7 +307,7 @@ namespace NosCore.GameObject.Services.InventoryService
             if (targetType == NoscorePocketType.Wear)
             {
                 nextFreeSlot =
-                    LoadBySlotAndType((short)sourceInstance.ItemInstance.Item!.EquipmentSlot, targetType) == null
+                    LoadBySlotAndType((short)sourceInstance.ItemInstance.Item.EquipmentSlot, targetType) == null
                         ? (short)sourceInstance.ItemInstance.Item.EquipmentSlot
                         : (short)-1;
             }
@@ -374,7 +374,7 @@ namespace NosCore.GameObject.Services.InventoryService
                         break;
                     default:
                         if ((destinationPocket.ItemInstance?.ItemVNum == sourcePocket.ItemInstance.ItemVNum)
-                            && ((sourcePocket.ItemInstance.Item!.Type == NoscorePocketType.Main) ||
+                            && ((sourcePocket.ItemInstance.Item.Type == NoscorePocketType.Main) ||
                                 (sourcePocket.ItemInstance.Item.Type == NoscorePocketType.Etc)))
                         {
                             if (destinationPocket.ItemInstance.Amount + amount > configuration.Value.MaxItemAmount)

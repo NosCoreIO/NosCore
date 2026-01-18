@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Miniland
             clientSession.Character.MapInstance.MapDesignObjects.TryRemove(minilandobject.Id, out _);
             await clientSession.SendPacketAsync(minilandObject.GenerateEffect(true)).ConfigureAwait(false);
             await clientSession.SendPacketAsync(new MinilandPointPacket
-            { MinilandPoint = minilandobject.ItemInstance!.Item!.MinilandObjectPoint, Unknown = 100 }).ConfigureAwait(false);
+            { MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100 }).ConfigureAwait(false);
             await clientSession.SendPacketAsync(minilandObject.GenerateMapDesignObject(true)).ConfigureAwait(false);
         }
     }

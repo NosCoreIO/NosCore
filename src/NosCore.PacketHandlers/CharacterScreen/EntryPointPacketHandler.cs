@@ -134,7 +134,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
 
                 logger.Information(logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],
-                    clientSession.Account!.Name);
+                    clientSession.Account.Name);
                 if (!clientSession.MfaValidated && clientSession.Account.MfaSecret != null)
                 {
                     await clientSession.SendPacketAsync(new GuriPacket
@@ -148,7 +148,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             var characters = characterDao.Where(s =>
-                (s.AccountId == clientSession.Account!.AccountId) && (s.State == CharacterState.Active) && s.ServerId == configuration.Value.ServerId);
+                (s.AccountId == clientSession.Account.AccountId) && (s.State == CharacterState.Active) && s.ServerId == configuration.Value.ServerId);
 
             // load characterlist packet for each character in Character
             await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 }).ConfigureAwait(false);

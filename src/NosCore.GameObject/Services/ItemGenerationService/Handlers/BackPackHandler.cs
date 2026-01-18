@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
         {
             var itemInstance = requestData.Data.Item1;
 
-            if (itemInstance.ItemInstance!.Item!.Effect == ItemEffectType.InventoryUpgrade
+            if (itemInstance.ItemInstance.Item.Effect == ItemEffectType.InventoryUpgrade
                 && requestData.ClientSession.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BackPack))
             {
                 await requestData.ClientSession.SendPacketAsync(new SayiPacket
