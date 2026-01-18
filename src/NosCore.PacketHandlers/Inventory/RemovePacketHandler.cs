@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            if (inventory.ItemInstance!.Item!.EquipmentSlot == EquipmentType.Sp)
+            if (inventory.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
             {
                 await clientSession.HandlePacketsAsync(new[] { new SpTransformPacket
                 {
@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Inventory
             await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateEq()).ConfigureAwait(false);
             await clientSession.SendPacketAsync(clientSession.Character.GenerateEquipment()).ConfigureAwait(false);
 
-            if (inv.ItemInstance!.Item!.EquipmentSlot == EquipmentType.Fairy)
+            if (inv.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
                 await clientSession.Character.MapInstance.SendPacketAsync(
                     clientSession.Character.GeneratePairy(null)).ConfigureAwait(false);

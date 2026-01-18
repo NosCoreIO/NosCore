@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.InventoryService!.Count > 0);
+            Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
 
         [TestMethod]
@@ -81,14 +81,14 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _session.Character.MapInstance.MapItems.TryAdd(100001,
                 TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1012, 1), 1,
                     1));
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1012, 1), 0));
             await _getPacketHandler!.ExecuteAsync(new GetPacket
             {
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.InventoryService.First().Value.ItemInstance!.Amount == 2);
+            Assert.IsTrue(_session.Character.InventoryService.First().Value.ItemInstance.Amount == 2);
         }
 
         [TestMethod]
@@ -98,7 +98,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _session.Character.PositionY = 0;
             _session.Character.MapInstance.MapItems.TryAdd(100001,
                 TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1, 1), 1, 1));
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1), 0));
             await _getPacketHandler!.ExecuteAsync(new GetPacket
             {
@@ -126,7 +126,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.InventoryService.First().Value.ItemInstance!.Rare == 6);
+            Assert.IsTrue(_session.Character.InventoryService.First().Value.ItemInstance.Rare == 6);
         }
 
         [TestMethod]
@@ -135,7 +135,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             var mapItem =
-                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance!, _item!.Create(1012, 1), 1,
+                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1012, 1), 1,
                     1);
             mapItem.VisualId = 1012;
             mapItem.OwnerId = 2;
@@ -151,7 +151,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId &&
                 packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.UnableToPickUp);
-            Assert.IsTrue(_session.Character.InventoryService!.Count == 0);
+            Assert.IsTrue(_session.Character.InventoryService.Count == 0);
         }
 
         [TestMethod]
@@ -161,7 +161,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _session.Character.PositionY = 0;
 
             var mapItem =
-                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance!, _item!.Create(1012, 1), 1,
+                TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance, _item!.Create(1012, 1), 1,
                     1);
             mapItem.VisualId = 1012;
             mapItem.OwnerId = 2;
@@ -174,7 +174,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.InventoryService!.Count > 0);
+            Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
 
         [TestMethod]
@@ -192,7 +192,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 VisualId = 100001,
                 PickerType = VisualType.Player
             }, _session).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.InventoryService!.Count == 0);
+            Assert.IsTrue(_session.Character.InventoryService.Count == 0);
         }
     }
 }

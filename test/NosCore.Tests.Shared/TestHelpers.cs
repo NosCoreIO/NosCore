@@ -299,7 +299,7 @@ namespace NosCore.Tests.Shared
             _inventoryItemInstanceDao = new Dao<InventoryItemInstance, InventoryItemInstanceDto, Guid>(_logger, ContextBuilder);
             _staticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(_logger, ContextBuilder);
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
-            TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
+            TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
             TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig()
                 .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _logger, Instance.DistanceCalculator, Instance.Clock));
             TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig()

@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 return;
             }
 
-            if (itemInstance.ItemInstance!.BoundCharacterId == null && (packet.Mode == 0) && itemInstance.ItemInstance.Item!.RequireBinding)
+            if (itemInstance.ItemInstance.BoundCharacterId == null && (packet.Mode == 0) && itemInstance.ItemInstance.Item.RequireBinding)
             {
                 await requestData.ClientSession.SendPacketAsync(
                     new QnaPacket
@@ -75,7 +75,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 return;
             }
 
-            if ((itemInstance.ItemInstance.Item!.LevelMinimum > (itemInstance.ItemInstance.Item.IsHeroic
+            if ((itemInstance.ItemInstance.Item.LevelMinimum > (itemInstance.ItemInstance.Item.IsHeroic
                     ? requestData.ClientSession.Character.HeroLevel : requestData.ClientSession.Character.Level))
                 || ((itemInstance.ItemInstance.Item.Sex != 0) &&
                     (((itemInstance.ItemInstance.Item.Sex >> (byte)requestData.ClientSession.Character.Gender) & 1) !=
@@ -100,7 +100,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 var sp = requestData.ClientSession.Character.InventoryService.LoadBySlotAndType(
                     (byte)EquipmentType.Sp, NoscorePocketType.Wear);
 
-                if ((sp != null) && (sp.ItemInstance!.Item!.Element != 0) &&
+                if ((sp != null) && (sp.ItemInstance.Item.Element != 0) &&
                     (itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.Element) &&
                     (itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.SecondaryElement))
                 {

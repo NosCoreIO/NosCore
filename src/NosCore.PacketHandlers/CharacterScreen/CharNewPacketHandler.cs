@@ -198,7 +198,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         },
                     });
 
-                    await itemInstanceDao.TryInsertOrUpdateAsync(charaGo.InventoryService.Values.Select(s => s.ItemInstance!).ToArray()).ConfigureAwait(false);
+                    await itemInstanceDao.TryInsertOrUpdateAsync(charaGo.InventoryService.Values.Select(s => s.ItemInstance).ToArray()).ConfigureAwait(false);
                     await inventoryItemInstanceDao.TryInsertOrUpdateAsync(charaGo.InventoryService.Values.ToArray()).ConfigureAwait(false);
 
                     await clientSession.SendPacketAsync(new SuccessPacket()).ConfigureAwait(false);

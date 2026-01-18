@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
                 DateEnd = TestHelpers.Instance.Clock.GetCurrentInstant().Plus(Duration.FromDays(1)),
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
@@ -83,7 +83,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
                 DateEnd = TestHelpers.Instance.Clock.GetCurrentInstant().Plus(Duration.FromDays(1)),
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
@@ -92,7 +92,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_AddMedalAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             Assert.AreEqual(0, Session.Character.InventoryService.Count);
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);

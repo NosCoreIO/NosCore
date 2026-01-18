@@ -100,7 +100,7 @@ namespace NosCore.GameObject.Services.MailService
             }
 
             var result = mailData.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(mail, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement);
-            mail = JsonSerializer.Deserialize<MailDto>(result!.GetRawText())!;
+            mail = JsonSerializer.Deserialize<MailDto>(result.GetRawText())!;
             await mailDao.TryInsertOrUpdateAsync(mail).ConfigureAwait(false);
             var savedData =
                 parcelHolder[mail.IsSenderCopy ? (long)mail.SenderId! : mail.ReceiverId][mail.IsSenderCopy]

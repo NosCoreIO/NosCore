@@ -101,7 +101,7 @@ namespace NosCore.WorldServer
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "world.yml" });
             conf.Bind(worldConfiguration);
             services.AddDbContext<NosCoreContext>(
-                conf => conf.UseNpgsql(worldConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
+                conf => conf.UseNpgsql(worldConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<WorldConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<WebApiConfiguration>().Bind(conf.GetSection(nameof(LoginConfiguration.MasterCommunication))).ValidateDataAnnotations();
@@ -297,9 +297,9 @@ namespace NosCore.WorldServer
         private static void RegisterDto(ContainerBuilder containerBuilder)
         {
             containerBuilder.Register(c => c.Resolve<IEnumerable<IDao<IDto>>>().OfType<IDao<II18NDto>>().ToDictionary(
-                    x => x.GetType().GetGenericArguments()[1], y => y.LoadAll().GroupBy(x => x!.Key ?? "")
+                    x => x.GetType().GetGenericArguments()[1], y => y.LoadAll().GroupBy(x => x.Key ?? "")
                         .ToDictionary(x => x.Key,
-                            x => x.ToList().ToDictionary(o => o!.RegionType, o => o!))))
+                            x => x.ToList().ToDictionary(o => o.RegionType, o => o))))
             .AsImplementedInterfaces()
             .SingleInstance()
             .AutoActivate();
@@ -339,7 +339,7 @@ namespace NosCore.WorldServer
                             .FindPrimaryKey()?.Properties.Select(x => x.Name)
                             .Contains(s.Name) ?? false
                         ).ToArray()[0];
-                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType).Invoke(null,
+                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
                         new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                 });
 
@@ -387,7 +387,7 @@ namespace NosCore.WorldServer
                     services.AddHostedService<WorldServer>();
 
                     TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
-                    TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult!);
+                    TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
                     TypeAdapterConfig.GlobalSettings.ForDestinationType<I18NString>().BeforeMapping(s => s.Clear());
                     TypeAdapterConfig.GlobalSettings.Default.IgnoreMember((member, side)
                         => ((side == MemberSide.Destination) && member.Type.GetInterfaces().Contains(typeof(IEntity))) || (member.Type.GetGenericArguments().Any() && member.Type.GetGenericArguments()[0].GetInterfaces().Contains(typeof(IEntity))));

@@ -31,13 +31,13 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
     {
         public bool Condition(MapItem item)
         {
-            return (item.ItemInstance!.Item!.ItemType == ItemType.Map) &&
+            return (item.ItemInstance!.Item.ItemType == ItemType.Map) &&
                 (item.ItemInstance.Item.Effect == ItemEffectType.SpCharger);
         }
 
         public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
-            await requestData.ClientSession.Character.AddSpPointsAsync(requestData.Data.Item1.ItemInstance!.Item!.EffectValue).ConfigureAwait(false);
+            await requestData.ClientSession.Character.AddSpPointsAsync(requestData.Data.Item1.ItemInstance!.Item.EffectValue).ConfigureAwait(false);
             await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSpPoint()).ConfigureAwait(false);
             requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
             await requestData.ClientSession.Character.MapInstance.SendPacketAsync(

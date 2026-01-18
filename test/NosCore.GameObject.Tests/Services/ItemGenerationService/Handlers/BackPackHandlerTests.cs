@@ -72,7 +72,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
                 StaticBonusType = StaticBonusType.BackPack
             });
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
 
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
@@ -83,7 +83,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_BackPackAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session!.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (ExtsPacket?)Session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
             Assert.IsNotNull(lastpacket);
@@ -104,7 +104,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
                 StaticBonusType = StaticBonusType.InventoryTicketUpgrade
             });
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
 
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
@@ -115,7 +115,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_BackPackTicketAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (ExtsPacket?)Session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
             Assert.IsNotNull(lastpacket);

@@ -113,7 +113,7 @@ namespace NosCore.GameObject
 
         public bool InExchangeOrShop => InExchange || InShop;
 
-        public bool InExchange => ExchangeProvider!.CheckExchange(VisualId);
+        public bool InExchange => ExchangeProvider.CheckExchange(VisualId);
 
         public bool InShop { get; set; }
 
@@ -497,8 +497,8 @@ namespace NosCore.GameObject
                 return;
             }
 
-            var price = item.Price ?? item.ItemInstance!.Item!.Price * amount;
-            var reputprice = item.Price == null ? item.ItemInstance!.Item!.ReputPrice * amount : 0;
+            var price = item.Price ?? item.ItemInstance!.Item.Price * amount;
+            var reputprice = item.Price == null ? item.ItemInstance!.Item.ReputPrice * amount : 0;
             var percent = DignityIcon switch
             {
                 DignityType.Dreadful => 1.1,

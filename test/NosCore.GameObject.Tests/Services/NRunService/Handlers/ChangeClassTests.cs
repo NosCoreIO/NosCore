@@ -172,7 +172,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
             var characterClass = (CharacterClassType)characterClassInt;
             _session!.Character.Level = 15;
             _session.Character.JobLevel = 20;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
             await _nrRunService.NRunLaunchAsync(_session, new Tuple<IAliveEntity, NrunPacket>(_session.Character, (new NrunPacket

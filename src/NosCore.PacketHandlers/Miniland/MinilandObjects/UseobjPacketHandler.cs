@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 return;
             }
 
-            if (!minilandObject.InventoryItemInstance!.ItemInstance!.Item!.IsWarehouse)
+            if (!minilandObject.InventoryItemInstance!.ItemInstance.Item.IsWarehouse)
             {
                 var game = (byte)(minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot ==
                     EquipmentType.MainWeapon
@@ -115,7 +115,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     WarehouseSize =
                         (byte)minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint,
                     IvnSubPackets = warehouseItems.Select(invItem =>
-                        invItem.ItemInstance.GenerateIvnSubPacket((PocketType)invItem.ItemInstance!.Item!.Type,
+                        invItem.ItemInstance.GenerateIvnSubPacket((PocketType)invItem.ItemInstance!.Item.Type,
                             invItem.Slot)).ToList()
                 }).ConfigureAwait(false);
             }

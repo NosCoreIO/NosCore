@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
             requestData.ClientSession.Character.Titles.Add(new TitleDto
             {
                 Id = Guid.NewGuid(),
-                TitleType = inv.ItemInstance!.ItemVNum,
+                TitleType = inv.ItemInstance.ItemVNum,
                 Visible = false,
                 Active = false,
                 CharacterId = requestData.ClientSession.Character.VisualId

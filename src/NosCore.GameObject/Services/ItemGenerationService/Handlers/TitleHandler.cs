@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 YesPacket = new GuriPacket
                 {
                     Type = GuriPacketType.Title,
-                    Argument = (uint)requestData.Data.Item1.ItemInstance!.ItemVNum,
+                    Argument = (uint)requestData.Data.Item1.ItemInstance.ItemVNum,
                     EntityId = requestData.Data.Item1.Slot
                 },
                 Question = Game18NConstString.AskAddTitle

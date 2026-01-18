@@ -61,7 +61,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_SpeakerItemHandlerAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (GuriPacket?)Session.LastPackets.FirstOrDefault(s => s is GuriPacket);
             Assert.IsNotNull(lastpacket);

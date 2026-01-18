@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             requestData.ClientSession.Character.StaticBonusList.Add(new StaticBonusDto
             {
                 CharacterId = requestData.ClientSession.Character.CharacterId,
-                DateEnd = clock.GetCurrentInstant().Plus(Duration.FromDays(itemInstance.ItemInstance!.Item!.EffectValue)),
+                DateEnd = clock.GetCurrentInstant().Plus(Duration.FromDays(itemInstance.ItemInstance.Item.EffectValue)),
                 StaticBonusType = itemInstance.ItemInstance.Item.Effect == ItemEffectType.SilverNosMerchantUpgrade
                     ? StaticBonusType.BazaarMedalSilver : StaticBonusType.BazaarMedalGold
             });

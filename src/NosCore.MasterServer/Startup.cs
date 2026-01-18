@@ -85,9 +85,9 @@ namespace NosCore.MasterServer
         private static void RegisterDto(ContainerBuilder containerBuilder)
         {
             containerBuilder.Register(c => c.Resolve<IEnumerable<IDao<IDto>>>().OfType<IDao<II18NDto>>().ToDictionary(
-                    x => x.GetType().GetGenericArguments()[1], y => y.LoadAll().GroupBy(x => x!.Key ?? "")
+                    x => x.GetType().GetGenericArguments()[1], y => y.LoadAll().GroupBy(x => x.Key ?? "")
                         .ToDictionary(x => x.Key,
-                            x => x.ToList().ToDictionary(o => o!.RegionType, o => o!))))
+                            x => x.ToList().ToDictionary(o => o.RegionType, o => o))))
                 .AsImplementedInterfaces()
                 .SingleInstance()
                 .AutoActivate();
@@ -109,7 +109,7 @@ namespace NosCore.MasterServer
                             .FindPrimaryKey()?.Properties.Select(x => x.Name)
                             .Contains(s.Name) ?? false
                         ).ToArray()[0];
-                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType)
+                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk.PropertyType)
                         .Invoke(null, new object?[] { containerBuilder });
                 });
 
@@ -219,7 +219,7 @@ namespace NosCore.MasterServer
 
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(masterConfiguration.WebApi.Port));
             services.AddDbContext<NosCoreContext>(
-                conf => conf.UseNpgsql(masterConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
+                conf => conf.UseNpgsql(masterConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             services.ConfigureOptions<ConfigureJwtBearerOptions>();
            
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();

@@ -52,12 +52,12 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestMethod]
         public async Task Test_BindingAsync()
         {
-            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
+            _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
             await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket { Slot = 0, Type = PocketType.Equipment, Mode = 1 },
                 _session).ConfigureAwait(false);
 
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
-                (s.Value.ItemInstance!.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Wear) &&
+                (s.Value.ItemInstance.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Wear) &&
                 (s.Value.ItemInstance.BoundCharacterId == _session.Character.VisualId)));
         }
 
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task Test_Increment_SpAdditionPointsAsync()
         {
             _session!.Character.SpAdditionPoint = 0;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
             await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket
             {
@@ -83,7 +83,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task Test_Overflow_SpAdditionPointsAsync()
         {
             _session!.Character.SpAdditionPoint = TestHelpers.Instance.WorldConfiguration.Value.MaxAdditionalSpPoints;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
             await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket
             {
@@ -102,7 +102,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task Test_CloseToLimit_SpAdditionPointsAsync()
         {
             _session!.Character.SpAdditionPoint = TestHelpers.Instance.WorldConfiguration.Value.MaxAdditionalSpPoints - 1;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1078, 1), 0));
             var item = _session.Character.InventoryService.First();
             await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket
             {

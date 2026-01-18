@@ -64,7 +64,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         {
             Session!.Character.SpAdditionPoint = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(lastpacket?.Type == MessageType.Default, lastpacket?.Message == Game18NConstString.CannotBeUsedExceedsCapacity);
@@ -77,7 +77,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         {
             Session!.Character.SpAdditionPoint = 0;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             Assert.AreEqual(1, Session.Character.SpAdditionPoint);
             Assert.AreEqual(0, Session.Character.InventoryService.Count);

@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await mailHttpClient.SendMailAsync(GiftHelper.GenerateMailRequest(clock, session.Character!, receiver.ConnectedCharacter!.Id,null, giftPacket.VNum,
+            await mailHttpClient.SendMailAsync(GiftHelper.GenerateMailRequest(clock, session.Character, receiver.ConnectedCharacter!.Id,null, giftPacket.VNum,
                 giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false, null, null)).ConfigureAwait(false);
             await session.SendPacketAsync(new SayiPacket
             {

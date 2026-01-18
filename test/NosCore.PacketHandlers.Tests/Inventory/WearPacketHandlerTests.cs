@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
-            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s =>
@@ -124,7 +124,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
@@ -163,7 +163,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
@@ -198,7 +198,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _item = new ItemGenerationService(items,
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
@@ -222,7 +222,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _item = new ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Wear));
@@ -244,7 +244,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _item = new ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
@@ -268,7 +268,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _item = new ItemGenerationService(items,
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Wear));
@@ -291,7 +291,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _item = new ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Equipment));
@@ -316,7 +316,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _item = new ItemGenerationService(items,
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.Type == NoscorePocketType.Wear));
@@ -337,7 +337,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _item = new ItemGenerationService(items,
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1, -2),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1, -2),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
 
@@ -366,7 +366,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _item = new ItemGenerationService(items,
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1),
                 _session.Character.CharacterId));
@@ -374,7 +374,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _session.Character.UseSp = true;
             await _wearPacketHandler.ExecuteAsync(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
-                (s.Value.ItemInstance!.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));
+                (s.Value.ItemInstance.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.SpecialistCardsCannotBeTradedWhileTransformed);
         }
@@ -399,7 +399,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _item = new ItemGenerationService(items,
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1),
                 _session.Character.CharacterId));
@@ -408,7 +408,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _session.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
             await _wearPacketHandler.ExecuteAsync(new WearPacket { InventorySlot = 1, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
-                (s.Value.ItemInstance!.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));
+                (s.Value.ItemInstance.ItemVNum == 2) && (s.Value.Type == NoscorePocketType.Equipment)));
             var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.CantTrasformWithSideEffect && packet?.ArgumentType == 4 && (int?)packet?.Game18NArguments[0] == 30);
         }
@@ -435,7 +435,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
-            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1),
                 _session.Character.CharacterId));
@@ -443,7 +443,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _session.Character.UseSp = true;
             await _wearPacketHandler.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
-                (s.Value.ItemInstance!.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Equipment)));
+                (s.Value.ItemInstance.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Equipment)));
             var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.IsTrue(packet?.Message == Game18NConstString.SpecialistAndFairyDifferentElement);
         }
@@ -469,7 +469,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
-            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1),
                 _session.Character.CharacterId));
@@ -478,7 +478,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await _wearPacketHandler.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
             Assert.IsTrue(
                 _session.Character.InventoryService.Any(s =>
-                    (s.Value.ItemInstance!.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Wear)));
+                    (s.Value.ItemInstance.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Wear)));
         }
 
         [TestMethod]
@@ -502,7 +502,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
-            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(2, 1),
                 _session.Character.CharacterId));
@@ -525,7 +525,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>
                     {new WearEventHandler(Logger, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer)}), Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
-            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
+            _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item.Create(1, 1),
                 _session.Character.CharacterId));
             await _wearPacketHandler!.ExecuteAsync(new WearPacket { InventorySlot = 0, Type = PocketType.Equipment }, _session).ConfigureAwait(false);
 
@@ -535,7 +535,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 && (yespacket.Type == PocketType.Equipment)
                 && (packet.Question == _session.GetMessageFromKey(LanguageKey.ASK_BIND)));
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
-                (s.Value.ItemInstance!.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Equipment)));
+                (s.Value.ItemInstance.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Equipment)));
         }
     }
 }

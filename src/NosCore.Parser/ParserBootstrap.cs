@@ -69,7 +69,7 @@ namespace NosCore.Parser
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "parser.yml" });
             conf.Bind(parserConfiguration);
             services.AddDbContext<NosCoreContext>(
-                builder => builder.UseNpgsql(parserConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
+                builder => builder.UseNpgsql(parserConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<ParserConfiguration>().Bind(conf).ValidateDataAnnotations();
             Logger.GetLoggerConfiguration().CreateLogger();
             Logger.PrintHeader(ConsoleText);
@@ -104,7 +104,7 @@ namespace NosCore.Parser
                             .FindPrimaryKey()?.Properties.Select(x => x.Name)
                             .Contains(s.Name) ?? false
                         ).ToArray()[0];
-                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk!.PropertyType).Invoke(null,
+                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
                         new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
                 });
 

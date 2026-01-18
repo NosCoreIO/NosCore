@@ -155,7 +155,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         {
             var guid1 = Guid.NewGuid();
             var guid2 = Guid.NewGuid();
-            _session!.Character.InventoryService!.AddItemToPocket(new InventoryItemInstance(new ItemInstance(new Item { VNum = 1012 }) { Amount = 999, Id = guid2 })
+            _session!.Character.InventoryService.AddItemToPocket(new InventoryItemInstance(new ItemInstance(new Item { VNum = 1012 }) { Amount = 999, Id = guid2 })
             {
                 Id = guid2, Slot = 0, Type = NoscorePocketType.Main
             });

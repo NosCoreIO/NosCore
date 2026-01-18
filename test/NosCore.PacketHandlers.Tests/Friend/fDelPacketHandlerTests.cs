@@ -96,7 +96,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
             {
-                _session!.Character!,
+                _session!.Character,
                 new() {CharacterId = 2, Name = "test"}
             };
             _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
@@ -136,8 +136,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
             {
-                _session!.Character!,
-                targetSession.Character!
+                _session!.Character,
+                targetSession.Character
             };
             _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))!
                 .ReturnsAsync((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
@@ -176,8 +176,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
             {
-                _session!.Character!,
-                targetSession.Character!
+                _session!.Character,
+                targetSession.Character
             };
             _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile()))!);

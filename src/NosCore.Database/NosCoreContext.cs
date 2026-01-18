@@ -343,7 +343,7 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Character>()
                 .HasOne(e => e.Script)
-                .WithMany(e => e!.Characters)
+                .WithMany(e => e.Characters)
                 .HasForeignKey(e => e.CurrentScriptId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -421,13 +421,13 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Mail>()
                 .HasOne(e => e.ItemInstance)
-                .WithMany(e => e!.Mail)
+                .WithMany(e => e.Mail)
                 .HasForeignKey(e => e.ItemInstanceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MinilandObject>()
                 .HasOne(e => e.InventoryItemInstance)
-                .WithMany(e => e!.MinilandObject)
+                .WithMany(e => e.MinilandObject)
                 .HasForeignKey(e => e.InventoryItemInstanceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -465,7 +465,7 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Mail>()
                 .HasOne(e => e.ItemInstance)
-                .WithMany(e => e!.Mail)
+                .WithMany(e => e.Mail)
                 .HasForeignKey(e => e.ItemInstanceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -511,13 +511,13 @@ namespace NosCore.Database
 
             modelBuilder.Entity<MapType>()
                 .HasOne(e => e.RespawnMapType)
-                .WithMany(e => e!.MapTypes)
+                .WithMany(e => e.MapTypes)
                 .HasForeignKey(e => e.RespawnMapTypeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MapType>()
                 .HasOne(e => e.ReturnMapType)
-                .WithMany(e => e!.MapTypes1)
+                .WithMany(e => e.MapTypes1)
                 .HasForeignKey(e => e.ReturnMapTypeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -551,19 +551,19 @@ namespace NosCore.Database
 
             modelBuilder.Entity<BCard>()
                 .HasOne(e => e.Skill)
-                .WithMany(e => e!.BCards)
+                .WithMany(e => e.BCards)
                 .HasForeignKey(e => e.SkillVNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<BCard>()
                 .HasOne(e => e.NpcMonster)
-                .WithMany(e => e!.BCards)
+                .WithMany(e => e.BCards)
                 .HasForeignKey(e => e.NpcMonsterVNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<BCard>()
                 .HasOne(e => e.Card)
-                .WithMany(e => e!.BCards)
+                .WithMany(e => e.BCards)
                 .HasForeignKey(e => e.CardId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -580,7 +580,7 @@ namespace NosCore.Database
 
             modelBuilder.Entity<BCard>()
                 .HasOne(e => e.Item)
-                .WithMany(e => e!.BCards)
+                .WithMany(e => e.BCards)
                 .HasForeignKey(e => e.ItemVNum)
                 .OnDelete(DeleteBehavior.Restrict);
 

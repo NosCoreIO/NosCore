@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
 
         public void SetRarityPoint()
         {
-            switch (Item!.EquipmentSlot)
+            switch (Item.EquipmentSlot)
             {
                 case EquipmentType.MainWeapon:
                 case EquipmentType.SecondaryWeapon:

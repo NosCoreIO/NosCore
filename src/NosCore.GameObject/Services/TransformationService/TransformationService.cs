@@ -96,7 +96,7 @@ namespace NosCore.GameObject.Services.TransformationService
                 return;
             }
 
-            if ((byte)character.ReputIcon < sp.Item!.ReputationMinimum)
+            if ((byte)character.ReputIcon < sp.Item.ReputationMinimum)
             {
                 await character.SendPacketAsync(new SayiPacket
                 {
@@ -110,7 +110,7 @@ namespace NosCore.GameObject.Services.TransformationService
 
             if (character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance is
                     WearableInstance fairy
-                && (sp.Item.Element != 0) && (fairy.Item!.Element != sp.Item.Element)
+                && (sp.Item.Element != 0) && (fairy.Item.Element != sp.Item.Element)
                 && (fairy.Item.Element != sp.Item.SecondaryElement))
             {
                 await character.SendPacketAsync(new MsgiPacket
@@ -166,7 +166,7 @@ namespace NosCore.GameObject.Services.TransformationService
                 var sp = character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear);
                 if (sp != null)
                 {
-                    character.Morph = sp.ItemInstance!.Item!.Morph;
+                    character.Morph = sp.ItemInstance.Item.Morph;
                     character.MorphDesign = sp.ItemInstance.Design;
                     character.MorphUpgrade = sp.ItemInstance.Upgrade;
                 }

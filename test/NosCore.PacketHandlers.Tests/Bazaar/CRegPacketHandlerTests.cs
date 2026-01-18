@@ -167,7 +167,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task RegisterTooExpensiveWhenNoMedalAsync()
         {
             _session!.Character.Gold = 500000;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
                 .First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -193,7 +193,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             {
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
                 .First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -216,7 +216,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task RegisterTooExpensiveAsync()
         {
             _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
                 .First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -238,7 +238,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task RegisterTooLongWhenNoMedalAsync()
         {
             _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
                 .First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -260,7 +260,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task RegisterUnvalidTimeAsync()
         {
             _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
                 .First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -281,7 +281,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task RegisterLimitExceededAsync()
         {
             _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService!
+            _session.Character.InventoryService
                 .AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!.First();
             _bazaarHttpClient!.Reset();
             _bazaarHttpClient!.Setup(s => s.AddBazaarAsync(It.IsAny<BazaarRequest>())).ReturnsAsync(LanguageKey.LIMIT_EXCEEDED);
@@ -298,7 +298,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Price = 1
             }, _session!).ConfigureAwait(false);
             var lastpacket = (ModaliPacket?)_session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.AreEqual(999, _session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance!.Amount);
+            Assert.AreEqual(999, _session.Character.InventoryService.FirstOrDefault().Value.ItemInstance.Amount);
             Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.ListedMaxItemsNumber);
         }
 
@@ -306,7 +306,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task RegisterAllSlotAsync()
         {
             _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService!
+            _session.Character.InventoryService
                 .AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!.First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -329,7 +329,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task RegisterLessThanInInventoryAsync()
         {
             _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
                 .First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -350,7 +350,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task RegisterPartialSlotAsync()
         {
             _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService!
+            _session.Character.InventoryService
                 .AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!.First();
             await _cregPacketHandler!.ExecuteAsync(new CRegPacket
             {
@@ -365,7 +365,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Price = 1
             }, _session).ConfigureAwait(false);
             var lastpacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.AreEqual(50, _session.Character.InventoryService!.FirstOrDefault().Value.ItemInstance!.Amount);
+            Assert.AreEqual(50, _session.Character.InventoryService.FirstOrDefault().Value.ItemInstance.Amount);
             Assert.IsTrue(lastpacket?.Type == MessageType.Default && lastpacket?.Message == Game18NConstString.ItemAddedToBazar);
         }
     }

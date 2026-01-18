@@ -134,7 +134,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         public async Task Test_BoundCharacter_QuestionAsync()
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (QnaPacket?)Session.LastPackets.FirstOrDefault(s => s is QnaPacket);
             Assert.AreEqual(Session.GetMessageFromKey(LanguageKey.ASK_BIND), lastpacket?.Question);
@@ -145,7 +145,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         {
             UseItem.Mode = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             Assert.AreEqual(Session.Character.CharacterId, itemInstance.ItemInstance?.BoundCharacterId);
         }
@@ -155,7 +155,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         {
             UseItem.Mode = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(5), Session!.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (SayiPacket?)Session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.AreEqual(lastpacket?.VisualType == VisualType.Player, lastpacket?.VisualId == Session.Character.CharacterId);
@@ -168,7 +168,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             UseItem.Mode = 1;
             Session!.Character.UseSp = true;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             var sp = InventoryItemInstance.Create(_itemProvider.Create(4), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
@@ -183,7 +183,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             Session!.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
             Session.Character.SpCooldown = 300;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             var sp = InventoryItemInstance.Create(_itemProvider.Create(4), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
@@ -198,7 +198,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             UseItem.Mode = 1;
             Session!.Character.UseSp = true;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             var sp = InventoryItemInstance.Create(_itemProvider.Create(4), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
@@ -212,8 +212,8 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         {
             UseItem.Mode = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session!.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
-            itemInstance.ItemInstance!.Rare = -2;
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
+            itemInstance.ItemInstance.Rare = -2;
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(lastpacket?.Type == MessageType.Default, lastpacket?.Message == Game18NConstString.CantUseBecauseSoulDestroyed);
@@ -224,7 +224,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         {
             UseItem.Mode = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(6), Session!.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(lastpacket?.Message, Game18NConstString.CanNotBeWornDifferentClass);
@@ -235,7 +235,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         {
             UseItem.Mode = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session!.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (SpPacket?)Session.LastPackets.FirstOrDefault(s => s is SpPacket);
             Assert.IsNotNull(lastpacket);
@@ -246,7 +246,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         {
             UseItem.Mode = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session!.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (PairyPacket?)Session.Character.MapInstance.LastPackets.FirstOrDefault(s => s is PairyPacket);
             Assert.IsNotNull(lastpacket);
@@ -257,11 +257,11 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         {
             UseItem.Mode = 1;
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(7), Session!.Character.CharacterId);
-            Session.Character.InventoryService!.AddItemToPocket(itemInstance);
+            Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
             var lastpacket = (EffectPacket?)Session.LastPackets.FirstOrDefault(s => s is EffectPacket);
             Assert.IsNotNull(lastpacket);
-            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant().Plus(Duration.FromSeconds(itemInstance.ItemInstance!.Item!.ItemValidTime)), itemInstance.ItemInstance.ItemDeleteTime);
+            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant().Plus(Duration.FromSeconds(itemInstance.ItemInstance.Item.ItemValidTime)), itemInstance.ItemInstance.ItemDeleteTime);
         }
     }
 }

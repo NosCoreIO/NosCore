@@ -80,13 +80,13 @@ namespace NosCore.GameObject.Networking
 
         public IEnumerable<ICharacterEntity> GetCharacters(Func<ICharacterEntity, bool>? func)
         {
-            var selection = ClientSessions.Values.Where(s => s.Character != null!).Select(s => s.Character!);
+            var selection = ClientSessions.Values.Where(s => s.Character != null!).Select(s => s.Character);
             return func == null ? selection : selection.Where(func);
         }
 
         public ICharacterEntity? GetCharacter(Func<ICharacterEntity, bool>? func)
         {
-            var selection = ClientSessions.Values.Where(s => s.Character != null!).Select(c => c.Character!);
+            var selection = ClientSessions.Values.Where(s => s.Character != null!).Select(c => c.Character);
             return func == null ? selection.FirstOrDefault() : selection.FirstOrDefault(func);
         }
 

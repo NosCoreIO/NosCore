@@ -82,7 +82,7 @@ namespace NosCore.LoginServer
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" });
             conf.Bind(loginConfiguration);
             services.AddDbContext<NosCoreContext>(
-                conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
+                conf => conf.UseNpgsql(loginConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<WebApiConfiguration>().Bind(conf.GetSection(nameof(LoginConfiguration.MasterCommunication))).ValidateDataAnnotations();
@@ -160,7 +160,7 @@ namespace NosCore.LoginServer
                 var conf = c.Resolve<IOptions<LoginConfiguration>>();
                 return new Channel
                 {
-                    MasterCommunication = conf.Value!.MasterCommunication,
+                    MasterCommunication = conf.Value.MasterCommunication,
                     ClientType = ServerType.LoginServer,
                     ClientName = $"{ServerType.LoginServer}",
                     Port = conf.Value.Port,

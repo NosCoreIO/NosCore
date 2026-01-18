@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task Test_Transform_VehicleAsync()
         {
             _session!.Character.IsVehicled = true;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
@@ -97,7 +97,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestMethod]
         public async Task Test_RemoveSpAsync()
         {
-            _session!.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
+            _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             _session.Character.UseSp = true;
@@ -112,7 +112,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             _session!.Character.SpPoint = 1;
             _session.Character.Reput = 5000000;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
@@ -126,7 +126,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             _session!.Character.SpPoint = 1;
             _session.Character.Reput = 5000000;
-            var item = _session.Character.InventoryService!
+            var item = _session.Character.InventoryService
                 .AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1), _session.Character.CharacterId))!
                 .First();
             var fairy = _session.Character.InventoryService
@@ -146,7 +146,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task Test_Transform_BadReputAsync()
         {
             _session!.Character.SpPoint = 1;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
@@ -163,7 +163,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             _session!.Character.SpPoint = 1;
             _session.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
             _session.Character.SpCooldown = 30;
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
@@ -177,7 +177,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task Test_Transform_OutOfSpPointAsync()
         {
             _session!.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
@@ -193,7 +193,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             _session!.Character.SpPoint = 1;
             _session.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
-            _session.Character.InventoryService!.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
                 _session.Character.CharacterId));
             var item = _session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;

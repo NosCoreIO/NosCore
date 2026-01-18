@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Services.BroadcastService
             var packetList = packets.ToList();
             var sessions = GetTargetSessions(target);
 
-            var tasks = sessions.Select(s => s.Sender.SendPacketsAsync(packetList!));
+            var tasks = sessions.Select(s => s.Sender.SendPacketsAsync(packetList));
             await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 

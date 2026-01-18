@@ -53,7 +53,7 @@ namespace NosCore.WebApi
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "api.yml" });
             conf.Bind(loginConfiguration);
             builder.Services.AddDbContext<NosCoreContext>(
-                conf => conf.UseNpgsql(loginConfiguration.Database!.ConnectionString, options => { options.UseNodaTime(); }));
+                conf => conf.UseNpgsql(loginConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             builder.Services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();
             builder.Services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
             builder.Services.AddOptions<WebApiConfiguration>().Bind(conf.GetSection(nameof(ApiConfiguration.MasterCommunication))).ValidateDataAnnotations();

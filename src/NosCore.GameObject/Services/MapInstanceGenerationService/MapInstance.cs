@@ -223,7 +223,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             inv.Amount -= amount;
             if (inv.Amount == 0)
             {
-                session.Character.InventoryService!.DeleteById(inv.Id);
+                session.Character.InventoryService.DeleteById(inv.Id);
             }
 
             return droppedItem;

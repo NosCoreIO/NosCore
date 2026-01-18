@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Exchange
                     var item = clientSession.Character.InventoryService.LoadBySlotAndType(value!.Slot,
                         (NoscorePocketType)value.PocketType);
 
-                    if ((item == null) || (item.ItemInstance!.Amount < value.Amount))
+                    if ((item == null) || (item.ItemInstance.Amount < value.Amount))
                     {
                         var closeExchange =
                             exchangeService.CloseExchange(clientSession.Character.VisualId,
@@ -72,7 +72,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    if (!item.ItemInstance.Item!.IsTradable)
+                    if (!item.ItemInstance.Item.IsTradable)
                     {
                         await clientSession.SendPacketAsync(exchangeService.CloseExchange(clientSession.Character.CharacterId,
                             ExchangeResultType.Failure)).ConfigureAwait(false);

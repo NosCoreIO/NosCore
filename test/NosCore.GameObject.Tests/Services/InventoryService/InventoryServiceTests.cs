@@ -85,7 +85,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
         {
             Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!.First();
             var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012), 0));
-            Assert.IsTrue(items![0]!.ItemInstance?.Amount == 1);
+            Assert.IsTrue(items![0].ItemInstance?.Amount == 1);
         }
 
         [TestMethod]
@@ -93,7 +93,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
         {
             Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 990), 0))!.First();
             var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 29), 0));
-            Assert.IsTrue((items![0]!.ItemInstance?.Amount == 999) && (items.Last()!.ItemInstance?.Amount == 20));
+            Assert.IsTrue((items![0].ItemInstance?.Amount == 999) && (items.Last().ItemInstance?.Amount == 20));
         }
 
         [TestMethod]
@@ -106,7 +106,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 990), 0),
                 NoscorePocketType.Main, 2);
             var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1012, 27), 0))!;
-            Assert.IsTrue(items.All(item => item.ItemInstance!.Amount == 999) && (items?.Count == 3));
+            Assert.IsTrue(items.All(item => item.ItemInstance.Amount == 999) && (items?.Count == 3));
         }
 
         [TestMethod]
@@ -128,7 +128,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             Inventory!.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 990), 0));
             Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1013, 990), 0));
             Inventory.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1013), 0));
-            Assert.IsTrue(Inventory.Values.First(item => item.Slot == 1).ItemInstance!.Amount == 991);
+            Assert.IsTrue(Inventory.Values.First(item => item.Slot == 1).ItemInstance.Amount == 991);
         }
 
         [TestMethod]

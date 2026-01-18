@@ -108,7 +108,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                             if (shop != null)
                             {
                                 dtoShopItems = shopItems!.Where(o => o.ShopId == shop.ShopId)!.ToList();
-                                dialog = npcTalks!.Find(o => o.DialogId == s.Dialog);
+                                dialog = npcTalks.Find(o => o.DialogId == s.Dialog);
                             }
                             s.Initialize(npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!, shop, dialog, dtoShopItems);
                         });

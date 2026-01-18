@@ -69,14 +69,14 @@ namespace NosCore.DtoGenerator
                     var classSymbol = cc.BaseList?.Types.Select(s => semanticModel.GetTypeInfo(s.Type).Type!);
                     if (classSymbol?.Any(s => s.TypeKind != TypeKind.Interface) == true)
                     {
-                        if (classSymbol!.Any(s => s.Name.EndsWith("Instance")))
+                        if (classSymbol.Any(s => s.Name.EndsWith("Instance")))
                         {
                             dtoInterface = classSymbol.First(s => s.Name.EndsWith("Instance")).Name + "Dto";
                             keyCount = 1;
                         }
                         else
                         {
-                            foreach (var symbol in classSymbol!.First().GetMembers()
+                            foreach (var symbol in classSymbol.First().GetMembers()
                                 .Where(m => m.Kind == SymbolKind.Property))
                             {
                                 var prop = (IPropertySymbol)symbol;
