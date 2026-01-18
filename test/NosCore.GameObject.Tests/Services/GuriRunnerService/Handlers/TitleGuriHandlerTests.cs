@@ -37,6 +37,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.Infastructure;
 using GuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
 
 namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers

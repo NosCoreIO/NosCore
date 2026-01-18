@@ -17,13 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
@@ -33,6 +30,9 @@ using NosCore.Packets.ServerPackets.UI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Services.MailService;
 using NosCore.Networking;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;

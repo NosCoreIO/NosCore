@@ -18,36 +18,18 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.Interfaces;
 using System.Threading.Tasks;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.Infastructure
 {
-    public interface IPacketHandler
+    public interface IEventHandler<in T, T2> : IEventHandler
     {
-        Task ExecuteAsync(IPacket packet, ClientSession clientSession);
+        bool Condition(T condition);
+
+        Task ExecuteAsync(RequestData<T2> requestData);
     }
 
-    public interface ILoginPacketHandler
+    public interface IEventHandler
     {
-    }
-
-    public interface IWorldPacketHandler
-    {
-    }
-
-    public interface IPacketHandler<in TPacket> : IPacketHandler where TPacket : IPacket
-    {
-        Task ExecuteAsync(TPacket packet, ClientSession clientSession);
-    }
-
-    public abstract class PacketHandler<TPacket> : IPacketHandler<TPacket> where TPacket : IPacket
-    {
-        public abstract Task ExecuteAsync(TPacket packet, ClientSession clientSession);
-
-        public Task ExecuteAsync(IPacket packet, ClientSession clientSession)
-        {
-            return ExecuteAsync((TPacket)packet, clientSession);
-        }
     }
 }

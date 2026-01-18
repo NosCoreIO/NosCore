@@ -19,9 +19,7 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
@@ -30,6 +28,8 @@ using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Miniland
 {

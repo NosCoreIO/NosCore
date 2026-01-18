@@ -19,7 +19,6 @@
 
 using JetBrains.Annotations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using System;
 using System.Linq;

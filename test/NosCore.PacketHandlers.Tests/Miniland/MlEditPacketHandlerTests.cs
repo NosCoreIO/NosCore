@@ -27,8 +27,6 @@ using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.GameObject;
-using NosCore.GameObject.Holders;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
@@ -39,6 +37,7 @@ using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.PacketHandlers.Tests.Miniland
 {
@@ -87,7 +86,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                     Data = new byte[] {}
                 }},
                 TestHelpers.Instance.MinilandDao,
-                TestHelpers.Instance.MinilandObjectDao, new MinilandHolder());
+                TestHelpers.Instance.MinilandObjectDao, new MinilandRegistry());
             await _minilandProvider.InitializeAsync(_session.Character, TestHelpers.Instance.MapInstanceGeneratorService);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
             var mapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetMapInstance(miniland.MapInstanceId)!;

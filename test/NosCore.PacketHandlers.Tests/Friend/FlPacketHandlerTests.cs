@@ -27,7 +27,6 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Holders;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FriendService;
@@ -71,9 +70,9 @@ namespace NosCore.PacketHandlers.Tests.Friend
         public async Task Test_Add_Distant_FriendAsync()
         {
             var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            var friendRequestHolder = new FriendRequestHolder();
-            friendRequestHolder.FriendRequestCharacters.TryAdd(Guid.NewGuid(),
-                new Tuple<long, long>(targetSession.Character.CharacterId, _session!.Character.CharacterId));
+            var friendRequestHolder = new FriendRequestRegistry();
+            friendRequestHolder.RegisterRequest(Guid.NewGuid(),
+                targetSession.Character.CharacterId, _session!.Character.CharacterId);
             var flPacket = new FlCommandPacket
             {
                 CharacterName = targetSession.Character.Name

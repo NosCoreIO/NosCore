@@ -23,13 +23,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.PacketHandlers.Movement;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Tests.Shared;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.PacketHandlers.Tests.Movement
 {

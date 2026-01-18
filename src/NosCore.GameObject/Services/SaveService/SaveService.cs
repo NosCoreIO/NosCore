@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.ComponentEntities.Entities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Shared.I18N;

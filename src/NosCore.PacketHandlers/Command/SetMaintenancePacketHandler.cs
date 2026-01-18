@@ -18,9 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.CommandPackets;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 
 namespace NosCore.PacketHandlers.Command

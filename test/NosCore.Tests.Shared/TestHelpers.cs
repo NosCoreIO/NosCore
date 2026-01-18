@@ -50,8 +50,8 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.Database.Entities;
-using NosCore.GameObject;
-using NosCore.GameObject.Holders;
+using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
@@ -251,8 +251,8 @@ namespace NosCore.Tests.Shared
             };
             var npc = new MapNpcDto();
             await _mapNpcDao.TryInsertOrUpdateAsync(npc).ConfigureAwait(false);
-            var holder = new MapInstanceHolder();
-            MapInstanceAccessorService = new MapInstanceAccessorService(holder);
+            var mapInstanceRegistry = new MapInstanceRegistry();
+            MapInstanceAccessorService = new MapInstanceAccessorService(mapInstanceRegistry);
             var mapChangeService = new MapChangeService(new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
                 MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, new Mock<IMinilandService>().Object, _logger, Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, SessionRegistry);
             var sessionGroupFactory = new Mock<ISessionGroupFactory>().Object;
@@ -260,7 +260,7 @@ namespace NosCore.Tests.Shared
                 MapItemProvider,
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, _shopItemDao, _logger, new EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()),
-                holder, MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, mapChangeService, sessionGroupFactory, SessionRegistry);
+                mapInstanceRegistry, MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, mapChangeService, sessionGroupFactory, SessionRegistry);
             await instanceGeneratorService.InitializeAsync().ConfigureAwait(false);
             await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
                 MapInstanceType.NormalInstance, MapItemProvider, _logger, Clock, mapChangeService, sessionGroupFactory, SessionRegistry)).ConfigureAwait(false);
@@ -300,10 +300,10 @@ namespace NosCore.Tests.Shared
             _staticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(_logger, ContextBuilder);
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
-            TypeAdapterConfig<MapNpcDto, GameObject.MapNpc>.NewConfig()
-                .ConstructUsing(src => new GameObject.MapNpc(GenerateItemProvider(), _logger, Instance.DistanceCalculator, Instance.Clock));
-            TypeAdapterConfig<MapMonsterDto, GameObject.MapMonster>.NewConfig()
-                .ConstructUsing(src => new GameObject.MapMonster(_logger, Instance.DistanceCalculator, Instance.Clock, new Mock<ISpeedCalculationService>().Object));
+            TypeAdapterConfig<MapNpcDto, GameObject.ComponentEntities.Entities.MapNpc>.NewConfig()
+                .ConstructUsing(src => new GameObject.ComponentEntities.Entities.MapNpc(GenerateItemProvider(), _logger, Instance.DistanceCalculator, Instance.Clock));
+            TypeAdapterConfig<MapMonsterDto, GameObject.ComponentEntities.Entities.MapMonster>.NewConfig()
+                .ConstructUsing(src => new GameObject.ComponentEntities.Entities.MapMonster(_logger, Instance.DistanceCalculator, Instance.Clock, new Mock<ISpeedCalculationService>().Object));
 
         }
 
@@ -331,7 +331,7 @@ namespace NosCore.Tests.Shared
             };
             var packetHandlerRegistry = new NosCore.GameObject.Services.PacketHandlerService.PacketHandlerRegistry(handlers);
             var characterInitializationService = new Mock<ICharacterInitializationService>();
-            characterInitializationService.Setup(s => s.InitializeAsync(It.IsAny<NosCore.GameObject.Character>())).Returns(Task.CompletedTask);
+            characterInitializationService.Setup(s => s.InitializeAsync(It.IsAny<NosCore.GameObject.ComponentEntities.Entities.Character>())).Returns(Task.CompletedTask);
             var session = new ClientSession(
                 _logger,
                 packetHandlerRegistry,
@@ -348,8 +348,8 @@ namespace NosCore.Tests.Shared
                 SessionId = _lastId
             };
 
-            var chara = new GameObject.Character(new InventoryService(ItemList, WorldConfiguration, _logger),
-                new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestHolder(), Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer), new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(),
+            var chara = new GameObject.ComponentEntities.Entities.Character(new InventoryService(ItemList, WorldConfiguration, _logger),
+                new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, _logger, new ExchangeRequestRegistry(), Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer), new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(),
                 new HeroExperienceService(), new ReputationService(), new DignityService(),
                 Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, Instance.SessionGroupFactory, Instance.SessionRegistry, Instance.GameLanguageLocalizer)
             {

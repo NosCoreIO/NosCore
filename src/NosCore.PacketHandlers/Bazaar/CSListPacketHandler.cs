@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
@@ -26,6 +25,7 @@ using NosCore.Packets.ServerPackets.Inventory;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 
 namespace NosCore.PacketHandlers.Bazaar

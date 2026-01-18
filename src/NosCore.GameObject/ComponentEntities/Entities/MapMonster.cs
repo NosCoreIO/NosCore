@@ -17,74 +17,47 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using Mapster;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
-using NosCore.GameObject.Services.NRunService;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using Serilog;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Services.SpeedCalculationService;
 using System.Threading;
+using System.Collections.Concurrent;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.ComponentEntities.Entities
 {
-    public class MapNpc(IItemGenerationService? itemProvider, ILogger logger, IHeuristic distanceCalculator,
-            IClock clock)
-        : MapNpcDto, INonPlayableEntity, IRequestableEntity
+    public class MapMonster(ILogger logger, IHeuristic distanceCalculator, IClock clock,
+            ISpeedCalculationService speedCalculationService)
+        : MapMonsterDto, INonPlayableEntity
     {
         public NpcMonsterDto NpcMonster { get; private set; } = null!;
 
         public IDisposable? Life { get; private set; }
         public ConcurrentDictionary<IAliveEntity, int> HitList => new();
 
-        public void Initialize(NpcMonsterDto npcMonster, ShopDto? shopDto, NpcTalkDto? npcTalkDto, List<ShopItemDto> shopItemsDto)
+        public void Initialize(NpcMonsterDto npcMonster)
         {
             NpcMonster = npcMonster;
             Mp = NpcMonster?.MaxMp ?? 0;
             Hp = NpcMonster?.MaxHp ?? 0;
-            Speed = NpcMonster?.Speed ?? 0;
             PositionX = MapX;
             PositionY = MapY;
             IsAlive = true;
-
-            Task RequestExecAsync(RequestData request)
-            {
-                return ShowDialogAsync(request);
-            }
-            Requests[typeof(INrunEventHandler)]?.Select(RequestExecAsync).Subscribe();
-            var shopObj = shopDto;
-            if (shopObj == null)
-            {
-                return;
-            }
-
-            var shopItemsList = new ConcurrentDictionary<int, ShopItem>();
-            Parallel.ForEach(shopItemsDto, shopItemGrouping =>
-            {
-                var shopItem = shopItemGrouping.Adapt<ShopItem>();
-                shopItem.ItemInstance = itemProvider!.Create(shopItemGrouping.ItemVNum, -1);
-                shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
-            });
-            Shop = shopObj.Adapt<Shop>();
-            Shop.Name = npcTalkDto?.Name ?? new I18NString();
-            Shop.OwnerCharacter = null;
-            Shop.ShopItems = shopItemsList;
+            Level = NpcMonster?.Level ?? 0;
         }
-        public SemaphoreSlim HitSemaphore { get; } = new SemaphoreSlim(1, 1);
 
-        public byte Speed { get; set; }
+        public bool IsSitting { get; set; }
+        public byte Speed => speedCalculationService.CalculateSpeed(this);
         public byte Size { get; set; } = 10;
         public int Mp { get; set; }
         public int Hp { get; set; }
@@ -94,36 +67,30 @@ namespace NosCore.GameObject
         public byte MorphBonus { get; set; }
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
-        public VisualType VisualType => VisualType.Npc;
-        public long VisualId => MapNpcId;
+        public VisualType VisualType => VisualType.Monster;
+        public SemaphoreSlim HitSemaphore { get; } = new SemaphoreSlim(1, 1);
+
+        public long VisualId => MapMonsterId;
 
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
         public short PositionY { get; set; }
+
+        public short Effect { get; set; }
+        public short EffectDelay { get; set; }
         public MapInstance MapInstance { get; set; } = null!;
         public Instant LastMove { get; set; }
         public bool IsAlive { get; set; }
-
-        public short Race => NpcMonster.Race;
-
         public int MaxHp => NpcMonster.MaxHp;
 
         public int MaxMp => NpcMonster.MaxMp;
 
+        public short Race => NpcMonster.Race;
+        public Shop? Shop => null;
+
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        public Shop? Shop { get; private set; }
-
-        public Dictionary<Type, Subject<RequestData>> Requests { get; set; } = new()
-        {
-            [typeof(INrunEventHandler)] = new()
-        };
-
-        private Task ShowDialogAsync(RequestData requestData)
-        {
-            return requestData.ClientSession.SendPacketAsync(this.GenerateNpcReq(Dialog ?? 0));
-        }
 
         internal void StopLife()
         {
@@ -146,6 +113,7 @@ namespace NosCore.GameObject
                 {
                     logger.Error(e.Message, e);
                 }
+
             }
             Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();
             return Task.CompletedTask;

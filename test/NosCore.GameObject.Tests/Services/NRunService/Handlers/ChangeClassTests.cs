@@ -37,6 +37,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.Infastructure;
 
 //TODO stop using obsolete
 #pragma warning disable 618

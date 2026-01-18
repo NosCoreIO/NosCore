@@ -2,7 +2,6 @@
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.Networking;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
 using Serilog;

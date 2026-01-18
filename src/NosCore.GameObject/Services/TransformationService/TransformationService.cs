@@ -26,6 +26,7 @@ using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.ComponentEntities.Entities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;

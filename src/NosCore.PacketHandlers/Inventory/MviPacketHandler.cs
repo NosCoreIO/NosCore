@@ -18,11 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Inventory;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Inventory
 {

@@ -30,13 +30,11 @@ using NosCore.Core.Services.IdService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking.SessionGroup;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
@@ -45,6 +43,8 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Tests.CharacterScreen
 {

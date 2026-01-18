@@ -21,7 +21,6 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Shops;
@@ -29,6 +28,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Shops
 {

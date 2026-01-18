@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations.Miniland;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Warehouse;
@@ -27,6 +26,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 using Mapster;
 using NosCore.Data.Dto;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Warehouse
 {

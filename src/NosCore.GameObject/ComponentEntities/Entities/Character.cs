@@ -33,10 +33,11 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.NRunService;
@@ -61,7 +62,6 @@ using NodaTime;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapChangeService;
-using NosCore.GameObject.Services.SkillService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Core.I18N;
 using NosCore.Networking;
@@ -69,7 +69,7 @@ using NosCore.Networking.SessionGroup;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.ComponentEntities.Entities
 {
     public class Character(IInventoryService inventory, IExchangeService exchangeService,
             IItemGenerationService itemProvider,

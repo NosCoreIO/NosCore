@@ -19,13 +19,13 @@
 
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
 using System.Linq;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 

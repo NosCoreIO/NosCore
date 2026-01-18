@@ -19,7 +19,6 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
@@ -28,6 +27,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;

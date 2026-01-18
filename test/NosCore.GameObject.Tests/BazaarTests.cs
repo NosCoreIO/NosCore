@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Json.More;
@@ -30,7 +31,6 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Holders;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Services.BazaarService;
 using NosCore.Tests.Shared;
@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Tests
         public delegate SaveResult DelegateInsert(ref BazaarItemDto y);
 
         private BazaarHub? _bazaarController;
-        private BazaarItemsHolder? _bazaarItemsHolder;
+        private BazaarRegistry? _bazaarItemsHolder;
         private Guid _guid;
         private Mock<IDao<BazaarItemDto, long>>? _mockBzDao;
         private Mock<IDao<IItemInstanceDto?, Guid>>? _mockItemDao;
@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Tests
 
             var mockCharacterDao = new Mock<IDao<CharacterDto, long>>();
             _bazaarItemsHolder =
-                new BazaarItemsHolder(_mockBzDao.Object, _mockItemDao.Object, mockCharacterDao.Object);
+                new BazaarRegistry(_mockBzDao.Object, _mockItemDao.Object, mockCharacterDao.Object);
             _bazaarController = new BazaarHub(new BazaarService(_bazaarItemsHolder, _mockBzDao.Object, _mockItemDao.Object, TestHelpers.Instance.Clock));
             _mockItemDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .Returns<IItemInstanceDto?>(Task.FromResult);
@@ -88,8 +88,8 @@ namespace NosCore.GameObject.Tests
                     ItemInstanceId = _guid,
                     Price = 50
                 }).ConfigureAwait(false);
-            Assert.AreEqual(_guid, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.ItemInstanceId);
-            Assert.AreEqual(99, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.Amount ?? 0);
+            Assert.AreEqual(_guid, _bazaarItemsHolder?.GetById(0)?.BazaarItem?.ItemInstanceId);
+            Assert.AreEqual(99, _bazaarItemsHolder?.GetById(0)?.BazaarItem?.Amount ?? 0);
             Assert.AreEqual(LanguageKey.OBJECT_IN_BAZAAR, add);
         }
 
@@ -115,8 +115,8 @@ namespace NosCore.GameObject.Tests
                     ItemInstanceId = _guid,
                     Price = 50
                 }).ConfigureAwait(false);
-            Assert.AreNotEqual(_guid, _bazaarItemsHolder!.BazaarItems[0].BazaarItem?.ItemInstanceId);
-            Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Amount ?? 0);
+            Assert.AreNotEqual(_guid, _bazaarItemsHolder!.GetById(0)?.BazaarItem?.ItemInstanceId);
+            Assert.AreEqual(50, _bazaarItemsHolder.GetById(0)?.BazaarItem?.Amount ?? 0);
             Assert.AreEqual(LanguageKey.OBJECT_IN_BAZAAR, add);
         }
 
@@ -247,7 +247,7 @@ namespace NosCore.GameObject.Tests
                     }).ConfigureAwait(false);
             }
 
-            Assert.AreEqual(10, _bazaarItemsHolder!.BazaarItems.Count);
+            Assert.AreEqual(10, _bazaarItemsHolder!.GetAll().Count());
             Assert.AreEqual(LanguageKey.LIMIT_EXCEEDED, add);
         }
 
@@ -324,9 +324,9 @@ namespace NosCore.GameObject.Tests
                    Price = 50
                }).ConfigureAwait(false);
             Assert.AreEqual(true, await _bazaarController.DeleteBazaarAsync(0, 99, "test2").ConfigureAwait(false));
-            Assert.AreEqual(1, _bazaarItemsHolder!.BazaarItems.Values.Count);
-            Assert.AreEqual(0, _bazaarItemsHolder.BazaarItems[0].ItemInstance?.Amount ?? 0);
-            Assert.AreEqual(99, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Amount ?? 0);
+            Assert.AreEqual(1, _bazaarItemsHolder!.GetAll().Count());
+            Assert.AreEqual(0, _bazaarItemsHolder.GetById(0)?.ItemInstance?.Amount ?? 0);
+            Assert.AreEqual(99, _bazaarItemsHolder.GetById(0)?.BazaarItem?.Amount ?? 0);
         }
 
         [TestMethod]
@@ -352,7 +352,7 @@ namespace NosCore.GameObject.Tests
                     Price = 50
                 }).ConfigureAwait(false);
             Assert.AreEqual(true, await _bazaarController.DeleteBazaarAsync(0, 99, "test").ConfigureAwait(false));
-            Assert.AreEqual(0, _bazaarItemsHolder!.BazaarItems.Values.Count);
+            Assert.AreEqual(0, _bazaarItemsHolder!.GetAll().Count());
         }
 
         [TestMethod]
@@ -392,7 +392,7 @@ namespace NosCore.GameObject.Tests
                 }).ConfigureAwait(false);
             var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse("/BazaarItem/Price"), 50.AsJsonElement().AsNode()));
             Assert.IsNotNull(await _bazaarController.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
-            Assert.AreEqual(50, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.Price);
+            Assert.AreEqual(50, _bazaarItemsHolder?.GetById(0)?.BazaarItem?.Price);
         }
 
         [TestMethod]
@@ -417,10 +417,10 @@ namespace NosCore.GameObject.Tests
                     ItemInstanceId = _guid,
                     Price = 50
                 }).ConfigureAwait(false);
-            _bazaarItemsHolder!.BazaarItems[0].ItemInstance!.Amount--;
+            _bazaarItemsHolder!.GetById(0)!.ItemInstance!.Amount--;
             var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse("/BazaarItem/Price"), 10.AsJsonElement().AsNode()));
             Assert.IsNull(await _bazaarController.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
-            Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Price);
+            Assert.AreEqual(50, _bazaarItemsHolder.GetById(0)?.BazaarItem?.Price);
         }
     }
 }

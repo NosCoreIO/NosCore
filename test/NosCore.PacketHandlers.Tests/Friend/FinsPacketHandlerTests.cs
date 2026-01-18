@@ -28,8 +28,6 @@ using NosCore.Core;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
-using NosCore.GameObject;
-using NosCore.GameObject.Holders;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -42,6 +40,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.ComponentEntities.Entities;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Tests.Friend
@@ -56,7 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private Mock<IChannelHub>? _channelHub;
         private FinsPacketHandler? _finsPacketHandler;
         private readonly Mock<IFriendHub> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
-        private FriendRequestHolder? _friendRequestHolder;
+        private FriendRequestRegistry? _friendRequestHolder;
 
         private ClientSession? _session;
         private ClientSession? _targetSession;
@@ -81,7 +80,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     }
 
                 });
-            _friendRequestHolder = new FriendRequestHolder();
+            _friendRequestHolder = new FriendRequestRegistry();
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
@@ -101,8 +100,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestMethod]
         public async Task Test_Add_FriendAsync()
         {
-            _friendRequestHolder!.FriendRequestCharacters.TryAdd(Guid.NewGuid(),
-                new Tuple<long, long>(_targetSession!.Character.CharacterId, _session!.Character.CharacterId));
+            _friendRequestHolder!.RegisterRequest(Guid.NewGuid(),
+                _targetSession!.Character.CharacterId, _session!.Character.CharacterId);
             var finsPacket = new FinsPacket
             {
                 CharacterId = _targetSession.Character.CharacterId,

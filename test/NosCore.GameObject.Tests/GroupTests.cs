@@ -31,6 +31,8 @@ using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.SpeedCalculationService;

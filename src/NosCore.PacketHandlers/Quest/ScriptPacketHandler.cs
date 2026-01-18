@@ -17,11 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Quest;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Quest
 {

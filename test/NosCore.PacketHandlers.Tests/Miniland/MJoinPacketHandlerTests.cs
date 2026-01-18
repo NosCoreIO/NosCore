@@ -25,7 +25,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
-using NosCore.GameObject;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
@@ -39,6 +38,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.ComponentEntities.Entities;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Tests.Miniland

@@ -18,13 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.ClientPackets.Inventory;
 using System;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Inventory
 {

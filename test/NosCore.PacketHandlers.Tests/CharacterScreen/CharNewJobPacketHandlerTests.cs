@@ -21,12 +21,12 @@ using System.Threading.Tasks;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.PacketHandlers.Tests.CharacterScreen
 {

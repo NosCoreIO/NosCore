@@ -24,7 +24,6 @@ using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
@@ -41,6 +40,7 @@ using NosCore.Networking;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
@@ -152,7 +152,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             // load characterlist packet for each character in Character
             await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 }).ConfigureAwait(false);
-            foreach (var character in characters!.Select(characterDto => characterDto.Adapt<GameObject.Character>()))
+            foreach (var character in characters!.Select(characterDto => characterDto.Adapt<GameObject.ComponentEntities.Entities.Character>()))
             {
                 var equipment = new WearableInstance?[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = _iteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);

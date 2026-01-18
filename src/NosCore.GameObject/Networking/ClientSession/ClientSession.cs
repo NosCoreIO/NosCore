@@ -35,6 +35,8 @@ using NosCore.GameObject.Services.PacketHandlerService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {

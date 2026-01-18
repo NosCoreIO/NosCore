@@ -23,7 +23,6 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -42,6 +41,7 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Shared.I18N;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
 namespace NosCore.PacketHandlers.CharacterScreen
@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     return;
                 }
 
-                var character = characterDto.Adapt<GameObject.Character>();
+                var character = characterDto.Adapt<GameObject.ComponentEntities.Entities.Character>();
                 character.InitializeGroup();
                 await pubSubHub.SubscribeAsync(new Subscriber
                 {

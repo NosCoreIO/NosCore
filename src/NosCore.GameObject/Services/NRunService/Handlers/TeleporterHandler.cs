@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.GameObject.Services.NRunService.Handlers
 {

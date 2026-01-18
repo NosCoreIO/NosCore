@@ -28,7 +28,6 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Holders;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -82,7 +81,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.GameLanguageLocalizer, new NosCore.GameObject.Services.BroadcastService.SessionRegistry());
             _characterDao = new Mock<IDao<CharacterDto, long>>();
             _friendController = new FriendService(Logger, _characterRelationDao, _characterDao.Object,
-                new FriendRequestHolder(), _connectedAccountHttpClient.Object, _channelHub.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                new FriendRequestRegistry(), _connectedAccountHttpClient.Object, _channelHub.Object, TestHelpers.Instance.LogLanguageLocalizer);
             _friendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .Returns((long id) => _friendController.GetFriendsAsync(id));
             _friendHttpClient.Setup(s => s.DeleteAsync(It.IsAny<Guid>()))

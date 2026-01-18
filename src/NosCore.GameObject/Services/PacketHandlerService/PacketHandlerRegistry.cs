@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using NosCore.GameObject.Infastructure;
 using NosCore.Packets.Attributes;
 
 namespace NosCore.GameObject.Services.PacketHandlerService

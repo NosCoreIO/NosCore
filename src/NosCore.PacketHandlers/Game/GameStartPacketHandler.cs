@@ -20,7 +20,6 @@
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Buff;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
@@ -32,6 +31,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;

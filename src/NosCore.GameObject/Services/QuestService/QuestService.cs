@@ -36,6 +36,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.GameObject.Services.QuestService
 {

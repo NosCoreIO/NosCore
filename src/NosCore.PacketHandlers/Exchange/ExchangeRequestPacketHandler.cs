@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking.ClientSession;
@@ -35,6 +34,8 @@ using Serilog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Exchange
 {

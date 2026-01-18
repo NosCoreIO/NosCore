@@ -22,11 +22,11 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.Encryption;
 using NosCore.Data.Enumerations.Character;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Tests.Shared;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Tests.CharacterScreen
 {

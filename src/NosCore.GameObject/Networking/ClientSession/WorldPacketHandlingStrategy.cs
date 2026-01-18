@@ -20,11 +20,10 @@
 using System.Threading.Tasks;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.Infastructure;
 using NosCore.Networking.SessionRef;
 using NosCore.Packets.Attributes;
-using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
-using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;

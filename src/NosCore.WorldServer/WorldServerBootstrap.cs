@@ -69,7 +69,6 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Data.CommandPackets;
-using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
@@ -81,12 +80,18 @@ using FastMember;
 using Microsoft.Extensions.Options;
 using NosCore.Data.DataAttributes;
 using NosCore.Data;
+using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.Packets;
 using ILogger = Serilog.ILogger;
-using Character = NosCore.GameObject.Character;
+using Character = NosCore.GameObject.ComponentEntities.Entities.Character;
 using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
+using NosCore.GameObject.Services.GroupService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Services.ExchangeService;
 
 namespace NosCore.WorldServer
 {
@@ -220,9 +225,9 @@ namespace NosCore.WorldServer
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces();
 
-            containerBuilder.RegisterAssemblyTypes(typeof(MapInstanceHolder).Assembly)
-                .Where(t => t.Name.EndsWith("Holder"))
-                .SingleInstance();
+            containerBuilder.RegisterType<MapInstanceRegistry>().As<IMapInstanceRegistry>().SingleInstance();
+            containerBuilder.RegisterType<MinilandRegistry>().As<IMinilandRegistry>().SingleInstance();
+            containerBuilder.RegisterType<ExchangeRequestRegistry>().As<IExchangeRequestRegistry>().SingleInstance();
 
             RegisterDto(containerBuilder);
 

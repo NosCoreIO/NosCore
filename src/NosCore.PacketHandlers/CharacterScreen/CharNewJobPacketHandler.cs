@@ -21,13 +21,13 @@ using Mapster;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {

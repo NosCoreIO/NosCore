@@ -25,7 +25,6 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -38,6 +37,7 @@ using NosCore.Shared.Enumerations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 
 namespace NosCore.PacketHandlers.Bazaar

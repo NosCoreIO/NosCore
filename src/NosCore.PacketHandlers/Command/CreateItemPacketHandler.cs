@@ -24,7 +24,6 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -38,6 +37,7 @@ using NosCore.Shared.I18N;
 using Serilog;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Command
 {

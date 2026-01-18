@@ -1,10 +1,6 @@
 ﻿using NosCore.Packets.Attributes;
 using NosCore.Packets;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NosCore.Packets.Enumerations;
 
 //todo move to NosCore.Packets

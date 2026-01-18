@@ -19,7 +19,6 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Movement;
@@ -27,6 +26,7 @@ using NosCore.PathFinder.Interfaces;
 using Serilog;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Infastructure;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Shared.I18N;

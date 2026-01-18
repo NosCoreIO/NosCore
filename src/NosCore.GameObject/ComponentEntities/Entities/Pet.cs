@@ -20,14 +20,16 @@
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Concurrent;
 using NodaTime;
 using System.Threading;
 
-namespace NosCore.GameObject
+namespace NosCore.GameObject.ComponentEntities.Entities
 {
     public class Pet : MapMonsterDto, INamedEntity //TODO replace MapMonsterDTO by the correct PetDTO
     {

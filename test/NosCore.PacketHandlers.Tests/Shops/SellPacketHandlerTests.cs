@@ -25,7 +25,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -40,6 +39,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Tests.Shops
 {

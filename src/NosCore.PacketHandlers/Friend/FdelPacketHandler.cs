@@ -20,13 +20,13 @@
 using System.Linq;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;

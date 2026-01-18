@@ -1,19 +1,19 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -23,13 +23,11 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using Serilog;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,6 +36,7 @@ using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Shared.I18N;
 using NosCore.Networking.SessionGroup;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
@@ -46,7 +45,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             IMapItemGenerationService mapItemGenerationService, IDao<MapNpcDto, int> mapNpcs,
             IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems,
             ILogger logger, EventLoaderService<MapInstance,
-                MapInstance, IMapInstanceEntranceEventHandler> entranceRunnerService, MapInstanceHolder holder,
+                MapInstance, IMapInstanceEntranceEventHandler> entranceRunnerService, IMapInstanceRegistry mapInstanceRegistry,
             IMapInstanceAccessorService mapInstanceAccessorService,
             IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
@@ -54,15 +53,17 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
     {
         public Task AddMapInstanceAsync(MapInstance mapInstance)
         {
-            holder.MapInstances.TryAdd(mapInstance.MapInstanceId, mapInstance);
+            mapInstanceRegistry.Register(mapInstance.MapInstanceId, mapInstance);
             entranceRunnerService.LoadHandlers(mapInstance);
             return LoadPortalsAsync(mapInstance, portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId)?.ToList() ?? new List<PortalDto>());
         }
 
         public void RemoveMap(Guid mapInstanceId)
         {
-            holder.MapInstances.TryRemove(mapInstanceId, out var mapInstance);
-            mapInstance?.Kick();
+            if (mapInstanceRegistry.Unregister(mapInstanceId, out var mapInstance))
+            {
+                mapInstance?.Kick();
+            }
         }
 
         public async Task InitializeAsync()
@@ -86,7 +87,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             var portals = portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
 
             var mapsdic = maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
-            holder.MapInstances = new ConcurrentDictionary<Guid, MapInstance>(maps.Adapt<List<Map.Map>>().ToDictionary(
+            var mapInstances = maps.Adapt<List<Map.Map>>().ToDictionary(
                 map => mapsdic[map.MapId],
                 map =>
                 {
@@ -116,10 +117,12 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     }
                     entranceRunnerService.LoadHandlers(mapinstance);
                     return mapinstance;
-                }));
+                });
 
-            await Task.WhenAll(holder.MapInstances.Values.Select(s => s.StartLifeAsync())).ConfigureAwait(false);
-            await Task.WhenAll(holder.MapInstances.Values.Select(mapInstance => portals.TryGetValue(mapInstance.Map.MapId, out var portal) ? LoadPortalsAsync(mapInstance, portal) : Task.CompletedTask)).ConfigureAwait(false);
+            mapInstanceRegistry.SetAll(mapInstances);
+
+            await Task.WhenAll(mapInstanceRegistry.GetAll().Select(s => s.StartLifeAsync())).ConfigureAwait(false);
+            await Task.WhenAll(mapInstanceRegistry.GetAll().Select(mapInstance => portals.TryGetValue(mapInstance.Map.MapId, out var portal) ? LoadPortalsAsync(mapInstance, portal) : Task.CompletedTask)).ConfigureAwait(false);
         }
 
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)

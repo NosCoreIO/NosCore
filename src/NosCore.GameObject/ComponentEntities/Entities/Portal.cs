@@ -17,14 +17,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Concurrent;
+using NosCore.Data.StaticEntities;
+using NosCore.Packets.ServerPackets.Portals;
+using System;
 
-namespace NosCore.GameObject.Holders
+namespace NosCore.GameObject.ComponentEntities.Entities
 {
-    public class ExchangeRequestHolder
+    public class Portal : PortalDto
     {
-        public readonly ConcurrentDictionary<long, ExchangeData> ExchangeDatas = new();
+        public Guid DestinationMapInstanceId { get; set; }
+        public Guid SourceMapInstanceId { get; set; }
 
-        public readonly ConcurrentDictionary<long, long> ExchangeRequests = new();
+        public GpPacket GenerateGp()
+        {
+            return new GpPacket
+            {
+                SourceX = SourceX,
+                SourceY = SourceY,
+                MapId = DestinationMapId,
+                PortalType = Type,
+                PortalId = PortalId,
+                IsDisabled = IsDisabled
+            };
+        }
     }
 }

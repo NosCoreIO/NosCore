@@ -19,9 +19,7 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.Packets.ClientPackets.Exchanges;
@@ -31,6 +29,7 @@ using NosCore.Shared.I18N;
 using Serilog;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.PacketHandlers.Exchange
@@ -51,7 +50,7 @@ namespace NosCore.PacketHandlers.Exchange
 
             var target = sessionRegistry.GetCharacter(s =>
                 (s.VisualId == exchangeService.GetTargetId(clientSession.Character.VisualId)) &&
-                (s.MapInstanceId == clientSession.Character.MapInstanceId)) as Character;
+                (s.MapInstanceId == clientSession.Character.MapInstanceId)) as GameObject.ComponentEntities.Entities.Character;
 
             if ((packet.SubPackets!.Count > 0) && (target != null))
             {

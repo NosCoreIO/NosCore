@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Packets.ClientPackets.Drops;
@@ -29,6 +28,8 @@ using Serilog;
 using System;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Infastructure;
 using NosCore.Shared.I18N;
 using NosCore.Packets.ServerPackets.Chats;
 

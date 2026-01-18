@@ -49,20 +49,20 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceAccessService;
-using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
-using NosCore.Networking.SessionGroup;
 using NosCore.Networking.SessionRef;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
-using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Services.ShopService;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.GameObject.Tests
 {

@@ -22,7 +22,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ServerPackets.Map;
 using NosCore.Packets.ServerPackets.Miniland;
 
-namespace NosCore.GameObject.Services.MapInstanceGenerationService
+namespace NosCore.GameObject.ComponentEntities.Entities
 {
     public class MapDesignObject : MinilandObjectDto
     {

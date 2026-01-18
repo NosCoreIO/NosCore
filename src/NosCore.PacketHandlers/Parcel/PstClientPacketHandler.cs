@@ -23,7 +23,6 @@ using Json.Patch;
 using Json.Pointer;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Parcel;
 using NosCore.Packets.Enumerations;
@@ -31,8 +30,9 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.GameObject.Helper;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
+using NosCore.GameObject.Services.MailService;
 
 namespace NosCore.PacketHandlers.Parcel
 {

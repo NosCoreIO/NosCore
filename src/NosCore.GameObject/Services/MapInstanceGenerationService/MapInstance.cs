@@ -20,7 +20,6 @@
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapItemGenerationService;
@@ -40,6 +39,7 @@ using NodaTime;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Networking.SessionGroup;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService

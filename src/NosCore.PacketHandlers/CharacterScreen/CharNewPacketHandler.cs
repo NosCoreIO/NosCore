@@ -25,9 +25,7 @@ using NosCore.Core.Configuration;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -42,6 +40,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -113,7 +112,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     };
                     await minilandDao.TryInsertOrUpdateAsync(miniland).ConfigureAwait(false);
 
-                    var charaGo = chara.Adapt<Character>();
+                    var charaGo = chara.Adapt<GameObject.ComponentEntities.Entities.Character>();
                     var itemsToAdd = new List<BasicEquipment>();
                     foreach (var item in _worldConfiguration.BasicEquipments)
                     {

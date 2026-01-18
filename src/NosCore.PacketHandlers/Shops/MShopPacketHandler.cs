@@ -19,7 +19,6 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.NRunService;
@@ -33,6 +32,8 @@ using NosCore.Shared.Enumerations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 

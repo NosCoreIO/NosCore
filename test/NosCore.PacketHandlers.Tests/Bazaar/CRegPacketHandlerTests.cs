@@ -31,7 +31,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.GameObject;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -46,6 +45,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Tests.Bazaar
 {

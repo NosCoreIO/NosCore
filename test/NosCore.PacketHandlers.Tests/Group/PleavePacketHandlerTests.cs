@@ -24,7 +24,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -36,6 +35,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Tests.Shared;
 using Serilog;
+using Group = NosCore.GameObject.Services.GroupService.Group;
 
 namespace NosCore.PacketHandlers.Tests.Group
 {
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Tests.Group
         public async Task SetupAsync()
         {
             Broadcaster.Reset();
-            var idServer = new IdService<GameObject.Group>(1);
+            var idServer = new IdService<NosCore.GameObject.Services.GroupService.Group>(1);
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
                 var session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Tests.Group
                 _sessions.Add(i, session);
                 var sessionGroupFactoryMock = new Mock<ISessionGroupFactory>();
                 sessionGroupFactoryMock.Setup(x => x.Create()).Returns(new Mock<ISessionGroup>().Object);
-                session.Character.Group = new GameObject.Group(GroupType.Group, sessionGroupFactoryMock.Object);
+                session.Character.Group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, sessionGroupFactoryMock.Object);
                 session.Character.Group.JoinGroup(session.Character);
             }
 

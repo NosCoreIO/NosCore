@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MinilandService;
@@ -29,6 +28,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;

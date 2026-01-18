@@ -19,7 +19,6 @@
 
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Packets.Attributes;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;

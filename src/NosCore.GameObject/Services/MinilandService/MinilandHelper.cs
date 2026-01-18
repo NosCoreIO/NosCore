@@ -20,8 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.Services.MailService;
 
-namespace NosCore.GameObject.Helper
+namespace NosCore.GameObject.Services.MinilandService
 {
     public sealed class MinilandHelper
     {

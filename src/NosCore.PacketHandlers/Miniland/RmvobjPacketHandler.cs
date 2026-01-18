@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Miniland;
@@ -26,6 +25,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Miniland
 {

@@ -19,7 +19,6 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Relations;
@@ -28,6 +27,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 
 namespace NosCore.PacketHandlers.Friend

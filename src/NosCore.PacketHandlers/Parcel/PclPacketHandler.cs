@@ -19,7 +19,6 @@
 
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -32,6 +31,7 @@ using NosCore.Shared.Enumerations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 
 namespace NosCore.PacketHandlers.Parcel

@@ -31,6 +31,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Networking;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {

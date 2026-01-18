@@ -19,7 +19,6 @@
 
 using System.Linq;
 using NosCore.Data.CommandPackets;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -27,7 +26,8 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.GameObject.Helper;
+using NosCore.GameObject.Services.MailService;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 

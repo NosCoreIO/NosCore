@@ -19,7 +19,6 @@
 
 using NosCore.Algorithm.DignityService;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
@@ -29,6 +28,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Shops
 {

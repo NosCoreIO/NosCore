@@ -20,7 +20,6 @@
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
@@ -33,6 +32,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Core.Services.IdService;
+using NosCore.GameObject.Infastructure;
 using NosCore.Networking;
 using NosCore.Shared.I18N;
 using NosCore.Packets.ServerPackets.Chats;
@@ -42,7 +42,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 namespace NosCore.PacketHandlers.Group
 {
     public class PjoinPacketHandler(ILogger logger, IBlacklistHub blacklistHttpCLient, IClock clock,
-            IIdService<GameObject.Group> groupIdService,
+            IIdService<GameObject.Services.GroupService.Group> groupIdService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer,
             ISessionRegistry sessionRegistry)
         : PacketHandler<PjoinPacket>, IWorldPacketHandler

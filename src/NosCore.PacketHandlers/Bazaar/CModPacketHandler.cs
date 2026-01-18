@@ -22,8 +22,6 @@ using Json.More;
 using Json.Patch;
 using Json.Pointer;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
@@ -33,6 +31,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 
 namespace NosCore.PacketHandlers.Bazaar

@@ -37,6 +37,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
 {

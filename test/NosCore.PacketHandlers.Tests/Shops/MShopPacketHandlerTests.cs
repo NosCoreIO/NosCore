@@ -26,7 +26,6 @@ using Moq;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking.SessionGroup;
@@ -43,6 +42,9 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.ComponentEntities.Entities;
+using Group = NosCore.GameObject.Services.GroupService.Group;
+using NosCore.GameObject.Infastructure;
 
 //TODO stop using obsolete
 #pragma warning disable 618
@@ -109,7 +111,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
-            _session.Character.Group = new GameObject.Group(GroupType.Team, new Mock<ISessionGroupFactory>().Object);
+            _session.Character.Group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Team, new Mock<ISessionGroupFactory>().Object);
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Red && packet?.Message == Game18NConstString.TeammateCanNotOpenShop);
@@ -121,7 +123,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
-            _session.Character.Group = new GameObject.Group(GroupType.Group, new Mock<ISessionGroupFactory>().Object);
+            _session.Character.Group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, new Mock<ISessionGroupFactory>().Object);
             await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsNull(packet);

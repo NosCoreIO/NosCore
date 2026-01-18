@@ -19,13 +19,13 @@
 
 using NosCore.Core.Extensions;
 using NosCore.Data.CommandPackets;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Command
 {

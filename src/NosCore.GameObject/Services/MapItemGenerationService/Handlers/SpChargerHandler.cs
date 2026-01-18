@@ -24,6 +24,7 @@ using NosCore.Packets.ClientPackets.Drops;
 using System;
 using System.Threading.Tasks;
 using NosCore.Networking;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {

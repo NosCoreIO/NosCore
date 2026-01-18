@@ -29,8 +29,9 @@ using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Services.MapItemGenerationService;
 
-namespace NosCore.GameObject.Services.MapItemGenerationService
+namespace NosCore.GameObject.ComponentEntities.Entities
 {
     public class MapItem(long visualId) : ICountableEntity, IRequestableEntity<Tuple<MapItem, GetPacket>>
     {

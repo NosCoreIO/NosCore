@@ -18,13 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Dto;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Quicklist;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Quicklist;
 using System;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Game
 {

@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
@@ -30,11 +29,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Services.IdService;
+using NosCore.GameObject.Infastructure;
 using NosCore.Networking;
 
 namespace NosCore.PacketHandlers.Group
 {
-    public class PleavePacketHandler(IIdService<GameObject.Group> groupIdService, ISessionRegistry sessionRegistry) : PacketHandler<PleavePacket>,
+    public class PleavePacketHandler(IIdService<GameObject.Services.GroupService.Group> groupIdService, ISessionRegistry sessionRegistry) : PacketHandler<PleavePacket>,
         IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PleavePacket bIPacket, ClientSession clientSession)
